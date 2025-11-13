@@ -6,6 +6,8 @@ const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
+// 3. getAccessTokenSecret() and getRefreshTokenSecret() (or use config.js)
+
 // Signup Function
 const register = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -22,29 +24,40 @@ const register = catchAsync(async (req, res, next) => {
 
   const hashed = await bcrypt.hash(password, 12);
 
-  const newUser = await User.create({ username, email, password: hashed });
-  const refreshTokenString = authUtils.generateRefreshTokenString();
+  const newUser = await User.create({
+    username,
+    email,
+    password: hashed,
+    refreshTokenVersion: 0,
+  });
 
-  // Generate token
   const accessToken = authUtils.generateToken(
     {
       id: newUser._id,
+      username: newUser.username,
       isAdmin: newUser.isAdmin,
     },
-    authUtils.tokenTypes.ACCESS,
-    authUtils.getTokenExpiration(authUtils.tokenTypes.ACCESS)
+    authUtils.getAccessTokenSecret(),
+    authUtils.ACCESS_TOKEN_LIFESPAN
   );
 
-  const refreshTokenExpires = new Date(
-    Date.now() + authUtils.getTokenLifespanMs(authUtils.tokenTypes.REFRESH)
+  const { tokenLifespan, cookieMaxAge } =
+    authUtils.getRefreshTokenSettings(false);
+
+  const refreshToken = authUtils.generateToken(
+    {
+      id: newUser._id,
+      refreshTokenVersion: newUser.refreshTokenVersion,
+      rememberMe: false,
+    },
+    authUtils.getRefreshTokenSecret(),
+    tokenLifespan
   );
 
-  newUser.refreshTokens.push({
-    token: refreshTokenString,
-    expiresAt: refreshTokenExpires,
+  res.cookie("refreshToken", refreshToken, {
+    ...authUtils.REFRESH_COOKIE_OPTIONS,
+    maxAge: cookieMaxAge,
   });
-
-  await newUser.save();
 
   sendJsonResponse(res, 201, "Signup successful.", {
     accessToken,
@@ -53,7 +66,6 @@ const register = catchAsync(async (req, res, next) => {
       username: newUser.username,
       isAdmin: newUser.isAdmin,
     },
-    refreshToken: refreshTokenString,
   });
 });
 
@@ -75,37 +87,38 @@ const login = catchAsync(async (req, res, next) => {
     );
   }
 
-  const refreshTokenString = authUtils.generateRefreshTokenString();
-
-  // Generate token
   const accessToken = authUtils.generateToken(
-    { id: user._id, isAdmin: user.isAdmin },
-    authUtils.tokenTypes.ACCESS,
-    authUtils.getTokenExpiration(authUtils.tokenTypes.ACCESS)
+    { id: user._id, username: user.username, isAdmin: user.isAdmin },
+    authUtils.getAccessTokenSecret(),
+    authUtils.ACCESS_TOKEN_LIFESPAN
   );
 
-  const refreshTokenExpires = new Date(
-    Date.now() +
-      (rememberMe
-        ? authUtils.getTokenLifespanMs(authUtils.tokenTypes.REMEMBER_ME)
-        : authUtils.getTokenLifespanMs(authUtils.tokenTypes.REFRESH))
+  const { tokenLifespan, cookieMaxAge } = authUtils.getRefreshTokenSettings(
+    !!rememberMe
   );
 
-  user.refreshTokens.push({
-    token: refreshTokenString,
-    expiresAt: refreshTokenExpires,
+  const refreshToken = authUtils.generateToken(
+    {
+      id: user._id,
+      refreshTokenVersion: user.refreshTokenVersion,
+      rememberMe: !!rememberMe,
+    },
+    authUtils.getRefreshTokenSecret(),
+    tokenLifespan
+  );
+
+  res.cookie("refreshToken", refreshToken, {
+    ...authUtils.REFRESH_COOKIE_OPTIONS,
+    maxAge: cookieMaxAge,
   });
-
-  await user.save();
 
   sendJsonResponse(res, 200, "Login successful", {
     accessToken,
     user: { id: user._id, username: user.username, isAdmin: user.isAdmin },
-    refreshToken: refreshTokenString,
   });
 });
 
-const getMe = catchAsync(async (req, res, next) => {
+const getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id).select("-password");
 
   if (!user) {
@@ -118,41 +131,83 @@ const getMe = catchAsync(async (req, res, next) => {
 });
 
 const refreshToken = catchAsync(async (req, res, next) => {
-  const { refreshToken } = req.body;
+  const refreshTokenCookie = req.cookies.refreshToken;
 
-  if (!refreshToken) {
-    return next(new AppError("Refresh token is required.", 400));
+  if (!refreshTokenCookie) {
+    authUtils.clearRefreshTokenCookie(res);
+    return next(new AppError("No refresh token provided.", 401));
   }
 
-  const user = await User.findOne({ "refreshTokens.token": refreshToken });
-
+  let decoded;
   try {
-    authUtils.verifyRefreshToken(refreshToken, user);
-
-    const accessToken = authUtils.generateToken(
-      { id: user._id, isAdmin: user.isAdmin },
-      authUtils.tokenTypes.ACCESS
+    decoded = authUtils.verifyToken(
+      refreshTokenCookie,
+      authUtils.getRefreshTokenSecret()
     );
-
-    sendJsonResponse(res, 200, "Token refreshed successfully.", {
-      accessToken,
-      user: { id: user._id, username: user.username, isAdmin: user.isAdmin },
-    });
   } catch (error) {
+    authUtils.clearRefreshTokenCookie(res);
     return next(new AppError("Invalid or expired refresh token.", 401));
   }
+
+  const user = await User.findById(decoded.id);
+
+  if (!user || user.isBlocked) {
+    authUtils.clearRefreshTokenCookie(res);
+    return next(new AppError("Invalid account or account is blocked.", 403));
+  }
+
+  if (decoded.refreshTokenVersion !== user.refreshTokenVersion) {
+    authUtils.clearRefreshTokenCookie(res);
+    return next(
+      new AppError("Refresh token revoked. Please log in again.", 403)
+    );
+  }
+
+  const newAccessToken = authUtils.generateToken(
+    {
+      id: user._id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    },
+    authUtils.getAccessTokenSecret(),
+    authUtils.ACCESS_TOKEN_LIFESPAN
+  );
+
+  const isRememberMeToken = decoded.rememberMe;
+  const { tokenLifespan, cookieMaxAge } =
+    authUtils.getRefreshTokenSettings(isRememberMeToken);
+
+  const newRefreshToken = authUtils.generateToken(
+    {
+      id: user._id,
+      refreshTokenVersion: user.refreshTokenVersion,
+      rememberMe: isRememberMeToken,
+    },
+    authUtils.getRefreshTokenSecret(),
+    tokenLifespan
+  );
+
+  res.cookie("refreshToken", newRefreshToken, {
+    ...authUtils.REFRESH_COOKIE_OPTIONS,
+    maxAge: cookieMaxAge,
+  });
+
+  sendJsonResponse(res, 200, "Token refreshed successfully.", {
+    accessToken: newAccessToken,
+    user: { id: user._id, username: user.username, isAdmin: user.isAdmin },
+  });
 });
 
 const logout = catchAsync(async (req, res, next) => {
-  const user = req.user;
+  authUtils.clearRefreshTokenCookie(res);
 
-  if (!user) {
-    return next(new AppError("User not found.", 400));
+  if (req.user) {
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
+      await user.save();
+    }
   }
-
-  user.refreshTokens = [];
-
-  await user.save();
 
   return sendJsonResponse(res, 200, "Logged out successfully.");
 });
@@ -161,7 +216,7 @@ const logout = catchAsync(async (req, res, next) => {
 module.exports = {
   register,
   login,
-  getMe,
+  getUser,
   refreshToken,
   logout,
 };

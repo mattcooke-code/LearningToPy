@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Spinner from "../components/ui/Spinner";
 
 const Login = () => {
   // --- STATE MANAGEMENT ---
@@ -97,10 +98,13 @@ const Login = () => {
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-python-blue hover:bg-python-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Logging In...
-              </div>
+              <Spinner
+                size="sm"
+                color="white"
+                showText={true}
+                text="Logging In..."
+                center={false}
+              />
             ) : (
               "Log In"
             )}

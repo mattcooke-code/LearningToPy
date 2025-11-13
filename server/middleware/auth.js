@@ -10,19 +10,42 @@ const protect = catchAsync(async (req, res, next) => {
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
+    console.log("🔐 No token provided");
     return next(new AppError("Not authorized.", 401));
   }
 
-  const decoded = jwt.verify(token, authUtils.getAccessTokenSecret());
+  try {
+    console.log("🔐 Verifying token...");
+    const decoded = jwt.verify(token, authUtils.getAccessTokenSecret());
+    console.log("🔐 Token decoded for user ID:", decoded.id);
 
-  const user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(decoded.id).select("-password");
 
-  if (!user) {
-    return next(new AppError("User not found.", 401));
+    if (!user) {
+      console.log("🔐 User not found for ID:", decoded.id);
+      return next(new AppError("User not found.", 401));
+    }
+
+    // Check if user is blocked
+    if (user.isBlocked) {
+      console.log("🔐 User is blocked:", user.username);
+      return next(new AppError("User account is blocked.", 401));
+    }
+
+    console.log("🔐 User authorized:", user.username);
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("🔐 Token verification failed:", error.message);
+
+    if (error.name === "JsonWebTokenError") {
+      return next(new AppError("Invalid token.", 401));
+    } else if (error.name === "TokenExpiredError") {
+      return next(new AppError("Token expired.", 401));
+    } else {
+      return next(new AppError("Not authorized.", 401));
+    }
   }
-
-  req.user = user;
-  next();
 });
 
 module.exports = { protect };

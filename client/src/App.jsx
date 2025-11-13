@@ -7,10 +7,10 @@ import Navbar from "./components/layout/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import Lesson from "./pages/Lesson";
+import LessonPage from "./pages/LessonPage";
 import Login from "./pages/Login";
-import ModuleDetail from "./pages/ModuleDetail";
-import Modules from "./pages/Modules";
+import ModuleLessonsPage from "./pages/ModuleLessonsPage";
+import ModulesPage from "./pages/ModulesPage";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import { AuthProvider } from "./context/AuthContext";
@@ -21,9 +21,9 @@ function App() {
       <NotificationProvider>
         <AuthProvider>
           <Router>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+            <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex flex-col">
               <Navbar />
-              <main className="flex-grow">
+              <main className="grow">
                 <Routes>
                   {/* PUBLIC */}
                   <Route path="/" element={<Home />} />
@@ -43,23 +43,23 @@ function App() {
                     path="/modules"
                     element={
                       <ProtectedRoute>
-                        <Modules />
+                        <ModulesPage />
                       </ProtectedRoute>
                     }
                   />
                   <Route
-                    path="/module/:id"
+                    path="/modules/:moduleId/lessons"
                     element={
                       <ProtectedRoute>
-                        <ModuleDetail />
+                        <ModuleLessonsPage />
                       </ProtectedRoute>
                     }
                   />
                   <Route
-                    path="/lesson/:id"
+                    path="/lessons/:id"
                     element={
                       <ProtectedRoute>
-                        <Lesson />
+                        <LessonPage />
                       </ProtectedRoute>
                     }
                   />
@@ -73,7 +73,7 @@ function App() {
                   />
                 </Routes>
               </main>
-              ,<Footer />
+              <Footer />
             </div>
           </Router>
         </AuthProvider>

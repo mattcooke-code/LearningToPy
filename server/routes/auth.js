@@ -14,7 +14,31 @@ router.post("/refresh-token", authController.refreshToken);
 // === AUTHENTICATED ROUTES ===
 router.post("/logout", protect, authController.logout);
 
-router.get("/me", protect, authController.getMe);
+router.get("/user", protect, authController.getUser);
+
+// In auth.js routes - add debug route
+router.get("/debug/token", protect, (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "No token" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, authUtils.getAccessTokenSecret());
+    res.json({
+      tokenContent: decoded,
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        isAdmin: req.user.isAdmin,
+      },
+    });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+});
 
 // === EXPORT ===
 module.exports = router;

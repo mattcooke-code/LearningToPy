@@ -1,10 +1,9 @@
-// NotificationContext.jsx
 import { createContext, useContext, useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const NotificationContext = createContext();
 
-// Toast
+// Toast Component
 const Toast = ({ id, message, type, onClose }) => {
   const typeStyles = {
     info: "bg-blue-500 border-blue-600",
@@ -12,14 +11,16 @@ const Toast = ({ id, message, type, onClose }) => {
     error: "bg-red-500 border-red-600",
     warning: "bg-yellow-500 border-yellow-600",
   };
+
   return (
     <div
-      className={`flex items-center justify-between p-4 mb-2 rounded-lg border-1-4 text-white shadow-lg transform transition-all duration-300 animate-in slide-in-from-right-8 ${typeStyles[type]} min-w-[300px] max-w-md`}
+      className={`flex items-center justify-between p-4 mb-2 rounded-lg border-l-4 text-white shadow-lg transform transition-all duration-300 animate-in slide-in-from-bottom-8 ${typeStyles[type]} min-w-[300px] max-w-md`}
     >
       <span className="flex-1">{message}</span>
       <button
         onClick={() => onClose(id)}
-        className="ml-4 text-white hover:text-gray-200 transition-colors"
+        className="ml-4 text-white hover:text-gray-200 transition-colors text-lg font-bold"
+        aria-label="Close notification"
       >
         ×
       </button>
@@ -27,7 +28,7 @@ const Toast = ({ id, message, type, onClose }) => {
   );
 };
 
-// Confirmation Modal
+// Confirmation Modal Component
 const ConfirmationModal = ({
   isOpen,
   title,
@@ -76,13 +77,12 @@ export const NotificationProvider = ({ children }) => {
     cancelText: "Cancel",
   });
 
-  // Toast methods
   const showToast = useCallback((message, type = "info", duration = 5000) => {
     const id = uuidv4();
     setToasts((prev) => [...prev, { id, message, type, duration }]);
 
     setTimeout(() => {
-      removeToast(id);
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, duration);
   }, []);
 
@@ -129,8 +129,8 @@ export const NotificationProvider = ({ children }) => {
     <NotificationContext.Provider value={value}>
       {children}
 
-      {/* Toast Container - Fixed Position */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col items-end">
+      {/* Toast Container - Bottom Center */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center">
         {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} onClose={removeToast} />
         ))}
@@ -147,6 +147,5 @@ export const useNotification = () => {
   if (!context) {
     throw new Error("useNotification must be used within NotificationProvider");
   }
-
   return context;
 };

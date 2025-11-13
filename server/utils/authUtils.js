@@ -1,121 +1,76 @@
-// authUtils.js
+// authUtils.js (Adapted from Old Project)
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
+const config = require("../config/envConfig");
+const AppError = require("./AppError");
 
-// Token Types
-const tokenTypes = {
-  ACCESS: "access",
-  REFRESH: "refresh",
-  REMEMBER_ME: "remember_me",
-};
-
-// Token Lifespans
+// --- Token Lifespans ---
 const ACCESS_TOKEN_LIFESPAN = "15m";
-const REFRESH_TOKEN_LIFESPAN = "1h";
-const REMEMBER_ME_LIFESPAN = "30d";
+const REFRESH_TOKEN_LIFESPAN_SESSION = "1h";
+const REFRESH_TOKEN_LIFESPAN_REMEMBER_ME = "30d";
 
-const getAccessTokenSecret = () => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      process.exit(1);
-    }
-    console.warn(
-      `WARNING: JWT_SECRET is not set in ${process.env.NODE_ENV} environment. Using a fallback.`
-    );
-    return "super_secret_fallback";
-  }
-  return secret;
+// --- Cookie Max Ages (milliseconds) ---
+const COOKIE_MAX_AGE_SESSION = 60 * 60 * 1000; // 1 hour
+const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+// Common cookie options for refresh tokens
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: IS_PRODUCTION, // Use secure: true in production
+  sameSite: "Lax",
+  path: "/",
 };
 
-const getRefreshTokenSecret = () => {
-  const secret = process.env.REFRESH_TOKEN_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      process.exit(1);
-    }
-    console.warn(
-      `WARNING: JWT_SECRET is not set in ${process.env.NODE_ENV} environment. Using a fallback.`
-    );
-    return "super_secret_refresh_token_key";
-  }
-  return secret;
+const getRefreshTokenSettings = (rememberMe) => {
+  return {
+    tokenLifespan: rememberMe
+      ? REFRESH_TOKEN_LIFESPAN_REMEMBER_ME
+      : REFRESH_TOKEN_LIFESPAN_SESSION,
+    cookieMaxAge: rememberMe
+      ? COOKIE_MAX_AGE_REMEMBER_ME
+      : COOKIE_MAX_AGE_SESSION,
+  };
 };
 
-// Helper for JWT generation
-const generateToken = (payload, type = tokenTypes.ACCESS, expiresIn = null) => {
-  let secret;
-  let finalExpiresIn = expiresIn;
-
-  switch (type) {
-    case tokenTypes.ACCESS:
-      secret = getAccessTokenSecret();
-      finalExpiresIn = finalExpiresIn || ACCESS_TOKEN_LIFESPAN;
-      break;
-    case tokenTypes.REFRESH:
-      secret = getRefreshTokenSecret();
-      finalExpiresIn = finalExpiresIn || REFRESH_TOKEN_LIFESPAN;
-      break;
-  }
-  return jwt.sign(payload, secret, { expiresIn: finalExpiresIn });
-};
-
-const generateRefreshTokenString = () => {
-  const tokenString = crypto.randomBytes(32).toString("hex");
-  return tokenString;
-};
-
-const verifyRefreshToken = (tokenString, user) => {
-  const refreshToken = user.refreshTokens.find(
-    (tokenValue) => tokenValue.token === tokenString
-  );
-  if (refreshToken && refreshToken.expiresAt > Date.now()) {
-    return refreshToken;
-  } else {
-    throw new Error("Invalid or expired token");
-  }
-};
-
-const cleanupExpiredTokens = (user) => {
-  const validTokens = user.refreshTokens.filter((token) => {
-    return token.expiresAt > Date.now();
+// Helper to clear refresh token cookie (using the name 'refreshToken')
+const clearRefreshTokenCookie = (res) => {
+  res.cookie("refreshToken", "loggedout", {
+    httpOnly: true,
+    expires: new Date(Date.now() + 10 * 1000),
+    secure: REFRESH_COOKIE_OPTIONS.secure,
+    sameSite: REFRESH_COOKIE_OPTIONS.sameSite,
+    path: REFRESH_COOKIE_OPTIONS.path,
   });
-  return validTokens;
 };
 
-const getTokenExpiration = (type) => {
-  switch (type) {
-    case tokenTypes.ACCESS:
-      return ACCESS_TOKEN_LIFESPAN;
-    case tokenTypes.REFRESH:
-      return REFRESH_TOKEN_LIFESPAN;
-    case tokenTypes.REMEMBER_ME:
-      return REMEMBER_ME_LIFESPAN;
-    default:
-      return null;
-  }
+// Helper for JWT generation (takes payload, secret, expiresIn)
+const generateToken = (payload, secret, expiresIn) => {
+  return jwt.sign(payload, secret, { expiresIn });
 };
 
-const getTokenLifespanMs = (type) => {
-  switch (type) {
-    case tokenTypes.ACCESS:
-      return 15 * 60 * 1000;
-    case tokenTypes.REFRESH:
-      return 1 * 60 * 60 * 1000;
-    case tokenTypes.REMEMBER_ME:
-      return 30 * 24 * 60 * 60 * 1000;
-    default:
-      return null;
+// Helper for JWT verification (takes token, secret)
+const verifyToken = (token, secret) => {
+  try {
+    return jwt.verify(token, secret);
+  } catch (err) {
+    if (err instanceof jwt.TokenExpiredError) {
+      throw new AppError("Token has expired! Please log in again.", 401);
+    }
+    if (err instanceof jwt.JsonWebTokenError) {
+      throw new AppError("Invalid token! Please log in again.", 401);
+    }
+    // For any other unexpected errors during verification
+    throw new AppError("Token verification failed unexpectedly.", 500);
   }
 };
 
 module.exports = {
-  tokenTypes,
-  getAccessTokenSecret,
+  ACCESS_TOKEN_LIFESPAN,
+  REFRESH_COOKIE_OPTIONS,
+  getRefreshTokenSettings,
   generateToken,
-  generateRefreshTokenString,
-  verifyRefreshToken,
-  cleanupExpiredTokens,
-  getTokenExpiration,
-  getTokenLifespanMs,
+  verifyToken,
+  clearRefreshTokenCookie,
+  getAccessTokenSecret: config.getAccessTokenSecret,
+  getRefreshTokenSecret: config.getRefreshTokenSecret,
 };

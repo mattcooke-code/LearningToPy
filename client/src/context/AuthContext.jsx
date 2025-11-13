@@ -1,4 +1,4 @@
-// AuthContext.jsx
+// AuthContext.jsx (Improved with failedQueue and isRefreshing)
 import {
   createContext,
   useContext,
@@ -15,12 +15,14 @@ import { getErrorMessage } from "../utils/getErrorMessage";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 // --- AXIOS INSTANCES ---
+// Main API client for authenticated requests
 export const apiClient = axios.create({
   baseURL: `${BACKEND_URL}/api`,
-  headers: {},
+  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
+// Separate client for auth endpoints to avoid interceptor loops
 export const authApiClient = axios.create({
   baseURL: BACKEND_URL,
   headers: { "Content-Type": "application/json" },
@@ -28,7 +30,7 @@ export const authApiClient = axios.create({
 });
 
 // --- AUTHCONTEXT DEFINITION ---
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const { showToast } = useNotification();
@@ -42,36 +44,46 @@ export const AuthProvider = ({ children }) => {
 
   // STATE MANAGEMENT
   const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(getStoredAccessToken());
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
-  const [accessToken, setAccessToken] = useState(getStoredAccessToken());
 
-  const failedQueue = useRef([]);
-  const refreshPromise = useRef(null);
+  // Refs for token refresh management
   const isRefreshing = useRef(false);
+  const refreshPromise = useRef(null);
+  const failedQueue = useRef([]);
   const logoutInitiated = useRef(false);
 
-  // Update Auth state
+  // Process queued requests after successful refresh
+  const processQueue = useCallback((error, token = null) => {
+    failedQueue.current.forEach((promise) => {
+      if (error) {
+        promise.reject(error);
+      } else {
+        promise.resolve(token);
+      }
+    });
+    failedQueue.current = [];
+  }, []);
+
+  // Update Auth State
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
-      // Only update is user data changes
       setUser((prevUser) => {
-        if (JSON.stringify(prevUser) === JSON.stringify(userData))
+        if (JSON.stringify(prevUser) === JSON.stringify(userData)) {
           return prevUser;
+        }
         return userData;
       });
 
-      // Only update token if it has actually changed
       setAccessToken((prevToken) => {
         if (prevToken === newAccessToken) return prevToken;
         return newAccessToken;
       });
 
-      // Clear storage
       localStorage.removeItem("accessToken");
       sessionStorage.removeItem("accessToken");
 
-      // Store token where needed
       if (newAccessToken) {
         if (isRememberMe) {
           localStorage.setItem("accessToken", newAccessToken);
@@ -79,6 +91,7 @@ export const AuthProvider = ({ children }) => {
           sessionStorage.setItem("accessToken", newAccessToken);
         }
       }
+
       setAuthError(null);
     },
     []
@@ -86,131 +99,144 @@ export const AuthProvider = ({ children }) => {
 
   // Logout Function
   const logout = useCallback(
-    async (_, message = null) => {
+    async (message = null) => {
       if (logoutInitiated.current) {
         return;
       }
 
       logoutInitiated.current = true;
+      console.log("🚪 Initiating logout...");
 
       setLoading(true);
       setAuthError(null);
 
+      // Clear tokens immediately
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+      setAuthData(null, null);
+
+      // Reset theme if function exists
+      if (window.resetTheme) window.resetTheme();
+
       try {
-        await apiClient.post("/auth/logout");
-        if (message) {
-          showToast(message, "info");
-        } else {
-          showToast("You have been logged out", "info");
-        }
+        await authApiClient.post("/api/auth/logout");
+        console.log("✅ Logout API call successful (cookie cleared)");
       } catch (err) {
-        if (message) {
-          showToast(message, "error");
-        } else {
-          showToast("Logout failed, but local state cleared.", "error");
-        }
-      } finally {
-        localStorage.removeItem("accessToken");
-        sessionStorage.removeItem("accessToken");
-        setAuthData(null, null); // accessToken and userData
-        setLoading(false);
-        refreshPromise.current = null;
-        failedQueue.current = [];
-        logoutInitiated.current = false;
+        console.log(
+          "⚠️ Logout API call failed (token may already be gone):",
+          err.message
+        );
       }
+
+      if (message) {
+        showToast(message, "info");
+      } else {
+        showToast("You have been logged out", "info");
+      }
+
+      setLoading(false);
+      refreshPromise.current = null;
+      failedQueue.current = [];
+      isRefreshing.current = false;
+      logoutInitiated.current = false;
     },
     [setAuthData, showToast]
   );
 
-  // Refresh Token
+  // Refresh Access Token with queue management
   const refreshAuthToken = useCallback(async () => {
-    if (!isRefreshing.current) {
-      isRefreshing.current = true;
-
-      setLoading(true);
-      setAuthError(null);
-
-      try {
-        const response = await authApiClient.post("/api/auth/refresh-token");
-        const { accessToken: newAccessToken, user: newUserData } =
-          response.data;
-
-        if (newAccessToken && newUserData) {
-          const originialRememberMePreference =
-            !!localStorage.getItem("accessToken");
-          setAuthData(
-            newUserData,
-            newAccessToken,
-            originialRememberMePreference
-          ); // New token
-          showToast("Session refreshed!", "success");
-
-          // Resolve any promises made during token expiration
-          failedQueue.current.forEach((callback) =>
-            callback.resolve(newAccessToken)
-          );
-
-          failedQueue.current = [];
-          return newAccessToken;
-        } else {
-          throw new Error("Failed to get new access token during refresh");
-        }
-      } catch (refreshError) {
-        if (refreshError.response) {
-          console.error(
-            "AuthContext: Refresh error response:",
-            refreshError.response.status,
-            refreshError.response.data
-          );
-        }
-
-        failedQueue.current.forEach((callback) =>
-          callback.reject(refreshError)
-        );
-        failedQueue.current = [];
-
-        if (!logoutInitiated.current) {
-          logout("Your session expired! Please log in again.");
-        }
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing.current = false;
-        setLoading(false);
-        refreshPromise.current = null;
-      }
-    } else {
-      // Put multiple requests into a queue until they can be resolved
+    // If already refreshing, queue this request
+    if (isRefreshing.current) {
       return new Promise((resolve, reject) => {
         failedQueue.current.push({ resolve, reject });
       });
     }
-  }, [setAuthData, logout, showToast]);
 
-  // Login Function
-  const login = useCallback(
-    async (email, password, rememberMe) => {
+    // If we have an active refresh promise, return it
+    if (refreshPromise.current) {
+      return refreshPromise.current;
+    }
+
+    isRefreshing.current = true;
+    setAuthError(null);
+
+    const refreshP = (async () => {
+      try {
+        console.log("🔄 Attempting token refresh...");
+        const response = await authApiClient.post("/api/auth/refresh-token");
+
+        const { accessToken: newAccessToken, user: newUserData } =
+          response.data;
+
+        if (!newAccessToken || !newUserData) {
+          throw new Error("Invalid refresh response from server");
+        }
+
+        const originalRememberMePreference =
+          !!localStorage.getItem("accessToken");
+
+        setAuthData(newUserData, newAccessToken, originalRememberMePreference);
+
+        console.log("✅ Token refreshed successfully");
+        showToast("Session refreshed!", "success");
+
+        // Process all queued requests with new token
+        processQueue(null, newAccessToken);
+
+        return newAccessToken;
+      } catch (refreshError) {
+        console.error("❌ Token refresh failed:", refreshError);
+
+        // Reject all queued requests
+        processQueue(refreshError, null);
+
+        if (!logoutInitiated.current) {
+          logout("Your session has expired. Please log in again.");
+        }
+        throw refreshError;
+      } finally {
+        isRefreshing.current = false;
+        refreshPromise.current = null;
+      }
+    })();
+
+    refreshPromise.current = refreshP;
+    return refreshP;
+  }, [setAuthData, logout, showToast, processQueue]);
+
+  // Reusable auth action executor with error handling
+  const executeAuthAction = useCallback(
+    async (actionName, apiCall, successHandler) => {
       setLoading(true);
       setAuthError(null);
 
       try {
-        const response = await authApiClient.post("/api/auth/login", {
-          email,
-          password,
-          rememberMe,
-        });
-
-        const { accessToken: receivedAccessToken, user: userData } =
-          response.data; // destructured variables renamed to avoid naming conflicts
-        if (receivedAccessToken && userData) {
-          setAuthData(userData, receivedAccessToken, rememberMe);
-          showToast("Login Successful!", "success");
-          return { success: true };
-        } else {
-          throw new Error("Invalid response from the server during login.");
-        }
+        const response = await apiCall();
+        return await successHandler(response);
       } catch (err) {
-        const errorMessage = getErrorMessage(err, "Login failed");
+        let errorMessage;
+
+        // Common auth errors
+        if (err.response?.status === 429) {
+          errorMessage = `Too many ${actionName} attempts. Please wait 15 minutes and try again.`;
+        } else if (
+          err.code === "ERR_NETWORK" ||
+          err.message === "Network Error"
+        ) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else if (err.response?.status === 403 && actionName === "login") {
+          errorMessage =
+            "Invalid email or password. Please check your credentials.";
+        } else {
+          errorMessage = getErrorMessage(
+            err,
+            `${
+              actionName.charAt(0).toUpperCase() + actionName.slice(1)
+            } failed. Please try again.`
+          );
+        }
+
         setAuthError(errorMessage);
         showToast(errorMessage, "error");
         throw new Error(errorMessage);
@@ -218,147 +244,170 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [setAuthData, showToast]
+    [showToast]
   );
 
-  // Signup Function
+  // Login Function
+  const login = useCallback(
+    async (email, password, rememberMe) => {
+      return executeAuthAction(
+        "login",
+        () =>
+          authApiClient.post("/api/auth/login", {
+            email,
+            password,
+            rememberMe,
+          }),
+        (response) => {
+          const { accessToken: receivedAccessToken, user: userData } =
+            response.data;
+          if (receivedAccessToken && userData) {
+            setAuthData(userData, receivedAccessToken, rememberMe);
+            showToast("Login Successful!", "success");
+            return { success: true };
+          } else {
+            throw new Error("Invalid response from the server during login.");
+          }
+        }
+      );
+    },
+    [executeAuthAction, setAuthData, showToast]
+  );
+
+  // Register Function
   const register = useCallback(
     async (username, email, password) => {
-      setLoading(true);
-      setAuthError(null);
-
-      try {
-        const response = await authApiClient.post("/api/auth/register", {
-          username,
-          email,
-          password,
-        });
-
-        const { accessToken: receivedAccessToken, user: userData } =
-          response.data;
-        if (receivedAccessToken && userData) {
-          setAuthData(userData, receivedAccessToken, false);
-          showToast(
-            "Registration successful! You are now logged in.",
-            "success"
-          );
-          return { success: true };
-        } else {
-          throw new Error("Invalid response from server during registration.");
-        }
-      } catch (err) {
-        const errorMessage = getErrorMessage(
-          err,
-          "Registration failed. Please try again."
-        );
-        setAuthError(errorMessage);
-        showToast(errorMessage, "error");
-        throw new Error("errorMessage");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setAuthData, showToast]
-  );
-
-  // USEEFFECTS
-  // Initial Token Validation
-  useEffect(() => {
-    const initializeAuth = async () => {
-      if (user !== null) {
-        setLoading(false);
-        return;
-      }
-
-      setAuthError(null);
-      const storedAccessToken = getStoredAccessToken();
-
-      if (storedAccessToken) {
-        try {
-          const decodedToken = jwtDecode(storedAccessToken);
-
-          if (decodedToken.exp * 1000 < Date.now() + 5000) {
-            await refreshAuthToken();
+      return executeAuthAction(
+        "registration",
+        () =>
+          authApiClient.post("/api/auth/register", {
+            username,
+            email,
+            password,
+          }),
+        (response) => {
+          const { accessToken: receivedAccessToken, user: userData } =
+            response.data;
+          if (receivedAccessToken && userData) {
+            setAuthData(userData, receivedAccessToken, false);
+            showToast(
+              "Registration successful! You are now logged in.",
+              "success"
+            );
+            return { success: true };
           } else {
-            if (user === null) {
-              setUser({
-                id: decodedToken.id,
-                username: decodedToken.username,
-                isAdmin: decodedToken.isAdmin,
-              });
-            }
-            setAccessToken(storedAccessToken);
-
-            if (user === null) {
-              showToast("Welcome back!", "info");
-            }
-          }
-        } catch (err) {
-          if (err.response) {
-            console.error(
-              "AuthContext: Init error response:",
-              err.response.status,
-              err.response.data
+            throw new Error(
+              "Invalid response from server during registration."
             );
           }
+        }
+      );
+    },
+    [executeAuthAction, setAuthData, showToast]
+  );
 
-          if (!logoutInitiated.current) {
-            logout("Authentication error. Please log in again.");
-          }
+  // Initial user profile fetch
+  const fetchUserProfile = useCallback(async () => {
+    if (user) {
+      setLoading(false);
+      return;
+    }
+
+    setAuthError(null);
+    const storedAccessToken = getStoredAccessToken();
+
+    if (!storedAccessToken) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const decodedToken = jwtDecode(storedAccessToken);
+      const tokenExpiry = decodedToken.exp * 1000;
+      const timeUntilExpiry = tokenExpiry - Date.now();
+
+      // If token expires in less than 5 seconds, refresh immediately
+      if (timeUntilExpiry < 5000) {
+        console.warn("Token about to expire, refreshing...");
+        await refreshAuthToken();
+      } else {
+        // Token is valid, fetch user profile
+        apiClient.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${storedAccessToken}`;
+
+        const response = await apiClient.get("/auth/user");
+        const { user: userData } = response.data;
+
+        const isRememberMe = !!localStorage.getItem("accessToken");
+        setAuthData(userData, storedAccessToken, isRememberMe);
+        showToast("Welcome back!", "info");
+      }
+    } catch (err) {
+      console.error("🔐 Failed to fetch user profile on load:", err);
+
+      // Try to refresh the token
+      try {
+        await refreshAuthToken();
+      } catch (refreshError) {
+        console.error("Failed to refresh on initial load:", refreshError);
+        if (!logoutInitiated.current) {
+          logout("Authentication error. Please log in again.");
         }
       }
+    } finally {
       setLoading(false);
-    };
-    initializeAuth();
-  }, [refreshAuthToken, logout, showToast]);
+    }
+  }, [setAuthData, refreshAuthToken, logout, showToast, user]);
+
+  // Initial Token Validation & User Load
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   // Axios Interceptors
   useEffect(() => {
+    // REQUEST Interceptor: Attaches the Access Token
     const requestInterceptor = apiClient.interceptors.request.use(
       (config) => {
         const currentAccessToken = getStoredAccessToken();
 
         if (currentAccessToken && !config.headers.Authorization) {
           config.headers.Authorization = `Bearer ${currentAccessToken}`;
-        } else if (!currentAccessToken) {
-          console.log(
-            "AuthContext: Request Interceptor: No access token found."
-          );
         }
         return config;
       },
-      (err) => {
-        return Promise.reject(err);
-      }
+      (err) => Promise.reject(err)
     );
 
+    // RESPONSE Interceptor: Handles 401s and Token Renewal
     const responseInterceptor = apiClient.interceptors.response.use(
       (response) => response,
       async (err) => {
         const originalRequest = err.config;
 
+        // Don't retry logout or if already initiated
+        if (
+          logoutInitiated.current ||
+          originalRequest.url?.includes("/auth/logout")
+        ) {
+          return Promise.reject(err);
+        }
+
+        // Handle 401 errors with token refresh
         if (err.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
-          refreshPromise.current = refreshPromise.current
-            ? refreshPromise.current
-            : refreshAuthToken();
-
           try {
-            const newAccessToken = await refreshPromise.current;
+            const newAccessToken = await refreshAuthToken();
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return apiClient(originalRequest);
           } catch (refreshError) {
-            if (refreshError.response) {
-              console.error(
-                "AuthContext: Interceptor refresh error response:",
-                refreshError.response.status,
-                refreshError.response.data
-              );
-            }
+            console.log("❌ Interceptor refresh failed:", refreshError.message);
             return Promise.reject(err);
           }
         }
+
         return Promise.reject(err);
       }
     );
@@ -371,9 +420,10 @@ export const AuthProvider = ({ children }) => {
 
   const authContextValue = {
     user,
-    loading: loading,
+    accessToken,
+    loading,
     authError,
-    isAuthenticated: !!accessToken,
+    isAuthenticated: !!user || !!accessToken,
     login,
     register,
     logout,
@@ -392,6 +442,5 @@ export const useAuth = () => {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-
   return context;
 };
