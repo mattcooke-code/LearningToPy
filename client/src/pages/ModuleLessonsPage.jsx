@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import BackToTopButton from "../components/ui/BackToTopButton";
 import {
   BookOpen,
   CheckCircle,
@@ -41,7 +42,10 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
             }`}
             style={
               !lesson.isCompleted && !isLocked
-                ? { backgroundColor: `${resolvedAccent}20`, color: resolvedAccent }
+                ? {
+                    backgroundColor: `${resolvedAccent}20`,
+                    color: resolvedAccent,
+                  }
                 : {}
             }
           >
@@ -247,7 +251,7 @@ const ModuleLessonsPage = () => {
                     cx="40"
                     cy="40"
                     r="36"
-                      stroke={moduleAccentColor}
+                    stroke={moduleAccentColor}
                     strokeWidth="8"
                     fill="none"
                     strokeDasharray={226.2}
@@ -281,7 +285,7 @@ const ModuleLessonsPage = () => {
                 className="h-3 rounded-full transition-all duration-500"
                 style={{
                   width: `${moduleProgress}%`,
-                    backgroundColor: moduleAccentColor,
+                  backgroundColor: moduleAccentColor,
                 }}
               ></div>
             </div>
@@ -302,7 +306,7 @@ const ModuleLessonsPage = () => {
               lesson={lesson}
               moduleId={moduleId}
               isLocked={false} // You can implement prerequisite logic here later
-                accentColor={moduleAccentColor}
+              accentColor={moduleAccentColor}
             />
           ))}
         </div>
@@ -360,6 +364,7 @@ const ModuleLessonsPage = () => {
           </div>
         )}
       </div>
+      <BackToTopButton />
     </div>
   );
 };

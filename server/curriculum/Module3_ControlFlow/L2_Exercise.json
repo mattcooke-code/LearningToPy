@@ -1,0 +1,20 @@
+{
+  "title": "Complex Condition Builder",
+  "instructions": "Use comparison and logical operators to build the necessary conditions for the provided scenarios. You do not need to use `if` statements, simply write the correct Boolean expression and assign it to the variable.",
+  "steps": [
+    "Check if the `user_score` is greater than 90 OR the `attempts_left` is greater than 5. Assign the result to `is_high_performer`.",
+    "Check if the `day` is exactly 'Monday' AND the `is_holiday` flag is `False`. Assign the result to `is_regular_workday`.",
+    "Use the **`not`** operator to check if the `user_role` is **NOT** equal to 'Admin'. Assign the result to `is_standard_user`.",
+    "Use **chaining** to check if the `temperature` is between 15 and 25 degrees Celsius (inclusive of both ends). Assign the result to `is_ideal_weather`."
+  ],
+  "starterCode": "user_score = 95\nattempts_left = 3\nis_holiday = False\nday = 'Monday'\nuser_role = 'Viewer'\ntemperature = 20\n\n# 1. OR condition:\nis_high_performer = \n\n# 2. AND condition:\nis_regular_workday = \n\n# 3. NOT condition:\nis_standard_user = \n\n# 4. Chained condition (15 <= temp <= 25):\nis_ideal_weather = ",
+  "solution": "user_score = 95\nattempts_left = 3\nis_holiday = False\nday = 'Monday'\nuser_role = 'Viewer'\ntemperature = 20\n\n# 1. OR condition:\nis_high_performer = user_score > 90 or attempts_left > 5\n\n# 2. AND condition:\nis_regular_workday = day == 'Monday' and is_holiday == False\n\n# 3. NOT condition:\nis_standard_user = not user_role == 'Admin'\n\n# 4. Chained condition (15 <= temp <= 25):\nis_ideal_weather = 15 <= temperature <= 25",
+  "hints": [
+    "Remember that the logical operators are `and`, `or`, and `not`.",
+    "Use parentheses in the `is_regular_workday` check to group the comparisons, though they are not strictly required.",
+    "The chained comparison for temperature is a neat Python feature: `A op B op C`.",
+    "String comparison must be exact: 'Monday' != 'monday'."
+  ],
+  "tags": ["comparison-operators", "logical-operators", "boolean-logic"],
+  "challengeGroup": "conditional-logic"
+}

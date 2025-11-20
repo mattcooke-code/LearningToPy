@@ -1,0 +1,20 @@
+{
+  "title": "List Modification Workshop",
+  "instructions": "Practice using index assignment and list methods to modify the provided user profile list in the specified order.",
+  "steps": [
+    "Use **index assignment** to change the value of the name (currently 'Alex') to 'Juno'.",
+    "Use the **`append()`** method to add a new skill, 'HTML', to the end of the list.",
+    "Use the **`insert()`** method to place a new certification, 'CompTIA', at the second position (index 1) in the list.",
+    "Use the **`extend()`** method to merge the contents of the `new_data` list into the main `profile` list."
+  ],
+  "starterCode": "profile = ['Alex', 'Python', 'JavaScript', 32, True]\nnew_data = ['London', 'Full-Stack']\n\n# 1. Change the name to 'Juno'\n\n\n# 2. Append 'HTML' to the end\n\n\n# 3. Insert 'CompTIA' at index 1\n\n\n# 4. Extend with new_data\n\n\nprint(profile)",
+  "solution": "profile = ['Alex', 'Python', 'JavaScript', 32, True]\nnew_data = ['London', 'Full-Stack']\n\n# 1. Change the name to 'Juno'\nprofile[0] = 'Juno'\n\n# 2. Append 'HTML' to the end\nprofile.append('HTML')\n\n# 3. Insert 'CompTIA' at index 1\nprofile.insert(1, 'CompTIA')\n\n# 4. Extend with new_data\nprofile.extend(new_data)\n\nprint(profile)",
+  "hints": [
+    "The name 'Alex' is the first element in the list.",
+    "The `append()` method takes only one argument: the item to add.",
+    "The `insert()` method takes two arguments: the index first, then the item.",
+    "The `extend()` method takes the iterable (the other list) as its argument."
+  ],
+  "tags": ["lists", "mutability", "methods"],
+  "challengeGroup": "list-operations"
+}

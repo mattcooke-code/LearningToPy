@@ -14,7 +14,7 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
 
 // In contentController.js - update getAllModules
 const getAllModules = catchAsync(async (req, res, next) => {
-  const userId = req.user.id;
+  const userId = req.userId;
 
   const modules = await Module.find({ isPublished: true })
     .populate("prerequisites", "title order")
@@ -74,7 +74,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
 
 const getModuleLessons = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
-  const userId = req.user.id;
+  const userId = req.userId;
 
   const module = await Module.findById(moduleId);
   if (!module) {
@@ -108,7 +108,7 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
 
 const getLessonContent = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
-  const userId = req.user.id;
+  const userId = req.userId;
 
   const lesson = await Lesson.findById(lessonId).lean();
   if (!lesson) {
@@ -134,7 +134,7 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 
 const submitLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
-  const userId = req.user.id;
+  const userId = req.userId;
   const {
     answer,
     code,
@@ -375,7 +375,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
 const fixModuleProgress = catchAsync(async (req, res, next) => {
   // NOTE: In a real app, you would verify the user making this call is an admin,
   // but for a quick fix, we'll use the authenticated user's ID.
-  const userId = req.user.id;
+  const userId = req.userId;
 
   const user = await User.findById(userId);
   if (!user) {

@@ -1,0 +1,19 @@
+{
+  "title": "Access Control Challenge",
+  "instructions": "Use the `in` and `not in` operators to create the necessary Boolean expressions for controlling access to different resources.",
+  "steps": [
+    "Check if the variable `requested_city` ('Tokyo') is present **`in`** the `service_areas` list. Assign the result to `is_serviced`.",
+    "Check if the variable `banned_ip` ('192.168.1.1') is **`not in`** the `allowed_ips` tuple. Assign the result to `is_rejected_ip`.",
+    "Check if the substring 'Error' is present **`in`** the `log_entry` string. Assign the result to `has_error`.",
+    "Write a full `if/else` statement: If 'Admin' is **`in`** the `user_permissions` list, print 'Granted'. Otherwise, print 'Denied'."
+  ],
+  "starterCode": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nrequested_city = 'Tokyo'\nallowed_ips = ('10.0.0.1', '10.0.0.2')\nbanned_ip = '192.168.1.1'\nlog_entry = 'INFO: User login successful.'\nuser_permissions = ['Viewer', 'Editor']\n\n# 1. Check if requested_city is serviced:\nis_serviced = \n\n# 2. Check if banned_ip is NOT allowed:\nis_rejected_ip = \n\n# 3. Check log_entry for 'Error':\nhas_error = \n\n# 4. If/else check for 'Admin' permission:\n\n",
+  "solution": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nrequested_city = 'Tokyo'\nallowed_ips = ('10.0.0.1', '10.0.0.2')\nbanned_ip = '192.168.1.1'\nlog_entry = 'INFO: User login successful.'\nuser_permissions = ['Viewer', 'Editor']\n\n# 1. Check if requested_city is serviced:\nis_serviced = requested_city in service_areas\n\n# 2. Check if banned_ip is NOT allowed:\nis_rejected_ip = banned_ip not in allowed_ips\n\n# 3. Check log_entry for 'Error':\nhas_error = 'Error' in log_entry\n\n# 4. If/else check for 'Admin' permission:\nif 'Admin' in user_permissions:\n    print('Granted')\nelse:\n    print('Denied')",
+  "hints": [
+    "Membership operators return a boolean (`True` or `False`), so they can be assigned directly to variables.",
+    "The `in` and `not in` operators work identically whether the sequence is a list, tuple, or string.",
+    "For step 4, remember to indent the `print()` statement inside the `if` and `else` blocks."
+  ],
+  "tags": ["in", "not in", "membership-operators", "lists", "tuples"],
+  "challengeGroup": "conditional-logic"
+}

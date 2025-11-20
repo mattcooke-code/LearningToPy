@@ -1,0 +1,19 @@
+{
+  "title": "Set Creation and Manipulation",
+  "instructions": "Practice creating and modifying sets, paying close attention to the unique nature of the structure.",
+  "steps": [
+    "Use the `set()` constructor to convert the `log_entries` list into a set named `unique_entries`. Note how duplicates are removed.",
+    "Use the `.add()` method to add the string 'ERROR' to the `unique_entries` set.",
+    "Use the **safe** `.discard()` method to remove the entry 'INFO' from `unique_entries`.",
+    "Write a conditional statement (`if`): Check if the string 'WARNING' is **`in`** the `unique_entries` set. If it is, assign the boolean `True` to the variable `warning_exists`."
+  ],
+  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# 1. Create a set of unique entries:\nunique_entries = \n\n# 2. Add 'ERROR' to the set:\n\n\n# 3. Safely discard 'INFO':\n\n\n# 4. Check if 'WARNING' exists:\nwarning_exists = False\n\n",
+  "solution": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# 1. Create a set of unique entries:\nunique_entries = set(log_entries)\n\n# 2. Add 'ERROR' to the set:\nunique_entries.add('ERROR')\n\n# 3. Safely discard 'INFO':\nunique_entries.discard('INFO')\n\n# 4. Check if 'WARNING' exists:\nwarning_exists = False\nif 'WARNING' in unique_entries:\n    warning_exists = True\n\nprint(f'Final unique entries: {unique_entries}')\nprint(f'Warning exists: {warning_exists}')",
+  "hints": [
+    "Remember to pass the list into the `set()` constructor in step 1.",
+    "Use `.add()` for step 2 and the safer `.discard()` for step 3.",
+    "The `in` operator makes membership testing highly readable."
+  ],
+  "tags": ["set", "unique", "add", "discard", "membership"],
+  "challengeGroup": "sets-basics"
+}

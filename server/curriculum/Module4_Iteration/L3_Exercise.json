@@ -1,0 +1,18 @@
+{
+  "title": "Conditional Repetition",
+  "instructions": "Write `while` loops to perform the following conditional repetitions, ensuring that you include a mechanism to terminate the loop.",
+  "steps": [
+    "Initialize a variable `fuel_level` to 10. Write a `while` loop that continues as long as `fuel_level` is greater than 0. Inside the loop, print the `fuel_level` and then decrease it by 1.",
+    "Initialize a variable `damage` to 0. Write a `while` loop that continues as long as `damage` is less than 50. Inside the loop, print the current damage and increment `damage` by a random value (between 10 and 20). Note: Do NOT worry about importing random; simply add a constant, like 15, for this exercise to represent a 'hit'.",
+    "Initialize `login_attempts` to 3. Write a `while` loop that continues as long as `login_attempts` is greater than 0. Inside the loop, print the remaining attempts and then decrement `login_attempts`. If the loop finishes (attempts hit 0), print 'Account Locked'."
+  ],
+  "starterCode": "# 1. Fuel Countdown\nfuel_level = 10\n\n\n# 2. Damage Accumulation\ndamage = 0\n\n\n# 3. Login Attempts\nlogin_attempts = 3\n\n",
+  "solution": "# 1. Fuel Countdown\nfuel_level = 10\nwhile fuel_level > 0:\n    print(f'Fuel remaining: {fuel_level}')\n    fuel_level -= 1\n\n# 2. Damage Accumulation\ndamage = 0\nwhile damage < 50:\n    print(f'Current damage: {damage}')\n    damage += 15 # Constant 'hit' damage\n\n# 3. Login Attempts\nlogin_attempts = 3\nwhile login_attempts > 0:\n    print(f'{login_attempts} attempts remaining.')\n    login_attempts -= 1\n\nif login_attempts == 0:\n    print('Account Locked')",
+  "hints": [
+    "Every `while` loop must include a line of code that changes the variable in the condition, otherwise, it will be an infinite loop.",
+    "Use the compound assignment operator `-=` for decreasing the counter.",
+    "The `if` statement for the 'Account Locked' message should come *after* the `while` loop."
+  ],
+  "tags": ["while-loop", "iteration", "indefinite-loop"],
+  "challengeGroup": "while-loop-basics"
+}

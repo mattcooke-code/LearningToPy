@@ -1,0 +1,19 @@
+{
+  "title": "Define and Call Basics",
+  "instructions": "Practice defining basic functions, passing arguments, and returning values.",
+  "steps": [
+    "Define a function named `print_hello` that takes no parameters and simply prints the string 'Hello from the function!'. Call the function once.",
+    "Define a function named `power_calc` that takes two parameters: `base` and `exponent`. It should calculate and return `base` raised to the power of `exponent`.",
+    "Call `power_calc` with the arguments 2 and 4, and assign the returned value to the variable `result`.",
+    "Define a function named `is_adult` that takes one parameter, `age`. If `age` is 18 or greater, return the boolean `True`; otherwise, return `False`."
+  ],
+  "starterCode": "# 1. Define and call print_hello:\n\n\n\n# 2. Define power_calc:\n\n\n\n# 3. Call power_calc and assign to result:\nresult = \n\n# 4. Define is_adult:\n\n",
+  "solution": "# 1. Define and call print_hello:\ndef print_hello():\n    print('Hello from the function!')\n\nprint_hello()\n\n# 2. Define power_calc:\ndef power_calc(base, exponent):\n    return base ** exponent\n\n# 3. Call power_calc and assign to result:\nresult = power_calc(2, 4)\n\n# 4. Define is_adult:\ndef is_adult(age):\n    if age >= 18:\n        return True\n    return False",
+  "hints": [
+    "The power operator in Python is `**`.",
+    "Functions defined with `def` must be called with parentheses, even if they take no arguments: `function_name()`.",
+    "The `return` keyword is used to send the value out of the function."
+  ],
+  "tags": ["function", "def", "return", "parameters"],
+  "challengeGroup": "function-basics"
+}

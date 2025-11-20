@@ -1,0 +1,20 @@
+{
+  "title": "Financial Transaction Processor",
+  "instructions": "Implement the core processing logic to iterate over transactions, skipping invalid ones and stopping when the daily budget is exceeded.",
+  "steps": [
+    "Initialize the `daily_budget` to 1000 and `total_processed_amount` to 0.",
+    "Use a **`for` loop** to iterate over the `pending_transactions` list.",
+    "Inside the loop, use an **`if` statement** and **`continue`** to check if the `transaction` amount is less than or equal to 0. If it is, print 'SKIPPED: Invalid transaction amount.' and move to the next iteration.",
+    "Use an **`if` statement** and **`break`** to check if adding the current `transaction` would exceed the `daily_budget`. If it would, print 'BUDGET HALT: Cannot process this transaction due to budget limit.' and exit the loop.",
+    "If neither condition is met, add the `transaction` amount to `total_processed_amount` and print 'PROCESSED: [Amount]'."
+  ],
+  "starterCode": "pending_transactions = [50, 150, 0, 700, 200, 30, -5, 10]\ndaily_budget = 1000\ntotal_processed_amount = 0\n\nfor transaction in pending_transactions:\n    # 1. Check for invalid transaction (use continue)\n    \n\n    # 2. Check for budget halt (use break)\n    \n\n    # 3. Process the transaction\n    \n\nprint(f'\\n--- FINAL SUMMARY ---\\nBudget: {daily_budget}\\nTotal Processed: {total_processed_amount}')",
+  "solution": "pending_transactions = [50, 150, 0, 700, 200, 30, -5, 10]\ndaily_budget = 1000\ntotal_processed_amount = 0\n\nfor transaction in pending_transactions:\n    # 1. Check for invalid transaction (use continue)\n    if transaction <= 0:\n        print(f'SKIPPED: Invalid transaction amount: {transaction}')\n        continue\n\n    # 2. Check for budget halt (use break)\n    if total_processed_amount + transaction > daily_budget:\n        print('BUDGET HALT: Cannot process this transaction due to budget limit.')\n        break\n\n    # 3. Process the transaction\n    total_processed_amount += transaction\n    print(f'PROCESSED: {transaction}')\n\nprint(f'\\n--- FINAL SUMMARY ---\\nBudget: {daily_budget}\\nTotal Processed: {total_processed_amount}')",
+  "hints": [
+    "The `continue` logic must come first to filter bad data before checking the budget.",
+    "The budget check (`if total_processed_amount + transaction > daily_budget:`) is key. Check if the *next* transaction would put you over.",
+    "The total processed amount should stop at 900 in the solution (50 + 150 + 700). The 200 transaction causes the `break`."
+  ],
+  "tags": ["project", "for-loop", "break", "continue", "conditionals"],
+  "challengeGroup": "module-4-project"
+}

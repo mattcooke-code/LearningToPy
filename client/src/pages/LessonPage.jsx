@@ -1,11 +1,13 @@
 // client/src/pages/LessonPage.jsx
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { apiClient, useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useNotification } from "../context/NotificationContext";
+import BackToTopButton from "../components/ui/BackToTopButton";
 import {
   ArrowLeft,
+  ArrowRight,
   CheckCircle,
   Clock,
   Star,
@@ -284,10 +286,11 @@ const LessonPage = () => {
   const { id: lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { themeColor } = useTheme();
+  const { themeColor, updateThemeFromProgress } = useTheme();
   const { showToast } = useNotification();
 
   const [lesson, setLesson] = useState(null);
+  const [nextLesson, setNextLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -308,6 +311,18 @@ const LessonPage = () => {
       // Auto-enable review mode for completed lessons
       if (lessonData.isCompleted) {
         setIsReviewMode(true);
+      }
+
+      // ✅ NEW: Fetch next lesson if available
+      if (lessonData.nextLessonId) {
+        try {
+          const nextResponse = await apiClient.get(
+            `/content/lessons/${lessonData.nextLessonId}`
+          );
+          setNextLesson(nextResponse.data.data);
+        } catch (err) {
+          console.log("No next lesson available or failed to fetch");
+        }
       }
     } catch (err) {
       console.error("Failed to fetch lesson:", err);
@@ -342,13 +357,15 @@ const LessonPage = () => {
       // Switch to review mode
       setIsReviewMode(true);
 
+      // ✅ NEW: Update theme with current progress
+      if (progress && progress.progressPercentage !== undefined) {
+        updateThemeFromProgress(progress.progressPercentage);
+      }
+
       // Optional: Log progress data for debugging
       console.log("Updated progress:", progress);
-
-      // The user's XP/progress will be automatically refreshed when they
-      // navigate back to the dashboard or when the dashboard fetches data
     },
-    [showToast]
+    [showToast, updateThemeFromProgress]
   );
 
   const handleAnswerSubmit = async (answer) => {
@@ -674,7 +691,19 @@ const LessonPage = () => {
           <span>Back to Lessons</span>
         </button>
 
-        {lesson.isCompleted && !isReviewMode && (
+        {/* ✅ NEW: Next Lesson Button */}
+        {nextLesson && lesson.isCompleted && !isReviewMode && (
+          <Link
+            to={`/lesson/${nextLesson._id}`}
+            style={{ backgroundColor: themeColor }}
+            className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+          >
+            <span>Next Lesson</span>
+            <ArrowRight size={20} />
+          </Link>
+        )}
+
+        {lesson.isCompleted && !isReviewMode && !nextLesson && (
           <div className="text-green-600 font-semibold flex items-center space-x-2">
             <CheckCircle size={20} />
             <span>Lesson Completed!</span>
@@ -687,6 +716,7 @@ const LessonPage = () => {
           </div>
         )}
       </div>
+      <BackToTopButton />
     </div>
   );
 };

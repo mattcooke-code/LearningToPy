@@ -1,0 +1,21 @@
+{
+  "title": "The User Data Processor",
+  "instructions": "Define a function that uses a combination of required, `*args`, and `**kwargs` arguments to process user data and return a summary dictionary.",
+  "steps": [
+    "Define the function `process_user_data` that takes `username`, `*metrics`, and `**flags` as parameters (in that order).",
+    "Calculate the sum of all elements in the `metrics` tuple and assign it to a variable `total_score`.",
+    "Initialize a result dictionary with the key 'user' set to `username` and the key 'score' set to `total_score`.",
+    "Check if the key 'is_admin' is present in the `flags` dictionary. Add a key 'is_admin_flag' to the result dictionary, set to `True` if 'is_admin' is present, and `False` otherwise.",
+    "Return the result dictionary.",
+    "Call the function with the data: `username='user_A'`, metrics: 50, 75, 100, flags: `is_premium=True`, `is_admin=True` and assign the output to `user_summary`."
+  ],
+  "starterCode": "def process_user_data(username, *metrics, **flags):\n    # 1. Calculate total score:\n    total_score = \n\n    # 2. Initialize result dictionary:\n    result = {\n        'user': username,\n        'score': total_score\n    }\n\n    # 3. Check for 'is_admin' flag:\n    \n\n    # 4. Return the summary:\n    \n\n# 5. Call the function:\nuser_summary = process_user_data('user_A', 50, 75, 100, is_premium=True, is_admin=True)\n",
+  "solution": "def process_user_data(username, *metrics, **flags):\n    # 1. Calculate total score:\n    total_score = sum(metrics)\n\n    # 2. Initialize result dictionary:\n    result = {\n        'user': username,\n        'score': total_score\n    }\n\n    # 3. Check for 'is_admin' flag:\n    is_admin = 'is_admin' in flags\n    result['is_admin_flag'] = is_admin\n    \n    # 4. Return the summary:\n    return result\n\n# 5. Call the function:\nuser_summary = process_user_data('user_A', 50, 75, 100, is_premium=True, is_admin=True)",
+  "hints": [
+    "Use the built-in `sum()` function on the `metrics` tuple.",
+    "Use the `in` operator to check for a key's presence in the `flags` dictionary.",
+    "The final `return` should send the `result` dictionary back to the caller."
+  ],
+  "tags": ["project", "function", "arguments", "args", "kwargs", "return"],
+  "challengeGroup": "module-6-project"
+}

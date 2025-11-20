@@ -1,0 +1,19 @@
+{
+  "title": "Ternary Transformation",
+  "instructions": "Convert the following scenarios into single-line conditional expressions (Ternary Operators) to assign the correct value to the result variable.",
+  "steps": [
+    "Use a ternary operator to assign 'Active' to `connection_status` if the `ping_time` is less than 50, otherwise assign 'Lagging'.",
+    "Use a ternary operator to assign 'Priority' to `user_level` if `is_logged_in` is `True`, otherwise assign 'Standard'.",
+    "Use a ternary operator and the **Truthiness** concept to check the `file_name` string. If the string is Truthy (not empty), assign 'VALID' to `file_check`. Otherwise, assign 'MISSING'.",
+    "Use a ternary operator to check if `current_stock` is less than or equal to 10. If so, assign the result of `current_stock + 50` to `new_stock_level`. Otherwise, assign the original `current_stock`."
+  ],
+  "starterCode": "ping_time = 45\nis_logged_in = False\nfile_name = 'report.pdf'\ncurrent_stock = 7\n\n# 1. Connection Status:\nconnection_status = \n\n# 2. User Level:\nuser_level = \n\n# 3. File Check (using Truthiness):\nfile_check = \n\n# 4. Stock Level Calculation:\nnew_stock_level = ",
+  "solution": "ping_time = 45\nis_logged_in = False\nfile_name = 'report.pdf'\ncurrent_stock = 7\n\n# 1. Connection Status:\nconnection_status = 'Active' if ping_time < 50 else 'Lagging'\n\n# 2. User Level:\nuser_level = 'Priority' if is_logged_in else 'Standard'\n\n# 3. File Check (using Truthiness):\nfile_check = 'VALID' if file_name else 'MISSING'\n\n# 4. Stock Level Calculation:\nnew_stock_level = current_stock + 50 if current_stock <= 10 else current_stock",
+  "hints": [
+    "Remember the structure: `value_if_true` then `if condition` then `else value_if_false`.",
+    "For step 2, you don't need `is_logged_in == True`; `if is_logged_in` is sufficient.",
+    "For step 4, the calculation (`current_stock + 50`) is the value assigned if the condition is true."
+  ],
+  "tags": ["ternary", "conditional-expressions"],
+  "challengeGroup": "conditional-logic"
+}

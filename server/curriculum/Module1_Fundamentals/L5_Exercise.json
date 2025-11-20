@@ -1,0 +1,18 @@
+{
+  "title": "Arithmetic and Text Challenge",
+  "instructions": "Use your knowledge of operators and precedence to solve the following tasks, making sure to assign the correct calculated value to each variable.",
+  "steps": [
+    "Calculate the total cost: `price_per_item` (5.50) times `quantity` (4) plus a `shipping_fee` (10). Store the final result in a variable named `final_total`.",
+    "Use the modulus operator (`%`) to find the remainder of 27 divided by 5. Store the result in a variable named `remainder_value`.",
+    "Concatenate the string `first_part` ('Code') and `second_part` ('Master') with a space in between. Store the result in a variable named `full_word`."
+  ],
+  "starterCode": "price_per_item = 5.50\nquantity = 4\nshipping_fee = 10\n\n# 1. Calculate final_total here:\nfinal_total = \n\n# 2. Calculate remainder_value here:\nremainder_value = \n\n# 3. Concatenate to full_word here:\nfirst_part = 'Code'\nsecond_part = 'Master'\nfull_word = ",
+  "solution": "price_per_item = 5.50\nquantity = 4\nshipping_fee = 10\n\n# 1. Calculate final_total here:\nfinal_total = (price_per_item * quantity) + shipping_fee\n\n# 2. Calculate remainder_value here:\nremainder_value = 27 % 5\n\n# 3. Concatenate to full_word here:\nfirst_part = 'Code'\nsecond_part = 'Master'\nfull_word = first_part + ' ' + second_part",
+  "hints": [
+    "Use parentheses `()` in the first step to ensure multiplication happens before addition for clarity.",
+    "Remember that the modulus operator returns a whole number.",
+    "When concatenating strings, you need to add the space character as a separate string."
+  ],
+  "tags": ["operators", "arithmetic", "string", "precedence"],
+  "challengeGroup": "operator-skills"
+}

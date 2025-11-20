@@ -1,0 +1,19 @@
+{
+  "title": "Data Type Identification Quiz",
+  "instructions": "Below are four variables. Your task is to modify the code so that the `print(type(...))` function correctly outputs the data type for each variable, allowing the solution to pass.",
+  "steps": [
+    "Assign a string (text) value to the `item_name` variable.",
+    "Assign an integer (whole number) value to the `stock_count` variable.",
+    "Assign a float (decimal number) value to the `item_price` variable.",
+    "Assign a boolean (True/False) value to the `is_available` variable."
+  ],
+  "starterCode": "item_name = # TODO: Add a string value\nstock_count = # TODO: Add an integer value\nitem_price = # TODO: Add a float value\nis_available = # TODO: Add a boolean value\n\n# The tests will check the output of these type checks:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
+  "solution": "item_name = \"Mug\"\nstock_count = 150\nitem_price = 12.99\nis_available = True\n\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
+  "hints": [
+    "Remember to use quotes for strings.",
+    "A float value must include a decimal point (e.g., 5.0).",
+    "Booleans are case-sensitive: use `True` or `False`."
+  ],
+  "tags": ["data-types", "string", "integer", "float", "boolean"],
+  "challengeGroup": "type-mastery"
+}

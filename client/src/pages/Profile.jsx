@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles } from "lucide-react";
 import { apiClient, useAuth } from "../context/AuthContext";
 import Spinner from "../components/ui/Spinner";
+import BackToTopButton from "../components/ui/BackToTopButton";
 import BadgeModal from "../components/ui/BadgeModal";
 import { BADGE_LIBRARY, BADGES_BY_ID } from "../data/badges";
 
@@ -176,7 +177,7 @@ const Profile = () => {
           ))}
         </div>
       )}
-
+      <BackToTopButton />
       <BadgeModal
         isOpen={isModalOpen}
         onClose={closeModal}

@@ -4,12 +4,15 @@ import { Link } from "react-router-dom";
 import { apiClient, useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import ProgressGauge from "../components/ui/ProgressGauge";
+import BackToTopButton from "../components/ui/BackToTopButton";
 import { BADGES_BY_ID } from "../data/badges";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { themeColor, updateThemeFromProgress } = useTheme();
   const [userProgress, setUserProgress] = useState(null);
+  // const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
+  //const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -25,7 +28,23 @@ const Dashboard = () => {
         console.error("Failed to fetch progress:", err);
       }
     };
+
+    // TODO: Uncomment when ready to use real leaderboard data
+    /* const fetchSurroundingLeaderboard = async () => {
+      try {
+        setLeaderboardLoading(true);
+        const response = await apiClient.get("/progress/leaderboard/around-me");
+        setSurroundingLeaderboard(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch leaderboard:", err);
+        setSurroundingLeaderboard(null);
+      } finally {
+        setLeaderboardLoading(false);
+      }
+    };*/
+
     fetchProgress();
+    //fetchSurroundingLeaderboard();
   }, [updateThemeFromProgress, user]);
 
   // Use userProgress data instead of user data for progress-related info
@@ -68,25 +87,87 @@ const Dashboard = () => {
         </p>
       </div>
 
-      {/* Progress Gauge */}
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Your Python Progress
-        </h2>
-        <div className="flex justify-center">
-          {/* Use progressPercentage from userProgress */}
-          <ProgressGauge
-            progress={progressData.progressPercentage}
-            size={280}
-          />
+      {/* Progress Overview with Side-by-side Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {/* Progress Gauge - takes 2/3 width */}
+        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            Your Python Progress
+          </h2>
+          <div className="flex justify-center">
+            <ProgressGauge
+              progress={progressData.progressPercentage}
+              size={280}
+            />
+          </div>
+          <p className="text-center text-gray-600 mt-4">
+            Currently at <strong>Level {progressData.level}</strong> with{" "}
+            <strong>{progressData.xp} XP</strong>
+          </p>
         </div>
-        <p className="text-center text-gray-600 mt-4">
-          Currently at <strong>Level {progressData.level}</strong> with{" "}
-          <strong>{progressData.xp} XP</strong>
-        </p>
+
+        {/* Your Competitive Zone - takes 1/3 width */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Your Competitive Zone
+          </h3>
+          <div className="space-y-3">
+            {[
+              { rank: 23, name: "CodeMaster", xp: "1,450", isCurrent: false },
+              { rank: 24, name: "PythonPro", xp: "1,420", isCurrent: false },
+              {
+                rank: 25,
+                name: "You",
+                xp: progressData.xp.toLocaleString(),
+                isCurrent: true,
+              },
+              { rank: 26, name: "ScriptKid", xp: "1,380", isCurrent: false },
+              { rank: 27, name: "ByteWizard", xp: "1,350", isCurrent: false },
+            ].map((player) => (
+              <div
+                key={player.rank}
+                className={`flex items-center justify-between p-3 rounded-lg ${
+                  player.isCurrent
+                    ? "bg-blue-50 border border-blue-200"
+                    : "bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                      player.isCurrent
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    #{player.rank}
+                  </div>
+                  <span
+                    className={`font-medium ${
+                      player.isCurrent ? "text-blue-700" : "text-gray-700"
+                    }`}
+                  >
+                    {player.name}
+                  </span>
+                </div>
+                <span className="text-python-yellow font-semibold">
+                  {player.xp} XP
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 text-center">
+            <Link
+              to="/leaderboard"
+              className="text-python-blue hover:underline font-medium"
+            >
+              View Full Leaderboard →
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Progress Overview */}
+      {/* Progress Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
           <h3 className="text-lg font-semibold text-gray-700">Current Level</h3>
@@ -196,6 +277,7 @@ const Dashboard = () => {
               </p>
             </div>
           </div>
+          <BackToTopButton />
         </div>
       </div>
     </div>

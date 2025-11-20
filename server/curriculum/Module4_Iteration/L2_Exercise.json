@@ -1,0 +1,19 @@
+{
+  "title": "Range Function Workout",
+  "instructions": "Use the `range()` function in its various forms to achieve the desired counting sequences and calculations.",
+  "steps": [
+    "Use `range()` to print the numbers 0 through 7 (inclusive).",
+    "Use `range(start, stop)` to print the numbers 10, 11, 12, 13.",
+    "Use `range(start, stop, step)` to calculate the sum of all numbers from 1 to 10 that are divisible by 3 (i.e., 3, 6, 9). Assign the final sum to `sum_of_multiples_of_three`.",
+    "Use a negative step in `range()` to print a countdown from 4 down to 1 (inclusive)."
+  ],
+  "starterCode": "# 1. Print 0 to 7:\n\n\n# 2. Print 10 to 13:\n\n\n# 3. Sum of multiples of three (3, 6, 9):\nsum_of_multiples_of_three = 0\n\n\n# 4. Countdown from 4 to 1:\n\n",
+  "solution": "# 1. Print 0 to 7:\nfor i in range(8):\n    print(i)\n\n\n# 2. Print 10 to 13:\nfor j in range(10, 14):\n    print(j)\n\n\n# 3. Sum of multiples of three (3, 6, 9):\nsum_of_multiples_of_three = 0\nfor num in range(3, 10, 3):\n    sum_of_multiples_of_three += num\n\n\n# 4. Countdown from 4 to 1:\nfor k in range(4, 0, -1):\n    print(k)",
+  "hints": [
+    "Remember: the `stop` value in `range()` is always *exclusive* (one past the number you want to end at).",
+    "For step 3, start at 3, end before 10, and step by 3.",
+    "For the countdown (step 4), the `start` must be greater than `stop`, and the `step` must be negative."
+  ],
+  "tags": ["range", "for-loop", "counting", "stepping"],
+  "challengeGroup": "for-loop-basics"
+}

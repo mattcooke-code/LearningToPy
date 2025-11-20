@@ -1,0 +1,26 @@
+{
+  "title": "Access Control System",
+  "instructions": "Complete the conditional structure based on the provided access rules. Your solution must contain a single `if/elif/else` chain.",
+  "steps": [
+    "Define the `VALID_ROLES` list: `['Admin', 'Editor', 'Author', 'Viewer']`.",
+    "Start an `if` statement to check for **ADMIN ACCESS**.",
+    "Add an `elif` statement to check for **PREMIUM ACCESS** (use parentheses to group the `or` condition properly).",
+    "Add a final `elif` statement to check for **STANDARD ACCESS** (using the `in` operator and `is_premium`).",
+    "End with an `else` block for **GUEST/DENIED** status."
+  ],
+  "starterCode": "role = 'Editor'\nlevel = 6\nis_premium = False\n\nVALID_ROLES = []\n\n# 1. Start your conditional structure here:\n\n",
+  "solution": "role = 'Editor'\nlevel = 6\nis_premium = False\n\nVALID_ROLES = ['Admin', 'Editor', 'Author', 'Viewer']\n\n# 1. Start your conditional structure here:\n# ADMIN ACCESS\nif role == 'Admin':\n    print('Access: Full Administrator Control')\n\n# PREMIUM ACCESS\nelif (role == 'Editor' or role == 'Author') and level >= 5:\n    print('Access: Premium Content Unlocked')\n\n# STANDARD ACCESS\nelif role in VALID_ROLES and not is_premium:\n    print('Access: Standard Features')\n\n# GUEST/DENIED\nelse:\n    print('Access: Guest Status - Limited Permissions')",
+  "hints": [
+    "Remember to use **`==`** for checking equality and **`=`** for assigning the `VALID_ROLES` list.",
+    "For the PREMIUM ACCESS check, use parentheses: `(role == 'Editor' or role == 'Author') and level >= 5`.",
+    "The STANDARD ACCESS check should use the **`in`** operator for clarity: `role in VALID_ROLES`.",
+    "Indentation is essential for defining the blocks of code that run under each condition."
+  ],
+  "tags": [
+    "project",
+    "control-flow",
+    "logical-operators",
+    "membership-operators"
+  ],
+  "challengeGroup": "module-3-project"
+}

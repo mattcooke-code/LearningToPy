@@ -1,0 +1,20 @@
+{
+  "title": "Slicing Masterclass",
+  "instructions": "You are managing a list of weekly transactions. Use list slicing to extract the requested sub-sections of the transaction list.",
+  "steps": [
+    "Extract the transactions from Tuesday (index 1) to Friday (index 4). Remember that the stop index is exclusive! Assign the result to `mid_week_sales`.",
+    "Create a slice that includes only the last three days of the week. Assign the result to `weekend_sales`.",
+    "Use the `step` value to extract only the transactions from the **odd-indexed days** (Tuesday, Thursday, Saturday). Assign the result to `alternate_sales`.",
+    "Create a **full reversed copy** of the list using a negative step. Assign the result to `reversed_transactions`."
+  ],
+  "starterCode": "transactions = [500, 120, 80, 250, 150, 600, 30]\n# Index:        0   1    2    3    4    5    6\n# Day:  Mon  Tue  Wed  Thu  Fri  Sat  Sun\n\n# 1. Tuesday to Friday:\nmid_week_sales = \n\n# 2. Last three days (Friday, Saturday, Sunday):\nweekend_sales = \n\n# 3. Odd-indexed days (1, 3, 5):\nalternate_sales = \n\n# 4. Reversed copy:\nreversed_transactions = ",
+  "solution": "transactions = [500, 120, 80, 250, 150, 600, 30]\n\n# 1. Tuesday (1) up to Friday + 1 (5):\nmid_week_sales = transactions[1:5]\n\n# 2. Last three days (starts at -3):\nweekend_sales = transactions[-3:]\n\n# 3. Odd-indexed days (start at 1, step 2):\nalternate_sales = transactions[1::2]\n\n# 4. Reversed copy:\nreversed_transactions = transactions[::-1]",
+  "hints": [
+    "For step 1, the stop index for Friday is 5, since slicing stops *before* the stop index.",
+    "For step 2, use a negative index to start and omit the stop index to go to the end.",
+    "For step 3, start at index 1 and jump 2 spaces each time to hit the odd indices.",
+    "To reverse a list, use a step value of -1 and omit the start and stop indices."
+  ],
+  "tags": ["lists", "slicing", "negative-indexing"],
+  "challengeGroup": "list-basics"
+}

@@ -12,7 +12,7 @@ const {
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
 const getCurrentProgress = catchAsync(async (req, res, next) => {
-  const userId = req.user.id;
+  const userId = req.userId;
 
   const user = await User.findById(userId)
     .select(
@@ -59,7 +59,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
 });
 
 const getAchievements = catchAsync(async (req, res, next) => {
-  const userId = req.user.id;
+  const userId = req.userId;
 
   const user = await User.findById(userId)
     .select(
@@ -120,4 +120,77 @@ const getAchievements = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { getCurrentProgress, getAchievements };
+const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
+  const userId = req.userId;
+  const range = 2; // User shown above and below
+
+  // Sort all users by XP
+  const allUsers = await User.find({})
+    .select("username xp")
+    .sort({ xp: -1 })
+    .lean();
+
+  // Current user's position
+  const currentUserIndex = allUsers.findIndex(
+    (user) => user._id.toString() === userId
+  );
+
+  if (currentUserIndex === -1) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Calculate range of users to show
+  const startIndex = Math.max(0, currentUserIndex - range);
+  const endIndex = Math.min(allUsers.length - 1, currentUserIndex + range);
+
+  const surroundingUsers = allUsers
+    .slice(startIndex, endIndex + 1)
+    .map((user, index) => ({
+      rank: startIndex + index + 1, // place in overall leaderboard
+      username: user.username,
+      xp: user.xp,
+      isCurrent: user._id.toString() === userId,
+    }));
+
+  sendJsonResponse(res, 200, "User's leaderboard placement found", {
+    data: {
+      users: surroundingUsers,
+      currentUserRank: currentUserIndex + 1,
+      totalUsers: allUsers.length,
+    },
+  });
+});
+
+const getModuleLeaderboard = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+  const userId = req.userId;
+
+  const moduleUsers = (
+    await User.find({ completedModules: moduleId }).select("username xp")
+  )
+    .toSorted({ xp: -1 })
+    .limit(50)
+    .lean();
+
+  const currentUserIndex = moduleUsers.findIndex(
+    (user) => user._id.toString() === userId
+  );
+
+  const usersWithCurrentFlag = moduleUsers.map((user, index) => ({
+    ...user,
+    isCurrent: user._id.toString() === userId,
+  }));
+
+  sendJsonResponse(res, 200, "Module leaderboard fetched.", {
+    users: usersWithCurrentFlag,
+    currentUserRank: currentUserIndex + 1,
+    totalInModule: moduleUsers.length,
+  });
+});
+
+module.exports = {
+  getCurrentProgress,
+  getAchievements,
+  getSurroundingLeaderboard,
+  getModuleLeaderboard,
+};

@@ -1,0 +1,18 @@
+{
+  "title": "Grid Processing Challenge",
+  "instructions": "Use nested loops to process and generate multi-dimensional data as required.",
+  "steps": [
+    "Use nested `for` loops with `range()` to print every combination of `(x, y)` where `x` is 0 or 1, and `y` is 0, 1, or 2.",
+    "Iterate over the provided `product_categories` (a list of lists). Inside the innermost loop, print the name of each product.",
+    "Use two nested loops to iterate over the `letters` list. If the letter from the inner loop is 'B', use the **`break`** keyword to stop the inner loop and move to the next iteration of the outer loop. Print the pairs being checked."
+  ],
+  "starterCode": "product_categories = [\n  ['Laptop', 'Monitor'],\n  ['Keyboard', 'Mouse', 'Webcam'],\n  ['Speaker', 'Headphones']\n]\nletters = ['A', 'B', 'C']\n\n# 1. Print (x, y) coordinates:\n\n\n# 2. Iterate and print all products:\n\n\n# 3. Use BREAK in the inner loop when 'B' is found:\n\n",
+  "solution": "product_categories = [\n  ['Laptop', 'Monitor'],\n  ['Keyboard', 'Mouse', 'Webcam'],\n  ['Speaker', 'Headphones']\n]\nletters = ['A', 'B', 'C']\n\n# 1. Print (x, y) coordinates:\nfor x in range(2): \n  for y in range(3):\n    print(f'({x}, {y})')\n\n# 2. Iterate and print all products:\nfor category in product_categories:\n  for product in category:\n    print(product)\n\n# 3. Use BREAK in the inner loop when 'B' is found:\nfor outer_letter in letters:\n  for inner_letter in letters:\n    print(f'Checking pair: {outer_letter}-{inner_letter}')\n    if inner_letter == 'B':\n      break",
+  "hints": [
+    "For step 1, the outer loop should be `range(2)` and the inner loop should be `range(3)`.",
+    "For step 2, the outer loop variable represents a list of products, which is then iterated over by the inner loop.",
+    "The `break` keyword only exits the loop it is *directly* inside of, which is the inner loop in step 3."
+  ],
+  "tags": ["nested-loops", "for-loop", "iteration", "break"],
+  "challengeGroup": "loop-control"
+}

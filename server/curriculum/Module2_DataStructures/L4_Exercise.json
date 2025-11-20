@@ -1,0 +1,18 @@
+{
+  "title": "List Cleanup Challenge",
+  "instructions": "You are managing a queue of server requests. Perform the following removal operations using the most appropriate method for each step.",
+  "steps": [
+    "Use the **`remove()`** method to delete the request with the value 'Audit_Report' from the queue.",
+    "Use the **`pop()`** method to remove the highest priority request (the first one, index 0). Store the removed request in a variable named `high_priority_removed`.",
+    "Use the **`del`** keyword to delete the last two items in the queue using **slicing** (the last two indices)."
+  ],
+  "starterCode": "request_queue = ['Urgent_Fix', 'Audit_Report', 'New_Feature', 'Data_Backup', 'Logs_Cleanup', 'Metrics_Check']\n\n# 1. Remove 'Audit_Report' by value:\n\n\n# 2. Pop the first item (Urgent_Fix) and store it:\nhigh_priority_removed = \n\n# 3. Delete the last two items using del and slicing:\n\n\nprint('Final Queue:', request_queue)\nprint('Removed Item:', high_priority_removed)",
+  "solution": "request_queue = ['Urgent_Fix', 'Audit_Report', 'New_Feature', 'Data_Backup', 'Logs_Cleanup', 'Metrics_Check']\n\n# 1. Remove 'Audit_Report' by value:\nrequest_queue.remove('Audit_Report')\n\n# 2. Pop the first item (Urgent_Fix) and store it:\nhigh_priority_removed = request_queue.pop(0)\n\n# 3. Delete the last two items using del and slicing:\ndel request_queue[-2:]\n\nprint('Final Queue:', request_queue)\nprint('Removed Item:', high_priority_removed)",
+  "hints": [
+    "Remember that `remove()` is a list method, and `del` is a keyword.",
+    "`pop(0)` is used to remove the first item.",
+    "To slice the last two items, you can use a negative index with an empty stop index: `[-2:]`."
+  ],
+  "tags": ["lists", "remove", "pop", "del"],
+  "challengeGroup": "list-operations"
+}

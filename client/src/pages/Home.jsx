@@ -1,3 +1,4 @@
+// Home.jsx
 import { Link } from "react-router-dom";
 import {
   Rocket,
@@ -14,13 +15,16 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import BackToTopButton from "../components/ui/BackToTopButton";
 
 const Home = () => {
   const { themeColor } = useTheme();
   const { isAuthenticated } = useAuth();
 
   const ctaLink = isAuthenticated ? "/dashboard" : "/register";
-  const ctaLabel = isAuthenticated ? "Go to Dashboard" : "Start Learning for Free";
+  const ctaLabel = isAuthenticated
+    ? "Go to Dashboard"
+    : "Start Learning for Free";
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -38,11 +42,13 @@ const Home = () => {
                 <span>Learn Python the smart, gamified way</span>
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-6 leading-tight">
-                Master Python, <span className="text-python-blue">level up</span> your career
+                Master Python,{" "}
+                <span className="text-python-blue">level up</span> your career
               </h1>
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                Interactive lessons, competitive leaderboards, and real rewards. Learn by doing,
-                stay motivated with XP and badges, and accelerate your path to becoming a Python pro.
+                Interactive lessons, competitive leaderboards, and real rewards.
+                Learn by doing, stay motivated with XP and badges, and
+                accelerate your path to becoming a Python pro.
               </p>
               <div className="flex flex-wrap items-center gap-4">
                 <Link
@@ -84,16 +90,23 @@ const Home = () => {
                       key={item.title}
                       className="bg-slate-100 rounded-2xl p-4 text-center border border-slate-200"
                     >
-                      <item.icon size={20} className="text-python-blue mx-auto mb-2" />
+                      <item.icon
+                        size={20}
+                        className="text-python-blue mx-auto mb-2"
+                      />
                       <p className="text-sm text-slate-600">{item.title}</p>
-                      <p className="text-xl font-semibold text-slate-900">{item.value}</p>
+                      <p className="text-xl font-semibold text-slate-900">
+                        {item.value}
+                      </p>
                     </div>
                   ))}
                 </div>
 
                 <div className="bg-slate-900 text-white rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm text-slate-300">Leaderboard Snapshot</p>
+                    <p className="text-sm text-slate-300">
+                      Leaderboard Snapshot
+                    </p>
                     <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
                       Competitive Mode
                     </span>
@@ -107,7 +120,9 @@ const Home = () => {
                       <div
                         key={player.name}
                         className={`flex items-center justify-between bg-slate-800/60 px-4 py-3 rounded-xl ${
-                          player.name === "You" ? "border border-python-yellow/40" : ""
+                          player.name === "You"
+                            ? "border border-python-yellow/40"
+                            : ""
                         }`}
                       >
                         <div className="flex items-center space-x-3">
@@ -116,10 +131,13 @@ const Home = () => {
                           </div>
                           <span className="font-medium">{player.name}</span>
                         </div>
-                        <span className="text-python-yellow font-semibold">{player.xp} XP</span>
+                        <span className="text-python-yellow font-semibold">
+                          {player.xp} XP
+                        </span>
                       </div>
                     ))}
                   </div>
+                  <BackToTopButton />
                 </div>
               </div>
             </div>
@@ -135,8 +153,9 @@ const Home = () => {
               Gamified learning that keeps you engaged
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Every lesson is a challenge. Every challenge earns rewards. Track your progress,
-              compete with peers, and celebrate achievements as you level up your Python skills.
+              Every lesson is a challenge. Every challenge earns rewards. Track
+              your progress, compete with peers, and celebrate achievements as
+              you level up your Python skills.
             </p>
           </div>
 
@@ -175,7 +194,9 @@ const Home = () => {
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                <p className="text-slate-600 leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
@@ -191,9 +212,10 @@ const Home = () => {
                 Learn by doing with hands-on challenges
               </h2>
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                Our interactive platform is designed to help you absorb concepts faster through
-                practice. Build real skills with coding exercises, receive instant insights, and
-                follow curated paths that guide you from fundamentals to advanced topics.
+                Our interactive platform is designed to help you absorb concepts
+                faster through practice. Build real skills with coding
+                exercises, receive instant insights, and follow curated paths
+                that guide you from fundamentals to advanced topics.
               </p>
               <div className="space-y-4">
                 {[
@@ -217,12 +239,16 @@ const Home = () => {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                    <div className="shrink-0 h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
                       <item.icon size={20} className="text-python-blue" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                      <p className="text-slate-600 leading-relaxed">{item.description}</p>
+                      <h3 className="text-lg font-semibold text-slate-900">
+                        {item.title}
+                      </h3>
+                      <p className="text-slate-600 leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -236,7 +262,9 @@ const Home = () => {
               </div>
 
               <div className="relative z-10">
-                <h3 className="text-2xl font-bold mb-4">Instant feedback in action</h3>
+                <h3 className="text-2xl font-bold mb-4">
+                  Instant feedback in action
+                </h3>
                 <div className="bg-slate-800/70 rounded-2xl p-6 border border-slate-700 mb-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -244,8 +272,12 @@ const Home = () => {
                         PY
                       </div>
                       <div>
-                        <p className="text-sm text-slate-300">Lesson 3 · Basic Operations</p>
-                        <p className="font-semibold text-white">Output Preview</p>
+                        <p className="text-sm text-slate-300">
+                          Lesson 3 · Basic Operations
+                        </p>
+                        <p className="font-semibold text-white">
+                          Output Preview
+                        </p>
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-medium">
@@ -254,9 +286,11 @@ const Home = () => {
                   </div>
 
                   <div className="bg-black/40 rounded-xl p-4 font-mono text-sm text-slate-100">
-                    <p className="text-xs uppercase text-slate-500 mb-3">Console</p>
+                    <p className="text-xs uppercase text-slate-500 mb-3">
+                      Console
+                    </p>
                     <pre className="whitespace-pre-wrap">
-{`>>> total = 3 * 4 + 2
+                      {`>>> total = 3 * 4 + 2
 >>> print(total)
 14
 ✅ Looks great! Remember: Python follows PEMDAS order of operations.`}
@@ -290,43 +324,57 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Break free from boring tutorials</h2>
+              <h2 className="text-3xl font-bold mb-6">
+                Break free from boring tutorials
+              </h2>
               <p className="text-lg text-slate-200 leading-relaxed mb-8">
-                Traditional textbooks and video lectures make it hard to stay engaged. Our platform
-                turns learning into a game, keeping you inspired and accountable every step of the way.
+                Traditional textbooks and video lectures make it hard to stay
+                engaged. Our platform turns learning into a game, keeping you
+                inspired and accountable every step of the way.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   {
                     title: "Textbooks feel stale?",
-                    description: "We make it interactive with real coding challenges.",
+                    description:
+                      "We make it interactive with real coding challenges.",
                   },
                   {
                     title: "Hard to stay motivated?",
-                    description: "Earn XP, badges, and compete on leaderboards.",
+                    description:
+                      "Earn XP, badges, and compete on leaderboards.",
                   },
                   {
                     title: "Unsure what to learn next?",
-                    description: "Structured paths guide you from beginner to advanced topics.",
+                    description:
+                      "Structured paths guide you from beginner to advanced topics.",
                   },
                   {
                     title: "Studying alone?",
-                    description: "Join a community of learners who are on the same journey.",
+                    description:
+                      "Join a community of learners who are on the same journey.",
                   },
                 ].map((item) => (
-                  <div key={item.title} className="bg-slate-800/60 rounded-2xl p-5 border border-slate-700">
+                  <div
+                    key={item.title}
+                    className="bg-slate-800/60 rounded-2xl p-5 border border-slate-700"
+                  >
                     <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                    <p className="text-sm text-slate-300 leading-relaxed">{item.description}</p>
+                    <p className="text-sm text-slate-300 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl">
-              <h3 className="text-2xl font-bold mb-4">Here’s our winning formula</h3>
+              <h3 className="text-2xl font-bold mb-4">
+                Here’s our winning formula
+              </h3>
               <p className="text-slate-600 leading-relaxed mb-6">
-                We combine battle-tested learning science with compelling game mechanics to keep you
-                growing week after week.
+                We combine battle-tested learning science with compelling game
+                mechanics to keep you growing week after week.
               </p>
               <div className="space-y-4">
                 {[
@@ -350,12 +398,16 @@ const Home = () => {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+                    <div className="shrink-0 h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
                       <item.icon size={22} className="text-python-blue" />
                     </div>
                     <div>
-                      <h4 className="text-lg font-semibold mb-1">{item.title}</h4>
-                      <p className="text-sm text-slate-600 leading-relaxed">{item.description}</p>
+                      <h4 className="text-lg font-semibold mb-1">
+                        {item.title}
+                      </h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -369,10 +421,13 @@ const Home = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">How it works</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              How it works
+            </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Three simple steps stand between you and your next career milestone. Dive in and
-              start transforming your learning journey today.
+              Three simple steps stand between you and your next career
+              milestone. Dive in and start transforming your learning journey
+              today.
             </p>
           </div>
 
@@ -404,11 +459,21 @@ const Home = () => {
                 <div className="absolute top-6 right-6 text-4xl font-bold text-slate-100">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">{item.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{item.description}</p>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {item.description}
+                </p>
                 <div className="mt-6">
                   <Link
-                    to={index === 0 ? "/modules" : isAuthenticated ? "/dashboard" : "/register"}
+                    to={
+                      index === 0
+                        ? "/modules"
+                        : isAuthenticated
+                        ? "/dashboard"
+                        : "/register"
+                    }
                     className="text-python-blue font-semibold hover:underline inline-flex items-center space-x-2"
                   >
                     <span>Learn more</span>
@@ -443,8 +508,9 @@ const Home = () => {
               Curriculum designed for real-world impact
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Follow a proven roadmap covering core computer science concepts and modern Python
-              applications. Build projects that make your portfolio stand out.
+              Follow a proven roadmap covering core computer science concepts
+              and modern Python applications. Build projects that make your
+              portfolio stand out.
             </p>
           </div>
 
@@ -466,9 +532,14 @@ const Home = () => {
                   "File handling, APIs, web scraping, automation scripts, and capstone challenges.",
               },
             ].map((item) => (
-              <div key={item.title} className="bg-slate-900 text-white rounded-2xl p-6">
+              <div
+                key={item.title}
+                className="bg-slate-900 text-white rounded-2xl p-6"
+              >
                 <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <p className="text-sm text-slate-300 leading-relaxed">{item.description}</p>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
@@ -488,8 +559,9 @@ const Home = () => {
       <footer className="py-12 bg-slate-900 text-slate-300">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm">
-            Ready to start your Python journey? Join thousands of learners leveling up with
-            interactive challenges, real-time feedback, and tangible rewards.
+            Ready to start your Python journey? Join thousands of learners
+            leveling up with interactive challenges, real-time feedback, and
+            tangible rewards.
           </p>
         </div>
       </footer>

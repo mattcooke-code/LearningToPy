@@ -34,6 +34,7 @@ const protect = catchAsync(async (req, res, next) => {
 
     console.log("🔐 User authorized:", user.username);
     req.user = user;
+    req.userId = user.id;
     next();
   } catch (error) {
     console.error("🔐 Token verification failed:", error.message);

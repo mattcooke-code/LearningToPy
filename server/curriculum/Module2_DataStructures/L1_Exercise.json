@@ -1,0 +1,18 @@
+{
+  "title": "List Indexing Challenge",
+  "instructions": "You have been given a list representing planets in our solar system. Use both positive and negative indexing to retrieve specific planets and assign them to the requested variables.",
+  "steps": [
+    "Use **positive indexing** to retrieve the planet 'Earth' (the 3rd planet). Assign it to the variable `third_planet`.",
+    "Use **negative indexing** to retrieve the planet 'Neptune' (the last planet). Assign it to the variable `last_planet`.",
+    "Use **negative indexing** to retrieve the planet 'Mars' (the 5th from the end). Assign it to the variable `fifth_from_end`."
+  ],
+  "starterCode": "planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']\n\n# 1. Earth (Positive Indexing)\nthird_planet = \n\n# 2. Neptune (Negative Indexing)\nlast_planet = \n\n# 3. Mars (Negative Indexing)\nfifth_from_end = ",
+  "solution": "planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']\n\n# 1. Earth (Positive Indexing)\nthird_planet = planets[2]\n\n# 2. Neptune (Negative Indexing)\nlast_planet = planets[-1]\n\n# 3. Mars (Negative Indexing)\nfifth_from_end = planets[-5]",
+  "hints": [
+    "Remember that the first item's index is 0, not 1.",
+    "The last item in any list is always at index -1.",
+    "Count backward carefully from the end of the list to find the correct negative index for Mars."
+  ],
+  "tags": ["lists", "indexing", "data-structures"],
+  "challengeGroup": "list-basics"
+}

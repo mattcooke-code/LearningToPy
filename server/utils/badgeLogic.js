@@ -1,3 +1,4 @@
+// utils/badgeLogic.js
 const Module = require("../models/Module");
 
 const MODULE_SLUGS = {

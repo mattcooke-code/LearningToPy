@@ -1,0 +1,19 @@
+{
+  "title": "Lambda Functions in Practice",
+  "instructions": "Practice defining and using lambda functions, particularly with the built-in `sorted()` function.",
+  "steps": [
+    "Define a lambda function named `double_and_add` that takes two arguments, `a` and `b`, and returns the result of `(a * 2) + b`.",
+    "Call `double_and_add` with arguments 5 and 3, and assign the result to the variable `calc_result`.",
+    "Use the built-in `sorted()` function on the `products` list. Use a **lambda function** as the `key` to sort the list by the **price** (the second element, index 1) of the tuples. Assign the result to `products_sorted_by_price`.",
+    "Use the built-in `sorted()` function again on the `products` list. Use a **lambda function** as the `key`, but set the `reverse` argument to `True` to sort by the price in **descending** order. Assign the result to `products_sorted_desc`."
+  ],
+  "starterCode": "products = [\n  ('Widget', 50, 10),\n  ('Gadget', 150, 5),\n  ('Thing', 10, 25)\n]\n\n# 1. Define the lambda function double_and_add:\n\n\n# 2. Call the lambda function:\ncalc_result = \n\n# 3. Sort products by price (index 1) in ascending order:\nproducts_sorted_by_price = \n\n# 4. Sort products by price (index 1) in descending order:\nproducts_sorted_desc = \n",
+  "solution": "products = [\n  ('Widget', 50, 10),\n  ('Gadget', 150, 5),\n  ('Thing', 10, 25)\n]\n\n# 1. Define the lambda function double_and_add:\ndouble_and_add = lambda a, b: (a * 2) + b\n\n# 2. Call the lambda function:\ncalc_result = double_and_add(5, 3)\n\n# 3. Sort products by price (index 1) in ascending order:\nproducts_sorted_by_price = sorted(products, key=lambda p: p[1])\n\n# 4. Sort products by price (index 1) in descending order:\nproducts_sorted_desc = sorted(products, key=lambda p: p[1], reverse=True)",
+  "hints": [
+    "The lambda definition for `double_and_add` should look like: `lambda a, b: ...`",
+    "When sorting, the argument passed to the lambda (e.g., `p`) represents an individual item from the `products` list (a tuple).",
+    "To sort in descending order, you must set the `reverse` parameter to `True` in the `sorted()` call."
+  ],
+  "tags": ["lambda", "anonymous-function", "sorted", "functional-programming"],
+  "challengeGroup": "lambda-functions"
+}

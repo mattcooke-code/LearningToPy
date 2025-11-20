@@ -1,0 +1,19 @@
+{
+  "title": "The Grade Calculator",
+  "instructions": "You need to write a simple program that checks a student's score and prints the appropriate grade using the `if`, `elif`, and `else` structure.",
+  "steps": [
+    "Write an **`if`** statement that checks if `student_score` is greater than or equal to 90. If true, print 'Grade: A'.",
+    "Add an **`elif`** statement to check if `student_score` is greater than or equal to 80. If true, print 'Grade: B'.",
+    "Add a second **`elif`** statement to check if `student_score` is greater than or equal to 70. If true, print 'Grade: C'.",
+    "Finally, add an **`else`** statement that executes if none of the above conditions are met, printing 'Grade: F'."
+  ],
+  "starterCode": "student_score = 75\n\n# Start your conditional structure below:\n\n",
+  "solution": "student_score = 75\n\n# Start your conditional structure below:\nif student_score >= 90:\n    print('Grade: A')\nelif student_score >= 80:\n    print('Grade: B')\nelif student_score >= 70:\n    print('Grade: C')\nelse:\n    print('Grade: F')",
+  "hints": [
+    "Ensure you use the colon (`:`) after every `if`, `elif`, and `else` statement.",
+    "Proper indentation (4 spaces) is critical for Python to recognize the code blocks.",
+    "The order matters! Checking 90 first ensures a score of 95 is correctly assigned an 'A' and skips the rest."
+  ],
+  "tags": ["if", "elif", "else", "control-flow"],
+  "challengeGroup": "conditionals-basics"
+}

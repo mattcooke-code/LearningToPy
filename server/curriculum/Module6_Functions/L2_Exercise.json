@@ -1,0 +1,26 @@
+{
+  "title": "Positional and Keyword Arguments",
+  "instructions": "Practice calling functions using positional, keyword, and default arguments correctly.",
+  "steps": [
+    "Define a function named `calculate_total` that takes three parameters: `quantity`, `price`, and `tax_rate` (which has a **default value of 0.05**).",
+    "The function should calculate and return the total: `quantity * price * (1 + tax_rate)`.",
+    "Call `calculate_total` using **positional arguments** for `quantity` (10) and `price` (50). Assign the result to `total_no_tax_override`.",
+    "Call `calculate_total` using **keyword arguments** to set `tax_rate` to 0.15 and `quantity` to 2. `price` must be 100. Assign the result to `total_with_tax_override`.",
+    "Call `calculate_total` using one positional argument (`quantity=5`) and two keyword arguments (`price=20`, `tax_rate=0.08`). Assign the result to `mixed_call_total`."
+  ],
+  "starterCode": "# 1. Define calculate_total with a default tax_rate of 0.05:\n\n\n# 2. Call using positional arguments (should use default tax):\ntotal_no_tax_override = \n\n# 3. Call using keyword arguments, overriding tax:\ntotal_with_tax_override = \n\n# 4. Call using mixed arguments:\nmixed_call_total = \n",
+  "solution": "# 1. Define calculate_total with a default tax_rate of 0.05:\ndef calculate_total(quantity, price, tax_rate=0.05):\n    return quantity * price * (1 + tax_rate)\n\n\n# 2. Call using positional arguments (should use default tax):\ntotal_no_tax_override = calculate_total(10, 50)\n\n# 3. Call using keyword arguments, overriding tax:\ntotal_with_tax_override = calculate_total(price=100, quantity=2, tax_rate=0.15)\n\n# 4. Call using mixed arguments:\nmixed_call_total = calculate_total(5, price=20, tax_rate=0.08)",
+  "hints": [
+    "In step 1, the default value must be set in the `def` line: `tax_rate=0.05`.",
+    "In step 3, keyword arguments can be in any order, so long as the keywords match the parameter names.",
+    "In step 4, remember that positional arguments (the '5' for quantity) MUST come before the keyword arguments."
+  ],
+  "tags": [
+    "function",
+    "arguments",
+    "positional",
+    "keyword",
+    "default-arguments"
+  ],
+  "challengeGroup": "argument-passing"
+}

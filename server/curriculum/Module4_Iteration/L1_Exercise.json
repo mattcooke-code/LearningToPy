@@ -1,0 +1,18 @@
+{
+  "title": "Basic Iteration",
+  "instructions": "Practice using the basic `for` loop structure to process lists and strings, and utilize the `enumerate()` function.",
+  "steps": [
+    "Use a `for` loop to iterate over the `project_tasks` list. Inside the loop, print each task name.",
+    "Use a `for` loop and the `enumerate()` function to iterate over the `user_scores` list. Inside the loop, print the index and the score in the format: 'Student [index] scored [score]'.",
+    "Use a `for` loop to iterate over the `document_title` string. Inside the loop, print only the character if it is a capital letter (A-Z). Hint: You can use a conditional statement inside the loop (e.g., `if character == 'A':`)."
+  ],
+  "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\n\n\n# 2. Iterate and print scores with index:\n\n\n# 3. Iterate over the string and print only capital letters:\n\n",
+  "solution": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\nfor task in project_tasks:\n    print(task)\n\n# 2. Iterate and print scores with index:\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\n# 3. Iterate over the string and print only capital letters:\nfor char in document_title:\n    if char.isupper(): # isupper() is a string method\n        print(char)",
+  "hints": [
+    "Choose a descriptive temporary variable name (e.g., `task`, `score`, `char`).",
+    "The `enumerate()` function provides two loop variables: the index first, then the value.",
+    "For the last step, remember to use an `if` statement *inside* the loop. The string method `isupper()` can check for capital letters."
+  ],
+  "tags": ["for-loop", "iteration", "enumerate", "string-methods"],
+  "challengeGroup": "for-loop-basics"
+}

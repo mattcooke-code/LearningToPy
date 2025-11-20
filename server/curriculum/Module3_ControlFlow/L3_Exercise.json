@@ -1,0 +1,20 @@
+{
+  "title": "Truthy or Falsy Identifier",
+  "instructions": "For each variable provided, write a conditional statement (`if` or `if/else`) that checks its truthiness. Assign a final string result based on the outcome.",
+  "steps": [
+    "Check the `items_in_cart` list. If it is Truthy (not empty), assign the string 'READY_TO_CHECKOUT' to `cart_status`. Otherwise, assign 'CART_EMPTY'.",
+    "Check the `user_balance` integer. If it is Truthy (non-zero), assign the string 'ACTIVE_BALANCE' to `balance_status`. Otherwise, assign 'ZERO_BALANCE'.",
+    "Check the `error_message` string. If it is **Falsy** (empty string), assign the string 'NO_ERROR' to `error_status`. Hint: Use `if not error_message:`.",
+    "Check the `user_selection` variable (which is `None`). If it is Truthy, assign 'SELECTION_MADE'. Otherwise, assign 'NO_SELECTION'. Assign the result to `selection_status`."
+  ],
+  "starterCode": "items_in_cart = ['Book', 'Pen']\nuser_balance = 0\nerror_message = ''\nuser_selection = None\n\n# 1. Check items_in_cart\nif items_in_cart:\n    cart_status = 'READY_TO_CHECKOUT'\nelse:\n    cart_status = 'CART_EMPTY'\n\n\n# 2. Check user_balance\nbalance_status = \n\n\n# 3. Check for Falsy error_message\nerror_status = \n\n\n# 4. Check user_selection\nselection_status = \n\n",
+  "solution": "items_in_cart = ['Book', 'Pen']\nuser_balance = 0\nerror_message = ''\nuser_selection = None\n\n# 1. Check items_in_cart\nif items_in_cart:\n    cart_status = 'READY_TO_CHECKOUT'\nelse:\n    cart_status = 'CART_EMPTY'\n\n\n# 2. Check user_balance\nif user_balance:\n    balance_status = 'ACTIVE_BALANCE'\nelse:\n    balance_status = 'ZERO_BALANCE'\n\n\n# 3. Check for Falsy error_message\nif not error_message:\n    error_status = 'NO_ERROR'\nelse:\n    error_status = 'HAS_ERROR'\n\n\n# 4. Check user_selection\nif user_selection:\n    selection_status = 'SELECTION_MADE'\nelse:\n    selection_status = 'NO_SELECTION'\n\n",
+  "hints": [
+    "An empty list, `[]`, is Falsy. A non-empty list is Truthy.",
+    "The number `0` is Falsy. Any other number is Truthy.",
+    "Use the `not` keyword to explicitly check for a Falsy value in a more readable way.",
+    "`None` is the special constant that is always Falsy."
+  ],
+  "tags": ["truthiness", "falsiness", "control-flow"],
+  "challengeGroup": "conditional-logic"
+}

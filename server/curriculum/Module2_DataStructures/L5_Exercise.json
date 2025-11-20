@@ -1,0 +1,19 @@
+{
+  "title": "Tuple Immutability Check",
+  "instructions": "Practice accessing data from tuples and identify the key difference between lists and tuples. Do NOT try to modify the tuples, as this will result in an error!",
+  "steps": [
+    "Access the last element ('Finished') of the `task_status` tuple using negative indexing. Assign it to the variable `final_status`.",
+    "Attempt to re-assign the first element of the `data_point` tuple (currently 'X') to 'Y'. Comment out this line in your final solution, but understand *why* it fails.",
+    "Use slicing to extract the middle two values from the `dates` tuple: 'Tuesday' and 'Wednesday'. Assign the result to the variable `mid_week_days`.",
+    "Create a new tuple named `new_record` by concatenating the two existing tuples, `data_point` and `task_status`."
+  ],
+  "starterCode": "data_point = ('X', 150)\ntask_status = ('Pending', 'Processing', 'Finished')\ndates = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')\n\n# 1. Access the last element:\nfinal_status = \n\n# 2. Attempt invalid re-assignment (commented out in solution):\n# data_point[0] = 'Y'\n\n# 3. Slice the middle two values:\nmid_week_days = \n\n# 4. Concatenate two tuples:\nnew_record = ",
+  "solution": "data_point = ('X', 150)\ntask_status = ('Pending', 'Processing', 'Finished')\ndates = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')\n\n# 1. Access the last element:\nfinal_status = task_status[-1]\n\n# 2. Attempt invalid re-assignment (commented out in solution):\n# data_point[0] = 'Y'\n\n# 3. Slice the middle two values:\nmid_week_days = dates[1:3]\n\n# 4. Concatenate two tuples:\nnew_record = data_point + task_status",
+  "hints": [
+    "The last element of any sequence is at index -1.",
+    "Remember that the stop index in a slice is exclusive (not included).",
+    "Concatenation works for tuples just like it does for lists and strings, using the `+` operator."
+  ],
+  "tags": ["tuples", "immutability", "indexing", "slicing"],
+  "challengeGroup": "tuple-basics"
+}

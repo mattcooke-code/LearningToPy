@@ -1,0 +1,18 @@
+{
+  "title": "Loop Interruption",
+  "instructions": "Use the `break` and `continue` keywords to control the flow of the provided loops according to the specified requirements.",
+  "steps": [
+    "Use a `for` loop to iterate through the `status_codes` list. If the current code is 404, use **`break`** to stop the loop immediately, printing 'Error encountered. Halting process.'.",
+    "Use a `for` loop to iterate through the `transaction_amounts` list. If the current amount is less than or equal to 0, use **`continue`** to skip the rest of the loop (do not add it to `total_revenue`), printing 'Skipping invalid transaction.'.",
+    "Initialize `password_attempts = 5`. Write a `while` loop that runs indefinitely (`while True`). Inside the loop, decrement `password_attempts`. If `password_attempts` reaches 0, print 'Locked Out!' and **`break`** the loop."
+  ],
+  "starterCode": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# 1. Use BREAK to stop on 404:\nfor code in status_codes:\n    if code == 404:\n        print('Error encountered. Halting process.')\n        \n    print(f'Processing code {code}')\n\n\n# 2. Use CONTINUE to skip invalid transactions:\nfor amount in transaction_amounts:\n    if amount <= 0:\n        print('Skipping invalid transaction.')\n        \n    total_revenue += amount\n\n\n# 3. Use a WHILE TRUE loop with BREAK:\nwhile True:\n    print(f'{password_attempts} attempts remaining.')\n    password_attempts -= 1\n    \n\nprint(f'Total Revenue: {total_revenue}')",
+  "solution": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# 1. Use BREAK to stop on 404:\nfor code in status_codes:\n    if code == 404:\n        print('Error encountered. Halting process.')\n        break\n    print(f'Processing code {code}')\n\n\n# 2. Use CONTINUE to skip invalid transactions:\nfor amount in transaction_amounts:\n    if amount <= 0:\n        print('Skipping invalid transaction.')\n        continue\n    total_revenue += amount\n\n\n# 3. Use a WHILE TRUE loop with BREAK:\nwhile True:\n    # Decrement attempt first for cleaner logic, as attempts start at 5\n    password_attempts -= 1\n    print(f'{password_attempts + 1} attempts remaining.') \n    \n    if password_attempts == 0:\n        print('Locked Out!')\n        break\n\nprint(f'Total Revenue: {total_revenue}')",
+  "hints": [
+    "The `break` keyword must be inside the `if` block for the 404 code.",
+    "The `continue` keyword for the invalid transactions must be used *before* the line `total_revenue += amount`.",
+    "In the `while True` loop, the `break` statement is what prevents the loop from running infinitely."
+  ],
+  "tags": ["break", "continue", "for-loop", "while-loop"],
+  "challengeGroup": "loop-control"
+}

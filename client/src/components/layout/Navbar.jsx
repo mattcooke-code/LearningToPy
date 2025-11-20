@@ -16,10 +16,7 @@ const Navbar = memo(function Navbar() {
     >
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <Link
-          to={isAuthenticated ? "/dashboard" : "/"}
-          className="flex items-center space-x-2"
-        >
+        <Link to="/" className="flex items-center space-x-2">
           <BookOpen className="w-8 h-8" />
           <span className="text-2xl font-bold">Learning To Py</span>
         </Link>

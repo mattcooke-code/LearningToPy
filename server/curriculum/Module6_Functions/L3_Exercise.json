@@ -1,0 +1,19 @@
+{
+  "title": "Local and Global Scope Challenge",
+  "instructions": "Practice accessing and modifying variables in different scopes using the `global` keyword when necessary.",
+  "steps": [
+    "Define a function named `increment_score` that **modifies** the global variable `game_score` by adding 10 to it. Use the `global` keyword inside the function.",
+    "Call the `increment_score` function.",
+    "Define a function named `check_max` that checks if the local parameter `current_value` is greater than the global variable `MAX_CAPACITY`. If it is, assign `True` to the global variable `exceeded_limit` (using the `global` keyword).",
+    "Call `check_max` with an argument of 250."
+  ],
+  "starterCode": "game_score = 0\nMAX_CAPACITY = 200\nexceeded_limit = False\n\n# 1. Define increment_score (must use global):\n\n\n# 2. Call the function:\n\n\n# 3. Define check_max (must use global for exceeded_limit):\n\n\n# 4. Call check_max:\n\n",
+  "solution": "game_score = 0\nMAX_CAPACITY = 200\nexceeded_limit = False\n\n# 1. Define increment_score (must use global):\ndef increment_score():\n    global game_score\n    game_score += 10\n\n# 2. Call the function:\nincrement_score()\n\n# 3. Define check_max (must use global for exceeded_limit):\ndef check_max(current_value):\n    global exceeded_limit\n    if current_value > MAX_CAPACITY:\n        exceeded_limit = True\n\n# 4. Call check_max:\ncheck_max(250)",
+  "hints": [
+    "Remember that the `global` declaration must be the first line of code inside the function before you try to change the variable.",
+    "In `check_max`, you are reading `MAX_CAPACITY` but modifying `exceeded_limit`, so only `exceeded_limit` needs the `global` declaration.",
+    "In step 4, the argument 250 is passed as a local parameter, so the function can access `MAX_CAPACITY` globally for comparison."
+  ],
+  "tags": ["function", "scope", "global", "local"],
+  "challengeGroup": "function-scope"
+}

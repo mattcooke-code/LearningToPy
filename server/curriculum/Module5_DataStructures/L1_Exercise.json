@@ -1,0 +1,19 @@
+{
+  "title": "Dictionary Creation and Access",
+  "instructions": "Practice defining dictionaries and retrieving values using both bracket notation and the safe `.get()` method.",
+  "steps": [
+    "Create a dictionary named `player_stats` with three key-value pairs: 'health' (100), 'mana' (50), and 'class' ('Warrior').",
+    "Use **bracket notation** to retrieve the value associated with the 'class' key and assign it to `player_class`.",
+    "Use the **`.get()` method** to safely retrieve the value for the key 'stamina'. If the key is not found, use a default value of **20** and assign the result to `stamina_level`.",
+    "Update the value of the 'health' key in `player_stats` to **85**."
+  ],
+  "starterCode": "# 1. Create the dictionary:\nplayer_stats = {}\n\n# 2. Access 'class' using brackets:\nplayer_class = \n\n# 3. Safely access 'stamina' using .get():\nstamina_level = \n\n# 4. Update 'health':\n",
+  "solution": "# 1. Create the dictionary:\nplayer_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\n\n# 2. Access 'class' using brackets:\nplayer_class = player_stats['class']\n\n# 3. Safely access 'stamina' using .get():\nstamina_level = player_stats.get('stamina', 20)\n\n# 4. Update 'health':\nplayer_stats['health'] = 85",
+  "hints": [
+    "Remember to use colons (`:`) to separate the key from the value, and commas (`,`) to separate the pairs.",
+    "Bracket notation is `dictionary[key]` and is used for both retrieval and updating.",
+    "The `.get()` method requires two arguments in step 3: the key you want to find, and the value to use if the key is missing."
+  ],
+  "tags": ["dictionary", "key-value", "get-method", "mutable"],
+  "challengeGroup": "dictionary-basics"
+}

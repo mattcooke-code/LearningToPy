@@ -9,5 +9,17 @@ router.get("/current", protect, progressController.getCurrentProgress);
 
 router.get("/achievements", protect, progressController.getAchievements);
 
+router.get(
+  "/leaderboard/around-me",
+  protect,
+  progressController.getSurroundingLeaderboard
+);
+
+router.get(
+  "/leaderboard/module/:moduleId",
+  protect,
+  progressController.getModuleLeaderboard
+);
+
 // === EXPORT ===
 module.exports = router;

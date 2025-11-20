@@ -1,3 +1,4 @@
+// ThemeContext.jsx
 import {
   createContext,
   useContext,
@@ -39,19 +40,20 @@ export const ThemeProvider = ({ children }) => {
   }, [themeColor]);
 
   const resolveOverallColor = useCallback((progressPercentage) => {
-    if (progressPercentage <= 20) {
-      return THEME_COLORS.RED;
+    // Match visual perception of the gauge
+    if (progressPercentage <= 25) {
+      return THEME_COLORS.RED; // Clearly in red zone
     }
-    if (progressPercentage <= 30) {
-      return THEME_COLORS.ORANGE;
+    if (progressPercentage <= 45) {
+      return "#f97316"; // Orange-red transition
     }
-    if (progressPercentage <= 70) {
-      return THEME_COLORS.YELLOW;
+    if (progressPercentage <= 65) {
+      return THEME_COLORS.YELLOW; // Clearly in yellow zone
     }
-    if (progressPercentage <= 80) {
-      return THEME_COLORS.LIME;
+    if (progressPercentage <= 85) {
+      return "#84cc16"; // Lime green-yellow transition
     }
-    return THEME_COLORS.GREEN;
+    return THEME_COLORS.GREEN; // Clearly in green zone
   }, []);
 
   /**

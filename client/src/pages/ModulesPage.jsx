@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import BackToTopButton from "../components/ui/BackToTopButton";
 import {
   BookOpen,
   Lock,
@@ -267,6 +268,7 @@ const ModulesPage = () => {
             <div className="text-gray-600">Total XP</div>
           </div>
         </div>
+        <BackToTopButton />
       </div>
     </div>
   );

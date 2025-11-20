@@ -1,0 +1,12 @@
+{
+  "instructions": "In the coding window, try to indent the print() statement using 4 spaces so that the program runs without an error. If you remove the indentation, you should see an IndentationError.",
+  "starterCode": "if 1 == 1:\nprint(\"I need to be indented!\")",
+  "solution": "if 1 == 1:\n    print(\"I need to be indented!\")",
+  "hints": [
+    "Python requires consistent indentation for code blocks",
+    "Use exactly 4 spaces for each level of indentation",
+    "The print statement should be indented under the if statement"
+  ],
+  "tags": ["syntax", "indentation"],
+  "challengeGroup": "fundamentals"
+}

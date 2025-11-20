@@ -1,0 +1,20 @@
+{
+  "title": "Data Comparison with Sets",
+  "instructions": "Use set operators (`|`, `&`, `-`) to perform the required data comparisons.",
+  "steps": [
+    "Use the **union operator (`|`)** to combine `set_a` and `set_b` and assign the result to `combined_unique_numbers`.",
+    "Use the **intersection operator (`&`)** to find common elements between `set_a` and `set_c`. Assign the result to `common_elements`.",
+    "Use the **difference operator (`-`)** to find elements that are in `premium_users` but **not** in `active_subscribers`. Assign the result to `stale_premium_users`.",
+    "Use the **symmetric difference operator (`^`)** to find all elements that are unique to either `set_c` or `set_b`. Assign the result to `unique_to_each_set`."
+  ],
+  "starterCode": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# 1. Union (A | B):\ncombined_unique_numbers = \n\n# 2. Intersection (A & C):\ncommon_elements = \n\n# 3. Difference (Premium - Active):\nstale_premium_users = \n\n# 4. Symmetric Difference (C ^ B):\nunique_to_each_set = ",
+  "solution": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# 1. Union (A | B):\ncombined_unique_numbers = set_a | set_b\n\n# 2. Intersection (A & C):\ncommon_elements = set_a & set_c\n\n# 3. Difference (Premium - Active):\nstale_premium_users = premium_users - active_subscribers\n\n# 4. Symmetric Difference (C ^ B):\nunique_to_each_set = set_c ^ set_b",
+  "hints": [
+    "The union operator is `|` (pipe).",
+    "The intersection operator is `&` (ampersand).",
+    "The difference operator is `-` (minus).",
+    "The symmetric difference operator is `^` (caret)."
+  ],
+  "tags": ["set-operations", "union", "intersection", "difference"],
+  "challengeGroup": "set-theory"
+}
