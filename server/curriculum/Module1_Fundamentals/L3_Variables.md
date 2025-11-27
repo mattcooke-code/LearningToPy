@@ -23,13 +23,13 @@ age = 26 # 'age' now holds 26 instead of 25
 
 Variable names must be descriptive and follow a few simple rules:
 
-They must start with a letter `(a-z, A-Z)` or an underscore `(\_)`.
+• They must start with a letter `(a-z, A-Z)` or an underscore `(\_)`.
 
-They cannot start with a number.
+• They cannot start with a number.
 
-They can only contain letters, numbers, and underscores.
+• They can only contain letters, numbers, and underscores.
 
-They are Case Sensitive (Name and name are treated as two different variables).
+• They are Case Sensitive (Name and name are treated as two different variables).
 
 ## 3. Best Practice: Snake Case
 

@@ -1,0 +1,23 @@
+{
+  "title": "Querying Data with SELECT and Fetching Results",
+  "instructions": "Recreate the database from the previous lesson, insert the data, and then use `SELECT` and `fetchall()` to retrieve all product names and prices.",
+  "steps": [
+    "Connect to `inventory.db` and set up the `products` table and data (from L2 solution).",
+    "Execute an SQL statement to `SELECT name, price FROM products`.",
+    "Use `cursor.fetchall()` to retrieve all resulting records and store them in `all_products`.",
+    "Use a `for` loop to iterate through `all_products` and print each product's name and price, formatted neatly."
+  ],
+  "starterCode": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # Setup: Create table and insert data (from L2)\n    cursor.execute(\"DROP TABLE IF EXISTS products\")\n    cursor.execute(\"CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, price REAL)\")\n    products_to_insert = [\n        ('Keyboard', 75.00),\n        ('Mouse', 25.50),\n        ('Monitor', 199.99)\n    ]\n    cursor.executemany(\"INSERT INTO products (name, price) VALUES (?, ?);\", products_to_insert)\n    conn.commit()\n\n    # 1. Execute the SELECT query to get name and price\n    select_sql = \"...\"\n    cursor.execute(select_sql)\n\n    # 2. Fetch all results\n    all_products = ...\n\n    # 3. Print the results\n    print(\"--- Inventory List ---\")\n    for product in all_products:\n        # 'product' is a tuple (name, price)\n        print(f\"{product[0]}: ${product[1]:.2f}\")\n",
+  "solution": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # Setup: Create table and insert data (from L2)\n    cursor.execute(\"DROP TABLE IF EXISTS products\")\n    cursor.execute(\"CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, price REAL)\")\n    products_to_insert = [\n        ('Keyboard', 75.00),\n        ('Mouse', 25.50),\n        ('Monitor', 199.99)\n    ]\n    cursor.executemany(\"INSERT INTO products (name, price) VALUES (?, ?);\", products_to_insert)\n    conn.commit()\n\n    # 1. Execute the SELECT query to get name and price\n    select_sql = \"SELECT name, price FROM products\"\n    cursor.execute(select_sql)\n\n    # 2. Fetch all results\n    all_products = cursor.fetchall()\n\n    # 3. Print the results\n    print(\"--- Inventory List ---\")\n    for product in all_products:\n        # 'product' is a tuple (name, price)\n        print(f\"{product[0]}: ${product[1]:.2f}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The `SELECT` statement should list the columns you want: `name, price`.",
+    "Use the `*` wildcard for all columns, but selecting only what you need is better practice.",
+    "The result of `fetchall()` is a list of tuples."
+  ],
+  "validation": {
+    "output": "--- Inventory List ---\nKeyboard: $75.00\nMouse: $25.50\nMonitor: $199.99\n"
+  },
+  "tags": ["sqlite3", "select", "fetchall", "query"],
+  "challengeGroup": "database-interaction"
+}

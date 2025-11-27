@@ -1,0 +1,24 @@
+{
+  "title": "Using Shared Data and Utility Methods",
+  "instructions": "Create a `DatabaseConnector` class to use both a class variable for a constant setting and a static method for data cleaning.",
+  "steps": [
+    "Define a class named `DatabaseConnector`.",
+    "Define a **class attribute** called `DEFAULT_TIMEOUT` and set its value to `10` (seconds).",
+    "Implement a **static method** `sanitize_input(text)` that takes a string `text` and returns a lowercase version of the text with leading/trailing whitespace removed.",
+    "Print the value of `DEFAULT_TIMEOUT` directly from the class.",
+    "Call the static method `sanitize_input` on the class with the input `'    Hello World!   '`. Print the result."
+  ],
+  "starterCode": "class DatabaseConnector:\n    # 1. Define the class attribute here\n    \n\n    # 2. Implement the static method here\n\n\n# 3. Print the class attribute\nprint(DatabaseConnector.DEFAULT_TIMEOUT)\n\n# 4. Call and print the static method\nprint(DatabaseConnector.sanitize_input('    Hello World!   '))\n",
+  "solution": "class DatabaseConnector:\n    # Class Attribute: Shared by all instances\n    DEFAULT_TIMEOUT = 10\n\n    @staticmethod\n    def sanitize_input(text):\n        # Returns lowercase string with whitespace removed\n        return text.strip().lower()\n\n\n# Print the class attribute\nprint(DatabaseConnector.DEFAULT_TIMEOUT)\n\n# Call and print the static method\nprint(DatabaseConnector.sanitize_input('    Hello World!   '))\n",
+  "fileSetup": {},
+  "hints": [
+    "The class attribute should be defined without `self` or `def`.",
+    "The static method must be decorated with `@staticmethod` and accept only the `text` parameter (no `self` or `cls`).",
+    "Use the `.strip()` and `.lower()` string methods to clean the input."
+  ],
+  "validation": {
+    "output": "10\nhello world!\n"
+  },
+  "tags": ["class-variable", "static-method", "utility", "constants"],
+  "challengeGroup": "oop-class-static"
+}

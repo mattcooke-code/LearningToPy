@@ -1,0 +1,32 @@
+{
+  "title": "Handling Specific Exceptions",
+  "instructions": "Practice catching specific exception types and providing appropriate error messages for different error scenarios.",
+  "steps": [
+    "Write a try block that attempts to open and read a file, then convert its content to an integer",
+    "Add an except block for FileNotFoundError that prints 'File not found'",
+    "Add an except block for ValueError that prints 'File contains invalid number'",
+    "Add an except block for ZeroDivisionError that prints 'Cannot divide by zero'",
+    "After the try/except, print 'Processing complete'"
+  ],
+  "starterCode": "result = 0\n\n# 1. Try block with file operations and division:\n\n\n# 2. Handle file not found:\n\n\n# 3. Handle invalid number conversion:\n\n\n# 4. Handle division by zero:\n\n\n# 5. Completion message:\nprint('Processing complete')",
+  "solution": "result = 0\n\n# 1. Try block with file operations and division:\ntry:\n    with open('data.txt', 'r') as f:\n        content = f.read().strip()\n    number = int(content)\n    result = 100 / number\n    print(f\"Result: {result}\")\n\n# 2. Handle file not found:\nexcept FileNotFoundError:\n    print(\"File not found\")\n\n# 3. Handle invalid number conversion:\nexcept ValueError:\n    print(\"File contains invalid number\")\n\n# 4. Handle division by zero:\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")\n\n# 5. Completion message:\nprint('Processing complete')",
+  "fileSetup": {
+    "data.txt": "0"
+  },
+  "hints": [
+    "Remember the order: more specific exceptions should come first",
+    "FileNotFoundError occurs when the file doesn't exist",
+    "ValueError occurs when int() gets non-numeric input",
+    "ZeroDivisionError occurs when dividing by zero"
+  ],
+  "validation": {
+    "output": "Cannot divide by zero\\nProcessing complete\\n"
+  },
+  "tags": [
+    "specific-exceptions",
+    "valueerror",
+    "filenotfounderror",
+    "zerodivisionerror"
+  ],
+  "challengeGroup": "specific-exceptions"
+}

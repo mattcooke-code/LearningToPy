@@ -1,0 +1,25 @@
+{
+  "title": "Project: Parameterized Queries and Updating Data",
+  "instructions": "Recreate the inventory, insert a new item using a parameterized query, update one existing price, and then delete a record, ensuring all changes are committed.",
+  "steps": [
+    "Setup the `products` table and initial data.",
+    "Insert a new product: 'Webcam', price 55.00. Use a parameterized query `(?, ?)`.",
+    "Update the 'Keyboard' price to 90.00.",
+    "Delete the product where the price is 25.50 (the Mouse).",
+    "Commit all changes.",
+    "Select and print all remaining products to verify the changes."
+  ],
+  "starterCode": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # SETUP (from L3):\n    cursor.execute(\"DROP TABLE IF EXISTS products\")\n    cursor.execute(\"CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, price REAL)\")\n    products_to_insert = [('Keyboard', 75.00),('Mouse', 25.50),('Monitor', 199.99)]\n    cursor.executemany(\"INSERT INTO products (name, price) VALUES (?, ?);\", products_to_insert)\n    conn.commit()\n\n    # 1. Insert 'Webcam' using a parameterized query\n    new_product_data = ('Webcam', 55.00)\n    insert_sql = \"...\"\n    cursor.execute(insert_sql, ...)\n\n    # 2. Update 'Keyboard' price to 90.00\n    update_sql = \"...\"\n    cursor.execute(update_sql)\n\n    # 3. Delete the 'Mouse' (price 25.50)\n    delete_sql = \"...\"\n    cursor.execute(delete_sql)\n    \n    # 4. Commit all changes\n    conn....\n\n    # 5. Select and print remaining data\n    print(\"--- Final Inventory ---\")\n    cursor.execute(\"SELECT name, price FROM products\")\n    for name, price in cursor.fetchall():\n        print(f\"{name}: ${price:.2f}\")\n",
+  "solution": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # SETUP (from L3):\n    cursor.execute(\"DROP TABLE IF EXISTS products\")\n    cursor.execute(\"CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT NOT NULL, price REAL)\")\n    products_to_insert = [('Keyboard', 75.00),('Mouse', 25.50),('Monitor', 199.99)]\n    cursor.executemany(\"INSERT INTO products (name, price) VALUES (?, ?);\", products_to_insert)\n    conn.commit()\n\n    # 1. Insert 'Webcam' using a parameterized query\n    new_product_data = ('Webcam', 55.00)\n    insert_sql = \"INSERT INTO products (name, price) VALUES (?, ?)\"\n    cursor.execute(insert_sql, new_product_data)\n\n    # 2. Update 'Keyboard' price to 90.00\n    update_sql = \"UPDATE products SET price = 90.00 WHERE name = 'Keyboard'\"\n    cursor.execute(update_sql)\n\n    # 3. Delete the 'Mouse' (price 25.50)\n    delete_sql = \"DELETE FROM products WHERE price = 25.50\"\n    cursor.execute(delete_sql)\n    \n    # 4. Commit all changes\n    conn.commit()\n\n    # 5. Select and print remaining data\n    print(\"--- Final Inventory ---\")\n    cursor.execute(\"SELECT name, price FROM products\")\n    for name, price in cursor.fetchall():\n        print(f\"{name}: ${price:.2f}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The parameterized query requires the data tuple as the second argument to `cursor.execute()`.",
+    "The `UPDATE` and `DELETE` statements both require a `WHERE` clause to target specific rows.",
+    "Make sure `conn.commit()` is called after all modifying SQL commands."
+  ],
+  "validation": {
+    "output": "--- Final Inventory ---\nKeyboard: $90.00\nMonitor: $199.99\nWebcam: $55.00\n"
+  },
+  "tags": ["sqlite3", "parameterized-query", "update", "delete", "project"],
+  "challengeGroup": "database-interaction"
+}

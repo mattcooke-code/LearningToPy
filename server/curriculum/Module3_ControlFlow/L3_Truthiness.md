@@ -20,9 +20,9 @@ Any value that is **not Falsy** is considered **Truthy** (evaluates to `True`).
 
 Examples of Truthy values:
 
-- Any non-zero number (e.g., `1`, `-10`, `3.14`).
-- Any non-empty sequence (e.g., `'Hello'`, `[1, 2]`, `(5,)`).
-- The special constant `True` itself.
+• Any non-zero number (e.g., `1`, `-10`, `3.14`).
+• Any non-empty sequence (e.g., `'Hello'`, `[1, 2]`, `(5,)`).
+• The special constant `True` itself.
 
 ## 3. Writing Pythonic Conditionals
 

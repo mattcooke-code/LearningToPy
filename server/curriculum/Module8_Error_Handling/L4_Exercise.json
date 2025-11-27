@@ -1,0 +1,28 @@
+{
+  "title": "Raising Custom Exceptions",
+  "instructions": "Practice raising exceptions for input validation and creating custom exception classes for specific error conditions.",
+  "steps": [
+    "Create a function validate_password that takes a password string",
+    "If password is less than 8 characters, raise ValueError with message 'Password must be at least 8 characters'",
+    "If password doesn't contain a digit, raise ValueError with message 'Password must contain at least one digit'",
+    "Test the function with different passwords and handle the exceptions appropriately"
+  ],
+  "starterCode": "# 1. Create validate_password function:\n\n\n\n# 2. Test with valid password:\nprint(\"Testing 'Secure123':\")\n\n\n# 3. Test with short password:\nprint(\"Testing 'short':\")\n\n\n# 4. Test with no digits:\nprint(\"Testing \"NoDigits\")\"\n\n",
+  "solution": "# 1. Create validate_password function:\ndef validate_password(password):\n    if len(password) < 8:\n        raise ValueError(\"Password must be at least 8 characters\")\n    if not any(char.isdigit() for char in password):\n        raise ValueError(\"Password must contain at least one digit\")\n    return \"Password is valid!\"\n\n# 2. Test with valid password:\nprint(\"Testing 'Secure123':\")\ntry:\n    result = validate_password(\"Secure123\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\n# 3. Test with short password:\nprint(\"Testing 'short':\")\ntry:\n    result = validate_password(\"short\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\n# 4. Test with no digits:\nprint(\"Testing 'NoDigits':\")\ntry:\n    result = validate_password(\"NoDigits\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")",
+  "hints": [
+    "Use len(password) to check length",
+    "Use any() with char.isdigit() to check for digits",
+    "Raise ValueError with descriptive messages",
+    "Test each case in separate try/except blocks"
+  ],
+  "validation": {
+    "output": "Testing 'Secure123':\\nPassword is valid!\\nTesting 'short':\\nError: Password must be at least 8 characters\\nTesting 'NoDigits':\\nError: Password must contain at least one digit\\n"
+  },
+  "tags": [
+    "raising-exceptions",
+    "valueerror",
+    "input-validation",
+    "custom-errors"
+  ],
+  "challengeGroup": "raising-exceptions"
+}

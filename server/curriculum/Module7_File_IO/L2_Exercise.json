@@ -1,0 +1,31 @@
+{
+  "title": "Line-by-Line Reading",
+  "instructions": "Practice reading file contents line by line using different methods. Learn how file pointers work and when you need to reopen files.",
+  "steps": [
+    "Open the file `shopping_list.txt` in read mode and assign it to `f_handle`.",
+    "Use a **`for` loop** to iterate over `f_handle`. Inside the loop, print each line after stripping whitespace, and track the last processed line in `last_item_stripped`.",
+    "Close `f_handle` - the file pointer is now at the end, so we need a fresh start.",
+    "Re-open the file `shopping_list.txt` and assign the new handle to `f_lines`.",
+    "Use **`.readlines()`** to read all lines into `all_items_list`.",
+    "Close `f_lines`."
+  ],
+  "starterCode": "# The file 'shopping_list.txt' is available.\n\n# 1. Open the file for iteration:\nf_handle = \n\n# 2. Iterate through file, strip/print lines, track last item:\nlast_item_stripped = ''\n\n\n# 3. Close the first handle:\n\n\n# 4. Re-open for .readlines():\nf_lines = \n\n# 5. Read all lines into a list:\nall_items_list = \n\n# 6. Close the second handle:",
+  "solution": "# The file 'shopping_list.txt' is available.\n\n# 1. Open the file for iteration:\nf_handle = open('shopping_list.txt', 'r')\n\n# 2. Iterate through file, strip/print lines, track last item:\nlast_item_stripped = ''\nfor line in f_handle:\n    stripped_line = line.strip()\n    print(stripped_line)\n    last_item_stripped = stripped_line\n\n# 3. Close the first handle:\nf_handle.close()\n\n# 4. Re-open for .readlines():\nf_lines = open('shopping_list.txt', 'r')\n\n# 5. Read all lines into a list:\nall_items_list = f_lines.readlines()\n\n# 6. Close the second handle:\nf_lines.close()",
+  "fileSetup": {
+    "shopping_list.txt": "Milk\nEggs\nBread\nCheese"
+  },
+  "hints": [
+    "File pointers: After reading through a file once, the pointer is at the end - you can't read more without resetting.",
+    "Use `for line in file_handle:` for efficient line-by-line processing.",
+    "`.strip()` removes newlines and other whitespace from both ends.",
+    "You must close and reopen to reset the file pointer to the beginning."
+  ],
+  "validation": {
+    "variables": {
+      "last_item_stripped": "Cheese",
+      "all_items_list": ["Milk\\n", "Eggs\\n", "Bread\\n", "Cheese"]
+    }
+  },
+  "tags": ["file-io", "readlines", "iteration", "file-pointer"],
+  "challengeGroup": "file-line-processing"
+}

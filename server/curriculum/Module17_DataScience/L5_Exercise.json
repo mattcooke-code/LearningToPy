@@ -1,0 +1,24 @@
+{
+  "title": "Project: Data Selection and Filtering",
+  "instructions": "Create a DataFrame of employee data. Select two columns and then filter the rows based on combined logical conditions.",
+  "steps": [
+    "Import `pandas` as `pd`.",
+    "Define the following data as a dictionary: `employees = {'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'], 'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'], 'Salary': [65000, 72000, 68000, 75000, 55000]}`.",
+    "Create a DataFrame `emp_df` from `employees`.",
+    "Select ONLY the 'Name' and 'Salary' columns and store the result in `salary_info_df`.",
+    "Create a new DataFrame, `high_earners_sales`, that contains employees who are in the 'Sales' department AND have a 'Salary' greater than 66000 (i.e., not Jenna).",
+    "Print the `high_earners_sales` DataFrame."
+  ],
+  "starterCode": "import pandas as pd\n\nemployees = {\n    'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'],\n    'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'],\n    'Salary': [65000, 72000, 68000, 75000, 55000]\n}\n\n# 1. Create the DataFrame\nemp_df = pd.DataFrame(employees)\n\n# 2. Select ONLY the 'Name' and 'Salary' columns\nsalary_info_df = ...\n\n# 3. Filter for 'Sales' AND Salary > 66000\nhigh_earners_sales = ...\n\n# 4. Print the final result\nprint(high_earners_sales)\n",
+  "solution": "import pandas as pd\n\nemployees = {\n    'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'],\n    'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'],\n    'Salary': [65000, 72000, 68000, 75000, 55000]\n}\n\n# 1. Create the DataFrame\nemp_df = pd.DataFrame(employees)\n\n# 2. Select ONLY the 'Name' and 'Salary' columns\nsalary_info_df = emp_df[['Name', 'Salary']]\n\n# 3. Filter for 'Sales' AND Salary > 66000\n# (Condition 1: Department is 'Sales') & (Condition 2: Salary > 66000)\nhigh_earners_sales = emp_df[(emp_df['Department'] == 'Sales') & (emp_df['Salary'] > 66000)]\n\n# 4. Print the final result\nprint(high_earners_sales)\n",
+  "fileSetup": {},
+  "hints": [
+    "Remember to use double square brackets `[[]]` when selecting multiple columns.",
+    "When combining boolean conditions, each condition must be in parentheses, and you must use `&` for AND (not `and`)."
+  ],
+  "validation": {
+    "output": "    Name Department  Salary\n2   Lily      Sales   68000\n"
+  },
+  "tags": ["pandas", "dataframe", "filtering", "boolean-masking", "project"],
+  "challengeGroup": "data-science-intro"
+}

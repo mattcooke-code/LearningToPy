@@ -27,6 +27,12 @@ const THEME_COLORS = {
   GREEN: "#22c55e", // 80-100% or 100%
 };
 
+// Code theme constants
+const CODE_THEMES = {
+  DARK: "dark",
+  LIGHT: "light",
+};
+
 export const ThemeProvider = ({ children }) => {
   // Initialize from localStorage if available
   const [themeColor, setThemeColor] = useState(() => {
@@ -34,10 +40,21 @@ export const ThemeProvider = ({ children }) => {
     return saved || THEME_COLORS.DEFAULT;
   });
 
+  // Initialize code theme from localStorage or default to dark
+  const [codeTheme, setCodeTheme] = useState(() => {
+    const saved = localStorage.getItem("codeTheme");
+    return saved || CODE_THEMES.DARK;
+  });
+
   // Persist theme color to localStorage
   useEffect(() => {
     localStorage.setItem("themeColor", themeColor);
   }, [themeColor]);
+
+  // Persist code theme to localStorage
+  useEffect(() => {
+    localStorage.setItem("codeTheme", codeTheme);
+  }, [codeTheme]);
 
   const resolveOverallColor = useCallback((progressPercentage) => {
     // Match visual perception of the gauge
@@ -84,12 +101,32 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   /**
+   * Toggle code theme between dark and light
+   */
+  const toggleCodeTheme = useCallback(() => {
+    setCodeTheme((prev) =>
+      prev === CODE_THEMES.DARK ? CODE_THEMES.LIGHT : CODE_THEMES.DARK
+    );
+  }, []);
+
+  /**
+   * Set code theme explicitly
+   */
+  const setCodeThemeExplicit = useCallback((theme) => {
+    if (Object.values(CODE_THEMES).includes(theme)) {
+      setCodeTheme(theme);
+    }
+  }, []);
+
+  /**
    * Reset theme to default Python blue
    * Called on logout via window.resetTheme
    */
   const resetTheme = useCallback(() => {
     setThemeColor(THEME_COLORS.DEFAULT);
+    setCodeTheme(CODE_THEMES.DARK); // Reset code theme to dark
     localStorage.removeItem("themeColor");
+    localStorage.removeItem("codeTheme");
   }, []);
 
   // Expose resetTheme globally for logout
@@ -101,10 +138,18 @@ export const ThemeProvider = ({ children }) => {
   }, [resetTheme]);
 
   const value = {
+    // Main theme
     themeColor,
     updateThemeFromProgress,
     getModuleThemeColor,
     resetTheme,
+
+    // Code theme
+    codeTheme,
+    toggleCodeTheme,
+    setCodeTheme: setCodeThemeExplicit,
+    isCodeDark: codeTheme === CODE_THEMES.DARK,
+    CODE_THEMES, // Export constants for components to use
   };
 
   return (

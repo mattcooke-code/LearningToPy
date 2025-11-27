@@ -1,0 +1,25 @@
+{
+  "title": "Date Arithmetic with timedelta",
+  "instructions": "Use `timedelta` to calculate the difference between two dates and determine a future deadline.",
+  "steps": [
+    "Import `datetime` and `timedelta` from the `datetime` module.",
+    "Define two datetime objects: `project_start = datetime(2024, 9, 10)` and `project_end = datetime(2025, 1, 15)`.",
+    "Calculate the duration of the project (`project_end - project_start`). Store the result in `duration` and print it.",
+    "Define a `timedelta` representing a 45-day extension: `extension = timedelta(days=45)`.",
+    "Calculate the new deadline by adding the `extension` to the `project_end` date. Store it in `new_deadline`.",
+    "Print the `new_deadline` (date only, using `.date()` attribute)."
+  ],
+  "starterCode": "from datetime import datetime, timedelta\n\nproject_start = datetime(2024, 9, 10)\nproject_end = datetime(2025, 1, 15)\n\n# 1. Calculate duration and print\nduration = ...\nprint(duration)\n\n# 2. Define the extension timedelta\nextension = ...\n\n# 3. Calculate and print the new deadline\nnew_deadline = ...\nprint(new_deadline.date())\n",
+  "solution": "from datetime import datetime, timedelta\n\nproject_start = datetime(2024, 9, 10)\nproject_end = datetime(2025, 1, 15)\n\n# 1. Calculate duration and print\nduration = project_end - project_start\nprint(duration)\n\n# 2. Define the extension timedelta\nextension = timedelta(days=45)\n\n# 3. Calculate and print the new deadline\nnew_deadline = project_end + extension\nprint(new_deadline.date())\n",
+  "fileSetup": {},
+  "hints": [
+    "Subtracting two `datetime` objects (`project_end - project_start`) gives you the `timedelta` object.",
+    "To calculate the future date, use the addition operator: `project_end + extension`.",
+    "The problem asks you to print only the date part of the `new_deadline` object."
+  ],
+  "validation": {
+    "output": "127 days, 0:00:00\n2025-03-01\n"
+  },
+  "tags": ["timedelta", "arithmetic", "date-difference", "date-manipulation"],
+  "challengeGroup": "datetime-timedelta"
+}

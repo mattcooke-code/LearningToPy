@@ -1,0 +1,48 @@
+{
+  "title": "Functional Programming Tools",
+  "instructions": "Practice using map(), filter(), reduce(), and other functional programming tools to process and transform data in a declarative style.",
+  "steps": [
+    "Use map() to transform a list of numbers by applying mathematical operations",
+    "Use filter() to select elements from a list based on various conditions",
+    "Use reduce() to aggregate data into single values like sums and products",
+    "Combine map(), filter(), and reduce() in data processing pipelines",
+    "Use functools.partial() to create specialized functions"
+  ],
+  "starterCode": "from functools import reduce, partial\n\nnumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nwords = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig']\nsales = [100, 200, 150, 300, 250, 400]\n\n# 1. Use map() to square numbers and convert to strings:\nsquared_strings = \n\n# 2. Use filter() to get words longer than 5 characters:\nlong_words = \n\n# 3. Use reduce() to find the product of all numbers:\nproduct = \n\n# 4. Pipeline: filter even numbers → square them → sum results:\npipeline_result = \n\n# 5. Use partial() to create specialized functions:\ndef greet(greeting, name, punctuation='!'):\n    return f\"{greeting}, {name}{punctuation}\"\n\nsay_hello = ",
+  "solution": "from functools import reduce, partial\n\nnumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nwords = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig']\nsales = [100, 200, 150, 300, 250, 400]\n\n# 1. Use map() to square numbers and convert to strings:\nsquared_strings = list(map(lambda x: str(x ** 2), numbers))\n\n# 2. Use filter() to get words longer than 5 characters:\nlong_words = list(filter(lambda word: len(word) > 5, words))\n\n# 3. Use reduce() to find the product of all numbers:\nproduct = reduce(lambda x, y: x * y, numbers)\n\n# 4. Pipeline: filter even numbers → square them → sum results:\npipeline_result = reduce(\n    lambda x, y: x + y,\n    map(lambda x: x ** 2, filter(lambda x: x % 2 == 0, numbers))\n)\n\n# 5. Use partial() to create specialized functions:\ndef greet(greeting, name, punctuation='!'):\n    return f\"{greeting}, {name}{punctuation}\"\n\nsay_hello = partial(greet, \"Hello\")\nsay_hi_excited = partial(greet, \"Hi\", punctuation=\"!!!\")",
+  "validation": {
+    "variables": {
+      "squared_strings": [
+        "1",
+        "4",
+        "9",
+        "16",
+        "25",
+        "36",
+        "49",
+        "64",
+        "81",
+        "100"
+      ],
+      "long_words": ["banana", "cherry", "elderberry"],
+      "product": 3628800,
+      "pipeline_result": 220
+    }
+  },
+  "hints": [
+    "map() returns an iterator - convert to list to see results",
+    "filter() uses a function that returns True/False for each element",
+    "reduce() needs an initial value for empty iterables",
+    "Combine functional tools by nesting them",
+    "partial() fixes certain arguments of a function"
+  ],
+  "tags": [
+    "map",
+    "filter",
+    "reduce",
+    "functional-programming",
+    "functools",
+    "partial"
+  ],
+  "challengeGroup": "functional-tools"
+}

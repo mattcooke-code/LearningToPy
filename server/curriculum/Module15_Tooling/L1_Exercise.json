@@ -1,0 +1,23 @@
+{
+  "title": "Guided Setup: Creating and Activating a Virtual Environment",
+  "instructions": "This is a guided exercise simulating the command line steps required to set up a clean, isolated project environment.",
+  "steps": [
+    "Create a virtual environment named `tutorial_env` using the Python `venv` module.",
+    "Activate the newly created `tutorial_env`.",
+    "Verify the environment is active by installing a dummy package (like `pip install requests==2.20.0` or running `pip freeze`). Since we cannot run actual terminal commands here, simulate the successful output.",
+    "Deactivate the `tutorial_env`."
+  ],
+  "starterCode": "# The canvas environment cannot run external shell commands, \n# so we simulate the commands and verify the steps conceptually.\n\n# 1. Simulate creation command (terminal command):\n# python3 -m venv tutorial_env\nprint(\"STEP 1: Virtual environment 'tutorial_env' created.\")\n\n# 2. Simulate activation command (terminal command):\n# source tutorial_env/bin/activate (Linux/macOS)\n# .\\tutorial_env\\Scripts\\activate.bat (Windows CMD)\nprint(\"STEP 2: Virtual environment 'tutorial_env' activated.\")\n\n# 3. Simulate package install and verification:\n# (tutorial_env) pip install requests\n# (tutorial_env) pip freeze\nprint(\"STEP 3: Dependency environment is now isolated.\")\n\n# 4. Simulate deactivation command (terminal command):\n# deactivate\nprint(\"STEP 4: Virtual environment deactivated.\")\n\n# Your final output must match the expected sequence below.\n",
+  "solution": "# The canvas environment cannot run external shell commands, \n# so we simulate the commands and verify the steps conceptually.\n\n# 1. Simulate creation command (terminal command):\n# python3 -m venv tutorial_env\nprint(\"STEP 1: Virtual environment 'tutorial_env' created.\")\n\n# 2. Simulate activation command (terminal command):\n# source tutorial_env/bin/activate (Linux/macOS)\n# .\\tutorial_env\\Scripts\\activate.bat (Windows CMD)\nprint(\"STEP 2: Virtual environment 'tutorial_env' activated.\")\n\n# 3. Simulate package install and verification:\n# (tutorial_env) pip install requests\n# (tutorial_env) pip freeze\nprint(\"STEP 3: Dependency environment is now isolated.\")\n\n# 4. Simulate deactivation command (terminal command):\n# deactivate\nprint(\"STEP 4: Virtual environment deactivated.\")\n\n# The goal is to understand the sequence of commands, not to execute them.\n",
+  "fileSetup": {},
+  "hints": [
+    "The creation command is `python3 -m venv <name>`.",
+    "Activation and deactivation are shell commands that manage your environment's PATH settings.",
+    "The commands for activation differ slightly between operating systems, but `deactivate` is universal."
+  ],
+  "validation": {
+    "output": "STEP 1: Virtual environment 'tutorial_env' created.\nSTEP 2: Virtual environment 'tutorial_env' activated.\nSTEP 3: Dependency environment is now isolated.\nSTEP 4: Virtual environment deactivated.\n"
+  },
+  "tags": ["venv", "virtual-environment", "tooling", "pip"],
+  "challengeGroup": "python-tooling"
+}

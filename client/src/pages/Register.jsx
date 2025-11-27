@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import Spinner from "../components/ui/Spinner";
+import { useAuth } from "../context";
+import { Spinner } from "../components/ui";
 
 const Register = () => {
   // --- STATE MANAGEMENT ---

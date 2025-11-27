@@ -1,0 +1,48 @@
+{
+  "title": "Data Transformation Pipeline Project",
+  "instructions": "Build a comprehensive data processing pipeline using comprehensions to analyze sales data from multiple sources and generate various business intelligence reports.",
+  "steps": [
+    "Load and parse sales data from CSV using list comprehensions with data validation",
+    "Load product information from JSON and create lookup dictionaries using dict comprehensions",
+    "Load employee data and create efficient lookup structures",
+    "Calculate key metrics: total revenue, profit, best-selling products using comprehensions",
+    "**Identify unique product categories using a set comprehension**",
+    "Generate various reports using appropriate comprehension patterns",
+    "**Use an explicit generator expression to calculate average transaction revenue**"
+  ],
+  "starterCode": "import json\nimport csv\nfrom typing import List, Dict, Any\n\n# Data structures to hold loaded data\nsales_data = []\nproducts = {}\nemployees = {}\n\n# 1. Load sales data from CSV\n# TODO: Implement CSV loading with validation\n\n# 2. Load products from JSON\n# TODO: Implement JSON loading\n\n# 3. Load employees from text file\n# TODO: Implement employee data loading\n\n# 4. Data analysis and transformation\n# TODO: Implement various analyses using comprehensions\n\n# 5. Report generation\n# TODO: Generate required reports",
+  "solution": "import json\nimport csv\nfrom typing import List, Dict, Any\nfrom collections import defaultdict\n\n# 1. Load sales data from CSV with validation\ndef load_sales_data(filename: str) -> List[Dict]:\n \twith open(filename, \"r\") as file:\n \t\treader = csv.DictReader(file)\n \t\treturn [\n \t\t\t{\n \t\t\t\t\"transaction_id\": int(row[\"transaction_id\"]),\n \t\t\t\t\"product_id\": row[\"product_id\"],\n \t\t\t\t\"employee_id\": row[\"employee_id\"],\n \t\t\t\t\"quantity\": int(row[\"quantity\"]),\n \t\t\t\t\"unit_price\": float(row[\"unit_price\"]),\n \t\t\t\t\"sale_date\": row[\"sale_date\"]\n \t\t\t}\n \t\t\tfor row in reader\n \t\t\tif row[\"transaction_id\"].isdigit() and row[\"quantity\"].isdigit()\n \t\t]\n\n# 2. Load products from JSON\ndef load_products(filename: str) -> Dict:\n \twith open(filename, \"r\") as file:\n \t\tdata = json.load(file)\n \t\treturn {pid: info for pid, info in data.items()}\n\n# 3. Load employees from text file\ndef load_employees(filename: str) -> Dict:\n \twith open(filename, \"r\") as file:\n \t\treturn {\n \t\t\tparts[0]: {\"name\": parts[1], \"department\": parts[2]}\n \t\t\tfor line in file\n \t\t\tif (parts := line.strip().split(\",\")) and len(parts) == 3\n \t\t}\n\n# Load all data\nsales_data = load_sales_data(\"sales.csv\")\nproducts = load_products(\"products.json\")\nemployees = load_employees(\"employees.txt\")\n\n# 4. Data analysis using comprehensions\n\n# Calculate total revenue per product (uses nested generator expression)\nproduct_revenue = {\n \tproduct_id: sum(sale[\"quantity\"] * sale[\"unit_price\"] for sale in sales_data if sale[\"product_id\"] == product_id)\n \tfor product_id in products.keys()\n}\n\n# Calculate profit per product (uses nested generator expression)\nproduct_profit = {\n \tpid: revenue - (products[pid][\"cost\"] * sum(sale[\"quantity\"] for sale in sales_data if sale[\"product_id\"] == pid))\n \tfor pid, revenue in product_revenue.items()\n}\n\n# Employee performance\nemployee_sales = {\n \temp_id: sum(sale[\"quantity\"] * sale[\"unit_price\"] for sale in sales_data if sale[\"employee_id\"] == emp_id)\n \tfor emp_id in employees.keys()\n}\n\n# Unique categories (Set Comprehension)\nunique_categories = {\n    info[\"category\"] \n    for info in products.values()\n}\n\n# Explicit Generator Expression for memory-efficient calculation of average revenue\ntotal_revenue_gen = (\n    sale[\"quantity\"] * sale[\"unit_price\"]\n    for sale in sales_data\n)\naverage_revenue = sum(total_revenue_gen) / len(sales_data) if sales_data else 0\n\n# Category analysis (Aggregation - uses loop for side-effects, as is Pythonic)\ncategory_revenue = defaultdict(float)\nfor sale in sales_data:\n \tproduct_id = sale[\"product_id\"]\n \tif product_id in products:\n \t\tcategory = products[product_id][\"category\"]\n \t\tcategory_revenue[category] += sale[\"quantity\"] * sale[\"unit_price\"]\n\n# 5. Report generation\n\n# Sales summary\nwith open(\"sales_summary.txt\", \"w\") as f:\n \tf.write(\"=== SALES SUMMARY ===\\n\")\n \tf.write(f\"Total Transactions: {len(sales_data)}\\n\")\n \tf.write(f\"Total Revenue: ${sum(product_revenue.values()):.2f}\\n\")\n \tf.write(f\"Total Profit: ${sum(product_profit.values()):.2f}\\n\\n\")\n \t\n \tf.write(\"Top Products by Revenue:\\n\")\n \ttop_products = sorted(product_revenue.items(), key=lambda x: x[1], reverse=True)[:5]\n \tfor product_id, revenue in top_products:\n \t\tf.write(f\"- {products[product_id][\\\"name\\\"]}: ${revenue:.2f}\\n\")\n \tf.write(f\"\\nUnique Categories Analyzed: {', '.join(sorted(list(unique_categories)))}\\n\")\n \tf.write(f\"Average Revenue Per Transaction (via Generator): ${average_revenue:.2f}\\n\")\n\n# Product performance JSON (Nested Dict Comp)\nproduct_performance = {\n \tpid: {\n \t\t\"name\": products[pid][\"name\"],\n \t\t\"category\": products[pid][\"category\"],\n \t\t\"revenue\": revenue,\n \t\t\"profit\": product_profit[pid],\n \t\t\"margin\": (product_profit[pid] / revenue * 100) if revenue > 0 else 0\n \t}\n \tfor pid, revenue in product_revenue.items()\n}\n\nwith open(\"product_performance.json\", \"w\") as f:\n \tjson.dump(product_performance, f, indent=2)\n\n# Employee commissions\nwith open(\"employee_commissions.txt\", \"w\") as f:\n \tf.write(\"=== EMPLOYEE COMMISSIONS ===\\n\")\n \tfor emp_id, sales in sorted(employee_sales.items(), key=lambda x: x[1], reverse=True):\n \t\tcommission = sales * 0.05 \t# 5% commission\n \t\tf.write(f\"{employees[emp_id][\\\"name\\\"]}: ${sales:.2f} sales, ${commission:.2f} commission\\n\")\n\n# Category breakdown\nwith open(\"category_breakdown.txt\", \"w\") as f:\n \tf.write(\"=== CATEGORY BREAKDOWN ===\\n\")\n \tfor category, revenue in sorted(category_revenue.items(), key=lambda x: x[1], reverse=True):\n \t\tf.write(f\"{category}: ${revenue:.2f}\\n\")\n\nprint(\"All reports generated successfully!\")",
+  "fileSetup": {
+    "sales.csv": "transaction_id,product_id,employee_id,quantity,unit_price,sale_date\n1001,P001,E101,2,25.99,2024-01-15\n1002,P002,E102,1,49.99,2024-01-15\n1003,P001,E101,3,25.99,2024-01-16\n1004,P003,E101,1,39.99,2024-01-16\n1005,P002,E103,2,49.99,2024-01-17",
+    "products.json": "{\n \t\"P001\": {\"name\": \"Wireless Mouse\", \"category\": \"Electronics\", \"cost\": 15.00},\n \t\"P002\": {\"name\": \"Mechanical Keyboard\", \"category\": \"Electronics\", \"cost\": 35.00},\n \t\"P003\": {\"name\": \"Desk Lamp\", \"category\": \"Office Supplies\", \"cost\": 25.00}\n}",
+    "employees.txt": "E101,Alice Johnson,Sales\nE102,Bob Smith,Sales\nE103,Carol Davis,Management"
+  },
+  "validation": {
+    "checkFiles": [
+      "sales_summary.txt",
+      "product_performance.json",
+      "employee_commissions.txt",
+      "category_breakdown.txt"
+    ]
+  },
+  "hints": [
+    "Use csv.DictReader for easy dictionary-based CSV parsing",
+    "Validate data during loading with conditional list comprehensions",
+    "Use dict comprehensions to create efficient lookup structures (Step 2)",
+    "Use a **set comprehension** to quickly find all unique product categories (Step 5)",
+    "Use a **generator expression** for memory-efficient calculations like total revenue (Step 7)",
+    "Consider using defaultdict for aggregating data by category (for aggregation loops)",
+    "F-strings make report formatting much cleaner"
+  ],
+  "tags": [
+    "file-io",
+    "csv",
+    "json",
+    "data-pipeline",
+    "real-world-application",
+    "comprehensions",
+    "set-comprehensions",
+    "generator-expressions"
+  ],
+  "challengeGroup": "data-pipeline-project"
+}

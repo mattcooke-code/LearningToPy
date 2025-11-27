@@ -1,0 +1,24 @@
+{
+  "title": "NumPy Array Creation and Inspection",
+  "instructions": "Create a one-dimensional NumPy array from a list of floating-point numbers and inspect its key attributes.",
+  "steps": [
+    "Import the `numpy` library as `np`.",
+    "Define a Python list of temperatures: `temperatures = [22.5, 24.1, 19.8, 25.0]`.",
+    "Convert the `temperatures` list into a NumPy array and store it in a variable called `temp_array`.",
+    "Print the `temp_array`.",
+    "Print the data type of the array using the `.dtype` attribute.",
+    "Print the shape of the array using the `.shape` attribute."
+  ],
+  "starterCode": "import numpy as np\n\ntemperatures = [22.5, 24.1, 19.8, 25.0]\n\n# 1. Create the NumPy array\ntemp_array = ...\n\n# 2. Print the array\nprint(temp_array)\n\n# 3. Print the array's data type\nprint(temp_array....)\n\n# 4. Print the array's shape\nprint(temp_array....)\n",
+  "solution": "import numpy as np\n\ntemperatures = [22.5, 24.1, 19.8, 25.0]\n\n# 1. Create the NumPy array\ntemp_array = np.array(temperatures)\n\n# 2. Print the array\nprint(temp_array)\n\n# 3. Print the array's data type\nprint(temp_array.dtype)\n\n# 4. Print the array's shape\nprint(temp_array.shape)\n",
+  "fileSetup": {},
+  "hints": [
+    "The NumPy conversion function is `np.array()`.",
+    "To access the properties, use dot notation: `array_name.attribute`."
+  ],
+  "validation": {
+    "output": "[22.5 24.1 19.8 25. ]\nfloat64\n(4,)\n"
+  },
+  "tags": ["numpy", "array", "dtype", "shape"],
+  "challengeGroup": "data-science-intro"
+}

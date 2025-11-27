@@ -1,0 +1,30 @@
+{
+  "title": "Configuring Objects with __init__",
+  "instructions": "Create a class for tracking digital products, implementing the `__init__` method to set unique product attributes.",
+  "steps": [
+    "Define a class named `Product`.",
+    "Implement the `__init__` method to accept `name`, `price`, and a default argument `in_stock` (which should default to `True`).",
+    "Inside `__init__`, assign the parameters to corresponding instance attributes (`self.name`, `self.price`, `self.in_stock`).",
+    "Create two instances: `book` ('Python Guide', 49.99) and `software` ('PyCharm License', 199.99, False).",
+    "Print the `in_stock` status for both the `book` and the `software` objects."
+  ],
+  "starterCode": "class Product:\n    # Implement the __init__ method here\n    \n    pass\n\n# 1. Create the instances below:\nbook = ...\nsoftware = ...\n\n# 2. Print the in_stock status for both products:\nprint(f\"Book in stock: {book.in_stock}\")\nprint(f\"Software in stock: {software.in_stock}\")\n",
+  "solution": "class Product:\n    def __init__(self, name, price, in_stock=True):\n        self.name = name\n        self.price = price\n        self.in_stock = in_stock\n\n# 1. Create the instances below:\nbook = Product('Python Guide', 49.99)\nsoftware = Product('PyCharm License', 199.99, False)\n\n# 2. Print the in_stock status for both products:\nprint(f\"Book in stock: {book.in_stock}\")\nprint(f\"Software in stock: {software.in_stock}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The signature for `__init__` should be: `def __init__(self, name, price, in_stock=True):`",
+    "Inside `__init__`, use the `self` keyword to assign values, e.g., `self.name = name`.",
+    "The `book` object should rely on the default `in_stock` value."
+  ],
+  "validation": {
+    "output": "Book in stock: True\nSoftware in stock: False\n"
+  },
+  "tags": [
+    "__init__",
+    "constructor",
+    "self",
+    "instance-attribute",
+    "default-arguments"
+  ],
+  "challengeGroup": "oop-init"
+}

@@ -1,0 +1,254 @@
+{
+  "title": "*args and **kwargs: Flexible Function Arguments",
+  "description": "Master variable arguments to create flexible functions that can handle diverse input scenarios.",
+  "exercises": [
+    {
+      "id": 1,
+      "type": "code",
+      "question": "Create a function called `print_all_args` that accepts any number of positional arguments and prints each one on a separate line.",
+      "hints": [
+        "Use *args to capture all positional arguments",
+        "args will be a tuple that you can iterate over",
+        "Use a for loop to print each argument"
+      ],
+      "solution": "def print_all_args(*args):\n    for arg in args:\n        print(arg)",
+      "tests": [
+        {
+          "input": "print_all_args(1, 'hello', 3.14)",
+          "expected": "1\nhello\n3.14"
+        },
+        {
+          "input": "print_all_args('a', 'b', 'c')",
+          "expected": "a\nb\nc"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "question": "Create a function called `create_user_profile` that accepts any number of keyword arguments and returns a dictionary with all the provided key-value pairs.",
+      "hints": [
+        "Use **kwargs to capture all keyword arguments",
+        "kwargs will be a dictionary that you can return directly",
+        "No need to modify the dictionary, just return it"
+      ],
+      "solution": "def create_user_profile(**kwargs):\n    return kwargs",
+      "tests": [
+        {
+          "input": "create_user_profile(name='Alice', age=25, city='Boston')",
+          "expected": "{'name': 'Alice', 'age': 25, 'city': 'Boston'}"
+        },
+        {
+          "input": "create_user_profile(username='test', active=True)",
+          "expected": "{'username': 'test', 'active': True}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "question": "Create a function called `calculate_product` that takes one required parameter `multiplier` and any number of additional numbers, then returns the product of multiplier and all additional numbers.",
+      "hints": [
+        "Use both a regular parameter and *args",
+        "Multiply multiplier by each number in args",
+        "You can iterate through args and accumulate the product"
+      ],
+      "solution": "def calculate_product(multiplier, *args):\n    result = multiplier\n    for num in args:\n        result *= num\n    return result",
+      "tests": [
+        {
+          "input": "calculate_product(2, 3, 4)",
+          "expected": 24
+        },
+        {
+          "input": "calculate_product(5, 2)",
+          "expected": 10
+        },
+        {
+          "input": "calculate_product(10)",
+          "expected": 10
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "question": "Create a function called `configure_settings` that takes required `app_name`, any number of positional options, and any number of keyword configurations. Return a dictionary with all settings.",
+      "hints": [
+        "Use the correct order: regular, *args, **kwargs",
+        "Build a dictionary that includes all parameters",
+        "Include app_name, options (as list), and kwargs"
+      ],
+      "solution": "def configure_settings(app_name, *options, **config):\n    return {\n        'app_name': app_name,\n        'options': list(options),\n        'config': config\n    }",
+      "tests": [
+        {
+          "input": "configure_settings('MyApp', 'debug', 'verbose', host='localhost', port=8080)",
+          "expected": "{'app_name': 'MyApp', 'options': ['debug', 'verbose'], 'config': {'host': 'localhost', 'port': 8080}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "question": "Create a function called `validate_numbers` that accepts any number of arguments and returns True only if all arguments are numbers (int or float), otherwise False.",
+      "hints": [
+        "Use *args to capture all arguments",
+        "Check each argument's type with isinstance()",
+        "Return False immediately if any argument fails the check"
+      ],
+      "solution": "def validate_numbers(*args):\n    for arg in args:\n        if not isinstance(arg, (int, float)):\n            return False\n    return True",
+      "tests": [
+        {
+          "input": "validate_numbers(1, 2.5, 3)",
+          "expected": true
+        },
+        {
+          "input": "validate_numbers(1, '2', 3)",
+          "expected": false
+        },
+        {
+          "input": "validate_numbers()",
+          "expected": true
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "question": "Create a function called `merge_configs` that accepts any number of dictionaries as keyword arguments and merges them into one dictionary. Later keys should override earlier ones.",
+      "hints": [
+        "Use **kwargs to capture the dictionaries",
+        "Start with an empty dictionary and update it with each kwarg",
+        "kwargs.values() gives you the dictionaries to merge"
+      ],
+      "solution": "def merge_configs(**configs):\n    result = {}\n    for config in configs.values():\n        result.update(config)\n    return result",
+      "tests": [
+        {
+          "input": "merge_configs(config1={'color': 'red', 'size': 'large'}, config2={'size': 'medium', 'weight': 'heavy'})",
+          "expected": "{'color': 'red', 'size': 'medium', 'weight': 'heavy'}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "code",
+      "question": "Create a function called `create_person` with required `name`, optional `age` with default 0, and any other attributes as keyword arguments. Return a dictionary with all attributes.",
+      "hints": [
+        "Include regular parameters first, then **kwargs",
+        "Set a default value for age",
+        "Build a dictionary that includes all parameters"
+      ],
+      "solution": "def create_person(name, age=0, **attrs):\n    person = {'name': name, 'age': age}\n    person.update(attrs)\n    return person",
+      "tests": [
+        {
+          "input": "create_person('Alice')",
+          "expected": "{'name': 'Alice', 'age': 0}"
+        },
+        {
+          "input": "create_person('Bob', 25, city='Boston', job='Engineer')",
+          "expected": "{'name': 'Bob', 'age': 25, 'city': 'Boston', 'job': 'Engineer'}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "code",
+      "question": "Create a function called `filter_by_type` that takes a type (like int, str, etc.) and any number of arguments, then returns a list of only the arguments that are instances of that type.",
+      "hints": [
+        "First parameter is the type to filter by, then *args",
+        "Use isinstance() to check each argument against the type",
+        "Build a list of matching arguments"
+      ],
+      "solution": "def filter_by_type(target_type, *args):\n    return [arg for arg in args if isinstance(arg, target_type)]",
+      "tests": [
+        {
+          "input": "filter_by_type(int, 1, 'hello', 3, 4.5, 5)",
+          "expected": "[1, 3, 5]"
+        },
+        {
+          "input": "filter_by_type(str, 1, 'hello', 'world', 3.14)",
+          "expected": "['hello', 'world']"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "code",
+      "question": "Create a function called `apply_operation` that takes an operation function and any number of arguments, applies the operation to all arguments, and returns the results as a list.",
+      "hints": [
+        "First parameter is the operation function, then *args",
+        "Use a list comprehension to apply the operation to each arg",
+        "The operation should be a function that takes one argument"
+      ],
+      "solution": "def apply_operation(operation, *args):\n    return [operation(arg) for arg in args]",
+      "tests": [
+        {
+          "input": "apply_operation(lambda x: x * 2, 1, 2, 3, 4)",
+          "expected": "[2, 4, 6, 8]"
+        },
+        {
+          "input": "apply_operation(str.upper, 'a', 'b', 'c')",
+          "expected": "['A', 'B', 'C']"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "code",
+      "question": "Create a function called `smart_config` that takes any keyword arguments but only accepts keys from an allowed set: ['host', 'port', 'debug']. Ignore any other keys.",
+      "hints": [
+        "Define the allowed keys as a set",
+        "Use dictionary comprehension to filter kwargs",
+        "Only include key-value pairs where key is in allowed set"
+      ],
+      "solution": "def smart_config(**kwargs):\n    allowed = {'host', 'port', 'debug'}\n    return {k: v for k, v in kwargs.items() if k in allowed}",
+      "tests": [
+        {
+          "input": "smart_config(host='localhost', port=8080, debug=True, invalid='ignore')",
+          "expected": "{'host': 'localhost', 'port': 8080, 'debug': True}"
+        },
+        {
+          "input": "smart_config(name='test', version=1.0)",
+          "expected": "{}"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "code",
+      "question": "Create a decorator function called `log_arguments` that prints the function name and all arguments whenever the function is called.",
+      "hints": [
+        "The decorator should return a wrapper function",
+        "Use *args and **kwargs in the wrapper",
+        "Print function name, args, and kwargs before calling the function"
+      ],
+      "solution": "def log_arguments(func):\n    def wrapper(*args, **kwargs):\n        print(f\"Calling {func.__name__} with args: {args}, kwargs: {kwargs}\")\n        return func(*args, **kwargs)\n    return wrapper\n\n@log_arguments\ndef example_function(a, b, c=0):\n    return a + b + c",
+      "tests": [
+        {
+          "input": "example_function(1, 2, c=3)",
+          "expected": "Calling example_function with args: (1, 2), kwargs: {'c': 3}\n6"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "code",
+      "question": "Create a function called `build_query` that takes a table name, any number of WHERE conditions as keyword arguments, and returns a SQL-like query string.",
+      "hints": [
+        "First parameter is table name, then **kwargs for conditions",
+        "Build WHERE clause by joining key=value pairs with AND",
+        "Return a complete SELECT query string"
+      ],
+      "solution": "def build_query(table_name, **conditions):\n    where_clause = ''\n    if conditions:\n        conditions_str = ' AND '.join(f\"{k}='{v}'\" for k, v in conditions.items())\n        where_clause = f' WHERE {conditions_str}'\n    return f'SELECT * FROM {table_name}{where_clause}'",
+      "tests": [
+        {
+          "input": "build_query('users', name='Alice', age=25)",
+          "expected": "SELECT * FROM users WHERE name='Alice' AND age='25'"
+        },
+        {
+          "input": "build_query('products')",
+          "expected": "SELECT * FROM products"
+        }
+      ]
+    }
+  ]
+}

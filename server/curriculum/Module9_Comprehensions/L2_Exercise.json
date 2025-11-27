@@ -1,0 +1,35 @@
+{
+  "title": "Conditional List Comprehensions",
+  "instructions": "Practice using conditional logic in list comprehensions for filtering data and applying conditional transformations.",
+  "steps": [
+    "Filter a list of numbers to include only positive values",
+    "Create a list that labels numbers as 'even' or 'odd'",
+    "Filter strings to include only those with length greater than 3 characters",
+    "Transform numbers by squaring positive numbers and converting negatives to zero",
+    "Filter and transform a mixed list of strings and numbers"
+  ],
+  "starterCode": "numbers = [-5, 2, -1, 8, 0, -3, 10]\\nwords = [\\\"cat\\\", \\\"elephant\\\", \\\"dog\\\", \\\"butterfly\\\", \\\"ox\\\"]\\nmixed_data = [\\\"25\\\", \\\"invalid\\\", 42, \\\"17\\\", \\\"corrupted\\\", 100]\\n\\n# 1. Filter positive numbers:\\npositive = \\n\\n# 2. Label numbers as even/odd:\\nlabels = \\n\\n# 3. Filter long words:\\nlong_words = \\n\\n# 4. Square positives, zero negatives:\\ntransformed = \\n\\n# 5. Extract valid numbers from mixed data:\\nvalid_numbers = ",
+  "solution": "numbers = [-5, 2, -1, 8, 0, -3, 10]\\nwords = [\\\"cat\\\", \\\"elephant\\\", \\\"dog\\\", \\\"butterfly\\\", \\\"ox\\\"]\\nmixed_data = [\\\"25\\\", \\\"invalid\\\", 42, \\\"17\\\", \\\"corrupted\\\", 100]\\n\\n# 1. Filter positive numbers:\\npositive = [num for num in numbers if num > 0]\\n\n# 2. Label numbers as even/odd:\\nlabels = [\\\"even\\\" if num % 2 == 0 else \\\"odd\\\" for num in numbers]\\n\n# 3. Filter long words:\\nlong_words = [word for word in words if len(word) > 3]\\n\n# 4. Square positives, zero negatives:\\ntransformed = [num**2 if num > 0 else 0 for num in numbers]\\n\n# 5. Extract valid numbers from mixed data:\\nvalid_numbers = [int(item) if isinstance(item, str) else item for item in mixed_data if isinstance(item, int) or (isinstance(item, str) and item.isdigit())]",
+  "validation": {
+    "variables": {
+      "positive": [2, 8, 10],
+      "labels": ["odd", "even", "odd", "even", "even", "odd", "even"],
+      "long_words": ["elephant", "butterfly"],
+      "transformed": [0, 4, 0, 64, 0, 0, 100],
+      "valid_numbers": [25, 42, 17, 100]
+    }
+  },
+  "hints": [
+    "Use [item for item in iterable if condition] for filtering",
+    "Use [true_expr if condition else false_expr for item] for conditional transformation",
+    "For mixed data, use isinstance() to check types",
+    "Use str.isdigit() to check if a string represents a number"
+  ],
+  "tags": [
+    "conditional-comprehensions",
+    "filtering",
+    "if-else",
+    "data-cleaning"
+  ],
+  "challengeGroup": "conditional-comprehensions"
+}

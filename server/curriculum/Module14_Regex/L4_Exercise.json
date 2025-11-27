@@ -1,0 +1,27 @@
+{
+  "title": "Search, Replace, and Split Operations",
+  "instructions": "Use `re.sub()` to reformat a phone number using capturing groups, and use `re.split()` to parse a CSV-like string.",
+  "steps": [
+    "Import the `re` module.",
+    "**Part 1: Phone Number Reformatting.** Define the input string: `phone = '415-555-1234'`.",
+    "Create a regex pattern with three capturing groups for the area code, middle three digits, and last four digits.",
+    "Use `re.sub()` to reformat the phone number into the standard format: `(415) 555-1234`.",
+    "Print the reformatted number.",
+    "**Part 2: Complex Splitting.** Define the input string: `data = 'Name,Age|City|1'`.",
+    "Create a regex pattern for `re.split()` that matches either a comma (`,`) or a pipe (`|`).",
+    "Use `re.split()` to split `data` and print the resulting list."
+  ],
+  "starterCode": "import re\n\n# --- Part 1: Reformatting with re.sub() ---\nphone = '415-555-1234'\n\n# 1. Pattern: Three groups separated by dashes\npattern_phone = r\"(...)-(...)-(....)\" \n\n# 2. Replacement: Reference groups to format: (G1) G2-G3\nreplacement = r\"(\\\\1) \\\\2-\\\\3\" \n\nreformatted_phone = re.sub(pattern_phone, replacement, phone)\nprint(f\"Reformatted Phone: {reformatted_phone}\")\n\n# --- Part 2: Splitting with re.split() ---\ndata = 'Name,Age|City|1'\n\n# 3. Pattern: Matches either a comma or a pipe\npattern_split = ...\n\nsplit_data = re.split(pattern_split, data)\nprint(f\"Split Data: {split_data}\")\n",
+  "solution": "import re\n\n# --- Part 1: Reformatting with re.sub() ---\nphone = '415-555-1234'\n\n# 1. Pattern: Three groups separated by dashes\n# Note: Raw string usage r\"...\" simplifies backslash handling\npattern_phone = r\"(\\d{3})-(\\d{3})-(\\d{4})\"\n\n# 2. Replacement: Reference groups to format: (G1) G2-G3\n# Use \\1, \\2, \\3 to reference the captured groups\nreplacement = r\"(\\1) \\2-\\3\"\n\nreformatted_phone = re.sub(pattern_phone, replacement, phone)\nprint(f\"Reformatted Phone: {reformatted_phone}\")\n\n# --- Part 2: Splitting with re.split() ---\ndata = 'Name,Age|City|1'\n\n# 3. Pattern: Matches either a comma (,) OR a pipe (|)\n# Use the character set [,] or the OR operator | (though [,|] is also valid)\npattern_split = r\",|\"\n\nsplit_data = re.split(pattern_split, data)\nprint(f\"Split Data: {split_data}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "In `re.sub()`, the groups are referenced as `\\1`, `\\2`, etc., in the replacement string.",
+    "For the splitting pattern, you can use the OR operator (`|`) to match either a comma or a pipe: `r\",|\"`.",
+    "Remember that the hyphen in the phone number pattern must be outside the capturing groups."
+  ],
+  "validation": {
+    "output": "Reformatted Phone: (415) 555-1234\nSplit Data: ['Name', 'Age', 'City', '1']\n"
+  },
+  "tags": ["re-sub", "re-split", "substitution", "group-referencing"],
+  "challengeGroup": "regex-transformation"
+}

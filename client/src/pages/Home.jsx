@@ -13,9 +13,8 @@ import {
   TrendingUp,
   ShieldCheck,
 } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
-import { useAuth } from "../context/AuthContext";
-import BackToTopButton from "../components/ui/BackToTopButton";
+import { useAuth, useTheme } from "../context";
+import { BackToTopButton } from "../components/ui";
 
 const Home = () => {
   const { themeColor } = useTheme();

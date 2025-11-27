@@ -1,0 +1,50 @@
+{
+  "title": "Log File Processing Project",
+  "instructions": "Read data from `server_log_raw.txt`, filter for '200' status codes, and write the cleaned URLs to `clean_urls.txt`.",
+  "steps": [
+    "Initialize an empty list called `success_urls`.",
+    "Use `with open()` to open `server_log_raw.txt` in read mode (`'r'`) as `infile`.",
+    "Inside the `with` block, iterate through `infile` line by line.",
+    "For each line, check if the line starts with the string `\"200|\"`.",
+    "If the check passes, strip the line, split it by `|`, and append the URL (the second element) to the `success_urls` list.",
+    "Use a **second** `with open()` block to open `clean_urls.txt` in write mode (`'w'`) as `outfile`.",
+    "Inside the second block, iterate through the `success_urls` list.",
+    "For each `url` in the list, write the `url` followed by a newline character (`\\n`) to `outfile`."
+  ],
+  "starterCode": "success_urls = []\n\n# 1. Read and process the raw log file:\n\n\n\n\n# 2. Write the cleaned URLs to the new file:\n\n",
+  "solution": "success_urls = []\n\n# 1. Read and process the raw log file:\nwith open('server_log_raw.txt', 'r') as infile:\n   for line in infile:\n       if line.startswith('200|'):\n           parts = line.strip().split('|')\n           success_urls.append(parts[1])\n\n# 2. Write the cleaned URLs to the new file:\nwith open('clean_urls.txt', 'w') as outfile:\n   for url in success_urls:\n       outfile.write(url + '\\n')",
+  "fileSetup": {
+    "server_log_raw.txt": "404|/image/logo.png\n200|/api/v1/profile/data\n200|/products/listing\n500|/admin/internal/error\n200|/checkout/process\n403|/secret/page"
+  },
+  "expectedOutputFiles": {
+    "clean_urls.txt": "/api/v1/profile/data\n/products/listing\n/checkout/process\n"
+  },
+  "validation": {
+    "variables": {
+      "success_urls": [
+        "/api/v1/profile/data",
+        "/products/listing",
+        "/checkout/process"
+      ]
+    }
+  },
+  "hints": [
+    "Use `line.startswith(\"200|\")` for filtering - this checks both status code and separator.",
+    "Remember: `.strip()` removes newlines, `.split('|')` separates the fields.",
+    "The URL is at index 1 after splitting (index 0 is the status code).",
+    "Don't forget to add `+ '\\n'` when writing each URL to preserve line breaks."
+  ],
+  "bonusChallenge": {
+    "description": "Enhance your solution to count and print statistics about the processing.",
+    "solution": "success_urls = []\nstatus_counts = {}\n\nwith open('server_log_raw.txt', 'r') as infile:\n   for line in infile:\n       parts = line.strip().split('|')\n       status = parts[0]\n       status_counts[status] = status_counts.get(status, 0) + 1\n       \n       if status == '200':\n           success_urls.append(parts[1])\n\nwith open('clean_urls.txt', 'w') as outfile:\n   for url in success_urls:\n       outfile.write(url + '\\n')\n\nprint(f\"Processed {len(success_urls)} successful URLs\")\nprint(f\"Status code distribution: {status_counts}\")"
+  },
+  "tags": [
+    "project",
+    "file-io",
+    "with",
+    "list-methods",
+    "string-methods",
+    "filtering"
+  ],
+  "challengeGroup": "file-io-project"
+}

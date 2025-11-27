@@ -1,0 +1,23 @@
+{
+  "title": "Establishing an SQLite Connection",
+  "instructions": "Use the `sqlite3` module and the `with` statement to connect to a new temporary database file named `test_db.sqlite` and print a success message.",
+  "steps": [
+    "Import the `sqlite3` module.",
+    "Use a `with` statement to connect to the database file `test_db.sqlite`.",
+    "Inside the `with` block, assign the connection object to `conn`.",
+    "Create a cursor object using `conn.cursor()` and assign it to `cursor`.",
+    "Print the success message."
+  ],
+  "starterCode": "import sqlite3\n\n# Use the context manager to connect\nwith sqlite3.connect('test_db.sqlite') as conn:\n    # 1. Create the cursor\n    cursor = ...\n    \n    # 2. Print success message\n    print(\"Successfully connected and created cursor.\")\n\n# The connection closes automatically here\n",
+  "solution": "import sqlite3\n\n# Use the context manager to connect\nwith sqlite3.connect('test_db.sqlite') as conn:\n    # 1. Create the cursor\n    cursor = conn.cursor()\n    \n    # 2. Print success message\n    print(\"Successfully connected and created cursor.\")\n\n# The connection closes automatically here\n",
+  "fileSetup": {},
+  "hints": [
+    "The connection function is `sqlite3.connect()`.",
+    "The cursor is created by calling `.cursor()` on the connection object."
+  ],
+  "validation": {
+    "output": "Successfully connected and created cursor.\n"
+  },
+  "tags": ["sqlite3", "connection", "cursor", "database"],
+  "challengeGroup": "database-interaction"
+}

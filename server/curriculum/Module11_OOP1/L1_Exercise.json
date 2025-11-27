@@ -1,0 +1,23 @@
+{
+  "title": "Creating Your First Class",
+  "instructions": "Define a simple Python class called `Vehicle` and then create three separate instances (objects) of that class.",
+  "steps": [
+    "Define a class named `Vehicle`.",
+    "Inside the `Vehicle` class, define a **class attribute** called `wheels` and set its value to `4`.",
+    "Create three separate instances of the `Vehicle` class: `car1`, `car2`, and `truck`.",
+    "Print the `wheels` attribute for the `truck` object."
+  ],
+  "starterCode": "# 1. Define the Vehicle class here:\n\n\n\n# 2. Create the three instances:\ncar1 = ...\ncar2 = ...\ntruck = ...\n\n# 3. Print the wheels attribute for truck:\n",
+  "solution": "class Vehicle:\n    # Class Attribute\n    wheels = 4\n\n# Create the three instances:\ncar1 = Vehicle()\ncar2 = Vehicle()\ntruck = Vehicle()\n\n# Print the wheels attribute for truck:\nprint(f\"Truck has {truck.wheels} wheels\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Remember that class names conventionally start with a capital letter (PascalCase).",
+    "The class attribute should be defined directly within the class body, not inside a function.",
+    "To instantiate a class, use the syntax: `object_name = ClassName()`."
+  ],
+  "validation": {
+    "output": "Truck has 4 wheels\n"
+  },
+  "tags": ["class", "object", "instantiation", "class-attribute"],
+  "challengeGroup": "oop-basics"
+}

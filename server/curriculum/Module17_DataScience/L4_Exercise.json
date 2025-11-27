@@ -1,0 +1,24 @@
+{
+  "title": "Creating and Inspecting a Pandas DataFrame",
+  "instructions": "Create a small DataFrame representing sales data, and then use the `.head()` and `.info()` methods to inspect it.",
+  "steps": [
+    "Import the `pandas` library as `pd`.",
+    "Define a dictionary for the data: `sales_data = {'Product': ['A', 'B', 'C', 'D'], 'Price': [10.5, 20.0, 5.25, 15.0], 'Units_Sold': [150, 90, 310, 120]}`.",
+    "Create a DataFrame from `sales_data` and store it in `sales_df`.",
+    "Print the first 3 rows of the DataFrame using `.head(3)`.",
+    "Call the `.info()` method on the DataFrame to display a summary (you don't need to assign the result of `.info()` to a variable, just call it)."
+  ],
+  "starterCode": "import pandas as pd\n\nsales_data = {\n    'Product': ['A', 'B', 'C', 'D'],\n    'Price': [10.5, 20.0, 5.25, 15.0],\n    'Units_Sold': [150, 90, 310, 120]\n}\n\n# 1. Create the DataFrame\nsales_df = ...\n\n# 2. Print the first 3 rows\nprint(sales_df....)\n\n# 3. Print the summary info (This output does not print to stdout, but to stderr, so we will use print(sales_df.dtypes) for validation in this simple environment)\nprint(sales_df.dtypes)\n",
+  "solution": "import pandas as pd\n\nsales_data = {\n    'Product': ['A', 'B', 'C', 'D'],\n    'Price': [10.5, 20.0, 5.25, 15.0],\n    'Units_Sold': [150, 90, 310, 120]\n}\n\n# 1. Create the DataFrame\nsales_df = pd.DataFrame(sales_data)\n\n# 2. Print the first 3 rows\nprint(sales_df.head(3))\n\n# 3. Print the summary info (Using dtypes for output validation)\nprint(sales_df.dtypes)\n# Note: In a real environment, sales_df.info() prints a descriptive summary.\n",
+  "fileSetup": {},
+  "hints": [
+    "The function to create a DataFrame is `pd.DataFrame()`.",
+    "Use `df.head(3)` to get the first three rows.",
+    "The `.info()` method is crucial for checking data types and missing values."
+  ],
+  "validation": {
+    "output": "  Product  Price  Units_Sold\n0       A  10.50         150\n1       B  20.00          90\n2       C   5.25         310\nProduct        object\nPrice         float64\nUnits_Sold      int64\ndtype: object\n"
+  },
+  "tags": ["pandas", "dataframe", "head", "info", "inspection"],
+  "challengeGroup": "data-science-intro"
+}

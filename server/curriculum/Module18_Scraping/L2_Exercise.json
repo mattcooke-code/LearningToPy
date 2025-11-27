@@ -1,0 +1,24 @@
+{
+  "title": "Fetching HTML with User-Agent Header",
+  "instructions": "Make a GET request to a test URL, ensuring you include a basic User-Agent header, and print the resulting HTTP status code.",
+  "steps": [
+    "Import the `requests` module.",
+    "Define a URL for testing: `http://httpbin.org/get`.",
+    "Define a dictionary named `custom_headers` containing a 'User-Agent' key.",
+    "Make the GET request, passing the URL and the `headers` argument.",
+    "Store the response in `response`.",
+    "Print the `response.status_code` to confirm success."
+  ],
+  "starterCode": "import requests\n\nurl = \"http://httpbin.org/get\"\n\n# 1. Define custom headers with a User-Agent\ncustom_headers = { \n    'User-Agent': 'LearningToPyBot/1.0'\n}\n\n# 2. Make the request, passing the headers\nresponse = ...\n\n# 3. Print the status code\nprint(f\"Status Code: {response.status_code}\")\n",
+  "solution": "import requests\n\nurl = \"http://httpbin.org/get\"\n\n# 1. Define custom headers with a User-Agent\ncustom_headers = { \n    'User-Agent': 'LearningToPyBot/1.0'\n}\n\n# 2. Make the request, passing the headers\nresponse = requests.get(url, headers=custom_headers)\n\n# 3. Print the status code\nprint(f\"Status Code: {response.status_code}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Pass the headers dictionary using the `headers=` keyword argument in `requests.get()`.",
+    "A successful GET request should return a status code of 200."
+  ],
+  "validation": {
+    "output": "Status Code: 200\n"
+  },
+  "tags": ["requests", "html", "headers", "status-code"],
+  "challengeGroup": "web-scraping"
+}

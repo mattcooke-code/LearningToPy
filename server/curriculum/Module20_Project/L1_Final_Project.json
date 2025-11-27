@@ -1,0 +1,25 @@
+{
+  "title": "Phase 3 Final Project: Command Line Utility",
+  "instructions": "This is the final, comprehensive project for Phase 3. The goal is to build a functional command line utility. For the assessment environment, the task is to write the core function to demonstrate the use of `argparse` and at least one other required library (e.g., `sqlite3`).",
+  "steps": [
+    "Import necessary libraries: `argparse` and `sqlite3`.",
+    "Define a function `setup_database()` that connects to a test database and creates a simple table.",
+    "Define a main function `main()` that sets up the `ArgumentParser`.",
+    "The parser should have one mandatory command-line argument: `--setup-db` which, when called, executes `setup_database()`.",
+    "Run the `main()` function, and print a success message if the setup is successful.",
+    "Note: In a real environment, you would use multiple files and integrate the other modules. This simplified exercise validates the `argparse` and basic function setup."
+  ],
+  "starterCode": "import argparse\nimport sqlite3\n\nDB_NAME = 'final_project.db'\n\ndef setup_database():\n    # 1. Connect to DB and create table\n    try:\n        with sqlite3.connect(DB_NAME) as conn:\n            cursor = conn.cursor()\n            cursor.execute(\"CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, module TEXT, status TEXT)\")\n            conn.commit()\n        return True\n    except Exception as e:\n        print(f\"Database setup failed: {e}\")\n        return False\n\ndef main():\n    parser = argparse.ArgumentParser(description='A comprehensive Python CLI utility.')\n    \n    # 2. Add the --setup-db argument\n    parser.add_argument('...') \n    \n    args = parser.parse_args()\n\n    # 3. Check and execute argument\n    if args.setup_db:\n        if setup_database():\n            print(f\"Database '{DB_NAME}' initialized successfully.\")\n\n# 4. Run the main function\nif __name__ == '__main__':\n    main()\n",
+  "solution": "import argparse\nimport sqlite3\n\nDB_NAME = 'final_project.db'\n\ndef setup_database():\n    # 1. Connect to DB and create table\n    try:\n        with sqlite3.connect(DB_NAME) as conn:\n            cursor = conn.cursor()\n            # Using a simple table that could store project reports\n            cursor.execute(\"CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, module TEXT, status TEXT)\")\n            conn.commit()\n        return True\n    except Exception as e:\n        print(f\"Database setup failed: {e}\")\n        return False\n\ndef main():\n    parser = argparse.ArgumentParser(description='A comprehensive Python CLI utility.')\n    \n    # 2. Add the --setup-db argument (uses action='store_true' for a flag)\n    parser.add_argument('--setup-db', action='store_true', help='Initialize the SQLite database for the project.') \n    \n    args = parser.parse_args()\n\n    # 3. Check and execute argument\n    if args.setup_db:\n        if setup_database():\n            print(f\"Database '{DB_NAME}' initialized successfully.\")\n\n# 4. Run the main function\nif __name__ == '__main__':\n    main()\n",
+  "fileSetup": {},
+  "hints": [
+    "To create a simple boolean flag that is True if passed, use `action='store_true'` for the argument.",
+    "The arguments are accessed via dot notation: `args.argument_name`."
+  ],
+  "validation": {
+    "command_line_args": "--setup-db",
+    "output": "Database 'final_project.db' initialized successfully.\n"
+  },
+  "tags": ["argparse", "sqlite3", "cli", "project", "final"],
+  "challengeGroup": "final-project"
+}

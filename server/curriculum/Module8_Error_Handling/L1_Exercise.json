@@ -1,0 +1,22 @@
+{
+  "title": "Basic Exception Handling",
+  "instructions": "Practice using try/except blocks to handle common exceptions and prevent program crashes.",
+  "steps": [
+    "Write a try block that attempts to convert user input to an integer",
+    "Add an except block that catches all exceptions and prints 'Invalid input!'",
+    "After the try/except, print 'Program continues...' to show the program doesn't crash"
+  ],
+  "starterCode": "# 1. Try block for integer conversion:\n\n\n# 2. Except block:\n\n\n# 3. Program continues:\nprint('Program continues...')",
+  "solution": "# 1. Try block for integer conversion:\ntry:\n    user_input = input(\"Enter a number: \")\n    number = int(user_input)\n    print(f\"You entered: {number}\")\n\n# 2. Except block:\nexcept:\n    print(\"Invalid input!\")\n\n# 3. Program continues:\nprint('Program continues...')",
+  "simulatedInput": ["abc"],
+  "hints": [
+    "Use input() inside the try block to get user input",
+    "int() will raise an exception if given non-numeric input",
+    "The except block should handle any exception that occurs"
+  ],
+  "validation": {
+    "output": "Invalid input!\\nProgram continues...\\n"
+  },
+  "tags": ["exceptions", "try-except", "error-handling"],
+  "challengeGroup": "basic-exceptions"
+}

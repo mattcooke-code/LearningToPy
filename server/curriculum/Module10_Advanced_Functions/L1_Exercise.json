@@ -1,0 +1,224 @@
+{
+  "title": "Lambda Functions: From Basics to Advanced",
+  "description": "Master lambda functions for concise operations, sorting, and functional programming patterns.",
+  "exercises": [
+    {
+      "id": 1,
+      "type": "code",
+      "question": "Create a lambda function that takes a number and returns its square. Assign it to a variable called `square`.",
+      "hints": [
+        "Use the ** operator for exponentiation",
+        "Remember lambda syntax: lambda arguments: expression",
+        "Assign the lambda to a variable to use it later"
+      ],
+      "solution": "square = lambda x: x ** 2",
+      "tests": [
+        {
+          "input": "square(5)",
+          "expected": 25
+        },
+        {
+          "input": "square(3)",
+          "expected": 9
+        },
+        {
+          "input": "square(10)",
+          "expected": 100
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "question": "Create a lambda function that takes two numbers and returns their product. Assign it to a variable called `multiply`.",
+      "hints": [
+        "Lambda can take multiple parameters separated by commas",
+        "Use the * operator for multiplication",
+        "The expression should return the product directly"
+      ],
+      "solution": "multiply = lambda a, b: a * b",
+      "tests": [
+        {
+          "input": "multiply(4, 5)",
+          "expected": 20
+        },
+        {
+          "input": "multiply(3, 7)",
+          "expected": 21
+        },
+        {
+          "input": "multiply(0, 5)",
+          "expected": 0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "question": "Use a lambda function with sorted() to sort this list of tuples by the second element: [(1, 5), (3, 2), (2, 8), (4, 1)]",
+      "hints": [
+        "The key parameter in sorted() should be a lambda function",
+        "Each tuple will be passed to the lambda function",
+        "Access the second element with index 1"
+      ],
+      "solution": "data = [(1, 5), (3, 2), (2, 8), (4, 1)]\nsorted_data = sorted(data, key=lambda x: x[1])",
+      "tests": [
+        {
+          "input": "sorted_data",
+          "expected": "[(4, 1), (3, 2), (1, 5), (2, 8)]"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "question": "Create a lambda function that takes a string and returns True if it starts with 'a' (case-insensitive), otherwise False.",
+      "hints": [
+        "Use the .lower() method to make it case-insensitive",
+        "Check the first character with [0]",
+        "Return a boolean value directly"
+      ],
+      "solution": "starts_with_a = lambda s: s.lower().startswith('a')",
+      "tests": [
+        {
+          "input": "starts_with_a('apple')",
+          "expected": true
+        },
+        {
+          "input": "starts_with_a('Apple')",
+          "expected": true
+        },
+        {
+          "input": "starts_with_a('banana')",
+          "expected": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "question": "Use map() with a lambda function to convert a list of temperatures in Celsius [0, 20, 30, 40] to Fahrenheit. Formula: F = (C × 9/5) + 32",
+      "hints": [
+        "map() applies a function to each element of a list",
+        "The lambda should take one parameter (Celsius temperature)",
+        "Apply the conversion formula in the lambda"
+      ],
+      "solution": "celsius_temps = [0, 20, 30, 40]\nfahrenheit_temps = list(map(lambda c: (c * 9/5) + 32, celsius_temps))",
+      "tests": [
+        {
+          "input": "fahrenheit_temps",
+          "expected": "[32.0, 68.0, 86.0, 104.0]"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "code",
+      "question": "Create a lambda function with conditional logic that returns 'even' if a number is even and 'odd' if it's odd.",
+      "hints": [
+        "Use ternary operator: value_if_true if condition else value_if_false",
+        "Check if number % 2 == 0 for even",
+        "The entire conditional should be one expression"
+      ],
+      "solution": "even_odd = lambda x: 'even' if x % 2 == 0 else 'odd'",
+      "tests": [
+        {
+          "input": "even_odd(4)",
+          "expected": "even"
+        },
+        {
+          "input": "even_odd(7)",
+          "expected": "odd"
+        },
+        {
+          "input": "even_odd(0)",
+          "expected": "even"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "code",
+      "question": "Sort this list of dictionaries by the 'age' key in descending order: [{'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 30}, {'name': 'Charlie', 'age': 20}]",
+      "hints": [
+        "Use sorted() with key parameter and lambda",
+        "Access the 'age' key from each dictionary",
+        "Use reverse=True for descending order or negate the age value"
+      ],
+      "solution": "people = [{'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 30}, {'name': 'Charlie', 'age': 20}]\nsorted_people = sorted(people, key=lambda p: p['age'], reverse=True)",
+      "tests": [
+        {
+          "input": "sorted_people",
+          "expected": "[{'name': 'Bob', 'age': 30}, {'name': 'Alice', 'age': 25}, {'name': 'Charlie', 'age': 20}]"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "code",
+      "question": "Write a function that returns a lambda function which multiplies by a given factor. Then use it to create a function that doubles numbers.",
+      "hints": [
+        "The outer function should take the factor as parameter",
+        "Return a lambda that takes a number and multiplies by factor",
+        "Assign the returned lambda to a variable"
+      ],
+      "solution": "def create_multiplier(factor):\n    return lambda x: x * factor\n\ndouble = create_multiplier(2)",
+      "tests": [
+        {
+          "input": "double(5)",
+          "expected": 10
+        },
+        {
+          "input": "double(10)",
+          "expected": 20
+        },
+        {
+          "input": "create_multiplier(3)(4)",
+          "expected": 12
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "code",
+      "question": "Use filter() with a lambda to get all numbers greater than 50 from this list: [25, 60, 45, 80, 30, 75]",
+      "hints": [
+        "filter() keeps elements where the function returns True",
+        "The lambda should return True for numbers > 50",
+        "Convert the filter object to a list"
+      ],
+      "solution": "numbers = [25, 60, 45, 80, 30, 75]\nfiltered = list(filter(lambda x: x > 50, numbers))",
+      "tests": [
+        {
+          "input": "filtered",
+          "expected": "[60, 80, 75]"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "code",
+      "question": "Create a curried addition function using lambdas. It should take one argument and return a function that takes the second argument.",
+      "hints": [
+        "The first lambda takes parameter 'a'",
+        "It returns another lambda that takes parameter 'b'",
+        "The inner lambda returns a + b"
+      ],
+      "solution": "curried_add = lambda a: lambda b: a + b",
+      "tests": [
+        {
+          "input": "curried_add(5)(3)",
+          "expected": 8
+        },
+        {
+          "input": "add_five = curried_add(5); add_five(10)",
+          "expected": 15
+        },
+        {
+          "input": "curried_add(100)(25)",
+          "expected": 125
+        }
+      ]
+    }
+  ]
+}

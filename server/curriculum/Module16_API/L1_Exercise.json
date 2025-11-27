@@ -1,0 +1,24 @@
+{
+  "title": "Verifying Installation and Status Codes",
+  "instructions": "Use the newly installed `requests` library to fetch a test page and verify the HTTP status code. You'll need to run the `pip install requests` command in your environment before attempting the code exercise.",
+  "steps": [
+    "Ensure you have run `pip install requests` in your active environment (this is a setup step, not a code step).",
+    "Import the `requests` library.",
+    "Make a GET request to the URL `https://httpbin.org/status/200`. Store the response object in a variable named `r_success`.",
+    "Print the `r_success.status_code` attribute.",
+    "Make another GET request to the URL `https://httpbin.org/status/404`. Store the response object in a variable named `r_fail`.",
+    "Print the `r_fail.status_code` attribute."
+  ],
+  "starterCode": "import requests\n\n# 1. Successful request (Status 200)\nr_success = ...\nprint(f\"Success Status: {r_success.status_code}\")\n\n# 2. Failing request (Status 404)\nr_fail = ...\nprint(f\"Failure Status: {r_fail.status_code}\")\n",
+  "solution": "import requests\n\n# 1. Successful request (Status 200)\nr_success = requests.get('https://httpbin.org/status/200')\nprint(f\"Success Status: {r_success.status_code}\")\n\n# 2. Failing request (Status 404)\nr_fail = requests.get('https://httpbin.org/status/404')\nprint(f\"Failure Status: {r_fail.status_code}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Remember to use `requests.get()` to make a GET request.",
+    "The status code is accessed using the `.status_code` property of the response object."
+  ],
+  "validation": {
+    "output": "Success Status: 200\nFailure Status: 404\n"
+  },
+  "tags": ["http", "requests", "status-codes", "client-server"],
+  "challengeGroup": "api-basics"
+}

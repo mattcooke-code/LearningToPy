@@ -1,0 +1,25 @@
+{
+  "title": "Event Timer and Validator Project",
+  "instructions": "Implement the two required functions: `time_until_event` to calculate the duration remaining, and `is_valid_date_format` to safely check if a date string matches a given format.",
+  "steps": [
+    "Implement `time_until_event(event_date_str)` to calculate days, hours, and minutes remaining until the event (assumes format `YYYY-MM-DD`).",
+    "Implement `is_valid_date_format(date_str, format_str)` to use `try/except ValueError` to validate the date string against the format.",
+    "Test `time_until_event` using a known future date (e.g., '2030-01-01').",
+    "Test `is_valid_date_format` with a valid string ('12/25/2025', '%m/%d/%Y') and an invalid string ('Dec 25 2025', '%m/%d/%Y')."
+  ],
+  "starterCode": "from datetime import datetime, timedelta\n\n# --- Part 1: Event Timer ---\ndef time_until_event(event_date_str):\n    # Define the format string\n    DATE_FORMAT = '%Y-%m-%d'\n    \n    # 1. Parse the future date string\n    event_date = datetime.strptime(event_date_str, DATE_FORMAT).date()\n    \n    # 2. Get today's date (only date, not time)\n    today = datetime.now().date()\n    \n    # 3. Calculate difference (timedelta)\n    time_remaining = event_date - today\n    \n    # The time delta will be in days. We need to format the days, hours, and minutes.\n    total_seconds = time_remaining.total_seconds()\n    \n    # We only need days, hours, and minutes for the output\n    days = time_remaining.days\n    \n    # Calculate remaining time within a day (since we only used dates)\n    # If you used full datetimes, the calculation would be simpler.\n    # For this exercise, since we used .date(), we'll only print days.\n    \n    return f\"{days} days remaining.\"\n\n# --- Part 2: Date Validator ---\ndef is_valid_date_format(date_str, format_str):\n    try:\n        # 4. Attempt to parse the date string\n        ...\n        # 5. If successful, return True\n        return True\n    except ValueError:\n        # 6. If ValueError occurs, return False\n        return False\n\n# --- Demonstration ---\nfuture_event = '2030-01-01'\nprint(f\"Time until {future_event}: {time_until_event(future_event)}\")\n\n# Validation Tests\nprint(f\"Valid (12/25/2025, %m/%d/%Y): {is_valid_date_format('12/25/2025', '%m/%d/%Y')}\")\nprint(f\"Invalid (Dec 25 2025, %m/%d/%Y): {is_valid_date_format('Dec 25 2025', '%m/%d/%Y')}\")\n",
+  "solution": "from datetime import datetime, timedelta\n\n# --- Part 1: Event Timer ---\ndef time_until_event(event_date_str):\n    DATE_FORMAT = '%Y-%m-%d'\n    \n    # We use full datetime for accurate calculation, then remove time for comparison if needed\n    event_dt = datetime.strptime(event_date_str, DATE_FORMAT)\n    \n    now = datetime.now()\n    \n    time_remaining = event_dt - now\n    \n    if time_remaining.total_seconds() < 0:\n        return \"Event has already passed!\"\n\n    # Calculate Days, Hours, Minutes from the total seconds\n    total_seconds = time_remaining.total_seconds()\n    \n    days = int(total_seconds // (24 * 3600))\n    remaining_seconds = total_seconds % (24 * 3600)\n    hours = int(remaining_seconds // 3600)\n    minutes = int((remaining_seconds % 3600) // 60)\n    \n    return f\"{days} days, {hours} hours, {minutes} minutes remaining.\"\n\n# --- Part 2: Date Validator ---\ndef is_valid_date_format(date_str, format_str):\n    try:\n        # Attempt to parse the date string. If the format or value is wrong, it raises ValueError\n        datetime.strptime(date_str, format_str)\n        # If successful, return True\n        return True\n    except ValueError:\n        # If ValueError occurs, return False\n        return False\n\n# --- Demonstration ---\nfuture_event = '2030-01-01'\n\n# Since time_until_event result changes based on 'now', we only test validation below.\n# The actual time calculation is complex and depends on when the user runs the code.\n# We will test the validation function explicitly.\n\nprint(f\"Valid (12/25/2025, %m/%d/%Y): {is_valid_date_format('12/25/2025', '%m/%d/%Y')}\")\nprint(f\"Invalid (Dec 25 2025, %m/%d/%Y): {is_valid_date_format('Dec 25 2025', '%m/%d/%Y')}\")\n\n# We will use a fuzzy match for the timer output since the calculation is relative to 'now()'\nprint(f\"Time until {future_event}: {time_until_event(future_event)}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "In `is_valid_date_format`, use the `try...except ValueError` structure to catch parsing errors.",
+    "To calculate days, hours, and minutes in `time_until_event`, use the `total_seconds()` method of the resulting `timedelta` and perform integer division (`//`) and modulo (`%`) operations.",
+    "The number of seconds in a day is $24 \\times 3600 = 86400$."
+  ],
+  "validation": {
+    "output": "Valid (12/25/2025, %m/%d/%Y): True\nInvalid (Dec 25 2025, %m/%d/%Y): False\nTime until 2030-01-01: ",
+    "fuzzyMatch": true,
+    "partialOutput": true
+  },
+  "tags": ["project", "datetime", "timedelta", "strptime", "try-except"],
+  "challengeGroup": "datetime-project"
+}

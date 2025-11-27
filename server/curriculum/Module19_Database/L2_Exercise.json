@@ -1,0 +1,24 @@
+{
+  "title": "Creating a Table and Inserting Records",
+  "instructions": "Connect to a database, create a simple `products` table, and insert two product records. Remember to commit the changes.",
+  "steps": [
+    "Import `sqlite3` and connect to `inventory.db` using the `with` statement.",
+    "Create a table called `products` with columns: `id INTEGER PRIMARY KEY`, `name TEXT NOT NULL`, and `price REAL`.",
+    "Insert two products: ('Keyboard', 75.00) and ('Mouse', 25.50).",
+    "Call `conn.commit()` to save the changes.",
+    "Print a message confirming the insertion."
+  ],
+  "starterCode": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # 1. SQL for creating the table\n    create_table_sql = \"\"\"\n    CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY,\n        name TEXT NOT NULL,\n        price REAL\n    );\n    \"\"\"\n    cursor.execute(create_table_sql)\n\n    # 2. SQL for inserting one product\n    insert_product_sql = ...\n    cursor.execute(insert_product_sql)\n    \n    # 3. Insert the second product\n    # You can reuse the SQL for the second item or use executemany\n    \n    # 4. Commit the changes\n    conn.commit()\n\n    print(\"Products table created and data inserted.\")\n",
+  "solution": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # 1. SQL for creating the table\n    create_table_sql = \"\"\"\n    CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY,\n        name TEXT NOT NULL,\n        price REAL\n    );\n    \"\"\"\n    cursor.execute(create_table_sql)\n\n    # 2. Use executemany for insertion\n    products_to_insert = [\n        ('Keyboard', 75.00),\n        ('Mouse', 25.50)\n    ]\n\n    insert_many_sql = \"\"\"\n    INSERT INTO products (name, price)\n    VALUES (?, ?);\n    \"\"\"\n    \n    cursor.executemany(insert_many_sql, products_to_insert)\n\n    # 3. Commit the changes\n    conn.commit()\n\n    print(\"Products table created and data inserted.\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Remember to include `IF NOT EXISTS` in your `CREATE TABLE` command.",
+    "The simplest way to insert both is to use `cursor.executemany()` with `VALUES (?, ?)`.",
+    "A call to `conn.commit()` is mandatory for persistence."
+  ],
+  "validation": {
+    "output": "Products table created and data inserted.\n"
+  },
+  "tags": ["sqlite3", "create-table", "insert", "commit"],
+  "challengeGroup": "database-interaction"
+}

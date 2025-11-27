@@ -1,0 +1,23 @@
+{
+  "title": "Creating and Indexing a Pandas Series",
+  "instructions": "Create a Pandas Series to hold product prices with specific product names as the index, and then access one item by its label.",
+  "steps": [
+    "Import the `pandas` library as `pd`.",
+    "Define a dictionary of product prices: `prices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}`.",
+    "Create a Pandas Series from the `prices` dictionary and store it in `product_series`.",
+    "Print the entire `product_series`.",
+    "Access and print the price of the 'Monitor' using its label."
+  ],
+  "starterCode": "import pandas as pd\n\nprices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}\n\n# 1. Create the Pandas Series\nproduct_series = ...\n\n# 2. Print the Series\nprint(product_series)\n\n# 3. Access the 'Monitor' price by label\nmonitor_price = ...\nprint(f\"Monitor Price: ${monitor_price}\")\n",
+  "solution": "import pandas as pd\n\nprices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}\n\n# 1. Create the Pandas Series\nproduct_series = pd.Series(prices)\n\n# 2. Print the Series\nprint(product_series)\n\n# 3. Access the 'Monitor' price by label\nmonitor_price = product_series['Monitor']\nprint(f\"Monitor Price: ${monitor_price}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The function to create a Series is `pd.Series()`.",
+    "Accessing a Series element by a label works just like accessing a dictionary value: `series_name['label']`."
+  ],
+  "validation": {
+    "output": "Laptop      1200\nMouse         25\nMonitor      300\nKeyboard      75\ndtype: int64\nMonitor Price: $300\n"
+  },
+  "tags": ["pandas", "series", "dictionary", "indexing"],
+  "challengeGroup": "data-science-intro"
+}

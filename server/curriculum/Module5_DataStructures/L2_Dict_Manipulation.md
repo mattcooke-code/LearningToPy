@@ -22,9 +22,9 @@ config["theme"] = "light"
 
 ### B. Removing Items: `.pop()` and `del`
 
-.pop(key): Removes the item associated with the specified key and returns the removed value. This is the safer method, as you can retrieve the value you just deleted.
+`.pop(key)`: Removes the item associated with the specified key and returns the removed value. This is the safer method, as you can retrieve the value you just deleted.
 
-del: A statement that permanently removes a key-value pair. It does not return the value.
+`del`: A statement that permanently removes a key-value pair. It does not return the value.
 
 ```python
 user = {"name": "Alex", "points": 100, "temp_data": 5}
@@ -44,7 +44,7 @@ You cannot loop through a dictionary directly like you do a list, as Python need
 
 ### A. `.keys()`: Looping Over Keys
 
-This is the default if you iterate over a dictionary directly, but using .keys() makes it explicit.
+This is the default if you iterate over a dictionary directly, but using `.keys()` makes it explicit.
 
 ```python
 stats = {"hp": 100, "mp": 50, "sp": 75}
@@ -67,7 +67,7 @@ for value in stats.values():
 
 ### C. `.items()`: Looping Over Pairs
 
-This is the most common and powerful way to iterate. The .items() method returns key-value pairs as a tuple in each iteration, which you can unpack directly into two loop variables.
+This is the most common and powerful way to iterate. The `.items()` method returns key-value pairs as a tuple in each iteration, which you can unpack directly into two loop variables.
 
 ```python
 for key, value in stats.items():

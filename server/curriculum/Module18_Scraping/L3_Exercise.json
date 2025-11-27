@@ -1,0 +1,25 @@
+{
+  "title": "Parsing HTML and Finding All Links",
+  "instructions": "Use `BeautifulSoup` to find all anchor tags (`<a>`) in the provided mock HTML content and print the URL from each one.",
+  "steps": [
+    "Import `BeautifulSoup`.",
+    "Define the mock HTML content as a string.",
+    "Initialize the `BeautifulSoup` object, `soup`.",
+    "Use `soup.find_all('a')` to find all link tags. Store the result in `all_links`.",
+    "Use a `for` loop to iterate through `all_links`.",
+    "Inside the loop, print the `href` attribute of each link tag."
+  ],
+  "starterCode": "from bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<html>\n<body>\n    <p>Data links:</p>\n    <a href=\"/link1\">First Link</a>\n    <a href=\"/link2\">Second Link</a>\n    <a href=\"/link3\">Third Link</a>\n</body>\n</html>\n\"\"\"\n\n# 1. Initialize BeautifulSoup\nsoup = ...\n\n# 2. Find all 'a' tags\nall_links = ...\n\n# 3. Loop through links and print the 'href' attribute\nfor link in all_links:\n    print(link[...])\n",
+  "solution": "from bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<html>\n<body>\n    <p>Data links:</p>\n    <a href=\"/link1\">First Link</a>\n    <a href=\"/link2\">Second Link</a>\n    <a href=\"/link3\">Third Link</a>\n</body>\n</html>\n\"\"\"\n\n# 1. Initialize BeautifulSoup\nsoup = BeautifulSoup(html_doc, 'html.parser')\n\n# 2. Find all 'a' tags\nall_links = soup.find_all('a')\n\n# 3. Loop through links and print the 'href' attribute\nfor link in all_links:\n    print(link['href'])\n",
+  "fileSetup": {},
+  "hints": [
+    "Use `BeautifulSoup(html_doc, 'html.parser')`.",
+    "The method to find all occurrences of a tag is `find_all()`.",
+    "Accessing an attribute uses dictionary-style indexing: `tag['attribute_name']`."
+  ],
+  "validation": {
+    "output": "/link1\n/link2\n/link3\n"
+  },
+  "tags": ["beautifulsoup", "find_all", "tag", "attributes"],
+  "challengeGroup": "web-scraping"
+}

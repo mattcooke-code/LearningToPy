@@ -1,0 +1,29 @@
+{
+  "title": "Basic List Comprehensions",
+  "instructions": "Practice transforming data using basic list comprehensions for common operations like squaring numbers, capitalizing strings, and type conversions.",
+  "steps": [
+    "Create a list comprehension that squares each number in the range 1-5",
+    "Create a list comprehension that capitalizes each name in the list of lowercase names",
+    "Create a list comprehension that converts string numbers to integers",
+    "Create a list comprehension that extracts the first element from each tuple in a list of coordinates"
+  ],
+  "starterCode": "numbers = [1, 2, 3, 4, 5]\nnames = [\"alice\", \"bob\", \"charlie\"]\nstring_numbers = [\"10\", \"20\", \"30\"]\ncoordinates = [(1, 2), (3, 4), (5, 6)]\n\n# 1. Square numbers 1-5:\nsquared = \n\n# 2. Capitalize names:\ncapitalized = \n\n# 3. Convert strings to integers:\nintegers = \n\n# 4. Extract x-coordinates:\nx_coords = ",
+  "solution": "numbers = [1, 2, 3, 4, 5]\nnames = [\"alice\", \"bob\", \"charlie\"]\nstring_numbers = [\"10\", \"20\", \"30\"]\ncoordinates = [(1, 2), (3, 4), (5, 6)]\n\n# 1. Square numbers 1-5:\nsquared = [x**2 for x in numbers]\n\n# 2. Capitalize names:\ncapitalized = [name.title() for name in names]\n\n# 3. Convert strings to integers:\nintegers = [int(num) for num in string_numbers]\n\n# 4. Extract x-coordinates:\nx_coords = [x for x, y in coordinates]",
+  "validation": {
+    "variables": {
+      "squared": [1, 4, 9, 16, 25],
+      "capitalized": ["Alice", "Bob", "Charlie"],
+      "integers": [10, 20, 30],
+      "x_coords": [1, 3, 5]
+    }
+  },
+  "hints": [
+    "Use the pattern [expression for item in iterable]",
+    "For squaring: x**2",
+    "For capitalizing: string.title()",
+    "For type conversion: int(string)",
+    "For tuple unpacking: [x for x, y in tuples]"
+  ],
+  "tags": ["list-comprehensions", "transformation", "pythonic", "iterables"],
+  "challengeGroup": "comprehension-basics"
+}

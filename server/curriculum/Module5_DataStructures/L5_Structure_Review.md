@@ -19,25 +19,25 @@ Use the following questions to guide your decision:
 
 ### When to use a **List** `[ ]`
 
-- Do you need an ordered collection of items?
-- Do you need to **add, remove, or modify** items after creation?
-- _Example: A queue of pending tasks, a shopping cart._
+• Do you need an ordered collection of items?
+• Do you need to **add, remove, or modify** items after creation?
+• _Example: A queue of pending tasks, a shopping cart._
 
 ### When to use a **Tuple** `( )`
 
-- Do you need an ordered collection of items?
-- Will the collection **never change** after creation (immutable)?
-- _Example: RGB color codes, geographical coordinates (latitude, longitude)._
+• Do you need an ordered collection of items?
+• Will the collection **never change** after creation (immutable)?
+• _Example: RGB color codes, geographical coordinates (latitude, longitude)._
 
 ### When to use a **Dictionary** `{ key: value }`
 
-- Do you need to store data as **pairs** (a label/key and its associated value)?
-- Do you need to look up a value **quickly** based on its name or ID?
-- _Example: User profiles, configuration settings, language translations._
+• Do you need to store data as **pairs** (a label/key and its associated value)?
+• Do you need to look up a value **quickly** based on its name or ID?
+• _Example: User profiles, configuration settings, language translations._
 
 ### When to use a **Set** `{ unique_item }`
 
-- Do you need to ensure **every item is unique**?
-- Is the order of elements unimportant?
-- Do you need to perform mathematical operations like finding common items (intersection)?
-- _Example: A collection of unique tags applied to an article, a list of active user IDs._
+• Do you need to ensure **every item is unique**?
+• Is the order of elements unimportant?
+• Do you need to perform mathematical operations like finding common items (intersection)?
+• _Example: A collection of unique tags applied to an article, a list of active user IDs._

@@ -1,0 +1,25 @@
+{
+  "title": "Creating Date and Time Objects",
+  "instructions": "Use the `datetime` module to create and print both the current date/time and a specific future date.",
+  "steps": [
+    "Import the `datetime` class from the `datetime` module.",
+    "Use `datetime.now()` to get the current date and time. Store it in a variable named `current_moment`.",
+    "Print `current_moment`.",
+    "Create a specific `datetime` object for January 25, 2028, at 8:00 AM. Store it in a variable named `future_date`.",
+    "Print the year, month, and hour attributes of `future_date` individually."
+  ],
+  "starterCode": "from datetime import datetime\n\n# 1. Get the current moment\ncurrent_moment = ...\nprint(current_moment)\n\n# 2. Create the specific future date (Jan 25, 2028, 8:00 AM)\n# Use the format: datetime(year, month, day, hour, minute)\nfuture_date = ...\n\n# 3. Print components of the future date\nprint(future_date.year)\nprint(future_date.month)\nprint(future_date.hour)\n",
+  "solution": "from datetime import datetime\n\n# 1. Get the current moment\ncurrent_moment = datetime.now()\nprint(current_moment)\n\n# 2. Create the specific future date (Jan 25, 2028, 8:00 AM)\nfuture_date = datetime(2028, 1, 25, 8, 0)\n\n# 3. Print components of the future date\nprint(future_date.year)\nprint(future_date.month)\nprint(future_date.hour)\n",
+  "fileSetup": {},
+  "hints": [
+    "The current date and time is obtained using the class method `datetime.now()`.",
+    "For `future_date`, remember the order of arguments is year, month, day, hour, minute.",
+    "Access components using dot notation: `object.attribute`."
+  ],
+  "validation": {
+    "output": "2028\n1\n8\n",
+    "fuzzyMatch": true
+  },
+  "tags": ["datetime", "now", "date", "time", "basic-objects"],
+  "challengeGroup": "datetime-basics"
+}

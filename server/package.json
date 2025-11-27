@@ -4,7 +4,10 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed": "node utils/seedData.js"
+    "seed": "node seeders/seedDatabase.js",
+    "seed:dry-run": "SEED_DRY_RUN=true node seeders/seedDatabase.js",
+    "seed:modules": "SEED_MODULES=1-5 node seeders/seedDatabase.js",
+    "seed:safe": "SEED_CLEAR_DATA=false node seeders/seedDatabase.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

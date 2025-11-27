@@ -1,0 +1,25 @@
+{
+  "title": "Adding Behavior (Methods) to Objects",
+  "instructions": "Create a class `TemperatureConverter` with methods to convert between Celsius and Fahrenheit, demonstrating the use of instance methods.",
+  "steps": [
+    "Define a class named `TemperatureConverter`.",
+    "Implement the `__init__` method to accept and store an initial `temperature` instance attribute.",
+    "Define an instance method `to_fahrenheit()` that calculates and returns the temperature in Fahrenheit. (Formula: $F = C \\times 9/5 + 32$)",
+    "Define an instance method `to_celsius()` that calculates and returns the temperature in Celsius. (Formula: $C = (F - 32) \\times 5/9$)",
+    "Create an object `celsius_temp` with an initial temperature of 25 (Celsius).",
+    "Call `to_fahrenheit()` on `celsius_temp` and print the result."
+  ],
+  "starterCode": "class TemperatureConverter:\n    def __init__(self, temperature):\n        # Initialize attribute\n        self.temperature = temperature\n\n    # Implement to_fahrenheit(self)\n\n    # Implement to_celsius(self)\n\n\n# Create an object (25 degrees Celsius)\ncelsius_temp = TemperatureConverter(25)\n\n# Convert and print the result\nprint(f\"25 Celsius is {celsius_temp.to_fahrenheit()} Fahrenheit\")\n",
+  "solution": "class TemperatureConverter:\n    def __init__(self, temperature):\n        # Initialize attribute\n        self.temperature = temperature\n\n    def to_fahrenheit(self):\n        # Assumes self.temperature is Celsius\n        return (self.temperature * 9/5) + 32\n\n    def to_celsius(self):\n        # Assumes self.temperature is Fahrenheit\n        return (self.temperature - 32) * 5/9\n\n\n# Create an object (25 degrees Celsius)\ncelsius_temp = TemperatureConverter(25)\n\n# Convert and print the result\nprint(f\"25 Celsius is {celsius_temp.to_fahrenheit()} Fahrenheit\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Both `to_fahrenheit` and `to_celsius` must accept `self` as their only mandatory parameter.",
+    "The Fahrenheit formula is: `(C * 9/5) + 32`.",
+    "Remember to use `self.temperature` inside the methods to access the object's data."
+  ],
+  "validation": {
+    "output": "25 Celsius is 77.0 Fahrenheit\n"
+  },
+  "tags": ["instance-method", "behavior", "encapsulation", "formula"],
+  "challengeGroup": "oop-methods"
+}

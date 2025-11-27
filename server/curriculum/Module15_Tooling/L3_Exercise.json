@@ -1,0 +1,25 @@
+{
+  "title": "Finding a Bug with a Breakpoint",
+  "instructions": "The provided function `process_items` has a bug that prevents it from correctly processing the fourth item in the list. Use the `pdb` commands listed below to simulate the debugging process and identify the line number of the bug.",
+  "steps": [
+    "Read the code and observe that `process_items([10, 20, 30, 40, 50])` outputs `50` when it should output `40` (the fourth element squared).",
+    "**Simulate Debugging:** Imagine you placed a `breakpoint()` inside the function loop.",
+    "Use the `p` (print) command to check the value of the variable `i` when the loop processes the fourth item (index 3). What is the value of `i`?",
+    "Use the `p` command to check the value of the variable `result` on the same line. What is the value of `result`?",
+    "Identify the line of code that causes the mistake (where the index is calculated incorrectly or the check fails). Enter the line number of the erroneous line as the final answer.",
+    "*(Note: Since `pdb` is terminal-only, you will identify the line based on analysis rather than interactive execution.)*"
+  ],
+  "starterCode": "def process_items(items):\n    result = 0\n    for i in range(len(items)):\n        # BUG LINE - Index is calculated incorrectly, causing the fourth item (index 3)\n        # to be processed as the last item (index 4) and skipping index 3 entirely.\n        if i == len(items) - 2: # Line 6: THIS LINE IS THE BUG\n            print(\"Skipping penultimate item...\")\n            continue\n        \n        # The fourth item should be processed here, but is skipped.\n        if i == 3:\n            result = items[i] * items[i]\n\n    return result\n\n# Test Case: The input list has 5 items. The fourth item is 40. \n# Expected output: 1600 (40 * 40)\n# Actual output: 0 (The logic is fundamentally broken, but the goal is to find the line that breaks the flow.)\n\nprint(process_items([10, 20, 30, 40, 50]))\n",
+  "solution": "def process_items(items):\n    result = 0\n    for i in range(len(items)):\n        # BUG LINE: This logic is designed to skip the second-to-last item (index 3).\n        if i == len(items) - 2: # Line 6\n            print(\"Skipping penultimate item...\")\n            continue\n        \n        # The fourth item should be processed here, but is skipped.\n        if i == 3:\n            result = items[i] * items[i]\n\n    return result\n\n# The bug is on Line 6: `if i == len(items) - 2:`.\n# For a list of length 5, len(items) - 2 is 3.\n# When i == 3 (the index of 40), it hits this line and `continue`s, skipping the calculation on lines 11-12.\n\n# Simulating the check for i=3:\n# p i -> 3\n# p result (before skip) -> 0\n\n# The line that incorrectly skips the calculation is Line 6.\n# The final expected answer is the line number of the bug.\nprint(6)\n",
+  "fileSetup": {},
+  "hints": [
+    "The problem occurs when the loop variable `i` is equal to 3 (the index of the value 40).",
+    "Examine the conditional statement just before the `continue` command. What value does `len(items) - 2` equal when `items` has 5 elements?",
+    "If `i` matches that value, the loop immediately skips to the next iteration, missing the calculation step."
+  ],
+  "validation": {
+    "output": "6\n"
+  },
+  "tags": ["pdb", "debugging", "breakpoint", "tooling"],
+  "challengeGroup": "python-debugging"
+}

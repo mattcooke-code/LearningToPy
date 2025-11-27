@@ -1,13 +1,20 @@
-//utils/seedModules1-5.js
+// server/seeders/seedModules1-5.js
 const seedModules1to5 = async (
   Lesson,
   Module,
   readContent,
-  parseJSONContent
+  parseJSONContent,
+  seedConfig = {}
 ) => {
+  console.log("🚀 Seeding Modules 1-5 with config:", {
+    batchSize: seedConfig.batchSize,
+    modules: seedConfig.modules || "all",
+  });
+
   //  =================================
   // || MODULE 1: PYTHON FUNDAMENTALS ||
   //  =================================
+  console.log("📘 Creating Module 1: Python Fundamentals...");
   const module1 = await Module.create({
     title: "Python Fundamentals",
     description:
@@ -177,9 +184,12 @@ const seedModules1to5 = async (
     isPublished: true,
   });
 
+  console.log("✅ Module 1 completed: 6 lessons created");
+
   //  =============================================
   // || MODULE 2: DATA STRUCTURES: LISTS & TUPLES ||
   //  =============================================
+  console.log("📘 Creating Module 2: Data Structures...");
   const module2 = await Module.create({
     title: "Data Structures: Lists & Tuples",
     description:
@@ -365,10 +375,12 @@ const seedModules1to5 = async (
     isPublished: true,
   });
 
+  console.log("✅ Module 2 completed: 6 lessons created");
+
   //   ========================================
   //  || MODULE 3: CONTROL FLOW: CONDITIONALS ||
   //   ========================================
-
+  console.log("📘 Creating Module 3: Control Flow...");
   const module3 = await Module.create({
     title: "Control Flow: Conditionals",
     description:
@@ -551,10 +563,12 @@ const seedModules1to5 = async (
     isPublished: true,
   });
 
+  console.log("✅ Module 3 completed: 6 lessons created");
+
   //   =======================
   //  || MODULE 4: ITERATION ||
   //   =======================
-
+  console.log("📘 Creating Module 4: Iteration...");
   const module4 = await Module.create({
     title: "Iteration",
     description:
@@ -729,10 +743,12 @@ const seedModules1to5 = async (
     isPublished: true,
   });
 
+  console.log("✅ Module 4 completed: 6 lessons created");
+
   //   ==================================================
   //  || MODULE 5: DATA STRUCTURES: DICTIONARIES & SETS ||
   //   ==================================================
-
+  console.log("📘 Creating Module 5: Dictionaries & Sets...");
   const module5 = await Module.create({
     title: "Data Structures: Dictionaries & Sets",
     description:
@@ -922,6 +938,10 @@ const seedModules1to5 = async (
     isPublished: true,
   });
 
+  console.log("✅ Module 5 completed: 6 lessons created");
+  console.log("🎉 Modules 1-5 seeding completed! Total: 5 modules, 30 lessons");
+
   return [module1, module2, module3, module4, module5];
 };
+
 module.exports = seedModules1to5;

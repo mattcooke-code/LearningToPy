@@ -1,0 +1,32 @@
+{
+  "title": "Basic Matching with re.search()",
+  "instructions": "Use `re.search()` and simple special characters (`.`, `\\d`, `\\s`) to find specific patterns in a string.",
+  "steps": [
+    "Import the `re` module.",
+    "Define the test string: `log_entry = 'ERR [ID-456] User failed login at 15:30:00'`",
+    "Create a raw string regex pattern that finds the three digits immediately following 'ID-'. The pattern should look like: `r\"ID-\\d\\d\\d\"`.",
+    "Use `re.search()` to find this pattern in `log_entry`. Store the result in `id_match`.",
+    "Print the matched text using `id_match.group()`.",
+    "Create a second raw string regex pattern that finds the time `15:30:00` using the `\\d` and literal `:` characters.",
+    "Use `re.search()` to find the time pattern. Store the result in `time_match` and print `time_match.group()`."
+  ],
+  "starterCode": "import re\n\nlog_entry = 'ERR [ID-456] User failed login at 15:30:00'\n\n# --- Part 1: Find the ID ---\n# Pattern to find 'ID-456'\npattern_id = r\"ID-\\d\\d\\d\"\nid_match = re.search(pattern_id, log_entry)\n\n# 1. Print the matched group for the ID\n\n\n# --- Part 2: Find the Time ---\n# Pattern to find '15:30:00'\npattern_time = ...\ntime_match = re.search(pattern_time, log_entry)\n\n# 2. Print the matched group for the time\n\n",
+  "solution": "import re\n\nlog_entry = 'ERR [ID-456] User failed login at 15:30:00'\n\n# --- Part 1: Find the ID ---\n# Pattern to find 'ID-456'\npattern_id = r\"ID-\\d\\d\\d\"\nid_match = re.search(pattern_id, log_entry)\n\n# 1. Print the matched group for the ID\nprint(id_match.group())\n\n\n# --- Part 2: Find the Time ---\n# Pattern to find '15:30:00' (two digits:two digits:two digits)\npattern_time = r\"\\d\\d:\\d\\d:\\d\\d\"\ntime_match = re.search(pattern_time, log_entry)\n\n# 2. Print the matched group for the time\nprint(time_match.group())\n",
+  "fileSetup": {},
+  "hints": [
+    "Remember to use raw strings (`r\"...\"`) for all patterns.",
+    "For the time pattern, you need six instances of `\\d` separated by literal colons (`:`).",
+    "The `.group()` method extracts the actual text that was matched by the pattern."
+  ],
+  "validation": {
+    "output": "ID-456\n15:30:00\n"
+  },
+  "tags": [
+    "regex",
+    "re-module",
+    "re-search",
+    "raw-string",
+    "special-characters"
+  ],
+  "challengeGroup": "regex-basics"
+}

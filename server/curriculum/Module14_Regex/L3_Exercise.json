@@ -1,0 +1,27 @@
+{
+  "title": "Extracting Structured Data with Groups",
+  "instructions": "Use capturing groups to extract the flight number and gate information from a flight status string.",
+  "steps": [
+    "Import the `re` module.",
+    "Define the test string: `flight_status = 'Flight UA456 is now boarding at Gate B12.'`",
+    "Create a raw string regex pattern that uses two capturing groups:",
+    "Group 1: The flight number (e.g., 'UA456'). The format is two letters followed by three digits.",
+    "Group 2: The gate number (e.g., 'B12'). The format is one letter followed by two digits.",
+    "Use `re.search()` to match the pattern in `flight_status`. Store the result in `match`.",
+    "Extract the flight number using `match.group(1)` and the gate using `match.group(2)`.",
+    "Print the extracted information clearly."
+  ],
+  "starterCode": "import re\n\nflight_status = 'Flight UA456 is now boarding at Gate B12.'\n\n# 1. Pattern with two capturing groups:\n# Group 1: Flight number (e.g., UA456) - two letters, three digits\n# Group 2: Gate number (e.g., B12) - one letter, two digits\npattern = r\"Flight (\\w{2}\\d{3}).*Gate (\\w\\d{2})\"\n\nmatch = re.search(pattern, flight_status)\n\nif match:\n    # 2. Extract and print the flight number\n    flight_number = ...\n    print(f\"Flight Number: {flight_number}\")\n\n    # 3. Extract and print the gate number\n    gate_number = ...\n    print(f\"Gate: {gate_number}\")\n",
+  "solution": "import re\n\nflight_status = 'Flight UA456 is now boarding at Gate B12.'\n\n# Pattern breakdown:\n# Flight (\\w{2}\\d{3}): Matches 'Flight ' followed by Group 1 (2 word chars, 3 digits)\n# .*?: Matches any characters in between (non-greedy, but * is fine here too)\n# Gate (\\w\\d{2}): Matches 'Gate ' followed by Group 2 (1 word char, 2 digits)\npattern = r\"Flight (\\w{2}\\d{3}).*Gate (\\w\\d{2})\"\n\nmatch = re.search(pattern, flight_status)\n\nif match:\n    # 2. Extract and print the flight number\n    flight_number = match.group(1)\n    print(f\"Flight Number: {flight_number}\")\n\n    # 3. Extract and print the gate number\n    gate_number = match.group(2)\n    print(f\"Gate: {gate_number}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The flight number group needs `\\w{2}\\d{3}`.",
+    "The gate number group needs `\\w\\d{2}`.",
+    "Remember that `match.group(1)` accesses the first captured group (the flight number)."
+  ],
+  "validation": {
+    "output": "Flight Number: UA456\nGate: B12\n"
+  },
+  "tags": ["capturing-groups", "data-extraction", "re-search", "parentheses"],
+  "challengeGroup": "regex-capturing"
+}

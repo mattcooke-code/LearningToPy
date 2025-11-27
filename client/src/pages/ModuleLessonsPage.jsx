@@ -1,9 +1,8 @@
 // client/src/pages/ModuleLessonsPage.jsx
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { apiClient, useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
-import BackToTopButton from "../components/ui/BackToTopButton";
+import { apiClient, useAuth, useTheme } from "../context";
+import { BackToTopButton } from "../components/ui";
 import {
   BookOpen,
   CheckCircle,

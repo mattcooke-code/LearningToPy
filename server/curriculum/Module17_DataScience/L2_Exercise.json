@@ -1,0 +1,24 @@
+{
+  "title": "Performing Vectorized Arithmetic and Aggregation",
+  "instructions": "Given an array of stock prices, apply a $5 bonus (addition) to each price and then calculate the new average price.",
+  "steps": [
+    "Import the `numpy` module as `np`.",
+    "Define a 1D NumPy array: `stock_prices = np.array([105.5, 98.2, 112.7, 101.9])`.",
+    "Create a new array, `bonus_prices`, by adding 5 to every element in `stock_prices` (vectorized addition).",
+    "Print the `bonus_prices` array.",
+    "Calculate the mean (average) of the `bonus_prices` array and store it in `avg_bonus_price`.",
+    "Print the `avg_bonus_price`, formatted to two decimal places."
+  ],
+  "starterCode": "import numpy as np\n\nstock_prices = np.array([105.5, 98.2, 112.7, 101.9])\n\n# 1. Apply a $5 bonus to all prices\nbonus_prices = ...\n\n# 2. Print the new array\nprint(bonus_prices)\n\n# 3. Calculate the mean of the new array\navg_bonus_price = ...\n\n# 4. Print the result\nprint(f\"New Average Price: {avg_bonus_price:.2f}\")\n",
+  "solution": "import numpy as np\n\nstock_prices = np.array([105.5, 98.2, 112.7, 101.9])\n\n# 1. Apply a $5 bonus to all prices\nbonus_prices = stock_prices + 5\n\n# 2. Print the new array\nprint(bonus_prices)\n\n# 3. Calculate the mean of the new array\navg_bonus_price = bonus_prices.mean()\n\n# 4. Print the result\nprint(f\"New Average Price: {avg_bonus_price:.2f}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Vectorized addition is as simple as `array + number`.",
+    "Use the `.mean()` method or `np.mean()` function for the average calculation."
+  ],
+  "validation": {
+    "output": "[110.5 103.2 117.7 106.9]\nNew Average Price: 109.58\n"
+  },
+  "tags": ["numpy", "vectorization", "aggregation", "mean"],
+  "challengeGroup": "data-science-intro"
+}

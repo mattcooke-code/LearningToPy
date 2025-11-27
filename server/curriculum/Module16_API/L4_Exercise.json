@@ -1,0 +1,29 @@
+{
+  "title": "Submitting Data via POST",
+  "instructions": "Construct a Python dictionary representing a new comment. Use the `requests.post()` method to submit this data to a testing API endpoint, and confirm the submission was successful by checking the status code and the server's response.",
+  "steps": [
+    "Import the `requests` module.",
+    "Define the API URL for submitting new posts: `https://jsonplaceholder.typicode.com/comments`.",
+    "Create a Python dictionary named `comment_payload` with the following keys and values:",
+    "    - `postId`: 10",
+    "    - `name`: 'Python Dev'",
+    "    - `email`: 'pydev@example.com'",
+    "    - `body`: 'This is a new test comment submitted via POST request.'",
+    "Make a POST request to the API URL, passing the `comment_payload` to the `json` argument. Store the response in `r`.",
+    "Check if the status code is equal to 201 (Created).",
+    "If successful, convert the response to JSON and print the value of the `id` key assigned by the server."
+  ],
+  "starterCode": "import requests\n\napi_url = 'https://jsonplaceholder.typicode.com/comments'\n\n# 1. Define the payload\ncomment_payload = {\n    'postId': 10,\n    'name': 'Python Dev',\n    'email': 'pydev@example.com',\n    'body': 'This is a new test comment submitted via POST request.'\n}\n\n# 2. Send the POST request\nr = requests.post(api_url, json=comment_payload)\n\n# 3. Check for success status code\nif r.status_code == 201:\n    # 4. Extract and print the new ID\n    response_data = r.json()\n    new_id = ...\n    print(f\"Comment submitted with ID: {new_id}\")\nelse:\n    print(f\"Submission failed with status code: {r.status_code}\")\n",
+  "solution": "import requests\n\napi_url = 'https://jsonplaceholder.typicode.com/comments'\n\n# 1. Define the payload\ncomment_payload = {\n    'postId': 10,\n    'name': 'Python Dev',\n    'email': 'pydev@example.com',\n    'body': 'This is a new test comment submitted via POST request.'\n}\n\n# 2. Send the POST request\nr = requests.post(api_url, json=comment_payload)\n\n# 3. Check for success status code\nif r.status_code == 201:\n    # 4. Extract and print the new ID\n    response_data = r.json()\n    new_id = response_data['id']\n    print(f\"Comment submitted with ID: {new_id}\")\nelse:\n    print(f\"Submission failed with status code: {r.status_code}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Remember that the server is expected to return a 201 status code for a successful resource creation.",
+    "Use the `json=` keyword argument in `requests.post()`.",
+    "The newly created object's data, including the generated ID, is available via `r.json()`."
+  ],
+  "validation": {
+    "output": "Comment submitted with ID: 501\n"
+  },
+  "tags": ["post-request", "json-payload", "api-submission", "status-201"],
+  "challengeGroup": "api-data-submission"
+}

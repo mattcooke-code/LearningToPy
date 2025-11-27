@@ -1,0 +1,24 @@
+{
+  "title": "Using super() in the Constructor",
+  "instructions": "Create a `Student` class that inherits from `Person`. Implement the `Student` constructor to correctly call the parent's constructor using `super()` and add a unique attribute.",
+  "steps": [
+    "Define the parent class `Person`. Its `__init__` should accept and store `name` and `age`.",
+    "Define the child class `Student` inheriting from `Person`.",
+    "Implement `Student`'s `__init__` to accept `name`, `age`, and `student_id`.",
+    "Use `super().__init__(...)` to handle the initialization of `name` and `age`.",
+    "Initialize the unique attribute `self.student_id` in the `Student` constructor.",
+    "Create an instance of `Student` and print all three attributes to verify correct initialization."
+  ],
+  "starterCode": "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n        \n\nclass Student(Person):\n    def __init__(self, name, age, student_id):\n        # 1. Call the parent's constructor here using super()\n        \n        # 2. Initialize the unique student_id attribute here\n        \n\nstudent1 = Student('Jane Doe', 20, 'S1234')\n\n# Verification\nprint(f\"Name: {student1.name}\")\nprint(f\"Age: {student1.age}\")\nprint(f\"ID: {student1.student_id}\")\n",
+  "solution": "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n        \n\nclass Student(Person):\n    def __init__(self, name, age, student_id):\n        # Call the parent's constructor\n        super().__init__(name, age)\n        \n        # Initialize the unique student_id attribute\n        self.student_id = student_id\n        \n\nstudent1 = Student('Jane Doe', 20, 'S1234')\n\n# Verification\nprint(f\"Name: {student1.name}\")\nprint(f\"Age: {student1.age}\")\nprint(f\"ID: {student1.student_id}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The `super()` call should look like `super().__init__(name, age)` inside the `Student` constructor.",
+    "Ensure the arguments passed to `super().__init__` match the parameters expected by the `Person.__init__` method."
+  ],
+  "validation": {
+    "output": "Name: Jane Doe\nAge: 20\nID: S1234\n"
+  },
+  "tags": ["inheritance", "super", "constructor", "__init__"],
+  "challengeGroup": "oop-super"
+}

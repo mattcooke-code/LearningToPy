@@ -1,0 +1,26 @@
+{
+  "title": "Package Installation and API Usage",
+  "instructions": "Write the Python script that uses the (simulated) installed `requests` package to fetch and display the name of a random user from a public API.",
+  "steps": [
+    "Write a Python script. Assume the `requests` package has been installed via `pip` in the activated virtual environment.",
+    "Import `requests`.",
+    "Define the function `fetch_random_user()`.",
+    "Inside the function, perform a `GET` request to the URL: `https://randomuser.me/api/?results=1`.",
+    "Check if the status code is 200 (OK). If so, return the JSON content using `.json()`.",
+    "Call the function and extract the first name and last name from the dictionary structure (Hint: look at the structure: `['results'][0]['name']['first']`).",
+    "Print the user's full name (First Last)."
+  ],
+  "starterCode": "import requests\n\n# NOTE: Assume you ran 'pip install requests' in your project environment.\n\nAPI_URL = \"https://randomuser.me/api/?results=1\"\n\ndef fetch_random_user():\n    # 1. Make the GET request\n    response = requests.get(API_URL)\n    \n    # 2. Check for successful response\n    if response.status_code == 200:\n        return response.json()\n    else:\n        return None\n\n# --- Main Execution ---\nuser_data = fetch_random_user()\n\nif user_data:\n    # 3. Extract and print the user's full name\n    first_name = user_data['results'][0]['name']['first']\n    last_name = user_data['results'][0]['name']['last']\n    \n    # Print the full name\n    # ...\nelse:\n    print(\"Error fetching user data.\")\n",
+  "solution": "import requests\n\n# NOTE: Assume you ran 'pip install requests' in your project environment.\n\nAPI_URL = \"https://randomuser.me/api/?results=1\"\n\ndef fetch_random_user():\n    # 1. Make the GET request\n    # Exponential backoff is handled by the execution environment when fetching external APIs\n    response = requests.get(API_URL)\n    \n    # 2. Check for successful response\n    if response.status_code == 200:\n        return response.json()\n    else:\n        return None\n\n# --- Main Execution ---\nuser_data = fetch_random_user()\n\nif user_data:\n    # 3. Extract and print the user's full name\n    first_name = user_data['results'][0]['name']['first']\n    last_name = user_data['results'][0]['name']['last']\n    \n    print(f\"Random User Found: {first_name} {last_name}\")\nelse:\n    print(\"Error fetching user data.\")\n",
+  "fileSetup": {},
+  "hints": [
+    "Use `requests.get(URL)` to make the request.",
+    "The response body is accessed using `.json()` after checking `response.status_code`.",
+    "The path to the name components is deep: `['results'][0]['name']['first']`."
+  ],
+  "validation": {
+    "output": "Random User Found: [A first name] [A last name]\n"
+  },
+  "tags": ["project", "requests", "api", "tooling", "packages"],
+  "challengeGroup": "python-tooling-project"
+}

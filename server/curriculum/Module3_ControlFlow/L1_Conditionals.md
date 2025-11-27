@@ -10,8 +10,8 @@ An `if` statement checks if a **condition** is `True`. If it is, the code indent
 
 ### Syntax Key Points
 
-- The condition ends with a **colon** (`:`).
-- The code block to be executed must be **indented** (usually 4 spaces). This is how Python knows which code belongs to the `if` statement.
+• The condition ends with a **colon** (`:`).
+• The code block to be executed must be **indented** (usually 4 spaces). This is how Python knows which code belongs to the `if` statement.
 
 ```python
 is_raining = True

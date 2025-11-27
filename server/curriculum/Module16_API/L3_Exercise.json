@@ -1,0 +1,25 @@
+{
+  "title": "Parsing and Extracting Data from a JSON List",
+  "instructions": "Make a GET request to an endpoint that returns a list of JSON objects. Use the `.json()` method to convert the response into a Python list of dictionaries, and then loop through the results to print specific information.",
+  "steps": [
+    "Import the `requests` module.",
+    "Define the API URL: `https://jsonplaceholder.typicode.com/users`.",
+    "Make a GET request to the URL. Store the response in `response`.",
+    "Use `response.json()` to convert the JSON response into a Python list of dictionaries. Store this list in `users_data`.",
+    "Use a `for` loop to iterate through the first three dictionaries in `users_data`.",
+    "Inside the loop, print the user's `name` and their `email` for the current user object."
+  ],
+  "starterCode": "import requests\n\napi_url = 'https://jsonplaceholder.typicode.com/users'\n\n# 1. Make the GET request\nresponse = requests.get(api_url)\n\n# 2. Convert the response to a Python list of dictionaries\nusers_data = ...\n\n# 3. Loop through the *first three* users and print their name and email\n# (We can use slicing [0:3] or a counter)\nfor user in users_data[0:3]:\n    # 4. Extract and print the data\n    name = ...\n    email = ...\n    print(f\"Name: {name}, Email: {email}\")\n",
+  "solution": "import requests\n\napi_url = 'https://jsonplaceholder.typicode.com/users'\n\n# 1. Make the GET request\nresponse = requests.get(api_url)\n\n# 2. Convert the response to a Python list of dictionaries\nusers_data = response.json()\n\n# 3. Loop through the *first three* users and print their name and email\nfor user in users_data[0:3]:\n    # 4. Extract and print the data\n    name = user['name']\n    email = user['email']\n    print(f\"Name: {name}, Email: {email}\")\n",
+  "fileSetup": {},
+  "hints": [
+    "The conversion is done simply by calling `response.json()`.",
+    "Since `users_data` is a list of dictionaries, use `users_data[0:3]` to get the first three items.",
+    "Access the values within the dictionary using square brackets, e.g., `user['name']`."
+  ],
+  "validation": {
+    "output": "Name: Leanne Graham, Email: Sincere@april.biz\nName: Ervin Howell, Email: Shanna@melissa.tv\nName: Clementine Bauch, Email: Nathan@yesenia.net\n"
+  },
+  "tags": ["json-parsing", "requests", "data-extraction", "list-of-dicts"],
+  "challengeGroup": "api-data-handling"
+}

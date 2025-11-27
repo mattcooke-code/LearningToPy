@@ -1,0 +1,25 @@
+{
+  "title": "Simple Game Character Class",
+  "instructions": "Complete the `Character` class implementation using `__init__`, `attack` method, and the `__str__` method to make two characters fight and display their status.",
+  "steps": [
+    "Define the `Character` class with `__init__(self, name, max_health)` to set up instance attributes: `name`, `max_health`, and `current_health` (starting at `max_health`).",
+    "Implement the `attack(self, target)` method. It should reduce the `target`'s `current_health` by 10 and print a descriptive message.",
+    "Implement the `__str__(self)` method to display the character's name and health status (e.g., 'Hero [HP: 100/100]').",
+    "Instantiate two characters: `hero` (name: 'Knight', health: 100) and `foe` (name: 'Goblin', health: 50).",
+    "Have the `hero` attack the `foe` once.",
+    "Print the status of both characters using `print()`."
+  ],
+  "starterCode": "class Character:\n    # 1. Implement __init__\n    \n    # 2. Implement attack method\n    \n    # 3. Implement __str__ method\n    \n\n# 4. Instantiate characters\nhero = Character('Knight', 100)\nfoe = Character('Goblin', 50)\n\n# 5. Hero attacks foe\nhero.attack(foe)\n\n# 6. Print status\nprint(hero)\nprint(foe)\n",
+  "solution": "class Character:\n    def __init__(self, name, max_health):\n        self.name = name\n        self.max_health = max_health\n        self.current_health = max_health\n\n    def attack(self, target):\n        damage = 10\n        target.current_health -= damage\n        if target.current_health < 0:\n            target.current_health = 0\n        print(f\"{self.name} attacks {target.name} for {damage} damage.\")\n\n    def __str__(self):\n        return f\"{self.name} [HP: {self.current_health}/{self.max_health}]\"\n\n\n# Instantiate characters\nhero = Character('Knight', 100)\nfoe = Character('Goblin', 50)\n\n# Hero attacks foe\nhero.attack(foe)\n\n# Print status\nprint(hero)\nprint(foe)\n",
+  "fileSetup": {},
+  "hints": [
+    "Use `self.current_health = max_health` in `__init__`.",
+    "The `attack` method must access and modify the `current_health` attribute of the `target` object.",
+    "The `__str__` method must return a string, not print it."
+  ],
+  "validation": {
+    "output": "Knight attacks Goblin for 10 damage.\nKnight [HP: 100/100]\nGoblin [HP: 40/50]\n"
+  },
+  "tags": ["project", "class", "instance-methods", "__init__", "__str__"],
+  "challengeGroup": "oop-project"
+}

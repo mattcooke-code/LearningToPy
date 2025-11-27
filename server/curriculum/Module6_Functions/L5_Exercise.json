@@ -1,19 +1,175 @@
 {
-  "title": "Lambda Functions in Practice",
-  "instructions": "Practice defining and using lambda functions, particularly with the built-in `sorted()` function.",
-  "steps": [
-    "Define a lambda function named `double_and_add` that takes two arguments, `a` and `b`, and returns the result of `(a * 2) + b`.",
-    "Call `double_and_add` with arguments 5 and 3, and assign the result to the variable `calc_result`.",
-    "Use the built-in `sorted()` function on the `products` list. Use a **lambda function** as the `key` to sort the list by the **price** (the second element, index 1) of the tuples. Assign the result to `products_sorted_by_price`.",
-    "Use the built-in `sorted()` function again on the `products` list. Use a **lambda function** as the `key`, but set the `reverse` argument to `True` to sort by the price in **descending** order. Assign the result to `products_sorted_desc`."
-  ],
-  "starterCode": "products = [\n  ('Widget', 50, 10),\n  ('Gadget', 150, 5),\n  ('Thing', 10, 25)\n]\n\n# 1. Define the lambda function double_and_add:\n\n\n# 2. Call the lambda function:\ncalc_result = \n\n# 3. Sort products by price (index 1) in ascending order:\nproducts_sorted_by_price = \n\n# 4. Sort products by price (index 1) in descending order:\nproducts_sorted_desc = \n",
-  "solution": "products = [\n  ('Widget', 50, 10),\n  ('Gadget', 150, 5),\n  ('Thing', 10, 25)\n]\n\n# 1. Define the lambda function double_and_add:\ndouble_and_add = lambda a, b: (a * 2) + b\n\n# 2. Call the lambda function:\ncalc_result = double_and_add(5, 3)\n\n# 3. Sort products by price (index 1) in ascending order:\nproducts_sorted_by_price = sorted(products, key=lambda p: p[1])\n\n# 4. Sort products by price (index 1) in descending order:\nproducts_sorted_desc = sorted(products, key=lambda p: p[1], reverse=True)",
-  "hints": [
-    "The lambda definition for `double_and_add` should look like: `lambda a, b: ...`",
-    "When sorting, the argument passed to the lambda (e.g., `p`) represents an individual item from the `products` list (a tuple).",
-    "To sort in descending order, you must set the `reverse` parameter to `True` in the `sorted()` call."
-  ],
-  "tags": ["lambda", "anonymous-function", "sorted", "functional-programming"],
-  "challengeGroup": "lambda-functions"
+  "title": "Module Project: Calculator Builder",
+  "description": "Build a modular calculator system using fundamental function concepts. Create specialized functions that work together to perform various mathematical operations.",
+  "exercises": [
+    {
+      "id": 1,
+      "type": "code",
+      "question": "Implement the four basic arithmetic functions: add, subtract, multiply, and divide. The divide function should handle division by zero by returning 'Error: Cannot divide by zero'.",
+      "hints": [
+        "Keep each function simple and focused on one operation",
+        "For division, check if the second number is zero before dividing",
+        "Remember to return the result from each function"
+      ],
+      "solution": "def add(a, b):\n    return a + b\n\ndef subtract(a, b):\n    return a - b\n\ndef multiply(a, b):\n    return a * b\n\ndef divide(a, b):\n    if b == 0:\n        return 'Error: Cannot divide by zero'\n    return a / b",
+      "tests": [
+        {
+          "input": "add(5, 3)",
+          "expected": 8
+        },
+        {
+          "input": "subtract(10, 4)",
+          "expected": 6
+        },
+        {
+          "input": "multiply(3, 7)",
+          "expected": 21
+        },
+        {
+          "input": "divide(15, 3)",
+          "expected": 5.0
+        },
+        {
+          "input": "divide(8, 0)",
+          "expected": "Error: Cannot divide by zero"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "code",
+      "question": "Implement the advanced calculation functions: power, square_root, and percentage. The square_root function should return an error for negative numbers, and percentage should handle the case where whole is zero.",
+      "hints": [
+        "Use the ** operator for power and square root",
+        "Check if the number is negative before calculating square root",
+        "For percentage, return 0 if whole is 0 to avoid division by zero"
+      ],
+      "solution": "def power(base, exponent):\n    return base ** exponent\n\ndef square_root(number):\n    if number < 0:\n        return 'Error: Cannot calculate square root of negative number'\n    return number ** 0.5\n\ndef percentage(part, whole):\n    if whole == 0:\n        return 0\n    return (part / whole) * 100",
+      "tests": [
+        {
+          "input": "power(2, 3)",
+          "expected": 8
+        },
+        {
+          "input": "power(5, 2)",
+          "expected": 25
+        },
+        {
+          "input": "square_root(25)",
+          "expected": 5.0
+        },
+        {
+          "input": "square_root(-9)",
+          "expected": "Error: Cannot calculate square root of negative number"
+        },
+        {
+          "input": "percentage(25, 100)",
+          "expected": 25.0
+        },
+        {
+          "input": "percentage(30, 0)",
+          "expected": 0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "question": "Implement the utility functions: is_even, is_positive, and validate_number. validate_number should convert a string to a float or return an error message if conversion fails.",
+      "hints": [
+        "Use modulo operator % to check if a number is even",
+        "A number is positive if it's greater than 0",
+        "Use try-except to handle string to number conversion"
+      ],
+      "solution": "def is_even(number):\n    return number % 2 == 0\n\ndef is_positive(number):\n    return number > 0\n\ndef validate_number(input_str):\n    try:\n        return float(input_str)\n    except ValueError:\n        return 'Error: Please enter a valid number'",
+      "tests": [
+        {
+          "input": "is_even(4)",
+          "expected": true
+        },
+        {
+          "input": "is_even(7)",
+          "expected": false
+        },
+        {
+          "input": "is_positive(5)",
+          "expected": true
+        },
+        {
+          "input": "is_positive(-3)",
+          "expected": false
+        },
+        {
+          "input": "validate_number('42')",
+          "expected": 42.0
+        },
+        {
+          "input": "validate_number('3.14')",
+          "expected": 3.14
+        },
+        {
+          "input": "validate_number('abc')",
+          "expected": "Error: Please enter a valid number"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "code",
+      "question": "Implement the main calculate function that routes operations to the appropriate function. It should handle both numeric and string inputs, and return error messages for unknown operations.",
+      "hints": [
+        "Use conditional statements (if/elif/else) to check the operation",
+        "Call validate_number on string inputs before processing",
+        "Return appropriate error messages for invalid operations or inputs"
+      ],
+      "solution": "def calculate(operation, num1, num2=None):\n    # Validate num1 if it's a string\n    if isinstance(num1, str):\n        num1 = validate_number(num1)\n        if isinstance(num1, str):\n            return num1\n    \n    # Validate num2 if provided and it's a string\n    if num2 is not None and isinstance(num2, str):\n        num2 = validate_number(num2)\n        if isinstance(num2, str):\n            return num2\n    \n    # Route to appropriate operation\n    if operation == 'add':\n        return add(num1, num2)\n    elif operation == 'subtract':\n        return subtract(num1, num2)\n    elif operation == 'multiply':\n        return multiply(num1, num2)\n    elif operation == 'divide':\n        return divide(num1, num2)\n    elif operation == 'power':\n        return power(num1, num2)\n    elif operation == 'square_root':\n        return square_root(num1)\n    elif operation == 'percentage':\n        return percentage(num1, num2)\n    elif operation == 'is_even':\n        return is_even(num1)\n    elif operation == 'is_positive':\n        return is_positive(num1)\n    else:\n        return 'Error: Unknown operation'",
+      "tests": [
+        {
+          "input": "calculate('add', 5, 3)",
+          "expected": 8
+        },
+        {
+          "input": "calculate('multiply', 4, 7)",
+          "expected": 28
+        },
+        {
+          "input": "calculate('square_root', 16)",
+          "expected": 4.0
+        },
+        {
+          "input": "calculate('divide', 10, 0)",
+          "expected": "Error: Cannot divide by zero"
+        },
+        {
+          "input": "calculate('add', '10', '5')",
+          "expected": 15.0
+        },
+        {
+          "input": "calculate('unknown', 5, 3)",
+          "expected": "Error: Unknown operation"
+        },
+        {
+          "input": "calculate('add', 'abc', 5)",
+          "expected": "Error: Please enter a valid number"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "code",
+      "question": "Create a comprehensive test function that verifies all calculator operations work correctly. Test at least 5 different operations including edge cases.",
+      "hints": [
+        "Test both normal cases and error cases",
+        "Use assert statements to verify expected results",
+        "Include tests for string input validation"
+      ],
+      "solution": "def run_comprehensive_tests():\n    # Test basic operations\n    assert calculate('add', 2, 3) == 5\n    assert calculate('subtract', 10, 4) == 6\n    assert calculate('multiply', 3, 7) == 21\n    assert calculate('divide', 15, 3) == 5.0\n    \n    # Test advanced operations\n    assert calculate('power', 2, 3) == 8\n    assert calculate('square_root', 25) == 5.0\n    assert calculate('percentage', 30, 150) == 20.0\n    \n    # Test utility operations\n    assert calculate('is_even', 4) == True\n    assert calculate('is_positive', -5) == False\n    \n    # Test error handling\n    assert 'Error' in str(calculate('divide', 5, 0))\n    assert 'Error' in str(calculate('square_root', -9))\n    assert 'Error' in str(calculate('add', 'abc', 5))\n    \n    # Test string inputs\n    assert calculate('add', '10', '5') == 15.0\n    assert calculate('multiply', '3', '7') == 21.0\n    \n    return 'All tests passed!'\n\n# Call the test function\nresult = run_comprehensive_tests()",
+      "tests": [
+        {
+          "input": "run_comprehensive_tests()",
+          "expected": "All tests passed!"
+        }
+      ]
+    }
+  ]
 }

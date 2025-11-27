@@ -1,8 +1,7 @@
 // Navbar.jsx
 import { memo } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import { useAuth, useTheme } from "../../context";
 import { BookOpen, User, LogOut, Home } from "lucide-react";
 
 const Navbar = memo(function Navbar() {
@@ -27,28 +26,28 @@ const Navbar = memo(function Navbar() {
             <>
               <Link
                 to="/dashboard"
-                className="hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
               >
                 <Home className="w-5 h-5" />
                 <span>Dashboard</span>
               </Link>
               <Link
                 to="/modules"
-                className="hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
               >
                 <BookOpen className="w-5 h-5" />
                 <span>Learn</span>
               </Link>
               <Link
                 to="/profile"
-                className="hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
               >
                 <User className="w-5 h-5" />
                 <span>Profile</span>
               </Link>
               <button
-                onClick={logout}
-                className="hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                onClick={() => logout()}
+                className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Logout</span>

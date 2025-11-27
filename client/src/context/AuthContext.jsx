@@ -8,7 +8,7 @@ import {
   useRef,
 } from "react";
 import axios from "axios";
-import { useNotification } from "./NotificationContext";
+import { useNotification } from "../context";
 import { jwtDecode } from "jwt-decode";
 import { getErrorMessage } from "../utils/getErrorMessage";
 
@@ -95,9 +95,10 @@ export const AuthProvider = ({ children }) => {
       setAuthError(null);
     },
     []
-  );
+  ); // Logout Function
 
-  // Logout Function
+  // AuthContext.jsx (Lines ~160 - 208)
+
   const logout = useCallback(
     async (message = null) => {
       if (logoutInitiated.current) {
@@ -108,17 +109,20 @@ export const AuthProvider = ({ children }) => {
       console.log("🚪 Initiating logout...");
 
       setLoading(true);
-      setAuthError(null);
+      setAuthError(null); // Reset theme if function exists
 
-      // Clear tokens immediately
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
-      setAuthData(null, null);
-
-      // Reset theme if function exists
       if (window.resetTheme) window.resetTheme();
 
       try {
+        // --- START: 401 FIX CODE ---
+        const currentAccessToken = getStoredAccessToken(); // Only attach the header if we have a token
+
+        if (currentAccessToken) {
+          authApiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${currentAccessToken}`;
+        } // 1. Attempt API call (must be first!)
+
         await authApiClient.post("/api/auth/logout");
         console.log("✅ Logout API call successful (cookie cleared)");
       } catch (err) {
@@ -126,7 +130,13 @@ export const AuthProvider = ({ children }) => {
           "⚠️ Logout API call failed (token may already be gone):",
           err.message
         );
-      }
+      } finally {
+        // 2. Clean up the Authorization header from authApiClient defaults
+        delete authApiClient.defaults.headers.common["Authorization"];
+      } // --- END: 401 FIX CODE --- // 3. Client-side cleanup (always happens regardless of API success/failure)
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+      setAuthData(null, null);
 
       if (message) {
         showToast(message, "info");
@@ -191,7 +201,11 @@ export const AuthProvider = ({ children }) => {
         processQueue(refreshError, null);
 
         if (!logoutInitiated.current) {
-          logout("Your session has expired. Please log in again.");
+          localStorage.removeItem("accessToken");
+          sessionStorage.removeItem("accessToken");
+          setAuthData(null, null);
+          setAuthError("Your session has expired. Please log in again.");
+          showToast("Your session has expired. Please log in again.", "error");
         }
         throw refreshError;
       } finally {
@@ -202,7 +216,7 @@ export const AuthProvider = ({ children }) => {
 
     refreshPromise.current = refreshP;
     return refreshP;
-  }, [setAuthData, logout, showToast, processQueue]);
+  }, [setAuthData, showToast, processQueue]);
 
   // Reusable auth action executor with error handling
   const executeAuthAction = useCallback(
@@ -397,11 +411,26 @@ export const AuthProvider = ({ children }) => {
         // Handle 401 errors with token refresh
         if (err.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
+          console.log(
+            "🔄 Interceptor: Detected 401, attempting token refresh..."
+          );
 
           try {
             const newAccessToken = await refreshAuthToken();
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return apiClient(originalRequest);
+            console.log(
+              "✅ Interceptor: Refresh successful, token:",
+              newAccessToken
+            );
+
+            if (newAccessToken) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+              console.log(
+                "🔄 Interceptor: Retrying original request with new token"
+              );
+              return apiClient(originalRequest);
+            } else {
+              throw new Error("No token received from refresh");
+            }
           } catch (refreshError) {
             console.log("❌ Interceptor refresh failed:", refreshError.message);
             return Promise.reject(err);

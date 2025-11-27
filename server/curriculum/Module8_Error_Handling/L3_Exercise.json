@@ -1,0 +1,26 @@
+{
+  "title": "Using Else and Finally",
+  "instructions": "Practice using else and finally clauses to handle successful execution and ensure proper cleanup in error handling scenarios.",
+  "steps": [
+    "Write a try block that attempts to read a configuration value from a file and convert it to an integer",
+    "Add an except block for FileNotFoundError that sets a default value",
+    "Add an else block that prints a success message with the parsed value",
+    "Add a finally block that prints 'Cleanup completed' regardless of what happens",
+    "After the entire structure, print the final configuration value"
+  ],
+  "starterCode": "config_value = 0\n\n# 1. Complete try/except/else/finally structure:\n\n\n\n\n\n\n# 2. Print final value:\nprint(f\"Final config value: {config_value}\")",
+  "solution": "config_value = 0\n\n# 1. Complete try/except/else/finally structure:\ntry:\n    with open('config.txt', 'r') as f:\n        content = f.read().strip()\n    config_value = int(content)\nexcept FileNotFoundError:\n    print(\"Config file not found, using default value 100\")\n    config_value = 100\nelse:\n    print(f\"Successfully parsed config value: {config_value}\")\nfinally:\n    print(\"Cleanup completed\")\n\n# 2. Print final value:\nprint(f\"Final config value: {config_value}\")",
+  "fileSetup": {
+    "config.txt": "42"
+  },
+  "hints": [
+    "The else block runs only if no exceptions occurred in the try block",
+    "The finally block always runs, even if there was an exception",
+    "Use with open() for automatic file handling within the try block"
+  ],
+  "validation": {
+    "output": "Successfully parsed config value: 42\\nCleanup completed\\nFinal config value: 42\\n"
+  },
+  "tags": ["else-clause", "finally-clause", "cleanup", "error-handling"],
+  "challengeGroup": "else-finally"
+}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiClient, useAuth } from "../../context/AuthContext";
-import { useNotification } from "../../context/NotificationContext";
+import { apiClient, useAuth, useNotification } from "../../context";
 import { getErrorMessage } from "../../utils/getErrorMessage";
 
 // ModuleLeaderboardModal.jsx

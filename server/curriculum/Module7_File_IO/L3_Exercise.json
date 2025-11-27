@@ -1,0 +1,29 @@
+{
+  "title": "Using the With Statement",
+  "instructions": "Refactor your file reading process to use the safer and more efficient `with open(...)` context manager. Observe how files are automatically closed.",
+  "steps": [
+    "Use the `with open()` statement to open the file `settings.conf` in read mode (`'r'`). Assign the file object to the variable `config_file`.",
+    "Inside the `with` block, iterate through `config_file` line by line.",
+    "For each `line` in the file, use the `.strip()` method to remove whitespace and newlines, and append the cleaned line to the `clean_settings` list.",
+    "Outside the `with` block, print the length of the `clean_settings` list to verify the operation succeeded.",
+    "Demonstrate the file is closed by checking `config_file.closed` and print the result."
+  ],
+  "starterCode": "clean_settings = []\n\n# 1. Use the with open() context manager:\n\n\n# 2. Iterate and process lines inside the block:\n\n\n\n# 3. Print the result outside the block:\n\n\n# 4. Check if file is closed:\nprint(\"File closed:\", )",
+  "solution": "clean_settings = []\n\n# 1. Use the with open() context manager:\nwith open('settings.conf', 'r') as config_file:\n    # 2. Iterate and process lines inside the block:\n    for line in config_file:\n        clean_settings.append(line.strip())\n\n# 3. Print the result outside the block:\nprint(len(clean_settings))\n\n# 4. Check if file is closed:\nprint(\"File closed:\", config_file.closed)",
+  "fileSetup": {
+    "settings.conf": "HOST=localhost\nPORT=8080\nDEBUG=True"
+  },
+  "hints": [
+    "The syntax is `with open('filename', 'mode') as handle_name:`",
+    "File iteration works the same inside the `with` block as outside it.",
+    "Check `file_object.closed` to see if a file is closed (returns True/False)."
+  ],
+  "validation": {
+    "variables": {
+      "clean_settings": ["HOST=localhost", "PORT=8080", "DEBUG=True"]
+    },
+    "output": "3\\nFile closed: True"
+  },
+  "tags": ["file-io", "with", "context-manager", "safe-handling"],
+  "challengeGroup": "context-manager"
+}

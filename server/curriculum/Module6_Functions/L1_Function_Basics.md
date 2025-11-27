@@ -43,9 +43,9 @@ greet() # Calls the function defined above
 
 Functions become truly useful when they can accept input.
 
-Parameter: The name used in the function definition to represent the data it expects to receive (e.g., name in the definition below).
+• **Parameter**: The name used in the function definition to represent the data it expects to receive (e.g., name in the definition below).
 
-Argument: The actual value passed to the function when it is called (e.g., "Alice" in the call below).
+• **Argument**: The actual value passed to the function when it is called (e.g., "Alice" in the call below).
 
 ```python
 # 'name' is the parameter

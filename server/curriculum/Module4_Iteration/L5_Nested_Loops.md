@@ -19,13 +19,13 @@ for item_outer in outer_sequence:
 
 The key to understanding nested loops is the order of execution:
 
-The Outer Loop executes its first iteration.
+• The Outer Loop executes its first iteration.
 
-The Inner Loop starts and runs to completion (all its iterations finish).
+• The Inner Loop starts and runs to completion (all its iterations finish).
 
-The Outer Loop moves to its second iteration.
+• The Outer Loop moves to its second iteration.
 
-The Inner Loop starts again and runs to completion.
+• The Inner Loop starts again and runs to completion.
 
 This repeats until the Outer Loop finishes.
 

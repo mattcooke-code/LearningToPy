@@ -1,0 +1,31 @@
+{
+  "title": "Quantifiers and Character Sets",
+  "instructions": "Build a pattern to validate a simple 3-digit access code and another to find all words ending in 'ing'.",
+  "steps": [
+    "Import the `re` module.",
+    "**Part 1: Access Code Validation.** Create a raw string pattern that matches a string that starts with the character 'A', is followed by exactly 3 digits, and ends with the string 'Z'. (e.g., 'A123Z').",
+    "Use `re.match()` to test the pattern against `code1 = 'A987Z'` and `code2 = 'A1234Z'`. Print the group for the successful match and `None` for the unsuccessful match.",
+    "**Part 2: Finding Verbs.** Create a raw string pattern that finds words consisting of one or more letters (`[a-zA-Z]+`) followed by the string 'ing' at a word boundary (`\\b`).",
+    "Use `re.findall()` with this pattern on the text `text = 'We are walking, running, and swimming quickly.'` to extract all 'ing' words.",
+    "Print the list of matches."
+  ],
+  "starterCode": "import re\n\n# --- Part 1: Access Code Validation ---\n# Pattern must start with A, have exactly 3 digits, and end with Z\npattern_code = ...\n\ncode1 = 'A987Z'\ncode2 = 'A1234Z'\n\nmatch1 = re.match(pattern_code, code1)\nmatch2 = re.match(pattern_code, code2)\n\n# 1. Print match 1 group (should succeed)\nprint(match1.group())\n\n# 2. Print match 2 result (should fail)\nprint(match2)\n\n\n# --- Part 2: Finding Verbs ---\ntext = 'We are walking, running, and swimming quickly.'\n# Pattern for one or more letters followed by 'ing' at a word boundary\npattern_ing = ...\n\nmatches = re.findall(pattern_ing, text)\n\n# 3. Print the list of matches\nprint(matches)\n",
+  "solution": "import re\n\n# --- Part 1: Access Code Validation ---\n# Pattern: ^ (start) + A + \\d{3} (exactly 3 digits) + Z + $ (end)\npattern_code = r\"^A\\d{3}Z$\"\n\ncode1 = 'A987Z'\ncode2 = 'A1234Z'\n\nmatch1 = re.match(pattern_code, code1)\nmatch2 = re.match(pattern_code, code2)\n\n# 1. Print match 1 group (should succeed)\nprint(match1.group())\n\n# 2. Print match 2 result (should fail)\nprint(match2)\n\n\n# --- Part 2: Finding Verbs ---\ntext = 'We are walking, running, and swimming quickly.'\n# Pattern: [a-zA-Z]+ (one or more letters) + ing + \\b (word boundary)\npattern_ing = r\"[a-zA-Z]+ing\\b\"\n\nmatches = re.findall(pattern_ing, text)\n\n# 3. Print the list of matches\nprint(matches)\n",
+  "fileSetup": {},
+  "hints": [
+    "For the access code, you need `^` and `$` to anchor the entire string, and `{3}` for the exact digit count.",
+    "For the verbs, the character set `[a-zA-Z]` matches any single letter, and `+` means one or more times. Use `\\b` to ensure the match is at a word end.",
+    "Remember that `re.match()` checks only the beginning of the string."
+  ],
+  "validation": {
+    "output": "A987Z\nNone\n['walking', 'running', 'swimming']\n"
+  },
+  "tags": [
+    "quantifiers",
+    "character-sets",
+    "anchors",
+    "re-match",
+    "re-findall"
+  ],
+  "challengeGroup": "regex-advanced-patterns"
+}

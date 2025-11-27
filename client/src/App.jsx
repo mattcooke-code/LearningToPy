@@ -1,10 +1,7 @@
 // App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "./context/ThemeContext";
-import { NotificationProvider } from "./context/NotificationContext";
-import Footer from "./components/layout/Footer";
-import Navbar from "./components/layout/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { ThemeProvider, NotificationProvider, AuthProvider } from "./context";
+import { Footer, Navbar, ProtectedRoute } from "./components/layout";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import LessonPage from "./pages/LessonPage";
@@ -13,7 +10,6 @@ import ModuleLessonsPage from "./pages/ModuleLessonsPage";
 import ModulesPage from "./pages/ModulesPage";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
-import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (

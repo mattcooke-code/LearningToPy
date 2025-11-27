@@ -1,0 +1,27 @@
+{
+  "title": "Opening and Reading Files",
+  "instructions": "Use the `open()` and `.read()` functions to access the content of the pre-existing file, `messages.txt`. Practice the manual file handling pattern to understand the complete file lifecycle.",
+  "steps": [
+    "Open the file named `messages.txt` in read mode and assign the file object to the variable `msg_file`.",
+    "Use the `.read()` method on the `msg_file` object to read the entire content and store it in the variable `file_data`.",
+    "Print the content of `file_data`.",
+    "Crucially, close the file object using the `.close()` method on `msg_file`."
+  ],
+  "starterCode": "# The file 'messages.txt' is available for this exercise.\n# Practice the manual open/read/close pattern for now.\n\n# 1. Open the file:\nmsg_file = \n\n# 2. Read the content:\nfile_data = \n\n# 3. Print the content:\n\n\n# 4. Close the file:",
+  "solution": "# The file 'messages.txt' is available for this exercise.\n# Practice the manual open/read/close pattern for now.\n\n# 1. Open the file:\nmsg_file = open('messages.txt', 'r')\n\n# 2. Read the content:\nfile_data = msg_file.read()\n\n# 3. Print the content:\nprint(file_data)\n\n# 4. Close the file:\nmsg_file.close()",
+  "fileSetup": {
+    "messages.txt": "This is the first line.\nThis is the second line.\nAnd the final message."
+  },
+  "hints": [
+    "Remember the `open()` function takes two arguments: the file name (as a string) and the mode ('r' for read).",
+    "The `.read()` method is called directly on the file object, like `file_object.read()`.",
+    "Don't forget the final step: `file_object.close()` - we'll learn automatic methods later!",
+    "This manual pattern helps you understand what happens behind the scenes."
+  ],
+  "notes": [
+    "This exercise uses the manual file handling pattern to build foundational understanding.",
+    "In real projects, you'll use context managers (coming in Lesson 7.3) for automatic file closure."
+  ],
+  "tags": ["file-io", "open", "read", "close", "manual-pattern"],
+  "challengeGroup": "file-reading-basics"
+}

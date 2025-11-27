@@ -1,0 +1,25 @@
+{
+  "title": "Time Zone Conversion",
+  "instructions": "Use the `zoneinfo` module to convert a specific time from London to Tokyo time.",
+  "steps": [
+    "Import `datetime` from `datetime` and `ZoneInfo` from `zoneinfo`.",
+    "Define the London time zone object: `london_tz = ZoneInfo('Europe/London')`.",
+    "Create an aware datetime object for 9:00 AM on July 10, 2025, in the London time zone. Store it in `london_meeting`.",
+    "Define the Tokyo time zone object: `tokyo_tz = ZoneInfo('Asia/Tokyo')`.",
+    "Use the `.astimezone()` method to convert `london_meeting` to Tokyo time. Store the result in `tokyo_meeting`.",
+    "Print the hour of `tokyo_meeting` to verify the time shift."
+  ],
+  "starterCode": "from datetime import datetime\nfrom zoneinfo import ZoneInfo\n\n# 1. Define London Time Zone\nlondon_tz = ZoneInfo('Europe/London')\n\n# 2. Create the aware datetime (July 10, 2025, 9:00 AM London)\nlondon_meeting = datetime(2025, 7, 10, 9, 0, 0, tzinfo=london_tz)\n\n# 3. Define Tokyo Time Zone\ntokyo_tz = ZoneInfo('Asia/Tokyo')\n\n# 4. Convert London time to Tokyo time\ntokyo_meeting = ...\n\n# 5. Print the hour in Tokyo\nprint(tokyo_meeting.hour)\n",
+  "solution": "from datetime import datetime\nfrom zoneinfo import ZoneInfo\n\n# 1. Define London Time Zone\nlondon_tz = ZoneInfo('Europe/London')\n\n# 2. Create the aware datetime (July 10, 2025, 9:00 AM London)\nlondon_meeting = datetime(2025, 7, 10, 9, 0, 0, tzinfo=london_tz)\n\n# 3. Define Tokyo Time Zone\ntokyo_tz = ZoneInfo('Asia/Tokyo')\n\n# 4. Convert London time to Tokyo time\ntokyo_meeting = london_meeting.astimezone(tokyo_tz)\n\n# 5. Print the hour in Tokyo\nprint(tokyo_meeting.hour)\n",
+  "fileSetup": {},
+  "hints": [
+    "In July, London is on British Summer Time (BST, UTC+1). Tokyo is UTC+9. The shift is 8 hours ahead.",
+    "The `.astimezone()` method takes the target time zone object as its only argument.",
+    "9:00 AM London + 8 hours = 5:00 PM (17:00) Tokyo."
+  ],
+  "validation": {
+    "output": "17\n"
+  },
+  "tags": ["timezone", "tzinfo", "zoneinfo", "astimezone"],
+  "challengeGroup": "datetime-timezones"
+}

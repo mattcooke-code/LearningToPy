@@ -1,0 +1,35 @@
+{
+  "title": "Project: Building a Simple API Client",
+  "instructions": "Build a command-line utility that interacts with the JSONPlaceholder API to fetch filtered data and simulate submitting a new record. Complete the two main tasks outlined in the project brief.",
+  "steps": [
+    "Complete the `Task 1: Fetching Unfinished To-Do Items` section:",
+    "  - Define parameters for `userId=8` and `completed=False`.",
+    "  - Make a GET request and store the list of tasks in `pending_tasks`.",
+    "  - Loop through `pending_tasks` and print only the `title` of each task.",
+    "Complete the `Task 2: Submitting a New Completed Task` section:",
+    "  - Define a payload for a new task (e.g., `title: 'API Project', userId: 8, completed: True`).",
+    "  - Make a POST request to the `/todos` endpoint.",
+    "  - If the status code is 201, print the newly assigned `id`."
+  ],
+  "starterCode": "import requests\n\nBASE_URL = 'https://jsonplaceholder.typicode.com'\n\n# --- Task 1: Fetching Unfinished To-Do Items ---\nprint(\"\\n--- Pending Tasks for User 8 ---\")\n\n# 1. Define query parameters to filter tasks for userId 8 that are not completed\nget_params = {\n    'userId': 8,\n    'completed': False\n}\n\n# 2. Make the GET request\nresponse_get = requests.get(f\"{BASE_URL}/todos\", params=get_params)\n\nif response_get.status_code == 200:\n    # 3. Process the response\n    pending_tasks = response_get.json()\n    \n    # 4. Print the title of each pending task\n    for task in pending_tasks:\n        print(f\"[ ] {task['title']}\")\nelse:\n    print(\"Error fetching tasks.\")\n\n\n# --- Task 2: Submitting a New Completed Task (POST) ---\nprint(\"\\n--- Submitting New Task ---\")\n\n# 1. Define the data payload for the new task\npost_payload = {\n    'userId': 8,\n    'title': 'Final Project: API Client Done!',\n    'completed': True\n}\n\n# 2. Make the POST request\nresponse_post = requests.post(f\"{BASE_URL}/todos\", json=post_payload)\n\n# 3. Check for successful creation (Status 201)\nif response_post.status_code == 201:\n    created_task = response_post.json()\n    # 4. Extract and print the new ID\n    print(f\"Successfully created task with ID: {created_task['id']}\")\nelse:\n    print(f\"Failed to create task. Status: {response_post.status_code}\")\n",
+  "solution": "import requests\n\nBASE_URL = 'https://jsonplaceholder.typicode.com'\n\n# --- Task 1: Fetching Unfinished To-Do Items ---\nprint(\"\\n--- Pending Tasks for User 8 ---\")\n\n# 1. Define query parameters to filter tasks for userId 8 that are not completed\nget_params = {\n    'userId': 8,\n    'completed': 'false' # Note: JSONPlaceholder uses string 'false' for boolean filters\n}\n\n# 2. Make the GET request\nresponse_get = requests.get(f\"{BASE_URL}/todos\", params=get_params)\n\nif response_get.status_code == 200:\n    # 3. Process the response\n    pending_tasks = response_get.json()\n    \n    # 4. Print the title of each pending task\n    for task in pending_tasks:\n        print(f\"[ ] {task['title']}\")\nelse:\n    print(\"Error fetching tasks.\")\n\n\n# --- Task 2: Submitting a New Completed Task (POST) ---\nprint(\"\\n--- Submitting New Task ---\")\n\n# 1. Define the data payload for the new task\npost_payload = {\n    'userId': 8,\n    'title': 'Final Project: API Client Done!',\n    'completed': True\n}\n\n# 2. Make the POST request\nresponse_post = requests.post(f\"{BASE_URL}/todos\", json=post_payload)\n\n# 3. Check for successful creation (Status 201)\nif response_post.status_code == 201:\n    created_task = response_post.json()\n    # 4. Extract and print the new ID\n    print(f\"Successfully created task with ID: {created_task['id']}\")\nelse:\n    print(f\"Failed to create task. Status: {response_post.status_code}\")\n",
+  "fileSetup": {
+    "user_reporter.py": ""
+  },
+  "hints": [
+    "In Task 1, ensure your query parameters are correctly structured in the dictionary.",
+    "Remember to use the `f-string` to combine the `BASE_URL` with the `/todos` endpoint.",
+    "In Task 2, the `id` key of the created task will be a large placeholder value (e.g., 201) since JSONPlaceholder doesn't truly save the data."
+  ],
+  "validation": {
+    "output": "\n--- Pending Tasks for User 8 ---\n[ ] omnis et sit voluptatem quis vel ab\n[ ] ullam et saepe et animi non debitis ipsam\n[ ] illum et at debitis ut consectetur\n[ ] non sunt Lorem\n[ ] non et provident\n[ ] non eaque non non et et perc\n\n--- Submitting New Task ---\nSuccessfully created task with ID: 201\n"
+  },
+  "tags": [
+    "project",
+    "api-client",
+    "get-post",
+    "json-processing",
+    "integration"
+  ],
+  "challengeGroup": "module-project"
+}

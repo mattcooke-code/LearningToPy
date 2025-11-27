@@ -1,0 +1,25 @@
+{
+  "title": "Implementing Basic Inheritance",
+  "instructions": "Create a `Person` class and then define a `Student` class that inherits from `Person`. The `Student` class should add a unique method.",
+  "steps": [
+    "Define the parent class `Person`. Its `__init__` should accept and store a `name` attribute.",
+    "Add a method `greet(self)` to `Person` that prints: `Hello, my name is [name].`",
+    "Define the child class `Student` which inherits from `Person`.",
+    "Add a unique method `study(self)` to `Student` that prints: `[name] is studying hard.`",
+    "Create an instance of `Student` named `student1` with the name 'Alex'.",
+    "Call both the inherited method (`greet`) and the unique method (`study`) on `student1`."
+  ],
+  "starterCode": "class Person:\n    def __init__(self, name):\n        self.name = name\n        \n    # Implement greet(self)\n    \n\n# 1. Define the Student class inheriting from Person\nclass Student(...):\n    # 2. Implement study(self)\n    \n\n# 3. Create student1\nstudent1 = Student('Alex')\n\n# 4. Call inherited and unique methods\nstudent1.greet()\nstudent1.study()\n",
+  "solution": "class Person:\n    def __init__(self, name):\n        self.name = name\n        \n    def greet(self):\n        print(f\"Hello, my name is {self.name}.\")\n    \n\n# Define the Student class inheriting from Person\nclass Student(Person):\n    def study(self):\n        print(f\"{self.name} is studying hard.\")\n    \n\n# Create student1\nstudent1 = Student('Alex')\n\n# Call inherited and unique methods\nstudent1.greet()\nstudent1.study()\n",
+  "fileSetup": {},
+  "hints": [
+    "To inherit, use `class Student(Person):`.",
+    "Remember that methods must take `self` as the first argument.",
+    "The `Student` class does not need its own `__init__` yet; it inherits the one from `Person`."
+  ],
+  "validation": {
+    "output": "Hello, my name is Alex.\nAlex is studying hard.\n"
+  },
+  "tags": ["inheritance", "superclass", "subclass", "__init__"],
+  "challengeGroup": "oop-inheritance"
+}

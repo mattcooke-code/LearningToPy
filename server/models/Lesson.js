@@ -9,7 +9,7 @@ const LessonSchema = new mongoose.Schema(
       trim: true,
     },
     content: { type: String, required: [true, "Lesson content is required"] },
-    shortDescription: { type: String, maxLength: 100 },
+    shortDescription: { type: String, maxLength: 150 },
     order: { type: Number, required: true, min: 1 },
     moduleId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,11 +20,11 @@ const LessonSchema = new mongoose.Schema(
     duration: { type: Number, default: 15, min: 1 },
     contentType: {
       type: String,
-      enum: ["theory", "exercise", "quiz", "project"],
+      enum: ["theory", "exercise", "quiz", "project", "guided-setup"],
     },
     difficulty: {
       type: String,
-      enum: ["beginner", "intermediate", "advanced", "expert"],
+      enum: ["beginner", "intermediate", "advanced"],
       default: "beginner",
     },
     tags: [{ type: String, trim: true }],

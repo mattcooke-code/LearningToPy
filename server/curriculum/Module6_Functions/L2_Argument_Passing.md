@@ -45,7 +45,7 @@ set_settings(font_size=12, theme="dark")
 
 You can mix both types in a single function call, but you must follow one strict rule:
 
-Rule: Positional arguments MUST come before keyword arguments.
+Rule: Positional arguments _MUST_ come before keyword arguments.
 
 ```python
 def create_product(name, price, stock=1):

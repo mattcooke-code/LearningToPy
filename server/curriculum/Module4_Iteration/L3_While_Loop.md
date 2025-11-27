@@ -10,9 +10,9 @@ The syntax is similar to an `if` statement, but the indented code block is execu
 
 ### `while condition:`
 
-- **`while`**: The required keyword.
-- **`condition`**: Any expression that evaluates to `True` or `False`.
-- The loop body must be **indented**.
+• **`while`**: The required keyword.
+• **`condition`**: Any expression that evaluates to `True` or `False`.
+• The loop body must be **indented**.
 
 ### The Crucial Need for a Counter
 
