@@ -44,6 +44,11 @@ const LessonSchema = new mongoose.Schema(
     },
     isPublished: { type: Boolean, default: false },
     slug: { type: String, unique: true, index: true },
+    nextLessonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Lesson",
+      default: null,
+    },
   },
   { timestamps: true }
 );

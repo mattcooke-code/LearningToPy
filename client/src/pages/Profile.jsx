@@ -3,6 +3,7 @@ import { Award, Sparkles } from "lucide-react";
 import { apiClient, useAuth } from "../context";
 import { Spinner, BackToTopButton, BadgeModal } from "../components/ui";
 import { BADGE_LIBRARY, BADGES_BY_ID } from "../data/badges";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -28,7 +29,10 @@ const Profile = () => {
       } catch (err) {
         console.error("Failed to load achievements:", err);
         setError(
-          "We couldn't load your badge progress. Please try again shortly."
+          getErrorMessage(
+            err,
+            "We couldn't load your badge progress. Please try again shortly."
+          )
         );
       } finally {
         setLoading(false);

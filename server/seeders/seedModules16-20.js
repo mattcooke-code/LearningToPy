@@ -18,7 +18,6 @@ const seedModules16to20 = async (
     module4_id = null,
     module5_id = null,
     module7_id = null,
-    module16_id = null,
   } = options;
 
   // Validate required module IDs

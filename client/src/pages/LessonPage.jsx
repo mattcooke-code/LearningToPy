@@ -9,6 +9,8 @@ import {
   LessonContent,
   LessonNavigation,
 } from "../components/lesson";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { calculateNextLessonManually } from "../utils/lessonCalculations";
 
 const LessonPage = () => {
   const { id: lessonId } = useParams();
@@ -24,6 +26,11 @@ const LessonPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReviewMode, setIsReviewMode] = useState(false);
 
+  useEffect(() => {
+    setIsReviewMode(false);
+    setNextLesson(null);
+  }, [lessonId]);
+
   // Data fetching logic
   const fetchLesson = useCallback(async () => {
     if (!lessonId) return;
@@ -34,14 +41,13 @@ const LessonPage = () => {
       const response = await apiClient.get(`/content/lessons/${lessonId}`);
       const lessonData = response.data.data;
 
-      console.log("📚 Initial lesson data:", lessonData);
-      console.log("➡️ nextLessonId:", lessonData.nextLessonId);
-
       setLesson(lessonData);
 
       // Auto-enable review mode for completed lessons
       if (lessonData.isCompleted) {
         setIsReviewMode(true);
+      } else {
+        setIsReviewMode(false);
       }
 
       // Fetch next lesson if available
@@ -57,7 +63,9 @@ const LessonPage = () => {
       }
     } catch (err) {
       console.error("Failed to fetch lesson:", err);
-      setError("Failed to load lesson content. Please try again.");
+      setError(
+        getErrorMessage(err, "Failed to load lesson content. Please try again.")
+      );
     } finally {
       setLoading(false);
     }
@@ -67,9 +75,11 @@ const LessonPage = () => {
     fetchLesson();
   }, [fetchLesson]);
 
+  // In LessonPage.jsx - Complete handleLessonCompletion
   const handleLessonCompletion = useCallback(
     async (responseData) => {
-      const { xpEarned, moduleCompleted, progress } = responseData;
+      const { xpEarned, moduleCompleted, progress, nextLessonId } =
+        responseData;
 
       let message = `🎉 Lesson completed! +${xpEarned} XP earned!`;
       if (moduleCompleted) {
@@ -77,13 +87,7 @@ const LessonPage = () => {
       }
       showToast(message, "success");
 
-      // Update local state immediately for UI feedback
-      setLesson((prev) => ({
-        ...prev,
-        isCompleted: true,
-      }));
-
-      setIsReviewMode(true);
+      setLesson((prev) => ({ ...prev, isCompleted: true }));
 
       if (progress && progress.progressPercentage !== undefined) {
         updateThemeFromProgress(progress.progressPercentage);
@@ -91,51 +95,45 @@ const LessonPage = () => {
 
       console.log("Updated progress:", progress);
 
-      // ✅ FIXED: Calculate next lesson manually
-      try {
-        console.log("🔄 Fetching module lessons to calculate next lesson...");
-
-        if (!lesson || !lesson.moduleId) {
-          console.log("❌ Cannot calculate next lesson - missing moduleId");
-          return;
+      const handleNextLesson = async () => {
+        // Try backend nextLessonId first
+        if (nextLessonId) {
+          console.log("✅ Using backend nextLessonId:", nextLessonId);
+          try {
+            const nextResponse = await apiClient.get(
+              `/content/lessons/${nextLessonId}`
+            );
+            setNextLesson(nextResponse.data.data);
+            console.log(
+              "➡️ Next lesson set from backend:",
+              nextResponse.data.data.title
+            );
+            return;
+          } catch (err) {
+            console.error(
+              "❌ Failed to fetch next lesson from backend ID:",
+              err
+            );
+            // Fall through to manual calculation
+          }
         }
 
-        // Get all lessons in the current module to find the next one
-        const moduleResponse = await apiClient.get(
-          `/content/modules/${lesson.moduleId}/lessons`
+        // Fallback to manual calculation
+        console.log("🔄 Calculating next lesson manually...");
+        const manualNextLesson = await calculateNextLessonManually(
+          lessonId,
+          lesson?.moduleId
         );
-        const responseData = moduleResponse.data.data;
-
-        console.log("📋 Full module response:", responseData);
-        console.log("🔍 Response keys:", Object.keys(responseData));
-
-        // ✅ FIX: Extract lessons array from the response
-        const moduleLessons = responseData.lessons || responseData.data || [];
-        console.log("📖 Lessons array:", moduleLessons);
-
-        if (!Array.isArray(moduleLessons) || moduleLessons.length === 0) {
-          console.log("❌ No lessons array found in response");
-          return;
+        if (manualNextLesson) {
+          setNextLesson(manualNextLesson);
         }
+      };
 
-        // Find current lesson index
-        const currentIndex = moduleLessons.findIndex((l) => l._id === lessonId);
-        console.log("📍 Current lesson index:", currentIndex);
-
-        // Get next lesson if exists
-        if (currentIndex !== -1 && currentIndex < moduleLessons.length - 1) {
-          const nextLessonData = moduleLessons[currentIndex + 1];
-          console.log("➡️ Next lesson found:", nextLessonData);
-          setNextLesson(nextLessonData);
-        } else {
-          console.log("🏁 No next lesson - this is the last lesson in module");
-        }
-      } catch (err) {
-        console.error("❌ Failed to calculate next lesson:", err);
-      }
+      await handleNextLesson();
     },
     [showToast, updateThemeFromProgress, lessonId, lesson?.moduleId]
   );
+
   const handleAnswerSubmit = async (answer) => {
     if (!lesson || isReviewMode) return;
 
@@ -155,7 +153,10 @@ const LessonPage = () => {
       }
     } catch (err) {
       console.error("Failed to submit answer:", err);
-      showToast("Failed to submit answer. Please try again.", "error");
+      showToast(
+        getErrorMessage(err, "Failed to submit answer. Please try again."),
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -164,7 +165,6 @@ const LessonPage = () => {
   const handleCodeSubmit = async (code) => {
     if (!lesson || isReviewMode) return;
 
-    // ✅ ROBUST VALIDATION: Handle all edge cases
     let isEmptySubmission = false;
 
     if (!code || code.trim() === "") {
@@ -177,7 +177,10 @@ const LessonPage = () => {
     }
 
     if (isEmptySubmission) {
-      showToast("Please write some code before submitting!", "error");
+      showToast(
+        getErrorMessage(err, "Please write some code before submitting!"),
+        "error"
+      );
       return;
     }
 
@@ -199,7 +202,10 @@ const LessonPage = () => {
       }
     } catch (err) {
       console.error("Failed to submit code:", err);
-      showToast("Failed to submit code. Please try again.", "error");
+      showToast(
+        getErrorMessage(err, "Failed to submit code. Please try again."),
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -222,7 +228,13 @@ const LessonPage = () => {
       }
     } catch (err) {
       console.error("Failed to mark lesson complete:", err);
-      showToast("Failed to mark lesson complete. Please try again.", "error");
+      showToast(
+        getErrorMessage(
+          err,
+          "Failed to mark lesson complete. Please try again."
+        ),
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }

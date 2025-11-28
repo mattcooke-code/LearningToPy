@@ -5,6 +5,11 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const {
+  validateCodeSubmission,
+  createLessonCompletionRecord,
+  updateUserStats,
+} = require("../utils/contentHelpers");
+const {
   streakLogic,
   formatProgressResponse,
   MODULE_XP_BONUS,
@@ -135,15 +140,8 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 const submitLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const userId = req.userId;
-  const {
-    answer,
-    code,
-    elapsedSeconds,
-    usedHints = false,
-    attemptNumber = 1,
-    linesOfCode,
-    wasOptimalSolution = false,
-  } = req.body;
+  const submissionBody = req.body;
+  const { answer, code } = submissionBody;
 
   const lesson = await Lesson.findById(lessonId);
   if (!lesson) {
@@ -153,19 +151,19 @@ const submitLesson = catchAsync(async (req, res, next) => {
   let isCorrect = false;
   let feedback = "";
 
-  if (lesson.quiz && answer !== undefined) {
+  if (lesson.exercise && code) {
+    const validationResult = validateCodeSubmission(code, lesson.exercise);
+    isCorrect = validationResult.isCorrect;
+    feedback = validationResult.feedback;
+  } else if (lesson.quiz && answer !== undefined) {
     isCorrect = answer === lesson.quiz.correctAnswer;
     feedback = isCorrect ? "Correct! " + lesson.quiz.explanation : "Try again!";
-  }
-
-  if (lesson.exercise && code) {
-    isCorrect = true;
-    feedback = "Great job! Your code looks good.";
   }
 
   let moduleCompletedNow = false;
   let xpIncrease = 0;
   let badgesUnlockedDetails = [];
+  let nextLessonId = null;
 
   if (isCorrect || lesson.contentType === "theory") {
     const user = await User.findById(userId);
@@ -176,6 +174,25 @@ const submitLesson = catchAsync(async (req, res, next) => {
       xpIncrease = lesson.xpReward;
 
       const completionTimestamp = new Date();
+
+      // Calculate next lesson
+      try {
+        if (lesson.nextLessonId) {
+          nextLessonId = lesson.nextLessonId;
+        } else {
+          const nextLesson = await Lesson.findOne({
+            moduleId: lesson.moduleId,
+            order: lesson.order + 1,
+            isPublished: true,
+          });
+          if (nextLesson) {
+            nextLessonId = nextLesson._id;
+          }
+        }
+        console.log(`➡️ Next lesson ID: ${nextLessonId}`);
+      } catch (error) {
+        console.error("Error calculating next lesson:", error);
+      }
 
       // Check if all lessons in the module are completed
       const moduleLessons = await Lesson.find({
@@ -223,103 +240,18 @@ const submitLesson = catchAsync(async (req, res, next) => {
       if (!Array.isArray(user.lessonCompletionHistory)) {
         user.lessonCompletionHistory = [];
       }
-      const normalizedTags = Array.isArray(lesson.tags)
-        ? lesson.tags.map((tag) => (tag || "").toLowerCase())
-        : [];
 
-      const lessonRecord = {
-        lessonId,
-        completedAt: completionTimestamp,
-        tags: normalizedTags,
-        contentType: lesson.contentType,
-        difficulty: lesson.difficulty,
-        challengeGroup: lesson.challengeGroup
-          ? lesson.challengeGroup.toLowerCase()
-          : undefined,
-      };
-
-      if (typeof elapsedSeconds === "number" && elapsedSeconds >= 0) {
-        lessonRecord.elapsedSeconds = elapsedSeconds;
-      }
-      if (typeof attemptNumber === "number" && attemptNumber >= 1) {
-        lessonRecord.attemptNumber = attemptNumber;
-      }
-      if (typeof linesOfCode === "number" && linesOfCode >= 0) {
-        lessonRecord.linesOfCode = linesOfCode;
-      }
-      lessonRecord.usedHints = !!usedHints;
-      lessonRecord.wasOptimal = !!wasOptimalSolution;
+      const lessonRecord = createLessonCompletionRecord(
+        lesson,
+        submissionBody,
+        completionTimestamp
+      );
 
       user.lessonCompletionHistory.push(lessonRecord);
 
-      user.stats = user.stats || {};
-      const ensureStat = (key) => {
-        if (typeof user.stats[key] !== "number") {
-          user.stats[key] = 0;
-        }
-      };
+      updateUserStats(user, lessonRecord, submissionBody);
 
-      const isChallengeLesson = lesson.contentType !== "theory";
-      const difficultyLevel = (lesson.difficulty || "").toLowerCase();
-      const isMediumOrHard =
-        difficultyLevel === "intermediate" ||
-        difficultyLevel === "advanced" ||
-        difficultyLevel === "expert";
-
-      if (isChallengeLesson) {
-        if (
-          typeof elapsedSeconds === "number" &&
-          elapsedSeconds > 0 &&
-          elapsedSeconds <= 30
-        ) {
-          ensureStat("fastChallengeCount");
-          user.stats.fastChallengeCount += 1;
-        }
-
-        if (Number(attemptNumber) === 1 && !usedHints && isMediumOrHard) {
-          ensureStat("firstTryChallengeCount");
-          user.stats.firstTryChallengeCount += 1;
-        }
-
-        if (wasOptimalSolution) {
-          ensureStat("optimalSolutionCount");
-          user.stats.optimalSolutionCount += 1;
-        }
-
-        if (normalizedTags.includes("functions")) {
-          ensureStat("functionChallengeCount");
-          user.stats.functionChallengeCount += 1;
-        }
-
-        if (
-          normalizedTags.includes("api") ||
-          normalizedTags.includes("apis") ||
-          normalizedTags.includes("http") ||
-          normalizedTags.includes("requests")
-        ) {
-          ensureStat("apiChallengeCount");
-          user.stats.apiChallengeCount += 1;
-        }
-
-        if (
-          normalizedTags.includes("file-io") ||
-          normalizedTags.includes("files") ||
-          normalizedTags.includes("fileio") ||
-          normalizedTags.includes("csv")
-        ) {
-          ensureStat("fileChallengeCount");
-          user.stats.fileChallengeCount += 1;
-        }
-
-        if (
-          normalizedTags.includes("regex") ||
-          normalizedTags.includes("regular-expressions")
-        ) {
-          ensureStat("regexChallengeCount");
-          user.stats.regexChallengeCount += 1;
-        }
-      }
-
+      // ===== REMINDER: REFACTOR BADGE LOGIC INTO UTILS FUNCTION =======
       const { newlyUnlocked, unlockedDetails } = await evaluateBadges({
         user,
         context: {
@@ -352,6 +284,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
         progress: progressData, // Send updated progress data
         moduleCompleted: moduleCompletedNow, // <-- Send status to frontend
         badgesUnlocked: badgesUnlockedDetails,
+        nextLessonId,
       },
     });
     return; // End here to prevent double response
@@ -367,6 +300,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
         feedback,
         completed: isCorrect || lesson.contentType === "theory",
         xpEarned: isCorrect ? lesson.xpReward : 0,
+        nextLessonId,
       },
     }
   );
