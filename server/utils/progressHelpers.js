@@ -1,12 +1,10 @@
 // progressHelpers.js
 
 const { BADGE_DEFINITIONS } = require("./badgeLogic");
+const { THRESHOLDS, XP } = require("../../shared/constants/progress");
 
 // ===== CONSTANTS =====
-const XP_PER_LEVEL = 100;
-const TOTAL_LESSONS = 10;
-const LESSON_XP_REWARD = 25;
-const MODULE_XP_BONUS = 100;
+const XP_PER_LEVEL = XP.PER_LEVEL;
 
 // ===== BADGE DEFINITIONS =====
 const ALL_BADGES = BADGE_DEFINITIONS.map(
@@ -17,6 +15,13 @@ const ALL_BADGES = BADGE_DEFINITIONS.map(
     category,
   })
 );
+
+const shouldAwardProgressBadge = (progress) => {
+  if (progress >= THRESHOLDS.MASTER) {
+    return "master_progress_badge";
+  }
+  // etc.
+};
 
 // ===== STREAK LOGIC =====
 const checkDate = (date) => {
@@ -40,11 +45,70 @@ const streakLogic = (lastActiveDate) => {
   }
 };
 
+// ===== MODULE PROGRESS CALCULATIONS =====
+
+/**
+ * Calculate module lesson progress percentage
+ * @param {number} completedLessonsInModule - Number of completed lessons in module
+ * @param {number} totalLessonsInModule - Total lessons in module
+ * @returns {number} Progress percentage (0-100)
+ */
+const calculateModuleLessonProgress = (
+  completedLessonsInModule,
+  totalLessonsInModule
+) => {
+  if (totalLessonsInModule === 0) return 0;
+  return Math.round((completedLessonsInModule / totalLessonsInModule) * 100);
+};
+
+/**
+ * Calculate overall course progress
+ * @param {number} completedLessonsCount - Total completed lessons
+ * @param {number} totalLessons - Total lessons in course
+ * @returns {number} Course progress percentage (0-100)
+ */
+const calculateCourseProgress = (completedLessonsCount, totalLessons) => {
+  if (totalLessons === 0) return 0;
+  return Math.min(
+    100,
+    Math.round((completedLessonsCount / totalLessons) * 100)
+  );
+};
+
+/**
+ * Calculate if module is completed (all lessons completed)
+ * @param {Array} completedLessons - User's completed lessons array
+ * @param {Array} moduleLessons - All lessons in module
+ * @returns {boolean} Whether module is completed
+ */
+const isModuleCompleted = (completedLessons, moduleLessons) => {
+  const completedLessonsSet = new Set(
+    completedLessons.map((id) => id.toString())
+  );
+  return moduleLessons.every((lesson) =>
+    completedLessonsSet.has(lesson._id.toString())
+  );
+};
+
+const calculateLevelProgress = (xp) => {
+  const currentLevel = Math.floor(xp / XP.PER_LEVEL) + 1;
+  const xpInCurrentLevel = xp % XP.PER_LEVEL;
+  const progressCompleted = (xpInCurrentLevel / XP.PER_LEVEL) * 100;
+
+  return {
+    currentLevel,
+    xpInCurrentLevel,
+    progressCompleted: Math.round(progressCompleted),
+    xpNeededForNextLevel: XP.PER_LEVEL - xpInCurrentLevel,
+  };
+};
+
 // ===== RESPONSE FORMATTING =====
-const formatProgressResponse = (userData) => {
-  const nextLevelMilestoneXp = userData.level * XP_PER_LEVEL;
-  const xpInCurrentLevel = userData.xp - (userData.level - 1) * XP_PER_LEVEL;
-  const nextLevelXp = Math.max(0, nextLevelMilestoneXp - xpInCurrentLevel);
+const formatProgressResponse = (userData, totalLessons) => {
+  const currentLevel = Math.floor(userData.xp / XP_PER_LEVEL) + 1;
+  const xpInCurrentLevel = userData.xp % XP_PER_LEVEL;
+  const progressCompleted = (xpInCurrentLevel / XP_PER_LEVEL) * 100;
+  const xpNeededForNextLevel = XP_PER_LEVEL - xpInCurrentLevel;
 
   const uniqueCompletedLessons = Array.isArray(userData.completedLessons)
     ? [
@@ -60,21 +124,22 @@ const formatProgressResponse = (userData) => {
 
   const completedLessonsCount = uniqueCompletedLessons.length;
   const completedModulesCount = uniqueCompletedModules.length;
-  const progressPercentage =
-    TOTAL_LESSONS > 0
-      ? Math.min(100, Math.round((completedLessonsCount / TOTAL_LESSONS) * 100))
-      : 0;
+
+  const courseProgressPercentage = calculateCourseProgress(
+    completedLessonsCount,
+    totalLessons
+  );
 
   return {
     username: userData.username,
     xp: userData.xp,
-    level: userData.level,
+    level: currentLevel,
     streak: userData.streak,
     completedLessonsCount,
     completedModulesCount,
     badges: userData.badges || [],
-    progressPercentage,
-    nextLevelXp: nextLevelXp,
+    courseProgressPercentage,
+    nextLevelXp: xpNeededForNextLevel,
     totalLearningTime: userData.totalLearningTime || 0,
   };
 };
@@ -83,9 +148,6 @@ const formatProgressResponse = (userData) => {
 module.exports = {
   // Constants
   XP_PER_LEVEL,
-  TOTAL_LESSONS,
-  LESSON_XP_REWARD,
-  MODULE_XP_BONUS,
 
   // Badges
   ALL_BADGES,
@@ -94,6 +156,12 @@ module.exports = {
   // Streak
   checkDate,
   streakLogic,
+
+  // Progress Calculations
+  calculateModuleLessonProgress,
+  calculateCourseProgress,
+  calculateLevelProgress,
+  isModuleCompleted,
 
   // Response Formatting
   formatProgressResponse,

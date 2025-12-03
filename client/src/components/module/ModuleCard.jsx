@@ -1,4 +1,4 @@
-// components/ModuleCard.jsx
+// components/./ModuleCard.jsx
 import { Link } from "react-router-dom";
 import { useTheme } from "../../context";
 import {
@@ -12,6 +12,9 @@ import {
 
 const ModuleCard = ({ module, isLocked }) => {
   const { themeColor } = useTheme();
+
+  // module.progress is the percentage of lessons completed in this module (moduleLessonProgress)
+  const moduleLessonProgress = module.progress || 0;
 
   return (
     <div
@@ -57,13 +60,13 @@ const ModuleCard = ({ module, isLocked }) => {
       <div className="mb-4">
         <div className="flex justify-between text-xs text-gray-500 mb-1">
           <span>Progress</span>
-          <span>{module.progress}%</span>
+          <span>{moduleLessonProgress}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="h-2 rounded-full transition-all duration-500"
             style={{
-              width: `${module.progress}%`,
+              width: `${moduleLessonProgress}%`,
               backgroundColor: themeColor,
             }}
           ></div>
@@ -109,7 +112,9 @@ const ModuleCard = ({ module, isLocked }) => {
           style={{ backgroundColor: themeColor }}
         >
           <PlayCircle size={16} />
-          <span>{module.progress > 0 ? "Continue" : "Start Learning"}</span>
+          <span>
+            {moduleLessonProgress > 0 ? "Continue" : "Start Learning"}
+          </span>
         </Link>
       )}
     </div>

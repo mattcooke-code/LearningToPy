@@ -129,14 +129,6 @@ UserSchema.index({ level: 1 });
 UserSchema.index({ completedLessons: 1 });
 UserSchema.index({ completedModules: 1 });
 
-// Virtual Progress Field
-UserSchema.virtual("progressPercentage").get(function () {
-  const totalLessons = 10;
-  return this.completedLessons.length > 0
-    ? Math.round((this.completedLessons.length / totalLessons) * 100)
-    : 0;
-});
-
 // Pre-save
 UserSchema.pre("save", function (next) {
   if (this.isModified("xp")) {

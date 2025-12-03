@@ -11,7 +11,7 @@ import {
   QuickActions,
 } from "../components/module_lesson";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import { calculateModuleProgress } from "../utils/progressCalculations";
+import { calculateModuleLessonProgress } from "../utils/progressCalculations";
 
 const ModuleLessonsPage = () => {
   // HOOKS & STATE
@@ -58,9 +58,9 @@ const ModuleLessonsPage = () => {
     }
   }, [moduleId, isAuthenticated, authLoading, navigate]);
 
-  const { completedLessons, totalLessons, moduleProgress } =
-    calculateModuleProgress(lessons);
-  const moduleAccentColor = getModuleThemeColor(moduleProgress);
+  const { completedLessons, totalLessons, moduleLessonProgress } =
+    calculateModuleLessonProgress(lessons);
+  const moduleAccentColor = getModuleThemeColor(moduleLessonProgress);
 
   if (loading) return <LoadingState message="Loading module content..." />;
   if (error)
@@ -88,7 +88,7 @@ const ModuleLessonsPage = () => {
         moduleData={moduleData}
         completedLessons={completedLessons}
         totalLessons={totalLessons}
-        moduleProgress={moduleProgress}
+        moduleLessonProgress={moduleLessonProgress}
         accentColor={moduleAccentColor}
         onBack={() => navigate("/modules")}
       />

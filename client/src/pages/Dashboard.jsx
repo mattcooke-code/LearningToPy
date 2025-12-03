@@ -2,12 +2,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
-import { ProgressGauge, BackToTopButton } from "../components/ui";
+import {
+  ProgressGauge,
+  BackToTopButton,
+  SegmentedLevelProgressBar,
+} from "../components/ui";
 import { BADGES_BY_ID } from "../data/badges";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { themeColor, updateThemeFromProgress } = useTheme();
+  const { themeColor, updateThemeFromCourseProgress } = useTheme();
   const [userProgress, setUserProgress] = useState(null);
   // const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
   //const [leaderboardLoading, setLeaderboardLoading] = useState(false);
@@ -21,7 +25,9 @@ const Dashboard = () => {
       try {
         const response = await apiClient.get("/progress/current");
         setUserProgress(response.data.data);
-        updateThemeFromProgress(response.data.data.progressPercentage);
+        updateThemeFromCourseProgress(
+          response.data.data.courseProgressPercentage
+        );
       } catch (err) {
         console.error("Failed to fetch progress:", err);
       }
@@ -43,14 +49,14 @@ const Dashboard = () => {
 
     fetchProgress();
     //fetchSurroundingLeaderboard();
-  }, [updateThemeFromProgress, user]);
+  }, [updateThemeFromCourseProgress, user]);
 
   // Use userProgress data instead of user data for progress-related info
   const progressData = userProgress || {
     xp: user?.xp || 0,
     level: user?.level || 1,
     streak: user?.streak || 0,
-    progressPercentage: 0,
+    courseProgressPercentage: 0,
     nextLevelXp: 100,
     completedLessonsCount: 0,
     completedModulesCount: 0,
@@ -94,7 +100,7 @@ const Dashboard = () => {
           </h2>
           <div className="flex justify-center">
             <ProgressGauge
-              progress={progressData.progressPercentage}
+              progress={progressData.courseProgressPercentage}
               size={280}
             />
           </div>
@@ -172,6 +178,14 @@ const Dashboard = () => {
           <p className="text-3xl font-bold text-python-blue mt-2">
             {progressData.level}
           </p>
+
+          <div className="pt-2">
+            <SegmentedLevelProgressBar
+              currentXP={user?.xp || 0}
+              segmentCount={10}
+              showLabels={true}
+            />
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -266,12 +280,6 @@ const Dashboard = () => {
               <p className="text-gray-700">Modules Completed</p>
               <p className="text-lg font-semibold text-python-blue">
                 {progressData.completedModulesCount}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-700">XP to Next Level</p>
-              <p className="text-lg font-semibold text-python-yellow">
-                {progressData.nextLevelXp} XP
               </p>
             </div>
           </div>

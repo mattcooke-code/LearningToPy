@@ -1,8 +1,14 @@
 // components/ModulesHeader.jsx
 import { useTheme } from "../../context";
+import { calculateModulesCompletionProgress } from "../../utils/progressCalculations";
 
 const ModulesHeader = ({ completedModules, totalModules }) => {
   const { themeColor } = useTheme();
+
+  const modulesCompletionProgress = calculateModulesCompletionProgress(
+    completedModules,
+    totalModules
+  );
 
   return (
     <div className="text-center mb-8">
@@ -18,22 +24,17 @@ const ModulesHeader = ({ completedModules, totalModules }) => {
       <div className="mt-6 bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-700">
-            Overall Progress
+            Modules Completion
           </span>
           <span className="text-sm font-bold" style={{ color: themeColor }}>
-            {totalModules > 0
-              ? Math.round((completedModules / totalModules) * 100)
-              : 0}
-            %
+            {modulesCompletionProgress}%
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div
             className="h-3 rounded-full transition-all duration-500"
             style={{
-              width: `${
-                totalModules > 0 ? (completedModules / totalModules) * 100 : 0
-              }%`,
+              width: `${modulesCompletionProgress}%`,
               backgroundColor: themeColor,
             }}
           ></div>

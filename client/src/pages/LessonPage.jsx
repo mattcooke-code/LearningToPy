@@ -16,7 +16,7 @@ const LessonPage = () => {
   const { id: lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { themeColor, updateThemeFromProgress } = useTheme();
+  const { themeColor, updateThemeFromCourseProgress } = useTheme();
   const { showToast } = useNotification();
 
   const [lesson, setLesson] = useState(null);
@@ -89,8 +89,8 @@ const LessonPage = () => {
 
       setLesson((prev) => ({ ...prev, isCompleted: true }));
 
-      if (progress && progress.progressPercentage !== undefined) {
-        updateThemeFromProgress(progress.progressPercentage);
+      if (progress && progress.courseProgressPercentage !== undefined) {
+        updateThemeFromCourseProgress(progress.courseProgressPercentage);
       }
 
       console.log("Updated progress:", progress);
@@ -131,7 +131,7 @@ const LessonPage = () => {
 
       await handleNextLesson();
     },
-    [showToast, updateThemeFromProgress, lessonId, lesson?.moduleId]
+    [showToast, updateThemeFromCourseProgress, lessonId, lesson?.moduleId]
   );
 
   const handleAnswerSubmit = async (answer) => {

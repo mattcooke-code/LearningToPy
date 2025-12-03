@@ -1,3 +1,4 @@
+// BadgeModal.jsx
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { BADGE_LIBRARY } from "../../data/badges";

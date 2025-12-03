@@ -13,11 +13,11 @@ const {
   streakLogic,
   formatProgressResponse,
   MODULE_XP_BONUS,
+  calculateModuleLessonProgress,
 } = require("../utils/progressHelpers");
 const { evaluateBadges } = require("../utils/badgeLogic");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-// In contentController.js - update getAllModules
 const getAllModules = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 
@@ -40,10 +40,11 @@ const getAllModules = catchAsync(async (req, res, next) => {
         user.completedLessons.includes(lesson._id.toString())
       ).length;
 
-      const progress =
-        lessons.length > 0
-          ? Math.round((completedLessonsInModule / lessons.length) * 100)
-          : 0;
+      const moduleLessonProgress = calculateModuleLessonProgress(
+        completedLessonsInModule,
+        lessons.length
+      );
+
       const isCompleted = user.completedModules.includes(module._id.toString());
 
       console.log(
@@ -65,7 +66,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
       return {
         ...module,
         isCompleted,
-        progress,
+        moduleLessonProgress,
         isLocked: !!isLocked,
         lessonCount: lessons.length,
       };
@@ -171,7 +172,8 @@ const submitLesson = catchAsync(async (req, res, next) => {
     // Add to completed lessons
     if (!user.completedLessons.includes(lessonId)) {
       user.completedLessons.push(lessonId);
-      xpIncrease = lesson.xpReward;
+
+      xpIncrease = lesson.xpReward || 0;
 
       const completionTimestamp = new Date();
 

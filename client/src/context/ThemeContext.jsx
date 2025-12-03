@@ -56,18 +56,18 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("codeTheme", codeTheme);
   }, [codeTheme]);
 
-  const resolveOverallColor = useCallback((progressPercentage) => {
+  const resolveCourseThemeColor = useCallback((courseProgressPercentage) => {
     // Match visual perception of the gauge
-    if (progressPercentage <= 25) {
+    if (courseProgressPercentage <= 25) {
       return THEME_COLORS.RED; // Clearly in red zone
     }
-    if (progressPercentage <= 45) {
+    if (courseProgressPercentage <= 45) {
       return "#f97316"; // Orange-red transition
     }
-    if (progressPercentage <= 65) {
+    if (courseProgressPercentage <= 65) {
       return THEME_COLORS.YELLOW; // Clearly in yellow zone
     }
-    if (progressPercentage <= 85) {
+    if (courseProgressPercentage <= 85) {
       return "#84cc16"; // Lime green-yellow transition
     }
     return THEME_COLORS.GREEN; // Clearly in green zone
@@ -76,25 +76,25 @@ export const ThemeProvider = ({ children }) => {
   /**
    * Update global theme color based on overall progress (dashboard-wide usage)
    */
-  const updateThemeFromProgress = useCallback(
-    (progressPercentage) => {
-      setThemeColor(resolveOverallColor(progressPercentage));
+  const updateThemeFromCourseProgress = useCallback(
+    (courseProgressPercentage) => {
+      setThemeColor(resolveCourseThemeColor(courseProgressPercentage));
     },
-    [resolveOverallColor]
+    [resolveCourseThemeColor]
   );
 
   /**
    * Get an accent color for module/lesson level progress visuals
    * without mutating the global theme.
    */
-  const getModuleThemeColor = useCallback((progressPercentage) => {
-    if (progressPercentage <= 33) {
+  const getModuleThemeColor = useCallback((moduleLessonProgress) => {
+    if (moduleLessonProgress <= 33) {
       return THEME_COLORS.RED;
     }
-    if (progressPercentage <= 66) {
+    if (moduleLessonProgress <= 66) {
       return THEME_COLORS.ORANGE;
     }
-    if (progressPercentage < 100) {
+    if (moduleLessonProgress < 100) {
       return THEME_COLORS.YELLOW;
     }
     return THEME_COLORS.GREEN;
@@ -140,7 +140,7 @@ export const ThemeProvider = ({ children }) => {
   const value = {
     // Main theme
     themeColor,
-    updateThemeFromProgress,
+    updateThemeFromCourseProgress,
     getModuleThemeColor,
     resetTheme,
 

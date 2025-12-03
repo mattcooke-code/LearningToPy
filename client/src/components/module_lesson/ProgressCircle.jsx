@@ -1,4 +1,13 @@
-// components/ProgressCircle.jsx
+// components/./ProgressCircle.jsx
+
+/**
+ * ProgressCircle component for displaying circular progress
+ * @param {number} progress - The progress percentage (0-100)
+ * @param {number} completedLessons - Number of completed lessons
+ * @param {number} totalLessons - Total number of lessons
+ * @param {string} accentColor - Color for the progress circle
+ */
+
 const ProgressCircle = ({
   progress,
   completedLessons,

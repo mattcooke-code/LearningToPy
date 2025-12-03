@@ -1,29 +1,63 @@
-// utils/badgeLogic.js
+// /server/utils/badgeLogic.js
 const Module = require("../models/Module");
+const {
+  BADGE_DEFINITIONS_CORE,
+} = require("../../shared/constants/badgeDefinitions");
 
-const MODULE_SLUGS = {
-  HELLO_WORLD: "python-fundamentals",
-  IF_ELSE_CHALLENGE: "if-else-challenge-set",
-  ITERATION: "iteration",
-  FUNCTIONS: "functions",
-  DATA_STRUCTURES_FINAL: "data-structures-final-exam",
-  REQUESTS_AND_APIS: "requests-and-apis",
-  REGEX_MASTERY: "regular-expressions",
-};
-
-const CORE_PATH_LEVELS = 10;
-const FUNDAMENTAL_CORE_COUNT = 5;
-const FUNCTION_CHALLENGE_TARGET = 10;
-const DATA_STRUCTURES_TARGET_SCORE = 90;
-const FIRST_TRY_TARGET = 5;
-const OPTIMAL_SOLUTION_TARGET = 10;
-const TURBO_LEARNER_DAILY_TARGET = 3;
-const OOP_PASSING_SCORE = 80;
-const FILE_CHALLENGE_TARGET = 5;
-
+// --- CACHE INITIALIZATION (Kept for performance) ---
 const moduleSlugCache = new Map();
 const orderedModuleCache = new Map();
 let allPublishedModuleIdsCache = null;
+
+// --- MODULE SLUGS & CONSTANTS (Same as before) ---
+const MODULE_SLUGS = {
+  // PHASE 1
+  PYTHON_FUNDAMENTALS: "python-fundamentals",
+  CONTROL_FLOW_CONDITIONAL: "control-flow-conditionals",
+  ITERATION: "iteration",
+  FUNCTIONS: "functions",
+  // PHASE 2
+  ADVANCED_FUNCTIONS: "advanced-functions",
+  OOP_I: "oop-i-classes-and-objects",
+  OOP_II: "oop-ii-inheritance-and-polymorphism",
+  DATETIME_MANIPULATION: "datetime-manipulation",
+  REGEX_MASTERY: "regular-expressions",
+  // PHASE 3
+  HTTP_REQUESTS_AND_APIS: "http-requests-and-apis",
+  DATA_SCIENCE_INTRO: "introduction-to-data-science",
+};
+
+const PHASE_QUIZ_SLUGS = {
+  PHASE_1: "phase-1",
+  PHASE_2: "phase-2",
+};
+
+// --- CONSTANTS ---
+const TOTAL_MODULE_COUNT = 20;
+const INTERMEDIATE_MODULE_COUNT = 15;
+const FUNDAMENTAL_CORE_COUNT = 5;
+const FUNCTION_CHALLENGE_TARGET = 10;
+const FIRST_TRY_TARGET = 5;
+const FILE_CHALLENGE_TARGET = 5;
+const OPTIMAL_SOLUTION_TARGET = 20;
+const TURBO_LEARNER_DAILY_TARGET = 3;
+const DAILY_DOZEN_STREAK = 12;
+
+// Quiz Requirements
+const LOGIC_LEAPER_QUIZ_SCORE = 80;
+const LOOP_COMMANDER_QUIZ_SCORE = 100;
+const DATA_ALCHEMIST_QUIZ_SCORE = 90;
+const FULL_STACK_PYTHONISTA_QUIZ_SCORE = 75;
+const ARCHITECT_QUIZ_SCORE = 80;
+const MASTER_BUILDER_QUIZ_SCORE = 85;
+const REGEX_RULER_QUIZ_SCORE = 100;
+
+// New Challenge Requirements
+const API_UNIQUE_TARGET = 2;
+const DECORATOR_USAGE_TARGET = 5;
+const DATETIME_CHALLENGE_TARGET = 5;
+
+// --- UTILITY FUNCTIONS (slugify, toStringId, normalizeDate, isSameDay) ---
 
 const slugify = (value) =>
   (value || "")
@@ -62,6 +96,7 @@ const isSameDay = (dateA, dateB) => {
   );
 };
 
+// --- createBadgeHelpers (Same as previous version) ---
 const createBadgeHelpers = (user) => {
   const completedModuleSet = new Set(
     (user.completedModules || []).map((id) => toStringId(id)).filter(Boolean)
@@ -112,8 +147,10 @@ const createBadgeHelpers = (user) => {
   };
 
   const getOrderedModuleIds = async (limit) => {
-    if (orderedModuleCache.has(limit)) {
-      return orderedModuleCache.get(limit);
+    const cacheKey = limit === TOTAL_MODULE_COUNT ? "all" : limit;
+
+    if (orderedModuleCache.has(cacheKey)) {
+      return orderedModuleCache.get(cacheKey);
     }
 
     const query = Module.find({ isPublished: true })
@@ -121,8 +158,10 @@ const createBadgeHelpers = (user) => {
       .sort({ order: 1 });
 
     const modules = await query.lean();
-    const ids = modules.slice(0, limit).map((mod) => mod._id.toString());
-    orderedModuleCache.set(limit, ids);
+    const ids = modules
+      .slice(0, limit === "all" ? modules.length : limit)
+      .map((mod) => mod._id.toString());
+    orderedModuleCache.set(cacheKey, ids);
     return ids;
   };
 
@@ -131,17 +170,6 @@ const createBadgeHelpers = (user) => {
       (count, id) => count + (completedModuleSet.has(id) ? 1 : 0),
       0
     );
-  };
-
-  const getAllPublishedModuleIds = async () => {
-    if (allPublishedModuleIdsCache) {
-      return allPublishedModuleIdsCache;
-    }
-    const modules = await Module.find({ isPublished: true })
-      .select("_id")
-      .lean();
-    allPublishedModuleIdsCache = modules.map((mod) => mod._id.toString());
-    return allPublishedModuleIdsCache;
   };
 
   const getLessonCompletionCountByTag = (tag) => {
@@ -181,11 +209,30 @@ const createBadgeHelpers = (user) => {
     );
   };
 
+  const getQuizScore = async (slug, isFirstTryRequired = false) => {
+    const moduleId = await getModuleIdBySlug(slug);
+    if (!moduleId) return null;
+
+    const scores = safeStats.moduleQuizScores
+      ? safeStats.moduleQuizScores[moduleId]
+      : null;
+
+    if (!scores) return null;
+
+    return isFirstTryRequired ? scores.first || 0 : scores.latest || 0;
+  };
+
+  const getPhaseQuizScore = (phaseSlug) => {
+    const score = safeStats.phaseQuizScores
+      ? safeStats.phaseQuizScores[phaseSlug]
+      : null;
+    return typeof score === "number" ? score : 0;
+  };
+
   return {
     hasCompletedModuleBySlug,
     countCompletedModuleIds,
     getOrderedModuleIds,
-    getAllPublishedModuleIds,
     getLessonCompletionCountByTag,
     hasCompletedChallengeGroup,
     moduleHistory,
@@ -195,31 +242,27 @@ const createBadgeHelpers = (user) => {
     getModuleCompletionCountsPerDay,
     completedModuleHistoryContainsSlug,
     getModuleIdBySlug,
+    getQuizScore,
+    getPhaseQuizScore,
   };
 };
 
-const BADGE_DEFINITIONS = [
-  {
-    id: "python-starter",
-    name: "Python Starter",
-    description: "Completed the very first introductory lesson.",
-    category: "curriculum",
+// --- BADGE LOGIC MAPPER (NEW) ---
+
+// This object maps badge IDs to their specific check and progress logic functions.
+const BADGE_LOGIC_MAP = {
+  "python-starter": {
     async check({ helpers }) {
-      return helpers.hasCompletedModuleBySlug(MODULE_SLUGS.HELLO_WORLD);
+      return helpers.hasCompletedModuleBySlug(MODULE_SLUGS.PYTHON_FUNDAMENTALS);
     },
     async progress({ helpers }) {
       const achieved = await helpers.hasCompletedModuleBySlug(
-        MODULE_SLUGS.HELLO_WORLD
+        MODULE_SLUGS.PYTHON_FUNDAMENTALS
       );
       return achieved ? 100 : 0;
     },
   },
-  {
-    id: "fundamentalist",
-    name: "Fundamentalist",
-    description:
-      "Mastered the basics of variables, data types, and operators (first 5 core modules).",
-    category: "curriculum",
+  fundamentalist: {
     async check({ helpers }) {
       const ids = await helpers.getOrderedModuleIds(FUNDAMENTAL_CORE_COUNT);
       if (ids.length === 0) return false;
@@ -234,51 +277,44 @@ const BADGE_DEFINITIONS = [
       return Math.round((completed / ids.length) * 100);
     },
   },
-  {
-    id: "logic-leaper",
-    name: "Logic Leaper",
-    description:
-      "Demonstrated proficiency with conditional statements (If/Else Challenge Set).",
-    category: "curriculum",
+  "logic-leaper": {
     async check({ helpers }) {
-      const completed =
-        (await helpers.hasCompletedModuleBySlug(
-          MODULE_SLUGS.IF_ELSE_CHALLENGE
-        )) ||
-        helpers.hasCompletedChallengeGroup(MODULE_SLUGS.IF_ELSE_CHALLENGE);
-      return completed;
+      const score = await helpers.getQuizScore(
+        MODULE_SLUGS.CONTROL_FLOW_CONDITIONAL,
+        true
+      );
+      return score >= LOGIC_LEAPER_QUIZ_SCORE;
     },
     async progress({ helpers }) {
-      const completed =
-        (await helpers.hasCompletedModuleBySlug(
-          MODULE_SLUGS.IF_ELSE_CHALLENGE
-        )) ||
-        helpers.hasCompletedChallengeGroup(MODULE_SLUGS.IF_ELSE_CHALLENGE);
-      return completed ? 100 : 0;
+      const score = await helpers.getQuizScore(
+        MODULE_SLUGS.CONTROL_FLOW_CONDITIONAL,
+        true
+      );
+      return Math.min(100, Math.round((score / LOGIC_LEAPER_QUIZ_SCORE) * 100));
     },
   },
-  {
-    id: "loop-commander",
-    name: "Loop Commander",
-    description:
-      "Conquered all lessons and challenges on loops (Iteration module).",
-    category: "curriculum",
+  "loop-commander": {
     async check({ helpers }) {
-      return helpers.hasCompletedModuleBySlug(MODULE_SLUGS.ITERATION);
+      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
+        MODULE_SLUGS.ITERATION
+      );
+      if (!moduleCompleted) return false;
+      const score = await helpers.getQuizScore(MODULE_SLUGS.ITERATION);
+      return score >= LOOP_COMMANDER_QUIZ_SCORE;
     },
     async progress({ helpers }) {
       const completed = await helpers.hasCompletedModuleBySlug(
         MODULE_SLUGS.ITERATION
       );
-      return completed ? 100 : 0;
+      if (!completed) return 0;
+      const score = await helpers.getQuizScore(MODULE_SLUGS.ITERATION);
+      return Math.min(
+        100,
+        Math.round((score / LOOP_COMMANDER_QUIZ_SCORE) * 100)
+      );
     },
   },
-  {
-    id: "function-flinger",
-    name: "Function Flinger",
-    description:
-      "Successfully defined and used functions with parameters (Functions module + 10 challenges).",
-    category: "curriculum",
+  "function-flinger": {
     async check({ helpers }) {
       const moduleCompleted = await helpers.hasCompletedModuleBySlug(
         MODULE_SLUGS.FUNCTIONS
@@ -298,45 +334,149 @@ const BADGE_DEFINITIONS = [
       );
     },
   },
-  {
-    id: "data-structure-specialist",
-    name: "Data Structure Specialist",
-    description: "Scored 90%+ on the Data Structures final exam.",
-    category: "curriculum",
+  "data-alchemist": {
     async check({ helpers }) {
-      return (
-        (helpers.stats.dataStructuresExamScore || 0) >=
-        DATA_STRUCTURES_TARGET_SCORE
-      );
+      const score = helpers.getPhaseQuizScore(PHASE_QUIZ_SLUGS.PHASE_1);
+      return score >= DATA_ALCHEMIST_QUIZ_SCORE;
     },
     async progress({ helpers }) {
-      const score = helpers.stats.dataStructuresExamScore;
-      if (typeof score !== "number") return 0;
-      return Math.min(100, Math.round((score / 100) * 100));
+      const score = helpers.getPhaseQuizScore(PHASE_QUIZ_SLUGS.PHASE_1);
+      return Math.min(
+        100,
+        Math.round((score / DATA_ALCHEMIST_QUIZ_SCORE) * 100)
+      );
     },
   },
-  {
-    id: "full-stack-pythonista",
-    name: "Full Stack Pythonista",
-    description: "Completed the entire foundational curriculum (Levels 1-10).",
-    category: "curriculum",
+  "full-stack-pythonista": {
     async check({ helpers }) {
-      const ids = await helpers.getOrderedModuleIds(CORE_PATH_LEVELS);
+      const ids = await helpers.getOrderedModuleIds(INTERMEDIATE_MODULE_COUNT);
+      if (ids.length === 0) return false;
+      const modulesCompleted =
+        helpers.countCompletedModuleIds(ids) === ids.length;
+
+      if (!modulesCompleted) return false;
+
+      const score = helpers.getPhaseQuizScore(PHASE_QUIZ_SLUGS.PHASE_2);
+      return score >= FULL_STACK_PYTHONISTA_QUIZ_SCORE;
+    },
+    async progress({ helpers }) {
+      const ids = await helpers.getOrderedModuleIds(INTERMEDIATE_MODULE_COUNT);
+      if (ids.length === 0) return 0;
+      const completed = helpers.countCompletedModuleIds(ids);
+      const moduleProgress = completed / ids.length;
+      const quizScore = helpers.getPhaseQuizScore(PHASE_QUIZ_SLUGS.PHASE_2);
+
+      if (moduleProgress < 1) return Math.round(moduleProgress * 75);
+      return Math.min(
+        100,
+        Math.round(75 + (quizScore / FULL_STACK_PYTHONISTA_QUIZ_SCORE) * 25)
+      );
+    },
+  },
+  "python-master": {
+    async check({ helpers }) {
+      const ids = await helpers.getOrderedModuleIds(TOTAL_MODULE_COUNT);
       if (ids.length === 0) return false;
       return helpers.countCompletedModuleIds(ids) === ids.length;
     },
     async progress({ helpers }) {
-      const ids = await helpers.getOrderedModuleIds(CORE_PATH_LEVELS);
+      const ids = await helpers.getOrderedModuleIds(TOTAL_MODULE_COUNT);
       if (ids.length === 0) return 0;
       const completed = helpers.countCompletedModuleIds(ids);
       return Math.round((completed / ids.length) * 100);
     },
   },
-  {
-    id: "lightning-coder",
-    name: "Lightning Coder",
-    description: "Solved a challenge in under 30 seconds.",
-    category: "performance",
+  "file-handler": {
+    async check({ helpers }) {
+      return (helpers.stats.fileChallengeCount || 0) >= FILE_CHALLENGE_TARGET;
+    },
+    async progress({ helpers }) {
+      const count = helpers.stats.fileChallengeCount || 0;
+      return Math.min(100, Math.round((count / FILE_CHALLENGE_TARGET) * 100));
+    },
+  },
+  "code-blacksmith": {
+    async check({ helpers }) {
+      return (helpers.stats.decoratorUsageCount || 0) >= DECORATOR_USAGE_TARGET;
+    },
+    async progress({ helpers }) {
+      const count = helpers.stats.decoratorUsageCount || 0;
+      return Math.min(100, Math.round((count / DECORATOR_USAGE_TARGET) * 100));
+    },
+  },
+  architect: {
+    async check({ helpers }) {
+      const score = await helpers.getQuizScore(MODULE_SLUGS.OOP_I, true);
+      return score >= ARCHITECT_QUIZ_SCORE;
+    },
+    async progress({ helpers }) {
+      const score = await helpers.getQuizScore(MODULE_SLUGS.OOP_I, true);
+      return Math.min(100, Math.round((score / ARCHITECT_QUIZ_SCORE) * 100));
+    },
+  },
+  "master-builder": {
+    async check({ helpers }) {
+      const score = await helpers.getQuizScore(MODULE_SLUGS.OOP_II, true);
+      return score >= MASTER_BUILDER_QUIZ_SCORE;
+    },
+    async progress({ helpers }) {
+      const score = await helpers.getQuizScore(MODULE_SLUGS.OOP_II, true);
+      return Math.min(
+        100,
+        Math.round((score / MASTER_BUILDER_QUIZ_SCORE) * 100)
+      );
+    },
+  },
+  "time-traveler": {
+    async check({ helpers }) {
+      return (
+        (helpers.stats.datetimeChallengeCount || 0) >= DATETIME_CHALLENGE_TARGET
+      );
+    },
+    async progress({ helpers }) {
+      const count = helpers.stats.datetimeChallengeCount || 0;
+      return Math.min(
+        100,
+        Math.round((count / DATETIME_CHALLENGE_TARGET) * 100)
+      );
+    },
+  },
+  "regex-ruler": {
+    async check({ helpers }) {
+      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
+        MODULE_SLUGS.REGEX_MASTERY
+      );
+      if (!moduleCompleted) return false;
+      const score = await helpers.getQuizScore(MODULE_SLUGS.REGEX_MASTERY);
+      return score >= REGEX_RULER_QUIZ_SCORE;
+    },
+    async progress({ helpers }) {
+      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
+        MODULE_SLUGS.REGEX_MASTERY
+      );
+      if (!moduleCompleted) return 0;
+      const score = await helpers.getQuizScore(MODULE_SLUGS.REGEX_MASTERY);
+      return Math.min(100, Math.round((score / REGEX_RULER_QUIZ_SCORE) * 100));
+    },
+  },
+  "web-slinger": {
+    async check({ helpers }) {
+      return (helpers.stats.apiCountUnique || 0) >= API_UNIQUE_TARGET;
+    },
+    async progress({ helpers }) {
+      const count = helpers.stats.apiCountUnique || 0;
+      return Math.min(100, Math.round((count / API_UNIQUE_TARGET) * 100));
+    },
+  },
+  "data-dynamo": {
+    async check({ helpers }) {
+      return helpers.stats.pandasOperationRun === true;
+    },
+    async progress({ helpers }) {
+      return helpers.stats.pandasOperationRun ? 100 : 0;
+    },
+  },
+  "lightning-coder": {
     async check({ helpers }) {
       return (helpers.stats.fastChallengeCount || 0) > 0;
     },
@@ -344,11 +484,7 @@ const BADGE_DEFINITIONS = [
       return 0;
     },
   },
-  {
-    id: "one-shot-wonder",
-    name: "One-Shot Wonder",
-    description: "Solved five medium/hard challenges on the first attempt.",
-    category: "performance",
+  "one-shot-wonder": {
     async check({ helpers }) {
       return (helpers.stats.firstTryChallengeCount || 0) >= FIRST_TRY_TARGET;
     },
@@ -357,11 +493,7 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((count / FIRST_TRY_TARGET) * 100));
     },
   },
-  {
-    id: "turbo-learner",
-    name: "Turbo Learner",
-    description: "Completed three learning modules in a single day.",
-    category: "performance",
+  "turbo-learner": {
     async check({ helpers }) {
       const counts = helpers.getModuleCompletionCountsPerDay();
       for (const value of counts.values()) {
@@ -383,12 +515,7 @@ const BADGE_DEFINITIONS = [
       );
     },
   },
-  {
-    id: "efficiency-expert",
-    name: "Efficiency Expert",
-    description:
-      "Submitted 10 solutions that beat the community average for code efficiency.",
-    category: "performance",
+  "optimal-prime": {
     async check({ helpers }) {
       return (
         (helpers.stats.optimalSolutionCount || 0) >= OPTIMAL_SOLUTION_TARGET
@@ -399,11 +526,15 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((count / OPTIMAL_SOLUTION_TARGET) * 100));
     },
   },
-  {
-    id: "first-day",
-    name: "First Day",
-    description: "Completed a challenge on the day of signup.",
-    category: "habit",
+  "infinity-war": {
+    async check({ helpers }) {
+      return helpers.stats.controlledInfiniteLoopSolved === true;
+    },
+    async progress({ helpers }) {
+      return helpers.stats.controlledInfiniteLoopSolved ? 100 : 0;
+    },
+  },
+  "first-day": {
     async check({ user, helpers }) {
       if (!user.createdAt) return false;
       return helpers.lessonHistory.some((entry) =>
@@ -419,11 +550,21 @@ const BADGE_DEFINITIONS = [
         : 0;
     },
   },
-  {
-    id: "week-warrior",
-    name: "Week Warrior",
-    description: "Maintained a learning streak for 7 consecutive days.",
-    category: "habit",
+  "daily-dozen": {
+    async check({ user }) {
+      return (user.streak || 0) >= DAILY_DOZEN_STREAK;
+    },
+    async progress({ user }) {
+      const streak = user.streak || 0;
+      return Math.min(
+        100,
+        Math.round(
+          (Math.min(streak, DAILY_DOZEN_STREAK) / DAILY_DOZEN_STREAK) * 100
+        )
+      );
+    },
+  },
+  "week-warrior": {
     async check({ user }) {
       return (user.streak || 0) >= 7;
     },
@@ -432,11 +573,7 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((Math.min(streak, 7) / 7) * 100));
     },
   },
-  {
-    id: "monthly-momentum",
-    name: "Monthly Momentum",
-    description: "Maintained a learning streak for 30 consecutive days.",
-    category: "habit",
+  "monthly-momentum": {
     async check({ user }) {
       return (user.streak || 0) >= 30;
     },
@@ -445,11 +582,7 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((Math.min(streak, 30) / 30) * 100));
     },
   },
-  {
-    id: "dedicated-debugger",
-    name: "Dedicated Debugger",
-    description: "Maintained a learning streak for 100 consecutive days.",
-    category: "habit",
+  "dedicated-debugger": {
     async check({ user }) {
       return (user.streak || 0) >= 100;
     },
@@ -458,87 +591,7 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((Math.min(streak, 100) / 100) * 100));
     },
   },
-  {
-    id: "oop-genius",
-    name: "OOP Genius",
-    description:
-      "Passed the advanced OOP module exam (Classes, Inheritance, etc.).",
-    category: "advanced",
-    async check({ helpers }) {
-      return (helpers.stats.oopExamScore || 0) >= OOP_PASSING_SCORE;
-    },
-    async progress({ helpers }) {
-      const score = helpers.stats.oopExamScore;
-      if (typeof score !== "number") return 0;
-      return Math.min(100, Math.round((score / 100) * 100));
-    },
-  },
-  {
-    id: "api-explorer",
-    name: "API Explorer",
-    description:
-      "Successfully completed challenges involving external API calls.",
-    category: "advanced",
-    async check({ helpers }) {
-      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
-        MODULE_SLUGS.REQUESTS_AND_APIS
-      );
-      if (moduleCompleted) return true;
-      return (helpers.stats.apiChallengeCount || 0) > 0;
-    },
-    async progress({ helpers }) {
-      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
-        MODULE_SLUGS.REQUESTS_AND_APIS
-      );
-      if (moduleCompleted) return 100;
-      const count = helpers.stats.apiChallengeCount || 0;
-      return count > 0 ? 100 : 0;
-    },
-  },
-  {
-    id: "file-handler",
-    name: "File Handler",
-    description:
-      "Solved five challenges involving reading and writing files (CSV, TXT, etc.).",
-    category: "advanced",
-    async check({ helpers }) {
-      return (helpers.stats.fileChallengeCount || 0) >= FILE_CHALLENGE_TARGET;
-    },
-    async progress({ helpers }) {
-      const count = helpers.stats.fileChallengeCount || 0;
-      return Math.min(100, Math.round((count / FILE_CHALLENGE_TARGET) * 100));
-    },
-  },
-  {
-    id: "regex-ruler",
-    name: "Regex Ruler",
-    description:
-      "Used regular expressions effectively to solve a complex parsing problem.",
-    category: "advanced",
-    async check({ helpers }) {
-      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
-        MODULE_SLUGS.REGEX_MASTERY
-      );
-      if (moduleCompleted) return true;
-      const historyMatch = await helpers.completedModuleHistoryContainsSlug(
-        MODULE_SLUGS.REGEX_MASTERY
-      );
-      return historyMatch;
-    },
-    async progress({ helpers }) {
-      const moduleCompleted = await helpers.hasCompletedModuleBySlug(
-        MODULE_SLUGS.REGEX_MASTERY
-      );
-      if (moduleCompleted) return 100;
-      const lessonCount = helpers.getLessonCompletionCountByTag("regex");
-      return lessonCount > 0 ? 50 : 0;
-    },
-  },
-  {
-    id: "bug-hunter",
-    name: "Bug Hunter",
-    description: "Reported three verified bugs or typos in the platform.",
-    category: "community",
+  "bug-hunter": {
     async check({ helpers }) {
       return (helpers.stats.bugReportsVerified || 0) >= 3;
     },
@@ -547,11 +600,7 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((Math.min(count, 3) / 3) * 100));
     },
   },
-  {
-    id: "helpful-hero",
-    name: "Helpful Hero",
-    description: "Provided explanations that earned 10 helpful upvotes.",
-    category: "community",
+  "helpful-hero": {
     async check({ helpers }) {
       return (helpers.stats.helpfulVotesReceived || 0) >= 10;
     },
@@ -560,12 +609,7 @@ const BADGE_DEFINITIONS = [
       return Math.min(100, Math.round((Math.min(count, 10) / 10) * 100));
     },
   },
-  {
-    id: "inviter",
-    name: "Inviter",
-    description:
-      "Successfully referred a friend who completed their first module.",
-    category: "community",
+  inviter: {
     async check({ helpers }) {
       return (helpers.stats.referralsCompleted || 0) >= 1;
     },
@@ -573,12 +617,7 @@ const BADGE_DEFINITIONS = [
       return (helpers.stats.referralsCompleted || 0) > 0 ? 100 : 0;
     },
   },
-  {
-    id: "beta-tester",
-    name: "Beta Tester",
-    description:
-      "Participated in testing a new feature or module before release.",
-    category: "community",
+  "beta-tester": {
     async check({ helpers }) {
       return (helpers.stats.betaModulesCompleted || 0) >= 1;
     },
@@ -586,8 +625,17 @@ const BADGE_DEFINITIONS = [
       return (helpers.stats.betaModulesCompleted || 0) > 0 ? 100 : 0;
     },
   },
-];
+};
 
+// --- FINAL BADGE DEFINITIONS ARRAY ---
+// This uses the shared data and maps the logic functions onto it.
+const BADGE_DEFINITIONS = BADGE_DEFINITIONS_CORE.map((coreBadge) => ({
+  ...coreBadge,
+  // Safely spread the logic functions onto the core data
+  ...BADGE_LOGIC_MAP[coreBadge.id],
+}));
+
+// --- EXPORTED FUNCTIONS (Same as previous version) ---
 const evaluateBadges = async ({ user, context = {} }) => {
   const helpers = createBadgeHelpers(user);
   const newlyUnlocked = [];

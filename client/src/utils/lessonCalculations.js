@@ -1,5 +1,6 @@
 // utils/lessonCalculations.js
 import { apiClient } from "../context";
+import { calculateModuleLessonProgress } from "./progressCalculations";
 
 /**
  * Calculate the next lesson manually (fallback when backend doesn't provide nextLessonId)
@@ -66,12 +67,12 @@ export const findFirstIncompleteLesson = (lessons = []) => {
 export const getLessonStatistics = (lessons = []) => {
   const completed = lessons.filter((lesson) => lesson.isCompleted).length;
   const total = lessons.length;
-  const progress = calculateModuleProgress(lessons);
+  const { moduleLessonProgress } = calculateModuleLessonProgress(lessons);
 
   return {
     completed,
     total,
-    progress,
+    moduleLessonProgress,
     remaining: total - completed,
   };
 };

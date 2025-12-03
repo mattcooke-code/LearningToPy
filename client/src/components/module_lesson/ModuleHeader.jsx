@@ -6,7 +6,7 @@ const ModuleHeader = ({
   moduleData,
   completedLessons,
   totalLessons,
-  moduleProgress,
+  moduleLessonProgress,
   accentColor,
   onBack,
 }) => {
@@ -37,7 +37,7 @@ const ModuleHeader = ({
 
           {/* Progress Circle */}
           <ProgressCircle
-            progress={moduleProgress}
+            progress={moduleLessonProgress}
             completedLessons={completedLessons}
             totalLessons={totalLessons}
             accentColor={accentColor}
@@ -48,13 +48,13 @@ const ModuleHeader = ({
         <div className="mt-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Module Progress</span>
-            <span>{moduleProgress}% Complete</span>
+            <span>{moduleLessonProgress}% Complete</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div
               className="h-3 rounded-full transition-all duration-500"
               style={{
-                width: `${moduleProgress}%`,
+                width: `${moduleLessonProgress}%`,
                 backgroundColor: accentColor,
               }}
             ></div>

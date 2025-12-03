@@ -14,6 +14,8 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
 const getCurrentProgress = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 
+  const totalLessons = await Lesson.countDocuments({ isPublished: true });
+
   const user = await User.findById(userId)
     .select(
       "username xp level streak completedLessons completedModules badges totalLearningTime lessonCompletionHistory moduleCompletionHistory stats createdAt"
@@ -51,7 +53,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   };
   sanitizedUser.badges = user.badges;
 
-  const progressData = formatProgressResponse(sanitizedUser);
+  const progressData = formatProgressResponse(sanitizedUser, totalLessons);
 
   sendJsonResponse(res, 200, "User progress fetched successfully.", {
     data: progressData,
