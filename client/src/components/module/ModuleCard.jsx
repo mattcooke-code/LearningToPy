@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 
 const ModuleCard = ({ module, isLocked }) => {
-  const { themeColor } = useTheme();
+  const { getModuleThemeColor } = useTheme();
 
-  // module.progress is the percentage of lessons completed in this module (moduleLessonProgress)
-  const moduleLessonProgress = module.progress || 0;
+  const moduleLessonProgress = module.moduleLessonProgress || 0;
+
+  const moduleAccentColor = getModuleThemeColor(moduleLessonProgress);
 
   return (
     <div
@@ -42,7 +43,10 @@ const ModuleCard = ({ module, isLocked }) => {
       )}
 
       {/* Module Icon */}
-      <div className="text-4xl mb-4 text-center" style={{ color: themeColor }}>
+      <div
+        className="text-4xl mb-4 text-center"
+        style={{ color: moduleAccentColor }}
+      >
         {module.icon || "📚"}
       </div>
 
@@ -60,14 +64,16 @@ const ModuleCard = ({ module, isLocked }) => {
       <div className="mb-4">
         <div className="flex justify-between text-xs text-gray-500 mb-1">
           <span>Progress</span>
-          <span>{moduleLessonProgress}%</span>
+          <span style={{ color: moduleAccentColor, fontWeight: "600" }}>
+            {moduleLessonProgress}%
+          </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="h-2 rounded-full transition-all duration-500"
             style={{
               width: `${moduleLessonProgress}%`,
-              backgroundColor: themeColor,
+              backgroundColor: moduleAccentColor,
             }}
           ></div>
         </div>
@@ -109,7 +115,7 @@ const ModuleCard = ({ module, isLocked }) => {
         <Link
           to={`/modules/${module._id}/lessons`}
           className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center space-x-2"
-          style={{ backgroundColor: themeColor }}
+          style={{ backgroundColor: moduleAccentColor }}
         >
           <PlayCircle size={16} />
           <span>

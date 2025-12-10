@@ -1,5 +1,8 @@
 // Home.jsx
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth, useTheme } from "../context";
+import { BackToTopButton } from "../components/ui";
 import {
   Rocket,
   Trophy,
@@ -13,12 +16,14 @@ import {
   TrendingUp,
   ShieldCheck,
 } from "lucide-react";
-import { useAuth, useTheme } from "../context";
-import { BackToTopButton } from "../components/ui";
 
 const Home = () => {
-  const { themeColor } = useTheme();
+  const { setDefaultTheme } = useTheme();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    setDefaultTheme();
+  }, [setDefaultTheme]);
 
   const ctaLink = isAuthenticated ? "/dashboard" : "/register";
   const ctaLabel = isAuthenticated
@@ -52,14 +57,13 @@ const Home = () => {
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   to={ctaLink}
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5 hover:shadow-xl"
-                  style={{ backgroundColor: themeColor }}
+                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-blue text-python-yellow hover:bg-python-yellow hover:text-python-blue shadow-lg transition-transform hover:-translate-y-0.5 hover:shadow-xl"
                 >
                   {ctaLabel}
                 </Link>
                 <Link
                   to="/modules"
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-python-blue border border-python-blue hover:bg-blue-50 transition"
+                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-yellow text-python-blue hover:bg-python-blue hover:text-python-yellow hover:-translate-y-0.5 hover:shadow-xl transition"
                 >
                   Explore Curriculum
                 </Link>
@@ -546,8 +550,7 @@ const Home = () => {
           <div className="mt-12 text-center">
             <Link
               to={ctaLink}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
-              style={{ backgroundColor: themeColor }}
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-python-blue bg-python-yellow shadow-lg transition hover:bg-python-blue hover:text-python-yellow hover:-translate-y-0.5 hover:shadow-xl"
             >
               {ctaLabel}
             </Link>

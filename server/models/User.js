@@ -116,10 +116,14 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // Removed the 'refreshTokens' array field as it's no longer used
+    privacySettings: {
+      showOnLeaderboards: { type: Boolean, default: true },
+      showUsernameOnLeaderboards: { type: Boolean, default: false },
+      showAsAnonymous: { type: Boolean, default: false },
+    },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 

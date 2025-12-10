@@ -16,6 +16,12 @@ router.post("/logout", protect, authController.logout);
 
 router.get("/user", protect, authController.getUser);
 
+router.patch(
+  "/privacy-settings",
+  protect,
+  authController.updatePrivacySettings
+);
+
 // In auth.js routes - add debug route
 router.get("/debug/token", protect, (req, res) => {
   const authHeader = req.headers["authorization"];

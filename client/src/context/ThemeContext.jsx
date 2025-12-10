@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
+import { resolveCourseThemeColor, THEME_COLORS } from "../utils/colorUtilities";
 
 const ThemeContext = createContext();
 
@@ -15,16 +16,6 @@ export const useTheme = () => {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
-};
-
-// Color theme constants
-const THEME_COLORS = {
-  DEFAULT: "#3776AB", // Python blue
-  RED: "#ef4444", // 0-20% or 0-33%
-  ORANGE: "#f97316", // 20-30% or 33-66%
-  YELLOW: "#FFD700", // 30-70% or 66-99%
-  LIME: "#84cc16", // 70-80%
-  GREEN: "#22c55e", // 80-100% or 100%
 };
 
 // Code theme constants
@@ -56,23 +47,6 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("codeTheme", codeTheme);
   }, [codeTheme]);
 
-  const resolveCourseThemeColor = useCallback((courseProgressPercentage) => {
-    // Match visual perception of the gauge
-    if (courseProgressPercentage <= 25) {
-      return THEME_COLORS.RED; // Clearly in red zone
-    }
-    if (courseProgressPercentage <= 45) {
-      return "#f97316"; // Orange-red transition
-    }
-    if (courseProgressPercentage <= 65) {
-      return THEME_COLORS.YELLOW; // Clearly in yellow zone
-    }
-    if (courseProgressPercentage <= 85) {
-      return "#84cc16"; // Lime green-yellow transition
-    }
-    return THEME_COLORS.GREEN; // Clearly in green zone
-  }, []);
-
   /**
    * Update global theme color based on overall progress (dashboard-wide usage)
    */
@@ -88,14 +62,20 @@ export const ThemeProvider = ({ children }) => {
    * without mutating the global theme.
    */
   const getModuleThemeColor = useCallback((moduleLessonProgress) => {
-    if (moduleLessonProgress <= 33) {
+    if (moduleLessonProgress <= 25) {
       return THEME_COLORS.RED;
     }
-    if (moduleLessonProgress <= 66) {
+    if (moduleLessonProgress <= 40) {
       return THEME_COLORS.ORANGE;
     }
-    if (moduleLessonProgress < 100) {
+    if (moduleLessonProgress <= 55) {
+      return THEME_COLORS.AMBER;
+    }
+    if (moduleLessonProgress <= 70) {
       return THEME_COLORS.YELLOW;
+    }
+    if (moduleLessonProgress <= 85) {
+      return THEME_COLORS.LIME;
     }
     return THEME_COLORS.GREEN;
   }, []);
@@ -137,12 +117,18 @@ export const ThemeProvider = ({ children }) => {
     };
   }, [resetTheme]);
 
+  const setDefaultTheme = useCallback(() => {
+    setThemeColor(THEME_COLORS.DEFAULT);
+  }, []);
+
   const value = {
     // Main theme
     themeColor,
     updateThemeFromCourseProgress,
     getModuleThemeColor,
     resetTheme,
+    setDefaultTheme,
+    THEME_COLORS,
 
     // Code theme
     codeTheme,

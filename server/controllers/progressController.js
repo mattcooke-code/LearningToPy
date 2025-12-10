@@ -124,42 +124,90 @@ const getAchievements = catchAsync(async (req, res, next) => {
 
 const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const range = 2; // User shown above and below
+  const range = 2;
 
-  // Sort all users by XP
-  const allUsers = await User.find({})
-    .select("username xp")
+  // First, verify the current user exists
+  const currentUser = await User.findById(userId);
+  if (!currentUser) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Get all users who allow leaderboard display
+  const allUsers = await User.find({
+    "privacySettings.showOnLeaderboards": true,
+  })
+    .select("username xp privacySettings")
     .sort({ xp: -1 })
     .lean();
 
-  // Current user's position
-  const currentUserIndex = allUsers.findIndex(
+  // Apply anonymity based on user settings
+  const usersWithPrivacy = allUsers.map((user) => ({
+    ...user,
+    displayName: user.privacySettings?.showUsernameOnLeaderboards
+      ? user.username
+      : `Learner #${user._id.toString().slice(-6)}`,
+    isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
+  }));
+
+  // Find current user's position
+  const currentUserIndex = usersWithPrivacy.findIndex(
     (user) => user._id.toString() === userId
   );
 
   if (currentUserIndex === -1) {
-    return next(new AppError("User not found", 404));
+    // User might have privacySettings.showOnLeaderboards = false
+    return next(new AppError("User not found on leaderboard", 404));
   }
 
   // Calculate range of users to show
   const startIndex = Math.max(0, currentUserIndex - range);
-  const endIndex = Math.min(allUsers.length - 1, currentUserIndex + range);
+  const endIndex = Math.min(
+    usersWithPrivacy.length - 1,
+    currentUserIndex + range
+  );
 
-  const surroundingUsers = allUsers
+  const surroundingUsers = usersWithPrivacy
     .slice(startIndex, endIndex + 1)
     .map((user, index) => ({
-      rank: startIndex + index + 1, // place in overall leaderboard
-      username: user.username,
+      _id: user._id,
+      rank: startIndex + index + 1,
+      username: user.displayName, // Use displayName instead of username
       xp: user.xp,
       isCurrent: user._id.toString() === userId,
+      isAnonymous: user.isAnonymous,
     }));
 
   sendJsonResponse(res, 200, "User's leaderboard placement found", {
     data: {
       users: surroundingUsers,
       currentUserRank: currentUserIndex + 1,
-      totalUsers: allUsers.length,
+      totalUsers: usersWithPrivacy.length,
     },
+  });
+});
+
+const getTopLeaderboard = catchAsync(async (req, res, next) => {
+  const limit = parseInt(req.query.limit) || 10;
+
+  const topUsers = await User.find({
+    "privacySettings.showOnLeaderboards": true,
+  })
+    .select("username xp privacySettings")
+    .sort({ xp: -1 })
+    .limit(limit)
+    .lean();
+
+  const topUsersWithPrivacy = topUsers.map((user, index) => ({
+    ...user,
+    rank: index + 1,
+    displayName: user.privacySettings?.showUsernameOnLeaderboards
+      ? user.username
+      : `Learner #${user._id.toString().slice(-6)}`,
+    isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
+  }));
+
+  sendJsonResponse(res, 200, "Top leaderboard fetched", {
+    data: topUsersWithPrivacy,
   });
 });
 
@@ -194,5 +242,6 @@ module.exports = {
   getCurrentProgress,
   getAchievements,
   getSurroundingLeaderboard,
+  getTopLeaderboard,
   getModuleLeaderboard,
 };

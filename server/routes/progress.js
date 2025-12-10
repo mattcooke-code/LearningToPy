@@ -15,6 +15,8 @@ router.get(
   progressController.getSurroundingLeaderboard
 );
 
+router.get("/leaderboard/top", protect, progressController.getTopLeaderboard);
+
 router.get(
   "/leaderboard/module/:moduleId",
   protect,

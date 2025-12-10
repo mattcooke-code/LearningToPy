@@ -1,20 +1,25 @@
-// Dashboard.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
+import { useThemeStyles } from "../hooks/useThemeStyles";
 import {
   ProgressGauge,
   BackToTopButton,
   SegmentedLevelProgressBar,
+  Spinner,
+  LeaderboardRow,
 } from "../components/ui";
+import { FullLeaderboardModal } from "../components/modals";
 import { BADGES_BY_ID } from "../data/badges";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { themeColor, updateThemeFromCourseProgress } = useTheme();
+  const { updateThemeFromCourseProgress } = useTheme();
+  const { themeColor, hoverHandlers } = useThemeStyles();
   const [userProgress, setUserProgress] = useState(null);
-  // const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
-  //const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
+  const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -33,8 +38,7 @@ const Dashboard = () => {
       }
     };
 
-    // TODO: Uncomment when ready to use real leaderboard data
-    /* const fetchSurroundingLeaderboard = async () => {
+    const fetchSurroundingLeaderboard = async () => {
       try {
         setLeaderboardLoading(true);
         const response = await apiClient.get("/progress/leaderboard/around-me");
@@ -45,10 +49,10 @@ const Dashboard = () => {
       } finally {
         setLeaderboardLoading(false);
       }
-    };*/
+    };
 
     fetchProgress();
-    //fetchSurroundingLeaderboard();
+    fetchSurroundingLeaderboard();
   }, [updateThemeFromCourseProgress, user]);
 
   // Use userProgress data instead of user data for progress-related info
@@ -115,76 +119,59 @@ const Dashboard = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Your Competitive Zone
           </h3>
-          <div className="space-y-3">
-            {[
-              { rank: 23, name: "CodeMaster", xp: "1,450", isCurrent: false },
-              { rank: 24, name: "PythonPro", xp: "1,420", isCurrent: false },
-              {
-                rank: 25,
-                name: "You",
-                xp: progressData.xp.toLocaleString(),
-                isCurrent: true,
-              },
-              { rank: 26, name: "ScriptKid", xp: "1,380", isCurrent: false },
-              { rank: 27, name: "ByteWizard", xp: "1,350", isCurrent: false },
-            ].map((player) => (
-              <div
-                key={player.rank}
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  player.isCurrent
-                    ? "bg-blue-50 border border-blue-200"
-                    : "bg-gray-50"
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      player.isCurrent
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    #{player.rank}
-                  </div>
-                  <span
-                    className={`font-medium ${
-                      player.isCurrent ? "text-blue-700" : "text-gray-700"
-                    }`}
-                  >
-                    {player.name}
-                  </span>
-                </div>
-                <span className="text-python-yellow font-semibold">
-                  {player.xp} XP
-                </span>
-              </div>
-            ))}
-          </div>
+
+          {leaderboardLoading ? (
+            <div className="flex justify-center py-8">
+              <Spinner size="medium" />
+            </div>
+          ) : surroundingLeaderboard ? (
+            <div className="space-y-3">
+              {surroundingLeaderboard.users.map((player) => (
+                <LeaderboardRow
+                  key={player.rank}
+                  rank={player.rank}
+                  user={player}
+                  isCurrent={player.isCurrent}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-lg bg-gray-50 p-4 text-center">
+              <p className="text-gray-500 text-sm">
+                Leaderboard data unavailable
+              </p>
+            </div>
+          )}
+
           <div className="mt-4 text-center">
-            <Link
-              to="/leaderboard"
+            <button
+              onClick={() => setIsLeaderboardModalOpen(true)}
               className="text-python-blue hover:underline font-medium"
             >
               View Full Leaderboard →
-            </Link>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Progress Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-700">Current Level</h3>
-          <p className="text-3xl font-bold text-python-blue mt-2">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-700 text-center mb-4">
+            Current Level
+          </h3>
+          <p className="text-4xl font-bold text-python-blue text-center mb-4">
             {progressData.level}
           </p>
-
-          <div className="pt-2">
+          {/* Note: You'll need to import and use SegmentedLevelProgress here */}
+          {
             <SegmentedLevelProgressBar
-              currentXP={user?.xp || 0}
-              segmentCount={10}
-              showLabels={true}
+              currentXP={progressData.xp}
+              showDetails={false}
             />
+          }
+          <div className="text-center text-sm text-gray-500 mt-2">
+            {progressData.xp % 100}/100 XP this level
           </div>
         </div>
 
@@ -213,7 +200,8 @@ const Dashboard = () => {
         <Link
           to="/modules"
           style={{ backgroundColor: themeColor }}
-          className=" text-white px-8 py-3 rounded-lg font-semibold hover:opacity-80 transition inline-block"
+          {...hoverHandlers}
+          className="text-white px-8 py-3 rounded-lg font-semibold  transition inline-block"
         >
           Continue Learning
         </Link>
@@ -282,10 +270,24 @@ const Dashboard = () => {
                 {progressData.completedModulesCount}
               </p>
             </div>
+            <div>
+              <p className="text-gray-700">Next Level In</p>
+              <p className="text-lg font-semibold text-python-yellow">
+                {progressData.nextLevelXp} XP
+              </p>
+            </div>
           </div>
           <BackToTopButton />
         </div>
       </div>
+
+      {/* Full Leaderboard Modal */}
+      <FullLeaderboardModal
+        isOpen={isLeaderboardModalOpen}
+        onClose={() => setIsLeaderboardModalOpen(false)}
+        userRank={surroundingLeaderboard?.currentUserRank}
+        surroundingUsers={surroundingLeaderboard?.users || []}
+      />
     </div>
   );
 };

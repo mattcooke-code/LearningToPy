@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(getStoredAccessToken());
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
+  const [leaderboardVersion, setLeaderboardVersion] = useState(0);
 
   // Refs for token refresh management
   const isRefreshing = useRef(false);
@@ -85,19 +86,30 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem("accessToken");
 
       if (newAccessToken) {
-        if (isRememberMe) {
-          localStorage.setItem("accessToken", newAccessToken);
-        } else {
-          sessionStorage.setItem("accessToken", newAccessToken);
-        }
+        const authHeader = `Bearer ${newAccessToken}`;
+        // Set the header on both clients for consistency
+        apiClient.defaults.headers.common["Authorization"] = authHeader;
+        authApiClient.defaults.headers.common["Authorization"] = authHeader;
+      } else {
+        // Clear the header on logout
+        delete apiClient.defaults.headers.common["Authorization"];
+        delete authApiClient.defaults.headers.common["Authorization"];
       }
 
       setAuthError(null);
     },
     []
-  ); // Logout Function
+  );
 
-  // AuthContext.jsx (Lines ~160 - 208)
+  // Privacy Settings
+  const updateUser = useCallback((newUserData) => {
+    setUser((prevUser) => {
+      if (!prevUser) return newUserData;
+      return { ...prevUser, ...newUserData };
+    });
+  });
+
+  // Logout Function
 
   const logout = useCallback(
     async (message = null) => {
@@ -384,10 +396,11 @@ export const AuthProvider = ({ children }) => {
     // REQUEST Interceptor: Attaches the Access Token
     const requestInterceptor = apiClient.interceptors.request.use(
       (config) => {
-        const currentAccessToken = getStoredAccessToken();
-
-        if (currentAccessToken && !config.headers.Authorization) {
-          config.headers.Authorization = `Bearer ${currentAccessToken}`;
+        if (!config.headers.Authorization) {
+          const currentAccessToken = getStoredAccessToken();
+          if (currentAccessToken) {
+            config.headers.Authorization = `Bearer ${currentAccessToken}`;
+          }
         }
         return config;
       },
@@ -447,6 +460,9 @@ export const AuthProvider = ({ children }) => {
     };
   }, [refreshAuthToken]);
 
+  const triggerLeaderboardRefresh = () =>
+    setLeaderboardVersion((version) => version + 1);
+
   const authContextValue = {
     user,
     accessToken,
@@ -457,6 +473,9 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     refreshAuthToken,
+    updateUser,
+    leaderboardVersion,
+    triggerLeaderboardRefresh,
   };
 
   return (

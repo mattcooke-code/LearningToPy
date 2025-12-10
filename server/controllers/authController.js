@@ -6,8 +6,6 @@ const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-// 3. getAccessTokenSecret() and getRefreshTokenSecret() (or use config.js)
-
 // Signup Function
 const register = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -212,6 +210,41 @@ const logout = catchAsync(async (req, res, next) => {
   return sendJsonResponse(res, 200, "Logged out successfully.");
 });
 
+const updatePrivacySettings = catchAsync(async (req, res, next) => {
+  const userId = req.userId;
+  const { showOnLeaderboards, showAsAnonymous, showUsernameOnLeaderboards } =
+    req.body;
+
+  if (
+    typeof showOnLeaderboards !== "boolean" ||
+    typeof showAsAnonymous !== "boolean" ||
+    typeof showUsernameOnLeaderboards !== "boolean"
+  ) {
+    return next(new AppError("Invalid privacy settings format", 400));
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        "privacySettings.showOnLeaderboards": showOnLeaderboards,
+        "privacySettings.showAsAnonymous": showAsAnonymous,
+        "privacySettings.showUsernameOnLeaderboards":
+          showUsernameOnLeaderboards,
+      },
+    },
+    { new: true, runValidators: true }
+  ).select("username privacySettings");
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  sendJsonResponse(res, 200, "Privacy settings updated successfully", {
+    data: { privacySettings: user.privacySettings },
+  });
+});
+
 // EXPORT
 module.exports = {
   register,
@@ -219,4 +252,5 @@ module.exports = {
   getUser,
   refreshToken,
   logout,
+  updatePrivacySettings,
 };

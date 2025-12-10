@@ -1,4 +1,4 @@
-// authUtils.js (Adapted from Old Project)
+// authUtils.js
 const jwt = require("jsonwebtoken");
 const config = require("../config/envConfig");
 const AppError = require("./AppError");
