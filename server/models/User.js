@@ -103,7 +103,7 @@ const UserSchema = new mongoose.Schema(
       referralsCompleted: { type: Number, default: 0, min: 0 },
       betaModulesCompleted: { type: Number, default: 0, min: 0 },
     },
-    lastActiveDate: {
+    lastActive: {
       type: Date,
       default: Date.now,
     },
@@ -112,6 +112,8 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    suspensionEnd: Date,
+    suspensionReason: String,
     isBlocked: {
       type: Boolean,
       default: false,
@@ -120,6 +122,17 @@ const UserSchema = new mongoose.Schema(
       showOnLeaderboards: { type: Boolean, default: true },
       showUsernameOnLeaderboards: { type: Boolean, default: false },
       showAsAnonymous: { type: Boolean, default: false },
+    },
+    loginCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    totalSessionTime: {
+      // in minutes
+      type: Number,
+      default: 0,
+      min: 0,
     },
   },
   {
@@ -132,6 +145,10 @@ UserSchema.index({ xp: 1 });
 UserSchema.index({ level: 1 });
 UserSchema.index({ completedLessons: 1 });
 UserSchema.index({ completedModules: 1 });
+UserSchema.index({ isAdmin: 1 });
+UserSchema.index({ isBlocked: 1 });
+UserSchema.index({ lastActive: -1 });
+UserSchema.index({ createdAt: -1 });
 
 // Pre-save
 UserSchema.pre("save", function (next) {

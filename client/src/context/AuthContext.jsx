@@ -29,6 +29,13 @@ export const authApiClient = axios.create({
   withCredentials: true,
 });
 
+// Admin-specific API client
+export const adminApiClient = axios.create({
+  baseURL: `${BACKEND_URL}/api/admin`,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
+});
+
 // --- AUTHCONTEXT DEFINITION ---
 const AuthContext = createContext(null);
 
@@ -459,6 +466,28 @@ export const AuthProvider = ({ children }) => {
       apiClient.interceptors.response.eject(responseInterceptor);
     };
   }, [refreshAuthToken]);
+
+  // Admin Interceptors
+  adminApiClient.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  adminApiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 403) {
+        window.location.href = "/";
+      }
+      return Promise.reject(error);
+    }
+  );
 
   const triggerLeaderboardRefresh = () =>
     setLeaderboardVersion((version) => version + 1);

@@ -17,6 +17,7 @@ const { sendJsonResponse } = require("./utils/responseHelpers");
 const errorHandler = require("./middleware/errorHandler");
 
 // --- IMPORT ROUTES ---
+const adminRoutes = require("./routes/admin");
 const authRoutes = require("./routes/auth");
 const progressRoutes = require("./routes/progress");
 const contentRoutes = require("./routes/content");
@@ -47,6 +48,7 @@ const connectDB = async () => {
 connectDB();
 
 // --- ROUTES ---
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/content", contentRoutes);
