@@ -1,167 +1,220 @@
 // AdminDashboard.jsx
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useNotification, adminApiClient } from "../context";
 import {
-  AdminLayout,
+  AdminPage,
   AdminStatsCard,
-  AnalyticsChart,
   FlaggedContentList,
-} from "./components/admin";
-import { LoadingState } from "../components/ui";
+} from "../components/admin";
+import useAdminData from "../hooks/useAdminData";
+import { RefreshCw } from "lucide-react";
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const { showNotification } = useNotification();
+  const [retryCount, setRetryCount] = useState(0);
+  const { showToast } = useNotification();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
   const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const statsResponse = await adminApiClient.get("/stats");
-      const activityResponse = await adminApiClient.get(
-        "/activity-logs?limit=5"
-      );
+    const [statsResponse, usersResponse] = await Promise.all([
+      adminApiClient.get("/stats"),
+      adminApiClient.get("/users/search?limit=5"),
+    ]);
 
-      setStats(statsResponse.data.data);
-      setRecentActivity(activityResponse.data.data.logs);
-    } catch (err) {
-      showNotification("Failed to load dashboard data", err);
-    } finally {
-      setLoading(false);
-    }
+    const statsData = statsResponse.data.data || statsResponse.data || {};
+    const usersData =
+      usersResponse.data.data?.users || usersResponse.data?.users || [];
+
+    return {
+      stats: {
+        totalUsers: statsData.totalUsers || 0,
+        activeUsers: statsData.activeUsers || 0,
+        totalLessons: statsData.totalLessons || 0,
+        publishedLessons: statsData.publishedLessons || 0,
+        flaggedContent: statsData.flaggedContent || statsData.pendingFlags || 0,
+      },
+      recentUsers: usersData,
+    };
   };
 
-  if (loading)
+  const { data, loading, error, refetch } = useAdminData(fetchDashboardData, [
+    retryCount,
+  ]);
+
+  const handleRetry = () => {
+    setRetryCount((prev) => prev + 1);
+  };
+
+  if (loading || error || !data) {
     return (
-      <AdminLayout>
-        <LoadingState />
-      </AdminLayout>
+      <AdminPage
+        title="Admin Dashboard"
+        description="Monitor and manage your learning platform"
+        loading={loading}
+        error={error}
+        onRetry={handleRetry}
+        headerAction={
+          <button
+            onClick={refetch}
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </button>
+        }
+      >
+        {/* Empty children while loading/error */}
+        <div />
+      </AdminPage>
     );
+  }
+
+  const { stats, recentUsers } = data;
+  const publishedPercentage =
+    stats.totalLessons > 0
+      ? Math.round((stats.publishedLessons / stats.totalLessons) * 100)
+      : 0;
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Admin Dashboard
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Monitor and manage your learning platform
-          </p>
-        </div>
+    <AdminPage
+      title="Admin Dashboard"
+      description="Monitor and manage your learning platform"
+      headerAction={
+        <button
+          onClick={refetch}
+          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </button>
+      }
+    >
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <AdminStatsCard
+          title="Total Users"
+          value={stats.totalUsers}
+          icon="👥"
+          color="blue"
+          trend={{ value: "+12%", positive: true }}
+          linkTo="/admin/users"
+        />
+        <AdminStatsCard
+          title="Active Users (7d)"
+          value={stats.activeUsers}
+          icon="🔥"
+          color="green"
+          trend={{ value: "+8%", positive: true }}
+        />
+        <AdminStatsCard
+          title="Published Lessons"
+          value={`${stats.publishedLessons}/${stats.totalLessons}`}
+          icon="📚"
+          color="purple"
+          trend={{
+            value: `${publishedPercentage}%`,
+            positive: true,
+          }}
+          linkTo="/admin/content"
+        />
+        <AdminStatsCard
+          title="Pending Flags"
+          value={stats.flaggedContent}
+          icon="🚩"
+          color="red"
+          trend={{ value: "+3", positive: false }}
+          linkTo="/admin/flagged"
+        />
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <AdminStatsCard
-            title="Total Users"
-            value={stats.totalUsers}
-            icon="👥"
-            change="+12%"
-            color="blue"
-          />
-          <AdminStatsCard
-            title="Active Users"
-            value={stats.activeUsers}
-            icon="🔥"
-            change="+8%"
-            color="green"
-          />
-          <AdminStatsCard
-            title="Published Lessons"
-            value={stats.publishedLessons}
-            icon="📚"
-            change={`${Math.round(
-              (stats.publishedLessons / stats.totalLessons) * 100
-            )}%`}
-            color="purple"
-          />
-          <AdminStatsCard
-            title="Pending Flags"
-            value={stats.flaggedContent}
-            icon="🚩"
-            change="+3"
-            color="red"
-            onClick={() => navigate("/admin/flagged")}
-          />
-        </div>
-
-        {/* Charts and Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Engagement Overview</h2>
-            <AnalyticsChart />
+      {/* Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Users */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Recent Users
+            </h2>
+            <Link
+              to="/admin/users"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              View All →
+            </Link>
           </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
+          <div className="space-y-3">
+            {recentUsers.length > 0 ? (
+              recentUsers.map((user) => (
                 <div
-                  key={activity._id}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  key={user._id}
+                  className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
-                  <div>
-                    <p className="font-medium">{activity.actionType}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(activity.createdAt).toLocaleTimeString()}
-                    </p>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                      <span className="font-semibold text-blue-800 dark:text-blue-200">
+                        {user.username?.charAt(0)?.toUpperCase() || "U"}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {user.username || "Unknown User"}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Level {user.level || 1} • {user.xp || 0} XP
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-sm px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                    {activity.targetType}
-                  </span>
+                  <Link
+                    to={`/admin/users/${user._id}`}
+                    className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                  >
+                    View
+                  </Link>
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                No users found
+              </div>
+            )}
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => navigate("/admin/users")}
-              className="p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors"
+              className="p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors text-center"
             >
-              <div className="text-2xl mb-2">👥</div>
-              <h3 className="font-semibold">User Management</h3>
+              <div className="text-2xl mb-2">👤</div>
+              <h3 className="font-semibold text-sm">Manage Users</h3>
             </button>
             <button
-              onClick={() => navigate("/admin/content")}
-              className="p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors"
+              onClick={() => navigate("/admin/content?action=create")}
+              className="p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors text-center"
             >
-              <div className="text-2xl mb-2">📚</div>
-              <h3 className="font-semibold">Content Editor</h3>
+              <div className="text-2xl mb-2">📝</div>
+              <h3 className="font-semibold text-sm">Create Content</h3>
             </button>
-            <button
-              onClick={() => navigate("/admin/flagged")}
-              className="p-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
-            >
-              <div className="text-2xl mb-2">🚩</div>
-              <h3 className="font-semibold">Flagged Content</h3>
+            <button className="p-4 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors text-center">
+              <div className="text-2xl mb-2">🎁</div>
+              <h3 className="font-semibold text-sm">Grant Badge</h3>
             </button>
-            <button
-              onClick={() => navigate("/admin/settings")}
-              className="p-4 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors"
-            >
-              <div className="text-2xl mb-2">⚙️</div>
-              <h3 className="font-semibold">Settings</h3>
+            <button className="p-4 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-lg transition-colors text-center">
+              <div className="text-2xl mb-2">📊</div>
+              <h3 className="font-semibold text-sm">View Reports</h3>
             </button>
           </div>
         </div>
-
-        <FlaggedContentList limit={3} />
       </div>
-    </AdminLayout>
+
+      {/* Flagged Content */}
+      <FlaggedContentList limit={3} />
+    </AdminPage>
   );
 };
 

@@ -1,13 +1,13 @@
 // useThemeColor.js
 import { useLocation } from "react-router-dom";
-import { useTheme, THEME_COLORS } from "../context";
+import { useTheme } from "../context";
 
 /**
  * Hook to get the appropriate theme color for the current page
  * @returns {string} Hex color code for the current page
  *
  * Rules:
- * - Homepage, Login, Register: Always Python blue (#3776AB)
+ * - Homepage, Login, Register, All Admin pages: Always Python blue (#3776AB)
  * - Module Lessons pages: Use module progress color
  * - All other pages: Use course progress color
  */
@@ -20,7 +20,14 @@ export const useThemeColor = () => {
   const PYTHON_BLUE = "#3776AB";
 
   // Python blue override for default pages
-  if (pathname === "/" || pathname === "/login" || pathname === "/register") {
+
+  const shouldUseDefaultColor =
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname.startsWith("/admin");
+
+  if (shouldUseDefaultColor) {
     return PYTHON_BLUE;
   } else {
     return themeColor;

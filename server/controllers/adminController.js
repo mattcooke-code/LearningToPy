@@ -7,6 +7,55 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
+const toggleAdminStatus = catchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+  const { makeAdmin, reason } = req.body;
+
+  // Prevent self-modification
+  if (userId === req.userId.toString()) {
+    return next(new AppError("Cannot modify own admin status.", 400));
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  const oldStatus = user.isAdmin;
+  user.isAdmin = makeAdmin;
+  await user.save();
+
+  await ActivityLog.create({
+    userId,
+    adminId: req.userId,
+    actionType: makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
+    targetId: userId,
+    targetType: "USER",
+    oldValue: { isAdmin: oldStatus },
+    newValue: { isAdmin: user.isAdmin },
+    reason:
+      reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
+    ipAddress: req.ip,
+  });
+
+  sendJsonResponse(
+    res,
+    200,
+    `User ${makeAdmin ? "made" : "removed from"} admin`,
+    { user }
+  );
+});
+
+const getAdmins = catchAsync(async (req, res, next) => {
+  const admins = (
+    await User.find({ isAdmin: true }).select(
+      "username email level xp lastActive createdAt"
+    )
+  ).toSorted({ createdAt: -1 });
+
+  sendJsonResponse(res, 200, "Admins retrieved", { admins });
+});
+
 const getAdminStats = catchAsync(async (req, res, next) => {
   const [
     totalUsers,
@@ -34,25 +83,68 @@ const getAdminStats = catchAsync(async (req, res, next) => {
 });
 
 const searchUsers = catchAsync(async (req, res, next) => {
-  const { query, page = 1, limit = 20 } = req.query;
+  const {
+    query,
+    page = 1,
+    limit = 20,
+    sort = "-createdAt",
+    isBlocked,
+    isAdmin,
+    levelMin,
+    levelMax,
+  } = req.query;
 
-  const searchFilter = query
-    ? {
-        $or: [
-          { username: { $regex: query, $options: "i" } },
-          { email: { $regex: query, $options: "i" } },
-        ],
-      }
-    : {};
+  const searchFilter = {};
+
+  // Text search
+  if (query) {
+    searchFilter.$or = [
+      { username: { $regex: query, $options: "i" } },
+      { email: { $regex: query, $options: "i" } },
+    ];
+  }
+
+  if (isBlocked !== undefined) {
+    searchFilter.isBlocked = isBlocked === "true";
+  }
+
+  if (isAdmin !== undefined) {
+    searchFilter.isAdmin = isAdmin === "true";
+  }
+
+  // Level range filters
+  if (levelMin || levelMax) {
+    searchFilter.level = {};
+    if (levelMin) {
+      searchFilter.level.$gte = parseInt(levelMin);
+    }
+    if (levelMax) {
+      searchFilter.level.$lte = parseInt(levelMax);
+    }
+  }
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Parse sort parameter
+  let sortOption = {};
+  if (sort.startsWith("-")) {
+    const field = sort.substring(1);
+    sortOption[field] = -1;
+  } else {
+    sortOption[sort] = 1;
+  }
+
+  // Default sort if not provided
+  if (Object.keys(sortOption).length === 0) {
+    sortOption = { createdAt: -1 };
+  }
 
   const [users, total] = await Promise.all([
     User.find(searchFilter)
       .select(
         "username email level xp streak badgeCount lastActive isBlocked isAdmin createdAt"
       )
-      .sort({ createdAt: -1 })
+      .sort(sortOption)
       .skip(skip)
       .limit(parseInt(limit)),
     User.countDocuments(searchFilter),
@@ -143,6 +235,22 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
   });
 });
 
+const getFlagStats = catchAsync(async (req, res, next) => {
+  const stats = await FlaggedContent.aggregate([
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  const flagStats = stats.reduce(
+    (acc, item) => {
+      acc[item._id.toLowerCase()] = item.count;
+      return acc;
+    },
+    { pending: 0, resolved: 0, escalated: 0, warning_sent: 0, dismissed: 0 }
+  );
+
+  sendJsonResponse(res, 200, "Flag statistics retrieved.", flagStats);
+});
+
 const updateUserStatus = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { action, duration, reason } = req.body;
@@ -206,6 +314,71 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
   });
 });
 
+const getUserDetails = catchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+
+  const user = await User.findById(userId)
+    .select("-password -refreshToken")
+    .populate("badges", "name icon description")
+    .populate("completedLessons", "title moduleId")
+    .populate("completedModules", "title order");
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  const stats = {
+    totalLearningTime: user.totalLearningTime || 0,
+    totalSessionTime: user.totalSessionTime || 0, // in minutes
+    loginCount: user.loginCount || 0,
+    badgesCount: user.badges?.length || 0,
+    completedLessonsCount: user.completedLessons?.length || 0,
+    completedModulesCount: user.completedModules?.length || 0,
+    streak: user.streak || 0,
+  };
+
+  // Calculate completion rate if possible
+  let completionRate = 0;
+  if (user.completedLessons?.length > 0) {
+    // You might want to get total lessons from your database
+    // For now, we'll calculate a simple percentage
+    completionRate = Math.min(100, (user.completedLessons.length / 20) * 100);
+  }
+
+  // Calculate average learning time per session
+  const avgSessionTime =
+    user.loginCount > 0
+      ? (user.totalSessionTime / user.loginCount).toFixed(1)
+      : 0;
+
+  const userData = {
+    ...user.toObject(),
+    stats: {
+      ...stats,
+      completionRate,
+      avgSessionTime,
+      accuracyRate: user.stats?.dataStructuresExamScore
+        ? (user.stats.dataStructuresExamScore +
+            (user.stats.oopExamScore || 0)) /
+          2
+        : 0,
+    },
+    // Add calculated fields for frontend
+    totalXP: user.xp || 0,
+    currentLevel: user.level || 1,
+    isAdmin: user.isAdmin || false,
+    isBlocked: user.isBlocked || false,
+    lastActiveDate: user.lastActive || user.createdAt,
+    privacySettings: user.privacySettings || {
+      showOnLeaderboards: true,
+      showUsernameOnLeaderboards: false,
+      showAsAnonymous: false,
+    },
+  };
+
+  sendJsonResponse(res, 200, "User details retrieved", userData);
+});
+
 const getUserActivity = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { limit = 50 } = req.query;
@@ -221,8 +394,8 @@ const getUserActivity = catchAsync(async (req, res, next) => {
     .slice(0, parseInt(limit));
 
   // User's Admin Activity Logs
-  const adminActions = (await ActivityLog.find({ userId }))
-    .toSorted({ createdAt: -1 })
+  const adminActions = await ActivityLog.find({ userId })
+    .sort({ createdAt: -1 })
     .limit(parseInt(limit));
 
   sendJsonResponse(res, 200, "User activity retrieved", {
@@ -314,7 +487,7 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
 
 const getActivityLogs = catchAsync(async (req, res, next) => {
   const { page = 1, limit = 50, actionType, targetType } = req.query;
-  const skip = (parsetInt(page) - 1) * parseInt(limit);
+  const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const filter = {};
   if (actionType) filter.actionType = actionType;
@@ -380,14 +553,214 @@ const resolveFlag = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Flag resolved successfully", { flag });
 });
 
+const getSettings = catchAsync(async (req, res, next) => {
+  const defaultSettings = {
+    themeColor: "#3b82f6",
+    codeTheme: "dark",
+    defaultTheme: "system",
+    xpPerLevel: 100,
+    moduleXpBonus: 500,
+    streakBonusMultiplier: 1.5,
+    dailyStreakReward: 50,
+    weeklyChallengeBonus: 1000,
+    maxFileSize: 10,
+    maxAvatarSize: 2,
+    sessionTimeout: 60,
+    maxLoginAttempts: 5,
+    enableLeaderboards: true,
+    enableBadges: true,
+    enableStreaks: true,
+    enableChallenges: true,
+    enableComments: true,
+    maintenanceMode: false,
+    allowRegistrations: true,
+    defaultDifficulty: "beginner",
+    maxLessonsPerModule: 20,
+    previewMode: false,
+    autoPublishNewContent: false,
+    requireEmailVerification: false,
+    requireStrongPassword: true,
+    enable2FA: false,
+    logIpAddresses: true,
+  };
+
+  sendJsonResponse(res, 200, "Settings retrieved.", defaultSettings);
+});
+
+const updateSettings = catchAsync(async (req, res, next) => {
+  const { changes } = req.body;
+
+  if (changes.xpPerLevel !== undefined && changes.xpPerLevel <= 0) {
+    return next(new AppError("XP must be greater than 0", 400));
+  }
+
+  if (changes.moduleXpBonus !== undefined && changes.moduleXpBonus < 0) {
+    return next(new AppError("Module XP bonus cannot be negative", 400));
+  }
+
+  await ActivityLog.create({
+    adminId: req.userId,
+    actionType: "SETTINGS_UPDATED",
+    targetType: "SETTINGS",
+    oldValue: {},
+    newValue: changes,
+    reason: "Settings updated via admin panel.",
+    ipAddress: req.ip,
+  });
+
+  sendJsonResponse(res, 200, "Settings updated successfully.", {
+    changes,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+const getAllLessons = catchAsync(async (req, res, next) => {
+  const { limit = 1000, page = 1, status, difficulty } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const filter = {};
+  if (status === "published") filter.isPublished = true;
+  if (status === "draft") filter.isPublished = false;
+  if (difficulty && difficulty !== "all") filter.difficulty = difficulty;
+
+  const [lessons, total] = await Promise.all([
+    Lesson.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Lesson.countDocuments(filter),
+  ]);
+
+  sendJsonResponse(res, 200, "Lessons retrieved", {
+    lessons,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+    },
+  });
+});
+
+const getAllModules = catchAsync(async (req, res, next) => {
+  const { limit = 1000, page = 1, status } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const filter = {};
+  if (status === "published") filter.isPublished = true;
+  if (status === "draft") filter.isPublished = false;
+
+  const [modules, total] = await Promise.all([
+    Module.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Module.countDocuments(filter),
+  ]);
+
+  sendJsonResponse(res, 200, "Modules retrieved", {
+    modules,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+    },
+  });
+});
+
+const updateLesson = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+  const updateData = req.body;
+
+  const lesson = await Lesson.findByIdAndUpdate(lessonId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!lesson) {
+    return next(new AppError("Lesson not found", 404));
+  }
+
+  // Log the update
+  await ActivityLog.create({
+    adminId: req.userId,
+    actionType: "LESSON_UPDATED",
+    targetId: lessonId,
+    targetType: "LESSON",
+    newValue: updateData,
+    reason: "Updated via admin panel",
+    ipAddress: req.ip,
+  });
+
+  sendJsonResponse(res, 200, "Lesson updated", { lesson });
+});
+
+const updateModule = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+  const updateData = req.body;
+
+  const module = await Module.findByIdAndUpdate(moduleId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!module) {
+    return next(new AppError("Module not found", 404));
+  }
+
+  // Log the update
+  await ActivityLog.create({
+    adminId: req.userId,
+    actionType: "MODULE_UPDATED",
+    targetId: moduleId,
+    targetType: "MODULE",
+    newValue: updateData,
+    reason: "Updated via admin panel",
+    ipAddress: req.ip,
+  });
+
+  sendJsonResponse(res, 200, "Module updated", { module });
+});
+
+const getContentStats = catchAsync(async (req, res, next) => {
+  const [totalLessons, publishedLessons, totalModules, publishedModules] =
+    await Promise.all([
+      Lesson.countDocuments(),
+      Lesson.countDocuments({ isPublished: true }),
+      Module.countDocuments(),
+      Module.countDocuments({ isPublished: true }),
+    ]);
+
+  sendJsonResponse(res, 200, "Content stats retrieved", {
+    totalLessons,
+    publishedLessons,
+    draftLessons: totalLessons - publishedLessons,
+    totalModules,
+    publishedModules,
+    draftModules: totalModules - publishedModules,
+  });
+});
+
 module.exports = {
+  toggleAdminStatus,
+  getAdmins,
   getAdminStats,
   searchUsers,
   adjustUserXp,
   getFlaggedContent,
+  getFlagStats,
   updateUserStatus,
+  getUserDetails,
   getUserActivity,
   overrideUserProgress,
   getActivityLogs,
   resolveFlag,
+  getSettings,
+  updateSettings,
+  getAllLessons,
+  getAllModules,
+  updateLesson,
+  updateModule,
+  getContentStats,
 };

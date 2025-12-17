@@ -1,8 +1,7 @@
-// Navbar.jsx
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth, useTheme } from "../../context";
-import { BookOpen, User, LogOut, Home } from "lucide-react";
+import { BookOpen, User, LogOut, Home, Shield } from "lucide-react";
 
 const Navbar = memo(function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -38,6 +37,24 @@ const Navbar = memo(function Navbar() {
                 <BookOpen className="w-5 h-5" />
                 <span>Learn</span>
               </Link>
+
+              {/* Admin Link - Only show for admin users */}
+              {user?.isAdmin && (
+                <Link
+                  to="/admin"
+                  className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded relative group"
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Admin</span>
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+
+                  {/* Tooltip */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                    Admin Dashboard
+                  </div>
+                </Link>
+              )}
+
               <Link
                 to="/profile"
                 className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"

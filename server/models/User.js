@@ -180,4 +180,35 @@ UserSchema.statics.findByCredential = function (credential) {
   }).select("+password");
 };
 
+// Add virtuals for calculated fields
+UserSchema.virtual("badgesCount").get(function () {
+  return this.badges?.length || 0;
+});
+
+UserSchema.virtual("completedLessonsCount").get(function () {
+  return this.completedLessons?.length || 0;
+});
+
+UserSchema.virtual("completedModulesCount").get(function () {
+  return this.completedModules?.length || 0;
+});
+
+UserSchema.virtual("totalLearningHours").get(function () {
+  return (this.totalLearningTime || 0) / 3600; // Convert seconds to hours
+});
+
+UserSchema.virtual("totalSessionHours").get(function () {
+  return (this.totalSessionTime || 0) / 60; // Convert minutes to hours
+});
+
+UserSchema.virtual("avgSessionMinutes").get(function () {
+  return this.loginCount > 0
+    ? (this.totalSessionTime / this.loginCount).toFixed(1)
+    : 0;
+});
+
+// Enable virtuals in toJSON and toObject
+UserSchema.set("toJSON", { virtuals: true });
+UserSchema.set("toObject", { virtuals: true });
+
 module.exports = mongoose.model("User", UserSchema);

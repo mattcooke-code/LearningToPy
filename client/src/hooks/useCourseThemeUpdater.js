@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useTheme, apiClient } from "../context";
 
 const DEFAULT_PATHS = ["/", "/login", "/register"];
+const ADMIN_PREFIX = "/admin";
 
 export const useCourseThemeUpdater = (apiClient, isAuthenticated) => {
   const location = useLocation();
@@ -12,8 +13,11 @@ export const useCourseThemeUpdater = (apiClient, isAuthenticated) => {
   useEffect(() => {
     const pathname = location.pathname;
 
-    // Check if current path is default color
-    if (DEFAULT_PATHS.includes(pathname)) {
+    // Check if current path should use default theme
+    const isDefaultPath =
+      DEFAULT_PATHS.includes(pathname) || pathname.startsWith(ADMIN_PREFIX);
+
+    if (isDefaultPath) {
       setDefaultTheme();
       return;
     }

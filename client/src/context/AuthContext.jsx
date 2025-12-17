@@ -93,14 +93,21 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem("accessToken");
 
       if (newAccessToken) {
+        if (isRememberMe) {
+          localStorage.setItem("accessToken", newAccessToken);
+        } else {
+          sessionStorage.setItem("accessToken", newAccessToken);
+        }
+
         const authHeader = `Bearer ${newAccessToken}`;
-        // Set the header on both clients for consistency
         apiClient.defaults.headers.common["Authorization"] = authHeader;
         authApiClient.defaults.headers.common["Authorization"] = authHeader;
+        adminApiClient.defaults.headers.common["Authorization"] = authHeader;
       } else {
         // Clear the header on logout
         delete apiClient.defaults.headers.common["Authorization"];
         delete authApiClient.defaults.headers.common["Authorization"];
+        delete adminApiClient.defaults.headers.common["Authorization"];
       }
 
       setAuthError(null);
@@ -115,6 +122,11 @@ export const AuthProvider = ({ children }) => {
       return { ...prevUser, ...newUserData };
     });
   });
+
+  // Admin status
+  const isUserAdmin = useCallback(() => {
+    return user?.isAdmin === true;
+  }, [user]);
 
   // Logout Function
 
@@ -341,57 +353,63 @@ export const AuthProvider = ({ children }) => {
 
   // Initial user profile fetch
   const fetchUserProfile = useCallback(async () => {
+    console.log("🔍 fetchUserProfile called");
+    console.log("🔍 Current user:", user);
+
     if (user) {
+      console.log("✅ User already exists, skipping fetch");
       setLoading(false);
       return;
     }
 
-    setAuthError(null);
     const storedAccessToken = getStoredAccessToken();
+    console.log("🔍 Stored token exists:", !!storedAccessToken);
 
     if (!storedAccessToken) {
+      console.log("❌ No stored token, skipping fetch");
       setLoading(false);
       return;
     }
 
     try {
-      const decodedToken = jwtDecode(storedAccessToken);
-      const tokenExpiry = decodedToken.exp * 1000;
-      const timeUntilExpiry = tokenExpiry - Date.now();
+      console.log("📡 Fetching user profile...");
+      setLoading(true);
 
-      // If token expires in less than 5 seconds, refresh immediately
-      if (timeUntilExpiry < 5000) {
-        console.warn("Token about to expire, refreshing...");
-        await refreshAuthToken();
-      } else {
-        // Token is valid, fetch user profile
-        apiClient.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${storedAccessToken}`;
+      const authHeader = `Bearer ${storedAccessToken}`;
+      apiClient.defaults.headers.common["Authorization"] = authHeader;
+      adminApiClient.defaults.headers.common["Authorization"] = authHeader;
 
-        const response = await apiClient.get("/auth/user");
-        const { user: userData } = response.data;
+      const response = await apiClient.get("/auth/user");
+      console.log("✅ Profile fetch successful:", response.data);
 
-        const isRememberMe = !!localStorage.getItem("accessToken");
-        setAuthData(userData, storedAccessToken, isRememberMe);
-        showToast("Welcome back!", "info");
-      }
+      const { user: userData } = response.data;
+
+      setAuthData(
+        userData,
+        storedAccessToken,
+        !!localStorage.getItem("accessToken")
+      );
+      showToast("Welcome back!", "info");
     } catch (err) {
-      console.error("🔐 Failed to fetch user profile on load:", err);
+      console.error("❌ Profile fetch failed:", err);
+      console.error("❌ Error response:", err.response?.data);
+      console.error("❌ Error status:", err.response?.status);
 
-      // Try to refresh the token
-      try {
-        await refreshAuthToken();
-      } catch (refreshError) {
-        console.error("Failed to refresh on initial load:", refreshError);
-        if (!logoutInitiated.current) {
-          logout("Authentication error. Please log in again.");
-        }
+      // If it's a 401, the interceptor should handle it
+      // If we reach here after interceptor, something went wrong
+      if (err.response?.status === 401) {
+        console.log("⚠️ 401 error - should have been handled by interceptor");
       }
+
+      // Clean up on non-401 errors or after interceptor fails
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+      setAuthData(null, null);
     } finally {
+      console.log("🏁 Profile fetch complete");
       setLoading(false);
     }
-  }, [setAuthData, refreshAuthToken, logout, showToast, user]);
+  }, [setAuthData, showToast, user]);
 
   // Initial Token Validation & User Load
   useEffect(() => {
@@ -470,9 +488,9 @@ export const AuthProvider = ({ children }) => {
   // Admin Interceptors
   adminApiClient.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      const currentAccessToken = getStoredAccessToken();
+      if (currentAccessToken) {
+        config.headers.Authorization = `Bearer ${currentAccessToken}`;
       }
       return config;
     },
@@ -481,10 +499,52 @@ export const AuthProvider = ({ children }) => {
 
   adminApiClient.interceptors.response.use(
     (response) => response,
-    (error) => {
-      if (error.response?.status === 403) {
-        window.location.href = "/";
+    async (error) => {
+      const originalRequest = error.config;
+
+      if (logoutInitiated.current) {
+        return Promise.reject(error);
       }
+
+      if (error.response?.status === 403) {
+        console.warn("User is not admin. Redirecting...");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1000);
+        return Promise.reject(new Error("Admin access required"));
+      }
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          const newAccessToken = await refreshAuthToken();
+
+          if (newAccessToken) {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return adminApiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          return Promise.reject(refreshError);
+        }
+      }
+
+      if (error.response) {
+        const { status, data } = error.response;
+
+        switch (status) {
+          case 404:
+            error.message = data?.message || "Admin resource not found";
+            break;
+          case 429:
+            error.message = "Too many admin requests. Please slow down.";
+            break;
+          case 500:
+            error.message = "Admin server error. Please try again later.";
+            break;
+        }
+      }
+
       return Promise.reject(error);
     }
   );
@@ -505,6 +565,7 @@ export const AuthProvider = ({ children }) => {
     updateUser,
     leaderboardVersion,
     triggerLeaderboardRefresh,
+    isUserAdmin,
   };
 
   return (

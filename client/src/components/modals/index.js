@@ -1,3 +1,10 @@
 export { default as BadgeModal } from "./BadgeModal";
+export { default as BaseModal } from "./BaseModal";
+export { default as FlagResolutionModal } from "./FlagResolutionModal";
 export { default as FullLeaderboardModal } from "./FullLeaderboardModal";
+export { default as LessonEditorModal } from "./LessonEditorModal";
+export { default as ModuleEditorModal } from "./ModuleEditorModal";
 export { default as ModuleLeaderboardModal } from "./ModuleLeaderboardModal";
+export { default as ProgressOverrideModal } from "./ProgressOverrideModal";
+export { default as UserDetailModal } from "./UserDetailModal";
+export { default as XPAdjustmentModal } from "./XPAdjustmentModal";
