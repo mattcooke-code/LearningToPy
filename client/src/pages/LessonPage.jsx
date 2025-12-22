@@ -9,8 +9,7 @@ import {
   LessonContent,
   LessonNavigation,
 } from "../components/lesson";
-import { getErrorMessage } from "../utils/getErrorMessage";
-import { calculateNextLessonManually } from "../utils/lessonCalculations";
+import { getErrorMessage, calculateNextLessonManually } from "../utils";
 
 const LessonPage = () => {
   const { id: lessonId } = useParams();

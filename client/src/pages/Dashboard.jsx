@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
-import { useThemeStyles } from "../hooks/useThemeStyles";
+import { useThemeStyles } from "../hooks";
 import {
   ProgressGauge,
   BackToTopButton,

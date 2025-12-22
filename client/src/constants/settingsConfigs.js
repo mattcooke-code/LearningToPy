@@ -2,33 +2,13 @@
 export const SETTINGS_CONFIGS = {
   general: [
     {
-      key: "maxFileSize",
-      label: "Max File Size (MB)",
-      type: "number",
-      options: { min: 1, max: 100 },
-      description: "Maximum file size for exercise submissions",
-    },
-    {
       key: "maxAvatarSize",
       label: "Max Avatar Size (MB)",
       type: "number",
       options: { min: 0.1, max: 10, step: 0.1 },
       description: "Maximum avatar image size",
     },
-    {
-      key: "sessionTimeout",
-      label: "Session Timeout (minutes)",
-      type: "number",
-      options: { min: 5, max: 1440 },
-      description: "Inactive session timeout duration",
-    },
-    {
-      key: "maxLoginAttempts",
-      label: "Max Login Attempts",
-      type: "number",
-      options: { min: 1, max: 10 },
-      description: "Failed login attempts before lockout",
-    },
+
     {
       key: "defaultDifficulty",
       label: "Default Difficulty",
@@ -196,25 +176,34 @@ export const SETTINGS_CONFIGS = {
       type: "toggle",
       description: "Allow users to enable 2FA",
     },
+  ],
+  advanced: [
     {
       key: "logIpAddresses",
       label: "Log IP Addresses",
       type: "toggle",
       description: "Log user IPs for security audit",
     },
-  ],
-  advanced: [
     {
-      key: "previewMode",
-      label: "Content Preview Mode",
-      type: "toggle",
-      description: "Allow preview of unpublished content",
+      key: "sessionTimeout",
+      label: "Session Timeout (minutes)",
+      type: "number",
+      options: { min: 5, max: 1440 },
+      description: "Inactive session timeout duration",
     },
     {
-      key: "autoPublishNewContent",
-      label: "Auto-Publish New Content",
-      type: "toggle",
-      description: "Automatically publish new lessons/modules",
+      key: "maxLoginAttempts",
+      label: "Max Login Attempts",
+      type: "number",
+      options: { min: 1, max: 10 },
+      description: "Failed login attempts before lockout",
+    },
+    {
+      key: "maxFileSize",
+      label: "Max File Size (MB)",
+      type: "number",
+      options: { min: 1, max: 100 },
+      description: "Maximum file size for exercise submissions",
     },
   ],
 };

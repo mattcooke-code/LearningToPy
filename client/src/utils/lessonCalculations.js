@@ -1,4 +1,4 @@
-// utils/lessonCalculations.js
+// /client/src/utils/lessonCalculations.js
 import { apiClient } from "../context";
 import { calculateModuleLessonProgress } from "./progressCalculations";
 

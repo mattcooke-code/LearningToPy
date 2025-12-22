@@ -1,6 +1,7 @@
 // useThemeColor.js
 import { useLocation } from "react-router-dom";
 import { useTheme } from "../context";
+import { PYTHON_BLUE } from "../constants/themeConstants";
 
 /**
  * Hook to get the appropriate theme color for the current page
@@ -17,7 +18,6 @@ export const useThemeColor = () => {
   const { themeColor } = useTheme();
 
   const pathname = location.pathname;
-  const PYTHON_BLUE = "#3776AB";
 
   // Python blue override for default pages
 

@@ -44,8 +44,8 @@ const getPlatformAnalytics = catchAsync(async (req, res, next) => {
     }),
     Lesson.countDocuments({ isPublished: true }),
     Module.countDocuments({ isPublished: true }),
-    User.aggregate([{ $unwind: "$completedLessons" }, { count: "total" }]),
-    User.aggregate([{ $group: { _id: null, total: { sum: "$xp" } } }]),
+    User.aggregate([{ $unwind: "$completedLessons" }, { $count: "total" }]),
+    User.aggregate([{ $group: { _id: null, total: { $sum: "$xp" } } }]),
   ]);
 
   // Get daily activity for the selected range

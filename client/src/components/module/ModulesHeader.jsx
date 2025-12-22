@@ -1,6 +1,6 @@
 // components/ModulesHeader.jsx
 import { useTheme } from "../../context";
-import { calculateModulesCompletionProgress } from "../../utils/progressCalculations";
+import { calculateModulesCompletionProgress } from "../../utils";
 
 const ModulesHeader = ({ completedModules, totalModules }) => {
   const { themeColor } = useTheme();

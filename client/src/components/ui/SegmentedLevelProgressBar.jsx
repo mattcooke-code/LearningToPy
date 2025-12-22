@@ -1,5 +1,5 @@
 import { useTheme } from "../../context";
-import { calculateLevelProgress } from "../../utils/progressCalculations";
+import { calculateLevelProgress } from "../../utils";
 
 const SegmentedLevelProgressBar = ({
   currentXP,

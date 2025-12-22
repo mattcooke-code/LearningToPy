@@ -9,14 +9,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const path = require("path");
 const config = require("./config/envConfig");
-// --- IMPORT ERROR HANDLING ---
+
+// Error handling
 const AppError = require("./utils/AppError");
 const { sendJsonResponse } = require("./utils/responseHelpers");
 const errorHandler = require("./middleware/errorHandler");
 
-// --- IMPORT ROUTES ---
+// Routes
 const adminRoutes = require("./routes/admin");
 const authRoutes = require("./routes/auth");
 const progressRoutes = require("./routes/progress");
@@ -24,7 +24,7 @@ const contentRoutes = require("./routes/content");
 
 const app = express();
 
-// --- MIDDLEWARE ---
+// Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(
@@ -34,7 +34,7 @@ app.use(
   })
 );
 
-// --- DATABASE ---
+// Database
 const connectDB = async () => {
   try {
     await mongoose.connect(config.getDatabaseUri());
@@ -47,7 +47,7 @@ const connectDB = async () => {
 
 connectDB();
 
-// --- ROUTES ---
+// Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/progress", progressRoutes);
@@ -55,23 +55,38 @@ app.use("/api/content", contentRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
-  sendJsonResponse(res, 200, "Server is running!");
+  sendJsonResponse(res, 200, "OK", {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()),
+  });
 });
 
-// Favicon requests
+// Favicon
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-// --- UNHANDLED ROUTES (404) ---
+// 404 handler
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// --- GLOBAL ERROR HANDLER ---
+// Global error handler (MUST be last)
 app.use(errorHandler);
 
-// --- START SERVER ---
+// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📝 Environment: ${config.getNodeEnv()}`);
+});
+
+// Handle process-level errors
+process.on("unhandledRejection", (err) => {
+  console.error("❌ Unhandled Promise Rejection:", err);
+  server.close(() => process.exit(1));
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("❌ Uncaught Exception:", err);
+  process.exit(1);
 });

@@ -1,7 +1,9 @@
 //colorUtilities.js
 
+import { PYTHON_BLUE, PYTHON_YELLOW } from "../constants/themeConstants";
+
 export const THEME_COLORS = {
-  DEFAULT: "#3776AB", // Python blue
+  DEFAULT: PYTHON_BLUE, // Python blue
   RED: "#ef4444", // 0-25%
   ORANGE: "#f97316", // 25-40%
   AMBER: "#fb923c", // 40-55% - NEW: light orange/amber
@@ -11,7 +13,7 @@ export const THEME_COLORS = {
 };
 
 export const THEME_HOVER_COVERS = {
-  DEFAULT: "#ffd43b", // Python yellow
+  DEFAULT: PYTHON_YELLOW, // Python yellow
   RED: "#d73d3d",
   ORANGE: "#e06c14",
   AMBER: "#ea8029", // NEW: darker amber for hover

@@ -1,42 +1,43 @@
 // platformDefaults.js
-
 export const PLATFORM_DEFAULTS = {
-  // Theme Settings
-  themeColor: "#3b82f6",
+  // General Settings (from general tab)
+  maxFileSize: 10, // MB
+  maxAvatarSize: 2, // MB
+  sessionTimeout: 60, // minutes
+  maxLoginAttempts: 5,
+  defaultDifficulty: "beginner",
+  maxLessonsPerModule: 6,
+
+  // Theme Settings (from theme tab)
+  themeColor: "#3b82f6", // blue-500
   codeTheme: "dark",
   defaultTheme: "system",
 
-  // Gamification Constants
+  // Gamification Settings (from gamification tab)
   xpPerLevel: 100,
   moduleXpBonus: 500,
   streakBonusMultiplier: 1.5,
   dailyStreakReward: 50,
   weeklyChallengeBonus: 1000,
 
-  // Platform Settings
-  maxFileSize: 10, //MB
-  maxAvatarSize: 2, //MB
-  sessionTimeout: 60,
-  maxLoginAttempts: 5,
-
-  // Feature Flags
+  // Feature Settings (from features tab)
   enableLeaderboards: true,
   enableBadges: true,
   enableStreaks: true,
   enableChallenges: true,
   enableComments: true,
-  maintenanceMode: false,
   allowRegistrations: true,
-
-  // Content Settings
-  defaultDifficulty: "beginner",
-  maxLessonsPerModule: 6,
+  maintenanceMode: false,
   previewMode: false,
   autoPublishNewContent: false,
 
-  // Security Settings
+  // Security Settings (from security tab)
   requireEmailVerification: false,
   requireStrongPassword: true,
   enable2FA: false,
   logIpAddresses: true,
+
+  // Advanced Settings (from advanced tab)
+  // Note: previewMode and autoPublishNewContent are duplicates from features
+  // They should be the same setting, not separate ones
 };

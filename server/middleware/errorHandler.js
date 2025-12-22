@@ -1,35 +1,47 @@
 // errorHandler.js
 const AppError = require("../utils/AppError");
+const { sendJsonResponse } = require("../utils/responseHelpers");
 
-const sendErrorDev = (err, res) => {
-  console.error("Error 💥", err);
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
-  });
-};
-
-const sendErrorProd = (err, res) => {
-  if (err.isOperational) {
-    res
-      .status(err.statusCode)
-      .json({ status: err.status, message: err.message });
-  } else {
-    console.error("ERROR 💥", err);
-    res.status(500).json({ status: "error", message: "Something went wrong!" });
-  }
-};
-
-module.exports = (err, req, res, next) => {
+const globalErrorHandler = (err, req, res, next) => {
+  // Ensure every error has a statusCode
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
+  // Operational errors = trusted errors (e.g., validation, auth)
+  // Programming errors = bugs (e.g., undefined function, DB crash)
   if (process.env.NODE_ENV === "development") {
-    sendErrorDev(err, res);
+    // In development: log full error + send debug details
+    console.error("Error 💥", err);
+
+    sendJsonResponse(
+      res,
+      err.statusCode,
+      err.message,
+      {}, // No data on error
+      err // This becomes `debug_error` in development
+    );
   } else {
-    sendErrorProd(err, res);
+    // In production: only send operational errors to client
+    if (err.isOperational) {
+      sendJsonResponse(
+        res,
+        err.statusCode,
+        err.message,
+        {} // No data on error
+        // No debugDetails in production
+      );
+    } else {
+      // Log programming errors (never expose to client)
+      console.error("CRITICAL ERROR 💥", err);
+
+      sendJsonResponse(
+        res,
+        500,
+        "Something went wrong!",
+        {} // Generic message, no details
+      );
+    }
   }
 };
+
+module.exports = globalErrorHandler;

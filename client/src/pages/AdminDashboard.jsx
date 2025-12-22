@@ -1,75 +1,53 @@
 // AdminDashboard.jsx
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useNotification, adminApiClient } from "../context";
+import { adminApiClient } from "../context";
 import {
   AdminPage,
   AdminStatsCard,
   FlaggedContentList,
 } from "../components/admin";
-import useAdminData from "../hooks/useAdminData";
-import { RefreshCw } from "lucide-react";
+import { RefreshButton } from "../components/ui";
+import { useAdminData } from "../hooks";
 
 const AdminDashboard = () => {
-  const [retryCount, setRetryCount] = useState(0);
-  const { showToast } = useNotification();
   const navigate = useNavigate();
 
   const fetchDashboardData = async () => {
-    const [statsResponse, usersResponse] = await Promise.all([
+    // Raw responses - let the hook do the work
+    return await Promise.all([
       adminApiClient.get("/stats"),
       adminApiClient.get("/users/search?limit=5"),
     ]);
-
-    const statsData = statsResponse.data.data || statsResponse.data || {};
-    const usersData =
-      usersResponse.data.data?.users || usersResponse.data?.users || [];
-
-    return {
-      stats: {
-        totalUsers: statsData.totalUsers || 0,
-        activeUsers: statsData.activeUsers || 0,
-        totalLessons: statsData.totalLessons || 0,
-        publishedLessons: statsData.publishedLessons || 0,
-        flaggedContent: statsData.flaggedContent || statsData.pendingFlags || 0,
-      },
-      recentUsers: usersData,
-    };
   };
 
-  const { data, loading, error, refetch } = useAdminData(fetchDashboardData, [
-    retryCount,
-  ]);
-
-  const handleRetry = () => {
-    setRetryCount((prev) => prev + 1);
-  };
+  const { data, loading, error, refetch } = useAdminData(
+    fetchDashboardData,
+    [],
+    { autoRetry: true, maxRetries: 3 }
+  );
 
   if (loading || error || !data) {
     return (
       <AdminPage
         title="Admin Dashboard"
         description="Monitor and manage your learning platform"
-        loading={loading}
-        error={error}
-        onRetry={handleRetry}
-        headerAction={
-          <button
-            onClick={refetch}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </button>
-        }
-      >
-        {/* Empty children while loading/error */}
-        <div />
-      </AdminPage>
+        headerAction={<RefreshButton onClick={refetch} />}
+      ></AdminPage>
     );
   }
 
-  const { stats, recentUsers } = data;
+  const [statsData, usersData] = data;
+
+  const stats = {
+    totalUsers: statsData.totalUsers || 0,
+    activeUsers: statsData.activeUsers || 0,
+    totalLessons: statsData.totalLessons || 0,
+    publishedLessons: statsData.publishedLessons || 0,
+    flaggedContent: statsData.flaggedContent || statsData.pendingFlags || 0,
+  };
+
+  const recentUsers = usersData?.users || [];
+
   const publishedPercentage =
     stats.totalLessons > 0
       ? Math.round((stats.publishedLessons / stats.totalLessons) * 100)
@@ -79,15 +57,7 @@ const AdminDashboard = () => {
     <AdminPage
       title="Admin Dashboard"
       description="Monitor and manage your learning platform"
-      headerAction={
-        <button
-          onClick={refetch}
-          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </button>
-      }
+      headerAction={<RefreshButton onClick={refetch} />}
     >
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

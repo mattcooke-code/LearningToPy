@@ -20,19 +20,109 @@ import SaveStatusIndicator from "./SaveStatusIndicator";
 import { Spinner, LoadingState, ErrorState } from "../ui";
 
 // Hooks & Utilities
-import useSettingsManager from "../../hooks/useSettingsManager";
-import { renderTabSpecificContent } from "../../utils/tabContentRenderer";
+
+import {
+  useAdminData,
+  useAdminMutation,
+  useSettingsManager,
+} from "../../hooks";
+import { useConfirmActions } from "../../utils";
+import { AdminTabPreview } from "./AdminTabPreview";
 import { SETTINGS_CONFIGS, ADMIN_TABS } from "../../constants/settingsConfigs";
 
 const AdminSettingsPanel = () => {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [error, setError] = useState(null);
-
-  const { showConfirm } = useNotification();
+  const { showToast } = useNotification();
+  const { confirmReset, confirmAction } = useConfirmActions();
   const settingsManager = useSettingsManager();
+
+  const {
+    data: fetchedSettings,
+    loading,
+    error,
+    refetch,
+  } = useAdminData(() => adminApiClient.get("/settings"), [], {
+    defaultErrorMessage: "Failed to load settings",
+  });
+
+  const saveMutation = useAdminMutation(
+    async (changedSettings) => {
+      const response = await adminApiClient.patch("/settings", {
+        changes: changedSettings,
+      });
+      return response.data;
+    },
+    {
+      successAction: "save",
+      successResource: "settings",
+      defaultErrorMessage: "Failed to save settings",
+    }
+  );
+
+  // Load fetched settings into manager
+  useEffect(() => {
+    if (fetchedSettings) {
+      settingsManager.loadSettings(fetchedSettings);
+    }
+  }, [fetchedSettings]);
+
+  const handleSave = async () => {
+    if (!settingsManager.hasChanges) return;
+
+    // Validation
+    const validationErrors = [];
+    if (settingsManager.changes.xpPerLevel <= 0) {
+      validationErrors.push("XP per level must be greater than 0.");
+    }
+    if (settingsManager.changes.moduleXpBonus < 0) {
+      validationErrors.push("Module XP bonus cannot be negative.");
+    }
+
+    if (validationErrors.length > 0) {
+      validationErrors.forEach((error) => showToast(error, "error"));
+      return;
+    }
+
+    try {
+      const changedSettings = settingsManager.getChangedSettings();
+      await saveMutation.mutate(changedSettings);
+
+      settingsManager.resetChanges();
+
+      // Notify about theme changes
+      if (
+        settingsManager.changes.themeColor ||
+        settingsManager.changes.codeTheme ||
+        settingsManager.changes.defaultTheme
+      ) {
+        showToast(
+          "Theme changes may require a page refresh to take effect",
+          "info"
+        );
+      }
+    } catch (err) {}
+  };
+
+  const handleReset = async () => {
+    const confirmed = await confirmReset();
+    if (confirmed) {
+      refetch();
+    }
+  };
+
+  const resetToDefaults = async () => {
+    const confirmed = await confirmAction(
+      "Reset All Settings",
+      "Reset all settings to default values? This will affect all users.",
+      "Reset to Defaults"
+    );
+
+    if (confirmed) {
+      settingsManager.resetToDefaults();
+      showToast("Settings reset to defaults (not yet saved).", "info");
+    }
+  };
 
   const iconMap = {
     Globe,
@@ -43,101 +133,12 @@ const AdminSettingsPanel = () => {
     Code,
   };
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await adminApiClient.get("/settings");
-      const newSettings = response.data.data || {};
-
-      // Load settings into the manager
-      settingsManager.loadSettings(newSettings);
-    } catch (err) {
-      setError("Failed to load settings. Please try again.");
-      console.error("Settings fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!settingsManager.hasChanges) return;
-
-    try {
-      setSaving(true);
-      setError(null);
-
-      // Validation
-      const validationErrors = [];
-      if (settingsManager.changes.xpPerLevel <= 0) {
-        validationErrors.push("XP per level must be greater than 0.");
-      }
-      if (settingsManager.changes.moduleXpBonus < 0) {
-        validationErrors.push("Module XP bonus cannot be negative.");
-      }
-
-      if (validationErrors.length > 0) {
-        validationErrors.forEach((error) => showConfirm(error, "error"));
-        return;
-      }
-
-      const changedSettings = settingsManager.getChangedSettings();
-      await adminApiClient.patch("/settings", { changes: changedSettings });
-
-      showConfirm("Settings saved successfully.", "success");
-      settingsManager.resetChanges();
-
-      // Notify about theme changes
-      if (
-        settingsManager.changes.themeColor ||
-        settingsManager.changes.codeTheme ||
-        settingsManager.changes.defaultTheme
-      ) {
-        showConfirm(
-          "Theme changes may require a page refresh to take effect",
-          "info"
-        );
-      }
-    } catch (err) {
-      setError("Failed to save settings. Please try again.");
-      console.error("Settings save error:", err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleReset = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to reset all changes? This cannot be undone."
-      )
-    ) {
-      fetchSettings();
-    }
-  };
-
-  const resetToDefaults = () => {
-    if (
-      window.confirm(
-        "Reset all settings to default values? This will affect all users."
-      )
-    ) {
-      settingsManager.resetToDefaults();
-      showConfirm("Settings reset to defaults (not yet saved).", "info");
-    }
-  };
-
   if (loading) {
     return <LoadingState message="Loading settings..." />;
   }
 
   if (error) {
-    return <ErrorState error={error} onBack={() => window.location.reload()} />;
+    return <ErrorState error={error} onRetry={refetch} />;
   }
 
   return (
@@ -164,10 +165,10 @@ const AdminSettingsPanel = () => {
           )}
           <button
             onClick={handleSave}
-            disabled={!settingsManager.hasChanges || saving}
+            disabled={!settingsManager.hasChanges || saveMutation.loading}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {saving ? (
+            {saveMutation.loading ? (
               <Spinner
                 size="sm"
                 color="white"
@@ -229,7 +230,10 @@ const AdminSettingsPanel = () => {
             </div>
 
             {/* Additional tab-specific content */}
-            {renderTabSpecificContent(activeTab, settingsManager.settings)}
+            <AdminTabPreview
+              tab={activeTab}
+              settings={settingsManager.settings}
+            />
           </div>
         )}
 
@@ -267,17 +271,18 @@ const AdminSettingsPanel = () => {
             {showAdvanced && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {SETTINGS_CONFIGS.advanced.map((config) => (
-                    <SettingInput
-                      key={config.key}
-                      {...config}
-                      value={settingsManager.settings[config.key]}
-                      onChange={settingsManager.updateSetting}
-                      isChanged={settingsManager.changes.hasOwnProperty(
-                        config.key
-                      )}
-                    />
-                  ))}
+                  {SETTINGS_CONFIGS.advanced.map((config) => {
+                    const { key, ...restConfig } = config;
+                    return (
+                      <SettingInput
+                        key={key}
+                        {...restConfig}
+                        value={settingsManager.settings[key]}
+                        onChange={settingsManager.updateSetting}
+                        isChanged={settingsManager.changes.hasOwnProperty(key)}
+                      />
+                    );
+                  })}
                 </div>
 
                 {/* Danger Zone */}

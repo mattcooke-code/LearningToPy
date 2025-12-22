@@ -1,6 +1,11 @@
+//App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useAuth, apiClient } from "./context";
-import { Footer, Navbar, ProtectedRoute } from "./components/layout";
+import {
+  AdminGuard,
+  Footer,
+  Navbar,
+  ProtectedRoute,
+} from "./components/layout";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import LessonPage from "./pages/LessonPage";
@@ -18,12 +23,11 @@ import AdminFlagged from "./pages/AdminFlagged";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 
-import { useCourseThemeUpdater } from "./hooks/useCourseThemeUpdater";
+import { useCourseThemeUpdater } from "./hooks";
+import { AdminLayout } from "./components/admin";
 
 function App() {
-  const { isAuthenticated } = useAuth();
-
-  useCourseThemeUpdater(apiClient, isAuthenticated);
+  useCourseThemeUpdater();
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex flex-col">
@@ -34,7 +38,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
           {/* PROTECTED */}
           <Route
             path="/dashboard"
@@ -76,66 +79,23 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* ADMIN ROUTES */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
+              <AdminGuard>
+                <AdminLayout />
+              </AdminGuard>
             }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute>
-                <AdminUsers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/content"
-            element={
-              <ProtectedRoute>
-                <AdminContentPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/flagged"
-            element={
-              <ProtectedRoute>
-                <AdminFlagged />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/analytics"
-            element={
-              <ProtectedRoute>
-                <AdminAnalytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/settings"
-            element={
-              <ProtectedRoute>
-                <AdminSettings />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin detail routes */}
-          <Route
-            path="/admin/users/:userId"
-            element={
-              <ProtectedRoute>
-                <AdminUsers />
-              </ProtectedRoute>
-            }
-          />
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="users/:userId" element={<AdminUsers />} />
+            <Route path="content" element={<AdminContentPage />} />
+            <Route path="flagged" element={<AdminFlagged />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
         </Routes>
       </main>
       <Footer />

@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const NotificationContext = createContext();
@@ -123,7 +129,14 @@ export const NotificationProvider = ({ children }) => {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
-  const value = { showToast, showConfirm, closeConfirm };
+  const value = useMemo(
+    () => ({
+      showToast,
+      showConfirm,
+      closeConfirm,
+    }),
+    [showToast, showConfirm, closeConfirm]
+  );
 
   return (
     <NotificationContext.Provider value={value}>

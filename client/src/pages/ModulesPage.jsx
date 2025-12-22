@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { apiClient, useAuth } from "../context";
 import { BackToTopButton, LoadingState, ErrorState } from "../components/ui";
 import { ModulesHeader, ModulesGrid, ModulesStats } from "../components/module";
-import { getErrorMessage } from "../utils/getErrorMessage";
+import { getErrorMessage } from "../utils";
 
 const ModulesPage = () => {
   const { user } = useAuth();

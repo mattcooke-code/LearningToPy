@@ -1,4 +1,4 @@
-// AuthContext.jsx (Improved with failedQueue and isRefreshing)
+// AuthContext.jsx - Cleaned version
 import {
   createContext,
   useContext,
@@ -8,28 +8,25 @@ import {
   useRef,
 } from "react";
 import axios from "axios";
-import { useNotification } from "../context";
+import { useNotification } from "../context/NotificationContext";
 import { jwtDecode } from "jwt-decode";
-import { getErrorMessage } from "../utils/getErrorMessage";
+import { getErrorMessage } from "../utils";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 // --- AXIOS INSTANCES ---
-// Main API client for authenticated requests
 export const apiClient = axios.create({
   baseURL: `${BACKEND_URL}/api`,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
-// Separate client for auth endpoints to avoid interceptor loops
 export const authApiClient = axios.create({
   baseURL: BACKEND_URL,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
-// Admin-specific API client
 export const adminApiClient = axios.create({
   baseURL: `${BACKEND_URL}/api/admin`,
   headers: { "Content-Type": "application/json" },
@@ -74,6 +71,19 @@ export const AuthProvider = ({ children }) => {
     failedQueue.current = [];
   }, []);
 
+  // Decode token to check expiration
+  const isTokenValid = useCallback((token) => {
+    if (!token) return false;
+
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      return decoded.exp > currentTime;
+    } catch {
+      return false;
+    }
+  }, []);
+
   // Update Auth State
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
@@ -92,7 +102,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("accessToken");
       sessionStorage.removeItem("accessToken");
 
-      if (newAccessToken) {
+      if (newAccessToken && isTokenValid(newAccessToken)) {
         if (isRememberMe) {
           localStorage.setItem("accessToken", newAccessToken);
         } else {
@@ -104,7 +114,6 @@ export const AuthProvider = ({ children }) => {
         authApiClient.defaults.headers.common["Authorization"] = authHeader;
         adminApiClient.defaults.headers.common["Authorization"] = authHeader;
       } else {
-        // Clear the header on logout
         delete apiClient.defaults.headers.common["Authorization"];
         delete authApiClient.defaults.headers.common["Authorization"];
         delete adminApiClient.defaults.headers.common["Authorization"];
@@ -112,16 +121,16 @@ export const AuthProvider = ({ children }) => {
 
       setAuthError(null);
     },
-    []
+    [isTokenValid]
   );
 
-  // Privacy Settings
+  // Update user
   const updateUser = useCallback((newUserData) => {
     setUser((prevUser) => {
       if (!prevUser) return newUserData;
       return { ...prevUser, ...newUserData };
     });
-  });
+  }, []);
 
   // Admin status
   const isUserAdmin = useCallback(() => {
@@ -129,7 +138,6 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   // Logout Function
-
   const logout = useCallback(
     async (message = null) => {
       if (logoutInitiated.current) {
@@ -137,63 +145,53 @@ export const AuthProvider = ({ children }) => {
       }
 
       logoutInitiated.current = true;
-      console.log("🚪 Initiating logout...");
-
       setLoading(true);
-      setAuthError(null); // Reset theme if function exists
+      setAuthError(null);
 
       if (window.resetTheme) window.resetTheme();
 
       try {
-        // --- START: 401 FIX CODE ---
-        const currentAccessToken = getStoredAccessToken(); // Only attach the header if we have a token
-
+        const currentAccessToken = getStoredAccessToken();
         if (currentAccessToken) {
           authApiClient.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${currentAccessToken}`;
-        } // 1. Attempt API call (must be first!)
+        }
 
         await authApiClient.post("/api/auth/logout");
-        console.log("✅ Logout API call successful (cookie cleared)");
       } catch (err) {
-        console.log(
-          "⚠️ Logout API call failed (token may already be gone):",
-          err.message
-        );
+        // Silent fail - token might already be invalid
       } finally {
-        // 2. Clean up the Authorization header from authApiClient defaults
         delete authApiClient.defaults.headers.common["Authorization"];
-      } // --- END: 401 FIX CODE --- // 3. Client-side cleanup (always happens regardless of API success/failure)
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
-      setAuthData(null, null);
 
-      if (message) {
-        showToast(message, "info");
-      } else {
-        showToast("You have been logged out", "info");
+        localStorage.removeItem("accessToken");
+        sessionStorage.removeItem("accessToken");
+        setAuthData(null, null);
+
+        if (message) {
+          showToast(message, "info");
+        } else {
+          showToast("You have been logged out", "info");
+        }
+
+        setLoading(false);
+        refreshPromise.current = null;
+        failedQueue.current = [];
+        isRefreshing.current = false;
+        logoutInitiated.current = false;
       }
-
-      setLoading(false);
-      refreshPromise.current = null;
-      failedQueue.current = [];
-      isRefreshing.current = false;
-      logoutInitiated.current = false;
     },
     [setAuthData, showToast]
   );
 
   // Refresh Access Token with queue management
   const refreshAuthToken = useCallback(async () => {
-    // If already refreshing, queue this request
     if (isRefreshing.current) {
       return new Promise((resolve, reject) => {
         failedQueue.current.push({ resolve, reject });
       });
     }
 
-    // If we have an active refresh promise, return it
     if (refreshPromise.current) {
       return refreshPromise.current;
     }
@@ -203,11 +201,9 @@ export const AuthProvider = ({ children }) => {
 
     const refreshP = (async () => {
       try {
-        console.log("🔄 Attempting token refresh...");
         const response = await authApiClient.post("/api/auth/refresh-token");
-
         const { accessToken: newAccessToken, user: newUserData } =
-          response.data;
+          response.data.data;
 
         if (!newAccessToken || !newUserData) {
           throw new Error("Invalid refresh response from server");
@@ -215,20 +211,12 @@ export const AuthProvider = ({ children }) => {
 
         const originalRememberMePreference =
           !!localStorage.getItem("accessToken");
-
         setAuthData(newUserData, newAccessToken, originalRememberMePreference);
-
-        console.log("✅ Token refreshed successfully");
         showToast("Session refreshed!", "success");
-
-        // Process all queued requests with new token
         processQueue(null, newAccessToken);
 
         return newAccessToken;
       } catch (refreshError) {
-        console.error("❌ Token refresh failed:", refreshError);
-
-        // Reject all queued requests
         processQueue(refreshError, null);
 
         if (!logoutInitiated.current) {
@@ -261,7 +249,6 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         let errorMessage;
 
-        // Common auth errors
         if (err.response?.status === 429) {
           errorMessage = `Too many ${actionName} attempts. Please wait 15 minutes and try again.`;
         } else if (
@@ -305,7 +292,7 @@ export const AuthProvider = ({ children }) => {
           }),
         (response) => {
           const { accessToken: receivedAccessToken, user: userData } =
-            response.data;
+            response.data.data;
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, rememberMe);
             showToast("Login Successful!", "success");
@@ -332,7 +319,7 @@ export const AuthProvider = ({ children }) => {
           }),
         (response) => {
           const { accessToken: receivedAccessToken, user: userData } =
-            response.data;
+            response.data.data;
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, false);
             showToast(
@@ -353,63 +340,50 @@ export const AuthProvider = ({ children }) => {
 
   // Initial user profile fetch
   const fetchUserProfile = useCallback(async () => {
-    console.log("🔍 fetchUserProfile called");
-    console.log("🔍 Current user:", user);
-
     if (user) {
-      console.log("✅ User already exists, skipping fetch");
       setLoading(false);
       return;
     }
 
     const storedAccessToken = getStoredAccessToken();
-    console.log("🔍 Stored token exists:", !!storedAccessToken);
-
     if (!storedAccessToken) {
-      console.log("❌ No stored token, skipping fetch");
+      setLoading(false);
+      return;
+    }
+
+    // Check token validity before making request
+    if (!isTokenValid(storedAccessToken)) {
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
       setLoading(false);
       return;
     }
 
     try {
-      console.log("📡 Fetching user profile...");
       setLoading(true);
-
       const authHeader = `Bearer ${storedAccessToken}`;
       apiClient.defaults.headers.common["Authorization"] = authHeader;
       adminApiClient.defaults.headers.common["Authorization"] = authHeader;
 
       const response = await apiClient.get("/auth/user");
-      console.log("✅ Profile fetch successful:", response.data);
-
-      const { user: userData } = response.data;
+      const { user: userData } = response.data.data;
 
       setAuthData(
         userData,
         storedAccessToken,
         !!localStorage.getItem("accessToken")
       );
-      showToast("Welcome back!", "info");
     } catch (err) {
-      console.error("❌ Profile fetch failed:", err);
-      console.error("❌ Error response:", err.response?.data);
-      console.error("❌ Error status:", err.response?.status);
-
-      // If it's a 401, the interceptor should handle it
-      // If we reach here after interceptor, something went wrong
-      if (err.response?.status === 401) {
-        console.log("⚠️ 401 error - should have been handled by interceptor");
+      if (err.response?.status !== 401) {
+        // 401 will be handled by interceptor
+        localStorage.removeItem("accessToken");
+        sessionStorage.removeItem("accessToken");
+        setAuthData(null, null);
       }
-
-      // Clean up on non-401 errors or after interceptor fails
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
-      setAuthData(null, null);
     } finally {
-      console.log("🏁 Profile fetch complete");
       setLoading(false);
     }
-  }, [setAuthData, showToast, user]);
+  }, [setAuthData, user, isTokenValid]);
 
   // Initial Token Validation & User Load
   useEffect(() => {
@@ -418,12 +392,11 @@ export const AuthProvider = ({ children }) => {
 
   // Axios Interceptors
   useEffect(() => {
-    // REQUEST Interceptor: Attaches the Access Token
     const requestInterceptor = apiClient.interceptors.request.use(
       (config) => {
         if (!config.headers.Authorization) {
           const currentAccessToken = getStoredAccessToken();
-          if (currentAccessToken) {
+          if (currentAccessToken && isTokenValid(currentAccessToken)) {
             config.headers.Authorization = `Bearer ${currentAccessToken}`;
           }
         }
@@ -432,13 +405,11 @@ export const AuthProvider = ({ children }) => {
       (err) => Promise.reject(err)
     );
 
-    // RESPONSE Interceptor: Handles 401s and Token Renewal
     const responseInterceptor = apiClient.interceptors.response.use(
       (response) => response,
       async (err) => {
         const originalRequest = err.config;
 
-        // Don't retry logout or if already initiated
         if (
           logoutInitiated.current ||
           originalRequest.url?.includes("/auth/logout")
@@ -446,31 +417,16 @@ export const AuthProvider = ({ children }) => {
           return Promise.reject(err);
         }
 
-        // Handle 401 errors with token refresh
         if (err.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
-          console.log(
-            "🔄 Interceptor: Detected 401, attempting token refresh..."
-          );
 
           try {
             const newAccessToken = await refreshAuthToken();
-            console.log(
-              "✅ Interceptor: Refresh successful, token:",
-              newAccessToken
-            );
-
             if (newAccessToken) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-              console.log(
-                "🔄 Interceptor: Retrying original request with new token"
-              );
               return apiClient(originalRequest);
-            } else {
-              throw new Error("No token received from refresh");
             }
-          } catch (refreshError) {
-            console.log("❌ Interceptor refresh failed:", refreshError.message);
+          } catch {
             return Promise.reject(err);
           }
         }
@@ -483,13 +439,13 @@ export const AuthProvider = ({ children }) => {
       apiClient.interceptors.request.eject(requestInterceptor);
       apiClient.interceptors.response.eject(responseInterceptor);
     };
-  }, [refreshAuthToken]);
+  }, [refreshAuthToken, isTokenValid]);
 
   // Admin Interceptors
   adminApiClient.interceptors.request.use(
     (config) => {
       const currentAccessToken = getStoredAccessToken();
-      if (currentAccessToken) {
+      if (currentAccessToken && isTokenValid(currentAccessToken)) {
         config.headers.Authorization = `Bearer ${currentAccessToken}`;
       }
       return config;
@@ -507,7 +463,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (error.response?.status === 403) {
-        console.warn("User is not admin. Redirecting...");
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);
@@ -519,19 +474,17 @@ export const AuthProvider = ({ children }) => {
 
         try {
           const newAccessToken = await refreshAuthToken();
-
           if (newAccessToken) {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return adminApiClient(originalRequest);
           }
-        } catch (refreshError) {
-          return Promise.reject(refreshError);
+        } catch {
+          return Promise.reject(error);
         }
       }
 
       if (error.response) {
         const { status, data } = error.response;
-
         switch (status) {
           case 404:
             error.message = data?.message || "Admin resource not found";

@@ -1,6 +1,6 @@
 // BackToTopButton.jsx
 import { useState, useEffect, useCallback, memo } from "react";
-import { useThemeStyles } from "../../hooks/useThemeStyles";
+import { useThemeStyles } from "../../hooks";
 import { ArrowUp } from "lucide-react";
 
 const BackToTopButton = memo(function BackToTopButton({

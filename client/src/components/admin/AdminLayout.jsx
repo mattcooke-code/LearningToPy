@@ -1,35 +1,22 @@
-import { useState, useEffect } from "react";
-import { Outlet, useLocation, Navigate } from "react-router-dom";
+// AdminLayout.jsx
+import { useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useNotification } from "../../context/NotificationContext";
 import AdminSidebar from "./AdminSidebar";
+import { LoadingState } from "../ui";
 
 const AdminLayout = ({ children }) => {
-  const { user } = useAuth();
-  const { showToast } = useNotification();
+  const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Redirect non-admin users
-  if (!user || !user.isAdmin) {
-    showToast("Admin access required", "error");
-    return <Navigate to="/" replace />;
+  if (authLoading) {
+    return <LoadingState message="Loading admin dashboard..." />;
   }
 
-  useEffect(() => {
-    if (!document.getElementById("modal-root")) {
-      const modalRoot = document.createElement("div");
-      modalRoot.id = "modal-root";
-      document.body.appendChild(modalRoot);
-    }
-
-    return () => {
-      const modalRoot = document.getElementById("modal-root");
-      if (modalRoot) {
-        document.body.removeChild(modalRoot);
-      }
-    };
-  }, []);
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
@@ -51,12 +38,14 @@ const AdminLayout = ({ children }) => {
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                   className="lg:hidden mr-4 p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  aria-label="Toggle sidebar"
                 >
                   <svg
                     className="w-6 h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"

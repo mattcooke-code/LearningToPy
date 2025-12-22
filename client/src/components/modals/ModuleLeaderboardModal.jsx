@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiClient, useAuth, useNotification } from "../../context";
-import { getErrorMessage } from "../../utils/getErrorMessage";
+import { getErrorMessage } from "../../utils";
 
 // ModuleLeaderboardModal.jsx
 const ModuleLeaderboardModal = ({ isOpen, onClose, currentModuleId }) => {

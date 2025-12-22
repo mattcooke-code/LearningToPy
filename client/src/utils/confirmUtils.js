@@ -1,0 +1,60 @@
+// confirmUtils.js
+import { useCallback, useMemo } from "react";
+import { useNotification } from "../context";
+
+export const useConfirmActions = () => {
+  const { showConfirm } = useNotification();
+
+  const createConfirmPromise = useCallback(
+    (config) => {
+      return new Promise((resolve) => {
+        showConfirm({
+          cancelText: "Cancel",
+          ...config,
+          onConfirm: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+    },
+    [showConfirm]
+  );
+
+  return useMemo(
+    () => ({
+      confirmDelete: (resourceName = "item") =>
+        createConfirmPromise({
+          title: `Delete ${resourceName}`,
+          message: `Are you sure you want to delete this ${resourceName}? This action cannot be undone.`,
+          confirmText: "Delete",
+        }),
+
+      confirmArchive: (resourceName = "item") =>
+        createConfirmPromise({
+          title: `Archive ${resourceName}`,
+          message: `This will hide the ${resourceName} from users. You can restore it later.`, // Added restoration note
+          confirmText: "Archive",
+        }),
+
+      confirmPublish: (resourceName = "item") =>
+        createConfirmPromise({
+          title: `Publish ${resourceName}`,
+          message: `This will make the ${resourceName} visible to all users.`,
+          confirmText: "Publish",
+        }),
+
+      confirmReset: () =>
+        createConfirmPromise({
+          title: "Reset Changes",
+          message:
+            "Are you sure you want to reset all changes? This cannot be undone.", // Added "cannot be undone"
+          confirmText: "Reset",
+        }),
+
+      confirmAction: (title, message, confirmText = "Confirm") =>
+        createConfirmPromise({ title, message, confirmText }),
+
+      createConfirmPromise,
+    }),
+    [createConfirmPromise]
+  );
+};

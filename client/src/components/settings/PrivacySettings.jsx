@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
 import { apiClient } from "../../context";
-import { useThemeStyles } from "../../hooks/useThemeStyles";
+import { useThemeStyles } from "../../hooks";
 
 const PrivacySettings = ({ user, onUpdate }) => {
   const [settings, setSettings] = useState({

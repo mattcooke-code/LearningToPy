@@ -1,3 +1,4 @@
+//adminController.js
 const ActivityLog = require("../models/ActivityLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");

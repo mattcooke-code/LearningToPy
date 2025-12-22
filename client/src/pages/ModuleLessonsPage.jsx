@@ -10,8 +10,7 @@ import {
   ProgressCircle,
   QuickActions,
 } from "../components/module_lesson";
-import { getErrorMessage } from "../utils/getErrorMessage";
-import { calculateModuleLessonProgress } from "../utils/progressCalculations";
+import { getErrorMessage, calculateModuleLessonProgress } from "../utils";
 
 const ModuleLessonsPage = () => {
   // HOOKS & STATE

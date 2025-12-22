@@ -1,7 +1,7 @@
 // useThemeStyles.js
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useTheme } from "../context";
-import { getHoverColor } from "../utils/colorUtilities";
+import { getHoverColor } from "../utils";
 
 /**
  * Provides the current theme color and event handlers for interactive elements.

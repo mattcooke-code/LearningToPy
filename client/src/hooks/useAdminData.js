@@ -1,12 +1,21 @@
-// useAdminData.js
+// /client/hooks/useAdminData.js
 import { useState, useCallback, useEffect } from "react";
 import { useNotification } from "../context";
+import { extractData } from "../utils/apiUtils";
 import {
   getAdminErrorMessage,
   getErrorMessage,
 } from "../utils/getErrorMessage";
 
-const useAdminData = (fetchFn, dependencies = [], options = {}) => {
+/**
+ * Custom hook for fetching admin data with standardized error handling
+ *
+ * @param {Function} fetcher - Async function that returns Axios responses
+ * @param {Array} dependencies - Effect dependencies
+ * @param {Object} options - Configuration options
+ * @returns {Object} { data, loading, error, refetch, setData, clearError }
+ */
+export const useAdminData = (fetcher, dependencies = [], options = {}) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +23,7 @@ const useAdminData = (fetchFn, dependencies = [], options = {}) => {
 
   const {
     defaultErrorMessage = "Failed to fetch data",
-    showToastOnError = true,
+    showToastOnError = false,
     autoRetry = false,
     maxRetries = 3,
     retryDelay = 1000,
@@ -26,10 +35,26 @@ const useAdminData = (fetchFn, dependencies = [], options = {}) => {
       try {
         setLoading(true);
         setError(null);
-        const result = await fetchFn();
-        setData(result);
+
+        const result = await fetcher();
+
+        const isAxiosResponse =
+          result && Object.prototype.hasOwnProperty.call(result, "config");
+
+        if (Array.isArray(result)) {
+          // Extract data from each response in the array
+          const extractedData = result.map((response) =>
+            isAxiosResponse ? extractData(response) : response
+          );
+          setData(extractedData);
+        } else {
+          // Extract data from single response
+          const extractedData = isAxiosResponse ? extractData(result) : result;
+          setData(extractedData);
+        }
       } catch (err) {
         console.error("Data fetch error:", err);
+
         const errorMessage =
           context === "admin"
             ? getAdminErrorMessage(err, defaultErrorMessage)
@@ -37,7 +62,7 @@ const useAdminData = (fetchFn, dependencies = [], options = {}) => {
 
         setError(errorMessage);
 
-        // Auto retry
+        // Auto-retry logic for network/server errors
         if (autoRetry && retryCount < maxRetries) {
           const isNetworkError = !err.response;
           const isServerError = err.response?.status >= 500;
@@ -51,17 +76,16 @@ const useAdminData = (fetchFn, dependencies = [], options = {}) => {
           }
         }
 
+        // Optional toast notification
         if (showToastOnError) {
           showToast(errorMessage, "error");
         }
-
-        throw err;
       } finally {
         setLoading(false);
       }
     },
     [
-      fetchFn,
+      fetcher,
       showToast,
       defaultErrorMessage,
       autoRetry,
@@ -86,5 +110,3 @@ const useAdminData = (fetchFn, dependencies = [], options = {}) => {
 
   return { data, loading, error, refetch, setData, clearError };
 };
-
-export default useAdminData;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
 import { apiClient, useAuth } from "../context";
-import { useThemeStyles } from "../hooks/useThemeStyles";
+import { useThemeStyles } from "../hooks";
 import {
   Spinner,
   BackToTopButton,
@@ -10,7 +10,7 @@ import {
 import { BadgeModal } from "../components/modals";
 import PrivacySettings from "../components/settings/PrivacySettings";
 import { BADGE_LIBRARY, BADGES_BY_ID } from "../data/badges";
-import { getErrorMessage } from "../utils/getErrorMessage";
+import { getErrorMessage } from "../utils";
 
 const Profile = () => {
   const { user, updateUser, triggerLeaderboardRefresh } = useAuth();

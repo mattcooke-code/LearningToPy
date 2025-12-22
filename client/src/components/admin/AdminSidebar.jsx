@@ -1,27 +1,32 @@
-import { Link } from "react-router-dom";
-import {
-  BarChart3,
-  Users,
-  BookOpen,
-  Flag,
-  Settings,
-  FileText,
-  PieChart,
-  ShieldCheck,
-  ChevronRight,
-  X,
-} from "lucide-react";
+// AdminSidebar.jsx
+import { Link, useLocation } from "react-router-dom";
+import { X, ShieldCheck, ChevronRight } from "lucide-react";
+import { ADMIN_MENU_ITEMS } from "../../constants/adminConstants";
+import { adminApiClient } from "../../context";
+import { useAdminData } from "../../hooks";
 
-const menuItems = [
-  { path: "/admin", label: "Dashboard", icon: BarChart3 },
-  { path: "/admin/users", label: "User Management", icon: Users },
-  { path: "/admin/content", label: "Content Management", icon: BookOpen },
-  { path: "/admin/flagged", label: "Flagged Content", icon: Flag, badge: true },
-  { path: "/admin/analytics", label: "Analytics", icon: PieChart },
-  { path: "/admin/settings", label: "Settings", icon: Settings },
-];
+// Custom hook for active path detection
+const useActivePath = (currentPath, menuPath, exact = false) => {
+  if (exact) return currentPath === menuPath;
+  return (
+    currentPath.startsWith(menuPath) || currentPath.startsWith(menuPath + "/")
+  );
+};
 
-const AdminSidebar = ({ isOpen, onClose, currentPath }) => {
+const AdminSidebar = ({ isOpen, onClose }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  // Fetch admin stats for badge counts
+  const { data: stats } = useAdminData(
+    async () => adminApiClient.get("/stats"),
+    [],
+    {
+      autoRetry: false, // Don't auto-retry sidebar requests
+      showToastOnError: false, // Don't show toasts for sidebar errors
+    }
+  );
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -29,20 +34,23 @@ const AdminSidebar = ({ isOpen, onClose, currentPath }) => {
         <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar */}
-      <div
+      <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 dark:bg-gray-800 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        aria-label="Admin navigation"
       >
         {/* Mobile close button */}
         <div className="lg:hidden absolute top-4 right-4">
           <button
             onClick={onClose}
-            className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700"
+            className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Close sidebar"
           >
             <X className="h-6 w-6" />
           </button>
@@ -51,7 +59,7 @@ const AdminSidebar = ({ isOpen, onClose, currentPath }) => {
         {/* Logo/Brand */}
         <div className="flex items-center justify-center h-16 px-4 border-b border-gray-800">
           <div className="flex items-center space-x-3">
-            <ShieldCheck className="h-8 w-8 text-blue-500" />
+            <ShieldCheck className="h-8 w-8 text-blue-500" aria-hidden="true" />
             <span className="text-xl font-bold text-white">
               LearningToPy Admin
             </span>
@@ -59,60 +67,66 @@ const AdminSidebar = ({ isOpen, onClose, currentPath }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-4">
-          <div className="space-y-1">
-            {menuItems.map((item) => {
+        <nav
+          className="flex-1 overflow-y-auto py-4 px-4"
+          aria-label="Main navigation"
+        >
+          <ul className="space-y-1">
+            {ADMIN_MENU_ITEMS.map((item) => {
               const Icon = item.icon;
-              const isActive =
-                currentPath === item.path ||
-                (item.path !== "/admin" && currentPath.startsWith(item.path));
+              const isActive = useActivePath(
+                currentPath,
+                item.path,
+                item.exact
+              );
+
+              // Get dynamic badge count
+              let badgeCount = item.badgeCount || 0;
+              if (item.badge && stats) {
+                if (item.path === "/admin/flagged") {
+                  badgeCount = stats.flaggedContent || 0;
+                }
+                // Add other badge mappings as needed
+              }
 
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={onClose}
-                  className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
-                >
-                  <Icon className="h-5 w-5 mr-3" />
-                  {item.label}
-                  {item.badge && (
-                    <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white">
-                      3
-                    </span>
-                  )}
-                  {isActive && <ChevronRight className="h-4 w-4 ml-auto" />}
-                </Link>
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    onClick={onClose}
+                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset ${
+                      isActive
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                    }`}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <Icon
+                      className="h-5 w-5 mr-3 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.badge && (
+                      <span
+                        className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white"
+                        aria-label={`${badgeCount} pending items`}
+                      >
+                        {badgeCount}
+                      </span>
+                    )}
+                    {isActive && (
+                      <ChevronRight
+                        className="h-4 w-4 ml-2 flex-shrink-0"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </Link>
+                </li>
               );
             })}
-          </div>
-
-          {/* Quick Stats - Fixed position */}
-          <div className="mt-8 px-4">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Quick Stats
-            </h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Active Users</span>
-                <span className="text-white font-medium">1,234</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Pending Flags</span>
-                <span className="text-red-400 font-medium">12</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Published Lessons</span>
-                <span className="text-green-400 font-medium">156</span>
-              </div>
-            </div>
-          </div>
+          </ul>
         </nav>
-      </div>
+      </aside>
     </>
   );
 };

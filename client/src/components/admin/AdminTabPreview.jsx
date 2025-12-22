@@ -1,7 +1,7 @@
-// utils/tabContentRenderer.jsx
+// AdminTabPreview.jsx
 import { AlertTriangle, CheckCircle, Users, BarChart3 } from "lucide-react";
 
-export const renderTabSpecificContent = (tab, settings) => {
+export const AdminTabPreview = (tab, settings) => {
   switch (tab) {
     case "theme":
       return (
@@ -231,3 +231,5 @@ export const renderTabSpecificContent = (tab, settings) => {
       return null;
   }
 };
+
+export default AdminTabPreview;

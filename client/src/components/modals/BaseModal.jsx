@@ -1,4 +1,4 @@
-// BaseModal.jsx
+// BaseModal.jsx (updated)
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -24,7 +24,7 @@ const BaseModal = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden"; // Prevents background scrolling
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
@@ -90,7 +90,7 @@ const BaseModal = ({
                   >
                     {title}
                   </h3>
-                )}{" "}
+                )}
                 {showCloseButton && (
                   <button
                     onClick={onClose}
@@ -100,17 +100,18 @@ const BaseModal = ({
                     <X className="h-5 w-5" />
                   </button>
                 )}
-                {/* Content */}
-                <div className="px-6 py-4">{children}</div>
               </div>
             )}
+            {/* Content */}
+            <div className="px-6 py-4">{children}</div>
           </div>
         </div>
       </div>
     </>
   );
 
-  return createPortal(modalContent, document.body);
+  const modalRoot = document.getElementById("modal-root") || document.body;
+  return createPortal(modalContent, modalRoot);
 };
 
 export default BaseModal;

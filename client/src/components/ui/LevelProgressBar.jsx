@@ -1,4 +1,4 @@
-import { calculateLevelProgress } from "../../utils/progressCalculations";
+import { calculateLevelProgress } from "../../utils";
 import { useTheme } from "../../context";
 
 const LevelProgressBar = ({ currentXP, showDetails = true }) => {

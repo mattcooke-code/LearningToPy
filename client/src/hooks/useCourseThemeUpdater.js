@@ -1,13 +1,15 @@
 // useCourseThemeUpdater.js
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useTheme, apiClient } from "../context";
+import { useTheme, useAuth } from "../context";
+import {
+  DEFAULT_THEME_PATHS,
+  ADMIN_PATH_PREFIX,
+} from "../constants/themeConstants";
 
-const DEFAULT_PATHS = ["/", "/login", "/register"];
-const ADMIN_PREFIX = "/admin";
-
-export const useCourseThemeUpdater = (apiClient, isAuthenticated) => {
+export const useCourseThemeUpdater = () => {
   const location = useLocation();
+  const { apiClient, isAuthenticated } = useAuth();
   const { updateThemeFromCourseProgress, setDefaultTheme } = useTheme();
 
   useEffect(() => {
@@ -15,7 +17,8 @@ export const useCourseThemeUpdater = (apiClient, isAuthenticated) => {
 
     // Check if current path should use default theme
     const isDefaultPath =
-      DEFAULT_PATHS.includes(pathname) || pathname.startsWith(ADMIN_PREFIX);
+      DEFAULT_THEME_PATHS.includes(pathname) ||
+      pathname.startsWith(ADMIN_PATH_PREFIX);
 
     if (isDefaultPath) {
       setDefaultTheme();
