@@ -52,7 +52,7 @@ const getAdmins = catchAsync(async (req, res, next) => {
     await User.find({ isAdmin: true }).select(
       "username email level xp lastActive createdAt"
     )
-  ).toSorted({ createdAt: -1 });
+  ).sort({ createdAt: -1 });
 
   sendJsonResponse(res, 200, "Admins retrieved", { admins });
 });
@@ -249,7 +249,9 @@ const getFlagStats = catchAsync(async (req, res, next) => {
     { pending: 0, resolved: 0, escalated: 0, warning_sent: 0, dismissed: 0 }
   );
 
-  sendJsonResponse(res, 200, "Flag statistics retrieved.", flagStats);
+  sendJsonResponse(res, 200, "Flag statistics retrieved.", {
+    stats: flagStats,
+  });
 });
 
 const updateUserStatus = catchAsync(async (req, res, next) => {
@@ -547,7 +549,7 @@ const resolveFlag = catchAsync(async (req, res, next) => {
     targetType: "FLAG",
     oldValue: { status: oldStatus },
     newValue: { status: flag.status },
-    reason: notes || `Flag maeked as ${status}`,
+    reason: notes || `Flag marked as ${status}`,
     ipAddress: req.ip,
   });
 

@@ -48,10 +48,9 @@ const AdminSettingsPanel = () => {
 
   const saveMutation = useAdminMutation(
     async (changedSettings) => {
-      const response = await adminApiClient.patch("/settings", {
+      return await adminApiClient.patch("/settings", {
         changes: changedSettings,
       });
-      return response.data;
     },
     {
       successAction: "save",
@@ -91,16 +90,15 @@ const AdminSettingsPanel = () => {
       settingsManager.resetChanges();
 
       // Notify about theme changes
-      if (
-        settingsManager.changes.themeColor ||
-        settingsManager.changes.codeTheme ||
-        settingsManager.changes.defaultTheme
-      ) {
+      const { changes } = settingsManager;
+
+      if (changes.themeColor || changes.codeTheme || changes.defaultTheme) {
         showToast(
           "Theme changes may require a page refresh to take effect",
           "info"
         );
       }
+      refetch();
     } catch (err) {}
   };
 

@@ -1,105 +1,77 @@
-// LessonEditorModal.jsx
+// /src/modals/LessonEditorModal.jsx
 import { useState, useEffect } from "react";
-import { adminApiClient, useNotification } from "../../context";
+import { BaseModal } from "../components/ui";
+import { adminApiClient, useNotification } from "../context";
 import {
-  X,
-  Save,
   FileText,
+  Settings,
   Code,
-  Hash,
-  Trophy,
-  Zap,
-  Tag,
-  Eye,
-  EyeOff,
-  Clock,
-  Check,
-  AlertTriangle,
-  HelpCircle,
-  BookOpen,
-  Link,
+  Save,
+  X,
   Plus,
   Minus,
-  Settings,
+  Trophy,
+  Clock,
+  Hash,
+  Tag,
 } from "lucide-react";
 
-const LessonEditorModal = ({ lesson, onClose, onSave }) => {
+// Utilities
+import {
+  DEFAULT_LESSON_FORM_DATA,
+  mapLessonToFormData,
+  normalizeLessonForAPI,
+} from "../utils/lessonFormUtils";
+
+// Icons for tabs
+const TABS = [
+  { id: "content", label: "Content", icon: FileText },
+  { id: "settings", label: "Settings", icon: Settings },
+  { id: "advanced", label: "Advanced", icon: Code },
+];
+
+const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
   const isEditing = !!lesson;
+  const { showToast } = useNotification();
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    content: "",
-    difficulty: "beginner",
-    xpReward: 100,
-    estimatedTime: 15,
-    order: 0,
-    isPublished: false,
-    tags: [],
-    moduleId: "",
-    prerequisiteLessonIds: [],
-    challengeGroup: "",
-    contentType: "theory", // 'theory', 'exercise', 'quiz'
-    // Exercise specific
-    initialCode: "",
-    testCases: "",
-    solution: "",
-    hints: [],
-    // Quiz specific
-    questions: [],
-  });
-
+  const [formData, setFormData] = useState(DEFAULT_LESSON_FORM_DATA);
   const [modules, setModules] = useState([]);
   const [lessons, setLessons] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [newTag, setNewTag] = useState("");
   const [newHint, setNewHint] = useState("");
   const [activeTab, setActiveTab] = useState("content");
-  const { showConfirm } = useNotification();
 
+  // Initialize form data
   useEffect(() => {
-    if (lesson) {
-      setFormData({
-        title: lesson.title || "",
-        description: lesson.description || "",
-        content: lesson.content || "",
-        difficulty: lesson.difficulty || "beginner",
-        xpReward: lesson.xpReward || 100,
-        estimatedTime: lesson.estimatedTime || 15,
-        order: lesson.order || 0,
-        isPublished: lesson.isPublished || false,
-        tags: lesson.tags || [],
-        moduleId: lesson.moduleId || "",
-        prerequisiteLessonIds: lesson.prerequisiteLessonIds || [],
-        challengeGroup: lesson.challengeGroup || "",
-        contentType: lesson.contentType || "theory",
-        initialCode: lesson.initialCode || "",
-        testCases: lesson.testCases || "",
-        solution: lesson.solution || "",
-        hints: lesson.hints || [],
-        questions: lesson.questions || [],
-      });
+    if (isOpen) {
+      if (lesson) {
+        setFormData(mapLessonToFormData(lesson));
+      } else {
+        setFormData(JSON.parse(JSON.stringify(DEFAULT_LESSON_FORM_DATA)));
+      }
+      fetchModules();
+      fetchLessons();
     }
-    fetchModules();
-    fetchLessons();
-  }, [lesson]);
+  }, [isOpen, lesson?._id]);
 
   const fetchModules = async () => {
     try {
-      const response = await adminApiClient.get("/content/modules?limit=1000");
-      setModules(response.data.data?.modules || []);
+      const data = await adminApiClient.get("/content/modules?limit=1000");
+      setModules(data?.modules || []);
     } catch (error) {
       console.error("Failed to fetch modules:", error);
+      showToast("Failed to load modules", "error");
     }
   };
 
   const fetchLessons = async () => {
     try {
-      const response = await adminApiClient.get("/content/lessons?limit=1000");
-      setLessons(response.data.data?.lessons || []);
+      const data = await adminApiClient.get("/content/lessons?limit=1000");
+      setLessons(data?.lessons || []);
     } catch (error) {
       console.error("Failed to fetch lessons:", error);
+      showToast("Failed to load lessons", "error");
     }
   };
 
@@ -143,101 +115,108 @@ const LessonEditorModal = ({ lesson, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
+    if (!formData.title.trim() || !formData.moduleId) return;
 
+    if (formData.contentType === "exercise") {
+      try {
+        if (formData.testCases) JSON.parse(formData.testCases);
+      } catch (err) {
+        return showToast("Invalid JSON format in Test Cases", "error");
+      }
+    }
+
+    setSaving(true);
     try {
+      const payload = normalizeLessonForAPI(formData);
+
       if (isEditing) {
-        await adminApiClient.patch(`/content/lessons/${lesson._id}`, formData);
-        showConfirm("Lesson updated successfully", "success");
+        await adminApiClient.patch(`/content/lessons/${lesson._id}`, payload);
+        showToast("Lesson updated successfully", "success");
       } else {
-        await adminApiClient.post("/content/lessons", formData);
-        showConfirm("Lesson created successfully", "success");
+        await adminApiClient.post("/content/lessons", payload);
+        showToast("Lesson created successfully", "success");
       }
 
-      onSave();
+      onSave?.();
       onClose();
     } catch (error) {
-      showConfirm(
-        `Failed to ${isEditing ? "update" : "create"} lesson`,
-        "error"
-      );
+      showToast(`Failed to ${isEditing ? "update" : "create"} lesson`, "error");
       console.error("Save error:", error);
     } finally {
       setSaving(false);
     }
   };
 
-  const tabs = [
-    { id: "content", label: "Content", icon: FileText },
-    { id: "settings", label: "Settings", icon: Settings },
-    { id: "advanced", label: "Advanced", icon: Code },
-  ];
+  const handleDelete = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this lesson? This action cannot be undone."
+      )
+    )
+      return;
+
+    try {
+      await adminApiClient.delete(`/content/lessons/${lesson._id}`);
+      showToast("Lesson deleted successfully", "success");
+      onSave?.();
+      onClose();
+    } catch (error) {
+      showToast("Failed to delete lesson", "error");
+      console.error("Delete error:", error);
+    }
+  };
+
+  // ===== RENDER FUNCTIONS =====
 
   const renderContentTab = () => (
     <div className="space-y-6">
-      {/* Title & Description */}
-      <div className="grid grid-cols-1 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Title *
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Title *
+        </label>
+        <input
+          type="text"
+          value={formData.title}
+          onChange={(e) => handleChange("title", e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Description
+        </label>
+        <textarea
+          value={formData.description}
+          onChange={(e) => handleChange("description", e.target.value)}
+          rows="3"
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Content (Markdown) *
+        </label>
+        <textarea
+          value={formData.content}
+          onChange={(e) => handleChange("content", e.target.value)}
+          rows="10"
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 font-mono text-sm"
+          placeholder="# Lesson Title..."
+          required
+        />
+        <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Supports Markdown, code blocks, and embedded content
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            rows="3"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Brief description of the lesson..."
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Content (Markdown) *
-          </label>
-          <textarea
-            value={formData.content}
-            onChange={(e) => handleChange("content", e.target.value)}
-            rows="10"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-            placeholder="# Lesson Title
-
-## Introduction
-Write your lesson content here using Markdown...
-
-## Examples
-```python
-print('Hello, World!')
-
-Exercises
-Try this...
-
-Challenge: ..."
-            required
-          />
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Supports Markdown, code blocks, and embedded content
-          </div>
-        </div>
-      </div>{" "}
+      </div>
     </div>
   );
+
   const renderSettingsTab = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Basic Settings */}
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -253,6 +232,7 @@ Challenge: ..."
               <option value="quiz">Quiz/Assessment</option>
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Difficulty *
@@ -281,7 +261,6 @@ Challenge: ..."
                   handleChange("xpReward", parseInt(e.target.value) || 0)
                 }
                 min="0"
-                max="1000"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
                 required
               />
@@ -301,14 +280,12 @@ Challenge: ..."
                   handleChange("estimatedTime", parseInt(e.target.value) || 0)
                 }
                 min="1"
-                max="240"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
               />
             </div>
           </div>
         </div>
 
-        {/* Module & Order */}
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -323,7 +300,7 @@ Challenge: ..."
               <option value="">Select a module</option>
               {modules.map((module) => (
                 <option key={module._id} value={module._id}>
-                  {module.title} {module.isPublished ? "" : "(Draft)"}
+                  {module.title} {!module.isPublished && "(Draft)"}
                 </option>
               ))}
             </select>
@@ -354,11 +331,11 @@ Challenge: ..."
             </label>
             <select
               multiple
-              value={formData.prerequisiteLessonIds}
+              value={formData.prerequisiteLessonIds || []}
               onChange={(e) => {
                 const selected = Array.from(
                   e.target.selectedOptions,
-                  (option) => option.value
+                  (opt) => opt.value
                 );
                 handleChange("prerequisiteLessonIds", selected);
               }}
@@ -366,9 +343,10 @@ Challenge: ..."
             >
               {lessons
                 .filter((l) => l._id !== lesson?._id)
-                .map((lesson) => (
-                  <option key={lesson._id} value={lesson._id}>
-                    {lesson.title} (Level {lesson.order})
+                .map((l) => (
+                  <option key={l._id} value={l._id}>
+                    {l.title} {l.title} {l.isPublished ? "" : " (Draft)"} (Order{" "}
+                    {l.order})
                   </option>
                 ))}
             </select>
@@ -392,13 +370,13 @@ Challenge: ..."
             onKeyPress={(e) =>
               e.key === "Enter" && (e.preventDefault(), handleAddTag())
             }
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
             placeholder="Add a tag..."
           />
           <button
             type="button"
             onClick={handleAddTag}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="p-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -423,7 +401,7 @@ Challenge: ..."
         </div>
       </div>
 
-      {/* Exercise Specific */}
+      {/* Exercise-Specific Fields */}
       {formData.contentType === "exercise" && (
         <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
@@ -439,24 +417,19 @@ Challenge: ..."
                 onChange={(e) => handleChange("initialCode", e.target.value)}
                 rows="6"
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-900 text-white font-mono text-sm"
-                placeholder="# Starter code for students
-            def hello_world():
-# Your code here
-pass"
+                placeholder="# Starter code for students..."
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Solution Code (Hidden from students)
+                Solution Code
               </label>
               <textarea
                 value={formData.solution}
                 onChange={(e) => handleChange("solution", e.target.value)}
                 rows="6"
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-900 text-white font-mono text-sm"
-                placeholder="# Complete solution
-            def hello_world():
-return 'Hello, World!'"
+                placeholder="# Complete solution..."
               />
             </div>
             <div>
@@ -468,15 +441,9 @@ return 'Hello, World!'"
                 onChange={(e) => handleChange("testCases", e.target.value)}
                 rows="6"
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-900 text-white font-mono text-sm"
-                placeholder='[{
-"input": "",
-"expected": "Hello, World!",
-"description": "Basic test"
-}
-]'
+                placeholder='[{ "input": "", "expected": "Hello", "description": "Basic" }]'
               />
             </div>
-            {/* Hints */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Hints
@@ -493,7 +460,7 @@ return 'Hello, World!'"
                     <button
                       type="button"
                       onClick={() => handleRemoveHint(index)}
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      className="text-red-600 hover:text-red-800"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -507,13 +474,13 @@ return 'Hello, World!'"
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), handleAddHint())
                     }
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
                     placeholder="Add a hint..."
                   />
                   <button
                     type="button"
                     onClick={handleAddHint}
-                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                    className="p-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -537,7 +504,7 @@ return 'Hello, World!'"
             type="text"
             value={formData.challengeGroup}
             onChange={(e) => handleChange("challengeGroup", e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg"
             placeholder="e.g., 'week-1-challenges'"
           />
           <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -566,9 +533,7 @@ return 'Hello, World!'"
             </button>
             <span
               className={`text-sm font-medium ${
-                formData.isPublished
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-gray-500 dark:text-gray-400"
+                formData.isPublished ? "text-green-600" : "text-gray-500"
               }`}
             >
               {formData.isPublished ? "Published" : "Draft"}
@@ -583,43 +548,23 @@ return 'Hello, World!'"
           <h3 className="text-lg font-medium text-red-800 dark:text-red-300 mb-4">
             Danger Zone
           </h3>
-          <div className="space-y-4">
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-red-800 dark:text-red-300">
-                    Delete Lesson
-                  </p>
-                  <p className="text-sm text-red-700 dark:text-red-400">
-                    Once deleted, this lesson cannot be recovered. Users will
-                    lose access.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this lesson? This action cannot be undone."
-                      )
-                    ) {
-                      try {
-                        await adminApiClient.delete(
-                          `/content/lessons/${lesson._id}`
-                        );
-                        showConfirm("Lesson deleted", "success");
-                        onSave();
-                        onClose();
-                      } catch (error) {
-                        showConfirm("Failed to delete lesson", "error");
-                      }
-                    }
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-red-800 dark:text-red-300">
                   Delete Lesson
-                </button>
+                </p>
+                <p className="text-sm text-red-700 dark:text-red-400">
+                  This action cannot be undone.
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Delete Lesson
+              </button>
             </div>
           </div>
         </div>
@@ -627,137 +572,115 @@ return 'Hello, World!'"
     </div>
   );
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div
-          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+  // ===== MODAL FOOTER =====
+  const modalFooter = (
+    <div className="flex justify-between items-center w-full">
+      <div className="text-sm text-gray-500 dark:text-gray-400">
+        {isEditing && lesson?.updatedAt
+          ? `Last updated: ${new Date(lesson.updatedAt).toLocaleDateString()}`
+          : "New lesson"}
+      </div>
+      <div className="flex items-center space-x-3">
+        <button
+          type="button"
           onClick={onClose}
-        />
-        {/* Modal panel */}
-        <div className="inline-block w-full max-w-6xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-gray-800 shadow-xl rounded-2xl">
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
-                    {isEditing ? "Edit Lesson" : "Create New Lesson"}
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {isEditing
-                      ? `Editing: ${lesson.title}`
-                      : "Create a new learning lesson"}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          disabled={saving}
+          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="lesson-form"
+          disabled={saving || !formData.title.trim() || !formData.moduleId}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          {saving ? (
+            <span className="flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
               >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="flex space-x-8 px-6">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                        : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4 inline mr-2" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
-              {activeTab === "content" && renderContentTab()}
-              {activeTab === "settings" && renderSettingsTab()}
-              {activeTab === "advanced" && renderAdvancedTab()}
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {isEditing
-                    ? `Last updated: ${
-                        lesson.updatedAt
-                          ? new Date(lesson.updatedAt).toLocaleDateString()
-                          : "Unknown"
-                      }`
-                    : "New lesson"}
-                </div>
-                <div className="flex items-center space-x-3">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    disabled={saving}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {saving ? (
-                      <span className="flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        Saving...
-                      </span>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 inline mr-2" />
-                        {isEditing ? "Update Lesson" : "Create Lesson"}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Saving...
+            </span>
+          ) : (
+            <>
+              <Save className="h-4 w-4 inline mr-2" />
+              {isEditing ? "Update Lesson" : "Create Lesson"}
+            </>
+          )}
+        </button>
       </div>
     </div>
+  );
+
+  return (
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? "Edit Lesson" : "Create New Lesson"}
+      size="6xl"
+      closeOnOverlayClick
+      closeOnEscape
+      footer={modalFooter}
+      footerAlign="between"
+    >
+      {/* Subtitle */}
+      <p className="text-sm text-gray-500 mb-6">
+        {isEditing
+          ? `Editing: ${lesson.title}`
+          : "Create a new learning lesson"}
+      </p>
+
+      {/* Tabs */}
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+        <nav className="flex space-x-8">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                }`}
+              >
+                <Icon className="h-4 w-4 inline mr-2" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Form */}
+      <form
+        id="lesson-form"
+        onSubmit={handleSubmit}
+        className="max-h-[60vh] overflow-y-auto pr-2"
+      >
+        {activeTab === "content" && renderContentTab()}
+        {activeTab === "settings" && renderSettingsTab()}
+        {activeTab === "advanced" && renderAdvancedTab()}
+      </form>
+    </BaseModal>
   );
 };
 

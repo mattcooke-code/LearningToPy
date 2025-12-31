@@ -1,5 +1,12 @@
 // /client/components/ui/LeaderboardRow.jsx
 const LeaderboardRow = ({ rank, user, isCurrent }) => {
+  const getRankDisplay = (rank) => {
+    if (rank === 1) return "🥇";
+    if (rank === 2) return "🥈";
+    if (rank === 3) return "🥉";
+    return rank;
+  };
+
   return (
     <div
       className={`flex items-center justify-between p-3 rounded-lg transition ${
@@ -18,7 +25,7 @@ const LeaderboardRow = ({ rank, user, isCurrent }) => {
               : "bg-gray-200 text-gray-700"
           }`}
         >
-          {rank <= 3 ? ["🥇", "🥈", "🥉"][rank - 1] : `#${rank}`}
+          {getRankDisplay(rank)}
         </div>
         <div>
           <span

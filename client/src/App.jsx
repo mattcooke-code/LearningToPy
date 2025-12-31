@@ -26,6 +26,8 @@ import AdminSettings from "./pages/AdminSettings";
 import { useCourseThemeUpdater } from "./hooks";
 import { AdminLayout } from "./components/admin";
 
+import ModalManager from "./modals/ModalManager";
+
 function App() {
   useCourseThemeUpdater();
 
@@ -99,6 +101,8 @@ function App() {
         </Routes>
       </main>
       <Footer />
+
+      <ModalManager />
     </div>
   );
 }

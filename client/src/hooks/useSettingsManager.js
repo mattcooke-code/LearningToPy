@@ -1,3 +1,4 @@
+// useSettingsManager.js
 import { useState, useCallback } from "react";
 import { PLATFORM_DEFAULTS } from "../utils";
 

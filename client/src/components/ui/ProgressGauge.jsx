@@ -1,12 +1,13 @@
 // ProgressGauge.jsx
 
-const ProgressGauge = ({ progress, size = 200 }) => {
+const ProgressGauge = ({ progress = 0, size = 200 }) => {
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const arcLength = circumference * 0.75; // 270° arc length
 
-  // CORRECTED Needle Rotation Logic: 0% = 135° (right), 100% = -135° (left)
-  const rotation = 135 - (progress * 270) / 100;
+  // Ensure a number is always returned as a value
+  const safeProgress = Number(progress) ? 0 : progress;
+  const rotation = 135 - (safeProgress * 270) / 100;
 
   return (
     <div className="relative bg-white rounded-xl shadow-2xl p-6 font-sans">

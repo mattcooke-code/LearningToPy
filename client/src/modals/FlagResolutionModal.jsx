@@ -1,6 +1,6 @@
 // FlagResolutionModal.jsx
 import { useState } from "react";
-import BaseModal from "./BaseModal";
+import { BaseModal } from "../components/ui";
 import {
   CheckCircle,
   AlertTriangle,
@@ -11,7 +11,7 @@ import {
   FileText,
 } from "lucide-react";
 
-const FlagResolutionModal = ({ flag, onClose, onResolve }) => {
+const FlagResolutionModal = ({ flag, isOpen, onClose, onResolve }) => {
   const [resolution, setResolution] = useState({
     status: "RESOLVED",
     notes: "",
@@ -44,7 +44,7 @@ const FlagResolutionModal = ({ flag, onClose, onResolve }) => {
 
   return (
     <BaseModal
-      isOpen={true}
+      isOpen={isOpen}
       onClose={onClose}
       title="Resolve Flag Report"
       size="2xl"

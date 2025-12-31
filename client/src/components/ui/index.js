@@ -1,4 +1,5 @@
 export { default as BackToTopButton } from "./BackToTopButton";
+export { default as BaseModal } from "./BaseModal";
 export { default as CodeThemeToggle } from "./CodeThemeToggle";
 export { default as ErrorState } from "./ErrorState";
 export { default as LeaderboardRow } from "./LeaderboardRow";

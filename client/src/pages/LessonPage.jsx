@@ -37,9 +37,8 @@ const LessonPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get(`/content/lessons/${lessonId}`);
-      const lessonData = response.data.data;
 
+      const lessonData = await apiClient.get(`/content/lessons/${lessonId}`);
       setLesson(lessonData);
 
       // Auto-enable review mode for completed lessons
@@ -52,12 +51,12 @@ const LessonPage = () => {
       // Fetch next lesson if available
       if (lessonData.nextLessonId) {
         try {
-          const nextResponse = await apiClient.get(
+          const nextLessonData = await apiClient.get(
             `/content/lessons/${lessonData.nextLessonId}`
           );
-          setNextLesson(nextResponse.data.data);
+          setNextLesson(nextLessonData);
         } catch (err) {
-          console.log("No next lesson available or failed to fetch");
+          console.log("No next lesson available");
         }
       }
     } catch (err) {
@@ -92,21 +91,14 @@ const LessonPage = () => {
         updateThemeFromCourseProgress(progress.courseProgressPercentage);
       }
 
-      console.log("Updated progress:", progress);
-
       const handleNextLesson = async () => {
         // Try backend nextLessonId first
         if (nextLessonId) {
-          console.log("✅ Using backend nextLessonId:", nextLessonId);
           try {
-            const nextResponse = await apiClient.get(
+            const nextLessonData = await apiClient.get(
               `/content/lessons/${nextLessonId}`
             );
-            setNextLesson(nextResponse.data.data);
-            console.log(
-              "➡️ Next lesson set from backend:",
-              nextResponse.data.data.title
-            );
+            setNextLesson(nextLessonData);
             return;
           } catch (err) {
             console.error(
@@ -138,20 +130,20 @@ const LessonPage = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await apiClient.post(
+      const submissionResult = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
         { answer }
       );
 
-      const { data } = response.data;
-
-      if (data.completed) {
-        handleLessonCompletion(data);
+      if (submissionResult.completed) {
+        handleLessonCompletion(submissionResult);
       } else {
-        showToast(data.feedback, data.isCorrect ? "success" : "error");
+        showToast(
+          submissionResult.feedback,
+          submissionResult.isCorrect ? "success" : "error"
+        );
       }
     } catch (err) {
-      console.error("Failed to submit answer:", err);
       showToast(
         getErrorMessage(err, "Failed to submit answer. Please try again."),
         "error"
@@ -177,7 +169,7 @@ const LessonPage = () => {
 
     if (isEmptySubmission) {
       showToast(
-        getErrorMessage(err, "Please write some code before submitting!"),
+        getErrorMessage("Please write some code before submitting!"),
         "error"
       );
       return;
@@ -185,22 +177,20 @@ const LessonPage = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await apiClient.post(
+      const codeSubmission = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
         { code }
       );
 
-      const { data } = response.data;
-
-      console.log("📦 API Response:", data);
-
-      if (data.completed) {
-        handleLessonCompletion(data);
+      if (codeSubmission.completed) {
+        handleLessonCompletion(codeSubmission);
       } else {
-        showToast(data.feedback, data.isCorrect ? "success" : "error");
+        showToast(
+          codeSubmission.feedback,
+          codeSubmission.isCorrect ? "success" : "error"
+        );
       }
     } catch (err) {
-      console.error("Failed to submit code:", err);
       showToast(
         getErrorMessage(err, "Failed to submit code. Please try again."),
         "error"
@@ -215,15 +205,13 @@ const LessonPage = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await apiClient.post(
+      const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
         {}
       );
 
-      const { data } = response.data;
-
-      if (data.completed) {
-        handleLessonCompletion(data);
+      if (result.completed) {
+        handleLessonCompletion(result);
       }
     } catch (err) {
       console.error("Failed to mark lesson complete:", err);

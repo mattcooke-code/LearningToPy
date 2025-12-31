@@ -1,5 +1,4 @@
 export { exportToCSV } from "./analyticsUtils";
-export { extractData } from "./apiUtils";
 export {
   THEME_COLORS,
   THEME_HOVER_COVERS,
@@ -14,6 +13,11 @@ export {
   findFirstIncompleteLesson,
   getLessonStatistics,
 } from "./lessonCalculations";
+export {
+  DEFAULT_MODULE_FORM_DATA,
+  mapModuleToFormData,
+  normalizeModuleForAPI,
+} from "./moduleFormUtils";
 export { PLATFORM_DEFAULTS } from "./platformDefaults";
 export {
   calculateModuleLessonProgress,
@@ -21,3 +25,9 @@ export {
   calculateAverageModuleProgress,
   calculateLevelProgress,
 } from "./progressCalculations";
+export {
+  calculateContentStats,
+  calculateModuleEditorStats,
+  calculateUserDashboardStats,
+} from "./statsManagement";
+export { normalizeUserData } from "./userUtils";

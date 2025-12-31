@@ -1,3 +1,4 @@
+// ExerciseComponent
 import { useState } from "react";
 import { Code2, RefreshCw, ExternalLink } from "lucide-react";
 import { CodeThemeToggle } from "../ui";

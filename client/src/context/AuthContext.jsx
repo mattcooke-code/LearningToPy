@@ -1,4 +1,4 @@
-// AuthContext.jsx - Cleaned version
+// AuthContext.jsx
 import {
   createContext,
   useContext,
@@ -33,6 +33,22 @@ export const adminApiClient = axios.create({
   withCredentials: true,
 });
 
+/**
+ * Shared Helper: Unwraps the backend "envelope" (response.data.data)
+ * so the application only sees the actual payload.
+ */
+const unwrapResponse = (response) => {
+  return response.data?.data !== undefined ? response.data.data : response.data;
+};
+
+// Apply unwrapper to  interceptors
+[apiClient, adminApiClient, authApiClient].forEach((instance) => {
+  instance.interceptors.response.use(
+    (response) => unwrapResponse(response),
+    (err) => Promise.reject(err)
+  );
+});
+
 // --- AUTHCONTEXT DEFINITION ---
 const AuthContext = createContext(null);
 
@@ -53,13 +69,11 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
   const [leaderboardVersion, setLeaderboardVersion] = useState(0);
 
-  // Refs for token refresh management
   const isRefreshing = useRef(false);
   const refreshPromise = useRef(null);
   const failedQueue = useRef([]);
   const logoutInitiated = useRef(false);
 
-  // Process queued requests after successful refresh
   const processQueue = useCallback((error, token = null) => {
     failedQueue.current.forEach((promise) => {
       if (error) {
@@ -71,33 +85,25 @@ export const AuthProvider = ({ children }) => {
     failedQueue.current = [];
   }, []);
 
-  // Decode token to check expiration
   const isTokenValid = useCallback((token) => {
     if (!token) return false;
-
     try {
       const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-      return decoded.exp > currentTime;
+      return decoded.exp > Date.now() / 1000;
     } catch {
       return false;
     }
   }, []);
 
-  // Update Auth State
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
-      setUser((prevUser) => {
-        if (JSON.stringify(prevUser) === JSON.stringify(userData)) {
-          return prevUser;
-        }
-        return userData;
-      });
+      setUser((prevUser) =>
+        JSON.stringify(prevUser) === JSON.stringify(userData)
+          ? prevUser
+          : userData
+      );
 
-      setAccessToken((prevToken) => {
-        if (prevToken === newAccessToken) return prevToken;
-        return newAccessToken;
-      });
+      setAccessToken(newAccessToken);
 
       localStorage.removeItem("accessToken");
       sessionStorage.removeItem("accessToken");
@@ -118,35 +124,25 @@ export const AuthProvider = ({ children }) => {
         delete authApiClient.defaults.headers.common["Authorization"];
         delete adminApiClient.defaults.headers.common["Authorization"];
       }
-
       setAuthError(null);
     },
     [isTokenValid]
   );
 
-  // Update user
   const updateUser = useCallback((newUserData) => {
-    setUser((prevUser) => {
-      if (!prevUser) return newUserData;
-      return { ...prevUser, ...newUserData };
-    });
+    setUser((prevUser) =>
+      prevUser ? { ...prevUser, ...newUserData } : newUserData
+    );
   }, []);
 
-  // Admin status
-  const isUserAdmin = useCallback(() => {
-    return user?.isAdmin === true;
-  }, [user]);
+  const isUserAdmin = useCallback(() => user?.isAdmin === true, [user]);
 
-  // Logout Function
   const logout = useCallback(
     async (message = null) => {
-      if (logoutInitiated.current) {
-        return;
-      }
+      if (logoutInitiated.current) return;
 
       logoutInitiated.current = true;
       setLoading(true);
-      setAuthError(null);
 
       if (window.resetTheme) window.resetTheme();
 
@@ -157,23 +153,15 @@ export const AuthProvider = ({ children }) => {
             "Authorization"
           ] = `Bearer ${currentAccessToken}`;
         }
-
         await authApiClient.post("/api/auth/logout");
       } catch (err) {
-        // Silent fail - token might already be invalid
+        // Silent fail
       } finally {
         delete authApiClient.defaults.headers.common["Authorization"];
-
         localStorage.removeItem("accessToken");
         sessionStorage.removeItem("accessToken");
         setAuthData(null, null);
-
-        if (message) {
-          showToast(message, "info");
-        } else {
-          showToast("You have been logged out", "info");
-        }
-
+        showToast(message || "You have been logged out", "info");
         setLoading(false);
         refreshPromise.current = null;
         failedQueue.current = [];
@@ -184,7 +172,6 @@ export const AuthProvider = ({ children }) => {
     [setAuthData, showToast]
   );
 
-  // Refresh Access Token with queue management
   const refreshAuthToken = useCallback(async () => {
     if (isRefreshing.current) {
       return new Promise((resolve, reject) => {
@@ -192,41 +179,29 @@ export const AuthProvider = ({ children }) => {
       });
     }
 
-    if (refreshPromise.current) {
-      return refreshPromise.current;
-    }
+    if (refreshPromise.current) return refreshPromise.current;
 
     isRefreshing.current = true;
-    setAuthError(null);
-
     const refreshP = (async () => {
       try {
-        const response = await authApiClient.post("/api/auth/refresh-token");
-        const { accessToken: newAccessToken, user: newUserData } =
-          response.data.data;
+        const payload = await authApiClient.post("/api/auth/refresh-token");
+        const { accessToken: newAccessToken, user: newUserData } = payload;
 
-        if (!newAccessToken || !newUserData) {
-          throw new Error("Invalid refresh response from server");
-        }
+        if (!newAccessToken || !newUserData)
+          throw new Error("Invalid refresh response");
 
-        const originalRememberMePreference =
-          !!localStorage.getItem("accessToken");
-        setAuthData(newUserData, newAccessToken, originalRememberMePreference);
-        showToast("Session refreshed!", "success");
+        const isRememberMe = !!localStorage.getItem("accessToken");
+        setAuthData(newUserData, newAccessToken, isRememberMe);
         processQueue(null, newAccessToken);
-
         return newAccessToken;
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-
+      } catch (err) {
+        processQueue(err, null);
         if (!logoutInitiated.current) {
-          localStorage.removeItem("accessToken");
-          sessionStorage.removeItem("accessToken");
           setAuthData(null, null);
-          setAuthError("Your session has expired. Please log in again.");
-          showToast("Your session has expired. Please log in again.", "error");
+          setAuthError("Session expired. Please log in again.");
+          showToast("Session expired. Please log in again.", "error");
         }
-        throw refreshError;
+        throw err;
       } finally {
         isRefreshing.current = false;
         refreshPromise.current = null;
@@ -237,38 +212,15 @@ export const AuthProvider = ({ children }) => {
     return refreshP;
   }, [setAuthData, showToast, processQueue]);
 
-  // Reusable auth action executor with error handling
   const executeAuthAction = useCallback(
     async (actionName, apiCall, successHandler) => {
       setLoading(true);
       setAuthError(null);
-
       try {
-        const response = await apiCall();
-        return await successHandler(response);
+        const payload = await apiCall();
+        return await successHandler(payload);
       } catch (err) {
-        let errorMessage;
-
-        if (err.response?.status === 429) {
-          errorMessage = `Too many ${actionName} attempts. Please wait 15 minutes and try again.`;
-        } else if (
-          err.code === "ERR_NETWORK" ||
-          err.message === "Network Error"
-        ) {
-          errorMessage =
-            "Network error. Please check your connection and try again.";
-        } else if (err.response?.status === 403 && actionName === "login") {
-          errorMessage =
-            "Invalid email or password. Please check your credentials.";
-        } else {
-          errorMessage = getErrorMessage(
-            err,
-            `${
-              actionName.charAt(0).toUpperCase() + actionName.slice(1)
-            } failed. Please try again.`
-          );
-        }
-
+        const errorMessage = getErrorMessage(err, `${actionName} failed.`);
         setAuthError(errorMessage);
         showToast(errorMessage, "error");
         throw new Error(errorMessage);
@@ -279,7 +231,6 @@ export const AuthProvider = ({ children }) => {
     [showToast]
   );
 
-  // Login Function
   const login = useCallback(
     async (email, password, rememberMe) => {
       return executeAuthAction(
@@ -290,23 +241,20 @@ export const AuthProvider = ({ children }) => {
             password,
             rememberMe,
           }),
-        (response) => {
-          const { accessToken: receivedAccessToken, user: userData } =
-            response.data.data;
+        (payload) => {
+          const { accessToken: receivedAccessToken, user: userData } = payload;
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, rememberMe);
             showToast("Login Successful!", "success");
             return { success: true };
-          } else {
-            throw new Error("Invalid response from the server during login.");
           }
+          throw new Error("Invalid response format.");
         }
       );
     },
     [executeAuthAction, setAuthData, showToast]
   );
 
-  // Register Function
   const register = useCallback(
     async (username, email, password) => {
       return executeAuthAction(
@@ -317,120 +265,98 @@ export const AuthProvider = ({ children }) => {
             email,
             password,
           }),
-        (response) => {
-          const { accessToken: receivedAccessToken, user: userData } =
-            response.data.data;
+        (payload) => {
+          const { accessToken: receivedAccessToken, user: userData } = payload;
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, false);
-            showToast(
-              "Registration successful! You are now logged in.",
-              "success"
-            );
+            showToast("Registration successful!", "success");
             return { success: true };
-          } else {
-            throw new Error(
-              "Invalid response from server during registration."
-            );
           }
+          throw new Error("Invalid response format.");
         }
       );
     },
     [executeAuthAction, setAuthData, showToast]
   );
 
-  // Initial user profile fetch
   const fetchUserProfile = useCallback(async () => {
     if (user) {
       setLoading(false);
       return;
     }
-
-    const storedAccessToken = getStoredAccessToken();
-    if (!storedAccessToken) {
-      setLoading(false);
-      return;
-    }
-
-    // Check token validity before making request
-    if (!isTokenValid(storedAccessToken)) {
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
+    const token = getStoredAccessToken();
+    if (!token || !isTokenValid(token)) {
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-      const authHeader = `Bearer ${storedAccessToken}`;
-      apiClient.defaults.headers.common["Authorization"] = authHeader;
-      adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+      const payload = await apiClient.get("/auth/user");
+      const userData = payload.user || payload;
 
-      const response = await apiClient.get("/auth/user");
-      const { user: userData } = response.data.data;
-
-      setAuthData(
-        userData,
-        storedAccessToken,
-        !!localStorage.getItem("accessToken")
-      );
+      setAuthData(userData, token, !!localStorage.getItem("accessToken"));
     } catch (err) {
-      if (err.response?.status !== 401) {
-        // 401 will be handled by interceptor
-        localStorage.removeItem("accessToken");
-        sessionStorage.removeItem("accessToken");
-        setAuthData(null, null);
-      }
+      if (err.response?.status !== 401) setAuthData(null, null);
     } finally {
       setLoading(false);
     }
   }, [setAuthData, user, isTokenValid]);
 
-  // Initial Token Validation & User Load
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  // Axios Interceptors
+  // --- INTERCEPTOR SETUP ---
   useEffect(() => {
-    const requestInterceptor = apiClient.interceptors.request.use(
-      (config) => {
-        if (!config.headers.Authorization) {
-          const currentAccessToken = getStoredAccessToken();
-          if (currentAccessToken && isTokenValid(currentAccessToken)) {
-            config.headers.Authorization = `Bearer ${currentAccessToken}`;
-          }
-        }
-        return config;
-      },
-      (err) => Promise.reject(err)
-    );
+    const requestInterceptor = apiClient.interceptors.request.use((config) => {
+      const token = getStoredAccessToken();
+      if (token && isTokenValid(token) && !config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
 
     const responseInterceptor = apiClient.interceptors.response.use(
-      (response) => response,
+      (res) => res,
       async (err) => {
         const originalRequest = err.config;
-
         if (
-          logoutInitiated.current ||
-          originalRequest.url?.includes("/auth/logout")
+          err.response?.status === 401 &&
+          !originalRequest._retry &&
+          !logoutInitiated.current
         ) {
-          return Promise.reject(err);
-        }
-
-        if (err.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
-
           try {
-            const newAccessToken = await refreshAuthToken();
-            if (newAccessToken) {
-              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-              return apiClient(originalRequest);
-            }
+            const newToken = await refreshAuthToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return apiClient(originalRequest);
           } catch {
             return Promise.reject(err);
           }
         }
+        return Promise.reject(err);
+      }
+    );
 
+    const adminResponseInterceptor = adminApiClient.interceptors.response.use(
+      (res) => res,
+      async (err) => {
+        const originalRequest = err.config;
+        if (err.response?.status === 403) {
+          showToast("Admin access required", "error");
+          return Promise.reject(new Error("Admin access required"));
+        }
+        if (err.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            const newToken = await refreshAuthToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return adminApiClient(originalRequest);
+          } catch {
+            return Promise.reject(err);
+          }
+        }
         return Promise.reject(err);
       }
     );
@@ -438,72 +364,9 @@ export const AuthProvider = ({ children }) => {
     return () => {
       apiClient.interceptors.request.eject(requestInterceptor);
       apiClient.interceptors.response.eject(responseInterceptor);
+      adminApiClient.interceptors.response.eject(adminResponseInterceptor);
     };
-  }, [refreshAuthToken, isTokenValid]);
-
-  // Admin Interceptors
-  adminApiClient.interceptors.request.use(
-    (config) => {
-      const currentAccessToken = getStoredAccessToken();
-      if (currentAccessToken && isTokenValid(currentAccessToken)) {
-        config.headers.Authorization = `Bearer ${currentAccessToken}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
-
-  adminApiClient.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
-
-      if (logoutInitiated.current) {
-        return Promise.reject(error);
-      }
-
-      if (error.response?.status === 403) {
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 1000);
-        return Promise.reject(new Error("Admin access required"));
-      }
-
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        try {
-          const newAccessToken = await refreshAuthToken();
-          if (newAccessToken) {
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return adminApiClient(originalRequest);
-          }
-        } catch {
-          return Promise.reject(error);
-        }
-      }
-
-      if (error.response) {
-        const { status, data } = error.response;
-        switch (status) {
-          case 404:
-            error.message = data?.message || "Admin resource not found";
-            break;
-          case 429:
-            error.message = "Too many admin requests. Please slow down.";
-            break;
-          case 500:
-            error.message = "Admin server error. Please try again later.";
-            break;
-        }
-      }
-
-      return Promise.reject(error);
-    }
-  );
-
-  const triggerLeaderboardRefresh = () =>
-    setLeaderboardVersion((version) => version + 1);
+  }, [refreshAuthToken, isTokenValid, showToast]);
 
   const authContextValue = {
     user,
@@ -517,7 +380,7 @@ export const AuthProvider = ({ children }) => {
     refreshAuthToken,
     updateUser,
     leaderboardVersion,
-    triggerLeaderboardRefresh,
+    triggerLeaderboardRefresh: () => setLeaderboardVersion((v) => v + 1),
     isUserAdmin,
   };
 
@@ -530,8 +393,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };

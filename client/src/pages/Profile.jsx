@@ -7,7 +7,7 @@ import {
   BackToTopButton,
   SegmentedLevelProgressBar,
 } from "../components/ui";
-import { BadgeModal } from "../components/modals";
+import { BadgeModal } from "../modals";
 import PrivacySettings from "../components/settings/PrivacySettings";
 import { BADGE_LIBRARY, BADGES_BY_ID } from "../data/badges";
 import { getErrorMessage } from "../utils";
@@ -29,11 +29,11 @@ const Profile = () => {
     const fetchAchievements = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get("/progress/achievements");
+        const data = await apiClient.get("/progress/achievements");
         setAchievements({
-          earnedBadges: response.data.earnedBadges || [],
-          inProgress: response.data.inProgress || [],
-          locked: response.data.locked || [],
+          earnedBadges: data.earnedBadges || [],
+          inProgress: data.inProgress || [],
+          locked: data.locked || [],
         });
       } catch (err) {
         console.error("Failed to load achievements:", err);

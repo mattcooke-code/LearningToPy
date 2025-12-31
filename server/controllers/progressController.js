@@ -55,9 +55,12 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
 
   const progressData = formatProgressResponse(sanitizedUser, totalLessons);
 
-  sendJsonResponse(res, 200, "User progress fetched successfully.", {
-    data: progressData,
-  });
+  sendJsonResponse(
+    res,
+    200,
+    "User progress fetched successfully.",
+    progressData
+  );
 });
 
 const getAchievements = catchAsync(async (req, res, next) => {
@@ -178,11 +181,9 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
     }));
 
   sendJsonResponse(res, 200, "User's leaderboard placement found", {
-    data: {
-      users: surroundingUsers,
-      currentUserRank: currentUserIndex + 1,
-      totalUsers: usersWithPrivacy.length,
-    },
+    users: surroundingUsers,
+    currentUserRank: currentUserIndex + 1,
+    totalUsers: usersWithPrivacy.length,
   });
 });
 
@@ -207,7 +208,7 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
   }));
 
   sendJsonResponse(res, 200, "Top leaderboard fetched", {
-    data: topUsersWithPrivacy,
+    topUsersWithPrivacy,
   });
 });
 
@@ -215,25 +216,41 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
 
-  const moduleUsers = (
-    await User.find({ completedModules: moduleId }).select("username xp")
-  )
-    .toSorted({ xp: -1 })
+  // 1. Fetch users who completed this module + privacy settings
+  const moduleUsers = await User.find({
+    completedModules: moduleId,
+    "privacySettings.showOnLeaderboards": true,
+  })
+    .select("username xp privacySettings")
+    .sort({ xp: -1 })
     .limit(50)
     .lean();
 
-  const currentUserIndex = moduleUsers.findIndex(
-    (user) => user._id.toString() === userId
-  );
-
-  const usersWithCurrentFlag = moduleUsers.map((user, index) => ({
-    ...user,
+  // 2. Map for anonymity and the current user flag
+  const formattedUsers = moduleUsers.map((user, index) => ({
+    _id: user._id,
+    rank: index + 1,
+    username: user.privacySettings?.showUsernameOnLeaderboards
+      ? user.username
+      : `Learner #${user._id.toString().slice(-6)}`,
+    xp: user.xp,
     isCurrent: user._id.toString() === userId,
+    isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
   }));
 
+  // 3. Find the current user's actual rank (even if they aren't in the top 50)
+  // Note: For a true rank, you'd count users with more XP than current user
+  const currentUser = await User.findById(userId).select("xp");
+  const rank =
+    (await User.countDocuments({
+      completedModules: moduleId,
+      "privacySettings.showOnLeaderboards": true,
+      xp: { $gt: currentUser.xp },
+    })) + 1;
+
   sendJsonResponse(res, 200, "Module leaderboard fetched.", {
-    users: usersWithCurrentFlag,
-    currentUserRank: currentUserIndex + 1,
+    users: formattedUsers,
+    currentUserRank: rank,
     totalInModule: moduleUsers.length,
   });
 });

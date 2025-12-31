@@ -4,10 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
 import { BackToTopButton, LoadingState, ErrorState } from "../components/ui";
 import {
-  LessonItem,
   LessonsList,
   ModuleHeader,
-  ProgressCircle,
   QuickActions,
 } from "../components/module_lesson";
 import { getErrorMessage, calculateModuleLessonProgress } from "../utils";
@@ -36,11 +34,11 @@ const ModuleLessonsPage = () => {
     const fetchModuleLessons = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get(
+        const data = await apiClient.get(
           `/content/modules/${moduleId}/lessons`
         );
-        setModuleData(response.data.data.module);
-        setLessons(response.data.data.lessons);
+        setModuleData(data.module);
+        setLessons(data.lessons);
       } catch (err) {
         setError(
           getErrorMessage(

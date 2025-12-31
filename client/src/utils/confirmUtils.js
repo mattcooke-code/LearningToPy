@@ -26,13 +26,15 @@ export const useConfirmActions = () => {
           title: `Delete ${resourceName}`,
           message: `Are you sure you want to delete this ${resourceName}? This action cannot be undone.`,
           confirmText: "Delete",
+          type: "danger",
         }),
 
       confirmArchive: (resourceName = "item") =>
         createConfirmPromise({
           title: `Archive ${resourceName}`,
-          message: `This will hide the ${resourceName} from users. You can restore it later.`, // Added restoration note
+          message: `This will hide the ${resourceName} from users. You can restore it later.`,
           confirmText: "Archive",
+          type: "warning",
         }),
 
       confirmPublish: (resourceName = "item") =>
@@ -46,7 +48,7 @@ export const useConfirmActions = () => {
         createConfirmPromise({
           title: "Reset Changes",
           message:
-            "Are you sure you want to reset all changes? This cannot be undone.", // Added "cannot be undone"
+            "Are you sure you want to reset all changes? This cannot be undone.",
           confirmText: "Reset",
         }),
 

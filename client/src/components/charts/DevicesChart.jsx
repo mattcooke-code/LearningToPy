@@ -1,9 +1,17 @@
-// DevicesChart.jsx
-import { CHART_COLORS } from "../../../constants/adminConstants";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { CustomTooltip } from "./CustomTooltip";
+import { CHART_COLORS } from "../../constants/adminConstants";
 
 export const DevicesChart = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" debounce={50}>
       <PieChart>
         <Pie
           data={data || []}
@@ -11,7 +19,6 @@ export const DevicesChart = ({ data }) => {
           cy="50%"
           labelLine={true}
           outerRadius={80}
-          fill="#8884d8"
           dataKey="percentage"
           nameKey="device"
           label={({ name, percentage }) => `${name}: ${percentage}%`}
@@ -23,10 +30,7 @@ export const DevicesChart = ({ data }) => {
             />
           ))}
         </Pie>
-        <Tooltip
-          content={<CustomTooltip />}
-          formatter={(value) => [`${value}%`, "Percentage"]}
-        />
+        <Tooltip content={<CustomTooltip />} />
         <Legend />
       </PieChart>
     </ResponsiveContainer>

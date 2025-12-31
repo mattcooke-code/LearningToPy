@@ -1,3 +1,4 @@
+// PrivacySettings.jsx
 import { useState, useEffect } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
 import { apiClient } from "../../context";
@@ -31,16 +32,11 @@ const PrivacySettings = ({ user, onUpdate }) => {
       setSaving(true);
       setMessage({ type: "", text: "" });
 
-      console.log("📤 Sending privacy settings:", settings);
+      const data = await apiClient.patch("/auth/privacy-settings", settings);
 
-      const response = await apiClient.patch(
-        "/auth/privacy-settings",
-        settings
-      );
-
-      console.log("📥 Server response:", response.data);
-
-      if (onUpdate) {
+      if (onUpdate && data.privacySettings) {
+        onUpdate(data.privacySettings);
+      } else if (onUpdate) {
         onUpdate(settings);
       }
 
@@ -48,10 +44,6 @@ const PrivacySettings = ({ user, onUpdate }) => {
         type: "success",
         text: "Privacy settings updated successfully!",
       });
-
-      if (response.data.success) {
-        onUpdate(response.data.data.privacySettings);
-      }
 
       // Clear message after 3 seconds
       setTimeout(() => {

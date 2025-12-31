@@ -1,3 +1,4 @@
+// Dashboard.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
@@ -9,7 +10,7 @@ import {
   Spinner,
   LeaderboardRow,
 } from "../components/ui";
-import { FullLeaderboardModal } from "../components/modals";
+import { LeaderboardModal } from "../modals";
 import { BADGES_BY_ID } from "../data/badges";
 
 const Dashboard = () => {
@@ -28,11 +29,9 @@ const Dashboard = () => {
 
     const fetchProgress = async () => {
       try {
-        const response = await apiClient.get("/progress/current");
-        setUserProgress(response.data.data);
-        updateThemeFromCourseProgress(
-          response.data.data.courseProgressPercentage
-        );
+        const progressData = await apiClient.get("/progress/current");
+        setUserProgress(progressData);
+        updateThemeFromCourseProgress(progressData.courseProgressPercentage);
       } catch (err) {
         console.error("Failed to fetch progress:", err);
       }
@@ -41,8 +40,10 @@ const Dashboard = () => {
     const fetchSurroundingLeaderboard = async () => {
       try {
         setLeaderboardLoading(true);
-        const response = await apiClient.get("/progress/leaderboard/around-me");
-        setSurroundingLeaderboard(response.data.data);
+        const leaderboardData = await apiClient.get(
+          "/progress/leaderboard/around-me"
+        );
+        setSurroundingLeaderboard(leaderboardData);
       } catch (err) {
         console.error("Failed to fetch leaderboard:", err);
         setSurroundingLeaderboard(null);
@@ -126,7 +127,7 @@ const Dashboard = () => {
             </div>
           ) : surroundingLeaderboard ? (
             <div className="space-y-3">
-              {surroundingLeaderboard.users.map((player) => (
+              {surroundingLeaderboard.users?.map((player) => (
                 <LeaderboardRow
                   key={player.rank}
                   rank={player.rank}
@@ -282,7 +283,7 @@ const Dashboard = () => {
       </div>
 
       {/* Full Leaderboard Modal */}
-      <FullLeaderboardModal
+      <LeaderboardModal
         isOpen={isLeaderboardModalOpen}
         onClose={() => setIsLeaderboardModalOpen(false)}
         userRank={surroundingLeaderboard?.currentUserRank}

@@ -3,7 +3,7 @@ import { adminApiClient } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
 import { getStatusConfig } from "../../constants/adminConstants";
 import { Pagination, LoadingState } from "../ui";
-import FlagResolutionModal from "../modals/FlagResolutionModal";
+import FlagResolutionModal from "../../modals/FlagResolutionModal";
 import {
   Flag,
   Search,

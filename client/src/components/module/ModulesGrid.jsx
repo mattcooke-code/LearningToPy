@@ -1,8 +1,11 @@
 // components/ModulesGrid.jsx
 import ModuleCard from "./ModuleCard";
+import { BookOpen } from "lucide-react";
 
-const ModulesGrid = ({ modules }) => {
-  if (modules.length === 0) {
+const ModulesGrid = ({ modules = [] }) => {
+  const safeModules = Array.isArray(modules) ? modules : [];
+
+  if (safeModules.length === 0) {
     return (
       <div className="text-center py-12">
         <BookOpen size={64} className="text-gray-300 mx-auto mb-4" />
@@ -18,9 +21,9 @@ const ModulesGrid = ({ modules }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      {modules.map((module) => (
+      {safeModules.map((module) => (
         <ModuleCard
-          key={module._id}
+          key={module._id || module.id}
           module={module}
           isLocked={module.isLocked}
         />

@@ -1,4 +1,5 @@
 // AdminDashboard.jsx
+import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { adminApiClient } from "../context";
 import {
@@ -8,6 +9,7 @@ import {
 } from "../components/admin";
 import { RefreshButton } from "../components/ui";
 import { useAdminData } from "../hooks";
+import { calculateAdminDashboardStats } from "../utils/statsManagement";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -26,6 +28,15 @@ const AdminDashboard = () => {
     { autoRetry: true, maxRetries: 3 }
   );
 
+  const [statsData, usersData] = data || [{}, {}];
+
+  const stats = useMemo(
+    () => calculateAdminDashboardStats(statsData),
+    [statsData]
+  );
+
+  const recentUsers = usersData?.users || [];
+
   if (loading || error || !data) {
     return (
       <AdminPage
@@ -35,23 +46,6 @@ const AdminDashboard = () => {
       ></AdminPage>
     );
   }
-
-  const [statsData, usersData] = data;
-
-  const stats = {
-    totalUsers: statsData.totalUsers || 0,
-    activeUsers: statsData.activeUsers || 0,
-    totalLessons: statsData.totalLessons || 0,
-    publishedLessons: statsData.publishedLessons || 0,
-    flaggedContent: statsData.flaggedContent || statsData.pendingFlags || 0,
-  };
-
-  const recentUsers = usersData?.users || [];
-
-  const publishedPercentage =
-    stats.totalLessons > 0
-      ? Math.round((stats.publishedLessons / stats.totalLessons) * 100)
-      : 0;
 
   return (
     <AdminPage
@@ -82,7 +76,7 @@ const AdminDashboard = () => {
           icon="📚"
           color="purple"
           trend={{
-            value: `${publishedPercentage}%`,
+            value: `${stats.publishedPercentage}%`,
             positive: true,
           }}
           linkTo="/admin/content"

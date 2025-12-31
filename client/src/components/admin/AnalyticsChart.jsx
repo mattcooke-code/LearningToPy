@@ -182,8 +182,14 @@ const AnalyticsChart = () => {
 
       {/* Main Chart */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <div className="h-80">
-          {ChartComponent && <ChartComponent data={chartData} />}
+        <div className="h-80 min-h-[320px] w-full ">
+          {ChartComponent && chartData?.length > 0 ? (
+            <ChartComponent data={chartData} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-400">
+              No data available for this period
+            </div>
+          )}
         </div>
       </div>
 

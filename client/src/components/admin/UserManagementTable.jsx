@@ -1,3 +1,4 @@
+// UserManagmentTable.jsx
 import { useState, useMemo } from "react";
 import { useNotification, adminApiClient } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
@@ -5,7 +6,7 @@ import {
   XPAdjustmentModal,
   ProgressOverrideModal,
   UserDetailModal,
-} from "../modals";
+} from "../../modals";
 import {
   ChevronDown,
   ChevronUp,
@@ -63,12 +64,12 @@ const UserManagementTable = ({ searchQuery = "" }) => {
   // 3. Mutation Hooks
   const { mutate: updateStatus } = useAdminMutation(
     (vars) => adminApiClient.patch(`/users/${vars.id}/status`, vars.body),
-    { successResource: "User status", onBeforeMutate: () => refresh() }
+    { successResource: "User status" }
   );
 
   const { mutate: updateAdmin } = useAdminMutation(
     (vars) => adminApiClient.patch(`/users/${vars.id}/admin-status`, vars.body),
-    { successResource: "Admin permissions", onBeforeMutate: () => refresh() }
+    { successResource: "Admin permissions" }
   );
 
   // 4. Modal & UI State
@@ -93,7 +94,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
       body: { makeAdmin: !user.isAdmin, reason },
     });
     setActionMenu(null);
-    refresh(); // Refresh list to show changes
+    refresh();
   };
 
   const handleStatusChange = async (userId, action) => {
@@ -318,7 +319,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
           onSave={() => {
             showToast("Progress updated successfully", "success");
             setShowProgressModal(false);
-            fetchUsers();
+            refresh();
           }}
         />
       )}

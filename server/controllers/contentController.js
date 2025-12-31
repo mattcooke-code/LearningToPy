@@ -73,9 +73,12 @@ const getAllModules = catchAsync(async (req, res, next) => {
     })
   );
 
-  sendJsonResponse(res, 200, "Modules fetched successfully", {
-    data: modulesWithProgress,
-  });
+  sendJsonResponse(
+    res,
+    200,
+    "Modules fetched successfully",
+    modulesWithProgress
+  );
 });
 
 const getModuleLessons = catchAsync(async (req, res, next) => {
@@ -101,14 +104,12 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
   }));
 
   sendJsonResponse(res, 200, "Lessons fetched successfully", {
-    data: {
-      module: {
-        title: module.title,
-        description: module.description,
-        icon: module.icon,
-      },
-      lessons: lessonsWithProgress,
+    module: {
+      title: module.title,
+      description: module.description,
+      icon: module.icon,
     },
+    lessons: lessonsWithProgress,
   });
 });
 
@@ -134,7 +135,8 @@ const getLessonContent = catchAsync(async (req, res, next) => {
   const isCompleted = user.completedLessons.includes(lessonId);
 
   sendJsonResponse(res, 200, "Lesson content fetched successfully", {
-    data: { ...safeLesson, isCompleted },
+    ...safeLesson,
+    isCompleted,
   });
 });
 
@@ -278,16 +280,14 @@ const submitLesson = catchAsync(async (req, res, next) => {
     const progressData = formatProgressResponse(user.toObject());
 
     sendJsonResponse(res, 200, "Lesson Completed!", {
-      data: {
-        isCorrect,
-        feedback,
-        completed: true,
-        xpEarned: xpIncrease, // Send the total XP earned (lesson + bonus)
-        progress: progressData, // Send updated progress data
-        moduleCompleted: moduleCompletedNow, // <-- Send status to frontend
-        badgesUnlocked: badgesUnlockedDetails,
-        nextLessonId,
-      },
+      isCorrect,
+      feedback,
+      completed: true,
+      xpEarned: xpIncrease, // Send the total XP earned (lesson + bonus)
+      progress: progressData, // Send updated progress data
+      moduleCompleted: moduleCompletedNow, // <-- Send status to frontend
+      badgesUnlocked: badgesUnlockedDetails,
+      nextLessonId,
     });
     return; // End here to prevent double response
   }
@@ -297,13 +297,11 @@ const submitLesson = catchAsync(async (req, res, next) => {
     200,
     isCorrect ? "Lesson Completed!" : "Check your answer.",
     {
-      data: {
-        isCorrect,
-        feedback,
-        completed: isCorrect || lesson.contentType === "theory",
-        xpEarned: isCorrect ? lesson.xpReward : 0,
-        nextLessonId,
-      },
+      isCorrect,
+      feedback,
+      completed: isCorrect || lesson.contentType === "theory",
+      xpEarned: isCorrect ? lesson.xpReward : 0,
+      nextLessonId,
     }
   );
 });
@@ -368,7 +366,8 @@ const fixModuleProgress = catchAsync(async (req, res, next) => {
   }
 
   sendJsonResponse(res, 200, "Module progress check completed", {
-    data: { fixed: modulesFixed.length > 0, modules: modulesFixed },
+    fixed: modulesFixed.length > 0,
+    modules: modulesFixed,
   });
 });
 

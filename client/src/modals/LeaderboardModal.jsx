@@ -1,0 +1,137 @@
+// LeaderboardModal.jsx
+import { useEffect, useState } from "react";
+import { apiClient, useNotification } from "../context";
+import { getErrorMessage } from "../utils";
+import { BaseModal, LeaderboardRow, Spinner } from "../components/ui";
+import { data } from "react-router-dom";
+
+const LeaderboardModal = ({
+  isOpen,
+  onClose,
+  type = "global",
+  moduleId = null,
+  userRank: initialUserRank = null,
+  surroundingUsers: initialSurroundingUsers = [],
+}) => {
+  const { showToast } = useNotification();
+  const [topUsers, setTopUsers] = useState([]);
+  const [currentUserRank, setCurrentUserRank] = useState(initialUserRank);
+  const [surroundingUsers, setSurroundingUsers] = useState(
+    initialSurroundingUsers
+  );
+  const [loading, setLoading] = useState(false);
+
+  const isModule = type === "module";
+
+  const isUserInTopList = topUsers.some((u) => u.isCurrent);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchLeaderboard = async () => {
+      try {
+        setLoading(true);
+
+        if (isModule && moduleId) {
+          const data = await apiClient.get(
+            `/progress/leaderboard/module/${moduleId}`
+          );
+          setTopUsers(data.users || []);
+          setCurrentUserRank(data.currentUserRank || null);
+          setSurroundingUsers([]);
+        } else {
+          const response = await apiClient.get(
+            "/progress/leaderboard/top?limit=10"
+          );
+          setTopUsers(Array.isArray(data) ? data : data.users || []);
+          setSurroundingUsers(initialSurroundingUsers);
+          setCurrentUserRank(initialUserRank);
+        }
+      } catch (err) {
+        showToast(getErrorMessage(err, "Failed to load leaderboard"), "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, [isOpen, isModule, moduleId, initialSurroundingUsers, initialUserRank]);
+
+  const title = isModule ? "Module Leaderboard" : "🏆 Full Leaderboard";
+  const subtitle = isModule
+    ? "See how you rank in this module"
+    : "See how you rank among all learners";
+
+  return (
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      size={isModule ? "md" : "2xl"}
+      backdropBlur={!isModule}
+      closeOnOverlayClick
+      closeOnEscape
+    >
+      <p className="text-sm text-gray-500 mb-6">{subtitle}</p>
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Spinner size="md" />
+          <p className="mt-3 text-gray-500">Loading leaderboard...</p>
+        </div>
+      ) : (
+        <div className="space-y-8 max-h-[60vh] overflow-y-auto pr-2">
+          {/* Top Users */}
+          <div>
+            <h3 className="mb-3 text-lg font-semibold">
+              {isModule ? "Top Learners" : "Top 10 Learners"}
+            </h3>
+            <div className="space-y-2">
+              {topUsers.length > 0 ? (
+                topUsers.map((user, index) => (
+                  <LeaderboardRow
+                    key={user._id || index}
+                    rank={isModule ? index + 1 : user.rank || index + 1}
+                    user={user}
+                    isCurrent={user.isCurrent}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-500 italic">No data available.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Your Neighborhood (Global Only) */}
+          {!isModule && surroundingUsers.length > 0 && (
+            <div>
+              <h3 className="mb-3 text-lg font-semibold border-t pt-4 dark:border-gray-700">
+                Your Ranking:{" "}
+                <span className="text-blue-600">#{currentUserRank || "—"}</span>
+              </h3>
+              <div className="space-y-2">
+                {surroundingUsers.map((user) => (
+                  <LeaderboardRow
+                    key={user._id}
+                    rank={user.rank}
+                    user={user}
+                    isCurrent={user.isCurrent}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Module: Your Rank Footer (Fixed Logic) */}
+          {isModule && currentUserRank && !isUserInTopList && (
+            <div className="text-center text-sm text-gray-600 pt-4 border-t border-gray-100 dark:border-gray-700">
+              Your rank in this module: <strong>#{currentUserRank}</strong>
+            </div>
+          )}
+        </div>
+      )}
+    </BaseModal>
+  );
+};
+
+export default LeaderboardModal;

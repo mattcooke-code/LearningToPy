@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+// ContentManagementTable.jsx
+import { useState, useEffect, useMemo } from "react";
 import { adminApiClient, useNotification } from "../../context";
-import { LessonEditorModal, ModuleEditorModal } from "../modals";
+import { LessonEditorModal, ModuleEditorModal } from "../../modals";
+import { useContentFilter } from "../../hooks";
+import { useConfirmActions, calculateContentStats } from "../../utils";
 import {
   Search,
   Eye,
@@ -26,48 +29,42 @@ import {
 
 const ContentManagementTable = () => {
   const [content, setContent] = useState([]);
-  const [filteredContent, setFilteredContent] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    type: "all", // 'all', 'lesson', 'module'
-    status: "all", // 'all', 'published', 'draft'
-    difficulty: "all",
-    search: "",
-  });
-  const [sortConfig, setSortConfig] = useState({
-    field: "updatedAt",
-    direction: "descend",
-  });
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'grid'
   const [selectedItems, setSelectedItems] = useState([]);
   const [bulkAction, setBulkAction] = useState("");
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [showModuleModal, setShowModuleModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [stats, setStats] = useState({
-    totalLessons: 0,
-    totalModules: 0,
-    publishedLessons: 0,
-    publishedModules: 0,
-    draftLessons: 0,
-    draftModules: 0,
-  });
 
-  const { showConfirm } = useNotification();
+  const confirm = useConfirmActions();
+  const { showToast } = useNotification();
+  const {
+    filters,
+    setFilters,
+    sortConfig,
+    handleSort,
+    filteredContent,
+    clearFilters,
+  } = useContentFilter(content);
+
+  const stats = useMemo(() => {
+    if (content.length === 0) {
+      return {
+        totalLessons: 0,
+        totalModules: 0,
+        publishedLessons: 0,
+        publishedModules: 0,
+        draftLessons: 0,
+        draftModules: 0,
+      };
+    }
+    return calculateContentStats(content);
+  }, [content]);
 
   useEffect(() => {
     fetchContent();
   }, []);
-
-  useEffect(() => {
-    if (content.length > 0) {
-      fetchStats();
-    }
-  }, [content]);
-
-  useEffect(() => {
-    filterAndSortContent();
-  }, [content, filters, sortConfig]);
 
   const fetchContent = async () => {
     try {
@@ -77,109 +74,27 @@ const ContentManagementTable = () => {
         adminApiClient.get("/content/modules?limit=1000"),
       ]);
 
-      const lessons = (lessonsRes.data.data?.lessons || []).map((lesson) => ({
-        ...lesson,
-        type: "lesson",
-      }));
+      const lessons = (lessonsRes?.lessons || lessonRes || []).map(
+        (lesson) => ({
+          ...lesson,
+          type: "lesson",
+        })
+      );
 
-      const modules = (modulesRes.data.data?.modules || []).map((module) => ({
-        ...module,
-        type: "module",
-      }));
+      const modules = (modulesRes?.modules || modulesRes || []).map(
+        (module) => ({
+          ...module,
+          type: "module",
+        })
+      );
 
       setContent([...lessons, ...modules]);
     } catch (error) {
-      showConfirm("Failed to load content", "error");
+      showToast("Failed to load content", "error");
       console.error("Content fetch error:", error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const lessons = content.filter((item) => item.type === "lesson");
-      const modules = content.filter((item) => item.type === "module");
-
-      const stats = {
-        totalLessons: lessons.length,
-        totalModules: modules.length,
-        publishedLessons: lessons.filter((lesson) => lesson.isPublished).length,
-        publishedModules: modules.filter((module) => module.isPublished).length,
-        draftLessons: lessons.filter((lesson) => !lesson.isPublished).length,
-        draftModules: modules.filter((module) => !module.isPublished).length,
-      };
-
-      setStats(stats);
-    } catch (error) {
-      console.error("Stats calculation error:", error);
-      // Fallback to zero stats
-      setStats({
-        totalLessons: 0,
-        totalModules: 0,
-        publishedLessons: 0,
-        publishedModules: 0,
-        draftLessons: 0,
-        draftModules: 0,
-      });
-    }
-  };
-
-  const filterAndSortContent = () => {
-    let filtered = [...content];
-
-    // Filter by type
-    if (filters.type !== "all") {
-      filtered = filtered.filter((item) => item.type === filters.type);
-    }
-
-    // Filter by status
-    if (filters.status !== "all") {
-      filtered = filtered.filter((item) =>
-        filters.status === "published" ? item.isPublished : !item.isPublished
-      );
-    }
-
-    // Filter by difficulty
-    if (filters.difficulty !== "all") {
-      filtered = filtered.filter(
-        (item) => item.difficulty === filters.difficulty
-      );
-    }
-
-    // Filter by search
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(
-        (item) =>
-          item.title?.toLowerCase().includes(searchTerm) ||
-          item.description?.toLowerCase().includes(searchTerm) ||
-          item._id?.toLowerCase().includes(searchTerm) ||
-          item.tags?.some((tag) => tag.toLowerCase().includes(searchTerm))
-      );
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      const { field, direction } = sortConfig;
-      const multiplier = direction === "ascend" ? 1 : -1;
-
-      if (a[field] < b[field]) return -1 * multiplier;
-      if (a[field] > b[field]) return 1 * multiplier;
-      return 0;
-    });
-
-    setFilteredContent(filtered);
-  };
-
-  const handleSort = (field) => {
-    setSortConfig((prev) => ({
-      field,
-      direction:
-        prev.field === field && prev.direction === "descend"
-          ? "ascend"
-          : "descend",
-    }));
   };
 
   const togglePublish = async (itemId, itemType, currentlyPublished) => {
@@ -188,7 +103,7 @@ const ContentManagementTable = () => {
         publish: !currentlyPublished,
       });
 
-      showConfirm(
+      showToast(
         `${itemType} ${
           currentlyPublished ? "unpublished" : "published"
         } successfully`,
@@ -203,10 +118,8 @@ const ContentManagementTable = () => {
             : item
         )
       );
-
-      fetchStats();
     } catch (error) {
-      showConfirm(
+      showToast(
         `Failed to ${currentlyPublished ? "unpublish" : "publish"} ${itemType}`,
         "error"
       );
@@ -214,90 +127,64 @@ const ContentManagementTable = () => {
   };
 
   const handleDelete = async (itemId, itemType) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete this ${itemType}? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+    const confirmed = await confirm.confirmDelete(itemType);
+    if (!confirmed) return;
 
     try {
       await adminApiClient.delete(`/content/${itemType}s/${itemId}`);
-
-      showConfirm(`${itemType} deleted successfully`, "success");
       setContent((prev) => prev.filter((item) => item._id !== itemId));
-      fetchStats();
+      showToast(`${itemType} deleted successfully`, "success");
     } catch (error) {
-      showConfirm(`Failed to delete ${itemType}`, "error");
+      showToast(`Failed to delete ${itemType}`, "error");
     }
   };
 
   const handleBulkAction = async () => {
     if (!bulkAction || selectedItems.length === 0) return;
 
+    const confirmed = await confirm.confirmAction(
+      "Confirm Bulk Action",
+      `Are you sure you want to ${bulkAction} ${selectedItems.length} items? This cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
     try {
-      switch (bulkAction) {
-        case "publish":
-          await Promise.all(
-            selectedItems.map((item) =>
-              adminApiClient.patch(
-                `/content/${item.type}s/${item._id}/publish`,
-                { publish: true }
-              )
-            )
-          );
-          showConfirm(`${selectedItems.length} items published`, "success");
-          break;
-
-        case "unpublish":
-          await Promise.all(
-            selectedItems.map((item) =>
-              adminApiClient.patch(
-                `/content/${item.type}s/${item._id}/publish`,
-                { publish: false }
-              )
-            )
-          );
-          showConfirm(`${selectedItems.length} items unpublished`, "success");
-          break;
-
-        case "delete":
-          if (
-            !window.confirm(
-              `Delete ${selectedItems.length} items? This cannot be undone.`
-            )
-          ) {
-            return;
+      // Process all requests
+      await Promise.all(
+        selectedItems.map((item) => {
+          if (bulkAction === "delete") {
+            return adminApiClient.delete(`/content/${item.type}s/${item._id}`);
           }
-          await Promise.all(
-            selectedItems.map((item) =>
-              adminApiClient.delete(`/content/${item.type}s/${item._id}`)
-            )
+          return adminApiClient.patch(
+            `/content/${item.type}s/${item._id}/publish`,
+            {
+              publish: bulkAction === "publish",
+            }
           );
-          showConfirm(`${selectedItems.length} items deleted`, "success");
-          break;
-      }
+        })
+      );
+
+      showToast(`Bulk ${bulkAction} completed successfully`, "success");
 
       fetchContent();
       setSelectedItems([]);
       setBulkAction("");
     } catch (error) {
-      showConfirm("Bulk action failed", "error");
+      showToast("Some items failed to update", "error");
     }
   };
 
   const duplicateItem = async (item) => {
     try {
-      const response = await adminApiClient.post(
+      const newItem = await adminApiClient.post(
         `/content/${item.type}s/${item._id}/duplicate`
       );
-      const newItem = response.data.data;
 
-      showConfirm(`${item.type} duplicated successfully`, "success");
+      showToast(`${item.type} duplicated successfully`, "success");
       setContent((prev) => [...prev, { ...newItem, type: item.type }]);
     } catch (error) {
-      showConfirm("Failed to duplicate item", "error");
+      showToast("Failed to duplicate item", "error");
     }
   };
 
@@ -949,14 +836,7 @@ const ContentManagementTable = () => {
                 : "No content matches your filters"}
             </p>
             <button
-              onClick={() => {
-                setFilters({
-                  type: "all",
-                  status: "all",
-                  difficulty: "all",
-                  search: "",
-                });
-              }}
+              onClick={clearFilters}
               className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
             >
               Clear all filters
@@ -986,7 +866,6 @@ const ContentManagementTable = () => {
           }}
           onSave={() => {
             fetchContent();
-            fetchStats();
           }}
         />
       )}
@@ -1000,7 +879,6 @@ const ContentManagementTable = () => {
           }}
           onSave={() => {
             fetchContent();
-            fetchStats();
           }}
         />
       )}

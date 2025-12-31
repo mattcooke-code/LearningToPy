@@ -117,14 +117,16 @@ const login = catchAsync(async (req, res, next) => {
 });
 
 const getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.userId || req.user._id).select(
+    "-password -refreshToken"
+  );
 
   if (!user) {
     return next(new AppError("User not found.", 404));
   }
 
   sendJsonResponse(res, 200, "User profile fetched successfully.", {
-    user: user,
+    user,
   });
 });
 
@@ -241,7 +243,7 @@ const updatePrivacySettings = catchAsync(async (req, res, next) => {
   }
 
   sendJsonResponse(res, 200, "Privacy settings updated successfully", {
-    data: { privacySettings: user.privacySettings },
+    privacySettings: user.privacySettings,
   });
 });
 

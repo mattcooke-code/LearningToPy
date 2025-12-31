@@ -1,7 +1,7 @@
 // useCourseThemeUpdater.js
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useTheme, useAuth } from "../context";
+import { useTheme, useAuth, apiClient } from "../context";
 import {
   DEFAULT_THEME_PATHS,
   ADMIN_PATH_PREFIX,
@@ -9,10 +9,12 @@ import {
 
 export const useCourseThemeUpdater = () => {
   const location = useLocation();
-  const { apiClient, isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const { updateThemeFromCourseProgress, setDefaultTheme } = useTheme();
 
   useEffect(() => {
+    if (loading) return;
+
     const pathname = location.pathname;
 
     // Check if current path should use default theme
@@ -29,8 +31,8 @@ export const useCourseThemeUpdater = () => {
     if (isAuthenticated) {
       async function fetchAndUpdateTheme() {
         try {
-          const response = await apiClient.get("/progress/current");
-          const progress = response.data.data.courseProgressPercentage;
+          const progressData = await apiClient.get("/progress/current");
+          const progress = progressData?.courseProgressPercentage;
 
           if (progress !== undefined) {
             updateThemeFromCourseProgress(progress);

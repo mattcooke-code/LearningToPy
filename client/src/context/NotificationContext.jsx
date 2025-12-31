@@ -1,3 +1,4 @@
+// NotificationContext.jsx
 import {
   createContext,
   useContext,
@@ -6,6 +7,7 @@ import {
   useMemo,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
+import BaseModal from "../components/ui/BaseModal";
 
 const NotificationContext = createContext();
 
@@ -43,31 +45,60 @@ const ConfirmationModal = ({
   onCancel,
   confirmText = "Confirm",
   cancelText = "Cancel",
+  type = "info",
 }) => {
-  if (!isOpen) return null;
+  const styles = {
+    danger: {
+      bg: "bg-red-50 dark:bg-red-900/20",
+      btn: "bg-red-600 hover:bg-red-700 shadow-red-500/20",
+    },
+    warning: {
+      bg: "bg-yellow-50 dark:bg-yellow-900/20",
+      btn: "bg-yellow-600 hover:bg-yellow-700 shadow-yellow-500/20",
+    },
+    info: {
+      bg: "bg-blue-50 dark:bg-blue-900/20",
+      btn: "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20",
+    },
+  }[type] || { bg: "bg-gray-50", btn: "bg-gray-900" };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-lg shadow-xl p-6 m-4 max-w-md w-full transform transition-all animate-in zoom-in-95">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-600 mb-6">{message}</p>
+    <BaseModal isOpen={isOpen} onClose={onCancel} title="" size="md">
+      <div className="flex flex-col items-center text-center p-2">
+        <div
+          className={`w-16 h-16 rounded-full ${styles.bg} flex items-center justify-center mb-4`}
+        >
+          {/* You can dynamically choose icon based on type here */}
+          <div
+            className={`w-3 h-3 rounded-full animate-pulse ${
+              type === "danger" ? "bg-red-500" : "bg-blue-500"
+            }`}
+          />
+        </div>
 
-        <div className="flex justify-end space-x-3">
+        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
+          {title}
+        </h3>
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 max-w-[280px] leading-relaxed">
+          {message}
+        </p>
+
+        <div className="grid grid-cols-2 gap-3 w-full">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="px-6 py-3 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-python-blue hover:bg-python-dark rounded-md transition-colors"
+            className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-lg transition-all active:scale-95 ${styles.btn}`}
           >
             {confirmText}
           </button>
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 };
 
@@ -77,6 +108,7 @@ export const NotificationProvider = ({ children }) => {
     isOpen: false,
     title: "",
     message: "",
+    type: "info",
     onConfirm: () => {},
     onCancel: () => {},
     confirmText: "Confirm",
@@ -103,6 +135,7 @@ export const NotificationProvider = ({ children }) => {
       message,
       onConfirm,
       onCancel,
+      type = "info",
       confirmText = "Confirm",
       cancelText = "Cancel",
     }) => {
@@ -110,6 +143,7 @@ export const NotificationProvider = ({ children }) => {
         isOpen: true,
         title,
         message,
+        type,
         onConfirm: () => {
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
           onConfirm();

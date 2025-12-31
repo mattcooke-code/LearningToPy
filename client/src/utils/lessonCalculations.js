@@ -16,22 +16,22 @@ export const calculateNextLessonManually = async (
     }
 
     // Get all lessons in the current module to find the next one
-    const moduleResponse = await apiClient.get(
+    const responseData = await apiClient.get(
       `/content/modules/${moduleId}/lessons`
     );
-    const responseData = moduleResponse.data.data;
 
     // Extract lessons array from the response
-    const moduleLessons = responseData.lessons || [];
+    const moduleLessons =
+      responseData.lessons || (Array.isArray(responseData) ? responseData : []);
 
-    if (!Array.isArray(moduleLessons) || moduleLessons.length === 0) {
+    if (moduleLessons.length === 0) {
       console.log("❌ No lessons array found in response");
       return null;
     }
 
     // Find current lesson index
     const currentIndex = moduleLessons.findIndex(
-      (lesson) => lesson._id === currentLessonId
+      (lesson) => (lesson._id || lesson.id) === currentLessonId
     );
 
     if (currentIndex === -1) {

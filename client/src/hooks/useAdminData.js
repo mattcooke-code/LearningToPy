@@ -1,7 +1,6 @@
 // /client/hooks/useAdminData.js
 import { useState, useCallback, useEffect } from "react";
 import { useNotification } from "../context";
-import { extractData } from "../utils/apiUtils";
 import {
   getAdminErrorMessage,
   getErrorMessage,
@@ -38,20 +37,7 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
 
         const result = await fetcher();
 
-        const isAxiosResponse =
-          result && Object.prototype.hasOwnProperty.call(result, "config");
-
-        if (Array.isArray(result)) {
-          // Extract data from each response in the array
-          const extractedData = result.map((response) =>
-            isAxiosResponse ? extractData(response) : response
-          );
-          setData(extractedData);
-        } else {
-          // Extract data from single response
-          const extractedData = isAxiosResponse ? extractData(result) : result;
-          setData(extractedData);
-        }
+        setData(result);
       } catch (err) {
         console.error("Data fetch error:", err);
 
@@ -68,7 +54,6 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
           const isServerError = err.response?.status >= 500;
 
           if (isNetworkError || isServerError) {
-            console.log(`Retrying... (${retryCount + 1}/${maxRetries})`);
             setTimeout(() => {
               fetchData(retryCount + 1);
             }, retryDelay);
