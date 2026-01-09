@@ -39,8 +39,7 @@ const seedDatabase = async () => {
     // Clear existing data based on config
     if (seedConfig.clearData) {
       console.log("🧹 Clearing existing curriculum data...");
-      await Module.deleteMany({});
-      await Lesson.deleteMany({});
+      await mongoose.connection.db.dropDatabase();
       console.log("✅ Existing data cleared");
     } else {
       console.log("⚠️ Preserving existing data (adding new modules)");
@@ -63,6 +62,7 @@ const seedDatabase = async () => {
     const { moduleCount, lessonCount } = await verifySeeding(Module, Lesson);
 
     console.log("🎉 Database seeding completed successfully!");
+    process.exit(0);
     console.log(`📊 Total: ${moduleCount} modules, ${lessonCount} lessons`);
 
     await mongoose.connection.close();

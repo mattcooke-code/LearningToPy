@@ -1,4 +1,4 @@
-// Module.js
+// server/models/Module.js
 const mongoose = require("mongoose");
 
 const ModuleSchema = new mongoose.Schema(
@@ -27,20 +27,48 @@ const ModuleSchema = new mongoose.Schema(
     slug: { type: String, unique: true, index: true, trim: true },
     xpReward: { type: Number, default: 100, min: 0 },
     lessonCount: { type: Number, default: 0 },
+    // Updated to handle the nested JSON structure from seeders
+    moduleQuiz: {
+      title: { type: String, default: "Module Review Quiz" },
+      description: String,
+      settings: {
+        randomizeQuestionOrder: { type: Boolean, default: true },
+        randomizeAnswerOrder: { type: Boolean, default: true },
+        passingScore: { type: Number, default: 70 },
+      },
+      // The questions are now nested inside the quiz object
+      questions: [
+        {
+          id: String,
+          sourceLesson: String,
+          type: { type: String, default: "multiple-choice" },
+          question: { type: String, required: true },
+          options: [String],
+          correctAnswer: Number, // Index of the correct option
+          explanation: String,
+        },
+      ],
+    },
   },
   { timestamps: true }
 );
 
-// lessonCount Update
+// --- Virtuals for Lesson Association ---
 ModuleSchema.virtual("lessons", {
   ref: "Lesson",
   localField: "_id",
   foreignField: "moduleId",
 });
 
+// Virtual to get the count of associated lessons automatically
+ModuleSchema.virtual("calculatedLessonCount").get(function () {
+  return this.lessons ? this.lessons.length : 0;
+});
+
 ModuleSchema.set("toJSON", { virtuals: true });
 ModuleSchema.set("toObject", { virtuals: true });
 
+// --- Slug Generation Middleware ---
 ModuleSchema.pre("save", async function (next) {
   if (!this.isModified("title") && this.slug) {
     return next();

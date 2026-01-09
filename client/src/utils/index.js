@@ -6,6 +6,13 @@ export {
   getHoverColor,
 } from "./colorUtilities";
 export { useConfirmActions } from "./confirmUtils";
+export {
+  createDownloadLink,
+  triggerDownload,
+  downloadContent,
+  downloadPythonCode,
+  downloadTerminalOutput,
+} from "./fileDownloadUtils";
 export { getErrorMessage, getAdminErrorMessage } from "./getErrorMessage";
 export { getSuccessMessage } from "./getSuccessMessage";
 export {

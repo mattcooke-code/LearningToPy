@@ -36,24 +36,12 @@ const readContent = (moduleFolder, fileName) => {
 const parseJSONContent = (moduleFolder, fileName) => {
   try {
     const content = readContent(moduleFolder, fileName);
-    if (!content) {
-      return null;
-    }
+    if (!content) return null;
 
-    const parsed = JSON.parse(content);
-
-    // Basic JSON validation
-    if (typeof parsed !== "object" || parsed === null) {
-      console.error(
-        `❌ Invalid JSON structure in: ${moduleFolder}/${fileName}`
-      );
-      return null;
-    }
-
-    return parsed;
+    return JSON.parse(content);
   } catch (error) {
     console.error(
-      `❌ Could not parse JSON file: ${moduleFolder}/${fileName}`,
+      `❌ JSON Syntax Error in ${moduleFolder}/${fileName}:`,
       error.message
     );
     return null;

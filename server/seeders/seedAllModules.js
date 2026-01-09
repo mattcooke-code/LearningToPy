@@ -4,6 +4,10 @@ const seedModules6to10 = require("./seedModules6-10");
 const seedModules11to15 = require("./seedModules11-15");
 const seedModules16to20 = require("./seedModules16-20");
 
+/**
+ * Orchestrates the seeding of the entire curriculum in logical order.
+ * Ensures IDs are passed between batches to maintain prerequisite links.
+ */
 const seedAllModules = async (
   Lesson,
   Module,
@@ -13,12 +17,6 @@ const seedAllModules = async (
 ) => {
   try {
     console.log("🌱 Starting comprehensive curriculum seeding...");
-    console.log(`📋 Configuration:`, {
-      clearData: seedConfig.clearData,
-      batchSize: seedConfig.batchSize,
-      modules: seedConfig.modules || "all",
-      dryRun: seedConfig.dryRun,
-    });
 
     // Progress tracking
     let processedBatches = 0;
@@ -31,65 +29,86 @@ const seedAllModules = async (
       );
     };
 
-    // Seed in logical order, passing IDs between batches
-    console.log("📚 Seeding Modules 1-5: Fundamentals...");
-    const [module1, module2, module3, module4, module5] = await seedModules1to5(
+    // --- BATCH 1: Modules 1-5 (Fundamentals) ---
+    console.log("📚 Seeding Batch 1 (Modules 1-5)...");
+    const [m1, m2, m3, m4, m5] = await seedModules1to5(
       Lesson,
       Module,
       readContent,
       parseJSONContent,
+      {}, // No prerequisites for Batch 1
       seedConfig
     );
     updateProgress();
 
-    console.log("📚 Seeding Modules 6-10: Intermediate...");
-    const [module6, module7, module8, module9, module10] =
-      await seedModules6to10(Lesson, Module, readContent, parseJSONContent, {
-        ...seedConfig,
-        module1_id: module1._id,
-        module4_id: module4._id,
-      });
+    // --- BATCH 2: Modules 6-10 (Intermediate) ---
+    console.log("📚 Seeding Batch 2 (Modules 6-10)...");
+    const [m6, m7, m8, m9, m10] = await seedModules6to10(
+      Lesson,
+      Module,
+      readContent,
+      parseJSONContent,
+      {
+        module1_id: m1._id,
+        module4_id: m4._id,
+      },
+      seedConfig
+    );
     updateProgress();
 
-    console.log("📚 Seeding Modules 11-15: Advanced...");
-    // Pass actual module IDs to seedModules11to15
-    const [module11, module12, module13, module14, module15] =
-      await seedModules11to15(Lesson, Module, readContent, parseJSONContent, {
-        ...seedConfig,
-        module10_id: module10._id,
-        module1_id: module1._id,
-      });
+    // --- BATCH 3: Modules 11-15 (Advanced OOP & Tooling) ---
+    console.log("📚 Seeding Batch 3 (Modules 11-15)...");
+    const [m11, m12, m13, m14, m15] = await seedModules11to15(
+      Lesson,
+      Module,
+      readContent,
+      parseJSONContent,
+      {
+        module10_id: m10._id, // OOP I requires Module 10
+        module1_id: m1._id, // Tooling requires Module 1
+      },
+      seedConfig
+    );
     updateProgress();
 
-    console.log("📚 Seeding Modules 16-20: Projects...");
-    // Pass actual module IDs to seedModules16to20
-    const [module16, module17, module18, module19, module20] =
-      await seedModules16to20(Lesson, Module, readContent, parseJSONContent, {
-        ...seedConfig,
-        module2_id: module2._id,
-        module4_id: module4._id,
-        module5_id: module5._id,
-        module7_id: module7._id,
-      });
+    // --- BATCH 4: Modules 16-20 (Data, APIs & Final Projects) ---
+    console.log("📚 Seeding Batch 4 (Modules 16-20)...");
+    const [m16, m17, m18, m19, m20] = await seedModules16to20(
+      Lesson,
+      Module,
+      readContent,
+      parseJSONContent,
+      {
+        module1_id: m1._id,
+        module2_id: m2._id,
+        module4_id: m4._id,
+        module5_id: m5._id,
+        module7_id: m7._id,
+      },
+      seedConfig
+    );
     updateProgress();
 
     console.log("✅ All modules seeded successfully!");
 
+    // Construct the result object for the caller
     const result = {
-      modules1to5: { module1, module2, module3, module4, module5 },
-      modules6to10: { module6, module7, module8, module9, module10 },
-      modules11to15: { module11, module12, module13, module14, module15 },
-      modules16to20: { module16, module17, module18, module19, module20 },
+      fundamentals: [m1, m2, m3, m4, m5],
+      intermediate: [m6, m7, m8, m9, m10],
+      advanced: [m11, m12, m13, m14, m15],
+      projects: [m16, m17, m18, m19, m20],
     };
 
-    // Final counts
+    // Final database verification
     const moduleCount = await Module.countDocuments();
     const lessonCount = await Lesson.countDocuments();
-    console.log(`📊 Created ${moduleCount} modules and ${lessonCount} lessons`);
+    console.log(
+      `📊 Final Count: ${moduleCount} modules and ${lessonCount} lessons created.`
+    );
 
     return result;
   } catch (error) {
-    console.error("❌ Seeder failed:", error);
+    console.error("❌ Seeder failed during orchestration:", error);
     throw error;
   }
 };

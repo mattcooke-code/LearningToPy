@@ -1,0 +1,40 @@
+{
+  "lessonId": "M1L2",
+  "title": "Comments & Indentation - Quiz",
+  "questions": [
+    {
+      "id": "m1l2_q1",
+      "type": "multiple-choice",
+      "question": "What character is used to create a comment in Python?",
+      "options": ["//", "#", "/*", "--"],
+      "correctAnswer": 1,
+      "explanation": "In Python, comments start with the # symbol. Everything after # on that line is ignored by Python."
+    },
+    {
+      "id": "m1l2_q2",
+      "type": "multiple-choice",
+      "question": "How many spaces does Python recommend for each level of indentation?",
+      "options": [
+        "2 spaces",
+        "3 spaces",
+        "4 spaces",
+        "It doesn't matter, any amount works"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python's official style guide (PEP 8) recommends using 4 spaces for each indentation level. While other amounts technically work, 4 spaces is the standard."
+    },
+    {
+      "id": "m1l2_q3",
+      "type": "multiple-choice",
+      "question": "What will happen if you don't indent code that should be inside an 'if' block?",
+      "options": [
+        "Python will automatically fix it",
+        "The code will run but give wrong results",
+        "Python will give an IndentationError",
+        "Nothing, indentation is optional"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python uses indentation to determine which code belongs inside a block. Missing or incorrect indentation will cause an IndentationError and your program won't run."
+    }
+  ]
+}

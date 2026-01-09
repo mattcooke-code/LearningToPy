@@ -1,0 +1,35 @@
+{
+  "lessonId": "M1L5",
+  "title": "Operators - Quiz",
+  "questions": [
+    {
+      "id": "m1l5_q1",
+      "type": "multiple-choice",
+      "question": "What is the result of `10 % 3` in Python?",
+      "options": ["3", "1", "0.33", "3.33"],
+      "correctAnswer": 1,
+      "explanation": "The modulus operator (%) returns the remainder after division. 10 divided by 3 is 3 with a remainder of 1, so 10 % 3 equals 1."
+    },
+    {
+      "id": "m1l5_q2",
+      "type": "multiple-choice",
+      "question": "What is the result of `2 + 3 * 4`?",
+      "options": ["20", "14", "11", "24"],
+      "correctAnswer": 1,
+      "explanation": "Following PEMDAS order of operations, multiplication happens before addition. So 3 * 4 = 12, then 2 + 12 = 14. If you wanted 20, you'd need parentheses: (2 + 3) * 4."
+    },
+    {
+      "id": "m1l5_q3",
+      "type": "multiple-choice",
+      "question": "What happens when you try to run: `result = \"Hello\" + 5`?",
+      "options": [
+        "It prints \"Hello5\"",
+        "It prints \"Hello 5\"",
+        "It causes an error",
+        "It prints 5"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python cannot directly add a string and a number - this causes a TypeError. You need to convert the number to a string first: \"Hello\" + str(5)."
+    }
+  ]
+}

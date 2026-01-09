@@ -1,0 +1,40 @@
+{
+  "lessonId": "M1L4",
+  "title": "Basic Data Types - Quiz",
+  "questions": [
+    {
+      "id": "m1l4_q1",
+      "type": "multiple-choice",
+      "question": "What data type is the variable `score = 100`?",
+      "options": ["String", "Integer", "Float", "Boolean"],
+      "correctAnswer": 1,
+      "explanation": "Since 100 has no decimal point and no quotation marks, it's an integer (int). If it were 100.0, it would be a float."
+    },
+    {
+      "id": "m1l4_q2",
+      "type": "multiple-choice",
+      "question": "Which of the following will cause an error?",
+      "options": [
+        "is_ready = True",
+        "is_ready = true",
+        "is_ready = False",
+        "is_ready = 'True'"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Python booleans must be capitalized: True and False. Writing 'true' (lowercase) will cause a NameError. Note that 'True' in quotes is a string, not a boolean."
+    },
+    {
+      "id": "m1l4_q3",
+      "type": "multiple-choice",
+      "question": "What's the difference between `price = 50` and `price = 50.0`?",
+      "options": [
+        "There is no difference",
+        "The first is an integer, the second is a float",
+        "The first is a float, the second is an integer",
+        "Both are strings"
+      ],
+      "correctAnswer": 1,
+      "explanation": "50 is an integer (whole number), while 50.0 is a float (decimal number). Even though they represent the same value, Python treats them as different data types."
+    }
+  ]
+}

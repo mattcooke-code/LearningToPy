@@ -112,14 +112,6 @@ const LessonContent = ({
       )}
 
       {/* Interactive Components */}
-      {lesson.quiz && (
-        <QuizComponent
-          quiz={lesson.quiz}
-          onAnswerSubmit={onAnswerSubmit}
-          isReviewMode={isReviewMode}
-          correctAnswer={lesson.quiz.correctAnswer}
-        />
-      )}
 
       {lesson.exercise && (
         <ExerciseComponent
@@ -127,6 +119,14 @@ const LessonContent = ({
           onCodeSubmit={onCodeSubmit}
           isReviewMode={isReviewMode}
           solution={lesson.exercise.solution}
+        />
+      )}
+
+      {lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0 && (
+        <QuizComponent
+          quizArray={lesson.quiz}
+          onAnswerSubmit={onAnswerSubmit}
+          isReviewMode={isReviewMode}
         />
       )}
 

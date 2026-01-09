@@ -126,7 +126,7 @@ const LessonPage = () => {
   );
 
   const handleAnswerSubmit = async (answer) => {
-    if (!lesson || isReviewMode) return;
+    if (!lesson || isReviewMode || lesson.isCompleted) return;
 
     setIsSubmitting(true);
     try {
@@ -144,10 +144,7 @@ const LessonPage = () => {
         );
       }
     } catch (err) {
-      showToast(
-        getErrorMessage(err, "Failed to submit answer. Please try again."),
-        "error"
-      );
+      showToast(getErrorMessage(err, "Submission failed"), "error");
     } finally {
       setIsSubmitting(false);
     }

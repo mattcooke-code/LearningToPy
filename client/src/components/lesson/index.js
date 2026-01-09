@@ -6,3 +6,4 @@ export { default as LessonContent } from "./LessonContent";
 export { default as LessonHeader } from "./LessonHeader";
 export { default as LessonNavigation } from "./LessonNavigation";
 export { default as QuizComponent } from "./QuizComponent";
+export { default as TerminalComponent } from "./TerminalComponent";

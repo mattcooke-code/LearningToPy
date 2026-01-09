@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
 import { apiClient, useAuth } from "../context";
-import { useThemeStyles } from "../hooks";
+import { useThemeStyles, useTutorial } from "../hooks";
 import {
   Spinner,
   BackToTopButton,
@@ -24,6 +24,7 @@ const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { themeColor, hoverHandlers } = useThemeStyles();
+  const { resetTutorial } = useTutorial();
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -224,6 +225,16 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      <button
+        onClick={() => {
+          resetTutorial();
+          navigate("/getting-started");
+        }}
+        className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+      >
+        ↺ Revisit Tutorial
+      </button>
 
       {/* Badge Collection Section */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">

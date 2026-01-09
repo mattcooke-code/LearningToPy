@@ -1,18 +1,51 @@
 {
-  "title": "Data Type Identification Quiz",
-  "instructions": "Below are four variables. Your task is to modify the code so that the `print(type(...))` function correctly outputs the data type for each variable, allowing the solution to pass.",
+  "title": "Data Type Creation Challenge",
+  "instructions": "Create four variables with the correct data types. Each variable has been started for you - replace the placeholder values with the correct type of data.",
   "steps": [
-    "Assign a string (text) value to the `item_name` variable.",
-    "Assign an integer (whole number) value to the `stock_count` variable.",
-    "Assign a float (decimal number) value to the `item_price` variable.",
-    "Assign a boolean (True/False) value to the `is_available` variable."
+    "Change `item_name` to hold a string (text) value - any text you want!",
+    "Change `stock_count` to hold an integer (whole number) value.",
+    "Change `item_price` to hold a float (decimal number) value.",
+    "Change `is_available` to hold a boolean (True or False) value."
   ],
-  "starterCode": "item_name = # TODO: Add a string value\nstock_count = # TODO: Add an integer value\nitem_price = # TODO: Add a float value\nis_available = # TODO: Add a boolean value\n\n# The tests will check the output of these type checks:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
-  "solution": "item_name = \"Mug\"\nstock_count = 150\nitem_price = 12.99\nis_available = True\n\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
+  "starterCode": "# Replace the placeholder values with the correct data types\nitem_name = None\nstock_count = None\nitem_price = None\nis_available = None\n\n# These will check your variable types:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
+  "solution": "# Replace the placeholder values with the correct data types\nitem_name = \"Laptop\"\nstock_count = 150\nitem_price = 12.99\nis_available = True\n\n# These will check your variable types:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
+  "validation": {
+    "type": "data-type-check",
+    "requiredTypes": [
+      {
+        "variableName": "item_name",
+        "expectedType": "str",
+        "allowAnyValue": true
+      },
+      {
+        "variableName": "stock_count",
+        "expectedType": "int",
+        "allowAnyValue": true
+      },
+      {
+        "variableName": "item_price",
+        "expectedType": "float",
+        "allowAnyValue": true
+      },
+      {
+        "variableName": "is_available",
+        "expectedType": "bool",
+        "allowAnyValue": true
+      }
+    ],
+    "checkOutput": true,
+    "expectedOutputPattern": [
+      "<class 'str'>",
+      "<class 'int'>",
+      "<class 'float'>",
+      "<class 'bool'>"
+    ]
+  },
   "hints": [
-    "Remember to use quotes for strings.",
-    "A float value must include a decimal point (e.g., 5.0).",
-    "Booleans are case-sensitive: use `True` or `False`."
+    "Strings need quotation marks around them (single or double).",
+    "Integers are whole numbers without decimal points.",
+    "Floats must include a decimal point, even if it's .0",
+    "Booleans must be capitalized: True or False (not true or false)."
   ],
   "tags": ["data-types", "string", "integer", "float", "boolean"],
   "challengeGroup": "type-mastery"

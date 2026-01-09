@@ -1,18 +1,51 @@
 {
-  "title": "Arithmetic and Text Challenge",
-  "instructions": "Use your knowledge of operators and precedence to solve the following tasks, making sure to assign the correct calculated value to each variable.",
+  "title": "Operators Practice Challenge",
+  "instructions": "Complete each task step-by-step using the operators you've learned. Follow the instructions carefully and assign the results to the specified variables.",
   "steps": [
-    "Calculate the total cost: `price_per_item` (5.50) times `quantity` (4) plus a `shipping_fee` (10). Store the final result in a variable named `final_total`.",
-    "Use the modulus operator (`%`) to find the remainder of 27 divided by 5. Store the result in a variable named `remainder_value`.",
-    "Concatenate the string `first_part` ('Code') and `second_part` ('Master') with a space in between. Store the result in a variable named `full_word`."
+    "Task 1: Calculate the total cost of items BEFORE adding shipping. Multiply `price_per_item` (which is 5.50) by `quantity` (which is 4). Store this result in a variable called `subtotal`.",
+    "Task 2: Now add the `shipping_fee` (which is 10) to your `subtotal` to get the final total. Store this in a variable called `final_total`.",
+    "Task 3: You have 27 candies to share among 5 friends. Use the modulus operator to find how many candies will be left over. Store the result in `leftover_candies`. (Hint: use the % operator with 27 and 5)",
+    "Task 4: Concatenate (join together) the strings `first_part` and `second_part` with a single space between them. Store the result in `full_phrase`."
   ],
-  "starterCode": "price_per_item = 5.50\nquantity = 4\nshipping_fee = 10\n\n# 1. Calculate final_total here:\nfinal_total = \n\n# 2. Calculate remainder_value here:\nremainder_value = \n\n# 3. Concatenate to full_word here:\nfirst_part = 'Code'\nsecond_part = 'Master'\nfull_word = ",
-  "solution": "price_per_item = 5.50\nquantity = 4\nshipping_fee = 10\n\n# 1. Calculate final_total here:\nfinal_total = (price_per_item * quantity) + shipping_fee\n\n# 2. Calculate remainder_value here:\nremainder_value = 27 % 5\n\n# 3. Concatenate to full_word here:\nfirst_part = 'Code'\nsecond_part = 'Master'\nfull_word = first_part + ' ' + second_part",
+  "starterCode": "# Given values (don't change these)\nprice_per_item = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Code\"\nsecond_part = \"Master\"\n\n# Task 1: Calculate subtotal (price_per_item * quantity)\nsubtotal = \n\n# Task 2: Calculate final_total (subtotal + shipping_fee)\nfinal_total = \n\n# Task 3: Calculate leftover candies (27 % 5)\nleftover_candies = \n\n# Task 4: Concatenate strings with a space between them\nfull_phrase = \n\n# Don't modify below this line - these print your answers\nprint(\"Subtotal:\", subtotal)\nprint(\"Final Total:\", final_total)\nprint(\"Leftover Candies:\", leftover_candies)\nprint(\"Full Phrase:\", full_phrase)",
+  "solution": "# Given values (don't change these)\nprice_per_item = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Code\"\nsecond_part = \"Master\"\n\n# Task 1: Calculate subtotal (price_per_item * quantity)\nsubtotal = price_per_item * quantity\n\n# Task 2: Calculate final_total (subtotal + shipping_fee)\nfinal_total = subtotal + shipping_fee\n\n# Task 3: Calculate leftover candies (27 % 5)\nleftover_candies = 27 % 5\n\n# Task 4: Concatenate strings with a space between them\nfull_phrase = first_part + \" \" + second_part\n\n# Don't modify below this line - these print your answers\nprint(\"Subtotal:\", subtotal)\nprint(\"Final Total:\", final_total)\nprint(\"Leftover Candies:\", leftover_candies)\nprint(\"Full Phrase:\", full_phrase)",
+  "validation": {
+    "type": "variable-and-output-check",
+    "requiredVariables": [
+      {
+        "name": "subtotal",
+        "expectedValue": 22.0,
+        "valueType": "float"
+      },
+      {
+        "name": "final_total",
+        "expectedValue": 32.0,
+        "valueType": "float"
+      },
+      {
+        "name": "leftover_candies",
+        "expectedValue": 2,
+        "valueType": "int"
+      },
+      {
+        "name": "full_phrase",
+        "expectedValue": "Code Master",
+        "valueType": "string"
+      }
+    ],
+    "expectedOutput": [
+      "Subtotal: 22.0",
+      "Final Total: 32.0",
+      "Leftover Candies: 2",
+      "Full Phrase: Code Master"
+    ]
+  },
   "hints": [
-    "Use parentheses `()` in the first step to ensure multiplication happens before addition for clarity.",
-    "Remember that the modulus operator returns a whole number.",
-    "When concatenating strings, you need to add the space character as a separate string."
+    "For Task 1: Use the * operator to multiply price_per_item and quantity",
+    "For Task 2: Use the + operator to add subtotal and shipping_fee",
+    "For Task 3: The modulus operator (%) gives you the remainder. 27 % 5 means 'what's left over when you divide 27 by 5?'",
+    "For Task 4: Use + to join strings. Don't forget to add a space: first_part + \" \" + second_part"
   ],
-  "tags": ["operators", "arithmetic", "string", "precedence"],
+  "tags": ["operators", "arithmetic", "string", "precedence", "modulus"],
   "challengeGroup": "operator-skills"
 }

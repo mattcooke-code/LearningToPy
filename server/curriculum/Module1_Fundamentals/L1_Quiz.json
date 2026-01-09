@@ -1,0 +1,32 @@
+{
+  "lessonId": "M1L1",
+  "title": "Welcome to Python - Quiz",
+  "questions": [
+    {
+      "id": "m1l1_q1",
+      "type": "multiple-choice",
+      "question": "What does the print() function do in Python?",
+      "options": [
+        "Saves text to a file on your computer",
+        "Displays text on the screen",
+        "Deletes text from memory",
+        "Sends a document to your printer"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The print() function displays output to the screen (console). It's one of the most basic and commonly used functions in Python."
+    },
+    {
+      "id": "m1l1_q2",
+      "type": "multiple-choice",
+      "question": "Which of these print statements is written correctly?",
+      "options": [
+        "print(Hello World)",
+        "print['Hello World']",
+        "print(\"Hello World\")",
+        "Print(\"Hello World\")"
+      ],
+      "correctAnswer": 2,
+      "explanation": "print(\"Hello World\") is correct. The text must be in quotation marks, we use parentheses (not brackets), and 'print' must be lowercase."
+    }
+  ]
+}

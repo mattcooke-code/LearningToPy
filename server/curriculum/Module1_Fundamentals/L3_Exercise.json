@@ -7,12 +7,29 @@
     "Print the value of `project_name`.",
     "Print the value of `hours_spent`."
   ],
-  "starterCode": "# Create your two variables here:\n\n# Print their values below:\n",
-  "solution": "project_name = \"PyGame\"\nhours_spent = 45\n\nprint(project_name)\nprint(hours_spent)",
+  "starterCode": "# Create your two variables here:\n\n\n# Print their values below:\n",
+  "solution": "# Create your two variables here:\nproject_name = \"PyGame\"\nhours_spent = 45\n\n# Print their values below:\nprint(project_name)\nprint(hours_spent)",
+  "validation": {
+    "type": "variable-assignment",
+    "requiredVariables": [
+      {
+        "name": "project_name",
+        "expectedValue": "PyGame",
+        "valueType": "string"
+      },
+      {
+        "name": "hours_spent",
+        "expectedValue": 45,
+        "valueType": "number"
+      }
+    ],
+    "requiredOutput": ["PyGame", "45"]
+  },
   "hints": [
     "Make sure your variable names use `snake_case`.",
     "Strings need quotation marks around them.",
-    "Numbers do not need quotation marks."
+    "Numbers do not need quotation marks.",
+    "Use print() to display each variable's value."
   ],
   "tags": ["variables", "beginner"],
   "challengeGroup": "variable-assignment"

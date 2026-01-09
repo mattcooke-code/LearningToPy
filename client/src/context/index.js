@@ -8,4 +8,5 @@ export {
   adminApiClient,
 } from "./AuthContext";
 export { NotificationProvider, useNotification } from "./NotificationContext";
+export { usePython } from "./PythonContext";
 export { ThemeProvider, useTheme } from "./ThemeContext";

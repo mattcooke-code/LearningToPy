@@ -1,143 +1,174 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, HelpCircle } from "lucide-react";
+import { CheckCircle, HelpCircle, ChevronRight, RotateCcw } from "lucide-react";
 
 const QuizComponent = ({
-  quiz,
+  quizArray, // Passing the full array now
   onAnswerSubmit,
   isReviewMode,
-  correctAnswer,
 }) => {
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showResult, setShowResult] = useState(isReviewMode);
+  const [showResult, setShowResult] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
 
+  // The specific question object for the current step
+  const currentQuiz = quizArray[currentStep];
+
+  // Reset state when entering Review Mode or switching lessons
   useEffect(() => {
     if (isReviewMode) {
-      setSelectedAnswer(correctAnswer);
       setShowResult(true);
+      setSelectedAnswer(currentQuiz?.correctAnswer);
+    } else {
+      resetStep();
     }
-  }, [isReviewMode, correctAnswer]);
+  }, [isReviewMode, currentStep, currentQuiz]);
 
-  const handleSubmit = () => {
+  const resetStep = () => {
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setIsCorrect(false);
+  };
+
+  const handleCheckAnswer = () => {
     if (selectedAnswer === null) return;
+
+    const correct = selectedAnswer === currentQuiz.correctAnswer;
+    setIsCorrect(correct);
     setShowResult(true);
-    if (!isReviewMode) {
+
+    // If it's correct AND it's the last (or only) question, tell the parent
+    if (correct && currentStep === quizArray.length - 1 && !isReviewMode) {
       onAnswerSubmit(selectedAnswer);
     }
   };
 
-  // If quiz data is not available yet, show loading or placeholder
-  if (!quiz) {
-    return (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 my-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <HelpCircle className="text-blue-600" size={24} />
-          <h3 className="text-lg font-semibold text-blue-800">Quick Quiz</h3>
-        </div>
-        <p className="text-gray-600">Quiz content loading...</p>
-      </div>
-    );
-  }
+  const handleNext = () => {
+    if (currentStep < quizArray.length - 1) {
+      setCurrentStep((prev) => prev + 1);
+      resetStep();
+    }
+  };
+
+  if (!currentQuiz) return null;
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 my-6">
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 my-6 transition-all">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <HelpCircle className="text-blue-600" size={24} />
           <h3 className="text-lg font-semibold text-blue-800">
-            Quick Quiz {isReviewMode && "(Review)"}
+            Quick Quiz{" "}
+            {quizArray.length > 1 && `(${currentStep + 1}/${quizArray.length})`}
           </h3>
         </div>
         {isReviewMode && (
-          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
             Review Mode
           </span>
         )}
       </div>
 
-      <p className="text-gray-800 mb-4 font-medium">{quiz.question}</p>
+      {/* Question Text */}
+      <p className="text-gray-800 mb-4 font-medium text-lg">
+        {currentQuiz.question}
+      </p>
 
+      {/* Options */}
       <div className="space-y-3">
-        {quiz.options &&
-          quiz.options.map((option, index) => (
+        {currentQuiz.options.map((option, index) => {
+          const isThisCorrect = index === currentQuiz.correctAnswer;
+          const isThisSelected = index === selectedAnswer;
+
+          let variantClass =
+            "bg-white border-gray-200 hover:bg-gray-50 text-gray-700";
+
+          if (showResult) {
+            if (isThisCorrect) {
+              variantClass =
+                "bg-green-100 border-green-400 text-green-700 font-semibold";
+            } else if (isThisSelected && !isThisCorrect) {
+              variantClass =
+                "bg-red-100 border-red-400 text-red-700 font-semibold";
+            }
+          } else if (isThisSelected) {
+            variantClass = "bg-blue-100 border-blue-400 text-blue-700";
+          }
+
+          return (
             <label
               key={index}
-              className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer ${
-                showResult && index === correctAnswer
-                  ? "bg-green-100 border-green-300"
-                  : "bg-white border-gray-200 hover:bg-gray-50"
-              }`}
+              className={`flex items-center space-x-3 p-4 rounded-lg border transition-all cursor-pointer ${variantClass}`}
             >
               <input
                 type="radio"
-                name="quiz"
-                value={index}
-                checked={selectedAnswer === index}
-                onChange={() => setSelectedAnswer(index)}
-                className="text-blue-600 focus:ring-blue-500"
+                name="quiz-option"
+                checked={isThisSelected}
+                onChange={() => !showResult && setSelectedAnswer(index)}
                 disabled={showResult}
+                className="hidden"
               />
-              <span
-                className={`flex-1 ${
-                  showResult && index === correctAnswer
-                    ? "text-green-600 font-semibold"
-                    : showResult &&
-                      index === selectedAnswer &&
-                      index !== correctAnswer
-                    ? "text-red-600 font-semibold"
-                    : "text-gray-700"
-                }`}
-              >
-                {option}
-              </span>
-              {showResult && index === correctAnswer && (
-                <CheckCircle className="text-green-500" size={20} />
+              <span className="flex-1">{option}</span>
+              {showResult && isThisCorrect && (
+                <CheckCircle size={20} className="text-green-600" />
               )}
-              {showResult &&
-                index === selectedAnswer &&
-                index !== correctAnswer && (
-                  <span className="text-red-500 text-sm">✗</span>
-                )}
+              {showResult && isThisSelected && !isThisCorrect && (
+                <span className="text-red-600 font-bold">✕</span>
+              )}
             </label>
-          ))}
+          );
+        })}
       </div>
 
-      {!showResult ? (
-        <button
-          onClick={handleSubmit}
-          disabled={selectedAnswer === null}
-          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition"
-        >
-          Check Answer
-        </button>
-      ) : (
-        <div className="mt-4 p-4 bg-white rounded-lg border">
-          <p
-            className={`text-lg font-semibold ${
-              isReviewMode
-                ? "text-blue-600"
-                : selectedAnswer === correctAnswer
-                ? "text-green-600"
-                : "text-red-600"
-            }`}
+      {/* Action Buttons */}
+      <div className="mt-6">
+        {!showResult ? (
+          <button
+            onClick={handleCheckAnswer}
+            disabled={selectedAnswer === null}
+            className="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 disabled:bg-blue-200 disabled:cursor-not-allowed transition-colors"
           >
-            {isReviewMode
-              ? "🔍 Review Mode"
-              : selectedAnswer === correctAnswer
-              ? "✅ Correct!"
-              : "❌ Try Again!"}
-          </p>
-          <p className="text-gray-700 mt-2">{quiz.explanation}</p>
-        </div>
-      )}
+            Check Answer
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <div
+              className={`p-4 rounded-lg border ${
+                isCorrect
+                  ? "bg-green-50 border-green-200"
+                  : "bg-red-50 border-red-200"
+              }`}
+            >
+              <p className="text-gray-800 italic">{currentQuiz.explanation}</p>
+            </div>
 
-      {isReviewMode && (
-        <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded">
-          <p className="text-yellow-800 text-sm">
-            💡 <strong>Review Mode:</strong> You can practice without affecting
-            your progress.
-          </p>
-        </div>
-      )}
+            <div className="flex space-x-4">
+              {/* If wrong, allow retry */}
+              {!isCorrect && !isReviewMode && (
+                <button
+                  onClick={resetStep}
+                  className="flex items-center space-x-2 text-blue-600 font-semibold hover:underline"
+                >
+                  <RotateCcw size={18} />
+                  <span>Try Again</span>
+                </button>
+              )}
+
+              {/* If correct and more questions exist, show Next */}
+              {isCorrect && currentStep < quizArray.length - 1 && (
+                <button
+                  onClick={handleNext}
+                  className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700"
+                >
+                  <span>Next Question</span>
+                  <ChevronRight size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
