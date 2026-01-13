@@ -46,7 +46,8 @@ print(copy)     # Output: [99, 2, 3]
 
 You can add an optional third value to your slice, the `step`, to skip elements.
 
-list[start:stop:step]
+### `list[start:stop:step]`
+
 The `step` value dictates how many elements to skip after retrieving the first one.
 
 A step of 2 means it grabs every second element.

@@ -1,174 +1,213 @@
-import { useState, useEffect } from "react";
-import { CheckCircle, HelpCircle, ChevronRight, RotateCcw } from "lucide-react";
+// QuizComponent.jsx
+import { useState } from "react";
+import {
+  CheckCircle,
+  HelpCircle,
+  RotateCcw,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { apiClient } from "../../context";
 
 const QuizComponent = ({
-  quizArray, // Passing the full array now
+  quizArray,
+  lessonId,
+  moduleId,
   onAnswerSubmit,
-  isReviewMode,
+  isModuleQuiz = false,
+  onQuizComplete, // Need to find where answers are marked correct and call this
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showResult, setShowResult] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [answers, setAnswers] = useState({});
+  const [results, setResults] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverFeedback, setServerFeedback] = useState({});
 
-  // The specific question object for the current step
-  const currentQuiz = quizArray[currentStep];
+  const handleSelect = (questionId, optionIndex) => {
+    if (results[questionId]?.show) return;
 
-  // Reset state when entering Review Mode or switching lessons
-  useEffect(() => {
-    if (isReviewMode) {
-      setShowResult(true);
-      setSelectedAnswer(currentQuiz?.correctAnswer);
-    } else {
-      resetStep();
-    }
-  }, [isReviewMode, currentStep, currentQuiz]);
-
-  const resetStep = () => {
-    setSelectedAnswer(null);
-    setShowResult(false);
-    setIsCorrect(false);
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: optionIndex,
+    }));
   };
 
-  const handleCheckAnswer = () => {
-    if (selectedAnswer === null) return;
+  const checkSingleAnswer = async (questionId, index) => {
+    const selected = answers[questionId];
+    if (selected === undefined) return;
 
-    const correct = selectedAnswer === currentQuiz.correctAnswer;
-    setIsCorrect(correct);
-    setShowResult(true);
+    setIsSubmitting(true);
+    try {
+      const data = await apiClient.post(`/content/lessons/${lessonId}/submit`, {
+        answer: selected,
+        questionIndex: index,
+      });
 
-    // If it's correct AND it's the last (or only) question, tell the parent
-    if (correct && currentStep === quizArray.length - 1 && !isReviewMode) {
-      onAnswerSubmit(selectedAnswer);
-    }
-  };
+      setResults((prev) => ({
+        ...prev,
+        [questionId]: { show: true, isCorrect: data.isCorrect },
+      }));
 
-  const handleNext = () => {
-    if (currentStep < quizArray.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-      resetStep();
+      setServerFeedback((prev) => ({
+        ...prev,
+        [questionId]: data.feedback,
+      }));
+    } catch (err) {
+      console.error("Submission error:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (!currentQuiz) return null;
+  const handleFinalSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const data = await apiClient.post(
+        `/content/modules/${moduleId}/submit-quiz`,
+        {
+          answers: answers,
+        }
+      );
+
+      const newResults = {};
+      data.results.forEach((res) => {
+        newResults[res.questionId] = { show: true, isCorrect: res.isCorrect };
+      });
+      setResults(newResults);
+
+      if (data.passed) {
+        onAnswerSubmit(data);
+      }
+    } catch (err) {
+      console.error("Module quiz submission error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetQuestion = (questionId) => {
+    setAnswers((prev) => {
+      const n = { ...prev };
+      delete n[questionId];
+      return n;
+    });
+    setResults((prev) => {
+      const n = { ...prev };
+      delete n[questionId];
+      return n;
+    });
+  };
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 my-6 transition-all">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <HelpCircle className="text-blue-600" size={24} />
-          <h3 className="text-lg font-semibold text-blue-800">
-            Quick Quiz{" "}
-            {quizArray.length > 1 && `(${currentStep + 1}/${quizArray.length})`}
-          </h3>
-        </div>
-        {isReviewMode && (
-          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
-            Review Mode
-          </span>
-        )}
+    <div className="space-y-8 my-8">
+      <div className="flex items-center space-x-2 border-b border-gray-200 pb-4">
+        <HelpCircle className="text-blue-600" size={28} />
+        <h2 className="text-2xl font-bold text-gray-800">
+          {isModuleQuiz ? "Final Module Quiz" : "Lesson Quiz"}
+        </h2>
       </div>
 
-      {/* Question Text */}
-      <p className="text-gray-800 mb-4 font-medium text-lg">
-        {currentQuiz.question}
-      </p>
+      {quizArray.map((q, qIdx) => {
+        const qKey = q._id || q.id;
+        const result = results[qKey];
 
-      {/* Options */}
-      <div className="space-y-3">
-        {currentQuiz.options.map((option, index) => {
-          const isThisCorrect = index === currentQuiz.correctAnswer;
-          const isThisSelected = index === selectedAnswer;
-
-          let variantClass =
-            "bg-white border-gray-200 hover:bg-gray-50 text-gray-700";
-
-          if (showResult) {
-            if (isThisCorrect) {
-              variantClass =
-                "bg-green-100 border-green-400 text-green-700 font-semibold";
-            } else if (isThisSelected && !isThisCorrect) {
-              variantClass =
-                "bg-red-100 border-red-400 text-red-700 font-semibold";
-            }
-          } else if (isThisSelected) {
-            variantClass = "bg-blue-100 border-blue-400 text-blue-700";
-          }
-
-          return (
-            <label
-              key={index}
-              className={`flex items-center space-x-3 p-4 rounded-lg border transition-all cursor-pointer ${variantClass}`}
-            >
-              <input
-                type="radio"
-                name="quiz-option"
-                checked={isThisSelected}
-                onChange={() => !showResult && setSelectedAnswer(index)}
-                disabled={showResult}
-                className="hidden"
-              />
-              <span className="flex-1">{option}</span>
-              {showResult && isThisCorrect && (
-                <CheckCircle size={20} className="text-green-600" />
-              )}
-              {showResult && isThisSelected && !isThisCorrect && (
-                <span className="text-red-600 font-bold">✕</span>
-              )}
-            </label>
-          );
-        })}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="mt-6">
-        {!showResult ? (
-          <button
-            onClick={handleCheckAnswer}
-            disabled={selectedAnswer === null}
-            className="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 disabled:bg-blue-200 disabled:cursor-not-allowed transition-colors"
-          >
-            Check Answer
-          </button>
-        ) : (
-          <div className="space-y-4">
-            <div
-              className={`p-4 rounded-lg border ${
-                isCorrect
+        return (
+          <div
+            key={qKey}
+            className={`p-6 rounded-xl border transition-all ${
+              result?.show
+                ? result.isCorrect
                   ? "bg-green-50 border-green-200"
                   : "bg-red-50 border-red-200"
-              }`}
-            >
-              <p className="text-gray-800 italic">{currentQuiz.explanation}</p>
+                : "bg-white border-gray-200 shadow-sm"
+            }`}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <span className="text-sm font-bold uppercase tracking-wider text-blue-500">
+                Question {qIdx + 1}
+              </span>
+              {result?.show &&
+                (result.isCorrect ? (
+                  <CheckCircle className="text-green-600" size={24} />
+                ) : (
+                  <AlertCircle className="text-red-600" size={24} />
+                ))}
             </div>
 
-            <div className="flex space-x-4">
-              {/* If wrong, allow retry */}
-              {!isCorrect && !isReviewMode && (
-                <button
-                  onClick={resetStep}
-                  className="flex items-center space-x-2 text-blue-600 font-semibold hover:underline"
-                >
-                  <RotateCcw size={18} />
-                  <span>Try Again</span>
-                </button>
-              )}
+            <p className="text-lg font-medium text-gray-900 mb-6">
+              {q.question}
+            </p>
 
-              {/* If correct and more questions exist, show Next */}
-              {isCorrect && currentStep < quizArray.length - 1 && (
-                <button
-                  onClick={handleNext}
-                  className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700"
-                >
-                  <span>Next Question</span>
-                  <ChevronRight size={18} />
-                </button>
-              )}
+            <div className="grid grid-cols-1 gap-3">
+              {q.options.map((option, oIdx) => {
+                const isSelected = answers[qKey] === oIdx;
+                const showResults = result?.show;
+
+                let btnClass = "border-gray-200";
+                if (showResults) {
+                  if (isSelected)
+                    btnClass = result.isCorrect
+                      ? "bg-green-100 border-green-500"
+                      : "bg-red-100 border-red-500";
+                  else btnClass = "opacity-50";
+                } else if (isSelected) {
+                  btnClass = "border-blue-500 bg-blue-50 ring-2 ring-blue-200";
+                }
+
+                return (
+                  <button
+                    key={oIdx}
+                    onClick={() => handleSelect(qKey, oIdx)}
+                    disabled={showResults || isSubmitting}
+                    className={`text-left p-4 rounded-lg border-2 transition-all ${btnClass}`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Lesson Mode Check Button */}
+            {!isModuleQuiz && !result?.show && (
+              <button
+                onClick={() => checkSingleAnswer(qKey, qIdx)}
+                disabled={answers[qKey] === undefined || isSubmitting}
+                className="mt-6 flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50"
+              >
+                {isSubmitting && <Loader2 className="animate-spin" size={18} />}
+                <span>Check Answer</span>
+              </button>
+            )}
+
+            {/* Feedback display */}
+            {result?.show && (
+              <div className="mt-4 text-sm italic text-gray-700 p-3 bg-white/50 rounded border border-gray-200">
+                {serverFeedback[qKey] || q.explanation}
+                {!result.isCorrect && !isModuleQuiz && (
+                  <button
+                    onClick={() => resetQuestion(qKey)}
+                    className="mt-2 flex items-center text-blue-600 font-bold hover:underline"
+                  >
+                    <RotateCcw size={14} className="mr-1" /> Try Again
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        );
+      })}
+
+      {/* Module Quiz Submit Button */}
+      {isModuleQuiz && Object.keys(answers).length === quizArray.length && (
+        <div className="text-center p-6 bg-blue-50 rounded-2xl border-2 border-blue-200">
+          <button
+            onClick={handleFinalSubmit}
+            disabled={isSubmitting}
+            className="bg-blue-600 text-white px-10 py-4 rounded-xl font-black text-xl hover:bg-blue-700 shadow-lg transition-all disabled:opacity-50"
+          >
+            {isSubmitting ? "Submitting Quiz..." : "Submit Final Quiz"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

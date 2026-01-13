@@ -11,6 +11,7 @@ An `if` statement checks if a **condition** is `True`. If it is, the code indent
 ### Syntax Key Points
 
 • The condition ends with a **colon** (`:`).
+
 • The code block to be executed must be **indented** (usually 4 spaces). This is how Python knows which code belongs to the `if` statement.
 
 ```python
@@ -26,7 +27,7 @@ print("Continue your journey.")
 
 ## 2. The `else` Statement
 
-If you want your program to do something only if the if condition is `False`, you use the else block. An `else` statement is guaranteed to run if the `if` statement immediately preceding it does not.
+If you want your program to do something only when the if condition is `False`, you use the else block. An `else` statement is guaranteed to run when the `if` statement immediately preceding it does not.
 
 ```python
 score = 85

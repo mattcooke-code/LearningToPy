@@ -108,6 +108,7 @@ const ModuleLessonsPage = () => {
             moduleId={moduleId}
             accentColor={moduleAccentColor}
             onBackToModules={() => navigate("/modules")}
+            quizCompleted={moduleData?.quizCompleted}
           />
         )}
       </div>

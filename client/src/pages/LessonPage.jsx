@@ -19,15 +19,18 @@ const LessonPage = () => {
   const { showToast } = useNotification();
 
   const [lesson, setLesson] = useState(null);
+  const [module, setModule] = useState(null);
   const [nextLesson, setNextLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   useEffect(() => {
     setIsReviewMode(false);
     setNextLesson(null);
+    setQuizCompleted(false);
   }, [lessonId]);
 
   // Data fetching logic
@@ -40,6 +43,13 @@ const LessonPage = () => {
 
       const lessonData = await apiClient.get(`/content/lessons/${lessonId}`);
       setLesson(lessonData);
+
+      if (lessonData.moduleId) {
+        const moduleData = await apiClient.get(
+          `/content/modules/${lessonData.moduleId}`
+        );
+        setModule(moduleData);
+      }
 
       // Auto-enable review mode for completed lessons
       if (lessonData.isCompleted) {
@@ -73,7 +83,6 @@ const LessonPage = () => {
     fetchLesson();
   }, [fetchLesson]);
 
-  // In LessonPage.jsx - Complete handleLessonCompletion
   const handleLessonCompletion = useCallback(
     async (responseData) => {
       const { xpEarned, moduleCompleted, progress, nextLessonId } =
@@ -124,6 +133,14 @@ const LessonPage = () => {
     },
     [showToast, updateThemeFromCourseProgress, lessonId, lesson?.moduleId]
   );
+
+  const handleQuizComplete = (isCompleted) => {
+    setQuizCompleted(isCompleted);
+
+    if (!lesson.exercise && isCompleted) {
+      markTheoryComplete();
+    }
+  };
 
   const handleAnswerSubmit = async (answer) => {
     if (!lesson || isReviewMode || lesson.isCompleted) return;
@@ -236,6 +253,21 @@ const LessonPage = () => {
     }
   };
 
+  const lessonFullyCompleted = () => {
+    if (!lesson) return false;
+
+    if (lesson.isCompleted) return true;
+
+    const hasQuiz =
+      lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
+
+    if (!hasQuiz) return lesson.isCompleted;
+
+    return quizCompleted;
+  };
+
+  const isLastLesson = !nextLesson && lessonFullyCompleted();
+
   if (loading) return <LoadingState />;
   if (error)
     return <ErrorState error={error} onBack={() => navigate("/modules")} />;
@@ -263,14 +295,20 @@ const LessonPage = () => {
         onCodeSubmit={handleCodeSubmit}
         markTheoryComplete={markTheoryComplete}
         isSubmitting={isSubmitting}
+        isLastLesson={isLastLesson}
+        nextLessonId={nextLesson?._id}
+        quizCompleted={quizCompleted}
+        onQuizComplete={handleQuizComplete}
       />
 
       <LessonNavigation
         navigate={navigate}
         nextLesson={nextLesson}
         lesson={lesson}
+        module={module}
         isReviewMode={isReviewMode}
         themeColor={themeColor}
+        lessonFullyCompleted={lessonFullyCompleted()}
       />
 
       <BackToTopButton />

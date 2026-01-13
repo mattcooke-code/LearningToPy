@@ -1,4 +1,4 @@
-// A one-off script to clear user progress
+// resetUserData.js
 const mongoose = require("mongoose");
 const User = require("../models/User"); // Adjust path to your User model
 const { getDatabaseUri } = require("../config/envConfig");

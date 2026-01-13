@@ -13,6 +13,7 @@ import LessonPage from "./pages/LessonPage";
 import Login from "./pages/Login";
 import ModuleLessonsPage from "./pages/ModuleLessonsPage";
 import ModulesPage from "./pages/ModulesPage";
+import ModuleQuizPage from "./pages/ModuleQuizPage";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 
@@ -80,6 +81,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/modules/:moduleId/quiz"
+            element={
+              <ProtectedRoute>
+                <ModuleQuizPage />
               </ProtectedRoute>
             }
           />

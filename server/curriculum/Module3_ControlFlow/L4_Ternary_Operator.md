@@ -11,7 +11,9 @@ The structure is simple but reads backward from a traditional `if/else` statemen
 ### `value_if_true if condition else value_if_false`
 
 • **`value_if_true`**: The result assigned if the `condition` is `True`.
+
 • **`if condition`**: The check that is performed.
+
 • **`else value_if_false`**: The result assigned if the `condition` is `False`.
 
 ## 2. Example: Single-Line Assignment

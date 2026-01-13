@@ -1,4 +1,3 @@
-// server/seeders/seedModules11-15.js
 const { prepareQuizData, loadLessonAsset } = require("../utils/seederHelpers");
 
 const seedModules11to15 = async (
@@ -189,7 +188,7 @@ const seedModules11to15 = async (
     difficulty: "intermediate",
     estimatedHours: 2.5,
     isPublished: true,
-    prerequisites: module1_id ? [module1_id] : [],
+    prerequisites: [module12._id],
     learningObjectives: [
       "datetime and timedelta",
       "Formatting with strftime",
@@ -266,7 +265,7 @@ const seedModules11to15 = async (
     difficulty: "intermediate",
     estimatedHours: 3.0,
     isPublished: true,
-    prerequisites: module1_id ? [module1_id] : [],
+    prerequisites: [module13._id],
     learningObjectives: [
       "Regex syntax",
       "re.search and re.match",
@@ -344,7 +343,7 @@ const seedModules11to15 = async (
     difficulty: "intermediate",
     estimatedHours: 2.0,
     isPublished: true,
-    prerequisites: module1_id ? [module1_id] : [],
+    prerequisites: [module14._id],
     learningObjectives: [
       "Virtual Environments (venv)",
       "Pip & requirements.txt",

@@ -54,10 +54,10 @@ settings = ('max_users', 100)
 
 Tuples should be used instead of lists in a few common scenarios:
 
-Fixed Data: For data that inherently should not change, such as RGB color codes, geographical coordinates, or days of the week.
+• Fixed Data: For data that inherently should not change, such as RGB color codes, geographical coordinates, or days of the week.
 
-Performance: Tuples are generally slightly faster to process than lists.
+• Performance: Tuples are generally slightly faster to process than lists.
 
-Safety: They prevent accidental modification of critical data.
+• Safety: They prevent accidental modification of critical data.
 
-Dictionary Keys: Unlike lists, tuples can be used as keys in dictionaries because of their immutability (you will learn more about this in Module 5).
+• Dictionary Keys: Unlike lists, tuples can be used as keys in dictionaries because of their immutability (you will learn more about this in Module 5).

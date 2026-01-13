@@ -24,11 +24,8 @@ age = 26 # 'age' now holds 26 instead of 25
 Variable names must be descriptive and follow a few simple rules:
 
 - They must start with a letter `(a-z, A-Z)` or an underscore `(_)`.
-
 - They cannot start with a number.
-
 - They can only contain letters, numbers, and underscores.
-
 - They are **case sensitive** (`Name` and `name` are treated as two different variables).
 
 ### Examples of Valid and Invalid Names

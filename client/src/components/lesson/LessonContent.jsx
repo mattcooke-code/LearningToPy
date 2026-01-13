@@ -1,3 +1,4 @@
+// LessonContent.jsx
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Lightbulb } from "lucide-react";
@@ -91,6 +92,36 @@ const LessonContent = ({
             em: ({ children }) => (
               <em className="italic text-gray-700">{children}</em>
             ),
+            // ========== TABLE COMPONENTS ==========
+            table: ({ children }) => (
+              <div className="overflow-x-auto my-8">
+                <table className="min-w-full divide-y divide-gray-200 border border-gray-300 rounded-lg shadow-sm">
+                  {children}
+                </table>
+              </div>
+            ),
+            thead: ({ children }) => (
+              <thead className="bg-gray-50">{children}</thead>
+            ),
+            tbody: ({ children }) => (
+              <tbody className="[&>tr:nth-child(even)]:bg-gray-50">
+                {children}
+              </tbody>
+            ),
+            tr: ({ children }) => (
+              <tr className="hover:bg-gray-50 transition-colors">{children}</tr>
+            ),
+            th: ({ children }) => (
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider border-b border-gray-300 bg-gray-100">
+                {children}
+              </th>
+            ),
+            td: ({ children }) => (
+              <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                {children}
+              </td>
+            ),
+            // ======================================
           }}
         >
           {lesson.content}
@@ -125,9 +156,26 @@ const LessonContent = ({
       {lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0 && (
         <QuizComponent
           quizArray={lesson.quiz}
+          lessonId={lesson._id}
           onAnswerSubmit={onAnswerSubmit}
-          isReviewMode={isReviewMode}
+          isModuleQuiz={false}
         />
+      )}
+
+      {/* Post-Completion Navigation */}
+      {lesson.isCompleted && !isReviewMode && (
+        <div className="mt-12 p-1 border-t border-gray-100 pt-8">
+          <div className="bg-gray-50 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800">
+                Lesson Complete! 🎉
+              </h3>
+              <p className="text-gray-600">
+                You've mastered this content. What's next?
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Theory Lesson Completion */}

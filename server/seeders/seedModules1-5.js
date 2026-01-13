@@ -36,7 +36,7 @@ const seedModules1to5 = async (
     ],
     icon: "🐍",
     xpReward: 100,
-    moduleQuiz: prepareQuizData(m1ReviewQuiz),
+    moduleQuiz: prepareQuizData(m1ReviewQuiz, true),
   });
 
   const m1Lessons = [

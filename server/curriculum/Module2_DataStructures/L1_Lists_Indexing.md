@@ -21,9 +21,9 @@ my_new_list = []
 
 ## 2. Accessing Elements: Indexing
 
-Since lists are ordered, every item has an associated index, which is its position in the list. Indexing is how you grab a single item from the list.
+Since lists are ordered, every item has an **index**, which is its position in the list. _Indexing_ is how you grab a single item from the list.
 
-➡️ Positive Indexing (Starting from the front)
+➡️ **Positive Indexing** (Starting from the front)
 Indexing always starts at 0 for the first item.
 
 The second item is at index 1, the third at index 2, and so on.
@@ -37,7 +37,7 @@ print(colors[0]) # Output: Red
 print(colors[2]) # Output: Blue
 ```
 
-⬅️ Negative Indexing (Starting from the back)
+⬅️ **Negative Indexing** (Starting from the back)
 Python also lets you count backward using negative indices.
 
 The last item is at index -1.

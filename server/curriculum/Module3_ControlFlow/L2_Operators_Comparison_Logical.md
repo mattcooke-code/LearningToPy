@@ -55,7 +55,7 @@ else:
 
 ### The `not` Operator
 
-The `not` operator is a unary operator (it only operates on one value) that reverses the Boolean result. not `True` becomes `False`, and not `False` becomes `True`.
+The `not` operator is a _unary_ operator (it only operates on one value) that reverses the Boolean result. Not `True` becomes `False`, and not `False` becomes `True`.
 
 ```python
 is_valid = False
@@ -67,7 +67,7 @@ if not is_valid:
 
 ## 3. Chaining Comparisons (Python's Shortcut)
 
-Python allows you to write natural-language style chains of comparison, which is cleaner than using the and operator.
+Python allows you to write natural-language style chains of comparison, which is cleaner than using the `and` operator.
 
 Instead of writing: `if x > 0 and x < 10:`
 

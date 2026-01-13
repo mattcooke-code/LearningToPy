@@ -4,19 +4,43 @@
  * Extracts the questions array from a quiz JSON object
  * and ensures it's in the format Mongoose expects.
  */
-const prepareQuizData = (quizData) => {
-  if (!quizData) return [];
 
-  // If it's already an array, return it
-  if (Array.isArray(quizData)) return quizData;
+// server/utils/seederHelpers.js
 
-  // If it's an object with a 'questions' property, return that array
-  if (quizData.questions && Array.isArray(quizData.questions)) {
-    return quizData.questions;
+const prepareQuizData = (quizData, isModuleQuiz = false) => {
+  if (!quizData) return isModuleQuiz ? { questions: [] } : [];
+
+  // 1. Extract the raw questions array regardless of input format
+  const questionsArray = Array.isArray(quizData)
+    ? quizData
+    : quizData.questions || (quizData.question ? [quizData] : []);
+
+  // 2. Format the questions to ensure they have all required fields
+  const formattedQuestions = questionsArray.map((q, idx) => ({
+    id: q.id || `q_${idx}`,
+    question: q.question,
+    options: q.options || [],
+    correctAnswer: q.correctAnswer,
+    explanation: q.explanation || "",
+    type: q.type || "multiple-choice",
+  }));
+
+  // 3. Return the specific structure required
+  if (isModuleQuiz) {
+    return {
+      title: quizData.title || "Module Review Quiz",
+      description: quizData.description || "",
+      settings: {
+        randomizeQuestionOrder: true,
+        randomizeAnswerOrder: true,
+        passingScore: quizData.passingScore || 70,
+      },
+      questions: formattedQuestions,
+    };
   }
 
-  // Fallback: wrap in array if it's a single question object, else empty
-  return quizData.question ? [quizData] : [];
+  // Otherwise, return just the array for Lesson models
+  return formattedQuestions;
 };
 
 /**

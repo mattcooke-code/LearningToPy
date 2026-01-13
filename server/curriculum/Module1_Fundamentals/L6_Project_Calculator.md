@@ -29,4 +29,4 @@ You will define variables for two numbers and then perform and display four diff
 - Remember that division (`/`) always returns a float
 - Test your code with different numbers to make sure it works correctly
 
-Success in this project means you are ready to move on to **Module 2: Data Structures**!
+Success in this project means you have completed the core training! Your final step before **Module 2: Data Structures** is the **Module 1 Review Quiz**. Good luck!

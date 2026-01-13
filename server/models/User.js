@@ -29,7 +29,6 @@ const UserSchema = new mongoose.Schema(
     },
     // --- AUTHENTICATION FIELD CHANGE START ---
     refreshTokenVersion: {
-      // <-- NEW FIELD: Used to instantly revoke tokens
       type: Number,
       default: 0,
       min: 0,
@@ -81,6 +80,24 @@ const UserSchema = new mongoose.Schema(
         usedHints: { type: Boolean, default: false },
         linesOfCode: { type: Number, min: 0 },
         wasOptimal: { type: Boolean, default: false },
+      },
+    ],
+    quizAttempts: [
+      {
+        moduleId: { type: mongoose.Schema.Types.ObjectId, ref: "Module" },
+        attemptedAt: { type: Date, default: Date.now },
+        score: Number,
+        passed: Boolean,
+        answers: [
+          {
+            questionId: mongoose.Schema.Types.ObjectId,
+            question: String,
+            userAnswer: String,
+            correctAnswer: String,
+            isCorrect: Boolean,
+            explanation: String,
+          },
+        ],
       },
     ],
     stats: {
@@ -164,7 +181,7 @@ UserSchema.pre("save", function (next) {
   ];
 
   if (progressFields.some((field) => this.isModified(field))) {
-    this.lastActiveDate = new Date();
+    this.lastActive = new Date();
   }
 
   next();

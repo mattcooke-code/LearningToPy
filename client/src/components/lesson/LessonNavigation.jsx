@@ -1,5 +1,12 @@
+// LessonNavigation.jsx
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  RefreshCw,
+  Trophy,
+} from "lucide-react";
 
 const LessonNavigation = ({
   navigate,
@@ -7,7 +14,14 @@ const LessonNavigation = ({
   lesson,
   isReviewMode,
   themeColor,
+  module,
+  lessonFullyCompleted,
 }) => {
+  const isLastLessonOfModule = !nextLesson && lessonFullyCompleted;
+  const moduleQuizExists =
+    module?.moduleQuiz && module.moduleQuiz.questions?.length > 0;
+  const moduleQuizCompleted = module?.quizCompleted || false;
+
   return (
     <div className="flex justify-between items-center">
       <button
@@ -18,8 +32,8 @@ const LessonNavigation = ({
         <span>Back to Lessons</span>
       </button>
 
-      {/* Next Lesson button - now shows even in review mode */}
-      {nextLesson && lesson.isCompleted && (
+      {/* Next Lesson button  */}
+      {nextLesson && lessonFullyCompleted && (
         <Link
           to={`/lessons/${nextLesson._id}`}
           style={{ backgroundColor: themeColor }}
@@ -30,8 +44,29 @@ const LessonNavigation = ({
         </Link>
       )}
 
+      {/* Module Quiz Button */}
+      {isLastLessonOfModule && moduleQuizExists && !moduleQuizCompleted && (
+        <Link
+          to={`/modules/${lesson.moduleId}/quiz`}
+          style={{ backgroundColor: themeColor }}
+          className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg"
+        >
+          <Trophy size={20} />
+          <span>Take Module Quiz</span>
+          <ArrowRight size={20} />
+        </Link>
+      )}
+
+      {/* Module Complete */}
+      {isLastLessonOfModule && moduleQuizCompleted && (
+        <div className="text-green-600 font-semibold flex items-center space-x-2">
+          <CheckCircle size={20} />
+          <span>Module Completed! 🎉</span>
+        </div>
+      )}
+
       {/* Lesson Completed - only shows when no next lesson available */}
-      {lesson.isCompleted && !nextLesson && (
+      {lessonFullyCompleted && !nextLesson && !moduleQuizExists && (
         <div className="text-green-600 font-semibold flex items-center space-x-2">
           <CheckCircle size={20} />
           <span>Lesson Completed!</span>

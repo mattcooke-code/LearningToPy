@@ -18,7 +18,7 @@ For longer explanations, you can use multiple comment lines:
 ```python
 # This function calculates the total price
 # It takes the base price and adds tax
-# We'll learn about functions in Module 3
+# We'll learn about functions in Module 6
 ```
 
 ## 📐 2. Indentation: Python's Structure

@@ -6,15 +6,15 @@ Operators are symbols that tell the Python interpreter to perform a specific act
 
 These are used for working with **numbers** (`int` and `float`).
 
-| Operator | Name                | Example  | Result                  |
-| -------- | ------------------- | -------- | ----------------------- |
-| `+`      | Addition            | `5 + 2`  | `7`                     |
-| `-`      | Subtraction         | `5 - 2`  | `3`                     |
-| `*`      | Multiplication      | `5 * 2`  | `10`                    |
-| `/`      | Division            | `5 / 2`  | `2.5` (Always a float!) |
-| `//`     | Floor Division      | `5 // 2` | `2` (Drops the decimal) |
-| `%`      | Modulus (Remainder) | `5 % 2`  | `1` (The remainder)     |
-| `**`     | Exponentiation      | `5 ** 2` | `25` (5 squared)        |
+| Operator | Name           | Example  | Result                    |
+| :------- | :------------- | :------- | :------------------------ |
+| `+`      | Addition       | `5 + 2`  | `7`                       |
+| `-`      | Subtraction    | `5 - 2`  | `3`                       |
+| `*`      | Multiplication | `5 * 2`  | `10`                      |
+| `/`      | Division       | `5 / 2`  | `2.5` (Always a float!)   |
+| `//`     | Floor Division | `5 // 2` | `2` (Removes the decimal) |
+| `%`      | Modulus        | `5 % 2`  | `1` (The remainder)       |
+| `**`     | Exponentiation | `5 ** 2` | `25` (5 squared)          |
 
 ### Examples in Action
 
@@ -53,7 +53,7 @@ print(20 % 5)   # Output: 0 (divides evenly, no remainder)
 
 ## 2. Operator Precedence (PEMDAS)
 
-Just like in math class, Python follows a specific order when evaluating expressions:
+Python follows the same order of evaluating expressions as the mathematics you learned in school:
 
 **P**arentheses → **E**xponents → **M**ultiplication/**D**ivision → **A**ddition/**S**ubtraction
 
@@ -85,10 +85,24 @@ You can also use the `+` and `*` operators on strings to combine or repeat them.
 first = "Hello"
 last = "World"
 greeting = first + " " + last  # Result: "Hello World"
+```
 
-# Building sentences
-name = "Alice"
-message = "Welcome, " + name + "!"  # Result: "Welcome, Alice!"
+**The Missing Space**
+When joining strings, Python does not add a space for you. You must include it explicitly by adding `" "`.
+
+```
+first = "Code"
+last = "Master"
+
+# ❌ Incorrect: No space
+
+print(first + last) # Output: CodeMaster
+
+# ✅ Correct: Adding a manual space string
+
+full_name = first + " " + last
+print(full_name) # Output: Code Master
+
 ```
 
 ### Repetition (`*`): Repeats a string multiple times
@@ -105,10 +119,10 @@ oops = "Error! " * 2       # Result: "Error! Error! "
 
 ```python
 age = 25
-message = "I am " + age + " years old"  # ❌ ERROR! Can't add string + int
+message = "I am " + age + " years old"  # ❌ This will cause a TypeError
 
 # Fix it by converting the number to a string:
-message = "I am " + str(age) + " years old"  # ✓ Works!
+message = "I am " + str(age) + " years old"  # Output: I am 25 years old
 ```
 
 **You cannot use subtraction or division on strings:**
