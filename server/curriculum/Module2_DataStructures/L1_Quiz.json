@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "m2l1_q1",
+      "question": "What will be the output of `fruits[1]` if `fruits = ['apple', 'banana', 'cherry']`?",
+      "options": [
+        "'apple'",
+        "'banana'",
+        "'cherry'",
+        "Error - lists start at index 1"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Python lists use zero-based indexing, so index 0 is 'apple', index 1 is 'banana', and index 2 is 'cherry'. Therefore, `fruits[1]` returns 'banana'."
+    },
+    {
+      "id": "m2l1_q2",
+      "question": "Which statement about negative indexing is TRUE?",
+      "options": [
+        "Negative indexing starts from 0 at the end of the list",
+        "Index -1 refers to the last item in the list",
+        "Negative indexing only works with strings, not lists",
+        "Negative indexing counts from the front of the list"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Negative indexing in Python starts at -1 for the last item, -2 for the second-to-last item, and so on. This provides a convenient way to access elements from the end of a list."
+    },
+    {
+      "id": "m2l1_q3",
+      "question": "What happens when you try to access an index that doesn't exist in a list?",
+      "options": [
+        "Python returns None",
+        "Python returns an empty string",
+        "Python raises an IndexError",
+        "Python creates a new item at that index"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Attempting to access an index that is out of range will cause Python to raise an IndexError. For example, if a list has 3 items (indices 0, 1, 2), trying to access index 3 or index -4 will result in an error."
+    }
+  ]
+}

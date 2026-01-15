@@ -1,18 +1,27 @@
 {
-  "title": "List Indexing Challenge",
-  "instructions": "You have been given a list representing planets in our solar system. Use both positive and negative indexing to retrieve specific planets and assign them to the requested variables.",
+  "title": "Accessing Items in Your Shopping List",
+  "instructions": "You're building a simple shopping list app. Practice accessing specific items from your list using both positive and negative indexing. Remember: Python starts counting at 0!",
   "steps": [
-    "Use **positive indexing** to retrieve the planet 'Earth' (the 3rd planet). Assign it to the variable `third_planet`.",
-    "Use **negative indexing** to retrieve the planet 'Neptune' (the last planet). Assign it to the variable `last_planet`.",
-    "Use **negative indexing** to retrieve the planet 'Mars' (the 5th from the end). Assign it to the variable `fifth_from_end`."
+    "**Step 1:** Use positive indexing to get the FIRST item in the shopping list. Remember, the first item is at index 0. Store it in the variable `first_item`.",
+    "**Step 2:** Use positive indexing to get the THIRD item in the shopping list. Count carefully: 0 is first, 1 is second, so 2 is third! Store it in the variable `third_item`.",
+    "**Step 3:** Use negative indexing to get the LAST item in the shopping list. The last item is always at index -1. Store it in the variable `last_item`.",
+    "**Step 4:** Use negative indexing to get the SECOND-TO-LAST item. If -1 is the last item, what would the second-to-last be? Store it in the variable `second_to_last`."
   ],
-  "starterCode": "planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']\n\n# 1. Earth (Positive Indexing)\nthird_planet = \n\n# 2. Neptune (Negative Indexing)\nlast_planet = \n\n# 3. Mars (Negative Indexing)\nfifth_from_end = ",
-  "solution": "planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']\n\n# 1. Earth (Positive Indexing)\nthird_planet = planets[2]\n\n# 2. Neptune (Negative Indexing)\nlast_planet = planets[-1]\n\n# 3. Mars (Negative Indexing)\nfifth_from_end = planets[-5]",
+  "starterCode": "# Here's your shopping list\nshopping_list = ['milk', 'eggs', 'bread', 'butter', 'cheese']\n\n# Step 1: Get the first item (index 0)\nfirst_item = \n\n# Step 2: Get the third item (remember: 0, 1, 2...)\nthird_item = \n\n# Step 3: Get the last item (use -1)\nlast_item = \n\n# Step 4: Get the second-to-last item\nsecond_to_last = \n\n# Don't modify below this line - this prints your answers\nprint(f\"First item: {first_item}\")\nprint(f\"Third item: {third_item}\")\nprint(f\"Last item: {last_item}\")\nprint(f\"Second-to-last item: {second_to_last}\")",
+  "solution": "# Here's your shopping list\nshopping_list = ['milk', 'eggs', 'bread', 'butter', 'cheese']\n\n# Step 1: Get the first item (index 0)\nfirst_item = shopping_list[0]\n\n# Step 2: Get the third item (remember: 0, 1, 2...)\nthird_item = shopping_list[2]\n\n# Step 3: Get the last item (use -1)\nlast_item = shopping_list[-1]\n\n# Step 4: Get the second-to-last item\nsecond_to_last = shopping_list[-2]\n\n# Don't modify below this line - this prints your answers\nprint(f\"First item: {first_item}\")\nprint(f\"Third item: {third_item}\")\nprint(f\"Last item: {last_item}\")\nprint(f\"Second-to-last item: {second_to_last}\")",
   "hints": [
-    "Remember that the first item's index is 0, not 1.",
-    "The last item in any list is always at index -1.",
-    "Count backward carefully from the end of the list to find the correct negative index for Mars."
+    "**Positive indexing reminder:** The first item is at index 0, the second at index 1, the third at index 2, and so on.",
+    "**Negative indexing reminder:** The last item is at index -1, the second-to-last is at -2, the third-to-last is at -3, and so on.",
+    "**How to access an item:** Use square brackets after the list name, like this: `shopping_list[0]` gets the first item.",
+    "**Common mistake:** Don't put quotes around the index! Write `shopping_list[0]`, NOT `shopping_list['0']`."
   ],
-  "tags": ["lists", "indexing", "data-structures"],
+  "expectedOutput": "First item: milk\nThird item: bread\nLast item: cheese\nSecond-to-last item: butter",
+  "tags": [
+    "lists",
+    "indexing",
+    "positive-indexing",
+    "negative-indexing",
+    "data-structures"
+  ],
   "challengeGroup": "list-basics"
 }

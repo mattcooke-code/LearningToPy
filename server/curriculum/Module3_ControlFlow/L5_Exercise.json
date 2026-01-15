@@ -1,19 +1,28 @@
 {
-  "title": "Access Control Challenge",
-  "instructions": "Use the `in` and `not in` operators to create the necessary Boolean expressions for controlling access to different resources.",
+  "title": "Website Access Control System",
+  "instructions": "You're building a simple access control system for a website. Use membership operators (`in` and `not in`) to check user credentials and determine access permissions. Follow each step carefully and complete the code.",
   "steps": [
-    "Check if the variable `requested_city` ('Tokyo') is present **`in`** the `service_areas` list. Assign the result to `is_serviced`.",
-    "Check if the variable `banned_ip` ('192.168.1.1') is **`not in`** the `allowed_ips` tuple. Assign the result to `is_rejected_ip`.",
-    "Check if the substring 'Error' is present **`in`** the `log_entry` string. Assign the result to `has_error`.",
-    "Write a full `if/else` statement: If 'Admin' is **`in`** the `user_permissions` list, print 'Granted'. Otherwise, print 'Denied'."
+    "Complete the boolean expression to check if `user_city` is in the `service_areas` list. The result is already being assigned to `is_serviced`.",
+    "Complete the boolean expression to check if `suspicious_ip` is NOT in the `trusted_ips` tuple. The result is already being assigned to `is_blocked`.",
+    "Complete the condition in the if statement to check if the substring 'premium' is in the `account_type` string. If it is, print 'Access granted to premium features.'",
+    "Write a complete if/else statement that checks if 'Admin' is in the `user_roles` list. If yes, print 'Full admin access granted'. If no, print 'Standard user access only'."
   ],
-  "starterCode": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nrequested_city = 'Tokyo'\nallowed_ips = ('10.0.0.1', '10.0.0.2')\nbanned_ip = '192.168.1.1'\nlog_entry = 'INFO: User login successful.'\nuser_permissions = ['Viewer', 'Editor']\n\n# 1. Check if requested_city is serviced:\nis_serviced = \n\n# 2. Check if banned_ip is NOT allowed:\nis_rejected_ip = \n\n# 3. Check log_entry for 'Error':\nhas_error = \n\n# 4. If/else check for 'Admin' permission:\n\n",
-  "solution": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nrequested_city = 'Tokyo'\nallowed_ips = ('10.0.0.1', '10.0.0.2')\nbanned_ip = '192.168.1.1'\nlog_entry = 'INFO: User login successful.'\nuser_permissions = ['Viewer', 'Editor']\n\n# 1. Check if requested_city is serviced:\nis_serviced = requested_city in service_areas\n\n# 2. Check if banned_ip is NOT allowed:\nis_rejected_ip = banned_ip not in allowed_ips\n\n# 3. Check log_entry for 'Error':\nhas_error = 'Error' in log_entry\n\n# 4. If/else check for 'Admin' permission:\nif 'Admin' in user_permissions:\n    print('Granted')\nelse:\n    print('Denied')",
+  "starterCode": "# Website access control data\nservice_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\n\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\n\naccount_type = 'premium_subscriber'\n\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\n# Step 1: Check if user_city is in our service areas\nis_serviced = user_city  # Complete this line\n\n# Step 2: Check if suspicious_ip is NOT in trusted IPs\nis_blocked = suspicious_ip  # Complete this line\n\n# Step 3: Check for premium account access\nif account_type:  # Complete this condition\n    print('Access granted to premium features.')\n\n# Step 4: Write your complete if/else statement here to check for Admin role\n\n",
+  "solution": "# Website access control data\nservice_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\n\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\n\naccount_type = 'premium_subscriber'\n\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\n# Step 1: Check if user_city is in our service areas\nis_serviced = user_city in service_areas\n\n# Step 2: Check if suspicious_ip is NOT in trusted IPs\nis_blocked = suspicious_ip not in trusted_ips\n\n# Step 3: Check for premium account access\nif 'premium' in account_type:\n    print('Access granted to premium features.')\n\n# Step 4: Write your complete if/else statement here to check for Admin role\nif 'Admin' in user_roles:\n    print('Full admin access granted')\nelse:\n    print('Standard user access only')",
   "hints": [
-    "Membership operators return a boolean (`True` or `False`), so they can be assigned directly to variables.",
-    "The `in` and `not in` operators work identically whether the sequence is a list, tuple, or string.",
-    "For step 4, remember to indent the `print()` statement inside the `if` and `else` blocks."
+    "For Step 1: Use the `in` operator between the variable and the list.",
+    "For Step 2: Use the `not in` operator to check if something is NOT present.",
+    "For Step 3: You're checking if the substring 'premium' appears anywhere in the account_type string.",
+    "For Step 4: Start with `if`, write your condition with the `in` operator, add a colon, then indent your print statement. Don't forget the `else:` block!",
+    "Remember: membership operators return True or False, which can be stored in variables or used directly in if statements."
   ],
-  "tags": ["in", "not in", "membership-operators", "lists", "tuples"],
+  "tags": [
+    "in",
+    "not in",
+    "membership-operators",
+    "lists",
+    "tuples",
+    "strings"
+  ],
   "challengeGroup": "conditional-logic"
 }

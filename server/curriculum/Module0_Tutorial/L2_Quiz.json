@@ -1,0 +1,45 @@
+{
+  "lessonId": "M0L2",
+  "title": "The Code Editor - Quiz",
+  "questions": [
+    {
+      "id": "m0l2_q1",
+      "type": "multiple-choice",
+      "question": "What do green lines in the code editor usually represent?",
+      "options": [
+        "Python keywords like 'if' and 'for'",
+        "Comments that start with #",
+        "Text strings in quotes",
+        "Error messages"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Comments in Python start with # and are shown in green. They're notes for humans that Python ignores when running code."
+    },
+    {
+      "id": "m0l2_q2",
+      "type": "multiple-choice",
+      "question": "What happens when you press Tab while typing code?",
+      "options": [
+        "It deletes the current line",
+        "It indents the code by 4 spaces (Python standard)",
+        "It runs the code immediately",
+        "It saves your code"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In Python, indentation (using 4 spaces) defines code blocks. The Tab key automatically inserts 4 spaces for proper Python indentation."
+    },
+    {
+      "id": "m0l2_q3",
+      "type": "multiple-choice",
+      "question": "What feature suggests code completions as you type?",
+      "options": [
+        "Syntax highlighting",
+        "Line numbers",
+        "Auto-complete",
+        "Error detection"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Auto-complete suggests Python keywords, function names, and variable names as you type, helping you code faster with fewer errors."
+    }
+  ]
+}

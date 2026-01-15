@@ -25,17 +25,19 @@ If you call `pop()` without an index, it defaults to removing and returning the 
 
 ```python
 
-scores = [90, 85, 92, 78]
+# A level containing a Goomba, a Koopa, and a Fire Flower
+level_entities = ["Goomba", "Koopa", "Fire Flower"]
 
-# Remove the item at index 1 (85) and store it
-failed_score = scores.pop(1)
+# Mario grabs the item at index 2
+power_up = level_entities.pop(2)
 
-print(scores)        # Output: [90, 92, 78]
-print(failed_score) # Output: 85
+print(level_entities) # Output: ['Goomba', 'Koopa']
+print(power_up)       # Output: 'Fire Flower' (Mario now has it!)
 
-# Remove the last item (78)
-last_item = scores.pop()
-print(scores)        # Output: [90, 92]
+# Mario defeats the last enemy in the list
+defeated_enemy = level_entities.pop()
+print(level_entities) # Output: ['Goomba']
+
 ```
 
 ## 3. Removing by Index/Slice: The `del` Keyword

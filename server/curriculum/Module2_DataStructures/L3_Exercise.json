@@ -1,20 +1,23 @@
 {
-  "title": "List Modification Workshop",
-  "instructions": "Practice using index assignment and list methods to modify the provided user profile list in the specified order.",
+  "title": "Building Your Playlist",
+  "instructions": "You're creating a music playlist. Practice modifying your list by changing songs, adding new ones, and combining playlists. Each step builds on the previous one!",
   "steps": [
-    "Use **index assignment** to change the value of the name (currently 'Alex') to 'Juno'.",
-    "Use the **`append()`** method to add a new skill, 'HTML', to the end of the list.",
-    "Use the **`insert()`** method to place a new certification, 'CompTIA', at the second position (index 1) in the list.",
-    "Use the **`extend()`** method to merge the contents of the `new_data` list into the main `profile` list."
+    "**Step 1:** Change the first song. The song at index 0 is 'Placeholder Song'. Use index assignment to replace it with 'Bohemian Rhapsody'.",
+    "**Step 2:** Add a new song to the end. Use the `append()` method to add 'Stairway to Heaven' to the end of your playlist.",
+    "**Step 3:** Insert a song in the middle. Use the `insert()` method to add 'Hotel California' at index 2 (between 'Imagine' and 'Sweet Child O Mine').",
+    "**Step 4:** Merge with your friend's playlist. Use the `extend()` method to add all songs from `friends_playlist` to your `my_playlist`."
   ],
-  "starterCode": "profile = ['Alex', 'Python', 'JavaScript', 32, True]\nnew_data = ['London', 'Full-Stack']\n\n# 1. Change the name to 'Juno'\n\n\n# 2. Append 'HTML' to the end\n\n\n# 3. Insert 'CompTIA' at index 1\n\n\n# 4. Extend with new_data\n\n\nprint(profile)",
-  "solution": "profile = ['Alex', 'Python', 'JavaScript', 32, True]\nnew_data = ['London', 'Full-Stack']\n\n# 1. Change the name to 'Juno'\nprofile[0] = 'Juno'\n\n# 2. Append 'HTML' to the end\nprofile.append('HTML')\n\n# 3. Insert 'CompTIA' at index 1\nprofile.insert(1, 'CompTIA')\n\n# 4. Extend with new_data\nprofile.extend(new_data)\n\nprint(profile)",
+  "starterCode": "# Your current playlist\nmy_playlist = ['Placeholder Song', 'Imagine', 'Sweet Child O Mine']\n\n# Your friend's playlist to merge later\nfriends_playlist = ['Smells Like Teen Spirit', 'Wonderwall']\n\nprint(\"Starting playlist:\", my_playlist)\nprint()\n\n# Step 1: Replace the first song (index 0) with 'Bohemian Rhapsody'\n\n\nprint(\"After replacing first song:\", my_playlist)\n\n# Step 2: Add 'Stairway to Heaven' to the end using append()\n\n\nprint(\"After appending:\", my_playlist)\n\n# Step 3: Insert 'Hotel California' at index 2 using insert()\n\n\nprint(\"After inserting:\", my_playlist)\n\n# Step 4: Merge friends_playlist using extend()\n\n\nprint(\"Final playlist:\", my_playlist)",
+  "solution": "# Your current playlist\nmy_playlist = ['Placeholder Song', 'Imagine', 'Sweet Child O Mine']\n\n# Your friend's playlist to merge later\nfriends_playlist = ['Smells Like Teen Spirit', 'Wonderwall']\n\nprint(\"Starting playlist:\", my_playlist)\nprint()\n\n# Step 1: Replace the first song (index 0) with 'Bohemian Rhapsody'\nmy_playlist[0] = 'Bohemian Rhapsody'\n\nprint(\"After replacing first song:\", my_playlist)\n\n# Step 2: Add 'Stairway to Heaven' to the end using append()\nmy_playlist.append('Stairway to Heaven')\n\nprint(\"After appending:\", my_playlist)\n\n# Step 3: Insert 'Hotel California' at index 2 using insert()\nmy_playlist.insert(2, 'Hotel California')\n\nprint(\"After inserting:\", my_playlist)\n\n# Step 4: Merge friends_playlist using extend()\nmy_playlist.extend(friends_playlist)\n\nprint(\"Final playlist:\", my_playlist)",
   "hints": [
-    "The name 'Alex' is the first element in the list.",
-    "The `append()` method takes only one argument: the item to add.",
-    "The `insert()` method takes two arguments: the index first, then the item.",
-    "The `extend()` method takes the iterable (the other list) as its argument."
+    "**Index assignment:** To change an item, use the format `list_name[index] = new_value`. For example: `my_list[0] = 'new item'`.",
+    "**append() syntax:** Call it on your list like this: `my_playlist.append('song name')`. It only takes ONE argument - the item to add.",
+    "**insert() syntax:** It needs TWO arguments: first the index position, then the item. Like this: `my_playlist.insert(2, 'song name')`.",
+    "**extend() syntax:** Pass in the other list: `my_playlist.extend(friends_playlist)`. This adds each item from friends_playlist individually.",
+    "**Watch the output:** The print statements show how your list changes after each step. This helps you see if your code is working correctly!",
+    "**Common mistake:** Don't put the list name in quotes! Write `my_playlist.append()`, not `'my_playlist'.append()`."
   ],
-  "tags": ["lists", "mutability", "methods"],
+  "expectedOutput": "Starting playlist: ['Placeholder Song', 'Imagine', 'Sweet Child O Mine']\n\nAfter replacing first song: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine']\nAfter appending: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine', 'Stairway to Heaven']\nAfter inserting: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nFinal playlist: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']",
+  "tags": ["lists", "mutability", "methods", "append", "insert", "extend"],
   "challengeGroup": "list-operations"
 }

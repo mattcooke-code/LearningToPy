@@ -1,0 +1,141 @@
+{
+  "title": "Platform Tutorial Review",
+  "description": "Test your understanding of how to use the learning platform.",
+  "settings": {
+    "randomizeQuestionOrder": true,
+    "randomizeAnswerOrder": true,
+    "passingScore": 70
+  },
+  "questions": [
+    {
+      "id": "m0_review_q1",
+      "type": "multiple-choice",
+      "question": "Where do you write your Python code on this platform?",
+      "options": [
+        "In a separate application you need to install",
+        "In the code editor in your web browser",
+        "On paper, then type it into a special converter",
+        "In the terminal only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "You write Python code directly in the browser-based code editor. No installation needed - everything runs in your web browser!"
+    },
+    {
+      "id": "m0_review_q2",
+      "type": "multiple-choice",
+      "question": "What's the difference between 'Run Code' and 'Submit Code'?",
+      "options": [
+        "'Run Code' is for testing, 'Submit Code' checks correctness and awards XP",
+        "'Run Code' is slower but more accurate",
+        "'Submit Code' only works for theory lessons",
+        "There's no difference - they're the same button with different labels"
+      ],
+      "correctAnswer": 0,
+      "explanation": "'Run Code' lets you test your code freely. 'Submit Code' validates it against test cases and awards XP if correct. Use 'Run Code' to experiment, then 'Submit Code' to complete the lesson."
+    },
+    {
+      "id": "m0_review_q3",
+      "type": "multiple-choice",
+      "question": "How do you navigate to the next lesson?",
+      "options": [
+        "Close the browser and reopen it",
+        "Use the 'Next Lesson' button that appears after completing the current lesson",
+        "Always use the browser's back button",
+        "Lessons automatically advance after 5 minutes"
+      ],
+      "correctAnswer": 1,
+      "explanation": "After completing a lesson (including any required quiz/exercise), a 'Next Lesson' button appears. Click it to continue your learning journey in the correct sequence."
+    },
+    {
+      "id": "m0_review_q4",
+      "type": "multiple-choice",
+      "question": "What keyboard shortcut runs your Python code?",
+      "options": [
+        "Ctrl+S (Save)",
+        "F5 (Refresh)",
+        "Ctrl+Enter (Run)",
+        "Alt+F4 (Close)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Ctrl+Enter (Cmd+Enter on Mac) is the keyboard shortcut to run your code. This lets you test quickly without taking your hands off the keyboard."
+    },
+    {
+      "id": "m0_review_q5",
+      "type": "multiple-choice",
+      "question": "Where do you see the output of your Python program?",
+      "options": [
+        "In a pop-up window",
+        "In the terminal below the editor",
+        "In your browser's console (F12)",
+        "It's emailed to you"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Program output appears in the terminal panel below the code editor. This includes print() statements, calculation results, and any error messages."
+    },
+    {
+      "id": "m0_review_q6",
+      "type": "multiple-choice",
+      "question": "How can you quickly clear the terminal output?",
+      "options": [
+        "Restart your computer",
+        "Press Ctrl+L or click the Clear button",
+        "Type 'delete everything' and press Enter",
+        "Terminal clears automatically every hour"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Ctrl+L (Cmd+L on Mac) or the Clear button instantly clears all terminal output, giving you a fresh workspace."
+    },
+    {
+      "id": "m0_review_q7",
+      "type": "multiple-choice",
+      "question": "What do XP points represent?",
+      "options": [
+        "Extra Problems (additional exercises)",
+        "Experience Points (earned for progress)",
+        "Example Programs (sample code)",
+        "Exit Points (ways to leave the platform)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "XP stands for Experience Points. You earn them by completing lessons, exercises, and quizzes. They gamify your learning and track your progress."
+    },
+    {
+      "id": "m0_review_q8",
+      "type": "multiple-choice",
+      "question": "When does a module's final quiz become available?",
+      "options": [
+        "Immediately when you start the module",
+        "After completing the first lesson",
+        "After completing all lessons in the module",
+        "Only on weekends"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The module quiz unlocks only after you've completed all lessons within that module. This ensures you've learned all concepts before being tested."
+    },
+    {
+      "id": "m0_review_q9",
+      "type": "multiple-choice",
+      "question": "What's the purpose of the 'Review Mode' toggle?",
+      "options": [
+        "To delete your progress and start over",
+        "To revisit completed lessons without affecting progress",
+        "To make the text larger for better readability",
+        "To switch between light and dark themes"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Review Mode lets you revisit any completed lesson to reinforce learning. You can re-read content and redo exercises without affecting your original progress or XP."
+    },
+    {
+      "id": "m0_review_q10",
+      "type": "multiple-choice",
+      "question": "How is the course structured?",
+      "options": [
+        "20 random topics in no particular order",
+        "3 phases: Fundamentals, Intermediate, and Projects",
+        "Only advanced topics for experienced programmers",
+        "Just a collection of unrelated coding challenges"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The course has 20 modules organized into 3 logical phases: Phase 1 (Fundamentals: Modules 1-10), Phase 2 (Intermediate: Modules 11-15), and Phase 3 (Projects: Modules 16-20)."
+    }
+  ]
+}

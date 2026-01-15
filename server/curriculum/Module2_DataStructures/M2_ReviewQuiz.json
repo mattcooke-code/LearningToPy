@@ -1,0 +1,184 @@
+{
+  "questions": [
+    {
+      "id": "m2l1_q1",
+      "question": "What will be the output of `fruits[1]` if `fruits = ['apple', 'banana', 'cherry']`?",
+      "options": [
+        "'apple'",
+        "'banana'",
+        "'cherry'",
+        "Error - lists start at index 1"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Python lists use zero-based indexing, so index 0 is 'apple', index 1 is 'banana', and index 2 is 'cherry'. Therefore, `fruits[1]` returns 'banana'."
+    },
+    {
+      "id": "m2l1_q2",
+      "question": "Which statement about negative indexing is TRUE?",
+      "options": [
+        "Negative indexing starts from 0 at the end of the list",
+        "Index -1 refers to the last item in the list",
+        "Negative indexing only works with strings, not lists",
+        "Negative indexing counts from the front of the list"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Negative indexing in Python starts at -1 for the last item, -2 for the second-to-last item, and so on. This provides a convenient way to access elements from the end of a list."
+    },
+    {
+      "id": "m2l1_q3",
+      "question": "What happens when you try to access an index that doesn't exist in a list?",
+      "options": [
+        "Python returns None",
+        "Python returns an empty string",
+        "Python raises an IndexError",
+        "Python creates a new item at that index"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Attempting to access an index that is out of range will cause Python to raise an IndexError. For example, if a list has 3 items (indices 0, 1, 2), trying to access index 3 or index -4 will result in an error."
+    },
+    {
+      "id": "m2l2_q1",
+      "question": "Given `colors = ['red', 'blue', 'green', 'yellow']`, what does `colors[1:3]` return?",
+      "options": [
+        "['red', 'blue']",
+        "['blue', 'green']",
+        "['blue', 'green', 'yellow']",
+        "['green', 'yellow']"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The slice `[1:3]` starts at index 1 ('blue') and stops BEFORE index 3. So it includes indices 1 and 2, which are 'blue' and 'green'. Remember: the stop index is never included in the slice."
+    },
+    {
+      "id": "m2l2_q2",
+      "question": "What does the slice `numbers[::-1]` do?",
+      "options": [
+        "Returns every second element from the list",
+        "Returns the list in reverse order",
+        "Returns an empty list",
+        "Removes all negative numbers from the list"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The slice `[::-1]` uses a step of -1, which reverses the list. The empty start and stop values mean 'from beginning to end', and the -1 step means 'go backwards', effectively reversing the entire list."
+    },
+    {
+      "id": "m2l2_q3",
+      "question": "What is the main difference between `new_list = old_list[:]` and `new_list = old_list`?",
+      "options": [
+        "They do exactly the same thing",
+        "`[:]` creates a copy; without it both variables point to the same list",
+        "`[:]` reverses the list; without it the list stays the same",
+        "`[:]` only works with numbers; without it works with all types"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Using `[:]` creates a new, independent copy of the list. Without it, both variables refer to the same list in memory, so changes to one will affect the other. This is crucial for preventing unintended modifications."
+    },
+    {
+      "id": "m2l3_q1",
+      "question": "What is the difference between `my_list.append('item')` and `my_list.extend(['item'])`?",
+      "options": [
+        "They do exactly the same thing",
+        "append() adds the string 'item', extend() adds each character separately",
+        "append() adds one item to the end, extend() adds each element from the list",
+        "append() creates a new list, extend() modifies the original"
+      ],
+      "correctAnswer": 2,
+      "explanation": "append() adds its argument as a single item (even if it's a list), while extend() iterates through the iterable and adds each element individually. So append(['A', 'B']) adds one list, while extend(['A', 'B']) adds two separate items."
+    },
+    {
+      "id": "m2l3_q2",
+      "question": "Given `numbers = [10, 20, 30]`, what does `numbers.insert(1, 15)` do?",
+      "options": [
+        "Replaces the item at index 1 with 15",
+        "Inserts 15 at index 1, shifting existing items to the right",
+        "Adds 15 to the end of the list",
+        "Causes an error because index 1 already exists"
+      ],
+      "correctAnswer": 1,
+      "explanation": "insert() places the new item at the specified index and shifts all existing items to the right. So numbers becomes [10, 15, 20, 30]. The item that was at index 1 (20) moves to index 2."
+    },
+    {
+      "id": "m2l3_q3",
+      "question": "Which statement about list mutability is TRUE?",
+      "options": [
+        "Lists cannot be changed after creation",
+        "You can only add items to lists, not change existing ones",
+        "Lists are mutable, meaning they can be modified in place",
+        "Lists become immutable after the first modification"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Lists are mutable data structures, meaning you can change their contents after creation. You can modify existing items, add new items, remove items, and more - all without creating a new list."
+    },
+    {
+      "id": "m2l4_q1",
+      "question": "What happens if you use `my_list.remove('item')` and 'item' appears twice in the list?",
+      "options": [
+        "Both occurrences are removed",
+        "Only the first occurrence is removed",
+        "Only the last occurrence is removed",
+        "Python raises an error because of duplicate values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The remove() method only removes the FIRST occurrence of the specified value. If you want to remove all occurrences, you would need to call remove() multiple times or use a different approach."
+    },
+    {
+      "id": "m2l4_q2",
+      "question": "What is the key difference between `my_list.pop()` and `del my_list[-1]`?",
+      "options": [
+        "pop() removes the last item, del removes the first item",
+        "pop() returns the removed item, del does not return anything",
+        "pop() is faster than del",
+        "del can only be used with positive indices"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Both pop() and del can remove the last item, but pop() returns the removed value so you can use it later, while del simply deletes it without returning anything. Use pop() when you need the value, del when you don't."
+    },
+    {
+      "id": "m2l4_q3",
+      "question": "Given `colors = ['red', 'blue', 'green', 'yellow']`, what does `del colors[1:3]` do?",
+      "options": [
+        "Deletes only 'blue'",
+        "Deletes 'blue' and 'green'",
+        "Deletes 'blue', 'green', and 'yellow'",
+        "Causes an error because you can't use slicing with del"
+      ],
+      "correctAnswer": 1,
+      "explanation": "del can remove slices of a list. The slice [1:3] includes indices 1 and 2 (remember, stop is exclusive), so it deletes 'blue' and 'green'. The list becomes ['red', 'yellow']."
+    },
+    {
+      "id": "m2l5_q1",
+      "question": "What is the main difference between lists and tuples in Python?",
+      "options": [
+        "Lists use square brackets, tuples use parentheses",
+        "Lists are mutable (can be changed), tuples are immutable (cannot be changed)",
+        "Lists can only store numbers, tuples can store any data type",
+        "Lists are faster than tuples"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The key difference is mutability. Lists can be modified after creation (items can be added, removed, or changed), while tuples cannot be modified once created. This immutability makes tuples useful for storing fixed data that shouldn't change."
+    },
+    {
+      "id": "m2l5_q2",
+      "question": "Which of the following will cause a TypeError?",
+      "options": [
+        "my_tuple = (1, 2, 3); print(my_tuple[0])",
+        "my_tuple = (1, 2, 3); new_tuple = my_tuple[1:]",
+        "my_tuple = (1, 2, 3); my_tuple[0] = 10",
+        "my_tuple = (1, 2, 3); my_tuple = (4, 5, 6)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Trying to change an element in a tuple using index assignment (my_tuple[0] = 10) will cause a TypeError because tuples are immutable. You can access elements, slice tuples, and reassign the entire variable, but you cannot modify individual elements."
+    },
+    {
+      "id": "m2l5_q3",
+      "question": "When should you use a tuple instead of a list?",
+      "options": [
+        "When you need to add or remove items frequently",
+        "When you want to store data that should remain constant, like coordinates or RGB values",
+        "When you need to sort the data",
+        "When working with large amounts of data only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Tuples are best for storing fixed data that shouldn't change, such as coordinates (x, y), RGB color values (255, 0, 0), or days of the week. Their immutability provides protection against accidental modification and makes them suitable as dictionary keys."
+    }
+  ]
+}

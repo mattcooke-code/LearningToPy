@@ -1,16 +1,41 @@
-# 🔑 Module Project: The Role Selector
+# 🎮 Module Project: Gaming Platform Access Control
 
-You are building the core access control logic for a community platform. Different users have different permissions and see different messages upon login. This project requires you to define a set of rules and use all the conditional logic you've learned to process a user's data and determine their access level.
+You've been hired to build the login system for a new gaming platform! Different types of users get different access levels based on their account status. Your job is to write the conditional logic that determines what each user can access.
 
-## The Goal
+## Your Mission
 
-Your mission is to write a single, complex `if/elif/else` structure that evaluates three pieces of user data—`role`, `level`, and `is_premium`—to print the appropriate welcome message and access outcome.
+Write an `if/elif/else` structure that checks a user's `account_type` and `account_age` (how many days they've been a member) to determine their access level and print the appropriate welcome message.
 
-## Access Rules to Implement
+## The Access Rules
 
-1.  **ADMIN ACCESS:** If the user's `role` is 'Admin', they gain full access immediately.
-2.  **PREMIUM ACCESS:** If the user's `role` is 'Editor' **OR** 'Author' **AND** their `level` is 5 or higher, they get premium access.
-3.  **STANDARD ACCESS:** If the user is logged in (i.e., their `role` is **`in`** the `VALID_ROLES` list) **AND** they are **NOT** premium (`is_premium` is `False`), they get standard access.
-4.  **GUEST/DENIED:** If none of the above conditions are met, they are given a "Guest" status.
+Your system needs to handle four types of users:
 
-Complete the tasks outlined in the exercise file using nested and combined conditions. Good luck!
+1. **VIP Members** - If `account_type` is `'VIP'`, they get instant access to everything, regardless of account age
+
+   - Print: `'Welcome VIP! Full access to all games and features.'`
+
+2. **Premium Members (Established)** - If `account_type` is `'Premium'` AND `account_age` is 30 days or more
+
+   - Print: `'Welcome Premium member! Access to premium games unlocked.'`
+
+3. **Premium Members (New)** - If `account_type` is `'Premium'` BUT `account_age` is less than 30 days
+
+   - Print: `'Welcome! Premium features unlock in X days.'` (where X = 30 - account_age)
+
+4. **Free Members** - If `account_type` is `'Free'` (or anything else)
+   - Print: `'Welcome! You have access to free games. Upgrade for more!'`
+
+## Test Your Code
+
+Your code should work correctly for all these test scenarios:
+
+- VIP member with 10 days → Full access
+- Premium member with 45 days → Premium access
+- Premium member with 15 days → "Premium features unlock in 15 days"
+- Free member → Free games only
+
+## Tips
+
+- Use `elif` to handle the different Premium member cases
+- Remember to check account_type AND account_age together using `and`
+- Use subtraction to calculate days remaining: `30 - account_age`

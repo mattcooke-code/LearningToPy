@@ -1,0 +1,58 @@
+{
+  "lessonId": "M0L5",
+  "title": "Navigation & Progress - Quiz",
+  "questions": [
+    {
+      "id": "m0l5_q1",
+      "type": "multiple-choice",
+      "question": "What are the three phases of this Python course?",
+      "options": [
+        "Beginner, Intermediate, Expert",
+        "Syntax, Functions, Projects",
+        "Fundamentals, Intermediate, Projects",
+        "Basics, Advanced, Mastery"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The course is organized into Phase 1 (Fundamentals: Modules 1-10), Phase 2 (Intermediate: Modules 11-15), and Phase 3 (Projects: Modules 16-20). This structured approach guides you from beginner to building real applications."
+    },
+    {
+      "id": "m0l5_q2",
+      "type": "multiple-choice",
+      "question": "When does a module quiz become available?",
+      "options": [
+        "After completing the first lesson",
+        "After completing half the lessons",
+        "After completing all lessons in the module",
+        "It's always available from the start"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The module quiz unlocks only after you've completed all lessons within that module. This ensures you've learned all the necessary concepts before being tested on them."
+    },
+    {
+      "id": "m0l5_q3",
+      "type": "multiple-choice",
+      "question": "What do XP points represent?",
+      "options": [
+        "Extra Problems - additional challenges",
+        "Experience Points - earned for completing lessons",
+        "Example Programs - sample code to study",
+        "Expertise Points - measure of Python knowledge"
+      ],
+      "correctAnswer": 1,
+      "explanation": "XP stands for Experience Points. You earn XP by completing lessons, exercises, and quizzes. They gamify your learning journey and help track your progress through the course."
+    },
+    {
+      "id": "m0l5_q4",
+      "type": "multiple-choice",
+      "question": "What can you do with completed lessons in Review Mode?",
+      "options": [
+        "Delete them to start over",
+        "Only view them but not edit code",
+        "Revisit, practice exercises again, and retake quizzes",
+        "Convert them into different programming languages"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Review Mode lets you revisit any completed lesson to reinforce learning. You can re-read content, redo exercises for practice, and retake quizzes to improve your understanding without affecting your original progress."
+    }
+  ]
+}

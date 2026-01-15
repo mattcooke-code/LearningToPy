@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "id": "m3l4_q1",
+      "question": "What is the correct syntax for a ternary operator in Python?",
+      "options": [
+        "condition ? value_if_true : value_if_false",
+        "value_if_true if condition else value_if_false",
+        "if condition then value_if_true else value_if_false",
+        "value_if_true : value_if_false if condition"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Python uses the syntax: value_if_true if condition else value_if_false. This is different from many other languages that use the ? : syntax."
+    },
+    {
+      "id": "m3l4_q2",
+      "question": "What will be assigned to `result`? `score = 45\nresult = 'Pass' if score >= 50 else 'Fail'`",
+      "options": ["'Pass'", "'Fail'", "True", "45"],
+      "correctAnswer": 1,
+      "explanation": "Since 45 is NOT >= 50, the condition is False, so the value after 'else' ('Fail') is assigned to result."
+    },
+    {
+      "id": "m3l4_q3",
+      "question": "When should you use a ternary operator instead of if/else?",
+      "options": [
+        "Always - it's always better",
+        "For simple two-way choices that assign a value",
+        "Only with numbers",
+        "When you have more than two conditions"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Ternary operators are best for simple, two-way choices that result in assigning a value. For complex logic or multiple conditions (elif), use traditional if/elif/else for better readability."
+    }
+  ]
+}

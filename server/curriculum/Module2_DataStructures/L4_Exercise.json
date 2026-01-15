@@ -1,18 +1,23 @@
 {
-  "title": "List Cleanup Challenge",
-  "instructions": "You are managing a queue of server requests. Perform the following removal operations using the most appropriate method for each step.",
+  "title": "Managing Your Task List",
+  "instructions": "You're organizing your daily tasks. Practice removing items from your list using different methods - each one is useful in different situations!",
   "steps": [
-    "Use the **`remove()`** method to delete the request with the value 'Audit_Report' from the queue.",
-    "Use the **`pop()`** method to remove the highest priority request (the first one, index 0). Store the removed request in a variable named `high_priority_removed`.",
-    "Use the **`del`** keyword to delete the last two items in the queue using **slicing** (the last two indices)."
+    "**Step 1:** Remove a task by its name. Use the `remove()` method to delete the task 'Check emails' from your list. You don't need to know where it is in the list!",
+    "**Step 2:** Complete and store your first task. Use the `pop()` method with index 0 to remove 'Morning workout' and save it in a variable called `completed_task`.",
+    "**Step 3:** Delete multiple tasks at once. Use the `del` keyword with slicing to remove the last two tasks from your list.",
+    "**Step 4:** Complete your last task. Use `pop()` WITHOUT an index to remove and store the last task in `final_task`."
   ],
-  "starterCode": "request_queue = ['Urgent_Fix', 'Audit_Report', 'New_Feature', 'Data_Backup', 'Logs_Cleanup', 'Metrics_Check']\n\n# 1. Remove 'Audit_Report' by value:\n\n\n# 2. Pop the first item (Urgent_Fix) and store it:\nhigh_priority_removed = \n\n# 3. Delete the last two items using del and slicing:\n\n\nprint('Final Queue:', request_queue)\nprint('Removed Item:', high_priority_removed)",
-  "solution": "request_queue = ['Urgent_Fix', 'Audit_Report', 'New_Feature', 'Data_Backup', 'Logs_Cleanup', 'Metrics_Check']\n\n# 1. Remove 'Audit_Report' by value:\nrequest_queue.remove('Audit_Report')\n\n# 2. Pop the first item (Urgent_Fix) and store it:\nhigh_priority_removed = request_queue.pop(0)\n\n# 3. Delete the last two items using del and slicing:\ndel request_queue[-2:]\n\nprint('Final Queue:', request_queue)\nprint('Removed Item:', high_priority_removed)",
+  "starterCode": "# Your task list for today\ntasks = ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nprint(\"Starting tasks:\", tasks)\nprint()\n\n# Step 1: Remove 'Check emails' by value using remove()\n\n\nprint(\"After removing 'Check emails':\", tasks)\n\n# Step 2: Pop the first task (index 0) and save it\ncompleted_task = \n\nprint(\"After completing first task:\", tasks)\nprint(\"Completed:\", completed_task)\n\n# Step 3: Delete the last 2 tasks using del and slicing [-2:]\n\n\nprint(\"After deleting last 2 tasks:\", tasks)\n\n# Step 4: Pop the last remaining task (no index needed!)\nfinal_task = \n\nprint(\"After completing final task:\", tasks)\nprint(\"Final task completed:\", final_task)",
+  "solution": "# Your task list for today\ntasks = ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nprint(\"Starting tasks:\", tasks)\nprint()\n\n# Step 1: Remove 'Check emails' by value using remove()\ntasks.remove('Check emails')\n\nprint(\"After removing 'Check emails':\", tasks)\n\n# Step 2: Pop the first task (index 0) and save it\ncompleted_task = tasks.pop(0)\n\nprint(\"After completing first task:\", tasks)\nprint(\"Completed:\", completed_task)\n\n# Step 3: Delete the last 2 tasks using del and slicing [-2:]\ndel tasks[-2:]\n\nprint(\"After deleting last 2 tasks:\", tasks)\n\n# Step 4: Pop the last remaining task (no index needed!)\nfinal_task = tasks.pop()\n\nprint(\"After completing final task:\", tasks)\nprint(\"Final task completed:\", final_task)",
   "hints": [
-    "Remember that `remove()` is a list method, and `del` is a keyword.",
-    "`pop(0)` is used to remove the first item.",
-    "To slice the last two items, you can use a negative index with an empty stop index: `[-2:]`."
+    "**remove() syntax:** It's a method, so use `tasks.remove('task name')`. It removes the first item with that exact value.",
+    "**pop() with index:** To remove from a specific position, use `tasks.pop(0)` for the first item. Don't forget to save the return value in your variable!",
+    "**del with slicing:** Use `del tasks[-2:]` to delete from the second-to-last item to the end. Remember del is a keyword, not a method!",
+    "**pop() without index:** Just `tasks.pop()` removes and returns the last item. It's shorthand for `tasks.pop(-1)`.",
+    "**Watch the progression:** Each print statement shows how your list shrinks. This helps you understand what each method does!",
+    "**Common mistake:** Remember that `remove()` and `pop()` are methods (use parentheses), but `del` is a keyword (no parentheses on del itself)."
   ],
-  "tags": ["lists", "remove", "pop", "del"],
+  "expectedOutput": "Starting tasks: ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nAfter removing 'Check emails': ['Morning workout', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\nAfter completing first task: ['Team meeting', 'Lunch break', 'Code review', 'Update docs']\nCompleted: Morning workout\nAfter deleting last 2 tasks: ['Team meeting', 'Lunch break']\nAfter completing final task: ['Team meeting']\nFinal task completed: Lunch break",
+  "tags": ["lists", "remove", "pop", "del", "list-methods"],
   "challengeGroup": "list-operations"
 }

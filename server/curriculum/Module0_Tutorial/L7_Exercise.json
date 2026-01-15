@@ -1,0 +1,24 @@
+{
+  "title": "My First Python Program",
+  "description": "Change the name in a simple Python program.",
+  "instructions": "Edit the code to change 'Python Learner' to your name or nickname, then submit.",
+  "starterCode": "name = \"Python Learner\"\nprint(f\"Hello, {name}!\")",
+  "testCases": [
+    {
+      "input": "",
+      "expectedOutputRegex": "Hello, .+!",
+      "description": "Should display greeting with your name"
+    },
+    {
+      "input": "",
+      "expectedOutputDoesNotContain": ["Python Learner"],
+      "description": "Should not contain 'Python Learner'"
+    }
+  ],
+  "hints": [
+    "Change 'Python Learner' to your name inside the quotes",
+    "Make sure your name is inside quotes: name = \"Your Name\"",
+    "Run the code first to see if it shows your name"
+  ],
+  "solution": "name = \"Alex\"\nprint(f\"Hello, {name}!\")"
+}

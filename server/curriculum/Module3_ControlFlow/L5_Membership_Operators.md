@@ -18,6 +18,15 @@ if "Eggs" in shopping_list:
 
 ```
 
+```python
+door_capacity = ["Rose"]
+
+if "Jack" in door_capacity:
+    print("Everyone survives!")
+else:
+    print("Rose is selfish.") # This runs
+```
+
 ### Checking Strings
 
 The `in` operator can also check if one string is a substring (a sequence of characters) within a larger string.
@@ -43,6 +52,16 @@ user_role = "Viewer"
 
 if user_role not in admin_roles:
     print("Access Denied: Not an admin.") # This runs
+```
+
+```python
+s_club = ["Tina", "Jon", "Paul", "Hannah", "Bradley", "Jo"]
+member_to_check = "Rachel"
+
+if member_to_check not in s_club:
+    print("Some Girls...") # This runs because Rachel isn't in the list
+else:
+    print("Reach for the stars!")
 ```
 
 ## 3. Combining with Conditionals

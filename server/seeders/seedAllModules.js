@@ -1,13 +1,9 @@
-// server/seeders/seedAllModules.js
+const seedModule0 = require("./seedModule0");
 const seedModules1to5 = require("./seedModules1-5");
 const seedModules6to10 = require("./seedModules6-10");
 const seedModules11to15 = require("./seedModules11-15");
 const seedModules16to20 = require("./seedModules16-20");
 
-/**
- * Orchestrates the seeding of the entire curriculum in logical order.
- * Ensures IDs are passed between batches to maintain prerequisite links.
- */
 const seedAllModules = async (
   Lesson,
   Module,
@@ -20,7 +16,7 @@ const seedAllModules = async (
 
     // Progress tracking
     let processedBatches = 0;
-    const totalBatches = 4;
+    const totalBatches = 5; // Changed from 4 to 5
 
     const updateProgress = () => {
       processedBatches++;
@@ -28,6 +24,17 @@ const seedAllModules = async (
         `📊 Progress: ${processedBatches}/${totalBatches} batches completed`
       );
     };
+
+    // --- BATCH 0: Module 0 (Tutorial) ---
+    console.log("🎮 Seeding Module 0: Tutorial...");
+    const module0 = await seedModule0(
+      Lesson,
+      Module,
+      readContent,
+      parseJSONContent,
+      seedConfig
+    );
+    updateProgress();
 
     // --- BATCH 1: Modules 1-5 (Fundamentals) ---
     console.log("📚 Seeding Batch 1 (Modules 1-5)...");
@@ -65,7 +72,6 @@ const seedAllModules = async (
       parseJSONContent,
       {
         module10_id: m10._id, // OOP I requires Module 10
-        module1_id: m1._id, // Tooling requires Module 1
       },
       seedConfig
     );
@@ -91,8 +97,9 @@ const seedAllModules = async (
 
     console.log("✅ All modules seeded successfully!");
 
-    // Construct the result object for the caller
+    // Construct the result object
     const result = {
+      tutorial: module0,
       fundamentals: [m1, m2, m3, m4, m5],
       intermediate: [m6, m7, m8, m9, m10],
       advanced: [m11, m12, m13, m14, m15],

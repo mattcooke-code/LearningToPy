@@ -35,7 +35,7 @@ else:
 
 ```python
 score = 95
-# Assign "Passed" IF score >= 60 ELSE assign "Failed"
+
 status = "Passed" if score >= 60 else "Failed"
 
 print(status) # Output: Passed

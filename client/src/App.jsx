@@ -7,7 +7,6 @@ import {
   ProtectedRoute,
 } from "./components/layout";
 import Dashboard from "./pages/Dashboard";
-import GettingStarted from "./pages/GettingStarted";
 import Home from "./pages/Home";
 import LessonPage from "./pages/LessonPage";
 import Login from "./pages/Login";
@@ -67,7 +66,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/getting-started" element={<GettingStarted />} />
+
           <Route
             path="/lessons/:id"
             element={

@@ -1,20 +1,31 @@
 {
-  "title": "Complex Condition Builder",
-  "instructions": "Use comparison and logical operators to build the necessary conditions for the provided scenarios. You do not need to use `if` statements, simply write the correct Boolean expression and assign it to the variable.",
+  "title": "Building Access Control System",
+  "instructions": "You're building a security system that checks various conditions to grant or deny access. Practice using comparison operators (==, !=, >, <, >=, <=) and logical operators (and, or, not) to create Boolean expressions.",
   "steps": [
-    "Check if the `user_score` is greater than 90 OR the `attempts_left` is greater than 5. Assign the result to `is_high_performer`.",
-    "Check if the `day` is exactly 'Monday' AND the `is_holiday` flag is `False`. Assign the result to `is_regular_workday`.",
-    "Use the **`not`** operator to check if the `user_role` is **NOT** equal to 'Admin'. Assign the result to `is_standard_user`.",
-    "Use **chaining** to check if the `temperature` is between 15 and 25 degrees Celsius (inclusive of both ends). Assign the result to `is_ideal_weather`."
+    "**Step 1:** Check if the user has EITHER a keycard OR a PIN code. Use the `or` operator to check if `has_keycard` is True OR `has_pin` is True. Store the result in `can_enter_building`.",
+    "**Step 2:** Check if it's a workday. Use the `and` operator to check if `day` equals 'Monday' AND `is_holiday` is False. Store the result in `is_regular_workday`.",
+    "**Step 3:** Check if the user is NOT an admin. Use the `not` operator to check if `user_role` is NOT equal to 'Admin'. Store the result in `is_regular_user`.",
+    "**Step 4:** Check if the temperature is comfortable. Use chained comparison to check if `temperature` is between 18 and 24 degrees (inclusive). Store the result in `is_comfortable_temp`."
   ],
-  "starterCode": "user_score = 95\nattempts_left = 3\nis_holiday = False\nday = 'Monday'\nuser_role = 'Viewer'\ntemperature = 20\n\n# 1. OR condition:\nis_high_performer = \n\n# 2. AND condition:\nis_regular_workday = \n\n# 3. NOT condition:\nis_standard_user = \n\n# 4. Chained condition (15 <= temp <= 25):\nis_ideal_weather = ",
-  "solution": "user_score = 95\nattempts_left = 3\nis_holiday = False\nday = 'Monday'\nuser_role = 'Viewer'\ntemperature = 20\n\n# 1. OR condition:\nis_high_performer = user_score > 90 or attempts_left > 5\n\n# 2. AND condition:\nis_regular_workday = day == 'Monday' and is_holiday == False\n\n# 3. NOT condition:\nis_standard_user = not user_role == 'Admin'\n\n# 4. Chained condition (15 <= temp <= 25):\nis_ideal_weather = 15 <= temperature <= 25",
+  "starterCode": "# Security system variables\nhas_keycard = True\nhas_pin = False\nday = 'Monday'\nis_holiday = False\nuser_role = 'Employee'\ntemperature = 22\n\nprint(\"🔐 SECURITY SYSTEM CHECK\")\nprint(f\"Has keycard: {has_keycard}\")\nprint(f\"Has PIN: {has_pin}\")\nprint(f\"Day: {day}\")\nprint(f\"Is holiday: {is_holiday}\")\nprint(f\"User role: {user_role}\")\nprint(f\"Temperature: {temperature}°C\")\nprint()\n\n# Step 1: Check if user has keycard OR PIN (use 'or')\ncan_enter_building = \n\nprint(f\"Can enter building: {can_enter_building}\")\n\n# Step 2: Check if it's Monday AND not a holiday (use 'and')\nis_regular_workday = \n\nprint(f\"Is regular workday: {is_regular_workday}\")\n\n# Step 3: Check if user is NOT an admin (use 'not')\nis_regular_user = \n\nprint(f\"Is regular user: {is_regular_user}\")\n\n# Step 4: Check if temp is between 18 and 24 inclusive (use chaining)\nis_comfortable_temp = \n\nprint(f\"Is comfortable temperature: {is_comfortable_temp}\")",
+  "solution": "# Security system variables\nhas_keycard = True\nhas_pin = False\nday = 'Monday'\nis_holiday = False\nuser_role = 'Employee'\ntemperature = 22\n\nprint(\"🔐 SECURITY SYSTEM CHECK\")\nprint(f\"Has keycard: {has_keycard}\")\nprint(f\"Has PIN: {has_pin}\")\nprint(f\"Day: {day}\")\nprint(f\"Is holiday: {is_holiday}\")\nprint(f\"User role: {user_role}\")\nprint(f\"Temperature: {temperature}°C\")\nprint()\n\n# Step 1: Check if user has keycard OR PIN (use 'or')\ncan_enter_building = has_keycard or has_pin\n\nprint(f\"Can enter building: {can_enter_building}\")\n\n# Step 2: Check if it's Monday AND not a holiday (use 'and')\nis_regular_workday = day == 'Monday' and is_holiday == False\n\nprint(f\"Is regular workday: {is_regular_workday}\")\n\n# Step 3: Check if user is NOT an admin (use 'not')\nis_regular_user = not user_role == 'Admin'\n\nprint(f\"Is regular user: {is_regular_user}\")\n\n# Step 4: Check if temp is between 18 and 24 inclusive (use chaining)\nis_comfortable_temp = 18 <= temperature <= 24\n\nprint(f\"Is comfortable temperature: {is_comfortable_temp}\")",
   "hints": [
-    "Remember that the logical operators are `and`, `or`, and `not`.",
-    "Use parentheses in the `is_regular_workday` check to group the comparisons, though they are not strictly required.",
-    "The chained comparison for temperature is a neat Python feature: `A op B op C`.",
-    "String comparison must be exact: 'Monday' != 'monday'."
+    "**or operator:** Returns True if AT LEAST ONE condition is True. Syntax: `condition1 or condition2`",
+    "**and operator:** Returns True ONLY if BOTH conditions are True. Syntax: `condition1 and condition2`",
+    "**not operator:** Reverses the Boolean value. Syntax: `not condition`. You can write `not user_role == 'Admin'` or `user_role != 'Admin'` - both work!",
+    "**Chained comparison:** Python lets you write `18 <= temperature <= 24` instead of `temperature >= 18 and temperature <= 24`. Much cleaner!",
+    "**Comparison for equality:** Use `==` (double equals) to check if two values are equal. Single `=` is for assignment!",
+    "**Boolean values:** Variables like `has_keycard` are already True or False, so you can use them directly: `has_keycard or has_pin` (no need for `has_keycard == True`).",
+    "**Testing different values:** Try changing the variables at the top to see how your conditions respond to different scenarios!"
   ],
-  "tags": ["comparison-operators", "logical-operators", "boolean-logic"],
+  "expectedOutput": "🔐 SECURITY SYSTEM CHECK\nHas keycard: True\nHas PIN: False\nDay: Monday\nIs holiday: False\nUser role: Employee\nTemperature: 22°C\n\nCan enter building: True\nIs regular workday: True\nIs regular user: True\nIs comfortable temperature: True",
+  "tags": [
+    "comparison-operators",
+    "logical-operators",
+    "boolean-logic",
+    "and",
+    "or",
+    "not"
+  ],
   "challengeGroup": "conditional-logic"
 }

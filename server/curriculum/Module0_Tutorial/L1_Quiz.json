@@ -1,0 +1,45 @@
+{
+  "lessonId": "M0L1",
+  "title": "Welcome to Python Learning - Quiz",
+  "questions": [
+    {
+      "id": "m0l1_q1",
+      "type": "multiple-choice",
+      "question": "What are the three phases of this Python course?",
+      "options": [
+        "Beginner, Intermediate, Advanced",
+        "Fundamentals, Intermediate, Advanced Projects",
+        "Basics, OOP, Data Science",
+        "Syntax, Functions, Applications"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The course is structured into Phase 1 (Fundamentals), Phase 2 (Intermediate), and Phase 3 (Advanced Projects) to guide you from beginner to advanced level."
+    },
+    {
+      "id": "m0l1_q2",
+      "type": "multiple-choice",
+      "question": "What can you do on this learning platform?",
+      "options": [
+        "Only read lessons and watch videos",
+        "Write, run, and test Python code in your browser",
+        "Download Python programs to run on your computer",
+        "Only take quizzes and tests"
+      ],
+      "correctAnswer": 1,
+      "explanation": "This is an interactive platform where you can write Python code directly in your browser, run it instantly, and get immediate feedback on your solutions."
+    },
+    {
+      "id": "m0l1_q3",
+      "type": "multiple-choice",
+      "question": "What will you earn as you progress through the course?",
+      "options": [
+        "Only a certificate at the end",
+        "XP points and badges for completing lessons",
+        "Money for each module completed",
+        "Nothing - it's just for learning"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The platform uses gamification to motivate learning. You'll earn XP (experience points) for completing lessons and unlock badges for achievements."
+    }
+  ]
+}

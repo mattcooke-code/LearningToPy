@@ -28,7 +28,7 @@ const LessonNavigation = ({
         onClick={() => navigate(-1)}
         className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition"
       >
-        <ArrowLeft size={20} />
+        <ArrowLeft size={20} /> 
         <span>Back to Lessons</span>
       </button>
 

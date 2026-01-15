@@ -1,0 +1,58 @@
+{
+  "lessonId": "M0L4",
+  "title": "Running Your Code - Quiz",
+  "questions": [
+    {
+      "id": "m0l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the main difference between 'Run Code' and 'Submit Code'?",
+      "options": [
+        "'Run Code' is faster than 'Submit Code'",
+        "'Submit Code' checks if your solution is correct and awards XP",
+        "'Run Code' only works for short programs",
+        "There is no difference - they do the same thing"
+      ],
+      "correctAnswer": 1,
+      "explanation": "'Run Code' lets you test code freely, while 'Submit Code' validates your solution against test cases and awards XP if correct. Use 'Run Code' to experiment and 'Submit Code' to complete lessons."
+    },
+    {
+      "id": "m0l4_q2",
+      "type": "multiple-choice",
+      "question": "In what order does Python execute your code?",
+      "options": [
+        "Random order based on optimization",
+        "From the middle outward",
+        "Top to bottom, line by line",
+        "Functions first, then other code"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python executes code sequentially from top to bottom, unless directed otherwise by functions or control flow statements. This is why you must define variables before using them."
+    },
+    {
+      "id": "m0l4_q3",
+      "type": "multiple-choice",
+      "question": "What should you do if you see an error message when running code?",
+      "options": [
+        "Ignore it and try different code",
+        "Close the browser and start over",
+        "Read it carefully - it tells you what went wrong and often how to fix it",
+        "Only worry if the code doesn't run at all"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Error messages are helpful debugging tools! They tell you the error type, location (file and line), and often include hints. Learning to read error messages is a crucial programming skill."
+    },
+    {
+      "id": "m0l4_q4",
+      "type": "multiple-choice",
+      "question": "What keyboard shortcut runs your code?",
+      "options": [
+        "Ctrl+S (or Cmd+S on Mac)",
+        "Ctrl+Enter (or Cmd+Enter on Mac)",
+        "F5 key",
+        "Ctrl+R (or Cmd+R on Mac)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Ctrl+Enter (Cmd+Enter on Mac) is the keyboard shortcut for running code. This lets you test your code quickly without taking your hands off the keyboard."
+    }
+  ]
+}

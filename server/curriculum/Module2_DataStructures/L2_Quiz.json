@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "m2l2_q1",
+      "question": "Given `colors = ['red', 'blue', 'green', 'yellow']`, what does `colors[1:3]` return?",
+      "options": [
+        "['red', 'blue']",
+        "['blue', 'green']",
+        "['blue', 'green', 'yellow']",
+        "['green', 'yellow']"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The slice `[1:3]` starts at index 1 ('blue') and stops BEFORE index 3. So it includes indices 1 and 2, which are 'blue' and 'green'. Remember: the stop index is never included in the slice."
+    },
+    {
+      "id": "m2l2_q2",
+      "question": "What does the slice `numbers[::-1]` do?",
+      "options": [
+        "Returns every second element from the list",
+        "Returns the list in reverse order",
+        "Returns an empty list",
+        "Removes all negative numbers from the list"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The slice `[::-1]` uses a step of -1, which reverses the list. The empty start and stop values mean 'from beginning to end', and the -1 step means 'go backwards', effectively reversing the entire list."
+    },
+    {
+      "id": "m2l2_q3",
+      "question": "What is the main difference between `new_list = old_list[:]` and `new_list = old_list`?",
+      "options": [
+        "They do exactly the same thing",
+        "`[:]` creates a copy; without it both variables point to the same list",
+        "`[:]` reverses the list; without it the list stays the same",
+        "`[:]` only works with numbers; without it works with all types"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Using `[:]` creates a new, independent copy of the list. Without it, both variables refer to the same list in memory, so changes to one will affect the other. This is crucial for preventing unintended modifications."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "m2l4_q1",
+      "question": "What happens if you use `my_list.remove('item')` and 'item' appears twice in the list?",
+      "options": [
+        "Both occurrences are removed",
+        "Only the first occurrence is removed",
+        "Only the last occurrence is removed",
+        "Python raises an error because of duplicate values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The remove() method only removes the FIRST occurrence of the specified value. If you want to remove all occurrences, you would need to call remove() multiple times or use a different approach."
+    },
+    {
+      "id": "m2l4_q2",
+      "question": "What is the key difference between `my_list.pop()` and `del my_list[-1]`?",
+      "options": [
+        "pop() removes the last item, del removes the first item",
+        "pop() returns the removed item, del does not return anything",
+        "pop() is faster than del",
+        "del can only be used with positive indices"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Both pop() and del can remove the last item, but pop() returns the removed value so you can use it later, while del simply deletes it without returning anything. Use pop() when you need the value, del when you don't."
+    },
+    {
+      "id": "m2l4_q3",
+      "question": "Given `colors = ['red', 'blue', 'green', 'yellow']`, what does `del colors[1:3]` do?",
+      "options": [
+        "Deletes only 'blue'",
+        "Deletes 'blue' and 'green'",
+        "Deletes 'blue', 'green', and 'yellow'",
+        "Causes an error because you can't use slicing with del"
+      ],
+      "correctAnswer": 1,
+      "explanation": "del can remove slices of a list. The slice [1:3] includes indices 1 and 2 (remember, stop is exclusive), so it deletes 'blue' and 'green'. The list becomes ['red', 'yellow']."
+    }
+  ]
+}

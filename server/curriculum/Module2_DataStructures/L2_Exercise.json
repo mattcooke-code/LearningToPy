@@ -1,20 +1,22 @@
 {
-  "title": "Slicing Masterclass",
-  "instructions": "You are managing a list of weekly transactions. Use list slicing to extract the requested sub-sections of the transaction list.",
+  "title": "Slicing Your Weekly Schedule",
+  "instructions": "You're organizing your weekly study schedule. Use slicing to extract different parts of your schedule. Remember: slicing uses [start:stop] and the stop index is NOT included!",
   "steps": [
-    "Extract the transactions from Tuesday (index 1) to Friday (index 4). Remember that the stop index is exclusive! Assign the result to `mid_week_sales`.",
-    "Create a slice that includes only the last three days of the week. Assign the result to `weekend_sales`.",
-    "Use the `step` value to extract only the transactions from the **odd-indexed days** (Tuesday, Thursday, Saturday). Assign the result to `alternate_sales`.",
-    "Create a **full reversed copy** of the list using a negative step. Assign the result to `reversed_transactions`."
+    "**Step 1:** Get your weekday schedule (Monday through Friday). Use a slice that starts at index 0 and stops BEFORE index 5. Store it in `weekdays`.",
+    "**Step 2:** Get your weekend schedule (Saturday and Sunday). These are the last 2 items. Use negative indexing to slice from index -2 to the end. Store it in `weekend`.",
+    "**Step 3:** Get every other day starting from Monday (Monday, Wednesday, Friday, Sunday). Use a step of 2 to skip days. Store it in `alternate_days`.",
+    "**Step 4:** Create a reversed copy of the entire week using `[::-1]`. This doesn't change the original! Store it in `week_reversed`."
   ],
-  "starterCode": "transactions = [500, 120, 80, 250, 150, 600, 30]\n# Index:        0   1    2    3    4    5    6\n# Day:  Mon  Tue  Wed  Thu  Fri  Sat  Sun\n\n# 1. Tuesday to Friday:\nmid_week_sales = \n\n# 2. Last three days (Friday, Saturday, Sunday):\nweekend_sales = \n\n# 3. Odd-indexed days (1, 3, 5):\nalternate_sales = \n\n# 4. Reversed copy:\nreversed_transactions = ",
-  "solution": "transactions = [500, 120, 80, 250, 150, 600, 30]\n\n# 1. Tuesday (1) up to Friday + 1 (5):\nmid_week_sales = transactions[1:5]\n\n# 2. Last three days (starts at -3):\nweekend_sales = transactions[-3:]\n\n# 3. Odd-indexed days (start at 1, step 2):\nalternate_sales = transactions[1::2]\n\n# 4. Reversed copy:\nreversed_transactions = transactions[::-1]",
+  "starterCode": "# Your weekly study schedule (hours per day)\nweek_schedule = [2, 3, 2, 4, 3, 5, 1]\n#    Days:      Mon Tue Wed Thu Fri Sat Sun\n#    Index:      0   1   2   3   4   5   6\n\n# Step 1: Slice from Monday (0) up to (but not including) Saturday (5)\nweekdays = \n\n# Step 2: Slice the last 2 days (Saturday and Sunday)\nweekend = \n\n# Step 3: Get every other day (step by 2)\nalternate_days = \n\n# Step 4: Reverse the entire week\nweek_reversed = \n\n# Don't modify below - this prints your results\nprint(f\"Weekdays: {weekdays}\")\nprint(f\"Weekend: {weekend}\")\nprint(f\"Alternate days: {alternate_days}\")\nprint(f\"Week reversed: {week_reversed}\")\nprint(f\"Original unchanged: {week_schedule}\")",
+  "solution": "# Your weekly study schedule (hours per day)\nweek_schedule = [2, 3, 2, 4, 3, 5, 1]\n#    Days:      Mon Tue Wed Thu Fri Sat Sun\n#    Index:      0   1   2   3   4   5   6\n\n# Step 1: Slice from Monday (0) up to (but not including) Saturday (5)\nweekdays = week_schedule[0:5]\n\n# Step 2: Slice the last 2 days (Saturday and Sunday)\nweekend = week_schedule[-2:]\n\n# Step 3: Get every other day (step by 2)\nalternate_days = week_schedule[::2]\n\n# Step 4: Reverse the entire week\nweek_reversed = week_schedule[::-1]\n\n# Don't modify below - this prints your results\nprint(f\"Weekdays: {weekdays}\")\nprint(f\"Weekend: {weekend}\")\nprint(f\"Alternate days: {alternate_days}\")\nprint(f\"Week reversed: {week_reversed}\")\nprint(f\"Original unchanged: {week_schedule}\")",
   "hints": [
-    "For step 1, the stop index for Friday is 5, since slicing stops *before* the stop index.",
-    "For step 2, use a negative index to start and omit the stop index to go to the end.",
-    "For step 3, start at index 1 and jump 2 spaces each time to hit the odd indices.",
-    "To reverse a list, use a step value of -1 and omit the start and stop indices."
+    "**Slicing reminder:** `list[start:stop]` includes the start index but stops BEFORE the stop index. So `[0:5]` includes indices 0, 1, 2, 3, 4.",
+    "**Negative indexing:** Use `-2:` to start from the second-to-last item and go to the end. No stop index needed!",
+    "**Step syntax:** Add a third number for step like this: `list[start:stop:step]`. If you want all items but skip some, use `list[::2]` (no start or stop, just step).",
+    "**Reversing:** The special slice `[::-1]` means 'from start to end (both empty), going backwards (step -1)'. This creates a new reversed list.",
+    "**Common mistake:** Remember that slicing creates a NEW list. The original `week_schedule` stays the same!"
   ],
-  "tags": ["lists", "slicing", "negative-indexing"],
+  "expectedOutput": "Weekdays: [2, 3, 2, 4, 3]\nWeekend: [5, 1]\nAlternate days: [2, 2, 3, 1]\nWeek reversed: [1, 5, 3, 4, 2, 3, 2]\nOriginal unchanged: [2, 3, 2, 4, 3, 5, 1]",
+  "tags": ["lists", "slicing", "negative-indexing", "step", "list-copying"],
   "challengeGroup": "list-basics"
 }

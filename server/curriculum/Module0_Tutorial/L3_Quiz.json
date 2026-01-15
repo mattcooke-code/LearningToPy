@@ -1,0 +1,45 @@
+{
+  "lessonId": "M0L3",
+  "title": "The Python Terminal - Quiz",
+  "questions": [
+    {
+      "id": "m0l3_q1",
+      "type": "multiple-choice",
+      "question": "What does the terminal show when you run Python code?",
+      "options": [
+        "Only error messages if something goes wrong",
+        "Everything that your program prints using print()",
+        "A summary of how fast your code ran",
+        "The Python installation details"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The terminal displays all output from your print() statements, as well as any error messages. It's where you see the results of your code execution."
+    },
+    {
+      "id": "m0l3_q2",
+      "type": "multiple-choice",
+      "question": "What is the interactive mode in the terminal called?",
+      "options": [
+        "Python Shell",
+        "REPL (Read-Eval-Print Loop)",
+        "Command Line Interface",
+        "Both 1 and 2"
+      ],
+      "correctAnswer": 3,
+      "explanation": "The interactive mode is called both a Python Shell and a REPL (Read-Eval-Print Loop). It reads your input, evaluates it as Python code, prints the result, and loops to wait for more input."
+    },
+    {
+      "id": "m0l3_q3",
+      "type": "multiple-choice",
+      "question": "How can you quickly clear the terminal output?",
+      "options": [
+        "Close and reopen the browser tab",
+        "Press Ctrl+L or click the Clear button",
+        "Type 'clear' and press Enter",
+        "You cannot clear the terminal"
+      ],
+      "correctAnswer": 1,
+      "explanation": "You can clear the terminal by pressing Ctrl+L (Cmd+L on Mac) or clicking the Clear button. This gives you a fresh workspace without old output."
+    }
+  ]
+}

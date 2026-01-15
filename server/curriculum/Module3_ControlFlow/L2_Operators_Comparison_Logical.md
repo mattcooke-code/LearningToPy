@@ -32,10 +32,10 @@ The `and` operator requires **both** conditions on either side to be `True` for 
 age = 17
 has_license = True
 
-if age >= 16 and has_license:
-    print("You can drive.") # This is False because age is not >= 18
+if age >= 18 and has_license:
+    print("You can drive.")  # This does NOT run
 else:
-    print("Cannot drive yet.")
+    print("Cannot drive yet.")  # This runs because 17 < 18
 
 ```
 

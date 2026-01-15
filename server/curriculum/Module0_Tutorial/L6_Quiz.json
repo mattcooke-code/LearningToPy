@@ -1,0 +1,58 @@
+{
+  "lessonId": "M0L6",
+  "title": "Keyboard Shortcuts - Quiz",
+  "questions": [
+    {
+      "id": "m0l6_q1",
+      "type": "multiple-choice",
+      "question": "What is the keyboard shortcut to run your Python code?",
+      "options": [
+        "F5 key",
+        "Ctrl+R (Cmd+R on Mac)",
+        "Ctrl+Enter (Cmd+Enter on Mac)",
+        "Shift+Enter"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Ctrl+Enter (or Cmd+Enter on Mac) is the primary shortcut for running code. This allows you to test your program without taking your hands off the keyboard."
+    },
+    {
+      "id": "m0l6_q2",
+      "type": "multiple-choice",
+      "question": "How do you quickly comment or uncomment multiple lines of code?",
+      "options": [
+        "Select the lines and press Ctrl+/ (Cmd+/ on Mac)",
+        "Type # at the beginning of each line manually",
+        "Right-click and select 'Toggle Comment'",
+        "Use the Format button in the editor"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Select the lines you want to comment/uncomment and press Ctrl+/ (Cmd+/ on Mac). This toggles Python comments (#) on all selected lines, saving you from manually editing each line."
+    },
+    {
+      "id": "m0l6_q3",
+      "type": "multiple-choice",
+      "question": "What does Ctrl+Click (Cmd+Click on Mac) do in the editor?",
+      "options": [
+        "Opens a context menu",
+        "Selects the entire word",
+        "Adds another cursor at the clicked position",
+        "Jumps to the definition of a function"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Ctrl+Click (Cmd+Click on Mac) adds multiple cursors at each clicked position. This powerful feature lets you edit the same text in multiple places simultaneously."
+    },
+    {
+      "id": "m0l6_q4",
+      "type": "multiple-choice",
+      "question": "How can you quickly clear the terminal output?",
+      "options": [
+        "Close and reopen the browser tab",
+        "Press Ctrl+L (Cmd+L on Mac) or click the Clear button",
+        "Type 'clear' and press Enter",
+        "Wait for it to automatically clear after 5 minutes"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Ctrl+L (Cmd+L on Mac) or the Clear button instantly clears all terminal output. This is useful when you want a fresh workspace without old results cluttering the view."
+    }
+  ]
+}

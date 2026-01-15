@@ -1,20 +1,23 @@
 {
-  "title": "Truthy or Falsy Identifier",
-  "instructions": "For each variable provided, write a conditional statement (`if` or `if/else`) that checks its truthiness. Assign a final string result based on the outcome.",
+  "title": "User Profile Validator",
+  "instructions": "You're building a user profile system. Use truthiness to check if profile fields have values without using comparison operators. This makes your code cleaner and more 'Pythonic'!",
   "steps": [
-    "Check the `items_in_cart` list. If it is Truthy (not empty), assign the string 'READY_TO_CHECKOUT' to `cart_status`. Otherwise, assign 'CART_EMPTY'.",
-    "Check the `user_balance` integer. If it is Truthy (non-zero), assign the string 'ACTIVE_BALANCE' to `balance_status`. Otherwise, assign 'ZERO_BALANCE'.",
-    "Check the `error_message` string. If it is **Falsy** (empty string), assign the string 'NO_ERROR' to `error_status`. Hint: Use `if not error_message:`.",
-    "Check the `user_selection` variable (which is `None`). If it is Truthy, assign 'SELECTION_MADE'. Otherwise, assign 'NO_SELECTION'. Assign the result to `selection_status`."
+    "**Step 1:** Check if the user provided a username. Use `if username:` to check if the string is NOT empty. If it has content, print 'Username: ' followed by the username. Otherwise, print 'Error: Username required'.",
+    "**Step 2:** Check if the user has any friends. Use `if friends_list:` to check if the list is NOT empty. If it has items, print 'You have friends!'. Otherwise, print 'No friends yet'.",
+    "**Step 3:** Check if the user's account balance is zero. Use `if not balance:` to check if balance is Falsy (zero). If it's zero, print 'Please add funds'. Otherwise, print 'Balance: ' followed by the balance.",
+    "**Step 4:** Check if the user has selected a profile picture. Use `if profile_pic:` to check if it's NOT None. If they selected one, print 'Profile pic: ' followed by the filename. Otherwise, print 'No profile picture'."
   ],
-  "starterCode": "items_in_cart = ['Book', 'Pen']\nuser_balance = 0\nerror_message = ''\nuser_selection = None\n\n# 1. Check items_in_cart\nif items_in_cart:\n    cart_status = 'READY_TO_CHECKOUT'\nelse:\n    cart_status = 'CART_EMPTY'\n\n\n# 2. Check user_balance\nbalance_status = \n\n\n# 3. Check for Falsy error_message\nerror_status = \n\n\n# 4. Check user_selection\nselection_status = \n\n",
-  "solution": "items_in_cart = ['Book', 'Pen']\nuser_balance = 0\nerror_message = ''\nuser_selection = None\n\n# 1. Check items_in_cart\nif items_in_cart:\n    cart_status = 'READY_TO_CHECKOUT'\nelse:\n    cart_status = 'CART_EMPTY'\n\n\n# 2. Check user_balance\nif user_balance:\n    balance_status = 'ACTIVE_BALANCE'\nelse:\n    balance_status = 'ZERO_BALANCE'\n\n\n# 3. Check for Falsy error_message\nif not error_message:\n    error_status = 'NO_ERROR'\nelse:\n    error_status = 'HAS_ERROR'\n\n\n# 4. Check user_selection\nif user_selection:\n    selection_status = 'SELECTION_MADE'\nelse:\n    selection_status = 'NO_SELECTION'\n\n",
+  "starterCode": "# User profile data\nusername = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\nprint(\"👤 USER PROFILE VALIDATOR\")\nprint()\n\n# Step 1: Check if username is not empty (Truthy)\nif username:\n    print(f\"Username: {username}\")\nelse:\n    print(\"Error: Username required\")\n\n# Step 2: Check if friends_list is not empty (Truthy)\n\n\n# Step 3: Check if balance is zero (Falsy)\n\n\n# Step 4: Check if profile_pic is not None (Truthy)\n",
+  "solution": "# User profile data\nusername = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\nprint(\"👤 USER PROFILE VALIDATOR\")\nprint()\n\n# Step 1: Check if username is not empty (Truthy)\nif username:\n    print(f\"Username: {username}\")\nelse:\n    print(\"Error: Username required\")\n\n# Step 2: Check if friends_list is not empty (Truthy)\nif friends_list:\n    print(\"You have friends!\")\nelse:\n    print(\"No friends yet\")\n\n# Step 3: Check if balance is zero (Falsy)\nif not balance:\n    print(\"Please add funds\")\nelse:\n    print(f\"Balance: ${balance}\")\n\n# Step 4: Check if profile_pic is not None (Truthy)\nif profile_pic:\n    print(f\"Profile pic: {profile_pic}\")\nelse:\n    print(\"No profile picture\")",
   "hints": [
-    "An empty list, `[]`, is Falsy. A non-empty list is Truthy.",
-    "The number `0` is Falsy. Any other number is Truthy.",
-    "Use the `not` keyword to explicitly check for a Falsy value in a more readable way.",
-    "`None` is the special constant that is always Falsy."
+    "**Truthiness basics:** You DON'T need to write `if username != ''` or `if friends_list != []`. Just write `if username:` or `if friends_list:`. Python knows empty = False!",
+    "**Falsy values to remember:** Empty strings (''), empty lists ([]), zero (0), and None are all Falsy. Everything else is Truthy!",
+    "**The 'not' keyword:** When you want to check if something IS empty or zero, use `if not variable:`. This reads naturally: 'if NOT balance' means 'if balance is zero'.",
+    "**Why this is better:** Instead of `if username != ''`, writing `if username:` is shorter, cleaner, and more Pythonic. It's the style professional Python developers use!",
+    "**Testing different scenarios:** Try changing the values at the top. Set username = '', friends_list = ['Alice'], balance = 100, profile_pic = 'photo.jpg' and see how your code responds!",
+    "**None is special:** None is Python's way of saying 'nothing' or 'no value'. It's always Falsy, so `if not profile_pic:` will be True when profile_pic is None."
   ],
-  "tags": ["truthiness", "falsiness", "control-flow"],
+  "expectedOutput": "👤 USER PROFILE VALIDATOR\n\nUsername: alex_2024\nNo friends yet\nPlease add funds\nNo profile picture",
+  "tags": ["truthiness", "falsiness", "control-flow", "pythonic-code"],
   "challengeGroup": "conditional-logic"
 }

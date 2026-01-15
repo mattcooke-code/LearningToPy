@@ -1,19 +1,23 @@
 {
-  "title": "Ternary Transformation",
-  "instructions": "Convert the following scenarios into single-line conditional expressions (Ternary Operators) to assign the correct value to the result variable.",
+  "title": "Quick Status Checker",
+  "instructions": "Practice using ternary operators to assign values in a single line. Ternary operators are perfect for simple two-way choices! Remember the pattern: value_if_true if condition else value_if_false",
   "steps": [
-    "Use a ternary operator to assign 'Active' to `connection_status` if the `ping_time` is less than 50, otherwise assign 'Lagging'.",
-    "Use a ternary operator to assign 'Priority' to `user_level` if `is_logged_in` is `True`, otherwise assign 'Standard'.",
-    "Use a ternary operator and the **Truthiness** concept to check the `file_name` string. If the string is Truthy (not empty), assign 'VALID' to `file_check`. Otherwise, assign 'MISSING'.",
-    "Use a ternary operator to check if `current_stock` is less than or equal to 10. If so, assign the result of `current_stock + 50` to `new_stock_level`. Otherwise, assign the original `current_stock`."
+    "**Step 1:** Use a ternary operator to check if `temperature` is greater than 30. If True, assign 'Hot' to `weather_status`. Otherwise, assign 'Pleasant'.",
+    "**Step 2:** Use a ternary operator to check if `age` is greater than or equal to 18. If True, assign 'Adult' to `age_category`. Otherwise, assign 'Minor'.",
+    "**Step 3:** Use a ternary operator with truthiness. Check if `error_code` is Truthy (not zero). If True, assign 'Error detected' to `system_status`. Otherwise, assign 'All systems normal'.",
+    "**Step 4:** Use a ternary operator to check if `items_in_cart` is greater than 0. If True, assign the calculation `items_in_cart * 15` to `total_price`. Otherwise, assign 0."
   ],
-  "starterCode": "ping_time = 45\nis_logged_in = False\nfile_name = 'report.pdf'\ncurrent_stock = 7\n\n# 1. Connection Status:\nconnection_status = \n\n# 2. User Level:\nuser_level = \n\n# 3. File Check (using Truthiness):\nfile_check = \n\n# 4. Stock Level Calculation:\nnew_stock_level = ",
-  "solution": "ping_time = 45\nis_logged_in = False\nfile_name = 'report.pdf'\ncurrent_stock = 7\n\n# 1. Connection Status:\nconnection_status = 'Active' if ping_time < 50 else 'Lagging'\n\n# 2. User Level:\nuser_level = 'Priority' if is_logged_in else 'Standard'\n\n# 3. File Check (using Truthiness):\nfile_check = 'VALID' if file_name else 'MISSING'\n\n# 4. Stock Level Calculation:\nnew_stock_level = current_stock + 50 if current_stock <= 10 else current_stock",
+  "starterCode": "# System variables\ntemperature = 35\nage = 16\nerror_code = 0\nitems_in_cart = 3\n\nprint(\"⚡ QUICK STATUS CHECKER\")\nprint(f\"Temperature: {temperature}°C\")\nprint(f\"Age: {age}\")\nprint(f\"Error code: {error_code}\")\nprint(f\"Items in cart: {items_in_cart}\")\nprint()\n\n# Step 1: Check temperature (use ternary operator)\nweather_status = \n\nprint(f\"Weather: {weather_status}\")\n\n# Step 2: Check age (use ternary operator)\nage_category = \n\nprint(f\"Age category: {age_category}\")\n\n# Step 3: Check error code using truthiness (use ternary operator)\nsystem_status = \n\nprint(f\"System: {system_status}\")\n\n# Step 4: Calculate total price (use ternary operator with calculation)\ntotal_price = \n\nprint(f\"Total price: ${total_price}\")",
+  "solution": "# System variables\ntemperature = 35\nage = 16\nerror_code = 0\nitems_in_cart = 3\n\nprint(\"⚡ QUICK STATUS CHECKER\")\nprint(f\"Temperature: {temperature}°C\")\nprint(f\"Age: {age}\")\nprint(f\"Error code: {error_code}\")\nprint(f\"Items in cart: {items_in_cart}\")\nprint()\n\n# Step 1: Check temperature (use ternary operator)\nweather_status = 'Hot' if temperature > 30 else 'Pleasant'\n\nprint(f\"Weather: {weather_status}\")\n\n# Step 2: Check age (use ternary operator)\nage_category = 'Adult' if age >= 18 else 'Minor'\n\nprint(f\"Age category: {age_category}\")\n\n# Step 3: Check error code using truthiness (use ternary operator)\nsystem_status = 'Error detected' if error_code else 'All systems normal'\n\nprint(f\"System: {system_status}\")\n\n# Step 4: Calculate total price (use ternary operator with calculation)\ntotal_price = items_in_cart * 15 if items_in_cart > 0 else 0\n\nprint(f\"Total price: ${total_price}\")",
   "hints": [
-    "Remember the structure: `value_if_true` then `if condition` then `else value_if_false`.",
-    "For step 2, you don't need `is_logged_in == True`; `if is_logged_in` is sufficient.",
-    "For step 4, the calculation (`current_stock + 50`) is the value assigned if the condition is true."
+    "**Ternary syntax:** Remember the pattern: `value_if_true if condition else value_if_false`. Read it as: 'assign this value IF this is true, ELSE assign that value'.",
+    "**Step 1 example:** `weather_status = 'Hot' if temperature > 30 else 'Pleasant'` - if temp is over 30, it's 'Hot', otherwise 'Pleasant'.",
+    "**Using truthiness:** In Step 3, you can write `if error_code:` instead of `if error_code != 0`. Remember: 0 is Falsy, any other number is Truthy!",
+    "**Calculations in ternary:** In Step 4, you can do math in the value_if_true part: `items_in_cart * 15 if items_in_cart > 0 else 0`",
+    "**Keep it simple:** Ternary operators are great for simple choices. If you need elif or complex logic, use regular if/elif/else instead!",
+    "**Testing:** Try changing the variables at the top to see how the ternary operators respond. Set temperature = 25, age = 20, error_code = 404, items_in_cart = 0!"
   ],
-  "tags": ["ternary", "conditional-expressions"],
+  "expectedOutput": "⚡ QUICK STATUS CHECKER\nTemperature: 35°C\nAge: 16\nError code: 0\nItems in cart: 3\n\nWeather: Hot\nAge category: Minor\nSystem: All systems normal\nTotal price: $45",
+  "tags": ["ternary", "conditional-expressions", "one-line-logic"],
   "challengeGroup": "conditional-logic"
 }

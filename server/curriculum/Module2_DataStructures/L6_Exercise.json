@@ -1,20 +1,33 @@
 {
-  "title": "Inventory Manager Simulation",
-  "instructions": "Complete the following steps to manage the shop's inventory list and track the stock history tuple.",
+  "title": "Module 2 Project: Inventory Manager",
+  "instructions": "Congratulations on reaching the Module 2 project! You're building a simple retail inventory system. You'll use a LIST to manage items in stock (which changes constantly) and a TUPLE to track stock history (which should never change). Complete all 5 steps to simulate a busy day at the shop!",
   "steps": [
-    "A new shipment arrives. Use the **`append()`** method to add the item 'Water Bottle' to the end of the `inventory_items` list.",
-    "Two items were misplaced. Use the **`remove()`** method to delete the item 'Notebook' (the value) from the list.",
-    "A customer purchases the oldest item in stock (the first one). Use the **`pop()`** method to remove the first item from the list, storing it in a variable named `sold_item`.",
-    "A manager wants to view the second and third items currently in stock. Use **slicing** to retrieve these two items and assign the resulting sub-list to `next_to_be_sold`.",
-    "The manager checks yesterday's total count. Use **indexing** to retrieve the *last* value from the `daily_stock_history` tuple and assign it to `yesterdays_count`."
+    "**Step 1: New Shipment Arrives** - A delivery truck just arrived! Use the `append()` method to add 'Water Bottle' to the end of the `inventory_items` list.",
+    "**Step 2: Found Misplaced Item** - Good news! The 'Notebook' that was missing has been found and doesn't need to be in the inventory. Use the `remove()` method to delete 'Notebook' from the list.",
+    "**Step 3: First Sale of the Day** - A customer wants to buy the oldest item in stock (the first one in the list). Use the `pop()` method with index 0 to remove it and store it in the variable `sold_item` so you can print a receipt.",
+    "**Step 4: Manager's Quick Check** - The manager wants to see which items will likely sell next. Use slicing to get the 2nd and 3rd items in the current inventory (indices 1 and 2). Store this slice in `next_to_be_sold`.",
+    "**Step 5: Yesterday's Report** - Check the stock history to see how many items you had yesterday. Use negative indexing to get the last number from the `daily_stock_history` tuple and store it in `yesterdays_count`."
   ],
-  "starterCode": "inventory_items = ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen']\ndaily_stock_history = (150, 155, 148, 160)\n\n# 1. Add 'Water Bottle' to inventory:\n\n\n# 2. Remove 'Notebook' by value:\n\n\n# 3. Sell the oldest item (pop the first one):\nsold_item = \n\n# 4. Slice the second and third items (indices 1 and 2):\nnext_to_be_sold = \n\n# 5. Get the last count from the history tuple:\nyesterdays_count = \n\nprint('Final Inventory:', inventory_items)\nprint('Sold Item:', sold_item)\nprint('Next to be Sold:', next_to_be_sold)\nprint('Yesterday''s Count:', yesterdays_count)",
-  "solution": "inventory_items = ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen']\ndaily_stock_history = (150, 155, 148, 160)\n\n# 1. Add 'Water Bottle' to inventory:\ninventory_items.append('Water Bottle')\n\n# 2. Remove 'Notebook' by value:\ninventory_items.remove('Notebook')\n\n# 3. Sell the oldest item (pop the first one):\nsold_item = inventory_items.pop(0)\n\n# 4. Slice the second and third items (indices 1 and 2, so slice [1:3]):\nnext_to_be_sold = inventory_items[1:3]\n\n# 5. Get the last count from the history tuple:\nyesterdays_count = daily_stock_history[-1]\n\nprint('Final Inventory:', inventory_items)\nprint('Sold Item:', sold_item)\nprint('Next to be Sold:', next_to_be_sold)\nprint('Yesterday''s Count:', yesterdays_count)",
+  "starterCode": "# Current items in the shop (this list will change!)\ninventory_items = ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen']\n\n# Historical record of daily stock counts (this should never change!)\ndaily_stock_history = (150, 155, 148, 160)\n\nprint(\"📦 STARTING INVENTORY MANAGER\")\nprint(\"Starting inventory:\", inventory_items)\nprint(\"Stock history:\", daily_stock_history)\nprint()\n\n# Step 1: Add 'Water Bottle' to the end of inventory\n\n\nprint(\"After new shipment:\", inventory_items)\n\n# Step 2: Remove 'Notebook' by value\n\n\nprint(\"After removing misplaced item:\", inventory_items)\n\n# Step 3: Sell the first item (pop index 0) and save it\nsold_item = \n\nprint(f\"After sale - Sold: {sold_item}\")\nprint(\"Remaining inventory:\", inventory_items)\n\n# Step 4: Slice items at indices 1 and 2 (remember: stop is exclusive!)\nnext_to_be_sold = \n\nprint(\"Next likely to sell:\", next_to_be_sold)\n\n# Step 5: Get the last value from the history tuple\nyesterdays_count = \n\nprint(f\"Yesterday's total stock: {yesterdays_count}\")\nprint()\nprint(\"📊 FINAL REPORT\")\nprint(f\"Current inventory: {inventory_items}\")\nprint(f\"Items in stock: {len(inventory_items)}\")",
+  "solution": "# Current items in the shop (this list will change!)\ninventory_items = ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen']\n\n# Historical record of daily stock counts (this should never change!)\ndaily_stock_history = (150, 155, 148, 160)\n\nprint(\"📦 STARTING INVENTORY MANAGER\")\nprint(\"Starting inventory:\", inventory_items)\nprint(\"Stock history:\", daily_stock_history)\nprint()\n\n# Step 1: Add 'Water Bottle' to the end of inventory\ninventory_items.append('Water Bottle')\n\nprint(\"After new shipment:\", inventory_items)\n\n# Step 2: Remove 'Notebook' by value\ninventory_items.remove('Notebook')\n\nprint(\"After removing misplaced item:\", inventory_items)\n\n# Step 3: Sell the first item (pop index 0) and save it\nsold_item = inventory_items.pop(0)\n\nprint(f\"After sale - Sold: {sold_item}\")\nprint(\"Remaining inventory:\", inventory_items)\n\n# Step 4: Slice items at indices 1 and 2 (remember: stop is exclusive!)\nnext_to_be_sold = inventory_items[1:3]\n\nprint(\"Next likely to sell:\", next_to_be_sold)\n\n# Step 5: Get the last value from the history tuple\nyesterdays_count = daily_stock_history[-1]\n\nprint(f\"Yesterday's total stock: {yesterdays_count}\")\nprint()\nprint(\"📊 FINAL REPORT\")\nprint(f\"Current inventory: {inventory_items}\")\nprint(f\"Items in stock: {len(inventory_items)}\")",
   "hints": [
-    "Use the appropriate method: `append()` to add, `remove()` to delete by name, and `pop(0)` to remove the first item by index.",
-    "For slicing the second and third items, you need to use the indices 1 and 2. Remember slicing is exclusive, so the stop index is 3.",
-    "Use negative indexing to grab the last item in the tuple."
+    "**Step 1 - append():** This method adds one item to the end. Syntax: `inventory_items.append('Water Bottle')`",
+    "**Step 2 - remove():** This removes the first item with the matching value. Syntax: `inventory_items.remove('Notebook')`",
+    "**Step 3 - pop():** Use `pop(0)` to remove the first item. Don't forget to store it: `sold_item = inventory_items.pop(0)`",
+    "**Step 4 - Slicing:** To get indices 1 and 2, slice from 1 to 3 (remember stop is exclusive!): `inventory_items[1:3]`",
+    "**Step 5 - Negative indexing:** The last item in any sequence is at index -1: `daily_stock_history[-1]`",
+    "**Lists vs Tuples:** Notice how we modify the list throughout but never touch the tuple - that's because tuples are immutable!",
+    "**Watch the output:** Each print statement shows you the result of your operation. Use this to check if you're on the right track!",
+    "**Common mistakes:** Make sure you're calling methods on the correct variable name and using the right syntax for each operation."
   ],
-  "tags": ["project", "lists", "tuples", "mutability"],
+  "expectedOutput": "📦 STARTING INVENTORY MANAGER\nStarting inventory: ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen']\nStock history: (150, 155, 148, 160)\n\nAfter new shipment: ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen', 'Water Bottle']\nAfter removing misplaced item: ['T-Shirt', 'Pants', 'Socks', 'Pen', 'Water Bottle']\nAfter sale - Sold: T-Shirt\nRemaining inventory: ['Pants', 'Socks', 'Pen', 'Water Bottle']\nNext likely to sell: ['Socks', 'Pen']\nYesterday's total stock: 160\n\n📊 FINAL REPORT\nCurrent inventory: ['Pants', 'Socks', 'Pen', 'Water Bottle']\nItems in stock: 4",
+  "tags": [
+    "project",
+    "lists",
+    "tuples",
+    "mutability",
+    "immutability",
+    "module-2"
+  ],
   "challengeGroup": "module-2-project"
 }

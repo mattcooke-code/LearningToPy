@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "id": "m3l2_q1",
+      "question": "What is the difference between `=` and `==` in Python?",
+      "options": [
+        "They do the same thing",
+        "`=` is for assignment, `==` is for comparison",
+        "`=` is for comparison, `==` is for assignment",
+        "`==` only works with numbers, `=` works with all types"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The single equals sign `=` is used to assign a value to a variable (e.g., x = 5). The double equals `==` is used to compare two values and returns True or False (e.g., x == 5)."
+    },
+    {
+      "id": "m3l2_q2",
+      "question": "What does the expression `True and False` evaluate to?",
+      "options": ["True", "False", "None", "Error"],
+      "correctAnswer": 1,
+      "explanation": "The `and` operator requires BOTH conditions to be True for the result to be True. Since one side is False, the entire expression evaluates to False."
+    },
+    {
+      "id": "m3l2_q3",
+      "question": "Given `x = 15`, which expression is True?",
+      "options": [
+        "10 < x < 20",
+        "x > 20 or x < 10",
+        "not (x > 10)",
+        "x == 10 and x == 15"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The chained comparison `10 < x < 20` checks if x is greater than 10 AND less than 20. Since 15 is between 10 and 20, this is True. The other options are all False."
+    }
+  ]
+}

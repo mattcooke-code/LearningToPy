@@ -1,19 +1,29 @@
 {
-  "title": "Tuple Immutability Check",
-  "instructions": "Practice accessing data from tuples and identify the key difference between lists and tuples. Do NOT try to modify the tuples, as this will result in an error!",
+  "title": "Working with Game Coordinates",
+  "instructions": "You're building a simple game that tracks player positions and map boundaries. Practice accessing tuple data and understand why tuples are perfect for fixed coordinates that shouldn't change!",
   "steps": [
-    "Access the last element ('Finished') of the `task_status` tuple using negative indexing. Assign it to the variable `final_status`.",
-    "Attempt to re-assign the first element of the `data_point` tuple (currently 'X') to 'Y'. Comment out this line in your final solution, but understand *why* it fails.",
-    "Use slicing to extract the middle two values from the `dates` tuple: 'Tuesday' and 'Wednesday'. Assign the result to the variable `mid_week_days`.",
-    "Create a new tuple named `new_record` by concatenating the two existing tuples, `data_point` and `task_status`."
+    "**Step 1:** Get the player's X coordinate. The first value in `player_position` is the X coordinate (index 0). Store it in `player_x`.",
+    "**Step 2:** Get the player's Y coordinate. The second value in `player_position` is the Y coordinate (index 1). Store it in `player_y`.",
+    "**Step 3:** Get the map boundaries. Use slicing to extract the last two values from `map_info` (the width and height). Store this in `map_size`.",
+    "**Step 4:** Create a checkpoint tuple. Combine `player_position` with `checkpoint_time` using the + operator to create a new tuple called `checkpoint_data`."
   ],
-  "starterCode": "data_point = ('X', 150)\ntask_status = ('Pending', 'Processing', 'Finished')\ndates = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')\n\n# 1. Access the last element:\nfinal_status = \n\n# 2. Attempt invalid re-assignment (commented out in solution):\n# data_point[0] = 'Y'\n\n# 3. Slice the middle two values:\nmid_week_days = \n\n# 4. Concatenate two tuples:\nnew_record = ",
-  "solution": "data_point = ('X', 150)\ntask_status = ('Pending', 'Processing', 'Finished')\ndates = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')\n\n# 1. Access the last element:\nfinal_status = task_status[-1]\n\n# 2. Attempt invalid re-assignment (commented out in solution):\n# data_point[0] = 'Y'\n\n# 3. Slice the middle two values:\nmid_week_days = dates[1:3]\n\n# 4. Concatenate two tuples:\nnew_record = data_point + task_status",
+  "starterCode": "# Player position (X, Y coordinates) - these shouldn't change without intent!\nplayer_position = (150, 200)\n\n# Map information (name, max_width, max_height)\nmap_info = ('Forest Level', 800, 600)\n\n# Time when checkpoint was reached\ncheckpoint_time = (12, 30, 45)  # hours, minutes, seconds\n\nprint(\"Player position:\", player_position)\nprint(\"Map info:\", map_info)\nprint()\n\n# Step 1: Get the X coordinate (first value, index 0)\nplayer_x = \n\nprint(f\"Player X coordinate: {player_x}\")\n\n# Step 2: Get the Y coordinate (second value, index 1)\nplayer_y = \n\nprint(f\"Player Y coordinate: {player_y}\")\n\n# Step 3: Slice the last 2 values from map_info (width and height)\nmap_size = \n\nprint(f\"Map size (width, height): {map_size}\")\n\n# Step 4: Combine player_position and checkpoint_time into one tuple\ncheckpoint_data = \n\nprint(f\"Checkpoint data: {checkpoint_data}\")",
+  "solution": "# Player position (X, Y coordinates) - these shouldn't change without intent!\nplayer_position = (150, 200)\n\n# Map information (name, max_width, max_height)\nmap_info = ('Forest Level', 800, 600)\n\n# Time when checkpoint was reached\ncheckpoint_time = (12, 30, 45)  # hours, minutes, seconds\n\nprint(\"Player position:\", player_position)\nprint(\"Map info:\", map_info)\nprint()\n\n# Step 1: Get the X coordinate (first value, index 0)\nplayer_x = player_position[0]\n\nprint(f\"Player X coordinate: {player_x}\")\n\n# Step 2: Get the Y coordinate (second value, index 1)\nplayer_y = player_position[1]\n\nprint(f\"Player Y coordinate: {player_y}\")\n\n# Step 3: Slice the last 2 values from map_info (width and height)\nmap_size = map_info[-2:]\n\nprint(f\"Map size (width, height): {map_size}\")\n\n# Step 4: Combine player_position and checkpoint_time into one tuple\ncheckpoint_data = player_position + checkpoint_time\n\nprint(f\"Checkpoint data: {checkpoint_data}\")",
   "hints": [
-    "The last element of any sequence is at index -1.",
-    "Remember that the stop index in a slice is exclusive (not included).",
-    "Concatenation works for tuples just like it does for lists and strings, using the `+` operator."
+    "**Accessing tuple elements:** Use square brackets just like with lists. For example: `my_tuple[0]` gets the first element.",
+    "**Slicing tuples:** Works exactly like list slicing. Use `[-2:]` to get the last 2 items.",
+    "**Tuple concatenation:** Use the + operator to combine tuples: `tuple1 + tuple2` creates a new tuple with all elements.",
+    "**Remember:** Tuples use parentheses () when created, but square brackets [] when accessing elements!",
+    "**Why tuples here?** Coordinates shouldn't accidentally change in your game - that's why tuples are perfect! You can't accidentally modify them.",
+    "**Common mistake:** Don't try to modify tuple values like `player_position[0] = 100` - this will cause a TypeError because tuples are immutable!"
   ],
-  "tags": ["tuples", "immutability", "indexing", "slicing"],
+  "expectedOutput": "Player position: (150, 200)\nMap info: ('Forest Level', 800, 600)\n\nPlayer X coordinate: 150\nPlayer Y coordinate: 200\nMap size (width, height): (800, 600)\nCheckpoint data: (150, 200, 12, 30, 45)",
+  "tags": [
+    "tuples",
+    "immutability",
+    "indexing",
+    "slicing",
+    "tuple-concatenation"
+  ],
   "challengeGroup": "tuple-basics"
 }
