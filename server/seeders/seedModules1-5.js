@@ -6,7 +6,7 @@ const seedModules1to5 = async (
   Module,
   readContent,
   parseJSONContent,
-  seedConfig = {}
+  seedConfig = {},
 ) => {
   console.log("🚀 Seeding Modules 1-5 with config:", {
     batchSize: seedConfig.batchSize,
@@ -121,7 +121,7 @@ const seedModules1to5 = async (
     ],
     icon: "📊",
     xpReward: 150,
-    moduleQuiz: prepareQuizData(m2ReviewQuiz),
+    moduleQuiz: prepareQuizData(m2ReviewQuiz, true),
   });
 
   const m2Lessons = [
@@ -207,7 +207,7 @@ const seedModules1to5 = async (
     ],
     icon: "🚥",
     xpReward: 120,
-    moduleQuiz: prepareQuizData(m3ReviewQuiz),
+    moduleQuiz: prepareQuizData(m3ReviewQuiz, true),
   });
 
   const m3Lessons = [

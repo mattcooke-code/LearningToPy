@@ -10,20 +10,21 @@ Write an `if/elif/else` structure that checks a user's `account_type` and `accou
 
 Your system needs to handle four types of users:
 
-1. **VIP Members** - If `account_type` is `'VIP'`, they get instant access to everything, regardless of account age
+**1. VIP Members** - If `account_type` is `'VIP'`, they get instant access to everything, regardless of account age
 
-   - Print: `'Welcome VIP! Full access to all games and features.'`
+- Print: `'Welcome VIP! Full access to all games and features.'`
 
-2. **Premium Members (Established)** - If `account_type` is `'Premium'` AND `account_age` is 30 days or more
+**2. Premium Members (Established)** - If `account_type` is `'Premium'` AND `account_age` is 30 days or more
 
-   - Print: `'Welcome Premium member! Access to premium games unlocked.'`
+- Print: `'Welcome Premium member! Access to premium games unlocked.'`
 
-3. **Premium Members (New)** - If `account_type` is `'Premium'` BUT `account_age` is less than 30 days
+**3. Premium Members (New)** - If `account_type` is `'Premium'` BUT `account_age` is less than 30 days
 
-   - Print: `'Welcome! Premium features unlock in X days.'` (where X = 30 - account_age)
+- Print: `'Welcome! Premium features unlock in X days.'` (where X = 30 - account_age)
 
-4. **Free Members** - If `account_type` is `'Free'` (or anything else)
-   - Print: `'Welcome! You have access to free games. Upgrade for more!'`
+**4. Free Members** - If `account_type` is `'Free'` (or anything else)
+
+- Print: `'Welcome! You have access to free games. Upgrade for more!'`
 
 ## Test Your Code
 

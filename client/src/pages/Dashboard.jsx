@@ -41,7 +41,7 @@ const Dashboard = () => {
       try {
         setLeaderboardLoading(true);
         const leaderboardData = await apiClient.get(
-          "/progress/leaderboard/around-me"
+          "/progress/leaderboard/around-me",
         );
         setSurroundingLeaderboard(leaderboardData);
       } catch (err) {
@@ -62,9 +62,11 @@ const Dashboard = () => {
     level: user?.level || 1,
     streak: user?.streak || 0,
     courseProgressPercentage: 0,
-    nextLevelXp: 100,
-    completedLessonsCount: 0,
-    completedModulesCount: 0,
+    progress: { xpToNextLevel: 100 },
+    stats: {
+      lessonsCompleted: 0,
+      modulesCompleted: 0,
+    },
     badges: [],
   };
 
@@ -262,19 +264,19 @@ const Dashboard = () => {
             <div>
               <p className="text-gray-700">Lessons Completed</p>
               <p className="text-lg font-semibold text-python-blue">
-                {progressData.completedLessonsCount}
+                {progressData.stats?.lessonsCompleted || 0}
               </p>
             </div>
             <div>
               <p className="text-gray-700">Modules Completed</p>
               <p className="text-lg font-semibold text-python-blue">
-                {progressData.completedModulesCount}
+                {progressData.stats?.modulesCompleted || 0}
               </p>
             </div>
             <div>
               <p className="text-gray-700">Next Level In</p>
               <p className="text-lg font-semibold text-python-yellow">
-                {progressData.nextLevelXp} XP
+                {progressData.progress?.xpToNextLevel || 0} XP
               </p>
             </div>
           </div>

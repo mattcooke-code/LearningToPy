@@ -42,10 +42,10 @@ The `insert()` method is used to add an item at a specific position in the list.
 
 gauntlet = ["Power", "Space", "Reality", "Soul"]
 
-gauntlet.insert(2, "Mind Stone")
+gauntlet.insert(2, "Mind")
 
 print(gauntlet)
-# Output: ['Power', 'Space', 'Mind Stone', 'Reality', 'Soul']
+# Output: ['Power', 'Space', 'Mind', 'Reality', 'Soul']
 ```
 
 ## `list.extend(iterable)`
@@ -62,4 +62,4 @@ print(current_stones)
 # Output: ['Space', 'Power', 'Time', 'Mind']
 ```
 
-⚡ The Plus Operator (+): You can also use the `+` operator to combine two lists, but this creates a new list entirely, rather than modifying the original list in place. Use append/insert/extend when you want to change the existing list.
+⚡ **The Plus Operator (+)**: You can also use the `+` operator to combine two lists, but this creates a new list entirely, rather than modifying the original list in place. Use append/insert/extend when you want to change the existing list.

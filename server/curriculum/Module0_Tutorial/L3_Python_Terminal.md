@@ -1,15 +1,17 @@
 # The Python Terminal 💻
 
-The terminal is where your code comes to life! It's an interactive Python environment that shows your program's output and any errors.
+The terminal is where your code comes to life! It's an interactive Python environment that shows your program's output and any errors. In your lessons, the terminal can be accessed by clicking the **Show Terminal** button below the code editor.
 
 ## What the Terminal Shows
 
 After running code, you'll see:
 
+```python
 Running your code...
 Hello, World!
 Calculation: 42
 Program completed successfully!
+```
 
 ### Terminal Sections:
 
@@ -68,21 +70,10 @@ Error messages include:
 
 ## Common Terminal Features
 
-1. **Clear Terminal**
-
-   Click the Clear button or press `Ctrl+L` to start fresh.
-
-2. **Copy Output**
-
-   Select any text in the terminal and use `Ctrl+C` to copy it.
-
-3. **Scroll**
-
-   Use mouse wheel or trackpad to scroll through long outputs.
-
-4. **Resize**
-
-   Drag the divider between editor and terminal to adjust sizes.
+1. **Clear Terminal**: Click the Clear button or press `Ctrl+L` to start fresh.
+2. **Copy Output**: Select any text in the terminal and use `Ctrl+C` to copy it.
+3. **Scroll**: Use mouse wheel or trackpad to scroll through long outputs.
+4. **Resize**: Drag the divider between editor and terminal to adjust sizes.
 
 ## Practice Example
 
@@ -100,7 +91,7 @@ PythonPythonPython
 I love Python!
 ```
 
-## erminal vs Editor
+## Terminal vs Editor
 
 | **Editor**          | **Terminal**           |
 | ------------------- | ---------------------- |
@@ -114,11 +105,8 @@ I love Python!
 The terminal is your best friend for fixing errors:
 
 1. Read the error message carefully
-
 2. Check the line number mentioned
-
 3. Go back to editor and fix that line
-
 4. Run again to see if it works
 
 ## Ready to Run Code?

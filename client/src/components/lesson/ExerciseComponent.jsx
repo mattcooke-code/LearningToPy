@@ -24,7 +24,7 @@ const ExerciseComponent = ({
   );
   const [showHints, setShowHints] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
-  const [showTerminal, setShowTerminal] = useState(false);
+  const [showTerminal, setShowTerminal] = useState(true);
   const [testResults, setTestResults] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -417,10 +417,10 @@ const ExerciseComponent = ({
           </h4>
           <button
             onClick={() => setShowTerminal(!showTerminal)}
-            className={`px-3 py-1 text-sm rounded ${
+            className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors shadow-sm ${
               isCodeDark
-                ? "bg-gray-700 hover:bg-gray-600"
-                : "bg-gray-200 hover:bg-gray-300"
+                ? "bg-python-yellow text-python-blue hover:bg-yellow-400"
+                : "bg-python-blue text-white hover:bg-blue-700"
             }`}
           >
             {showTerminal ? "Hide Terminal" : "Show Terminal"}
@@ -475,7 +475,7 @@ const ExerciseComponent = ({
               <span>Running...</span>
             </>
           ) : (
-            <span>{isReviewMode ? "Check Solution" : "Run & Test Code"}</span>
+            <span>{isReviewMode ? "Check Solution" : "Submit Code"}</span>
           )}
         </button>
 

@@ -90,7 +90,7 @@ greeting = first + " " + last  # Result: "Hello World"
 **The Missing Space**
 When joining strings, Python does not add a space for you. You must include it explicitly by adding `" "`.
 
-```
+```python
 first = "Code"
 last = "Master"
 
@@ -136,7 +136,7 @@ result = "Test" / 2        # ❌ ERROR!
 
 - Python has 7 arithmetic operators: `+`, `-`, `*`, `/`, `//`, `%`, `**`
 - The modulus operator (`%`) returns the remainder after division
-- Python follows PEMDAS order of operations (use parentheses for clarity!)
+- Python follows **PEMDAS** order of operations (use parentheses for clarity!)
 - Strings can be combined with `+` and repeated with `*`
 - You cannot mix strings and numbers without converting types
 

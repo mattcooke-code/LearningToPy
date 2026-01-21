@@ -2,12 +2,13 @@
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
 
 let pyodide;
+let currentId = null;
 
 async function initPyodide() {
   pyodide = await loadPyodide({
     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
-    stdout: (text) => postMessage({ type: "stdout", text }),
-    stderr: (text) => postMessage({ type: "stderr", text }),
+    stdout: (text) => postMessage({ type: "stdout", text, id: currentId }),
+    stderr: (text) => postMessage({ type: "stderr", text, id: currentId }),
   });
 
   postMessage({ type: "ready" });
@@ -18,6 +19,7 @@ const pyodidePromise = initPyodide();
 onmessage = async (event) => {
   await pyodidePromise;
   const { code, id } = event.data;
+  currentId = id;
 
   try {
     const result = await pyodide.runPythonAsync(code);
@@ -29,5 +31,7 @@ onmessage = async (event) => {
     });
   } catch (err) {
     postMessage({ type: "result", id, success: false, error: err.message });
+  } finally {
+    currentId = null;
   }
 };

@@ -128,11 +128,8 @@ def calculate_total(items):
 ## Creating Your Own Shortcut Habits
 
 1. Start small: Master 3-5 essential shortcuts first
-
 2. Practice daily: Use them until they become muscle memory
-
 3. Customize: Some platforms let you create custom shortcuts
-
 4. Cheat sheet: Keep this lesson bookmarked for reference
 
 ## Common Shortcut Patterns
@@ -140,21 +137,15 @@ def calculate_total(items):
 **The "Edit-Run" Loop (Most Common)**
 
 1. Write code → `Tab` to indent
-
 2. `Ctrl+S` to save (automatic on our platform)
-
 3. `Ctrl+Enter` to run
-
 4. See results, repeat!
 
 ### The "Debug" Flow
 
 1. `Ctrl+Click` to add breakpoints (line numbers)
-
 2. `Ctrl+Enter` to run
-
 3. `Ctrl+L` to clear terminal between runs
-
 4. `↑` to recall previous commands
 
 ## Accessibility Notes

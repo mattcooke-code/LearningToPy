@@ -59,7 +59,7 @@ s_club = ["Tina", "Jon", "Paul", "Hannah", "Bradley", "Jo"]
 member_to_check = "Rachel"
 
 if member_to_check not in s_club:
-    print("Some Girls...") # This runs because Rachel isn't in the list
+    print("Some Girls") # This runs because Rachel isn't in the list
 else:
     print("Reach for the stars!")
 ```

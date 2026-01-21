@@ -6,4 +6,3 @@ export { useFileDownload } from "./useFileDownload";
 export { useSettingsManager } from "./useSettingsManager";
 export { useThemeColor } from "./useThemeColor";
 export { useThemeStyles } from "./useThemeStyles";
-export { useTutorial } from "./useTutorial";

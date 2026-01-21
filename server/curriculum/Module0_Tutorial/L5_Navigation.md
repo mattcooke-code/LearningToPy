@@ -16,7 +16,8 @@ Your learning journey is organized into three levels:
 │ ...and 16 more!
 └──────────────────────┘
 
-- **20 modules** total, grouped into 3 phases. Each module:
+**20 modules** total, grouped into 3 phases. Each module:
+
 - Covers a major Python concept
 - Includes a final quiz to test your knowledge
 - Can be viewed on the Module page
@@ -63,8 +64,11 @@ At the top of each module page:
 ### Lesson Completion Badges
 
 [✔] Lesson 1: Variables
+
 [✔] Lesson 2: Data Types
+
 [ ] Lesson 3: Operators
+
 [ ] Lesson 4: Input/Output
 
 - Green checkmarks show completed lessons
@@ -83,7 +87,7 @@ At the top of each module page:
 
 ### Lesson Navigation
 
-[ ← Back ] [ Run Code ] [ Next Lesson → ]
+[ ← Back to Lessons ] [ Run Code ] [ Next Lesson → ]
 
 - **Back**: Return to lesson list
 - **Next Lesson**: Continue sequence

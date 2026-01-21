@@ -5,19 +5,47 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const {
+  // Import from new utility files
   validateCodeSubmission,
-  createLessonCompletionRecord,
-  updateUserStats,
-} = require("../utils/contentHelpers");
+  processLessonCompletion,
+  isLessonFullyCompleted,
+  getCurriculumProgressStats,
+} = require("../utils/learningEngine");
+
 const {
-  streakLogic,
+  hasQuiz,
+  hasExercise,
+  getOrCreateQuizProgress,
+  updateQuizProgress,
+} = require("../utils/quizHelpers");
+
+const {
+  checkPrerequisites,
+  hasPassedModuleQuiz,
+  getModuleLessonCompletion,
+} = require("../utils/moduleProgress");
+
+const {
+  // Import navigation functions
+  findNextLesson,
+  findNextModule,
+} = require("../utils/navigation");
+
+const {
+  // Import analytics functions
+  calculateProgress,
+  isModuleFinished,
   formatProgressResponse,
-  MODULE_XP_BONUS,
-  calculateModuleLessonProgress,
-} = require("../utils/progressHelpers");
-const { evaluateBadges } = require("../utils/badgeLogic");
+} = require("../utils/analytics");
+
+const {
+  // Import gamification functions
+  evaluateBadges,
+} = require("../utils/gamification");
+
 const { sendJsonResponse } = require("../utils/responseHelpers");
-const { default: progress } = require("../../shared/constants/progress");
+
+// ====== CONTROLLER FUNCTIONS ======
 
 const getAllModules = catchAsync(async (req, res, next) => {
   const userId = req.userId;
@@ -28,7 +56,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
     .lean();
 
   const user = await User.findById(userId).select(
-    "completedLessons completedModules quizAttempts"
+    "completedLessons completedModules quizAttempts",
   );
 
   const modulesWithProgress = await Promise.all(
@@ -37,58 +65,43 @@ const getAllModules = catchAsync(async (req, res, next) => {
         moduleId: module._id,
         isPublished: true,
       });
-      const completedLessonsInModule = lessons.filter((lesson) =>
-        user.completedLessons.includes(lesson._id.toString())
-      ).length;
 
-      const moduleLessonProgress = calculateModuleLessonProgress(
+      const completedLessonsInModule = getModuleLessonCompletion(
+        lessons,
+        user.completedLessons,
+      );
+
+      const moduleLessonProgress = calculateProgress(
         completedLessonsInModule,
-        lessons.length
+        lessons.length,
       );
 
       const isCompleted = user.completedModules.includes(module._id.toString());
-
-      const quizCompleted = user.quizAttempts.some(
-        (attempt) =>
-          attempt.moduleId.toString() === module._id.toString() &&
-          attempt.passed
+      const quizCompleted = hasPassedModuleQuiz(user, module._id);
+      const allLessonsComplete = isModuleFinished(
+        user.completedLessons,
+        lessons,
       );
 
-      const allLessonsComplete = completedLessonsInModule === lessons.length;
-
-      console.log(
-        `Module ${module.title}: ${completedLessonsInModule}/${lessons.length} lessons, Quiz: ${quizCompleted}, Completed: ${isCompleted}`
-      );
-
-      // Check if prerequisites are completed
-      const isLocked =
-        module.prerequisites &&
-        module.prerequisites.length > 0 &&
-        module.prerequisites.some((prereq) => {
-          const prereqCompleted = user.completedModules.includes(
-            prereq._id.toString()
-          );
-          console.log(`Prerequisite ${prereq.title}: ${prereqCompleted}`);
-          return !prereqCompleted;
-        });
+      const { isLocked } = checkPrerequisites(module, user.completedModules);
 
       return {
         ...module,
         isCompleted,
         moduleLessonProgress,
-        isLocked: !!isLocked,
+        isLocked,
         lessonCount: lessons.length,
         allLessonsComplete,
         quizCompleted,
       };
-    })
+    }),
   );
 
   sendJsonResponse(
     res,
     200,
     "Modules fetched successfully",
-    modulesWithProgress
+    modulesWithProgress,
   );
 });
 
@@ -103,30 +116,31 @@ const getModule = catchAsync(async (req, res, next) => {
   }
 
   const user = await User.findById(userId).select(
-    "completedLessons completedModules quizAttempts"
+    "completedLessons completedModules quizAttempts",
   );
 
   const lessons = await Lesson.find({ moduleId: moduleId, isPublished: true });
 
-  const completedLessonsInModule = lessons.filter((lesson) =>
-    user.completedLessons.includes(lesson._id.toString())
-  ).length;
+  const completedLessonsInModule = getModuleLessonCompletion(
+    lessons,
+    user.completedLessons,
+  );
 
-  const allLessonsComplete = completedLessonsInModule === lessons.length;
+  const allLessonsComplete = isModuleFinished(user.completedLessons, lessons);
   const isModuleComplete = user.completedModules.includes(moduleId.toString());
 
   const moduleQuizAttempts = user.quizAttempts.filter(
-    (attempt) => attempt.moduleId.toString() === moduleId.toString()
+    (attempt) => attempt.moduleId.toString() === moduleId.toString(),
   );
 
   const bestAttempt =
     moduleQuizAttempts.length > 0
       ? moduleQuizAttempts.reduce((best, current) =>
-          current.score > best.score ? current : best
+          current.score > best.score ? current : best,
         )
       : null;
 
-  const quizCompleted = moduleQuizAttempts.some((attempt) => attempt.passed);
+  const quizCompleted = hasPassedModuleQuiz(user, moduleId);
 
   sendJsonResponse(res, 200, "Module fetched successfully.", {
     ...module,
@@ -181,8 +195,15 @@ const getLessonContent = catchAsync(async (req, res, next) => {
     return next(new AppError("Lesson not found", 404));
   }
 
-  const user = await User.findById(userId).select("completedLessons");
+  const user = await User.findById(userId).select(
+    "completedLessons lessonQuizProgress",
+  );
   const isCompleted = user.completedLessons.includes(lessonId);
+
+  // Get quiz progress for this lesson
+  const quizProgress = user.lessonQuizProgress?.find(
+    (qp) => qp.lessonId.toString() === lessonId,
+  );
 
   // Omit answers ONLY if the user hasn't finished the lesson yet
   if (!isCompleted) {
@@ -198,6 +219,14 @@ const getLessonContent = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Lesson content fetched successfully", {
     ...lesson,
     isCompleted,
+    quizProgress: quizProgress
+      ? {
+          correctAnswers: quizProgress.correctAnswers,
+          completed: quizProgress.completed,
+          progress: quizProgress.correctAnswers.length,
+          totalQuestions: lesson.quiz?.length || 0,
+        }
+      : null,
   });
 });
 
@@ -206,119 +235,99 @@ const submitLesson = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const { answer, code, questionIndex = 0 } = req.body;
 
+  // 1. Fetch Lesson and User
   const lesson = await Lesson.findById(lessonId);
-  if (!lesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
+  if (!lesson) return next(new AppError("Lesson not found", 404));
+
+  const user = await User.findById(userId);
+  if (!user) return next(new AppError("User not found", 404));
 
   let isCorrect = false;
   let feedback = "";
+  const quizProgress = getOrCreateQuizProgress(user, lessonId, lesson);
 
-  // 1. Handle Coding Exercise
-  if (lesson.exercise && code) {
+  // 2. Validation Logic
+  if (hasExercise(lesson) && code !== undefined) {
     const validationResult = validateCodeSubmission(code, lesson.exercise);
     isCorrect = validationResult.isCorrect;
     feedback = validationResult.feedback;
-  }
-  // 2. Handle Quiz
-  else if (
-    lesson.quiz &&
-    Array.isArray(lesson.quiz) &&
-    lesson.quiz.length > 0
-  ) {
+  } else if (hasQuiz(lesson) && answer !== undefined) {
     const currentQuestion = lesson.quiz[questionIndex];
-
-    if (answer !== undefined) {
-      isCorrect = answer === currentQuestion.correctAnswer;
-      feedback = isCorrect
-        ? "Correct! " + (currentQuestion.explanation || "")
-        : "Try again!";
+    if (!currentQuestion)
+      return next(new AppError("Invalid question index", 400));
+    isCorrect = answer === currentQuestion.correctAnswer;
+    if (isCorrect) {
+      feedback = `Correct! ${currentQuestion.explanation || ""}`;
+      updateQuizProgress(quizProgress, questionIndex, lesson);
+    } else {
+      feedback = `Try again! ${currentQuestion.explanation || ""}`;
     }
-  }
-  // 3. Handle Theory (Auto-pass)
-  else if (lesson.contentType === "theory") {
+  } else if (
+    (code === undefined && answer === undefined) ||
+    lesson.contentType === "theory"
+  ) {
     isCorrect = true;
-    feedback = "Lesson completed!";
+    feedback = "Status checked/Theory completed!";
+  } else {
+    return next(new AppError("Invalid submission", 400));
   }
 
-  let moduleCompletedNow = false;
-  let xpIncrease = 0;
-  let badgesUnlockedDetails = [];
-  let nextLessonId = null;
+  const completed = isLessonFullyCompleted(lesson, quizProgress, isCorrect);
 
-  // Only proceed with progress updates if correct or theory
-  if (isCorrect) {
-    const user = await User.findById(userId);
+  // 3. Process Full Completion
+  if (completed) {
+    const completionResult = await processLessonCompletion(
+      user,
+      lesson,
+      req.body,
+    );
 
     if (!user.completedLessons.includes(lessonId)) {
       user.completedLessons.push(lessonId);
-      xpIncrease = lesson.xpReward || 0;
-      const completionTimestamp = new Date();
-
-      // Next Lesson Logic
-      if (lesson.nextLessonId) {
-        nextLessonId = lesson.nextLessonId;
-      } else {
-        const nextLesson = await Lesson.findOne({
-          moduleId: lesson.moduleId,
-          order: lesson.order + 1,
-          isPublished: true,
-        });
-        if (nextLesson) nextLessonId = nextLesson._id;
-      }
-
-      user.xp += xpIncrease;
-      user.lastActiveDate = new Date();
-
-      // Tracking & Stats
-      const lessonRecord = createLessonCompletionRecord(
-        lesson,
-        req.body,
-        completionTimestamp
-      );
-      user.lessonCompletionHistory.push(lessonRecord);
-      updateUserStats(user, lessonRecord, req.body);
-
-      // Badge Evaluation
-      const { newlyUnlocked, unlockedDetails } = await evaluateBadges({
-        user,
-        context: {
-          type: "lesson_completion",
-          lessonId,
-          moduleCompleted: moduleCompletedNow,
-        },
-      });
-
-      if (newlyUnlocked?.length > 0) {
-        newlyUnlocked.forEach((id) => {
-          if (!user.badges.includes(id)) user.badges.push(id);
-        });
-        badgesUnlockedDetails = unlockedDetails;
-      }
-
-      await user.save();
     }
 
-    const progressData = formatProgressResponse(user.toObject());
+    const { totalCurriculumLessons, completedCurriculumCount } =
+      await getCurriculumProgressStats(user, { Lesson, Module });
+
+    // Evaluate badges
+    const { newlyUnlocked, unlockedDetails } = await evaluateBadges(user, {
+      type: "lesson_completion",
+      lessonId,
+      moduleCompleted: false,
+    });
+
+    if (newlyUnlocked?.length > 0) {
+      newlyUnlocked.forEach((id) => {
+        if (!user.badges.includes(id)) user.badges.push(id);
+      });
+    }
+
+    await user.save();
+
+    const progressData = formatProgressResponse(
+      user.toObject(),
+      totalCurriculumLessons,
+      completedCurriculumCount,
+    );
 
     return sendJsonResponse(res, 200, "Success!", {
       isCorrect,
       feedback,
       completed: true,
-      xpEarned: xpIncrease,
+      xpEarned: completionResult.xpIncrease,
       progress: progressData,
-      moduleCompleted: moduleCompletedNow,
-      badgesUnlocked: badgesUnlockedDetails,
-      nextLessonId,
+      moduleCompleted: false,
+      badgesUnlocked: unlockedDetails,
+      nextLessonId: completionResult.nextLessonId,
     });
   }
 
-  // Fallback for incorrect answers
-  sendJsonResponse(res, 200, "Keep trying!", {
-    isCorrect: false,
+  // 4. Partial Success (Correct answer but quiz/exercise not fully done)
+  await user.save();
+  return sendJsonResponse(res, 200, isCorrect ? "Success!" : "Keep trying!", {
+    isCorrect,
     feedback,
     completed: false,
-    xpEarned: 0,
   });
 });
 
@@ -345,21 +354,24 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
+  // Verify all lessons are completed
   const moduleLessons = await Lesson.find({
     moduleId: moduleId,
     isPublished: true,
   });
 
-  const completedLessonsInModule = moduleLessons.filter((lesson) =>
-    user.completedLessons.includes(lesson._id.toString())
-  ).length;
+  const completedLessonsInModule = getModuleLessonCompletion(
+    moduleLessons,
+    user.completedLessons,
+  );
 
   if (completedLessonsInModule !== moduleLessons.length) {
     return next(
-      new AppError("Complete all lessons before taking the module quiz", 403)
+      new AppError("Complete all lessons before taking the module quiz", 403),
     );
   }
 
+  // Grade the quiz
   const questions = module.moduleQuiz.questions;
   let correctCount = 0;
   const results = [];
@@ -385,6 +397,7 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   const passingScore = module.moduleQuiz.settings?.passingScore || 70;
   const passed = score >= passingScore;
 
+  // Record quiz attempt
   const quizAttempt = {
     attemptedAt: new Date(),
     score,
@@ -398,57 +411,59 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
   user.quizAttempts.push({ moduleId: moduleId, ...quizAttempt });
 
+  // Process module completion if passed
   let xpIncrease = 0;
   let moduleCompletedNow = false;
-  let badgesUnlockedDetails = [];
   let nextModuleId = null;
+  let badgesUnlockedDetails = [];
 
   if (passed) {
-    const moduleIdString = moduleId.toString();
+    // Mark module as completed
+    const moduleIdString = module._id.toString();
 
     if (!user.completedModules.includes(moduleIdString)) {
       user.completedModules.push(moduleIdString);
       xpIncrease = module.xpReward || 100;
+      user.xp += xpIncrease;
+      user.lastActive = new Date();
       moduleCompletedNow = true;
 
+      // Add to history
       if (!Array.isArray(user.moduleCompletionHistory)) {
         user.moduleCompletionHistory = [];
       }
-
       user.moduleCompletionHistory.push({
-        moduleId: moduleId,
+        moduleId: module._id,
         completedAt: new Date(),
+        quizScore: score,
       });
 
-      user.xp += xpIncrease;
-      user.lastActiveDate = new Date();
+      // Find next module
+      nextModuleId = await findNextModule(module);
 
-      const { newlyUnlocked, unlockedDetails } = await evaluateBadges({
-        user,
-        context: { type: "module_completion", moduleId, quizScore: score },
+      // Evaluate badges
+      const { newlyUnlocked, unlockedDetails } = await evaluateBadges(user, {
+        type: "module_completion",
+        moduleId: module._id,
+        quizScore: score,
       });
 
+      badgesUnlockedDetails = unlockedDetails || [];
+
+      // Add badges to user
       if (newlyUnlocked?.length > 0) {
         newlyUnlocked.forEach((id) => {
           if (!user.badges.includes(id)) user.badges.push(id);
         });
-        badgesUnlockedDetails = unlockedDetails;
-      }
-
-      const nextModule = await Module.findOne({
-        order: module.order + 1,
-        isPublished: true,
-      });
-
-      if (nextModule) {
-        nextModuleId = nextModule._id;
       }
     }
   }
 
   await user.save();
 
-  const progressData = formatProgressResponse(user.toObject());
+  // Get total lessons for progress calculation
+  const totalLessons = await Lesson.countDocuments({ isPublished: true });
+  const progressData = formatProgressResponse(user.toObject(), totalLessons);
 
   return sendJsonResponse(
     res,
@@ -466,7 +481,7 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
       progress: progressData,
       badgesUnlocked: badgesUnlockedDetails,
       nextModuleId,
-    }
+    },
   );
 });
 
@@ -494,17 +509,10 @@ const fixModuleProgress = catchAsync(async (req, res, next) => {
     });
     if (lessons.length === 0) continue;
 
-    const allLessonsDone = lessons.every((l) =>
-      user.completedLessons.includes(l._id.toString())
-    );
+    const allLessonsDone = isModuleFinished(user.completedLessons, lessons);
+    const quizPassed = hasPassedModuleQuiz(user, module._id);
 
-    const hasPassedQuiz = user.quizAttempts?.some(
-      (attempt) =>
-        attempt.moduleId.toString() === moduleIdString &&
-        attempt.passed === true
-    );
-
-    if (allLessonsDone && hasPassedQuiz) {
+    if (allLessonsDone && quizPassed) {
       user.completedModules.push(moduleIdString);
       user.xp += module.xpReward || 100;
 

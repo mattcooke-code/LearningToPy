@@ -13,7 +13,7 @@ const ModuleSchema = new mongoose.Schema(
       required: [true, "Module description is required"],
     },
     shortDescription: { type: String, maxLength: 150 },
-    order: { type: Number, required: true, min: 1 },
+    order: { type: Number, required: true, min: 0 },
     difficulty: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],

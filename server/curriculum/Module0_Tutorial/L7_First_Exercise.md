@@ -23,23 +23,23 @@ That's it! Just one small change.
 
 ## Step-by-Step
 
-1. Find this line in the code:
+**Step 1:** Find this line in the code:
 
 ```python
 name = "Python Learner"
 ```
 
-2. Change it to your name:
+**Step 2:** Change it to your name:
 
 ```python
 name = "Alex"  # Your name here!
 ```
 
-3. Run the code (click **Run Code** button)
+**Step 3:** Run the code (click **Run Code** button)
 
 You should see: `Hello, Alex!`
 
-4. Submit for XP! (click **Submit Code** button)
+**Step 4:** Submit for XP! (click **Submit Code** button)
 
 ## Example
 
@@ -64,9 +64,7 @@ Output: `Hello, Alex!`
 ## Ready?
 
 1. Change the name
-
 2. Click **Run Code** to test
-
 3. Click **Submit Code** to earn XP!
 
 Simple as that! 🎉

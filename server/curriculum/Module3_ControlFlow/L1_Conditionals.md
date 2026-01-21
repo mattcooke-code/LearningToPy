@@ -27,7 +27,7 @@ print("Continue your journey.")
 
 ## 2. The `else` Statement
 
-If you want your program to do something only when the if condition is `False`, you use the else block. An `else` statement is guaranteed to run when the `if` statement immediately preceding it does not.
+If you want your program to do something only when the if condition is `False`, you use the _else_ block. An `else` statement is guaranteed to run when the `if` statement immediately preceding it does not.
 
 ```python
 score = 85

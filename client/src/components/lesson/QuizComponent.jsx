@@ -1,5 +1,5 @@
 // QuizComponent.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle,
   HelpCircle,
@@ -8,6 +8,13 @@ import {
   Loader2,
 } from "lucide-react";
 import { apiClient } from "../../context";
+import {
+  areAllQuestionsAnswered,
+  resetQuestionState,
+  processModuleQuizResults,
+  getOptionButtonClass,
+  isLessonQuizComplete,
+} from "../../utils/quizUtils";
 
 const QuizComponent = ({
   quizArray,
@@ -15,14 +22,40 @@ const QuizComponent = ({
   moduleId,
   onAnswerSubmit,
   isModuleQuiz = false,
-  onQuizComplete, // Need to find where answers are marked correct and call this
+  onQuizComplete,
 }) => {
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverFeedback, setServerFeedback] = useState({});
+  const [quizCompleted, setQuizCompleted] = useState(false);
+
+  // Check if lesson quiz is complete whenever results change
+  useEffect(() => {
+    if (isModuleQuiz) return;
+
+    const isComplete = isLessonQuizComplete(quizArray, results);
+
+    if (isComplete && !quizCompleted) {
+      setQuizCompleted(true);
+      if (onQuizComplete) {
+        onQuizComplete(true);
+      }
+    }
+  }, [results, quizArray, isModuleQuiz, quizCompleted, onQuizComplete]);
+
+  // DEBUGGING
+  useEffect(() => {
+    console.log("Quiz state:", {
+      quizArray: quizArray?.length,
+      results: Object.keys(results).length,
+      isLessonQuizComplete: isLessonQuizComplete(quizArray, results),
+      quizCompleted,
+    });
+  }, [results, quizCompleted, quizArray]);
 
   const handleSelect = (questionId, optionIndex) => {
+    // Don't allow changes if already answered correctly
     if (results[questionId]?.show) return;
 
     setAnswers((prev) => ({
@@ -42,15 +75,23 @@ const QuizComponent = ({
         questionIndex: index,
       });
 
+      // Update results for this question
       setResults((prev) => ({
         ...prev,
         [questionId]: { show: true, isCorrect: data.isCorrect },
       }));
 
+      // Store server feedback
       setServerFeedback((prev) => ({
         ...prev,
         [questionId]: data.feedback,
       }));
+
+      // If the backend says the lesson is completed, trigger callback
+      if (data.completed && onQuizComplete) {
+        setQuizCompleted(true);
+        onQuizComplete(true);
+      }
     } catch (err) {
       console.error("Submission error:", err);
     } finally {
@@ -65,16 +106,22 @@ const QuizComponent = ({
         `/content/modules/${moduleId}/submit-quiz`,
         {
           answers: answers,
-        }
+        },
       );
 
-      const newResults = {};
-      data.results.forEach((res) => {
-        newResults[res.questionId] = { show: true, isCorrect: res.isCorrect };
-      });
+      // Process and set results
+      const newResults = processModuleQuizResults(data.results);
       setResults(newResults);
 
-      if (data.passed) {
+      // Store feedback for each question
+      const newFeedback = {};
+      data.results.forEach((res) => {
+        newFeedback[res.questionId] = res.explanation;
+      });
+      setServerFeedback(newFeedback);
+
+      // If passed, notify parent component
+      if (data.passed && onAnswerSubmit) {
         onAnswerSubmit(data);
       }
     } catch (err) {
@@ -85,17 +132,11 @@ const QuizComponent = ({
   };
 
   const resetQuestion = (questionId) => {
-    setAnswers((prev) => {
-      const n = { ...prev };
-      delete n[questionId];
-      return n;
-    });
-    setResults((prev) => {
-      const n = { ...prev };
-      delete n[questionId];
-      return n;
-    });
+    resetQuestionState(questionId, setAnswers, setResults);
+    setQuizCompleted(false);
   };
+
+  const allAnswered = areAllQuestionsAnswered(quizArray, answers);
 
   return (
     <div className="space-y-8 my-8">
@@ -141,17 +182,11 @@ const QuizComponent = ({
               {q.options.map((option, oIdx) => {
                 const isSelected = answers[qKey] === oIdx;
                 const showResults = result?.show;
-
-                let btnClass = "border-gray-200";
-                if (showResults) {
-                  if (isSelected)
-                    btnClass = result.isCorrect
-                      ? "bg-green-100 border-green-500"
-                      : "bg-red-100 border-red-500";
-                  else btnClass = "opacity-50";
-                } else if (isSelected) {
-                  btnClass = "border-blue-500 bg-blue-50 ring-2 ring-blue-200";
-                }
+                const btnClass = getOptionButtonClass(
+                  isSelected,
+                  showResults,
+                  result?.isCorrect,
+                );
 
                 return (
                   <button
@@ -171,7 +206,7 @@ const QuizComponent = ({
               <button
                 onClick={() => checkSingleAnswer(qKey, qIdx)}
                 disabled={answers[qKey] === undefined || isSubmitting}
-                className="mt-6 flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50"
+                className="mt-6 flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition-all"
               >
                 {isSubmitting && <Loader2 className="animate-spin" size={18} />}
                 <span>Check Answer</span>
@@ -197,7 +232,7 @@ const QuizComponent = ({
       })}
 
       {/* Module Quiz Submit Button */}
-      {isModuleQuiz && Object.keys(answers).length === quizArray.length && (
+      {isModuleQuiz && allAnswered && (
         <div className="text-center p-6 bg-blue-50 rounded-2xl border-2 border-blue-200">
           <button
             onClick={handleFinalSubmit}
@@ -206,6 +241,22 @@ const QuizComponent = ({
           >
             {isSubmitting ? "Submitting Quiz..." : "Submit Final Quiz"}
           </button>
+        </div>
+      )}
+
+      {/* Quiz Completion Message */}
+      {!isModuleQuiz && quizCompleted && (
+        <div className="p-6 bg-green-50 border-2 border-green-200 rounded-2xl text-center">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <CheckCircle className="text-green-600" size={24} />
+            <h3 className="text-lg font-bold text-green-800">
+              Quiz Completed! 🎉
+            </h3>
+          </div>
+          <p className="text-green-700">
+            All questions answered correctly! The lesson is now marked as
+            complete.
+          </p>
         </div>
       )}
     </div>

@@ -12,6 +12,11 @@ const LessonContent = ({
   onCodeSubmit,
   markTheoryComplete,
   isSubmitting,
+  onQuizComplete,
+  exerciseCompleted,
+  setExerciseCompleted,
+  quizCompleted,
+  setQuizCompleted,
 }) => {
   const { isCodeDark } = useTheme();
 
@@ -158,6 +163,7 @@ const LessonContent = ({
           quizArray={lesson.quiz}
           lessonId={lesson._id}
           onAnswerSubmit={onAnswerSubmit}
+          onQuizComplete={onQuizComplete}
           isModuleQuiz={false}
         />
       )}

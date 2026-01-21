@@ -19,22 +19,24 @@ const TerminalComponent = ({
   readOnly = false,
 }) => {
   const { isCodeDark } = useTheme();
-  const { runCode, isReady, isLoading, resetEnvironment } = usePython();
+  const { runCode, isReady, isLoading } = usePython();
 
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(initialCode || "");
   const [output, setOutput] = useState([]);
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isExecuting, setIsExecuting] = useState(false);
+
   const terminalRef = useRef(null);
   const inputRef = useRef(null);
+  const lastInitialCode = useRef(initialCode);
 
   // Use the custom hook
   const { downloadTextFile } = useFileDownload();
 
   const focusInput = () => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus({ preventScroll: true });
     }
   };
 
@@ -74,22 +76,18 @@ const TerminalComponent = ({
       if (!code.trim() || isExecuting || !isReady) return;
 
       setIsExecuting(true);
-
-      // Add to history
       const newHistory = [...history, code];
       setHistory(newHistory);
       setHistoryIndex(newHistory.length);
-
-      // Clear input
       setInput("");
 
       try {
-        // For now, simulate execution. You'll replace this with actual Python execution
-        const result = await runCode(code, { timeout: 5000 });
+        const result = await runCode(code, 5000);
+
+        // 1. Move declaration HERE so it's available everywhere in try/catch
+        let outputText = "";
 
         if (result.success) {
-          let outputText = "";
-
           if (result.stdout) {
             outputText = result.stdout;
           }
@@ -101,19 +99,20 @@ const TerminalComponent = ({
           ) {
             outputText += (outputText ? "\n" : "") + result.output;
           }
-        }
 
-        // Add to output
-        setOutput((prev) => [
-          ...prev,
-          { type: "input", content: code },
-          { type: "output", content: outputText || "(no output)" },
-        ]);
+          // 2. Add to output INSIDE the success block
+          setOutput((prev) => [
+            ...prev,
+            { type: "input", content: code },
+            { type: "output", content: outputText || "(no output)" },
+          ]);
 
-        // Callback for parent component
-        if (onCodeExecute) {
-          onCodeExecute({ code, result: outputText, success: true });
+          if (onCodeExecute) {
+            onCodeExecute({ code, result: outputText, success: true });
+          }
         } else {
+          // 3. This was likely where your logic was getting tangled.
+          // If result.success is false, handle the error here:
           setOutput((prev) => [
             ...prev,
             { type: "input", content: code },
@@ -141,12 +140,11 @@ const TerminalComponent = ({
         setIsExecuting(false);
       }
     },
-    [input, isExecuting, history, onCodeExecute, isReady, runCode]
+    [input, isExecuting, history, onCodeExecute, isReady, runCode],
   );
 
   const clearTerminal = async () => {
     setOutput([]);
-    await resetEnvironment();
     focusInput();
   };
 
@@ -188,7 +186,7 @@ const TerminalComponent = ({
         downloadTerminalSession();
       }
     },
-    [executeCode, history, historyIndex]
+    [executeCode, history, historyIndex],
   );
 
   const loadSnippet = (code) => {
@@ -203,10 +201,11 @@ const TerminalComponent = ({
 
   // Handle initial code
   useEffect(() => {
-    if (initialCode && !readOnly && !input) {
+    if (initialCode !== lastInitialCode.current) {
       setInput(initialCode);
+      lastInitialCode.current = initialCode;
     }
-  }, [initialCode, readOnly, input]);
+  }, [initialCode]);
 
   // Auto-scroll to bottom when output changes
   useEffect(() => {
@@ -442,7 +441,7 @@ const TerminalComponent = ({
               className={`flex-grow px-2 py-2 font-mono text-sm bg-transparent outline-none resize-none ${
                 isCodeDark ? "text-gray-300" : "text-gray-800"
               }`}
-              rows={Math.min(3, input.split("\n").length)}
+              rows={Math.min(10, input.split("\n").length)}
               placeholder={
                 readOnly
                   ? "Demo terminal - try: print('Hello')"
@@ -459,8 +458,8 @@ const TerminalComponent = ({
               isExecuting
                 ? "bg-gray-400 cursor-not-allowed"
                 : input.trim() && !readOnly
-                ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-gray-300 cursor-not-allowed text-gray-500"
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-gray-300 cursor-not-allowed text-gray-500"
             }`}
           >
             {isExecuting ? (

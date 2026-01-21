@@ -6,7 +6,7 @@ const ProgressGauge = ({ progress = 0, size = 200 }) => {
   const arcLength = circumference * 0.75; // 270° arc length
 
   // Ensure a number is always returned as a value
-  const safeProgress = Number(progress) ? 0 : progress;
+  const safeProgress = Number(progress) || 0;
   const rotation = 135 - (safeProgress * 270) / 100;
 
   return (

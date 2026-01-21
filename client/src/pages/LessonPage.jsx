@@ -1,8 +1,6 @@
-//LessonPage.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth, useNotification, useTheme } from "../context";
-// Import components
 import { LoadingState, ErrorState, BackToTopButton } from "../components/ui";
 import {
   LessonHeader,
@@ -18,6 +16,7 @@ const LessonPage = () => {
   const { themeColor, updateThemeFromCourseProgress } = useTheme();
   const { showToast } = useNotification();
 
+  // --- State ---
   const [lesson, setLesson] = useState(null);
   const [module, setModule] = useState(null);
   const [nextLesson, setNextLesson] = useState(null);
@@ -25,256 +24,181 @@ const LessonPage = () => {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [exerciseCompleted, setExerciseCompleted] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
 
-  useEffect(() => {
-    setIsReviewMode(false);
-    setNextLesson(null);
-    setQuizCompleted(false);
-  }, [lessonId]);
-
-  // Data fetching logic
-  const fetchLesson = useCallback(async () => {
-    if (!lessonId) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const lessonData = await apiClient.get(`/content/lessons/${lessonId}`);
-      setLesson(lessonData);
-
-      if (lessonData.moduleId) {
-        const moduleData = await apiClient.get(
-          `/content/modules/${lessonData.moduleId}`
-        );
-        setModule(moduleData);
-      }
-
-      // Auto-enable review mode for completed lessons
-      if (lessonData.isCompleted) {
-        setIsReviewMode(true);
-      } else {
-        setIsReviewMode(false);
-      }
-
-      // Fetch next lesson if available
-      if (lessonData.nextLessonId) {
-        try {
-          const nextLessonData = await apiClient.get(
-            `/content/lessons/${lessonData.nextLessonId}`
+  // --- 1. Helper: Fetch Next Lesson Data ---
+  const fetchNextLessonData = useCallback(
+    async (targetId, currentModuleId) => {
+      try {
+        if (targetId) {
+          const data = await apiClient.get(`/content/lessons/${targetId}`);
+          setNextLesson(data);
+        } else {
+          const manualNext = await calculateNextLessonManually(
+            lessonId,
+            currentModuleId,
           );
-          setNextLesson(nextLessonData);
-        } catch (err) {
-          console.log("No next lesson available");
+          if (manualNext) setNextLesson(manualNext);
         }
+      } catch (err) {
+        console.log("Next lesson not found or unavailable");
       }
-    } catch (err) {
-      console.error("Failed to fetch lesson:", err);
-      setError(
-        getErrorMessage(err, "Failed to load lesson content. Please try again.")
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [lessonId]);
+    },
+    [lessonId],
+  );
 
-  useEffect(() => {
-    fetchLesson();
-  }, [fetchLesson]);
-
-  const handleLessonCompletion = useCallback(
-    async (responseData) => {
+  // --- 2. Helper: Handle UI Updates on Completion ---
+  const handleLessonCompletionUI = useCallback(
+    (responseData) => {
       const { xpEarned, moduleCompleted, progress, nextLessonId } =
         responseData;
 
-      let message = `🎉 Lesson completed! +${xpEarned} XP earned!`;
-      if (moduleCompleted) {
-        message = `🎊 Module completed! Bonus XP earned! Total: +${xpEarned} XP`;
-      }
-      showToast(message, "success");
+      const message = moduleCompleted
+        ? `🎊 Module completed! +${xpEarned} XP`
+        : `🎉 Lesson completed! +${xpEarned} XP`;
 
+      showToast(message, "success");
       setLesson((prev) => ({ ...prev, isCompleted: true }));
 
-      if (progress && progress.courseProgressPercentage !== undefined) {
+      if (progress?.courseProgressPercentage !== undefined) {
         updateThemeFromCourseProgress(progress.courseProgressPercentage);
       }
 
-      const handleNextLesson = async () => {
-        // Try backend nextLessonId first
-        if (nextLessonId) {
-          try {
-            const nextLessonData = await apiClient.get(
-              `/content/lessons/${nextLessonId}`
-            );
-            setNextLesson(nextLessonData);
-            return;
-          } catch (err) {
-            console.error(
-              "❌ Failed to fetch next lesson from backend ID:",
-              err
-            );
-            // Fall through to manual calculation
-          }
-        }
-
-        // Fallback to manual calculation
-        console.log("🔄 Calculating next lesson manually...");
-        const manualNextLesson = await calculateNextLessonManually(
-          lessonId,
-          lesson?.moduleId
-        );
-        if (manualNextLesson) {
-          setNextLesson(manualNextLesson);
-        }
-      };
-
-      await handleNextLesson();
+      fetchNextLessonData(nextLessonId, lesson?.moduleId);
     },
-    [showToast, updateThemeFromCourseProgress, lessonId, lesson?.moduleId]
+    [
+      showToast,
+      updateThemeFromCourseProgress,
+      lesson?.moduleId,
+      fetchNextLessonData,
+    ],
   );
 
-  const handleQuizComplete = (isCompleted) => {
-    setQuizCompleted(isCompleted);
-
-    if (!lesson.exercise && isCompleted) {
-      markTheoryComplete();
-    }
-  };
-
-  const handleAnswerSubmit = async (answer) => {
+  // --- 3. Core Action: Submit Completion ---
+  const markLessonComplete = useCallback(async () => {
     if (!lesson || isReviewMode || lesson.isCompleted) return;
-
-    setIsSubmitting(true);
-    try {
-      const submissionResult = await apiClient.post(
-        `/content/lessons/${lessonId}/submit`,
-        { answer }
-      );
-
-      if (submissionResult.completed) {
-        handleLessonCompletion(submissionResult);
-      } else {
-        showToast(
-          submissionResult.feedback,
-          submissionResult.isCorrect ? "success" : "error"
-        );
-      }
-    } catch (err) {
-      showToast(getErrorMessage(err, "Submission failed"), "error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCodeSubmit = async (code) => {
-    if (!lesson || isReviewMode) return;
-
-    let isEmptySubmission = false;
-
-    if (!code || code.trim() === "") {
-      isEmptySubmission = true;
-    } else if (lesson.exercise && lesson.exercise.starterCode) {
-      // Compare with starter code if it exists
-      const userCodeClean = code.trim();
-      const starterCodeClean = lesson.exercise.starterCode.trim();
-      isEmptySubmission = userCodeClean === starterCodeClean;
-    }
-
-    if (isEmptySubmission) {
-      showToast(
-        getErrorMessage("Please write some code before submitting!"),
-        "error"
-      );
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const codeSubmission = await apiClient.post(
-        `/content/lessons/${lessonId}/submit`,
-        { code }
-      );
-
-      if (codeSubmission.completed) {
-        handleLessonCompletion(codeSubmission);
-      } else {
-        showToast(
-          codeSubmission.feedback,
-          codeSubmission.isCorrect ? "success" : "error"
-        );
-      }
-    } catch (err) {
-      showToast(
-        getErrorMessage(err, "Failed to submit code. Please try again."),
-        "error"
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const markTheoryComplete = async () => {
-    if (!lesson || lesson.contentType !== "theory" || isReviewMode) return;
 
     setIsSubmitting(true);
     try {
       const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
-        {}
+        {},
       );
-
       if (result.completed) {
-        handleLessonCompletion(result);
+        handleLessonCompletionUI(result);
       }
     } catch (err) {
-      console.error("Failed to mark lesson complete:", err);
-      showToast(
-        getErrorMessage(
-          err,
-          "Failed to mark lesson complete. Please try again."
-        ),
-        "error"
-      );
+      console.error("Completion call failed:", err);
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [lesson, lessonId, isReviewMode, handleLessonCompletionUI]);
+
+  // --- 4. Main Fetcher ---
+  const fetchLesson = useCallback(async () => {
+    if (!lessonId) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const lessonData = await apiClient.get(`/content/lessons/${lessonId}`);
+      setLesson(lessonData);
+
+      if (lessonData.moduleId) {
+        const moduleData = await apiClient.get(
+          `/content/modules/${lessonData.moduleId}`,
+        );
+        setModule(moduleData);
+      }
+
+      setIsReviewMode(!!lessonData.isCompleted);
+
+      if (lessonData.nextLessonId || lessonData.isCompleted) {
+        fetchNextLessonData(lessonData.nextLessonId, lessonData.moduleId);
+      }
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to load lesson."));
+    } finally {
+      setLoading(false);
+    }
+  }, [lessonId, fetchNextLessonData]);
+
+  // --- 5. Interaction Handlers ---
+  const handleQuizComplete = useCallback(
+    (isCompleted) => {
+      setQuizCompleted(isCompleted);
+      if (isCompleted && lesson?.contentType === "theory") {
+        markLessonComplete();
+      }
+    },
+    [lesson?.contentType, markLessonComplete],
+  );
+
+  const handleCodeSubmit = useCallback(
+    async (content) => {
+      if (!lesson || isReviewMode) return;
+      setIsSubmitting(true);
+
+      // Determine if we are sending 'code' or a quiz 'answer'
+      const payload =
+        typeof content === "string" ? { code: content } : { answer: content };
+
+      try {
+        const result = await apiClient.post(
+          `/content/lessons/${lessonId}/submit`,
+          payload,
+        );
+        if (result.isCorrect) setExerciseCompleted(true);
+        if (result.completed) handleLessonCompletionUI(result);
+      } catch (err) {
+        showToast(getErrorMessage(err, "Submission failed"), "error");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [lessonId, isReviewMode, lesson, handleLessonCompletionUI, showToast],
+  );
+
+  // --- Effects ---
+  useEffect(() => {
+    setIsReviewMode(false);
+    setNextLesson(null);
+    setQuizCompleted(false);
+    setExerciseCompleted(false);
+    fetchLesson();
+  }, [lessonId, fetchLesson]);
+
+  useEffect(() => {
+    if (
+      exerciseCompleted &&
+      quizCompleted &&
+      !lesson?.isCompleted &&
+      !isReviewMode
+    ) {
+      markLessonComplete();
+    }
+  }, [
+    exerciseCompleted,
+    quizCompleted,
+    lesson?.isCompleted,
+    isReviewMode,
+    markLessonComplete,
+  ]);
+
+  // --- Helper Helpers ---
+  const lessonFullyCompleted = lesson?.isCompleted || false;
+  const isLastLesson = !nextLesson && lessonFullyCompleted;
 
   const toggleReviewMode = () => {
     setIsReviewMode(!isReviewMode);
-    if (!isReviewMode) {
-      showToast(
-        "🔍 Now in review mode - your progress won't be affected",
-        "info"
-      );
-    } else {
-      showToast("📚 Back to learning mode", "info");
-    }
+    showToast(isReviewMode ? "📚 Learning mode" : "🔍 Review mode", "info");
   };
-
-  const lessonFullyCompleted = () => {
-    if (!lesson) return false;
-
-    if (lesson.isCompleted) return true;
-
-    const hasQuiz =
-      lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
-
-    if (!hasQuiz) return lesson.isCompleted;
-
-    return quizCompleted;
-  };
-
-  const isLastLesson = !nextLesson && lessonFullyCompleted();
 
   if (loading) return <LoadingState />;
-  if (error)
-    return <ErrorState error={error} onBack={() => navigate("/modules")} />;
-  if (!lesson)
+  if (error || !lesson)
     return (
       <ErrorState
-        error="Lesson not found"
+        error={error || "Lesson not found"}
         onBack={() => navigate("/modules")}
       />
     );
@@ -289,16 +213,20 @@ const LessonPage = () => {
       />
 
       <LessonContent
+        key={lessonId}
         lesson={lesson}
         isReviewMode={isReviewMode}
-        onAnswerSubmit={handleAnswerSubmit}
+        onAnswerSubmit={handleCodeSubmit}
         onCodeSubmit={handleCodeSubmit}
-        markTheoryComplete={markTheoryComplete}
+        markTheoryComplete={markLessonComplete}
         isSubmitting={isSubmitting}
         isLastLesson={isLastLesson}
         nextLessonId={nextLesson?._id}
+        exerciseCompleted={exerciseCompleted}
+        setExerciseCompleted={setExerciseCompleted}
         quizCompleted={quizCompleted}
         onQuizComplete={handleQuizComplete}
+        setQuizCompleted={setQuizCompleted}
       />
 
       <LessonNavigation
@@ -308,9 +236,8 @@ const LessonPage = () => {
         module={module}
         isReviewMode={isReviewMode}
         themeColor={themeColor}
-        lessonFullyCompleted={lessonFullyCompleted()}
+        lessonFullyCompleted={lessonFullyCompleted}
       />
-
       <BackToTopButton />
     </div>
   );

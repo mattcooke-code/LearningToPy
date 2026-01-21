@@ -6,7 +6,7 @@ This works because Python treats empty things as `False` and things with content
 
 ## 1. Understanding Empty vs. Not Empty
 
-In Python, these values are treated as **False** when used in an `if` statement:
+In Python, these values are treated as **False** (or _Falsy_) when used in an `if` statement:
 
 **Empty values:**
 

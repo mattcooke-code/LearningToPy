@@ -14,6 +14,7 @@ export const PythonProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const workerRef = useRef(null);
   const pendingRequests = useRef(new Map());
+  const stdoutBuffers = useRef(new Map());
 
   const initWorker = useCallback(() => {
     setIsReady(false);
@@ -29,13 +30,18 @@ export const PythonProvider = ({ children }) => {
         setIsReady(true);
         setIsLoading(false);
         console.log("🐍 Pyodide Worker Ready");
-      } else if (type === "stdout") {
+      } else if (type === "stdout" && id) {
+        const currentBuffer = stdoutBuffers.current.get(id) || [];
+        stdoutBuffers.current.set(id, [...currentBuffer, text]);
         console.log("🐍 Python output:", text);
       } else if (type === "result") {
         const handler = pendingRequests.current.get(id);
+        const buffer = stdoutBuffers.current.get(id) || [];
+
         if (handler) {
-          handler({ success, output, error });
+          handler({ success, output, error, stdout: buffer.join("\n") });
           pendingRequests.current.delete(id);
+          stdoutBuffers.current.delete(id);
         }
       }
     };
@@ -59,6 +65,7 @@ export const PythonProvider = ({ children }) => {
         }
 
         const id = Math.random().toString(36).substring(7);
+        stdoutBuffers.current.set(id, []);
 
         const timeoutId = setTimeout(() => {
           console.warn("RT: Execution timeout. Terminating worker...");

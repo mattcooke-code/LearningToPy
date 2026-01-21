@@ -100,6 +100,14 @@ const UserSchema = new mongoose.Schema(
         ],
       },
     ],
+    lessonQuizProgress: [
+      {
+        lessonId: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
+        correctAnswers: [{ type: Number }],
+        completed: { type: Boolean, default: false },
+        lastAttempt: { type: Date, default: Date.now },
+      },
+    ],
     stats: {
       fastChallengeCount: { type: Number, default: 0, min: 0 },
       firstTryChallengeCount: { type: Number, default: 0, min: 0 },
@@ -154,7 +162,7 @@ const UserSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Indexes for better query performance

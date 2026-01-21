@@ -1,7 +1,8 @@
+// Profile.jsx
 import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
 import { apiClient, useAuth } from "../context";
-import { useThemeStyles, useTutorial } from "../hooks";
+import { useThemeStyles } from "../hooks";
 import {
   Spinner,
   BackToTopButton,
@@ -16,6 +17,7 @@ const Profile = () => {
   const { user, updateUser, triggerLeaderboardRefresh } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userProgress, setUserProgress] = useState(null);
   const [achievements, setAchievements] = useState({
     earnedBadges: [],
     inProgress: [],
@@ -24,7 +26,6 @@ const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { themeColor, hoverHandlers } = useThemeStyles();
-  const { resetTutorial } = useTutorial();
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -41,8 +42,8 @@ const Profile = () => {
         setError(
           getErrorMessage(
             err,
-            "We couldn't load your badge progress. Please try again shortly."
-          )
+            "We couldn't load your badge progress. Please try again shortly.",
+          ),
         );
       } finally {
         setLoading(false);
@@ -52,6 +53,18 @@ const Profile = () => {
     fetchAchievements();
   }, []);
 
+  useEffect(() => {
+    const fetchProgress = async () => {
+      try {
+        const progressData = await apiClient.get("/progress/current");
+        setUserProgress(progressData);
+      } catch (err) {
+        console.error("Failed to fetch progress:", err);
+      }
+    };
+    fetchProgress();
+  }, []);
+
   const handlePrivacyUpdate = (newPrivacySettings) => {
     updateUser({ privacySettings: newPrivacySettings });
     triggerLeaderboardRefresh();
@@ -59,7 +72,7 @@ const Profile = () => {
 
   const earnedBadgeIds = useMemo(
     () => achievements.earnedBadges.map((badge) => badge.id),
-    [achievements.earnedBadges]
+    [achievements.earnedBadges],
   );
 
   const progressMap = useMemo(() => {
@@ -140,11 +153,11 @@ const Profile = () => {
             <div className="text-center">
               <p className="text-sm text-gray-500">Current Level</p>
               <p className="text-5xl font-bold " style={{ color: themeColor }}>
-                {user?.level || 1}
+                {userProgress?.level || user?.level || 1}
               </p>
             </div>
             <SegmentedLevelProgressBar
-              currentXP={user?.xp || 0}
+              currentXP={userProgress?.xp || user?.xp || 0}
               segmentCount={10}
               showLabels={true}
             />
@@ -152,7 +165,7 @@ const Profile = () => {
               <div className="text-center">
                 <p className="font-medium">Total XP</p>
                 <p className="text-lg font-bold text-python-yellow">
-                  {user?.xp || 0}
+                  {userProgress?.xp || user?.xp || 0}
                 </p>
               </div>
               <div className="text-center">
@@ -180,7 +193,10 @@ const Profile = () => {
             {[
               {
                 label: "Days Active",
-                value: user?.stats?.daysActive || "0",
+                value:
+                  userProgress?.stats?.daysActive ||
+                  user?.stats?.daysActive ||
+                  "0",
                 color: "text-blue-600",
                 icon: "📅",
               },
@@ -225,16 +241,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
-      <button
-        onClick={() => {
-          resetTutorial();
-          navigate("/getting-started");
-        }}
-        className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
-      >
-        ↺ Revisit Tutorial
-      </button>
 
       {/* Badge Collection Section */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">

@@ -85,15 +85,14 @@ print("Name:", name)
 print("Age:", age)
 ```
 
+NOTE: There is a COPY button at the top of each section of example code. You can use this if you do not wish to type blocks of code, but we recommend you get used to typing directly in the editor.
+
 ## Pro Tips 💡
 
-1. Indent with Tab: Python uses 4 spaces for indentation (Tab key does this)
-
-2. Format Code: Use the Format button to fix indentation automatically (the code editor will automatically indent your code for you but it is good practice to check it yourself)
-
-3. Zoom: `Ctrl+Scroll` to adjust text size
-
-4. Multiple Cursors: `Ctrl+Click` (or `Cmd+Click` on Mac) to edit multiple lines
+1. **Indent with Tab**: Python uses 4 spaces for indentation (Tab key does this)
+2. **Format Code**: Use the Format button to fix indentation automatically (the code editor will automatically indent your code for you but it is good practice to check it yourself)
+3. **Zoom**: `Ctrl+Scroll` to adjust text size
+4. **Multiple Cursors**: `Ctrl+Click` (or `Cmd+Click` on Mac) to edit multiple lines
 
 ## Next Up: Running Your Code
 

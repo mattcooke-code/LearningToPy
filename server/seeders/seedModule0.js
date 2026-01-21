@@ -94,7 +94,7 @@ const seedModule0 = async (
     const lesson = m0Lessons[i];
 
     const lessonData = {
-      title: lessons.title,
+      title: lesson.title,
       content: readContent(m0Folder, lesson.file),
       order: i + 1,
       moduleId: module0._id,

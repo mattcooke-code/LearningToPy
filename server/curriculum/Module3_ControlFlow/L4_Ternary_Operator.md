@@ -51,4 +51,4 @@ The ternary operator is best used for simple, two-way choices that result in ass
 | Numeric Choice    | `price = base_price * 0.9 if discount_active else base_price` |
 | List/String Check | `title = name if name else "Untitled Document"`               |
 
-💡 Keep it Simple: Avoid nesting ternary operators or using them for complex logic. If your logic requires elif, stick to the traditional multi-line if/elif/else structure for better readability.
+💡 Keep it Simple: Avoid nesting ternary operators or using them for complex logic. If your logic requires `elif`, stick to the traditional multi-line `if/elif/else` structure for better readability.

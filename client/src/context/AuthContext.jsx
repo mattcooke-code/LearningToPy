@@ -45,22 +45,116 @@ const unwrapResponse = (response) => {
 [apiClient, adminApiClient, authApiClient].forEach((instance) => {
   instance.interceptors.response.use(
     (response) => unwrapResponse(response),
-    (err) => Promise.reject(err)
+    (err) => Promise.reject(err),
   );
 });
+
+// --- HELPER FUNCTIONS (OUTSIDE COMPONENT) ---
+
+/**
+ * Get stored access token from localStorage or sessionStorage
+ */
+const getStoredAccessToken = () => {
+  return (
+    localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
+  );
+};
+
+/**
+ * Check if a JWT token is valid (not expired)
+ */
+const isTokenValid = (token) => {
+  if (!token) return false;
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+};
+
+// --- INTERCEPTOR SETUP (OUTSIDE COMPONENT) ---
+
+/**
+ * Setup interceptors for API clients
+ * @param {Function} refreshAuthTokenFn - Function to refresh token
+ * @param {Function} showToastFn - Function to show toast notifications
+ * @param {Object} logoutInitiatedRef - Ref tracking logout state
+ * @returns {Function} Cleanup function to eject interceptors
+ */
+const setupInterceptors = (
+  refreshAuthTokenFn,
+  showToastFn,
+  logoutInitiatedRef,
+) => {
+  // Request interceptor for apiClient
+  const requestInterceptor = apiClient.interceptors.request.use((config) => {
+    const token = getStoredAccessToken();
+    if (token && isTokenValid(token) && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+
+  // Response interceptor for apiClient (handles 401 errors)
+  const responseInterceptor = apiClient.interceptors.response.use(
+    (res) => res,
+    async (err) => {
+      const originalRequest = err.config;
+      if (
+        err.response?.status === 401 &&
+        !originalRequest._retry &&
+        !logoutInitiatedRef.current
+      ) {
+        originalRequest._retry = true;
+        try {
+          const newToken = await refreshAuthTokenFn();
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return apiClient(originalRequest);
+        } catch {
+          return Promise.reject(err);
+        }
+      }
+      return Promise.reject(err);
+    },
+  );
+
+  // Response interceptor for adminApiClient (handles 403 and 401 errors)
+  const adminResponseInterceptor = adminApiClient.interceptors.response.use(
+    (res) => res,
+    async (err) => {
+      const originalRequest = err.config;
+      if (err.response?.status === 403) {
+        showToastFn("Admin access required", "error");
+        return Promise.reject(new Error("Admin access required"));
+      }
+      if (err.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const newToken = await refreshAuthTokenFn();
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return adminApiClient(originalRequest);
+        } catch {
+          return Promise.reject(err);
+        }
+      }
+      return Promise.reject(err);
+    },
+  );
+
+  // Return cleanup function
+  return () => {
+    apiClient.interceptors.request.eject(requestInterceptor);
+    apiClient.interceptors.response.eject(responseInterceptor);
+    adminApiClient.interceptors.response.eject(adminResponseInterceptor);
+  };
+};
 
 // --- AUTHCONTEXT DEFINITION ---
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const { showToast } = useNotification();
-
-  const getStoredAccessToken = () => {
-    return (
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken")
-    );
-  };
 
   // STATE MANAGEMENT
   const [user, setUser] = useState(null);
@@ -85,22 +179,12 @@ export const AuthProvider = ({ children }) => {
     failedQueue.current = [];
   }, []);
 
-  const isTokenValid = useCallback((token) => {
-    if (!token) return false;
-    try {
-      const decoded = jwtDecode(token);
-      return decoded.exp > Date.now() / 1000;
-    } catch {
-      return false;
-    }
-  }, []);
-
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
       setUser((prevUser) =>
         JSON.stringify(prevUser) === JSON.stringify(userData)
           ? prevUser
-          : userData
+          : userData,
       );
 
       setAccessToken(newAccessToken);
@@ -126,12 +210,12 @@ export const AuthProvider = ({ children }) => {
       }
       setAuthError(null);
     },
-    [isTokenValid]
+    [],
   );
 
   const updateUser = useCallback((newUserData) => {
     setUser((prevUser) =>
-      prevUser ? { ...prevUser, ...newUserData } : newUserData
+      prevUser ? { ...prevUser, ...newUserData } : newUserData,
     );
   }, []);
 
@@ -149,9 +233,8 @@ export const AuthProvider = ({ children }) => {
       try {
         const currentAccessToken = getStoredAccessToken();
         if (currentAccessToken) {
-          authApiClient.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${currentAccessToken}`;
+          authApiClient.defaults.headers.common["Authorization"] =
+            `Bearer ${currentAccessToken}`;
         }
         await authApiClient.post("/api/auth/logout");
       } catch (err) {
@@ -169,7 +252,7 @@ export const AuthProvider = ({ children }) => {
         logoutInitiated.current = false;
       }
     },
-    [setAuthData, showToast]
+    [setAuthData, showToast],
   );
 
   const refreshAuthToken = useCallback(async () => {
@@ -228,7 +311,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [showToast]
+    [showToast],
   );
 
   const login = useCallback(
@@ -249,10 +332,10 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
           }
           throw new Error("Invalid response format.");
-        }
+        },
       );
     },
-    [executeAuthAction, setAuthData, showToast]
+    [executeAuthAction, setAuthData, showToast],
   );
 
   const register = useCallback(
@@ -273,19 +356,33 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
           }
           throw new Error("Invalid response format.");
-        }
+        },
       );
     },
-    [executeAuthAction, setAuthData, showToast]
+    [executeAuthAction, setAuthData, showToast],
   );
 
   const fetchUserProfile = useCallback(async () => {
-    if (user) {
+    const token = getStoredAccessToken();
+    if (!token) {
+      setUser(null);
       setLoading(false);
       return;
     }
-    const token = getStoredAccessToken();
-    if (!token || !isTokenValid(token)) {
+
+    if (!isTokenValid(token)) {
+      try {
+        await refreshAuthToken();
+        setLoading(false);
+        return;
+      } catch {
+        setAuthData(null, null);
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (user && isTokenValid(token)) {
       setLoading(false);
       return;
     }
@@ -301,72 +398,21 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [setAuthData, user, isTokenValid]);
+  }, [setAuthData, user, refreshAuthToken]);
 
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  // --- INTERCEPTOR SETUP ---
+  // --- SETUP INTERCEPTORS (SIMPLE NOW!) ---
   useEffect(() => {
-    const requestInterceptor = apiClient.interceptors.request.use((config) => {
-      const token = getStoredAccessToken();
-      if (token && isTokenValid(token) && !config.headers.Authorization) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-
-    const responseInterceptor = apiClient.interceptors.response.use(
-      (res) => res,
-      async (err) => {
-        const originalRequest = err.config;
-        if (
-          err.response?.status === 401 &&
-          !originalRequest._retry &&
-          !logoutInitiated.current
-        ) {
-          originalRequest._retry = true;
-          try {
-            const newToken = await refreshAuthToken();
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return apiClient(originalRequest);
-          } catch {
-            return Promise.reject(err);
-          }
-        }
-        return Promise.reject(err);
-      }
+    const cleanup = setupInterceptors(
+      refreshAuthToken,
+      showToast,
+      logoutInitiated,
     );
-
-    const adminResponseInterceptor = adminApiClient.interceptors.response.use(
-      (res) => res,
-      async (err) => {
-        const originalRequest = err.config;
-        if (err.response?.status === 403) {
-          showToast("Admin access required", "error");
-          return Promise.reject(new Error("Admin access required"));
-        }
-        if (err.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-          try {
-            const newToken = await refreshAuthToken();
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return adminApiClient(originalRequest);
-          } catch {
-            return Promise.reject(err);
-          }
-        }
-        return Promise.reject(err);
-      }
-    );
-
-    return () => {
-      apiClient.interceptors.request.eject(requestInterceptor);
-      apiClient.interceptors.response.eject(responseInterceptor);
-      adminApiClient.interceptors.response.eject(adminResponseInterceptor);
-    };
-  }, [refreshAuthToken, isTokenValid, showToast]);
+    return cleanup;
+  }, []); // Empty dependency array - runs once on mount
 
   const authContextValue = {
     user,

@@ -12,10 +12,10 @@ Located above the editor, you'll find the most important button:
 
 ### What happens when you click it:
 
-1. **Your code is sent** to our Python interpreter
-2. **Python executes it** line by line
-3. **Results appear** in the terminal
-4. **Status shows** if it succeeded or failed
+1. Your code is sent to our Python interpreter
+2. Python executes it line by line
+3. Results appear in the terminal
+4. Status shows if it succeeded or failed
 
 ## Running Your First Program
 
@@ -36,11 +36,13 @@ print(f"Total fruit: {total_fruit}")
 
 Click Run Code and watch the terminal:
 
+```python
 > > > Running your code...
 > > > Hello, Python Learner!
 > > > Welcome to programming!
 > > > Total fruit: 8
 > > > Code executed successfully!
+```
 
 ## Understanding Execution Flow
 
@@ -107,13 +109,15 @@ Read error messages carefully! They tell you:
 
 **Problem: Nothing happens when I click Run**
 
-Solution: Check if your code has `print()` statements. Python only shows output when you explicitly print.
+_Solution_: Check if your code has `print()` statements. Python only shows output when you explicitly print.
 
 **Problem: "NameError: name 'x' is not defined"**
-Solution: You're using a variable before creating it. Define variables before using them.
+
+_Solution_: You're using a variable before creating it. Define variables before using them.
 
 **Problem: "IndentationError: unexpected indent"**
-Solution: Python cares about spaces! Make sure your indentation is consistent (use Tab key).
+
+_Solution_: Python cares about spaces! Make sure your indentation is consistent (use Tab key).
 
 ## Practice Exercise
 
@@ -153,11 +157,8 @@ Once you're comfortable running code, you'll learn about:
 ## Pro Tips 💡
 
 1. _Run often_: Test small pieces as you write
-
 2. _Fix one error at a time_: Start with the first error listed
-
 3. _Read output carefully_: Sometimes the answer is in the error message
-
 4. _Use comments_: `# TODO` or `# FIXME` to mark areas needing work
 
 Ready to earn your first XP? In the next lesson, you'll learn how lessons and progress work!
