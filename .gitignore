@@ -63,6 +63,10 @@ logs/
 **/.env.*
 *.local # From new client gitignore, catches .env.local etc. broadly
 
+**/envConfig.js
+# or
+server/config/envConfig.js
+
 # ---------------------------------------------------
 # Client (Vite) specific ignores
 # ---------------------------------------------------
@@ -92,3 +96,4 @@ dist-ssr/
 
 # Uploads folder/photos
 /server/uploads/
+
