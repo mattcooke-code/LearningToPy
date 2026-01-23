@@ -19,9 +19,9 @@ if "Eggs" in shopping_list:
 ```
 
 ```python
-door_capacity = ["Rose"]
+door_space = ["Rose"]
 
-if "Jack" in door_capacity:
+if "Jack" in door_space:
     print("Everyone survives!")
 else:
     print("Rose is selfish.") # This runs
@@ -32,13 +32,13 @@ else:
 The `in` operator can also check if one string is a substring (a sequence of characters) within a larger string.
 
 ```python
-website = "[www.codemaster.com](https://www.codemaster.com)"
+website = "[www.learningtopy.com](https://www.learningtopy.com)"
 
 if ".com" in website:
     print("This is a commercial site.") # This runs
 
-if "python" in website:
-    print("Python mentioned.") # This does NOT run
+if "tuple" in website:
+    print("Tuple mentioned.") # This does NOT run
 
 ```
 

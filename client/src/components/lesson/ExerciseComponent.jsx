@@ -11,6 +11,7 @@ import { CodeThemeToggle, Spinner } from "../ui";
 import { CodeBlock, CodeEditor, TerminalComponent } from "../lesson";
 import { useTheme } from "../../context";
 import { usePython } from "../../context/PythonContext";
+import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
 
 const ExerciseComponent = ({
@@ -213,9 +214,9 @@ const ExerciseComponent = ({
         </div>
       </div>
 
-      <p className={`mb-4 ${isCodeDark ? "text-gray-300" : "text-gray-800"}`}>
-        {exercise.instructions}
-      </p>
+      <div className={`mb-4 ${isCodeDark ? "text-gray-300" : "text-gray-800"}`}>
+        <MarkdownRenderer content={exercise.instructions} />
+      </div>
 
       {/* IDE Links for Complex Projects */}
       {exercise.isComplex && (
@@ -530,15 +531,16 @@ const ExerciseComponent = ({
           >
             Hints:
           </h4>
-          <ul
-            className={`list-disc list-inside space-y-1 ${
-              isCodeDark ? "text-gray-300" : "text-gray-700"
-            }`}
+          <div
+            className={`space-y-2 text-sm ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
           >
             {exercise.hints.map((hint, index) => (
-              <li key={index}>{hint}</li>
+              <div key={index} className="flex items-start">
+                <span className="mr-2 mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400" />
+                <MarkdownRenderer content={hint} />
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 

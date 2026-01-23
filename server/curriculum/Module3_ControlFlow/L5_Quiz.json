@@ -5,25 +5,25 @@
       "id": "m3l5_q1",
       "question": "What will the following code print?\n\n```python\nfruits = ['apple', 'banana', 'orange']\nif 'grape' in fruits:\n    print('Found it!')\nelse:\n    print('Not found!')\n```",
       "options": [
-        "Found it!",
-        "Not found!",
-        "grape",
+        "`Found it!`",
+        "`Not found!`",
+        "`grape`",
         "The code will cause an error"
       ],
       "correctAnswer": 1,
-      "explanation": "The code prints 'Not found!' because 'grape' is not in the fruits list. The `in` operator returns False, so the else block executes."
+      "explanation": "The code prints `'Not found!'` because `'grape'` is not in the `fruits` list. The `in` operator returns `False`, so the `else` block executes."
     },
     {
       "id": "m3l5_q2",
       "question": "Which of the following will evaluate to `True`?",
       "options": [
-        "user = 'admin'\nif user not in ['admin', 'moderator']:",
-        "email = 'user@gmail.com'\nif '@' in email:",
-        "numbers = [1, 2, 3, 4]\nif 5 in numbers:",
-        "roles = ('viewer', 'editor')\nif 'admin' in roles:"
+        "`user = 'admin'`\n`if user not in ['admin', 'moderator']:`",
+        "`email = 'user@gmail.com'`\n`if '@' in email:`",
+        "`numbers = [1, 2, 3, 4]`\n`if 5 in numbers:`",
+        "`roles = ('viewer', 'editor')`\n`if 'admin' in roles:`"
       ],
       "correctAnswer": 1,
-      "explanation": "Option B evaluates to True because the '@' character is present in the string 'user@gmail.com'. The `in` operator works with strings to check for substrings. Option A is False (admin IS in the list), Option C is False (5 is not in the list), and Option D is False (admin is not in the tuple)."
+      "explanation": "Option B evaluates to `True` because the `'@'` character is present in the string `'user@gmail.com'`. The `in` operator works with strings to check for substrings."
     },
     {
       "id": "m3l5_q3",
@@ -35,7 +35,7 @@
         "To join multiple strings together into one string"
       ],
       "correctAnswer": 1,
-      "explanation": "Membership operators are specifically designed to check whether a value is present (`in`) or absent (`not in`) within a sequence like a list, tuple, or string. They return a Boolean value (True or False) and are commonly used in conditional statements to control program flow."
+      "explanation": "Membership operators are specifically designed to check whether a value is present (`in`) or absent (`not in`) within a sequence like a list, tuple, or string. They return a Boolean value (`True` or `False`)."
     }
   ]
 }

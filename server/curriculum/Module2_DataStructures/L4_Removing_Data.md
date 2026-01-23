@@ -25,18 +25,19 @@ If you call `pop()` without an index, it defaults to removing and returning the 
 
 ```python
 
-# A level containing a Goomba, a Koopa, and a Fire Flower
-level_entities = ["Goomba", "Koopa", "Fire Flower"]
+# A log of active quests for a hero
+quest_log = ["Find the Lost Sword", "Defeat the Dragon", "Rescue the Villager"]
 
-# Mario grabs the item at index 2
-power_up = level_entities.pop(2)
+# The hero completes the quest at index 1 (Defeat the Dragon)
+# We 'pop' it so we can announce the reward
+completed_quest = quest_log.pop(1)
 
-print(level_entities) # Output: ['Goomba', 'Koopa']
-print(power_up)       # Output: 'Fire Flower' (Mario now has it!)
+print(quest_log)       # Output: ['Find the Lost Sword', 'Rescue the Villager']
+print(completed_quest) # Output: 'Defeat the Dragon' (Time to collect your gold!)
 
-# Mario defeats the last enemy in the list
-defeated_enemy = level_entities.pop()
-print(level_entities) # Output: ['Goomba']
+# The hero decides to abandon the most recent quest added
+abandoned_quest = quest_log.pop()
+print(quest_log)       # Output: ['Find the Lost Sword']
 
 ```
 
@@ -58,8 +59,8 @@ del inventory[0:2]
 print(inventory) # Output: ['Date']
 ```
 
-| Method     | Criteria                        | Return Value     | Common Use Case                                                   |
-| ---------- | ------------------------------- | ---------------- | ----------------------------------------------------------------- |
-| `remove()` | Removes by Value                | None             | Deleting an item where you don't know the index.                  |
-| `pop()`    | Removes by Index (or last item) | The Removed Item | Removing an item you need to process or show the user.            |
-| `del`      | Removes by Index or Slice       | None             | Deleting an item or range of items when you don't need the value. |
+| Method     | Criteria                        | Return Value     | Common Use Case                                                     |
+| ---------- | ------------------------------- | ---------------- | ------------------------------------------------------------------- |
+| `remove()` | Removes by Value                | None             | Deleting an item when you know what it is, but not where it is.     |
+| `pop()`    | Removes by Index (or last item) | The Removed Item | Removing an item because you want to use it or move it elsewhere.   |
+| `del`      | Removes by Index or Slice       | None             | "Hard delete"—cleanly removing an item or a whole chunk of the list |

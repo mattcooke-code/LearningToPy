@@ -7,14 +7,14 @@ const seedModules6to10 = async (
   readContent,
   parseJSONContent,
   options = {},
-  seedConfig = {}
+  seedConfig = {},
 ) => {
   console.log("🚀 Seeding Modules 6-10 with config:", {
     batchSize: seedConfig.batchSize,
     modules: seedConfig.modules || "all",
   });
 
-  const { module1_id = null, module4_id = null } = options;
+  const { module5_id = null } = options;
 
   //  =======================
   // || MODULE 6: FUNCTIONS ||
@@ -33,7 +33,7 @@ const seedModules6to10 = async (
     difficulty: "beginner",
     estimatedHours: 2,
     isPublished: true,
-    prerequisites: [module1_id, module4_id].filter(Boolean),
+    prerequisites: module5_id ? [module5_id] : [],
     learningObjectives: [
       "Define functions using def",
       "Understand scope",

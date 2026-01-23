@@ -4,10 +4,10 @@
       "id": "m2l2_q1",
       "question": "Given `colors = ['red', 'blue', 'green', 'yellow']`, what does `colors[1:3]` return?",
       "options": [
-        "['red', 'blue']",
-        "['blue', 'green']",
-        "['blue', 'green', 'yellow']",
-        "['green', 'yellow']"
+        "`['red', 'blue']`",
+        "`['blue', 'green']`",
+        "`['blue', 'green', 'yellow']`",
+        "`['green', 'yellow']`"
       ],
       "correctAnswer": 1,
       "explanation": "The slice `[1:3]` starts at index 1 ('blue') and stops BEFORE index 3. So it includes indices 1 and 2, which are 'blue' and 'green'. Remember: the stop index is never included in the slice."

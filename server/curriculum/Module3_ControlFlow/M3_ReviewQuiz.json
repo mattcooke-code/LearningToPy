@@ -2,34 +2,34 @@
   "questions": [
     {
       "id": "m3l1_q1",
-      "question": "What happens if the condition in an `if` statement is False and there is no `else` block?",
+      "question": "What happens if the condition in an `if` statement is `False` and there is no `else` block?",
       "options": [
         "Python raises an error",
         "The program terminates",
-        "Python skips the if block and continues with the next line of code",
-        "Python executes the if block anyway"
+        "Python skips the `if` block and continues with the next line of code",
+        "Python executes the `if` block anyway"
       ],
       "correctAnswer": 2,
-      "explanation": "If the condition is False and there's no else block, Python simply skips the indented code under the if statement and continues executing the next line after it. No error occurs."
+      "explanation": "If the condition is `False` and there's no `else` block, Python simply skips the indented code under the `if` statement and continues executing the next line after it. No error occurs."
     },
     {
       "id": "m3l1_q2",
-      "question": "In an if-elif-else chain, what happens when the first condition is True?",
+      "question": "In an `if-elif-else` chain, what happens when the first condition is `True`?",
       "options": [
         "Python executes all the blocks to check for other matches",
-        "Python executes only that block and skips all elif and else blocks",
-        "Python raises an error if there are elif blocks below",
-        "Python executes both the if block and the else block"
+        "Python executes only that block and skips all `elif` and `else` blocks",
+        "Python raises an error if there are `elif` blocks below",
+        "Python executes both the `if` block and the `else` block"
       ],
       "correctAnswer": 1,
-      "explanation": "Python evaluates conditions from top to bottom. As soon as it finds a True condition, it executes that block and skips all remaining elif and else blocks. This is why the order of conditions matters."
+      "explanation": "Python evaluates conditions from top to bottom. As soon as it finds a `True` condition, it executes that block and skips all remaining `elif` and `else` blocks. This is why the order of conditions matters."
     },
     {
       "id": "m3l1_q3",
-      "question": "What will this code print? `score = 85\nif score >= 90:\n    print('A')\nelif score >= 80:\n    print('B')\nelse:\n    print('C')`",
-      "options": ["'A'", "'B'", "'C'", "Nothing - it will error"],
+      "question": "What will this code print? \n\n`score = 85` \n`if score >= 90:` \n`    print('A')` \n`elif score >= 80:` \n`    print('B')` \n`else:` \n`    print('C')`",
+      "options": ["`'A'`", "`'B'`", "`'C'`", "Nothing - it will error"],
       "correctAnswer": 1,
-      "explanation": "The score is 85. The first condition (score >= 90) is False, so Python checks the elif condition (score >= 80), which is True. It prints 'B' and skips the else block."
+      "explanation": "The `score` is `85`. The first condition (`score >= 90`) is `False`, so Python checks the `elif` condition (`score >= 80`), which is `True`. It prints `'B'` and skips the `else` block."
     },
     {
       "id": "m3l2_q1",
@@ -41,45 +41,45 @@
         "`==` only works with numbers, `=` works with all types"
       ],
       "correctAnswer": 1,
-      "explanation": "The single equals sign `=` is used to assign a value to a variable (e.g., x = 5). The double equals `==` is used to compare two values and returns True or False (e.g., x == 5)."
+      "explanation": "The single equals sign `=` is used to assign a value to a variable (e.g., `x = 5`). The double equals `==` is used to compare two values and returns `True` or `False` (e.g., `x == 5`)."
     },
     {
       "id": "m3l2_q2",
-      "question": "What does the expression `True and False` evaluate to?",
-      "options": ["True", "False", "None", "Error"],
+      "question": "If a game checks `has_key = True` and `is_door_locked = False`, what does the expression `has_key and is_door_locked` evaluate to?",
+      "options": ["`True`", "`False`", "`None`", "Error"],
       "correctAnswer": 1,
-      "explanation": "The `and` operator requires BOTH conditions to be True for the result to be True. Since one side is False, the entire expression evaluates to False."
+      "explanation": "Even though `has_key` is `True`, the `and` operator requires BOTH sides to be `True`. Since `is_door_locked` is `False`, the entire expression evaluates to `False`. It's like saying: 'I have the key AND the door is locked'—that statement is only true if both facts are true!"
     },
     {
       "id": "m3l2_q3",
-      "question": "Given `x = 15`, which expression is True?",
+      "question": "Given `x = 15`, which expression is `True`?",
       "options": [
-        "10 < x < 20",
-        "x > 20 or x < 10",
-        "not (x > 10)",
-        "x == 10 and x == 15"
+        "`10 < x < 20`",
+        "`x > 20 or x < 10`",
+        "`not (x > 10)`",
+        "`x == 10 and x == 15`"
       ],
       "correctAnswer": 0,
-      "explanation": "The chained comparison `10 < x < 20` checks if x is greater than 10 AND less than 20. Since 15 is between 10 and 20, this is True. The other options are all False."
+      "explanation": "The chained comparison `10 < x < 20` checks if `x` is greater than `10` AND less than `20`. Since `15` is between `10` and `20`, this is `True`."
     },
     {
       "id": "m3l3_q1",
       "question": "Which of the following values is Falsy in Python?",
       "options": [
-        "The string 'False'",
-        "The number -1",
-        "An empty list []",
-        "The string '0'"
+        "The string `'False'`",
+        "The number `-1`",
+        "An empty list `[]`",
+        "The string `'0'`"
       ],
       "correctAnswer": 2,
-      "explanation": "An empty list [] is Falsy. The string 'False' is actually Truthy (non-empty string), -1 is Truthy (non-zero number), and '0' is Truthy (non-empty string). Remember: empty sequences are Falsy!"
+      "explanation": "An empty list `[]` is Falsy. The string `'False'` is actually Truthy (non-empty string), `-1` is Truthy (non-zero number), and `'0'` is Truthy (non-empty string). Remember: empty sequences are Falsy!"
     },
     {
       "id": "m3l3_q2",
-      "question": "What will this code print? `username = ''\nif username:\n    print('Hello')\nelse:\n    print('Please log in')`",
-      "options": ["'Hello'", "'Please log in'", "Nothing", "Error"],
+      "question": "What will this code print? \n\n`username = ''` \n`if username:` \n`    print('Hello')` \n`else:` \n`    print('Please log in')`",
+      "options": ["`'Hello'`", "`'Please log in'`", "Nothing", "Error"],
       "correctAnswer": 1,
-      "explanation": "An empty string '' is Falsy, so the if condition evaluates to False and the else block runs, printing 'Please log in'. This is a clean way to check if a string has content."
+      "explanation": "An empty string `''` is Falsy, so the `if` condition evaluates to `False` and the `else` block runs, printing `'Please log in'`. This is a clean way to check if a string has content."
     },
     {
       "id": "m3l3_q3",
@@ -87,34 +87,34 @@
       "options": [
         "If the list exists",
         "If the list is empty",
-        "If the list contains False",
+        "If the list contains `False`",
         "If the list has exactly one item"
       ],
       "correctAnswer": 1,
-      "explanation": "The expression `if not my_list:` checks if the list is empty. An empty list [] is Falsy, so `not []` becomes True. This is a Pythonic way to check for empty lists without needing to check the length."
+      "explanation": "The expression `if not my_list:` checks if the list is empty. An empty list `[]` is Falsy, so `not []` becomes `True`. This is a Pythonic way to check for empty lists without needing to check `len()`."
     },
     {
       "id": "m3l4_q1",
       "question": "What is the correct syntax for a ternary operator in Python?",
       "options": [
-        "condition ? value_if_true : value_if_false",
-        "value_if_true if condition else value_if_false",
-        "if condition then value_if_true else value_if_false",
-        "value_if_true : value_if_false if condition"
+        "`condition ? value_if_true : value_if_false`",
+        "`value_if_true if condition else value_if_false`",
+        "`if condition then value_if_true else value_if_false`",
+        "`value_if_true : value_if_false if condition`"
       ],
       "correctAnswer": 1,
-      "explanation": "Python uses the syntax: value_if_true if condition else value_if_false. This is different from many other languages that use the ? : syntax."
+      "explanation": "Python uses the syntax: `value_if_true if condition else value_if_false`. This is different from many other languages that use the `? :` syntax."
     },
     {
       "id": "m3l4_q2",
-      "question": "What will be assigned to `result`? `score = 45\nresult = 'Pass' if score >= 50 else 'Fail'`",
-      "options": ["'Pass'", "'Fail'", "True", "45"],
+      "question": "What will be assigned to `result`? \n\n`score = 45` \n`result = 'Pass' if score >= 50 else 'Fail'`",
+      "options": ["`'Pass'`", "`'Fail'`", "`True`", "`45`"],
       "correctAnswer": 1,
-      "explanation": "Since 45 is NOT >= 50, the condition is False, so the value after 'else' ('Fail') is assigned to result."
+      "explanation": "Since `45` is NOT `>= 50`, the condition is `False`, so the value after `else` (`'Fail'`) is assigned to `result`."
     },
     {
       "id": "m3l4_q3",
-      "question": "When should you use a ternary operator instead of if/else?",
+      "question": "When should you use a ternary operator instead of `if/else`?",
       "options": [
         "Always - it's always better",
         "For simple two-way choices that assign a value",
@@ -122,31 +122,31 @@
         "When you have more than two conditions"
       ],
       "correctAnswer": 1,
-      "explanation": "Ternary operators are best for simple, two-way choices that result in assigning a value. For complex logic or multiple conditions (elif), use traditional if/elif/else for better readability."
+      "explanation": "Ternary operators are best for simple, two-way choices that result in assigning a value. For complex logic or multiple conditions (`elif`), use traditional `if/elif/else` for better readability."
     },
     {
       "id": "m3l5_q1",
       "question": "What will the following code print?\n\n```python\nfruits = ['apple', 'banana', 'orange']\nif 'grape' in fruits:\n    print('Found it!')\nelse:\n    print('Not found!')\n```",
       "options": [
-        "Found it!",
-        "Not found!",
-        "grape",
+        "`Found it!`",
+        "`Not found!`",
+        "`grape`",
         "The code will cause an error"
       ],
       "correctAnswer": 1,
-      "explanation": "The code prints 'Not found!' because 'grape' is not in the fruits list. The `in` operator returns False, so the else block executes."
+      "explanation": "The code prints `'Not found!'` because `'grape'` is not in the `fruits` list. The `in` operator returns `False`, so the `else` block executes."
     },
     {
       "id": "m3l5_q2",
       "question": "Which of the following will evaluate to `True`?",
       "options": [
-        "user = 'admin'\nif user not in ['admin', 'moderator']:",
-        "email = 'user@gmail.com'\nif '@' in email:",
-        "numbers = [1, 2, 3, 4]\nif 5 in numbers:",
-        "roles = ('viewer', 'editor')\nif 'admin' in roles:"
+        "`user = 'admin'`\n`if user not in ['admin', 'moderator']:`",
+        "`email = 'user@gmail.com'`\n`if '@' in email:`",
+        "`numbers = [1, 2, 3, 4]`\n`if 5 in numbers:`",
+        "`roles = ('viewer', 'editor')`\n`if 'admin' in roles:`"
       ],
       "correctAnswer": 1,
-      "explanation": "Option B evaluates to True because the '@' character is present in the string 'user@gmail.com'. The `in` operator works with strings to check for substrings. Option A is False (admin IS in the list), Option C is False (5 is not in the list), and Option D is False (admin is not in the tuple)."
+      "explanation": "Option B evaluates to `True` because the `'@'` character is present in the string `'user@gmail.com'`. The `in` operator works with strings to check for substrings."
     },
     {
       "id": "m3l5_q3",
@@ -158,7 +158,7 @@
         "To join multiple strings together into one string"
       ],
       "correctAnswer": 1,
-      "explanation": "Membership operators are specifically designed to check whether a value is present (`in`) or absent (`not in`) within a sequence like a list, tuple, or string. They return a Boolean value (True or False) and are commonly used in conditional statements to control program flow."
+      "explanation": "Membership operators are specifically designed to check whether a value is present (`in`) or absent (`not in`) within a sequence like a list, tuple, or string. They return a Boolean value (`True` or `False`)."
     }
   ]
 }

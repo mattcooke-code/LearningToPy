@@ -5,6 +5,7 @@ export { default as ErrorState } from "./ErrorState";
 export { default as LeaderboardRow } from "./LeaderboardRow";
 export { default as LevelProgressBar } from "./LevelProgressBar";
 export { default as LoadingState } from "./LoadingState";
+export { default as MarkdownRenderer } from "./MarkdownRenderer";
 export { default as Pagination } from "./Pagination";
 export { default as ProgressGauge } from "./ProgressGauge";
 export { default as RefreshButton } from "./RefreshButton";

@@ -1,22 +1,19 @@
 {
   "title": "Student Grade Calculator",
-  "instructions": "You're building a grade calculator for a teacher. Write a program that checks a student's score and prints their letter grade. Remember: Python checks conditions from top to bottom and stops at the first True condition!",
+  "instructions": "You're building a grade calculator for a teacher. Write an `if-elif-else` chain that checks a student's score and prints their letter grade based on the following scale:\n\n| Score Range | Grade |\n| :--- | :--- |\n| 90 or higher | A |\n| 80 to 89 | B |\n| 70 to 79 | C |\n| 60 to 69 | D |\n| Below 60 | F |\n\nRemember: Python checks conditions from top to bottom and stops at the first `True` condition!",
   "steps": [
-    "**Step 1:** Write an `if` statement to check if `student_score` is greater than or equal to 90. If True, print 'Grade: A'.",
-    "**Step 2:** Add an `elif` statement to check if `student_score` is greater than or equal to 80. If True, print 'Grade: B'.",
-    "**Step 3:** Add another `elif` statement to check if `student_score` is greater than or equal to 70. If True, print 'Grade: C'.",
-    "**Step 4:** Add a final `elif` statement to check if `student_score` is greater than or equal to 60. If True, print 'Grade: D'.",
-    "**Step 5:** Add an `else` statement that runs if none of the above conditions are met, printing 'Grade: F'."
+    "**Step 1:** Create an `if` statement to check for a score of 90 or higher and print `'Grade: A'`.",
+    "**Step 2:** Use `elif` statements to check for scores of 80, 70, and 60 respectively, printing the correct grade for each.",
+    "**Step 3:** Add a final `else` statement to catch any scores below 60 and print `'Grade: F'`."
   ],
   "starterCode": "# Student's test score\nstudent_score = 75\n\nprint(f\"Student scored: {student_score}\")\n\n# Write your if-elif-else chain below:\n\n",
   "solution": "# Student's test score\nstudent_score = 75\n\nprint(f\"Student scored: {student_score}\")\n\n# Write your if-elif-else chain below:\nif student_score >= 90:\n    print('Grade: A')\nelif student_score >= 80:\n    print('Grade: B')\nelif student_score >= 70:\n    print('Grade: C')\nelif student_score >= 60:\n    print('Grade: D')\nelse:\n    print('Grade: F')",
   "hints": [
     "**Syntax reminder:** Every `if`, `elif`, and `else` statement must end with a colon `:` and the code below must be indented (4 spaces).",
-    "**Order matters!** Always check from highest to lowest. If you check `>= 70` before `>= 90`, a score of 95 would incorrectly get a C!",
-    "**Indentation:** Make sure all your print statements are indented 4 spaces under their conditions. Python uses indentation to know which code belongs to which condition.",
-    "**The >= operator:** This means 'greater than OR equal to'. So `score >= 90` is True for 90, 91, 92, etc.",
-    "**else is the catch-all:** The else block runs only if ALL previous conditions were False. No need to write a condition for else!",
-    "**Testing tip:** Try changing `student_score` to different values (like 95, 82, 55) to see if your code handles all cases correctly!"
+    "**Order matters!** Python stops at the first `True` match. If you check `>= 60` first, a score of 95 would trigger that and stop, giving the student a 'D' instead of an 'A'!",
+    "**The >= operator:** This means 'greater than OR equal to'. So `student_score >= 90` is `True` for 90, 91, 92, etc.",
+    "**No condition for else:** The `else` block is a catch-all. It doesn't need its own comparison (like `else student_score < 60:`) because it only runs if everything above it failed.",
+    "**Indentation:** Make sure all your `print()` statements are indented under their conditions. Python uses this space to know which code 'belongs' to which block."
   ],
   "expectedOutput": "Student scored: 75\nGrade: C",
   "tags": ["if", "elif", "else", "control-flow", "conditionals"],

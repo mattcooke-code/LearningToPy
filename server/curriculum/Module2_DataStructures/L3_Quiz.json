@@ -5,24 +5,24 @@
       "question": "What is the difference between `my_list.append('item')` and `my_list.extend(['item'])`?",
       "options": [
         "They do exactly the same thing",
-        "append() adds the string 'item', extend() adds each character separately",
-        "append() adds one item to the end, extend() adds each element from the list",
-        "append() creates a new list, extend() modifies the original"
+        "`append()` adds the string 'item', `extend()` adds each character separately",
+        "`append()` adds one item to the end, `extend()` adds each element from the list",
+        "`append()` creates a new list, `extend()` modifies the original"
       ],
       "correctAnswer": 2,
-      "explanation": "append() adds its argument as a single item (even if it's a list), while extend() iterates through the iterable and adds each element individually. So append(['A', 'B']) adds one list, while extend(['A', 'B']) adds two separate items."
+      "explanation": "`append()` adds its argument as a single item (even if it's a list), while `extend()` iterates through the iterable and adds each element individually. So `append(['A', 'B'])` adds one list, while `extend(['A', 'B'])` adds two separate items."
     },
     {
       "id": "m2l3_q2",
       "question": "Given `numbers = [10, 20, 30]`, what does `numbers.insert(1, 15)` do?",
       "options": [
-        "Replaces the item at index 1 with 15",
-        "Inserts 15 at index 1, shifting existing items to the right",
-        "Adds 15 to the end of the list",
+        "Replaces the item at index 1 with `15`",
+        "Inserts `15` at index 1, shifting existing items to the right",
+        "Adds `15` to the end of the list",
         "Causes an error because index 1 already exists"
       ],
       "correctAnswer": 1,
-      "explanation": "insert() places the new item at the specified index and shifts all existing items to the right. So numbers becomes [10, 15, 20, 30]. The item that was at index 1 (20) moves to index 2."
+      "explanation": "`insert()` places the new item at the specified index and shifts all existing items to the right. So `numbers` becomes `[10, 15, 20, 30]`. The item that was at index 1 `20` moves to index 2."
     },
     {
       "id": "m2l3_q3",

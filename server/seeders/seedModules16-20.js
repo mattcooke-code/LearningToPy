@@ -7,19 +7,15 @@ const seedModules16to20 = async (
   readContent,
   parseJSONContent,
   options = {},
-  seedConfig = {}
+  seedConfig = {},
 ) => {
   console.log("🚀 Seeding Modules 16-20 with config:", {
     batchSize: seedConfig.batchSize,
     modules: seedConfig.modules || "all",
   });
 
-  const {
-    module2_id = null,
-    module4_id = null,
-    module5_id = null,
-    module7_id = null,
-  } = options;
+  // Only need the immediate prerequisite (Module 15)
+  const { module15_id = null } = options;
 
   //  ======================================
   // || MODULE 16: HTTP REQUESTS & APIs ||
@@ -36,7 +32,7 @@ const seedModules16to20 = async (
     difficulty: "advanced",
     estimatedHours: 4.0,
     isPublished: true,
-    prerequisites: [module2_id, module5_id, module7_id].filter(Boolean),
+    prerequisites: module15_id ? [module15_id] : [], // Clean conditional
     learningObjectives: [
       "HTTP Methods",
       "JSON Parsing",
@@ -113,7 +109,7 @@ const seedModules16to20 = async (
     difficulty: "advanced",
     estimatedHours: 5.0,
     isPublished: true,
-    prerequisites: [module2_id, module5_id, module4_id].filter(Boolean),
+    prerequisites: [module16._id], // Only immediate prerequisite
     learningObjectives: [
       "NumPy ndarrays",
       "Vectorized math",
@@ -190,7 +186,7 @@ const seedModules16to20 = async (
     difficulty: "advanced",
     estimatedHours: 3.5,
     isPublished: true,
-    prerequisites: [module16._id],
+    prerequisites: [module17._id], // Only immediate prerequisite
     learningObjectives: [
       "HTML/DOM",
       "Parsing with BS4",
@@ -268,7 +264,7 @@ const seedModules16to20 = async (
     difficulty: "advanced",
     estimatedHours: 3.0,
     isPublished: true,
-    prerequisites: module7_id ? [module7_id] : [],
+    prerequisites: [module18._id], // Only immediate prerequisite
     learningObjectives: [
       "SQL Basics",
       "sqlite3 module",
@@ -337,7 +333,7 @@ const seedModules16to20 = async (
     difficulty: "advanced",
     estimatedHours: 6.0,
     isPublished: true,
-    prerequisites: [module16._id, module17._id, module18._id, module19._id],
+    prerequisites: [module19._id], // Only immediate prerequisite
     learningObjectives: [
       "App Design",
       "argparse",
@@ -358,7 +354,7 @@ const seedModules16to20 = async (
       parseJSONContent,
       m20Folder,
       "L1_Final_Project.json",
-      "exercise"
+      "exercise",
     ),
     isPublished: true,
   });

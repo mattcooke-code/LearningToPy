@@ -15,7 +15,7 @@
     "**Tuple concatenation:** Use the + operator to combine tuples: `tuple1 + tuple2` creates a new tuple with all elements.",
     "**Remember:** Tuples use parentheses () when created, but square brackets [] when accessing elements!",
     "**Why tuples here?** Coordinates shouldn't accidentally change in your game - that's why tuples are perfect! You can't accidentally modify them.",
-    "**Common mistake:** Don't try to modify tuple values like `player_position[0] = 100` - this will cause a TypeError because tuples are immutable!"
+    "**Common mistake:** Don't try to modify tuple values like `player_position[0] = 100` - this will cause a `TypeError` because tuples are immutable!"
   ],
   "expectedOutput": "Player position: (150, 200)\nMap info: ('Forest Level', 800, 600)\n\nPlayer X coordinate: 150\nPlayer Y coordinate: 200\nMap size (width, height): (800, 600)\nCheckpoint data: (150, 200, 12, 30, 45)",
   "tags": [

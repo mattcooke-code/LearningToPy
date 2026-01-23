@@ -199,7 +199,7 @@ const seedModules1to5 = async (
     difficulty: "beginner",
     estimatedHours: 2,
     isPublished: true,
-    prerequisites: [module1._id],
+    prerequisites: [module2._id],
     learningObjectives: [
       "Write conditional logic",
       "Use comparison operators",
@@ -284,7 +284,7 @@ const seedModules1to5 = async (
     difficulty: "beginner",
     estimatedHours: 2.5,
     isPublished: true,
-    prerequisites: [module2._id, module3._id],
+    prerequisites: [module3._id],
     learningObjectives: ["For loops", "While loops", "Break and Continue"],
     icon: "🔁",
     xpReward: 130,
@@ -365,7 +365,7 @@ const seedModules1to5 = async (
     difficulty: "beginner",
     estimatedHours: 2.5,
     isPublished: true,
-    prerequisites: [module2._id],
+    prerequisites: [module4._id],
     learningObjectives: [
       "Dictionary manipulation",
       "Set operations",

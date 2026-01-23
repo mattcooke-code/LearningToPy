@@ -2,34 +2,34 @@
   "questions": [
     {
       "id": "m3l1_q1",
-      "question": "What happens if the condition in an `if` statement is False and there is no `else` block?",
+      "question": "What happens if the condition in an `if` statement is `False` and there is no `else` block?",
       "options": [
         "Python raises an error",
         "The program terminates",
-        "Python skips the if block and continues with the next line of code",
-        "Python executes the if block anyway"
+        "Python skips the `if` block and continues with the next line of code",
+        "Python executes the `if` block anyway"
       ],
       "correctAnswer": 2,
-      "explanation": "If the condition is False and there's no else block, Python simply skips the indented code under the if statement and continues executing the next line after it. No error occurs."
+      "explanation": "If the condition is `False` and there's no `else` block, Python simply skips the indented code under the `if` statement and continues executing the next line after it. No error occurs."
     },
     {
       "id": "m3l1_q2",
-      "question": "In an if-elif-else chain, what happens when the first condition is True?",
+      "question": "In an `if-elif-else` chain, what happens when the first condition is `True`?",
       "options": [
         "Python executes all the blocks to check for other matches",
-        "Python executes only that block and skips all elif and else blocks",
-        "Python raises an error if there are elif blocks below",
-        "Python executes both the if block and the else block"
+        "Python executes only that block and skips all `elif` and `else` blocks",
+        "Python raises an error if there are `elif` blocks below",
+        "Python executes both the `if` block and the `else` block"
       ],
       "correctAnswer": 1,
-      "explanation": "Python evaluates conditions from top to bottom. As soon as it finds a True condition, it executes that block and skips all remaining elif and else blocks. This is why the order of conditions matters."
+      "explanation": "Python evaluates conditions from top to bottom. As soon as it finds a `True` condition, it executes that block and skips all remaining `elif` and `else` blocks. This is why the order of conditions matters."
     },
     {
       "id": "m3l1_q3",
-      "question": "What will this code print? `score = 85\nif score >= 90:\n    print('A')\nelif score >= 80:\n    print('B')\nelse:\n    print('C')`",
-      "options": ["'A'", "'B'", "'C'", "Nothing - it will error"],
+      "question": "What will this code print? \n\n`score = 85` \n`if score >= 90:` \n`    print('A')` \n`elif score >= 80:` \n`    print('B')` \n`else:` \n`    print('C')`",
+      "options": ["`'A'`", "`'B'`", "`'C'`", "Nothing - it will error"],
       "correctAnswer": 1,
-      "explanation": "The score is 85. The first condition (score >= 90) is False, so Python checks the elif condition (score >= 80), which is True. It prints 'B' and skips the else block."
+      "explanation": "The `score` is `85`. The first condition (`score >= 90`) is `False`, so Python checks the `elif` condition (`score >= 80`), which is `True`. It prints `'B'` and skips the `else` block."
     }
   ]
 }

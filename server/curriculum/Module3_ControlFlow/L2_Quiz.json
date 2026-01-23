@@ -10,26 +10,26 @@
         "`==` only works with numbers, `=` works with all types"
       ],
       "correctAnswer": 1,
-      "explanation": "The single equals sign `=` is used to assign a value to a variable (e.g., x = 5). The double equals `==` is used to compare two values and returns True or False (e.g., x == 5)."
+      "explanation": "The single equals sign `=` is used to assign a value to a variable (e.g., `x = 5`). The double equals `==` is used to compare two values and returns `True` or `False` (e.g., `x == 5`)."
     },
     {
       "id": "m3l2_q2",
-      "question": "What does the expression `True and False` evaluate to?",
-      "options": ["True", "False", "None", "Error"],
+      "question": "If a game checks `has_key = True` and `is_door_locked = False`, what does the expression `has_key and is_door_locked` evaluate to?",
+      "options": ["`True`", "`False`", "`None`", "Error"],
       "correctAnswer": 1,
-      "explanation": "The `and` operator requires BOTH conditions to be True for the result to be True. Since one side is False, the entire expression evaluates to False."
+      "explanation": "Even though `has_key` is `True`, the `and` operator requires BOTH sides to be `True`. Since `is_door_locked` is `False`, the entire expression evaluates to `False`. It's like saying: 'I have the key AND the door is locked'—that statement is only true if both facts are true!"
     },
     {
       "id": "m3l2_q3",
-      "question": "Given `x = 15`, which expression is True?",
+      "question": "Given `x = 15`, which expression is `True`?",
       "options": [
-        "10 < x < 20",
-        "x > 20 or x < 10",
-        "not (x > 10)",
-        "x == 10 and x == 15"
+        "`10 < x < 20`",
+        "`x > 20 or x < 10`",
+        "`not (x > 10)`",
+        "`x == 10 and x == 15`"
       ],
       "correctAnswer": 0,
-      "explanation": "The chained comparison `10 < x < 20` checks if x is greater than 10 AND less than 20. Since 15 is between 10 and 20, this is True. The other options are all False."
+      "explanation": "The chained comparison `10 < x < 20` checks if `x` is greater than `10` AND less than `20`. Since `15` is between `10` and `20`, this is `True`."
     }
   ]
 }

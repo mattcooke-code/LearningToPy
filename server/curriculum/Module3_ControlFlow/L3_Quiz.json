@@ -4,20 +4,20 @@
       "id": "m3l3_q1",
       "question": "Which of the following values is Falsy in Python?",
       "options": [
-        "The string 'False'",
-        "The number -1",
-        "An empty list []",
-        "The string '0'"
+        "The string `'False'`",
+        "The number `-1`",
+        "An empty list `[]`",
+        "The string `'0'`"
       ],
       "correctAnswer": 2,
-      "explanation": "An empty list [] is Falsy. The string 'False' is actually Truthy (non-empty string), -1 is Truthy (non-zero number), and '0' is Truthy (non-empty string). Remember: empty sequences are Falsy!"
+      "explanation": "An empty list `[]` is Falsy. The string `'False'` is actually Truthy (non-empty string), `-1` is Truthy (non-zero number), and `'0'` is Truthy (non-empty string). Remember: empty sequences are Falsy!"
     },
     {
       "id": "m3l3_q2",
-      "question": "What will this code print? `username = ''\nif username:\n    print('Hello')\nelse:\n    print('Please log in')`",
-      "options": ["'Hello'", "'Please log in'", "Nothing", "Error"],
+      "question": "What will this code print? \n\n`username = ''` \n`if username:` \n`    print('Hello')` \n`else:` \n`    print('Please log in')`",
+      "options": ["`'Hello'`", "`'Please log in'`", "Nothing", "Error"],
       "correctAnswer": 1,
-      "explanation": "An empty string '' is Falsy, so the if condition evaluates to False and the else block runs, printing 'Please log in'. This is a clean way to check if a string has content."
+      "explanation": "An empty string `''` is Falsy, so the `if` condition evaluates to `False` and the `else` block runs, printing `'Please log in'`. This is a clean way to check if a string has content."
     },
     {
       "id": "m3l3_q3",
@@ -25,11 +25,11 @@
       "options": [
         "If the list exists",
         "If the list is empty",
-        "If the list contains False",
+        "If the list contains `False`",
         "If the list has exactly one item"
       ],
       "correctAnswer": 1,
-      "explanation": "The expression `if not my_list:` checks if the list is empty. An empty list [] is Falsy, so `not []` becomes True. This is a Pythonic way to check for empty lists without needing to check the length."
+      "explanation": "The expression `if not my_list:` checks if the list is empty. An empty list `[]` is Falsy, so `not []` becomes `True`. This is a Pythonic way to check for empty lists without needing to check `len()`."
     }
   ]
 }

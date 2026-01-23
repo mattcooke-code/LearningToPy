@@ -8,6 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { apiClient } from "../../context";
+import { MarkdownRenderer } from "../ui";
 import {
   areAllQuestionsAnswered,
   resetQuestionState,
@@ -174,9 +175,9 @@ const QuizComponent = ({
                 ))}
             </div>
 
-            <p className="text-lg font-medium text-gray-900 mb-6">
-              {q.question}
-            </p>
+            <div className="text-lg font-medium text-gray-900 mb-6">
+              <MarkdownRenderer content={q.question} />
+            </div>
 
             <div className="grid grid-cols-1 gap-3">
               {q.options.map((option, oIdx) => {
@@ -195,7 +196,7 @@ const QuizComponent = ({
                     disabled={showResults || isSubmitting}
                     className={`text-left p-4 rounded-lg border-2 transition-all ${btnClass}`}
                   >
-                    {option}
+                    <MarkdownRenderer content={option} />
                   </button>
                 );
               })}

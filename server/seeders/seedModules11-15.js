@@ -6,14 +6,14 @@ const seedModules11to15 = async (
   readContent,
   parseJSONContent,
   options = {},
-  seedConfig = {}
+  seedConfig = {},
 ) => {
   console.log("🚀 Seeding Modules 11-15 with config:", {
     batchSize: seedConfig.batchSize,
     modules: seedConfig.modules || "all",
   });
 
-  const { module10_id = null, module1_id = null } = options;
+  const { module10_id = null } = options;
 
   //  ===============================================
   // || MODULE 11: OBJECT-ORIENTED PROGRAMMING (OOP) I ||

@@ -9,7 +9,7 @@ const seedAllModules = async (
   Module,
   readContent,
   parseJSONContent,
-  seedConfig = {}
+  seedConfig = {},
 ) => {
   try {
     console.log("🌱 Starting comprehensive curriculum seeding...");
@@ -21,7 +21,7 @@ const seedAllModules = async (
     const updateProgress = () => {
       processedBatches++;
       console.log(
-        `📊 Progress: ${processedBatches}/${totalBatches} batches completed`
+        `📊 Progress: ${processedBatches}/${totalBatches} batches completed`,
       );
     };
 
@@ -32,7 +32,7 @@ const seedAllModules = async (
       Module,
       readContent,
       parseJSONContent,
-      seedConfig
+      seedConfig,
     );
     updateProgress();
 
@@ -44,7 +44,7 @@ const seedAllModules = async (
       readContent,
       parseJSONContent,
       {}, // No prerequisites for Batch 1
-      seedConfig
+      seedConfig,
     );
     updateProgress();
 
@@ -55,11 +55,8 @@ const seedAllModules = async (
       Module,
       readContent,
       parseJSONContent,
-      {
-        module1_id: m1._id,
-        module4_id: m4._id,
-      },
-      seedConfig
+      { module5_id: m5._id },
+      seedConfig,
     );
     updateProgress();
 
@@ -70,10 +67,8 @@ const seedAllModules = async (
       Module,
       readContent,
       parseJSONContent,
-      {
-        module10_id: m10._id, // OOP I requires Module 10
-      },
-      seedConfig
+      { module10_id: m10._id },
+      seedConfig,
     );
     updateProgress();
 
@@ -84,14 +79,8 @@ const seedAllModules = async (
       Module,
       readContent,
       parseJSONContent,
-      {
-        module1_id: m1._id,
-        module2_id: m2._id,
-        module4_id: m4._id,
-        module5_id: m5._id,
-        module7_id: m7._id,
-      },
-      seedConfig
+      { module15_id: m15._id },
+      seedConfig,
     );
     updateProgress();
 
@@ -110,7 +99,7 @@ const seedAllModules = async (
     const moduleCount = await Module.countDocuments();
     const lessonCount = await Lesson.countDocuments();
     console.log(
-      `📊 Final Count: ${moduleCount} modules and ${lessonCount} lessons created.`
+      `📊 Final Count: ${moduleCount} modules and ${lessonCount} lessons created.`,
     );
 
     return result;

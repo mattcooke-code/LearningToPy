@@ -1,23 +1,21 @@
 {
   "title": "User Profile Validator",
-  "instructions": "You're building a user profile system. Use truthiness to check if profile fields have values without using comparison operators. This makes your code cleaner and more 'Pythonic'!",
+  "instructions": "You're building a user profile system. In Python, you don't need to compare variables to empty values (like `if name == ''`). Instead, you can use the variable directly! Use this 'Truthiness' guide to complete the validator:\n\n| If you want to check... | Pythonic Pattern | Logic |\n| :--- | :--- | :--- |\n| If it has content | `if variable:` | True if not empty/zero |\n| If it is empty/zero | `if not variable:` | True if empty/zero |\n\nPractice checking for **presence** (is it there?) and **absence** (is it missing?) using these shortcuts.",
   "steps": [
-    "**Step 1:** Check if the user provided a username. Use `if username:` to check if the string is NOT empty. If it has content, print 'Username: ' followed by the username. Otherwise, print 'Error: Username required'.",
-    "**Step 2:** Check if the user has any friends. Use `if friends_list:` to check if the list is NOT empty. If it has items, print 'You have friends!'. Otherwise, print 'No friends yet'.",
-    "**Step 3:** Check if the user's account balance is zero. Use `if not balance:` to check if balance is Falsy (zero). If it's zero, print 'Please add funds'. Otherwise, print 'Balance: ' followed by the balance.",
-    "**Step 4:** Check if the user has selected a profile picture. Use `if profile_pic:` to check if it's NOT None. If they selected one, print 'Profile pic: ' followed by the filename. Otherwise, print 'No profile picture'."
+    "**Step 1 (Example):** Check for a username. If `username` has content, print it. (See starter code).",
+    "**Step 2:** Check the `friends_list`. Use `if friends_list:` to check if it has items. If True, print `'You have friends!'`. Otherwise, print `'No friends yet'`.",
+    "**Step 3:** Check for an empty `balance`. Use `if not balance:` to see if it's zero. If it is zero, print `'Please add funds'`. Otherwise, print the balance.",
+    "**Step 4:** Check for a `profile_pic`. Use `if profile_pic:` to see if it contains a value (is not `None`). If True, print the filename. Otherwise, print `'No profile picture'`."
   ],
-  "starterCode": "# User profile data\nusername = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\nprint(\"👤 USER PROFILE VALIDATOR\")\nprint()\n\n# Step 1: Check if username is not empty (Truthy)\nif username:\n    print(f\"Username: {username}\")\nelse:\n    print(\"Error: Username required\")\n\n# Step 2: Check if friends_list is not empty (Truthy)\n\n\n# Step 3: Check if balance is zero (Falsy)\n\n\n# Step 4: Check if profile_pic is not None (Truthy)\n",
-  "solution": "# User profile data\nusername = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\nprint(\"👤 USER PROFILE VALIDATOR\")\nprint()\n\n# Step 1: Check if username is not empty (Truthy)\nif username:\n    print(f\"Username: {username}\")\nelse:\n    print(\"Error: Username required\")\n\n# Step 2: Check if friends_list is not empty (Truthy)\nif friends_list:\n    print(\"You have friends!\")\nelse:\n    print(\"No friends yet\")\n\n# Step 3: Check if balance is zero (Falsy)\nif not balance:\n    print(\"Please add funds\")\nelse:\n    print(f\"Balance: ${balance}\")\n\n# Step 4: Check if profile_pic is not None (Truthy)\nif profile_pic:\n    print(f\"Profile pic: {profile_pic}\")\nelse:\n    print(\"No profile picture\")",
+  "starterCode": "# User profile data\nusername = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\nprint(\"👤 USER PROFILE VALIDATOR\")\nprint()\n\n# Step 1: Pattern Example (Checking for content)\nif username:\n    print(f\"Username: {username}\")\nelse:\n    print(\"Error: Username required\")\n\n# Step 2: Check if friends_list has items (Truthy)\n\n\n# Step 3: Check if balance is zero (Falsy using 'not')\n\n\n# Step 4: Check if profile_pic exists (Truthy)\n",
+  "solution": "# User profile data\nusername = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\nprint(\"👤 USER PROFILE VALIDATOR\")\nprint()\n\n# Step 1: Pattern Example\nif username:\n    print(f\"Username: {username}\")\nelse:\n    print(\"Error: Username required\")\n\n# Step 2: Check if friends_list has items\nif friends_list:\n    print(\"You have friends!\")\nelse:\n    print(\"No friends yet\")\n\n# Step 3: Check if balance is zero\nif not balance:\n    print(\"Please add funds\")\nelse:\n    print(f\"Balance: ${balance}\")\n\n# Step 4: Check if profile_pic exists\nif profile_pic:\n    print(f\"Profile pic: {profile_pic}\")\nelse:\n    print(\"No profile picture\")",
   "hints": [
-    "**Truthiness basics:** You DON'T need to write `if username != ''` or `if friends_list != []`. Just write `if username:` or `if friends_list:`. Python knows empty = False!",
-    "**Falsy values to remember:** Empty strings (''), empty lists ([]), zero (0), and None are all Falsy. Everything else is Truthy!",
-    "**The 'not' keyword:** When you want to check if something IS empty or zero, use `if not variable:`. This reads naturally: 'if NOT balance' means 'if balance is zero'.",
-    "**Why this is better:** Instead of `if username != ''`, writing `if username:` is shorter, cleaner, and more Pythonic. It's the style professional Python developers use!",
-    "**Testing different scenarios:** Try changing the values at the top. Set username = '', friends_list = ['Alice'], balance = 100, profile_pic = 'photo.jpg' and see how your code responds!",
-    "**None is special:** None is Python's way of saying 'nothing' or 'no value'. It's always Falsy, so `if not profile_pic:` will be True when profile_pic is None."
+    "**No operators needed:** Avoid using `==` or `!=` in this exercise. The goal is to use the 'Truthiness' of the variables themselves.",
+    "**The 'not' shortcut:** `if not balance:` is the same as saying 'if balance is zero'. It's very common in Python for checking empty states.",
+    "**None is Falsy:** Just like an empty string, `None` evaluates to `False`. So `if profile_pic:` will only run if there is an actual filename stored there.",
+    "**Printing variables:** When printing the balance in Step 3, remember to use an f-string like `f\"Balance: {balance}\"` to combine the text and the number."
   ],
   "expectedOutput": "👤 USER PROFILE VALIDATOR\n\nUsername: alex_2024\nNo friends yet\nPlease add funds\nNo profile picture",
-  "tags": ["truthiness", "falsiness", "control-flow", "pythonic-code"],
+  "tags": ["truthiness", "falsiness", "control-flow"],
   "challengeGroup": "conditional-logic"
 }

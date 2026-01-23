@@ -1,28 +1,22 @@
 {
   "title": "Gaming Platform Access Control",
-  "instructions": "Build a complete access control system for a gaming platform. Write an if/elif/else chain that determines user access based on their account type and account age. Read the rules carefully and test each scenario!",
+  "instructions": "You're building the login gateway for a gaming platform. You must use an `if-elif-else` chain to verify access levels. Follow this logic table to secure the system:\n\n| Member Type | Condition | System Message |\n| :--- | :--- | :--- |\n| **VIP** | `account_type == 'VIP'` | 'Welcome VIP! Full access to all games and features.' |\n| **Premium (Old)** | `Premium` AND 30+ days | 'Welcome Premium member! Access to premium games unlocked.' |\n| **Premium (New)** | `Premium` AND < 30 days | 'Welcome! Premium features unlock in X days.' |\n| **Free/Other** | Everything else | 'Welcome! You have access to free games. Upgrade for more!' |",
   "steps": [
-    "Write an `if` statement to check if account_type equals 'VIP'. If true, print the VIP welcome message.",
-    "Add an `elif` to check if account_type is 'Premium' AND account_age is 30 or more. Print the established premium message.",
-    "Add another `elif` to check if account_type is 'Premium' AND account_age is less than 30. Calculate days_remaining (30 - account_age) and print a message showing when features unlock.",
-    "Add a final `else` block for free/standard members. Print the free member welcome message."
+    "**Step 1:** Create an `if` statement to check if `account_type` is exactly `'VIP'`. If True, print the VIP welcome message.",
+    "**Step 2:** Add an `elif` to check if `account_type` is `'Premium'` AND `account_age` is 30 or more. Print the unlocked premium message.",
+    "**Step 3:** Add another `elif` to check if `account_type` is `'Premium'` (this covers the newer members). Use an f-string to print how many days are left: `{30 - account_age}`.",
+    "**Step 4:** Finish with an `else` block to handle `'Free'` members or any other unexpected account types."
   ],
-  "starterCode": "# Test Case 1: VIP member with 10 days\naccount_type = 'VIP'\naccount_age = 10\n\n# Write your if/elif/else structure below:\n\n\n# After you get this working, test these other cases:\n# Test Case 2: Premium with 45 days\n# account_type = 'Premium'\n# account_age = 45\n\n# Test Case 3: Premium with 15 days\n# account_type = 'Premium'\n# account_age = 15\n\n# Test Case 4: Free member\n# account_type = 'Free'\n# account_age = 5\n",
-  "solution": "# Test Case 1: VIP member with 10 days\naccount_type = 'VIP'\naccount_age = 10\n\n# Write your if/elif/else structure below:\nif account_type == 'VIP':\n    print('Welcome VIP! Full access to all games and features.')\nelif account_type == 'Premium' and account_age >= 30:\n    print('Welcome Premium member! Access to premium games unlocked.')\nelif account_type == 'Premium' and account_age < 30:\n    days_remaining = 30 - account_age\n    print(f'Welcome! Premium features unlock in {days_remaining} days.')\nelse:\n    print('Welcome! You have access to free games. Upgrade for more!')\n\n# After you get this working, test these other cases:\n# Test Case 2: Premium with 45 days\n# account_type = 'Premium'\n# account_age = 45\n\n# Test Case 3: Premium with 15 days\n# account_type = 'Premium'\n# account_age = 15\n\n# Test Case 4: Free member\n# account_type = 'Free'\n# account_age = 5",
+  "starterCode": "# User login data\naccount_type = 'Premium'\naccount_age = 15\n\nprint(\"🎮 GAMING PLATFORM LOGIN\")\nprint(f\"Account Type: {account_type}\")\nprint(f\"Member for: {account_age} days\")\nprint()\n\n# Write your access control logic below:\n",
+  "solution": "# User login data\naccount_type = 'Premium'\naccount_age = 15\n\nprint(\"🎮 GAMING PLATFORM LOGIN\")\nprint(f\"Account Type: {account_type}\")\nprint(f\"Member for: {account_age} days\")\nprint()\n\n# Access Control Logic\nif account_type == 'VIP':\n    print('Welcome VIP! Full access to all games and features.')\nelif account_type == 'Premium' and account_age >= 30:\n    print('Welcome Premium member! Access to premium games unlocked.')\nelif account_type == 'Premium':\n    days_left = 30 - account_age\n    print(f'Welcome! Premium features unlock in {days_left} days.')\nelse:\n    print('Welcome! You have access to free games. Upgrade for more!')",
   "hints": [
-    "Start with the most specific condition first (VIP), then work your way to more general cases.",
-    "For Premium members, you need TWO separate elif statements - one for established accounts (>= 30 days) and one for new accounts (< 30 days).",
-    "Use the `and` operator to combine two conditions: `account_type == 'Premium' and account_age >= 30`",
-    "To calculate days_remaining: create a variable with `days_remaining = 30 - account_age`, then use it in your f-string.",
-    "The `else` block catches everyone who doesn't match the previous conditions - no condition needed after `else:`!",
-    "Don't forget colons `:` at the end of each if/elif/else line, and indent the code that should run for each condition."
+    "**Logic Order:** Python stops at the first `True` condition. Make sure you check for the established Premium members (30+ days) *before* you check for general Premium members.",
+    "**Combined Logic:** Use the `and` operator to check two things at once: `if account_type == 'Premium' and account_age >= 30:`.",
+    "**F-String Math:** You can do math right inside an f-string! Try: `f'Unlock in {30 - account_age} days.'`.",
+    "**Comparison Catch:** Remember that `==` is for comparing values, and `=` is for assigning them. If you get a SyntaxError, check your equals signs!",
+    "**Testing:** Change `account_age` to `45` and `account_type` to `'VIP'` in the starter code to make sure every branch of your code works!"
   ],
-  "tags": [
-    "project",
-    "if-elif-else",
-    "logical-operators",
-    "comparison-operators",
-    "multiple-conditions"
-  ],
+  "expectedOutput": "🎮 GAMING PLATFORM LOGIN\nAccount Type: Premium\nMember for: 15 days\n\nWelcome! Premium features unlock in 15 days.",
+  "tags": ["if-elif-else", "logical-operators", "project", "module-3"],
   "challengeGroup": "module-3-project"
 }
