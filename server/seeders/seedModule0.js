@@ -5,19 +5,15 @@ const seedModule0 = async (
   Module,
   readContent,
   parseJSONContent,
-  seedConfig = {}
+  seedConfig = {},
 ) => {
   console.log("📘 Creating Module 0: Getting Started Tutorial...");
 
   const m0Folder = "Module0_Tutorial";
 
-  let m0ReviewQuiz;
-  try {
-    m0ReviewQuiz = parseJSONContent(m0Folder, "M0_ReviewQuiz.json");
-  } catch (err) {
-    console.log("⚠️ No module quiz found for Module 0, continuing without it.");
-    m0ReviewQuiz = null;
-  }
+  const m0ReviewQuiz = parseJSONContent(m0Folder, "M0_ReviewQuiz.json");
+
+  console.log("Quiz parsed successfully:", m0ReviewQuiz.title);
 
   const module0 = await Module.create({
     title: "Getting Started Tutorial",
@@ -39,8 +35,7 @@ const seedModule0 = async (
     ],
     icon: "🎮",
     xpReward: 50,
-    // Only add moduleQuiz if it exists
-    ...(m0ReviewQuiz && { moduleQuiz: prepareQuizData(m0ReviewQuiz) }),
+    moduleQuiz: prepareQuizData(m0ReviewQuiz, true),
   });
 
   // Define lessons in order
@@ -76,9 +71,9 @@ const seedModule0 = async (
       type: "theory",
     },
     {
-      file: "L6_Keyboard_Shortcuts.md",
+      file: "L6_Coding_Locally.md",
       quiz: "L6_Quiz.json",
-      title: "Keyboard Shortcuts",
+      title: "Coding Locally",
       type: "theory",
     },
     {
@@ -110,7 +105,7 @@ const seedModule0 = async (
           parseJSONContent,
           m0Folder,
           lesson.quiz,
-          "quiz"
+          "quiz",
         );
       } catch (error) {
         console.log(`⚠️ No quiz found for ${lesson.title}: ${lesson.quiz}`);
@@ -124,7 +119,7 @@ const seedModule0 = async (
           parseJSONContent,
           m0Folder,
           lesson.ex,
-          "exercise"
+          "exercise",
         );
       } catch (error) {
         console.log(`⚠️ No exercise found for ${lesson.title}: ${lesson.ex}`);

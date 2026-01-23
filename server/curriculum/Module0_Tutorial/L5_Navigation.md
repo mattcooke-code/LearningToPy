@@ -1,169 +1,83 @@
 # Navigation & Progress 📊
 
-Learn how to move through the course, track your achievements, and understand the learning structure.
+Learn how to move through the course, track your achievements, and master the learning structure of the platform.
 
-## Course Structure
+Navigation & Progress 📊
+Learn how to move through the course, track your achievements, and master the learning structure of the platform.
 
-Your learning journey is organized into three levels:
+## The Learning Path
 
-### 1. **Modules** (Big Topics)
+Your journey to becoming a Python developer is organized into a clear hierarchy.
 
-┌──────────────────────┐
-│ Module 1: Fundamentals
-│ Module 2: Data Structures
-│ Module 3: Control Flow
-│ Module 4: Iteration
-│ ...and 16 more!
-└──────────────────────┘
+**1. Phases (The Big Picture)**
+The course is divided into three major Phases:
 
-**20 modules** total, grouped into 3 phases. Each module:
+• **Phase 1:** _Fundamentals (Modules 1-10)_: Master the basics like variables, loops, and functions.
 
-- Covers a major Python concept
-- Includes a final quiz to test your knowledge
-- Can be viewed on the Module page
+• **Phase 2: Intermediate** _(Modules 11-15)_: Dive into Object-Oriented Programming (OOP) and professional tooling.
 
-### 2. **Lessons** (Learning Units)
+• **Phase 3: Projects** _(Modules 16-20)_: Build real-world applications using APIs, Databases, and Data Science.
 
-Inside each module:
+**2. Modules (The Milestones)**
 
-Module 3: Control Flow
-├── Lesson 1: if Statements
-├── Lesson 2: Comparison Operators
-├── Lesson 3: Logical Operators
-├── Lesson 4: Ternary Operator
-├── Lesson 5: Membership Operators
-└── Lesson 6: Project
+Each Phase contains several Modules. A Module focuses on one specific topic (e.g., "Data Structures").
 
-- **5-6 lessons** per module
-- Mix of theory, exercises, and projects
-- Complete all lessons to unlock module quiz
+• To "complete" a module, you must finish all its lessons.
 
-### 3. **Content Types**
+• Completing all lessons unlocks the **Module Quiz**, which grants a large XP bonus!
 
-Each lesson has a specific type:
+**3. Lessons (The Daily Steps)**
+Inside each module are 5-6 lessons. These are your bite-sized learning units, consisting of:
 
-- **📚 Theory**: Learn concepts with explanations
-- **💻 Exercise**: Practice with coding challenges
-- **🏆 Project**: Build something real
-- **🔧 Guided Setup**: Install or configure tools
+• 📚 **Theory:** Learn concepts through interactive explanations and live code examples.
 
-## Progress Tracking
+• 💻 **Exercise:** Put theory into practice with coding challenges. You'll use the Run button to test and the Submit button to verify your solution.
 
-### Progress Bar
+• ❓ **Lesson Quiz:** After most exercises, a short quiz will appear. This confirms you've mastered the concept. You must pass the quiz to officially complete the lesson and earn your XP!
 
-At the top of each module page:
+• 🏆 **Project:** Larger, "Boss Level" challenges at the end of modules that combine everything you've learned into one working program.
 
-┌─────────────────────────────────────┐
-│ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 65% Complete │
-└─────────────────────────────────────┘
+## Tracking Your Growth
 
-- Shows percentage of lessons completed
-- Fills as you complete lessons
-- Module quiz unlocks at 100%
+**The Progress Bar**
 
-### Lesson Completion Badges
+![ProgressBar](./images/ProgressBar.PNG)
 
-[✔] Lesson 1: Variables
+Located at the top of every Module page, this bar fills up as you complete lessons. When it hits 100%, your Module Quiz is ready!
 
-[✔] Lesson 2: Data Types
+**Achievement Badges**
+We track your dedication through several visual cues:
 
-[ ] Lesson 3: Operators
+![LessonProgress](./images/LessonList.PNG)
 
-[ ] Lesson 4: Input/Output
+• **Green Checkmarks:** You’ve conquered this lesson! You can revisit it anytime.
 
-- Green checkmarks show completed lessons
-- Click any lesson to review it
-- Gray circles show incomplete lessons
+• **Locked Icons:** These lessons are up next. We recommend following the path in order.
 
-## Navigation Controls
+• **Review Mode:** Want to practice an old exercise without affecting your score? Toggle Review Mode on any completed lesson.
 
-### Module Navigation
+## Earning Rewards 🎁
 
-[ ← Previous ] [ Contents ] [ Next → ]
+As a gamified platform, your effort translates into tangible rewards:
 
-- **Previous/Next**: Move between modules
-- **Contents**: Return to module list
-- **Module Quiz**: Final test (unlocks when all lessons complete)
+• **XP (Experience Points):** Earned for every lesson, exercise, and quiz. Exercises and Projects pay out the most XP!
 
-### Lesson Navigation
+• **Streaks 🔥:** Learn at least one lesson every day to build your streak. Don't let the fire go out!
 
-[ ← Back to Lessons ] [ Run Code ] [ Next Lesson → ]
+• **Skill Badges 🏅:** Special achievements for milestones, such as:
 
-- **Back**: Return to lesson list
-- **Next Lesson**: Continue sequence
-- **Take Module Quiz**: Appears after final lesson
+    - *Quick Learner*: Finish 5 lessons in 24 hours.
 
-## Earning Rewards
+    - *Weekend Warrior*: Keep the grind going on Saturday and Sunday.
 
-### XP Points (Experience Points)
+    - *Bug Hunter*: Solve an exercise on your first try after an error.
 
-+25 XP Earned! 🎉
+## Tips for Success 💡
 
-- Earn XP for completing lessons
-- More XP for exercises and projects
-- Bonus XP for module quizzes
-- Track total on your profile
-
-### Badges 🏅
-
-Unlock achievements as you progress:
-
-- **Quick Learner**: Complete 5 lessons in one day
-- **Perfect Score**: Get 100% on a module quiz
-- **Code Marathon**: Complete an entire module
-- **Early Bird**: Start learning before 8 AM
-- **Weekend Warrior**: Learn on Saturday and Sunday
-
-### Streaks 🔥
-
-Current Streak: 7 days 🔥
-
-- Learn daily to maintain your streak
-- Visual motivation to keep going
-- Special badges for long streaks
-
-## Review Mode
-
-Already completed a lesson? You can:
-
-1. **Review**: Revisit any completed lesson
-2. **Practice**: Try exercises again
-3. **Retake Quizzes**: Improve your scores
-
-Access review mode from:
-
-- Lesson page (toggle switch)
-- Your profile page
-- Module completion page
-
-## Course Roadmap
-
-### Phase 1: Fundamentals (Modules 1-10)
-
-- Python basics, data types, control flow
-- Functions, file handling, error handling
-- **Goal**: Write basic Python programs
-
-### Phase 2: Intermediate (Modules 11-15)
-
-- Object-Oriented Programming (OOP)
-- Dates/times, regular expressions, tooling
-- **Goal**: Build structured applications
-
-### Phase 3: Projects (Modules 16-20)
-
-- APIs, data science, web scraping, databases
-- Final command-line tool project
-- **Goal**: Create portfolio-worthy applications
-
-## Tips for Success
-
-1. **Complete in order**: Lessons build on previous knowledge
-2. **Don't rush**: Take time to understand each concept
-3. **Practice**: Coding is a skill - the more you do it, the better you get
-4. **Ask for help**: Use the community features if stuck
-5. **Celebrate wins**: Every completed lesson is progress!
+1. **Follow the Sequence:** Lessons are designed to build on top of one another.
+2. **Use the Sidebar:** The sidebar allows you to jump between modules quickly if you need to refresh your memory on an old topic.
+3. **Check your Profile:** Visit your Profile page to see your total XP, current Level, and collected Badges.
 
 ## What's Next?
 
-In the next lesson, you'll learn keyboard shortcuts to code faster and navigate more efficiently!
+Now that you know how to navigate the "Game," it's time to learn how to take your skills off the platform. In the next lesson, we'll show you how to set up **Python on your own computer!**

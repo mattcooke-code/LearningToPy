@@ -1,72 +1,68 @@
 # The Code Editor ✨
 
-This is where the magic happens! The code editor is your workspace for writing Python programs. Let's explore its features.
+Welcome to your Python playground! The code editor is where you'll write, edit, and experiment with Python code. Let's explore its powerful features designed to make coding enjoyable and efficient.
 
 ## Editor Layout
 
-┌────────────────────────────────────────┐
-│ 1 # Write your Python code here │
-│ 2 print("Hello, World!") │
-│ 3 x = 10 │
-│ 4 y = 20 │
-│ 5 print(x + y) │
-│ 6 │
-└────────────────────────────────────────┘
+![Code Editor](./images/CodeEditorLightMode.png)
 
 ### Key Components:
 
-1. **Line Numbers** (left side): Help you navigate and reference specific lines
-2. **Editing Area** (center): Where you type your Python code
-3. **Syntax Highlighting**: Code is color-coded for readability
+**1. Theme Toggle** Switch between light and dark mode
+**2. Exercise Instructions** Find out what coding tasks need to be carried out for you to pass the exercise
+**3. Editing Area** Where you type your Python code
+**4. Code** Example code. Note the formatting, lines numbers at the side and the different colors of code (syntax highlighting)
+**5. Terminal Toggle** Show or hide the Python terminal (more on this next lesson)
+**6. Submit Code Button** To submit code for testing. This is how you pass an exercise
+**7. Exercise Hints** If you get stuck on an exercise you can click the Show Hints button to see helpful hints
+**8. Download Exercise** If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson
 
-## Syntax Colors Explained
+## Why Two Themes?
 
-Different parts of your code appear in different colors:
+- **Light Mode:** Great for well-lit environments, reduces eye strain in bright light
+
+- **Dark Mode:** Perfect for low-light coding sessions, many developers prefer it for longer sessions
+
+- **Your Choice:** Switch anytime based on your preference or lighting conditions
+
+![Code Editor](./images/CodeEditorDarkMode.png)
+
+## Syntax Highlighting
+
+Your code is automatically color-coded based on its function:
+
+**Benefits:**
+
+Your code is automatically color-coded based on its function. This helps you:
+
+- **Spot errors quickly:** Incorrect syntax often breaks the color pattern.
+- **Understand structure:** See the difference between code, comments, and strings at a glance.
+
+> **PRO TIP:** Example code in lessons often appears in green with a **COPY** button. You can use this to quickly move code into the editor.
+
+## Intelligent Auto-complete
+
+As you type, the editor suggests completions to save you time:
 
 ```python
-# Comments are green and start with #
-# They help explain your code
+# Type "pri" then press Tab or Enter
+print("Hello!")  # Auto-completes to "print()"
 
-print("Text goes here")  # Strings are orange
-
-x = 42                  # Numbers are purple
-y = 3.14                # Decimals too!
-
-if x > 10:              # Keywords (if, for, def) are blue
-    print("Large!")     # Indentation matters in Python!
+# Type "for" then press Tab
+for item in collection:  # Creates a complete loop template
+    pass
 ```
-
-## Editor Features
-
-**Auto-complete**
-
-As you type, the editor suggests completions:
-
-• Type `pri` and press **Tab** → `print` appears
-
-• Type `for` and press **Tab** → complete `for` loop template appears
-
-## Error Detection
-
-The editor spots common mistakes:
-
-• Missing parentheses or quotes
-
-• Syntax errors (highlighted in red)
-
-• Indentation issues (Python cares about spaces!)
 
 ## Code Folding
 
-Click the `[-]` next to line numbers to collapse code blocks:
+If you have a long block of code, you can "fold" it to keep your workspace clean:
 
-```python
-def calculate_total(items):  # Click [-] to hide function body
-    total = 0
-    for item in items:
-        total += item.price
-    return total
-```
+![Code Editor](./images/CodeFolding.png)
+
+**1.** Click the `v` next to the line number to collapse the code.
+**2.** Click the `>` next to the line number to expand it again.
+
+> _"This is great for hiding a function you've already finished so you can focus on the new code you're writing underneath it!"_
 
 ## Writing Your First Code
 
@@ -85,15 +81,6 @@ print("Name:", name)
 print("Age:", age)
 ```
 
-NOTE: There is a COPY button at the top of each section of example code. You can use this if you do not wish to type blocks of code, but we recommend you get used to typing directly in the editor.
-
-## Pro Tips 💡
-
-1. **Indent with Tab**: Python uses 4 spaces for indentation (Tab key does this)
-2. **Format Code**: Use the Format button to fix indentation automatically (the code editor will automatically indent your code for you but it is good practice to check it yourself)
-3. **Zoom**: `Ctrl+Scroll` to adjust text size
-4. **Multiple Cursors**: `Ctrl+Click` (or `Cmd+Click` on Mac) to edit multiple lines
-
 ## Next Up: Running Your Code
 
-In the next lesson, you'll learn how to execute this code and see the results!
+In the next lesson, you'll learn how to execute this code in the _TERMINAL_ and see the results!

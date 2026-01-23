@@ -10,132 +10,197 @@
     {
       "id": "m0_review_q1",
       "type": "multiple-choice",
-      "question": "Where do you write your Python code on this platform?",
+      "question": "What are the three phases of this Python course?",
       "options": [
-        "In a separate application you need to install",
-        "In the code editor in your web browser",
-        "On paper, then type it into a special converter",
-        "In the terminal only"
+        "Intro, Middle, and Final Exam",
+        "Fundamentals, Intermediate, and Advanced Projects",
+        "HTML, CSS, and JavaScript",
+        "Python Basics and 50 different games"
       ],
       "correctAnswer": 1,
-      "explanation": "You write Python code directly in the browser-based code editor. No installation needed - everything runs in your web browser!"
+      "explanation": "The course is structured into Phase 1 (Fundamentals), Phase 2 (Intermediate), and Phase 3 (Advanced Projects) to guide you from beginner to advanced level."
     },
     {
       "id": "m0_review_q2",
       "type": "multiple-choice",
-      "question": "What's the difference between 'Run Code' and 'Submit Code'?",
+      "question": "What can you do on this learning platform?",
       "options": [
-        "'Run Code' is for testing, 'Submit Code' checks correctness and awards XP",
-        "'Run Code' is slower but more accurate",
-        "'Submit Code' only works for theory lessons",
-        "There's no difference - they're the same button with different labels"
+        "Only read lessons and watch videos",
+        "Write, run, and test Python code in your browser",
+        "Download Python programs to run on your computer",
+        "Only take quizzes and tests"
       ],
-      "correctAnswer": 0,
-      "explanation": "'Run Code' lets you test your code freely. 'Submit Code' validates it against test cases and awards XP if correct. Use 'Run Code' to experiment, then 'Submit Code' to complete the lesson."
+      "correctAnswer": 1,
+      "explanation": "This is an interactive platform where you can write Python code directly in your browser, run it instantly, and get immediate feedback on your solutions."
     },
     {
       "id": "m0_review_q3",
       "type": "multiple-choice",
-      "question": "How do you navigate to the next lesson?",
+      "question": "What will you earn as you progress through the course?",
       "options": [
-        "Close the browser and reopen it",
-        "Use the 'Next Lesson' button that appears after completing the current lesson",
-        "Always use the browser's back button",
-        "Lessons automatically advance after 5 minutes"
+        "Only a certificate at the end",
+        "XP points and badges for completing lessons",
+        "Money for each module completed",
+        "Nothing - it's just for learning"
       ],
       "correctAnswer": 1,
-      "explanation": "After completing a lesson (including any required quiz/exercise), a 'Next Lesson' button appears. Click it to continue your learning journey in the correct sequence."
+      "explanation": "The platform uses gamification to motivate learning. You'll earn XP (experience points) for completing lessons and unlock badges for achievements."
     },
     {
       "id": "m0_review_q4",
       "type": "multiple-choice",
-      "question": "What keyboard shortcut runs your Python code?",
+      "question": "What is the primary benefit of Syntax Highlighting?",
       "options": [
-        "Ctrl+S (Save)",
-        "F5 (Refresh)",
-        "Ctrl+Enter (Run)",
-        "Alt+F4 (Close)"
+        "It automatically fixes your code for you",
+        "It uses different colors to help you spot errors and understand code structure",
+        "It makes the code run faster in the terminal",
+        "It translates Python into other languages"
       ],
-      "correctAnswer": 2,
-      "explanation": "Ctrl+Enter (Cmd+Enter on Mac) is the keyboard shortcut to run your code. This lets you test quickly without taking your hands off the keyboard."
+      "correctAnswer": 1,
+      "explanation": "Syntax Highlighting color-codes different parts of your code (like strings, comments, and keywords). This makes it easier to read and helps you notice if you've made a typo when the colors don't look right."
     },
     {
       "id": "m0_review_q5",
       "type": "multiple-choice",
-      "question": "Where do you see the output of your Python program?",
+      "question": "Where should you look to find the specific tasks you need to complete for an exercise?",
       "options": [
-        "In a pop-up window",
-        "In the terminal below the editor",
-        "In your browser's console (F12)",
-        "It's emailed to you"
+        "In the terminal output",
+        "The Exercise Instructions at the top of the editor",
+        "Inside the Code Folding menu",
+        "In the Python documentation website"
       ],
       "correctAnswer": 1,
-      "explanation": "Program output appears in the terminal panel below the code editor. This includes print() statements, calculation results, and any error messages."
+      "explanation": "The 'Exercise Instructions' (labeled as point 2 in our layout) tell you exactly what you need to code to pass the lesson and earn your XP."
     },
     {
       "id": "m0_review_q6",
       "type": "multiple-choice",
-      "question": "How can you quickly clear the terminal output?",
+      "question": "What is the main purpose of the Python Terminal on this platform?",
       "options": [
-        "Restart your computer",
-        "Press Ctrl+L or click the Clear button",
-        "Type 'delete everything' and press Enter",
-        "Terminal clears automatically every hour"
+        "To write and save long programs for later",
+        "To see the output of your code and test small snippets interactively",
+        "To change the background color of the website",
+        "To download the Python 'Engine' to your computer"
       ],
       "correctAnswer": 1,
-      "explanation": "Ctrl+L (Cmd+L on Mac) or the Clear button instantly clears all terminal output, giving you a fresh workspace."
+      "explanation": "The terminal is the 'output window' where your code comes to life. It shows you the results of your programs and allows for quick, interactive testing."
     },
     {
       "id": "m0_review_q7",
       "type": "multiple-choice",
-      "question": "What do XP points represent?",
+      "question": "If you see a 'SyntaxError' in the terminal output, what does it usually mean?",
       "options": [
-        "Extra Problems (additional exercises)",
-        "Experience Points (earned for progress)",
-        "Example Programs (sample code)",
-        "Exit Points (ways to leave the platform)"
+        "Your internet connection was lost",
+        "The terminal is full and needs to be cleared",
+        "There is a mistake in the way your code is written (like a missing quote)",
+        "The code ran perfectly"
       ],
-      "correctAnswer": 1,
-      "explanation": "XP stands for Experience Points. You earn them by completing lessons, exercises, and quizzes. They gamify your learning and track your progress."
+      "correctAnswer": 2,
+      "explanation": "A SyntaxError means Python didn't understand your instructions because they didn't follow the language rules—like a typo or a missing bracket."
     },
     {
       "id": "m0_review_q8",
       "type": "multiple-choice",
-      "question": "When does a module's final quiz become available?",
+      "question": "Which button would you use if the terminal becomes cluttered and you want a fresh start?",
       "options": [
-        "Immediately when you start the module",
-        "After completing the first lesson",
-        "After completing all lessons in the module",
-        "Only on weekends"
+        "The Run button",
+        "The Download button",
+        "The Clear Terminal (trash can) button",
+        "The Show Hints button"
       ],
       "correctAnswer": 2,
-      "explanation": "The module quiz unlocks only after you've completed all lessons within that module. This ensures you've learned all concepts before being tested."
+      "explanation": "The Clear Terminal button (point 5 in our layout) wipes the output area clean so you can see your next code execution more clearly."
     },
     {
       "id": "m0_review_q9",
       "type": "multiple-choice",
-      "question": "What's the purpose of the 'Review Mode' toggle?",
+      "question": "What is the primary difference between 'Run Code' and 'Submit Code'?",
       "options": [
-        "To delete your progress and start over",
-        "To revisit completed lessons without affecting progress",
-        "To make the text larger for better readability",
-        "To switch between light and dark themes"
+        "Run Code is for practicing/testing, while Submit Code checks for correctness and awards XP",
+        "Run Code is for Python, while Submit Code is for other languages",
+        "Submit Code is only used for downloading files",
+        "There is no difference; they perform the same action"
       ],
-      "correctAnswer": 1,
-      "explanation": "Review Mode lets you revisit any completed lesson to reinforce learning. You can re-read content and redo exercises without affecting your original progress or XP."
+      "correctAnswer": 0,
+      "explanation": "The 'Run' button allows you to test your code as many times as you like in the terminal. The 'Submit' button is the final step to validate your solution against requirements and earn your progress."
     },
     {
       "id": "m0_review_q10",
       "type": "multiple-choice",
-      "question": "How is the course structured?",
+      "question": "In what order does Python execute the lines of code you write in the editor?",
       "options": [
-        "20 random topics in no particular order",
-        "3 phases: Fundamentals, Intermediate, and Projects",
-        "Only advanced topics for experienced programmers",
-        "Just a collection of unrelated coding challenges"
+        "It runs all lines at the exact same time",
+        "It starts from the bottom and works its way up",
+        "From top to bottom, one line at a time",
+        "It only runs the lines that contain numbers"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python is a sequential language; it follows your instructions in order from the first line down to the last. This is why you must define variables before you use them!"
+    },
+    {
+      "id": "m0_review_q11",
+      "type": "multiple-choice",
+      "question": "How is the entire Python course organized?",
+      "options": [
+        "In one long list of 100 lessons",
+        "Into 3 Phases containing a total of 20 Modules",
+        "By random topics that change every week",
+        "By alphabetical order only"
       ],
       "correctAnswer": 1,
-      "explanation": "The course has 20 modules organized into 3 logical phases: Phase 1 (Fundamentals: Modules 1-10), Phase 2 (Intermediate: Modules 11-15), and Phase 3 (Projects: Modules 16-20)."
+      "explanation": "The course is structured into 3 logical Phases (Fundamentals, Intermediate, and Projects) to help you build your skills step-by-step."
+    },
+    {
+      "id": "m0_review_q12",
+      "type": "multiple-choice",
+      "question": "What is the purpose of 'Review Mode'?",
+      "options": [
+        "To delete your progress and start over",
+        "To revisit a completed lesson and practice exercises without affecting your XP",
+        "To skip a lesson you find too difficult",
+        "To change the website's theme"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Review Mode allows you to go back and strengthen your skills on topics you've already passed without worrying about your official progress score."
+    },
+    {
+      "id": "m0_review_q13",
+      "type": "multiple-choice",
+      "question": "What does the 'Download' button on a lesson allow you to do?",
+      "options": [
+        "It prints a physical copy of the lesson",
+        "It saves your current code to your computer so you can use it in your own IDE",
+        "It downloads a video of the lesson instructor",
+        "It clears all the code you have written"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The download button lets you take the Python code files from the platform and save them locally. This allows you to practice using your own professional tools."
+    },
+    {
+      "id": "m0_review_q14",
+      "type": "multiple-choice",
+      "question": "Besides a code editor, what must be installed on your computer to run Python code locally?",
+      "options": [
+        "A specialized gaming mouse",
+        "The Python 'Engine' (Interpreter) from python.org",
+        "A premium subscription to a cloud service",
+        "Nothing, computers understand Python automatically"
+      ],
+      "correctAnswer": 1,
+      "explanation": "To run Python code on your computer, you must install the Python interpreter. Think of it as the 'engine' that translates your code into instructions the computer can follow."
+    },
+    {
+      "id": "m0_review_q15",
+      "type": "multiple-choice",
+      "question": "What is an IDE (Integrated Development Environment)?",
+      "options": [
+        "A fast type of internet for developers",
+        "A special keyboard used for Python",
+        "Professional 'all-in-one' software for writing and testing code (like VS Code)",
+        "The part of the computer that stores your files"
+      ],
+      "correctAnswer": 2,
+      "explanation": "An IDE like VS Code or PyCharm is a 'Dashboard' for developers. It combines a text editor with powerful tools like error detection and file management."
     }
   ]
 }

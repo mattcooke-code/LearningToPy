@@ -1,164 +1,94 @@
 # Running Your Code 🚀
 
-Now let's put everything together! You'll learn how to execute Python code and understand what happens behind the scenes.
+Now let's put everything together! You've seen the **Editor** (where you write) and the **Terminal** (where you see results). Now, you'll learn how to bridge them.
 
-## The Run Button
+## The Sync: From Editor to Terminal
 
-Located above the editor, you'll find the most important button:
+On this platform, the Editor and Terminal are connected.
 
-┌───────────────────────┐
-│ ▶ Run Code │
-└───────────────────────┘
+• **Live Sync:** When you type code into the Editor, it is automatically mirrored in the Terminal's background.
 
-### What happens when you click it:
+• **Execution:** When you click "Run" or "Submit," you are telling the Terminal to process exactly what is currently visible in your Editor window.
 
-1. Your code is sent to our Python interpreter
-2. Python executes it line by line
-3. Results appear in the terminal
-4. Status shows if it succeeded or failed
+## 🚦 Run vs. Submit: Know the Difference
 
-## Running Your First Program
+This is the most important part of your workflow. Think of it like a rehearsal versus a live performance.
 
-Try this example in the editor:
+### 1. The "Run" Button (The Rehearsal)
+
+• **Purpose:** Testing and experimenting.
+
+• **Result:** Your code executes in the terminal so you can check for bugs or see if the calculations are correct.
+
+• **XP & Progress:** No XP is awarded, and the lesson is not marked as complete.
+
+• **Pro Tip:** Use this constantly. Professional developers run their code every few lines to make sure everything is working as expected.
+
+### 2. The "Submit" Button (The Performance)
+
+• **Purpose:** Proving you've solved the exercise.
+
+• **Result:** Our system runs your code against "Test Cases" to ensure it meets the lesson requirements.
+
+• **XP & Progress:** Awards **XP** points and unlocks the next lesson.
+
+• **Best Practice:** Only click this once you are happy with the output you saw after clicking "Run."
+
+## Understanding Execution Flow
+
+Python is like a recipe; it runs from **top to bottom**, one line at a time:
+
+```python
+print("Step 1: Preparing ingredients")  # Runs first
+timer = 30                              # Runs second
+print(f"Step 3: Set timer to {timer}")  # Runs third
+```
+
+Order matters! If you try to use a variable before you define it, Python will get confused and throw an error.
+
+## Error Messages Are Your Friends 🚨
+
+If your code has a typo, Python won't just sit there—it will tell you exactly what’s wrong.
+
+```python
+print("Hello World"  # Missing a closing parenthesis!
+```
+
+Running this will show:
+
+![Terminal](./images/TerminalError.PNG)
+
+**How to handle errors:**
+
+1. Don't Panic: Every developer sees dozens of errors a day.
+2. Read the bottom line: That’s usually where the "Type" of error is (e.g., `NameError`).
+3. Check the line number: Python points you exactly where it got stuck.
+
+## Practice Run
+
+Copy this code into your editor and click **Run** (not Submit yet!):
 
 ```python
 # Simple greeting program
-name = "Python Learner"
+name = "Code Explorer"
 print(f"Hello, {name}!")
-print("Welcome to programming!")
 
 # Simple calculation
 apples = 5
 oranges = 3
-total_fruit = apples + oranges
-print(f"Total fruit: {total_fruit}")
+print(f"Total fruit: {apples + oranges}")
 ```
 
-Click Run Code and watch the terminal:
+Once you see the results in the terminal, you're ready to move on!
 
-```python
-> > > Running your code...
-> > > Hello, Python Learner!
-> > > Welcome to programming!
-> > > Total fruit: 8
-> > > Code executed successfully!
-```
+## Shortcuts & Pro Tips 💡
 
-## Understanding Execution Flow
+• **Keyboard Shortcut:** Press `Ctrl + Enter` (or `Cmd + Enter` on Mac) to "Run" instantly.
 
-Python runs your code from top to bottom:
+• **Print is King:** If nothing happens when you click Run, check if you used a `print()` statement. Python calculates things silently unless you tell it to "speak."
 
-```python
-print("Step 1: Starting program")      # Runs first
-age = 25                               # Runs second
-print(f"Age: {age}")                   # Runs third
-print("Step 4: Program complete")      # Runs fourth
-```
-
-Order matters! Variables must be created before you use them.
-
-## Code Submission vs Running
-
-There are two ways to execute code:
-
-**1. Run Code (Practice Mode)**
-
-• Tests your code immediately
-
-• Shows output in terminal
-
-• No progress tracking
-
-• Great for experimenting
-
-**2. Submit Code (Lesson Mode)**
-
-• Checks if your solution is correct
-
-• Awards XP points if successful
-
-• Advances your progress
-
-• Used in exercises and projects
-
-## Error Messages Are Your Friends
-
-If your code has errors, don't worry! Python helps you fix them:
-
-```python
-print("Hello World"  # Missing closing parenthesis
-```
-
-Running this shows:
-
-SyntaxError: unexpected EOF while parsing
-File "<string>", line 1
-print("Hello World"
-^
-Hint: You might be missing a closing parenthesis.
-
-Read error messages carefully! They tell you:
-
-• What type of error occurred
-
-• Where it happened (file and line number)
-
-• Often a hint about how to fix it
-
-## Common Running Issues & Solutions
-
-**Problem: Nothing happens when I click Run**
-
-_Solution_: Check if your code has `print()` statements. Python only shows output when you explicitly print.
-
-**Problem: "NameError: name 'x' is not defined"**
-
-_Solution_: You're using a variable before creating it. Define variables before using them.
-
-**Problem: "IndentationError: unexpected indent"**
-
-_Solution_: Python cares about spaces! Make sure your indentation is consistent (use Tab key).
-
-## Practice Exercise
-
-Try running this code and observe what happens:
-
-```python
-# Temperature converter
-celsius = 25
-fahrenheit = (celsius * 9/5) + 32
-
-print(f"{celsius}°C is equal to {fahrenheit}°F")
-print("Conversion complete!")
-```
-
-## Running Shortcuts
-
-Keyboard: `Ctrl+Enter` (or `Cmd+Enter` on Mac)
-
-• Faster than clicking the button
-
-• Keep your hands on the keyboard
-
-Editor Context Menu: Right-click → "Run Code"
-
-• Alternative method
+• **Fix one at a time:** If you have five errors, just fix the first one and run the code again. Often, fixing the first error solves the rest!
 
 ## What's Next?
 
-Once you're comfortable running code, you'll learn about:
-
-• Submitting code for exercises (with XP rewards!)
-
-• Understanding test cases and requirements
-
-• Debugging techniques when things go wrong
-
-## Pro Tips 💡
-
-1. _Run often_: Test small pieces as you write
-2. _Fix one error at a time_: Start with the first error listed
-3. _Read output carefully_: Sometimes the answer is in the error message
-4. _Use comments_: `# TODO` or `# FIXME` to mark areas needing work
-
-Ready to earn your first XP? In the next lesson, you'll learn how lessons and progress work!
+Now that you know how to run and test code, let's look at how the course is structured and how you can track your journey to becoming a Python Master!

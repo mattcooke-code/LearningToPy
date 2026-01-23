@@ -5,54 +5,54 @@
     {
       "id": "m0l5_q1",
       "type": "multiple-choice",
-      "question": "What are the three phases of this Python course?",
+      "question": "How is the entire Python course organized?",
       "options": [
-        "Beginner, Intermediate, Expert",
-        "Syntax, Functions, Projects",
-        "Fundamentals, Intermediate, Projects",
-        "Basics, Advanced, Mastery"
+        "In one long list of 100 lessons",
+        "Into 3 Phases containing a total of 20 Modules",
+        "By random topics that change every week",
+        "By alphabetical order only"
       ],
-      "correctAnswer": 2,
-      "explanation": "The course is organized into Phase 1 (Fundamentals: Modules 1-10), Phase 2 (Intermediate: Modules 11-15), and Phase 3 (Projects: Modules 16-20). This structured approach guides you from beginner to building real applications."
+      "correctAnswer": 1,
+      "explanation": "The course is structured into 3 logical Phases (Fundamentals, Intermediate, and Projects) to help you build your skills step-by-step."
     },
     {
       "id": "m0l5_q2",
       "type": "multiple-choice",
-      "question": "When does a module quiz become available?",
+      "question": "When does the Module Quiz become available?",
       "options": [
-        "After completing the first lesson",
-        "After completing half the lessons",
-        "After completing all lessons in the module",
-        "It's always available from the start"
+        "As soon as you start the module",
+        "After you complete the first lesson",
+        "Only after all lessons in that module are completed (100% progress)",
+        "After you earn 1,000 XP"
       ],
       "correctAnswer": 2,
-      "explanation": "The module quiz unlocks only after you've completed all lessons within that module. This ensures you've learned all the necessary concepts before being tested on them."
+      "explanation": "The Module Quiz is the final test of your knowledge for a specific topic. It unlocks once you have finished every lesson in that module."
     },
     {
       "id": "m0l5_q3",
       "type": "multiple-choice",
-      "question": "What do XP points represent?",
+      "question": "What is the purpose of 'Review Mode'?",
       "options": [
-        "Extra Problems - additional challenges",
-        "Experience Points - earned for completing lessons",
-        "Example Programs - sample code to study",
-        "Expertise Points - measure of Python knowledge"
+        "To delete your progress and start over",
+        "To revisit a completed lesson and practice exercises without affecting your XP",
+        "To skip a lesson you find too difficult",
+        "To change the website's theme"
       ],
       "correctAnswer": 1,
-      "explanation": "XP stands for Experience Points. You earn XP by completing lessons, exercises, and quizzes. They gamify your learning journey and help track your progress through the course."
+      "explanation": "Review Mode allows you to go back and strengthen your skills on topics you've already passed without worrying about your official progress score."
     },
     {
       "id": "m0l5_q4",
       "type": "multiple-choice",
-      "question": "What can you do with completed lessons in Review Mode?",
+      "question": "How do you maintain a 'Streak'?",
       "options": [
-        "Delete them to start over",
-        "Only view them but not edit code",
-        "Revisit, practice exercises again, and retake quizzes",
-        "Convert them into different programming languages"
+        "By finishing the entire course in one day",
+        "By completing at least one lesson every day",
+        "By never making a mistake in an exercise",
+        "By downloading every lesson"
       ],
-      "correctAnswer": 2,
-      "explanation": "Review Mode lets you revisit any completed lesson to reinforce learning. You can re-read content, redo exercises for practice, and retake quizzes to improve your understanding without affecting your original progress."
+      "correctAnswer": 1,
+      "explanation": "Consistency is key! Completing at least one lesson every 24 hours keeps your streak alive and earns you special badges."
     }
   ]
 }

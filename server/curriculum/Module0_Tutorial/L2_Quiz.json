@@ -5,41 +5,54 @@
     {
       "id": "m0l2_q1",
       "type": "multiple-choice",
-      "question": "What do green lines in the code editor usually represent?",
+      "question": "What is the primary benefit of Syntax Highlighting?",
       "options": [
-        "Python keywords like 'if' and 'for'",
-        "Comments that start with #",
-        "Text strings in quotes",
-        "Error messages"
+        "It automatically fixes your code for you",
+        "It uses different colors to help you spot errors and understand code structure",
+        "It makes the code run faster in the terminal",
+        "It translates Python into other languages"
       ],
       "correctAnswer": 1,
-      "explanation": "Comments in Python start with # and are shown in green. They're notes for humans that Python ignores when running code."
+      "explanation": "Syntax Highlighting color-codes different parts of your code (like strings, comments, and keywords). This makes it easier to read and helps you notice if you've made a typo when the colors don't look right."
     },
     {
       "id": "m0l2_q2",
       "type": "multiple-choice",
-      "question": "What happens when you press Tab while typing code?",
+      "question": "What happens when you click the 'v' or '>' icon next to a line number?",
       "options": [
-        "It deletes the current line",
-        "It indents the code by 4 spaces (Python standard)",
-        "It runs the code immediately",
-        "It saves your code"
+        "It deletes the code on that line",
+        "It rotates the screen 90 degrees",
+        "It collapses (folds) or expands blocks of code",
+        "It changes the code's font size"
       ],
-      "correctAnswer": 1,
-      "explanation": "In Python, indentation (using 4 spaces) defines code blocks. The Tab key automatically inserts 4 spaces for proper Python indentation."
+      "correctAnswer": 2,
+      "explanation": "This is called Code Folding. It allows you to hide large sections of code that you aren't currently working on, keeping your editor window clean and focused."
     },
     {
       "id": "m0l2_q3",
       "type": "multiple-choice",
-      "question": "What feature suggests code completions as you type?",
+      "question": "Where should you look to find the specific tasks you need to complete for an exercise?",
       "options": [
-        "Syntax highlighting",
-        "Line numbers",
-        "Auto-complete",
-        "Error detection"
+        "In the terminal output",
+        "The Exercise Instructions at the top of the editor",
+        "Inside the Code Folding menu",
+        "In the Python documentation website"
       ],
-      "correctAnswer": 2,
-      "explanation": "Auto-complete suggests Python keywords, function names, and variable names as you type, helping you code faster with fewer errors."
+      "correctAnswer": 1,
+      "explanation": "The 'Exercise Instructions' (labeled as point 2 in our layout) tell you exactly what you need to code to pass the lesson and earn your XP."
+    },
+    {
+      "id": "m0l2_q4",
+      "type": "multiple-choice",
+      "question": "What does the 'Download' button in the editor allow you to do?",
+      "options": [
+        "Download a PDF certificate",
+        "Save your code to run in a local IDE like VS Code or PyCharm",
+        "Download more themes for the website",
+        "Update the Python version in your browser"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Download button (point 8) lets you take the starter code off the platform so you can practice using professional development tools on your own computer."
     }
   ]
 }

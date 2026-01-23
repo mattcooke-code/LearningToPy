@@ -5,41 +5,54 @@
     {
       "id": "m0l3_q1",
       "type": "multiple-choice",
-      "question": "What does the terminal show when you run Python code?",
+      "question": "What is the main purpose of the Python Terminal on this platform?",
       "options": [
-        "Only error messages if something goes wrong",
-        "Everything that your program prints using print()",
-        "A summary of how fast your code ran",
-        "The Python installation details"
+        "To write and save long programs for later",
+        "To see the output of your code and test small snippets interactively",
+        "To change the background color of the website",
+        "To download the Python 'Engine' to your computer"
       ],
       "correctAnswer": 1,
-      "explanation": "The terminal displays all output from your print() statements, as well as any error messages. It's where you see the results of your code execution."
+      "explanation": "The terminal is the 'output window' where your code comes to life. It shows you the results of your programs and allows for quick, interactive testing."
     },
     {
       "id": "m0l3_q2",
       "type": "multiple-choice",
-      "question": "What is the interactive mode in the terminal called?",
+      "question": "What does 'REPL' (Read-Eval-Print Loop) mean in the context of the terminal?",
       "options": [
-        "Python Shell",
-        "REPL (Read-Eval-Print Loop)",
-        "Command Line Interface",
-        "Both 1 and 2"
+        "The terminal repeats your code forever",
+        "It reads your input, evaluates it, and prints the result immediately",
+        "It's a type of error that happens when code is too long",
+        "It stands for 'Really Exciting Python Language'"
       ],
-      "correctAnswer": 3,
-      "explanation": "The interactive mode is called both a Python Shell and a REPL (Read-Eval-Print Loop). It reads your input, evaluates it as Python code, prints the result, and loops to wait for more input."
+      "correctAnswer": 1,
+      "explanation": "REPL describes the interactive nature of the terminal: it Reads your line of code, Evaluates it, and Prints the result instantly before starting the Loop again."
     },
     {
       "id": "m0l3_q3",
       "type": "multiple-choice",
-      "question": "How can you quickly clear the terminal output?",
+      "question": "If you see a 'SyntaxError' in the terminal output, what does it usually mean?",
       "options": [
-        "Close and reopen the browser tab",
-        "Press Ctrl+L or click the Clear button",
-        "Type 'clear' and press Enter",
-        "You cannot clear the terminal"
+        "Your internet connection was lost",
+        "The terminal is full and needs to be cleared",
+        "There is a mistake in the way your code is written (like a missing quote)",
+        "The code ran perfectly"
       ],
-      "correctAnswer": 1,
-      "explanation": "You can clear the terminal by pressing Ctrl+L (Cmd+L on Mac) or clicking the Clear button. This gives you a fresh workspace without old output."
+      "correctAnswer": 2,
+      "explanation": "A SyntaxError means Python didn't understand your instructions because they didn't follow the language rules—like a typo or a missing bracket."
+    },
+    {
+      "id": "m0l3_q4",
+      "type": "multiple-choice",
+      "question": "Which button would you use if the terminal becomes cluttered and you want a fresh start?",
+      "options": [
+        "The Run button",
+        "The Download button",
+        "The Clear Terminal (trash can) button",
+        "The Show Hints button"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The Clear Terminal button (point 5 in our layout) wipes the output area clean so you can see your next code execution more clearly."
     }
   ]
 }

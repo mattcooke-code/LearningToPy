@@ -20,7 +20,7 @@ const ExerciseComponent = ({
   solution,
 }) => {
   const [userCode, setUserCode] = useState(
-    isReviewMode ? solution || exercise.starterCode : exercise.starterCode
+    isReviewMode ? solution || exercise.starterCode : exercise.starterCode,
   );
   const [showHints, setShowHints] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
@@ -274,11 +274,11 @@ const ExerciseComponent = ({
 
       <div className="mb-4">
         <label
-          className={`block text-sm font-medium mb-2 ${
-            isCodeDark ? "text-gray-400" : "text-gray-700"
+          className={`font-semibold ${
+            isCodeDark ? "text-gray-300" : "text-gray-700"
           }`}
         >
-          Your Code:
+          Code Editor:
         </label>
 
         <CodeEditor
@@ -298,8 +298,8 @@ const ExerciseComponent = ({
                 ? "bg-green-900 border-green-600"
                 : "bg-green-50 border-green-400"
               : isCodeDark
-              ? "bg-red-900 border-red-600"
-              : "bg-red-50 border-red-400"
+                ? "bg-red-900 border-red-600"
+                : "bg-red-50 border-red-400"
           }`}
         >
           <div className="flex items-start space-x-3">
@@ -322,8 +322,8 @@ const ExerciseComponent = ({
                       ? "text-green-300"
                       : "text-green-800"
                     : isCodeDark
-                    ? "text-red-300"
-                    : "text-red-800"
+                      ? "text-red-300"
+                      : "text-red-800"
                 }`}
               >
                 {testResults.error || "Test Results"}
@@ -335,8 +335,8 @@ const ExerciseComponent = ({
                       ? "text-green-200"
                       : "text-green-700"
                     : isCodeDark
-                    ? "text-red-200"
-                    : "text-red-700"
+                      ? "text-red-200"
+                      : "text-red-700"
                 }
               >
                 {testResults.message}
@@ -372,8 +372,8 @@ const ExerciseComponent = ({
                             ? "bg-green-800"
                             : "bg-green-100"
                           : isCodeDark
-                          ? "bg-red-800"
-                          : "bg-red-100"
+                            ? "bg-red-800"
+                            : "bg-red-100"
                       }`}
                     >
                       <div className="flex items-center space-x-2">
@@ -465,8 +465,8 @@ const ExerciseComponent = ({
             isRunning || !isReady
               ? "bg-gray-400 cursor-not-allowed"
               : isReviewMode
-              ? "bg-gray-600 text-white hover:bg-gray-700"
-              : "bg-yellow-600 text-white hover:bg-yellow-700"
+                ? "bg-gray-600 text-white hover:bg-gray-700"
+                : "bg-yellow-600 text-white hover:bg-yellow-700"
           }`}
         >
           {isRunning ? (
