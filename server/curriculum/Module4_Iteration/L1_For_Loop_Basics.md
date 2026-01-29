@@ -29,7 +29,7 @@ for fruit in fruits:
 
 ## 2. Looping Over Different Sequences
 
-The for loop is universally applicable to any iterable in Python.
+The `for` loop is universally applicable to any iterable in Python.
 
 ### A. Looping Over Strings
 

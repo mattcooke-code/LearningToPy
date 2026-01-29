@@ -6,11 +6,13 @@ Welcome to your Python programming journey! This interactive platform will guide
 
 ### 🎯 **Structured Learning Path**
 
-Our curriculum is divided into three phases:
+Our curriculum is divided into three distinct phases:
 
-- **Phase 1**: Python Fundamentals (Modules 1-10)
-- **Phase 2**: Intermediate Concepts (Modules 11-15)
-- **Phase 3**: Advanced Projects (Modules 16-20)
+• **Phase 1: Python Fundamentals** _(Modules 1-10)_ Master the core language, from your first "Hello World" to writing reusable functions and handling files.
+
+• **Phase 2: Intermediate Python** _(Modules 11-15)_ Level up with professional patterns like Object-Oriented Programming (OOP) and advanced system tools.
+
+• **Phase 3: Advanced Applications** _(Modules 16-20)_ Apply your skills to the real world: interact with Web APIs, analyze data with Data Science tools, and build a portfolio-ready final project.
 
 ### ✨ **Interactive Platform Features**
 

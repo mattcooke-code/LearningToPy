@@ -27,31 +27,64 @@ for item in search_list:
 
 ## 2. The `continue` Keyword: Skipping an Iteration
 
-The `continue` keyword is used to skip the rest of the code inside the loop for the current iteration only. The loop immediately jumps to the next item or re-evaluates the while condition.
+The `continue` keyword is used to skip the rest of the code inside the loop for the current iteration only. The loop immediately jumps to the next item or re-evaluates the `while` condition.
 
 ### Common Use Case: Filtering
 
 `continue` is useful for filtering data or skipping items that do not meet a certain condition.
 
 ```python
-scores = [85, 42, 98, 55, 70] # 50 is failing
+scores = [85, 42, 98, 55, 70]  # 50 is failing
 
 for score in scores:
     if score < 60:
-        print(f"Score {score} is failing. Skipping evaluation.")
-        continue # Skips the rest of the code below for this score
+        print("Score", score, "is failing. Skipping evaluation.")
+        continue  # Skips the rest of the code below for this score
 
-    print(f"Score {score} is passing! Analyzing...")
+    print("Score", score, "is passing! Analyzing...")
 
 # Output:
-# Score 42 is failing. Skipping evaluation.
-# Score 55 is failing. Skipping evaluation.
 # Score 85 is passing! Analyzing...
+# Score 42 is failing. Skipping evaluation.
 # Score 98 is passing! Analyzing...
+# Score 55 is failing. Skipping evaluation.
 # Score 70 is passing! Analyzing...
 ```
+
+## 3. `break` vs `continue`: Comparison
 
 | Keyword    | Action | Effect                                                                                  |
 | ---------- | ------ | --------------------------------------------------------------------------------------- |
 | `break`    | Exits  | The loop is permanently terminated.                                                     |
 | `continue` | Skips  | Only the current iteration is skipped; the loop continues with the next item/condition. |
+
+## 4. Practical Example: Input Validation Loop
+
+```python
+# Keep asking for a valid number between 1 and 10
+while True:
+    user_input = input("Enter a number between 1 and 10: ")
+
+    # Check if input is a number
+    if not user_input.isdigit():
+        print("That's not a number. Try again.")
+        continue  # Skip to next iteration
+
+    number = int(user_input)
+
+    # Check if number is in valid range
+    if number < 1 or number > 10:
+        print("Number must be between 1 and 10.")
+        continue  # Skip to next iteration
+
+    # If we get here, input is valid
+    print("Valid number entered:", number)
+    break  # Exit the loop
+
+print("Thank you for entering a valid number.")
+# Example output if user enters "abc", then "15", then "7":
+# That's not a number. Try again.
+# Number must be between 1 and 10.
+# Valid number entered: 7
+# Thank you for entering a valid number.
+```

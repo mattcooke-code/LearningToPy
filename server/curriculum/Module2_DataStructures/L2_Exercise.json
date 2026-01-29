@@ -16,6 +16,39 @@
     "**Reversing:** The special slice `[::-1]` means 'from start to end (both empty), going backwards (step -1)'. This creates a new reversed list.",
     "**Common mistake:** Remember that slicing creates a NEW list. The original `week_schedule` stays the same!"
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check weekdays slice",
+      "code": "context = {}\nexec(code, context)\nassert 'weekdays' in context, 'Missing weekdays variable'\nassert context['weekdays'] == [2, 3, 2, 4, 3], f'weekdays should be [2, 3, 2, 4, 3], got: {context[\"weekdays\"]}'\nprint('TEST_PASSED: weekdays slice is correct')",
+      "expected": "weekdays = [2, 3, 2, 4, 3]"
+    },
+    {
+      "name": "Check weekend slice",
+      "code": "context = {}\nexec(code, context)\nassert 'weekend' in context, 'Missing weekend variable'\nassert context['weekend'] == [5, 1], f'weekend should be [5, 1], got: {context[\"weekend\"]}'\nprint('TEST_PASSED: weekend slice is correct')",
+      "expected": "weekend = [5, 1]"
+    },
+    {
+      "name": "Check alternate_days slice",
+      "code": "context = {}\nexec(code, context)\nassert 'alternate_days' in context, 'Missing alternate_days variable'\nassert context['alternate_days'] == [2, 2, 3, 1], f'alternate_days should be [2, 2, 3, 1], got: {context[\"alternate_days\"]}'\nprint('TEST_PASSED: alternate_days slice is correct')",
+      "expected": "alternate_days = [2, 2, 3, 1]"
+    },
+    {
+      "name": "Check week_reversed slice",
+      "code": "context = {}\nexec(code, context)\nassert 'week_reversed' in context, 'Missing week_reversed variable'\nassert context['week_reversed'] == [1, 5, 3, 4, 2, 3, 2], f'week_reversed should be [1, 5, 3, 4, 2, 3, 2], got: {context[\"week_reversed\"]}'\nprint('TEST_PASSED: week_reversed slice is correct')",
+      "expected": "week_reversed = [1, 5, 3, 4, 2, 3, 2]"
+    },
+    {
+      "name": "Check original list unchanged",
+      "code": "context = {}\nexec(code, context)\nassert 'week_schedule' in context, 'Missing week_schedule variable'\nassert context['week_schedule'] == [2, 3, 2, 4, 3, 5, 1], f'Original week_schedule should remain unchanged as [2, 3, 2, 4, 3, 5, 1]'\nprint('TEST_PASSED: Original list is unchanged')",
+      "expected": "Original week_schedule should remain [2, 3, 2, 4, 3, 5, 1]"
+    },
+    {
+      "name": "Check output matches expected",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check key parts of output\nassert 'Weekdays: [2, 3, 2, 4, 3]' in output, 'Output should contain weekday schedule'\nassert 'Weekend: [5, 1]' in output, 'Output should contain weekend schedule'\nassert 'Alternate days: [2, 2, 3, 1]' in output, 'Output should contain alternate days'\nassert 'Week reversed: [1, 5, 3, 4, 2, 3, 2]' in output, 'Output should contain reversed week'\nassert 'Original unchanged: [2, 3, 2, 4, 3, 5, 1]' in output, 'Output should show original is unchanged'\nprint('TEST_PASSED: Output contains all expected results')",
+      "expected": "All output lines with correct values"
+    }
+  ],
   "expectedOutput": "Weekdays: [2, 3, 2, 4, 3]\nWeekend: [5, 1]\nAlternate days: [2, 2, 3, 1]\nWeek reversed: [1, 5, 3, 4, 2, 3, 2]\nOriginal unchanged: [2, 3, 2, 4, 3, 5, 1]",
   "tags": ["lists", "slicing", "negative-indexing", "step", "list-copying"],
   "challengeGroup": "list-basics"

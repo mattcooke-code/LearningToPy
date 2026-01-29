@@ -4,22 +4,30 @@
   "questions": [
     {
       "id": "m1l3_q1",
+      "sourceLesson": "M1L3",
       "type": "multiple-choice",
       "question": "Which of the following is a valid variable name in Python?",
-      "options": ["2nd_score", "user-name", "total_price", "my variable"],
+      "options": [
+        "`2nd_score`",
+        "`user-name`",
+        "`total_price`",
+        "`my variable`"
+      ],
       "correctAnswer": 2,
-      "explanation": "total_price is valid because it starts with a letter and uses only letters and underscores. Variable names cannot start with numbers (2nd_score), cannot use hyphens (user-name), and cannot contain spaces (my variable)."
+      "explanation": "`total_price` is valid because it starts with a letter and uses only letters and underscores. Variable names cannot start with numbers (`2nd_score`), cannot use hyphens (`user-name`), and cannot contain spaces (`my variable`)."
     },
     {
       "id": "m1l3_q2",
+      "sourceLesson": "M1L3",
       "type": "multiple-choice",
       "question": "What is the assignment operator in Python?",
-      "options": ["==", "=", ":", "<-"],
+      "options": ["`==`", "`=`", "`:`", "`<-`"],
       "correctAnswer": 1,
-      "explanation": "The single equals sign (=) is the assignment operator. It assigns the value on the right to the variable on the left. The double equals (==) is used for comparison, not assignment."
+      "explanation": "The single equals sign `=` is the assignment operator. It assigns the value on the right to the variable on the left. The double equals `==` is used for comparison, not assignment."
     },
     {
       "id": "m1l3_q3",
+      "sourceLesson": "M1L3",
       "type": "multiple-choice",
       "question": "Are 'Score' and 'score' the same variable in Python?",
       "options": [
@@ -29,7 +37,7 @@
         "It depends on the Python version"
       ],
       "correctAnswer": 1,
-      "explanation": "Python is case sensitive, meaning 'Score' and 'score' are treated as two completely different variables. Always be careful with capitalization when naming variables."
+      "explanation": "Python is case sensitive, meaning `'Score'` and `'score'` are treated as two completely different variables. Always be careful with capitalization when naming variables."
     }
   ]
 }

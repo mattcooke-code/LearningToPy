@@ -8,12 +8,12 @@
       "question": "What are the three phases of this Python course?",
       "options": [
         "Intro, Middle, and Final Exam",
-        "Fundamentals, Intermediate, and Advanced Projects",
+        "Fundamentals, Intermediate, and Advanced",
         "HTML, CSS, and JavaScript",
-        "Python Basics and 50 different games"
+        "Python Basics and lots of different games"
       ],
       "correctAnswer": 1,
-      "explanation": "The course is structured into Phase 1 (Fundamentals), Phase 2 (Intermediate), and Phase 3 (Advanced Projects) to guide you from beginner to advanced level."
+      "explanation": "The course is structured into Phase 1 (Fundamentals), Phase 2 (Intermediate), and Phase 3 (Advanced Applications) to guide you from beginner to advanced level."
     },
     {
       "id": "m0l1_q2",
@@ -22,7 +22,7 @@
       "options": [
         "Only read lessons and watch videos",
         "Write, run, and test Python code in your browser",
-        "Download Python programs to run on your computer",
+        "Download JavaScript programs to run on your computer",
         "Only take quizzes and tests"
       ],
       "correctAnswer": 1,

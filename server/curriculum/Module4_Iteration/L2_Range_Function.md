@@ -13,9 +13,10 @@ The `range()` function has three common forms, all of which use the principle th
 This is the simplest form. It starts counting at **0** and stops _before_ the `stop` value.
 
 ```python
-# Generates: 0, 1, 2, 3, 4
 for i in range(5):
     print(i)
+
+# Generates: 0, 1, 2, 3, 4
 
 ```
 
@@ -24,9 +25,10 @@ for i in range(5):
 This allows you to specify a custom starting point. It counts from start up to, but not including, stop.
 
 ```python
-# Generates: 10, 11, 12
 for count in range(10, 13):
     print(count)
+
+# Generates: 10, 11, 12
 ```
 
 ### C. Three Arguments: `range(start, stop, step)`
@@ -34,9 +36,10 @@ for count in range(10, 13):
 The third argument, step, controls the increment (or decrement) between numbers. A step of 2 means it jumps every other number.
 
 ```python
-# Generates: 0, 2, 4, 6, 8
 for even in range(0, 10, 2):
     print(even)
+
+# Generates: 0, 2, 4, 6, 8
 ```
 
 ## 2. Counting Backward
@@ -48,22 +51,39 @@ Set the start value to be greater than the stop value.
 Set the step value to a negative number (e.g., -1).
 
 ```python
-# Generates: 5, 4, 3, 2, 1
 for countdown in range(5, 0, -1):
     print(countdown)
+
+# Generates: 5, 4, 3, 2, 1
 ```
 
 ## 3. `range()` and List Indexing
 
-You can use range() to access the items in a list by their index, particularly if you need to modify the list during iteration (which `enumerate()` doesn't allow cleanly).
+You can use `range()` to access the items in a list by their index, particularly if you need to modify the list during iteration (which `enumerate()` doesn't allow cleanly).
 
 ```python
 data = ["A", "B", "C"]
 
-# Generates indices 0, 1, 2
 for i in range(len(data)):
     # Use the index to access the element
     data[i] = data[i].lower()
 
 print(data) # Output: ['a', 'b', 'c']
+
+```
+
+## 4. Practical Example: Building a Pattern
+
+```python
+# Build a right-aligned triangle pattern
+for i in range(1, 6):
+    spaces = " " * (5 - i)
+    stars = "*" * i
+    print(spaces + stars)
+# Output:
+#     *
+#    **
+#   ***
+#  ****
+# *****
 ```

@@ -1,5 +1,3 @@
-// M1_Fundamentals/L1_Welcome.md
-
 # Welcome to Python! 🐍
 
 Python is one of the most popular programming languages in the world. It's known for being easy to read and write, making it perfect for beginners. Major companies like Google, NASA, Instagram, and Spotify use Python to build their products.
@@ -12,7 +10,7 @@ Python is a **high-level** programming language, which means it's designed to be
 
 The most fundamental thing you'll do in programming is displaying information on the screen. In Python, we use the `print()` function to do this.
 
-Here's your first line of Python code:
+Here is a line of Python code:
 
 ```python
 print("Hello, Python!")

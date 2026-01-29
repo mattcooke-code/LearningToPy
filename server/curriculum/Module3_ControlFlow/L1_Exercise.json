@@ -15,6 +15,29 @@
     "**No condition for else:** The `else` block is a catch-all. It doesn't need its own comparison (like `else student_score < 60:`) because it only runs if everything above it failed.",
     "**Indentation:** Make sure all your `print()` statements are indented under their conditions. Python uses this space to know which code 'belongs' to which block."
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check output for score 75 (should be Grade C)",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Student scored: 75' in output, 'Should show student score'\nassert 'Grade: C' in output, f'Score 75 should output \"Grade: C\", got: {output}'\nprint('TEST_PASSED: Correct grade for score 75')",
+      "expected": "Student scored: 75\\nGrade: C"
+    },
+    {
+      "name": "Test multiple grade boundaries",
+      "code": "# Test different scores by modifying the student_score variable\nimport io\nimport sys\n\nscores_to_test = [\n    (95, 'Grade: A'),\n    (85, 'Grade: B'),\n    (75, 'Grade: C'),\n    (65, 'Grade: D'),\n    (55, 'Grade: F'),\n    (90, 'Grade: A'),  # Edge case\n    (80, 'Grade: B'),  # Edge case\n    (70, 'Grade: C'),  # Edge case\n    (60, 'Grade: D'),  # Edge case\n    (0, 'Grade: F')    # Edge case\n]\n\nall_passed = True\nfor score, expected_grade in scores_to_test:\n    # Modify the code to use this score\n    modified_code = code.replace('student_score = 75', f'student_score = {score}')\n    \n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    try:\n        exec(modified_code)\n        output = sys.stdout.getvalue().strip()\n    finally:\n        sys.stdout = old_stdout\n    \n    if expected_grade not in output:\n        print(f'FAILED: Score {score} should output \"{expected_grade}\", got: {output[:50]}...')\n        all_passed = False\n\nassert all_passed, 'Some grade boundaries failed'\nprint('TEST_PASSED: All grade boundaries work correctly')",
+      "expected": "All grade boundaries (A-F) should work correctly"
+    },
+    {
+      "name": "Check if-elif-else structure",
+      "code": "import ast\n\n# Parse the code to check structure\ntree = ast.parse(code)\n\n# Count if/elif/else statements\nif_count = 0\nelif_count = 0\nelse_count = 0\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_count += 1\n        # Check for elif blocks\n        for n in node.orelse:\n            if isinstance(n, ast.If):\n                elif_count += 1\n        # Check for else block\n        if any(isinstance(n, ast.Expr) for n in node.orelse):\n            else_count += 1\n\n# Should have at least one if, multiple elif, and one else\nassert if_count >= 1, 'Should have at least one if statement'\nassert elif_count >= 3, 'Should have at least 3 elif statements for grades B, C, D'\nassert else_count >= 1, 'Should have an else statement for grade F'\n\nprint('TEST_PASSED: Proper if-elif-else structure')",
+      "expected": "Code should have if, elif, and else statements"
+    },
+    {
+      "name": "Check condition order (important!)",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Find the if statement\nif_stmt = None\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_stmt = node\n        break\n\nassert if_stmt is not None, 'No if statement found'\n\n# Check conditions are in descending order\nconditions = []\ncurrent = if_stmt\nwhile current:\n    # Extract the condition\n    if hasattr(current, 'test'):\n        # Convert condition to string for checking\n        condition_str = ast.unparse(current.test) if hasattr(ast, 'unparse') else str(current.test)\n        conditions.append(condition_str)\n    \n    # Move to elif or else\n    if current.orelse and len(current.orelse) > 0:\n        if isinstance(current.orelse[0], ast.If):\n            current = current.orelse[0]\n        else:\n            break\n    else:\n        break\n\n# Check that conditions are in descending order (>= 90, >= 80, >= 70, >= 60)\n# This is a simple check - we look for the pattern in the strings\nfor i, cond in enumerate(conditions):\n    if i < len(conditions) - 1:  # Not the last condition\n        # The thresholds should be decreasing: 90, 80, 70, 60\n        if '90' in cond and '80' not in cond:\n            continue  # Good\n        elif '80' in cond and '90' not in cond:\n            continue  # Good\n        elif '70' in cond and '80' not in cond:\n            continue  # Good\n        elif '60' in cond and '70' not in cond:\n            continue  # Good\n\nprint('TEST_PASSED: Conditions are in correct order')",
+      "expected": "Conditions should be in descending order (90, 80, 70, 60)"
+    }
+  ],
   "expectedOutput": "Student scored: 75\nGrade: C",
   "tags": ["if", "elif", "else", "control-flow", "conditionals"],
   "challengeGroup": "conditionals-basics"

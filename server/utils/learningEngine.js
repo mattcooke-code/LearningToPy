@@ -208,9 +208,17 @@ const processModuleCompletion = async (user, module, quizScore) => {
 /**
  * Check if lesson is fully completed based on its components
  */
-const isLessonFullyCompleted = (lesson, quizProgress, isCorrect) => {
+const isLessonFullyCompleted = (
+  lesson,
+  quizProgress,
+  isCorrect,
+  forceComplete = false,
+) => {
   const lessonHasQuiz = hasQuiz(lesson);
   const lessonHasExercise = hasExercise(lesson);
+
+  // If frontend explicity marks as complete
+  if (forceComplete) return true;
 
   // Theory lesson without quiz/exercise
   if (lesson.contentType === "theory" && !lessonHasQuiz && !lessonHasExercise) {

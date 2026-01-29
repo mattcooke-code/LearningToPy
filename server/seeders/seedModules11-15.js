@@ -28,6 +28,7 @@ const seedModules11to15 = async (
     shortDescription:
       "Master defining classes, creating objects, and managing attributes.",
     order: 11,
+    moduleNumber: "M11",
     difficulty: "intermediate",
     estimatedHours: 3.5,
     isPublished: true,
@@ -106,6 +107,7 @@ const seedModules11to15 = async (
     shortDescription:
       "Learn to extend classes, use super(), and implement method overriding.",
     order: 12,
+    moduleNumber: "M12",
     difficulty: "intermediate",
     estimatedHours: 3.5,
     isPublished: true,
@@ -185,6 +187,7 @@ const seedModules11to15 = async (
     shortDescription:
       "Master creating, formatting, and comparing datetime objects.",
     order: 13,
+    moduleNumber: "M13",
     difficulty: "intermediate",
     estimatedHours: 2.5,
     isPublished: true,
@@ -262,6 +265,7 @@ const seedModules11to15 = async (
     description: "Learn powerful pattern matching and substitution in strings.",
     shortDescription: "Master the re module for complex text manipulation.",
     order: 14,
+    moduleNumber: "M14",
     difficulty: "intermediate",
     estimatedHours: 3.0,
     isPublished: true,
@@ -340,6 +344,7 @@ const seedModules11to15 = async (
       "Learn professional skills like managing dependencies and virtual environments.",
     shortDescription: "Master pip, venv, and fundamental debugging with pdb.",
     order: 15,
+    moduleNumber: "M15",
     difficulty: "intermediate",
     estimatedHours: 2.0,
     isPublished: true,

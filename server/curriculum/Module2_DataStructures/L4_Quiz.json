@@ -2,7 +2,7 @@
   "questions": [
     {
       "id": "m2l4_q1",
-      "question": "What happens if you use `my_list.remove('item')` and 'item' appears twice in the list?",
+      "question": "What happens if you use `my_list.remove('item')` and `'item'` appears twice in the list?",
       "options": [
         "Both occurrences are removed",
         "Only the first occurrence is removed",
@@ -10,7 +10,7 @@
         "Python raises an error because of duplicate values"
       ],
       "correctAnswer": 1,
-      "explanation": "The remove() method only removes the FIRST occurrence of the specified value. If you want to remove all occurrences, you would need to call remove() multiple times or use a different approach."
+      "explanation": "The `remove()` method only removes the FIRST occurrence of the specified value. If you want to remove all occurrences, you would need to call `remove()` multiple times or use a different approach."
     },
     {
       "id": "m2l4_q2",
@@ -28,13 +28,13 @@
       "id": "m2l4_q3",
       "question": "Given `colors = ['red', 'blue', 'green', 'yellow']`, what does `del colors[1:3]` do?",
       "options": [
-        "Deletes only `'blue'`",
-        "Deletes `'blue'` and `'green'`",
-        "Deletes `'blue'`, `'green'`, and `'yellow'`",
+        "Deletes only 'blue'",
+        "Deletes 'blue' and 'green'",
+        "Deletes 'blue', 'green', and 'yellow'",
         "Causes an error because you can't use slicing with `del`"
       ],
       "correctAnswer": 1,
-      "explanation": "`del` can remove slices of a list. The slice `[1:3]` includes indices 1 and 2 (remember, stop is exclusive), so it deletes `'blue'` and `'green'`. The list becomes `['red', 'yellow']`."
+      "explanation": "`del` can remove slices of a list. The slice `[1:3]` includes indices `1` and `2` (remember, stop is exclusive), so it deletes `'blue'` and `'green'`. The list becomes `['red', 'yellow']`."
     }
   ]
 }

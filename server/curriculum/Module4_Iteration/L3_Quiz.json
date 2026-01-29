@@ -1,0 +1,38 @@
+{
+  "questions": [
+    {
+      "id": "m4l3_q1",
+      "type": "multiple-choice",
+      "question": "What is the main difference between a `for` loop and a `while` loop?",
+      "options": [
+        "A `for` loop can only be used with lists, while a `while` loop can be used with any data type",
+        "A `for` loop iterates a specific number of times, while a `while` loop repeats until a condition becomes False",
+        "A `while` loop is faster than a `for` loop",
+        "A `for` loop is used for infinite loops, while a `while` loop is for finite loops"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A `for` loop iterates over a sequence (list, string, range, etc.), while a `while` loop continues as long as its condition evaluates to True. The `while` loop is ideal when you don't know in advance how many iterations are needed."
+    },
+    {
+      "id": "m4l3_q2",
+      "type": "multiple-choice",
+      "question": "How many times will this code print 'Hello'?\n\n```python\ncounter = 1\nwhile counter <= 4:\n    print('Hello')\n    counter += 2\n```",
+      "options": ["2 times", "3 times", "4 times", "It will run forever"],
+      "correctAnswer": 0,
+      "explanation": "The counter starts at 1 and increases by 2 each iteration: 1 → 3 → 5. When counter is 5, the condition `counter <= 4` becomes False, so the loop stops. It prints 'Hello' for counter values 1 and 3, which is 2 times."
+    },
+    {
+      "id": "m4l3_q3",
+      "type": "multiple-choice",
+      "question": "What is wrong with this `while` loop?\n\n```python\nx = 5\nwhile x > 0:\n    print('Countdown:', x)\n```",
+      "options": [
+        "The condition should be `x >= 0` instead of `x > 0`",
+        "The variable `x` is never changed inside the loop",
+        "The print statement should use f-strings",
+        "Nothing is wrong; the code will work correctly"
+      ],
+      "correctAnswer": 1,
+      "explanation": "This creates an infinite loop because `x` never changes. Since `x` is always 5 and 5 > 0 is always True, the loop will run forever. To fix it, add `x -= 1` inside the loop to decrease `x` each iteration."
+    }
+  ]
+}

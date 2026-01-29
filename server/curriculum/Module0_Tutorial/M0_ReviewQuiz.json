@@ -13,12 +13,12 @@
       "question": "What are the three phases of this Python course?",
       "options": [
         "Intro, Middle, and Final Exam",
-        "Fundamentals, Intermediate, and Advanced Projects",
+        "Fundamentals, Intermediate, and Advanced",
         "HTML, CSS, and JavaScript",
         "Python Basics and 50 different games"
       ],
       "correctAnswer": 1,
-      "explanation": "The course is structured into Phase 1 (Fundamentals), Phase 2 (Intermediate), and Phase 3 (Advanced Projects) to guide you from beginner to advanced level."
+      "explanation": "The course is structured into Phase 1 (Fundamentals), Phase 2 (Intermediate), and Phase 3 (Advanced Applications) to guide you from beginner to advanced level."
     },
     {
       "id": "m0_review_q2",
@@ -88,7 +88,7 @@
     {
       "id": "m0_review_q7",
       "type": "multiple-choice",
-      "question": "If you see a 'SyntaxError' in the terminal output, what does it usually mean?",
+      "question": "If you see a `SyntaxError` in the terminal output, what does it usually mean?",
       "options": [
         "Your internet connection was lost",
         "The terminal is full and needs to be cleared",
@@ -96,7 +96,7 @@
         "The code ran perfectly"
       ],
       "correctAnswer": 2,
-      "explanation": "A SyntaxError means Python didn't understand your instructions because they didn't follow the language rules—like a typo or a missing bracket."
+      "explanation": "A `SyntaxError` means Python didn't understand your instructions because they didn't follow the language rules—like a typo or a missing bracket."
     },
     {
       "id": "m0_review_q8",
@@ -105,11 +105,11 @@
       "options": [
         "The Run button",
         "The Download button",
-        "The Clear Terminal (trash can) button",
+        "The Clear Terminal button",
         "The Show Hints button"
       ],
       "correctAnswer": 2,
-      "explanation": "The Clear Terminal button (point 5 in our layout) wipes the output area clean so you can see your next code execution more clearly."
+      "explanation": "The Clear Terminal button wipes the output area clean so you can see your next code execution more clearly."
     },
     {
       "id": "m0_review_q9",
@@ -148,7 +148,7 @@
         "By alphabetical order only"
       ],
       "correctAnswer": 1,
-      "explanation": "The course is structured into 3 logical Phases (Fundamentals, Intermediate, and Projects) to help you build your skills step-by-step."
+      "explanation": "The course is structured into 3 logical Phases (Fundamentals, Intermediate, and Advanced) to help you build your skills step-by-step."
     },
     {
       "id": "m0_review_q12",

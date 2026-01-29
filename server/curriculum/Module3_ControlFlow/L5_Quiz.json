@@ -5,9 +5,9 @@
       "id": "m3l5_q1",
       "question": "What will the following code print?\n\n```python\nfruits = ['apple', 'banana', 'orange']\nif 'grape' in fruits:\n    print('Found it!')\nelse:\n    print('Not found!')\n```",
       "options": [
-        "`Found it!`",
-        "`Not found!`",
-        "`grape`",
+        "`'Found it!'`",
+        "`'Not found!'`",
+        "`'grape'`",
         "The code will cause an error"
       ],
       "correctAnswer": 1,
@@ -17,10 +17,10 @@
       "id": "m3l5_q2",
       "question": "Which of the following will evaluate to `True`?",
       "options": [
-        "`user = 'admin'`\n`if user not in ['admin', 'moderator']:`",
-        "`email = 'user@gmail.com'`\n`if '@' in email:`",
-        "`numbers = [1, 2, 3, 4]`\n`if 5 in numbers:`",
-        "`roles = ('viewer', 'editor')`\n`if 'admin' in roles:`"
+        "```python\nuser = 'admin'\nif user not in ['admin', 'moderator']:\n```",
+        "```python\nemail = 'user@gmail.com'\nif '@' in email:\n```",
+        "```python\nnumbers = [1, 2, 3, 4]\nif 5 in numbers:\n```",
+        "```python\nroles = ('viewer', 'editor')\nif 'admin' in roles:\n```"
       ],
       "correctAnswer": 1,
       "explanation": "Option B evaluates to `True` because the `'@'` character is present in the string `'user@gmail.com'`. The `in` operator works with strings to check for substrings."

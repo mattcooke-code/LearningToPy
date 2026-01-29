@@ -11,7 +11,9 @@ The syntax is similar to an `if` statement, but the indented code block is execu
 ### `while condition:`
 
 • **`while`**: The required keyword.
+
 • **`condition`**: Any expression that evaluates to `True` or `False`.
+
 • The loop body must be **indented**.
 
 ### The Crucial Need for a Counter
@@ -48,7 +50,7 @@ print(f"Welcome, {username}!")
 
 ## 3. The Endless Loop (and how to stop it)
 
-An infinite loop is created when the condition always remains True. While usually a bug, sometimes it's intentional (e.g., in game loops or server processes).
+An _infinite loop_ is created when the condition always remains `True`. While usually a bug, sometimes it's intentional (e.g., in game loops or server processes).
 
 If you accidentally create an infinite loop, you can stop the program execution by pressing `Ctrl + C` in most terminals.
 
@@ -57,4 +59,27 @@ If you accidentally create an infinite loop, you can stop the program execution 
 # status = True
 # while status == True:
 #     print("Processing...")
+```
+
+## 4. Practical Example: Guess the Number
+
+```python
+secret_number = 7
+guess = 0
+
+while guess != secret_number:
+    # In a real program, this would be input()
+    guess = 5  # Simulated first guess
+    print("Guessing:", guess)
+    if guess < secret_number:
+        print("Too low!")
+    elif guess > secret_number:
+        print("Too high!")
+
+print("You guessed it! The number was", secret_number)
+# Output:
+# Guessing: 5
+# Too low!
+# Guessing: 7
+# You guessed it! The number was 7
 ```

@@ -15,6 +15,34 @@
     "**How to access an item:** Use square brackets after the list name, like this: `shopping_list[0]` gets the first item.",
     "**Common mistake:** Don't put quotes around the index! Write `shopping_list[0]`, NOT `shopping_list['0']`."
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check first_item variable",
+      "code": "context = {}\nexec(code, context)\nassert 'first_item' in context, 'Missing first_item variable'\nassert context['first_item'] == 'milk', f'first_item should be \"milk\", got: {context[\"first_item\"]}'\nprint('TEST_PASSED: first_item is correct')",
+      "expected": "first_item = 'milk'"
+    },
+    {
+      "name": "Check third_item variable",
+      "code": "context = {}\nexec(code, context)\nassert 'third_item' in context, 'Missing third_item variable'\nassert context['third_item'] == 'bread', f'third_item should be \"bread\", got: {context[\"third_item\"]}'\nprint('TEST_PASSED: third_item is correct')",
+      "expected": "third_item = 'bread'"
+    },
+    {
+      "name": "Check last_item variable",
+      "code": "context = {}\nexec(code, context)\nassert 'last_item' in context, 'Missing last_item variable'\nassert context['last_item'] == 'cheese', f'last_item should be \"cheese\", got: {context[\"last_item\"]}'\nprint('TEST_PASSED: last_item is correct')",
+      "expected": "last_item = 'cheese'"
+    },
+    {
+      "name": "Check second_to_last variable",
+      "code": "context = {}\nexec(code, context)\nassert 'second_to_last' in context, 'Missing second_to_last variable'\nassert context['second_to_last'] == 'butter', f'second_to_last should be \"butter\", got: {context[\"second_to_last\"]}'\nprint('TEST_PASSED: second_to_last is correct')",
+      "expected": "second_to_last = 'butter'"
+    },
+    {
+      "name": "Check output format",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = output.split('\\n')\nexpected_lines = [\n    'First item: milk',\n    'Third item: bread',\n    'Last item: cheese',\n    'Second-to-last item: butter'\n]\n\nfor i, expected in enumerate(expected_lines):\n    if i < len(lines):\n        assert lines[i].strip() == expected, f'Line {i+1}: expected \"{expected}\", got \"{lines[i].strip()}\"'\n    else:\n        raise AssertionError(f'Missing line {i+1}: {expected}')\n\nprint('TEST_PASSED: Output format is correct')",
+      "expected": "Four formatted output lines showing each item"
+    }
+  ],
   "expectedOutput": "First item: milk\nThird item: bread\nLast item: cheese\nSecond-to-last item: butter",
   "tags": [
     "lists",

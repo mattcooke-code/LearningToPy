@@ -19,12 +19,13 @@ if "Eggs" in shopping_list:
 ```
 
 ```python
-door_space = ["Rose"]
+# A Titanic Debate
+floating_door = ["Rose"]
 
-if "Jack" in door_space:
-    print("Everyone survives!")
+if "Jack" in floating_door:
+    print("Happily ever after.")
 else:
-    print("Rose is selfish.") # This runs
+    print("Rose is selfish!") # This runs because Jack is missing from the list
 ```
 
 ### Checking Strings

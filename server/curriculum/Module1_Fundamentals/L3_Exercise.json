@@ -9,28 +9,30 @@
   ],
   "starterCode": "# Create your two variables here:\n\n\n# Print their values below:\n",
   "solution": "# Create your two variables here:\nproject_name = \"PyGame\"\nhours_spent = 45\n\n# Print their values below:\nprint(project_name)\nprint(hours_spent)",
-  "validation": {
-    "type": "variable-assignment",
-    "requiredVariables": [
-      {
-        "name": "project_name",
-        "expectedValue": "PyGame",
-        "valueType": "string"
-      },
-      {
-        "name": "hours_spent",
-        "expectedValue": 45,
-        "valueType": "number"
-      }
-    ],
-    "requiredOutput": ["PyGame", "45"]
-  },
   "hints": [
-    "Make sure your variable names use `snake_case`.",
-    "Strings need quotation marks around them.",
+    "Make sure your variable names use `snake_case` (lowercase with underscores).",
+    "Strings need quotation marks around them (single or double quotes).",
     "Numbers do not need quotation marks.",
-    "Use print() to display each variable's value."
+    "Use print() to display each variable's value on separate lines."
   ],
-  "tags": ["variables", "beginner"],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check project_name variable exists with correct value",
+      "code": "# Execute code and check variables\ncontext = {}\nexec(code, context)\n\n# Check project_name\nassert 'project_name' in context, 'Missing project_name variable'\nassert context['project_name'] == 'PyGame', f'project_name should be \"PyGame\", got: {context[\"project_name\"]}'\nprint('TEST_PASSED: project_name variable is correct')",
+      "expected": "project_name = 'PyGame'"
+    },
+    {
+      "name": "Check hours_spent variable exists with correct value",
+      "code": "context = {}\nexec(code, context)\n\n# Check hours_spent\nassert 'hours_spent' in context, 'Missing hours_spent variable'\nassert context['hours_spent'] == 45, f'hours_spent should be 45, got: {context[\"hours_spent\"]}'\nprint('TEST_PASSED: hours_spent variable is correct')",
+      "expected": "hours_spent = 45"
+    },
+    {
+      "name": "Check output contains both values",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check output\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\nassert 'PyGame' in lines, f'Output should contain \"PyGame\", got: {output}'\nassert '45' in lines, f'Output should contain \"45\", got: {output}'\nprint('TEST_PASSED: Output contains both values')",
+      "expected": "Output contains 'PyGame' and '45'"
+    }
+  ],
+  "tags": ["variables", "beginner", "snake-case"],
   "challengeGroup": "variable-assignment"
 }

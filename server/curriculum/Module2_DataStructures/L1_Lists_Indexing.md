@@ -1,6 +1,6 @@
 # 📦 Lists: The Flexible Array
 
-In Python, a **List** is one of the most useful and versatile built-in data structures. Think of a list as a single, labeled container that holds an ordered collection of other data. Unlike a variable, which holds one value (like `5` or `"Hello"`), a list can hold many values.
+In Python, a **List** is one of the most useful and versatile built-in data structures. Think of a list as a single, labelled container that holds an ordered collection of other data. Unlike a variable, which holds one value (like `5` or `"Hello"`), a list can hold many values.
 
 ## 1. Defining a List
 

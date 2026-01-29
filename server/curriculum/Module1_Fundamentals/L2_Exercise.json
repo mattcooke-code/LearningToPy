@@ -1,18 +1,38 @@
 {
+  "title": "Indentation Practice",
   "instructions": "In the coding window, indent the print() statement using exactly 4 spaces so that the program runs without an error. If you remove the indentation, you should see an IndentationError.",
+  "steps": [
+    "Look at the if statement on line 1",
+    "Add exactly 4 spaces before the print statement on line 2",
+    "Run the code to make sure it works",
+    "Try removing the spaces to see the error!"
+  ],
   "starterCode": "if 1 == 1:\nprint(\"I need to be indented!\")",
   "solution": "if 1 == 1:\n    print(\"I need to be indented!\")",
-  "validation": {
-    "type": "exact-indentation",
-    "requiredSpaces": 4,
-    "lineNumber": 2,
-    "errorMessage": "The print statement must be indented with exactly 4 spaces."
-  },
   "hints": [
     "Python requires consistent indentation for code blocks",
     "Use exactly 4 spaces for each level of indentation",
-    "The print statement should be indented under the if statement"
+    "The print statement should be indented under the if statement",
+    "Don't use tabs - use 4 space characters"
   ],
-  "tags": ["syntax", "indentation"],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check code runs without indentation error",
+      "code": "try:\n    exec(code)\n    print('TEST_PASSED: Code executed without indentation error')\nexcept IndentationError:\n    raise AssertionError('Indentation error! The print statement needs 4 spaces of indentation.')",
+      "expected": "Code should run without IndentationError"
+    },
+    {
+      "name": "Check correct output",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert output == 'I need to be indented!', f'Expected \"I need to be indented!\" but got: {output}'",
+      "expected": "I need to be indented!"
+    },
+    {
+      "name": "Check exact indentation (4 spaces)",
+      "code": "# Check that line 2 starts with exactly 4 spaces\nlines = code.split('\\n')\nif len(lines) >= 2:\n    line2 = lines[1]\n    if not line2.startswith('    '):\n        raise AssertionError('Line 2 must start with exactly 4 spaces for indentation')\n    if line2.strip() != 'print(\"I need to be indented!\")':\n        raise AssertionError('Line 2 should only contain the print statement after 4 spaces')\nelse:\n    raise AssertionError('Code should have at least 2 lines')\n\nprint('TEST_PASSED: Correct indentation with 4 spaces')",
+      "expected": "Line 2 indented with exactly 4 spaces"
+    }
+  ],
+  "tags": ["syntax", "indentation", "beginner"],
   "challengeGroup": "fundamentals"
 }

@@ -17,6 +17,39 @@
     "**Keep it simple:** Ternary operators are great for simple choices. If you need elif or complex logic, use regular if/elif/else instead!",
     "**Testing:** Try changing the variables at the top to see how the ternary operators respond. Set temperature = 25, age = 20, error_code = 404, items_in_cart = 0!"
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check weather_status logic",
+      "code": "context = {}\nexec(code, context)\nassert 'weather_status' in context, 'Missing weather_status variable'\nassert context['weather_status'] == 'Hot', f'weather_status should be \"Hot\" when temperature=35, got: {context[\"weather_status\"]}'\nprint('TEST_PASSED: weather_status is correct')",
+      "expected": "weather_status = 'Hot'"
+    },
+    {
+      "name": "Check age_category logic",
+      "code": "context = {}\nexec(code, context)\nassert 'age_category' in context, 'Missing age_category variable'\nassert context['age_category'] == 'Minor', f'age_category should be \"Minor\" when age=16, got: {context[\"age_category\"]}'\nprint('TEST_PASSED: age_category is correct')",
+      "expected": "age_category = 'Minor'"
+    },
+    {
+      "name": "Check system_status truthiness",
+      "code": "context = {}\nexec(code, context)\nassert 'system_status' in context, 'Missing system_status variable'\nassert context['system_status'] == 'All systems normal', f'system_status should be \"All systems normal\" when error_code=0, got: {context[\"system_status\"]}'\nprint('TEST_PASSED: system_status is correct')",
+      "expected": "system_status = 'All systems normal'"
+    },
+    {
+      "name": "Check total_price calculation",
+      "code": "context = {}\nexec(code, context)\nassert 'total_price' in context, 'Missing total_price variable'\nassert context['total_price'] == 45, f'total_price should be 45 (3 * 15) when items_in_cart=3, got: {context[\"total_price\"]}'\nprint('TEST_PASSED: total_price is correct')",
+      "expected": "total_price = 45"
+    },
+    {
+      "name": "Check ternary operators are used",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Look for ternary operators (IfExp nodes)\nternary_count = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.IfExp):\n        ternary_count += 1\n\nassert ternary_count >= 4, f'Should use ternary operators for all 4 assignments. Found {ternary_count} ternary expressions.'\n\n# Count regular if statements (should be 0)\nif_count = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_count += 1\n\nassert if_count == 0, f'Should not use regular if statements in this exercise. Use ternary operators instead. Found {if_count} if statements.'\n\nprint('TEST_PASSED: Using ternary operators correctly')",
+      "expected": "Should use ternary operators, not regular if statements"
+    },
+    {
+      "name": "Test with different values",
+      "code": "# Test with different inputs\nmodified_code = code.replace(\"temperature = 35\", \"temperature = 25\")\nmodified_code = modified_code.replace(\"age = 16\", \"age = 20\")\nmodified_code = modified_code.replace(\"error_code = 0\", \"error_code = 404\")\nmodified_code = modified_code.replace(\"items_in_cart = 3\", \"items_in_cart = 0\")\n\ncontext = {}\nexec(modified_code, context)\n\nassert context['weather_status'] == 'Pleasant', 'temperature=25 should give \"Pleasant\"'\nassert context['age_category'] == 'Adult', 'age=20 should give \"Adult\"'\nassert context['system_status'] == 'Error detected', 'error_code=404 should give \"Error detected\"'\nassert context['total_price'] == 0, 'items_in_cart=0 should give total_price=0'\n\nprint('TEST_PASSED: Ternary operators work with different values')",
+      "expected": "All ternary operators should work with different inputs"
+    }
+  ],
   "expectedOutput": "⚡ QUICK STATUS CHECKER\nTemperature: 35°C\nAge: 16\nError code: 0\nItems in cart: 3\n\nWeather: Hot\nAge category: Minor\nSystem: All systems normal\nTotal price: $45",
   "tags": ["ternary", "conditional-expressions", "one-line-logic"],
   "challengeGroup": "conditional-logic"

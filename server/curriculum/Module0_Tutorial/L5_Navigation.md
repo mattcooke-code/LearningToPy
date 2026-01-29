@@ -2,9 +2,6 @@
 
 Learn how to move through the course, track your achievements, and master the learning structure of the platform.
 
-Navigation & Progress 📊
-Learn how to move through the course, track your achievements, and master the learning structure of the platform.
-
 ## The Learning Path
 
 Your journey to becoming a Python developer is organized into a clear hierarchy.
@@ -12,17 +9,17 @@ Your journey to becoming a Python developer is organized into a clear hierarchy.
 **1. Phases (The Big Picture)**
 The course is divided into three major Phases:
 
-• **Phase 1:** _Fundamentals (Modules 1-10)_: Master the basics like variables, loops, and functions.
+• **Phase 1: Fundamentals** _(Modules 1-10)_: Master the basics like variables, loops, and functions.
 
 • **Phase 2: Intermediate** _(Modules 11-15)_: Dive into Object-Oriented Programming (OOP) and professional tooling.
 
-• **Phase 3: Projects** _(Modules 16-20)_: Build real-world applications using APIs, Databases, and Data Science.
+• **Phase 3: Advanced Applications** _(Modules 16-20)_: Build real-world applications using APIs, Databases, and Data Science.
 
 **2. Modules (The Milestones)**
 
 Each Phase contains several Modules. A Module focuses on one specific topic (e.g., "Data Structures").
 
-• To "complete" a module, you must finish all its lessons.
+• To "complete" a module, you must finish all of its lessons.
 
 • Completing all lessons unlocks the **Module Quiz**, which grants a large XP bonus!
 
@@ -31,30 +28,32 @@ Inside each module are 5-6 lessons. These are your bite-sized learning units, co
 
 • 📚 **Theory:** Learn concepts through interactive explanations and live code examples.
 
-• 💻 **Exercise:** Put theory into practice with coding challenges. You'll use the Run button to test and the Submit button to verify your solution.
+• 💻 **Exercise:** Put theory into practice with coding challenges. You'll use the **Run** button to test and the **Submit** button to verify your solution.
 
-• ❓ **Lesson Quiz:** After most exercises, a short quiz will appear. This confirms you've mastered the concept. You must pass the quiz to officially complete the lesson and earn your XP!
+• ❓ **Lesson Quiz:** Confirm your mastery with a quick check for understanding after each exercise.
 
 • 🏆 **Project:** Larger, "Boss Level" challenges at the end of modules that combine everything you've learned into one working program.
+
+• 🎓 **The Grand Finale** _(Module 20):_ Once you reach the end, the entire final module is dedicated to your **Capstone Project:** a fully functional Command Line Tool that integrates APIs, Databases, and Logic into one professional utility.
 
 ## Tracking Your Growth
 
 **The Progress Bar**
 
-![ProgressBar](./images/ProgressBar.PNG)
+![Progress Bar](./images/ProgressBar.PNG)
 
 Located at the top of every Module page, this bar fills up as you complete lessons. When it hits 100%, your Module Quiz is ready!
 
 **Achievement Badges**
-We track your dedication through several visual cues:
+We help you track your dedication through several visual cues:
 
-![LessonProgress](./images/LessonList.PNG)
+![Lesson Progress](./images/LessonList.PNG)
 
 • **Green Checkmarks:** You’ve conquered this lesson! You can revisit it anytime.
 
-• **Locked Icons:** These lessons are up next. We recommend following the path in order.
+• **Locked Icons:** Modules that are not available yet have a padlock symbol. You must follow the learning path in order.
 
-• **Review Mode:** Want to practice an old exercise without affecting your score? Toggle Review Mode on any completed lesson.
+• **Review Mode:** Want to practice an old exercise without affecting your score? Toggle _Review Mode_ on any completed lesson.
 
 ## Earning Rewards 🎁
 
@@ -66,11 +65,11 @@ As a gamified platform, your effort translates into tangible rewards:
 
 • **Skill Badges 🏅:** Special achievements for milestones, such as:
 
-    - *Quick Learner*: Finish 5 lessons in 24 hours.
-
-    - *Weekend Warrior*: Keep the grind going on Saturday and Sunday.
-
-    - *Bug Hunter*: Solve an exercise on your first try after an error.
+| Badge           | Description                                        |
+| --------------- | -------------------------------------------------- |
+| Quick Learner   | Finish 5 lessons in 24 hours                       |
+| Weekend Warrior | Keep the grind going on Saturday and Sunday        |
+| Bug Hunter      | Solve an exercise on your first try after an error |
 
 ## Tips for Success 💡
 

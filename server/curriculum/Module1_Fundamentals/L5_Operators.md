@@ -91,17 +91,20 @@ greeting = first + " " + last  # Result: "Hello World"
 When joining strings, Python does not add a space for you. You must include it explicitly by adding `" "`.
 
 ```python
-first = "Code"
-last = "Master"
+# Make me a Sith Lord
+rank = "Darth"
+name = "Vader"
 
 # ❌ Incorrect: No space
 
-print(first + last) # Output: CodeMaster
+apprentice = rank + name
+print(apprentice) # Output: DarthVader
 
 # ✅ Correct: Adding a manual space string
 
-full_name = first + " " + last
-print(full_name) # Output: Code Master
+master = rank + " " + name
+print(master) # Output: Darth Vader
+# Your journey to the dark side is now complete!
 
 ```
 

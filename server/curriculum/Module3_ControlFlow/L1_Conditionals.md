@@ -36,7 +36,7 @@ if score >= 90:
     print("You earned an A.")
 else:
     print("Keep practicing!")
-# Since 85 is not >= 90, the 'else' block runs.
+# Since 85 is not greater than or equal to 90, the 'else' block runs.
 ```
 
 ## 3. The `elif` Statement (Else If)

@@ -34,11 +34,18 @@ const LessonSchema = new mongoose.Schema(
     codeExample: { language: String, code: String, explanation: String },
     // Ensure your L1_Exercise.json files follow this structure
     exercise: {
+      title: String,
       instructions: String,
+      steps: [String],
       starterCode: String,
       solution: String,
       hints: [String],
-      testCases: [mongoose.Schema.Types.Mixed], // Flexible for various testing styles
+      testCases: [mongoose.Schema.Types.Mixed],
+      validation: { type: String, enum: ["tests", "output", "none"] },
+      tests: [mongoose.Schema.Types.Mixed],
+      expectedOutput: String,
+      tags: [String],
+      challengeGroup: String,
     },
     quiz: [
       {
@@ -58,7 +65,7 @@ const LessonSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Improved slug middleware with uniqueness check (consistent with Module.js)

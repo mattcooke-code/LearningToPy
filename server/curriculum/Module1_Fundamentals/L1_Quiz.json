@@ -4,6 +4,7 @@
   "questions": [
     {
       "id": "m1l1_q1",
+      "sourceLesson": "M1L1",
       "type": "multiple-choice",
       "question": "What does the print() function do in Python?",
       "options": [
@@ -13,20 +14,21 @@
         "Sends a document to your printer"
       ],
       "correctAnswer": 1,
-      "explanation": "The print() function displays output to the screen (console). It's one of the most basic and commonly used functions in Python."
+      "explanation": "The `print()` function displays output to the screen (console). It's one of the most basic and commonly used functions in Python."
     },
     {
       "id": "m1l1_q2",
+      "sourceLesson": "M1L1",
       "type": "multiple-choice",
       "question": "Which of these print statements is written correctly?",
       "options": [
-        "print(Hello World)",
-        "print['Hello World']",
-        "print(\"Hello World\")",
-        "Print(\"Hello World\")"
+        "`print(Hello World)`",
+        "`print['Hello World']`",
+        "`print(\"Hello World\")`",
+        "`Print(\"Hello World\")`"
       ],
       "correctAnswer": 2,
-      "explanation": "print(\"Hello World\") is correct. The text must be in quotation marks, we use parentheses (not brackets), and 'print' must be lowercase."
+      "explanation": "`print(\"Hello World\")` is correct. The text must be in quotation marks, we use parentheses (not brackets), and 'print' must be lowercase."
     }
   ]
 }

@@ -1,7 +1,7 @@
 // LessonContent.jsx
 import { Lightbulb } from "lucide-react";
 import { useTheme } from "../../context";
-import { QuizComponent, ExerciseComponent } from "../lesson";
+import { QuizComponent, ExerciseComponent, CodeBlock } from "../lesson";
 import { MarkdownRenderer } from "../ui";
 
 const LessonContent = ({
@@ -19,10 +19,26 @@ const LessonContent = ({
 }) => {
   const { isCodeDark } = useTheme();
 
+  const getModuleNumber = () => {
+    if (lesson.moduleOrder !== undefined) {
+      return `M${lesson.moduleOrder}`;
+    }
+
+    if (lesson.module?.order !== undefined) {
+      return `M${lesson.module.order}`;
+    }
+
+    console.warn("Module order not found, defaulting to M0");
+    return "M0";
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
       <div className="prose prose-lg max-w-none">
-        <MarkdownRenderer content={lesson.content} />
+        <MarkdownRenderer
+          content={lesson.content}
+          moduleId={getModuleNumber()}
+        />
       </div>
 
       {/* Code Example */}
@@ -78,6 +94,7 @@ const LessonContent = ({
 
       {/* Theory Lesson Completion */}
       {lesson.contentType === "theory" &&
+        !lesson.quiz &&
         !lesson.isCompleted &&
         !isReviewMode && (
           <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-lg text-center">

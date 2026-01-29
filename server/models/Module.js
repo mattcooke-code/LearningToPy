@@ -14,6 +14,7 @@ const ModuleSchema = new mongoose.Schema(
     },
     shortDescription: { type: String, maxLength: 150 },
     order: { type: Number, required: true, min: 0 },
+    moduleNumber: { type: String, required: true, unique: true },
     difficulty: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
@@ -50,7 +51,7 @@ const ModuleSchema = new mongoose.Schema(
       ],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // --- Virtuals for Lesson Association ---

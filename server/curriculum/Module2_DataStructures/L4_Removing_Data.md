@@ -36,7 +36,7 @@ print(quest_log)       # Output: ['Find the Lost Sword', 'Rescue the Villager']
 print(completed_quest) # Output: 'Defeat the Dragon' (Time to collect your gold!)
 
 # The hero decides to abandon the most recent quest added
-abandoned_quest = quest_log.pop()
+abandoned_quest = quest_log.pop() # Removes 'Rescue the villager'
 print(quest_log)       # Output: ['Find the Lost Sword']
 
 ```
@@ -48,15 +48,15 @@ The built-in Python keyword `del` (delete) allows you to remove an element by in
 You must specify the list and the index/slice.
 
 ```python
-inventory = ["Apple", "Banana", "Cherry", "Date"]
+inventory = ["Apple", "Banana", "Cherry", "Melon"]
 
 # Delete the item at index 2 ('Cherry')
 del inventory[2]
-print(inventory) # Output: ['Apple', 'Banana', 'Date']
+print(inventory) # Output: ['Apple', 'Banana', 'Melon']
 
 # Delete a range (slice) of items from index 0 up to 2 (exclusive)
 del inventory[0:2]
-print(inventory) # Output: ['Date']
+print(inventory) # Output: ['Melon']
 ```
 
 | Method     | Criteria                        | Return Value     | Common Use Case                                                     |

@@ -50,9 +50,9 @@ You can add an optional third value to your slice, the `step`, to skip elements.
 
 The `step` value dictates how many elements to skip after retrieving the first one.
 
-A step of 2 means it grabs every second element.
+• A step of 2 means it grabs every second element.
 
-A negative step (e.g., -1) is used to reverse the list.
+• A negative step (e.g., -1) is used to reverse the list.
 
 ```python
 numbers = [10, 20, 30, 40, 50, 60]

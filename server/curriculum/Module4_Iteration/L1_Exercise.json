@@ -1,18 +1,44 @@
 {
-  "title": "Basic Iteration",
-  "instructions": "Practice using the basic `for` loop structure to process lists and strings, and utilize the `enumerate()` function.",
+  "title": "Basic Iteration Practice",
+  "instructions": "Practice using the basic `for` loop structure to process lists and strings, and utilize the `enumerate()` function.\n\n## Exercise Overview\nYou'll work with three different sequences to practice `for` loops:\n\n1. **List iteration**: Loop through project tasks\n2. **List with index**: Use `enumerate()` for scores\n3. **String iteration**: Loop through a string and check conditions\n\n## Tips\n- Choose descriptive variable names for your loop variables\n- Remember `enumerate()` gives you both index and value\n- For string checking, you can compare characters directly",
   "steps": [
-    "Use a `for` loop to iterate over the `project_tasks` list. Inside the loop, print each task name.",
-    "Use a `for` loop and the `enumerate()` function to iterate over the `user_scores` list. Inside the loop, print the index and the score in the format: 'Student [index] scored [score]'.",
-    "Use a `for` loop to iterate over the `document_title` string. Inside the loop, print only the character if it is a capital letter (A-Z). Hint: You can use a conditional statement inside the loop (e.g., `if character == 'A':`)."
+    "**Step 1:** Use a `for` loop to iterate over the `project_tasks` list. Inside the loop, print each task name.",
+    "**Step 2:** Use a `for` loop and the `enumerate()` function to iterate over the `user_scores` list. Inside the loop, print the index and the score in the format: 'Student [index] scored [score]'.",
+    "**Step 3:** Use a `for` loop to iterate over the `document_title` string. Inside the loop, print only the characters that are equal to 'T' or 'P'. Use simple comparisons: `if char == 'T':` or `if char == 'P':`."
   ],
-  "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\n\n\n# 2. Iterate and print scores with index:\n\n\n# 3. Iterate over the string and print only capital letters:\n\n",
-  "solution": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\nfor task in project_tasks:\n    print(task)\n\n# 2. Iterate and print scores with index:\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\n# 3. Iterate over the string and print only capital letters:\nfor char in document_title:\n    if char.isupper(): # isupper() is a string method\n        print(char)",
+  "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\n\n\n# 2. Iterate and print scores with index:\n\n\n# 3. Iterate over the string and print only 'T' or 'P' characters:\n\n",
+  "solution": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\nfor task in project_tasks:\n    print(task)\n\n# 2. Iterate and print scores with index:\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\n# 3. Iterate over the string and print only 'T' or 'P' characters:\nfor char in document_title:\n    if char == 'T' or char == 'P':\n        print(char)",
   "hints": [
-    "Choose a descriptive temporary variable name (e.g., `task`, `score`, `char`).",
-    "The `enumerate()` function provides two loop variables: the index first, then the value.",
-    "For the last step, remember to use an `if` statement *inside* the loop. The string method `isupper()` can check for capital letters."
+    "**Step 1:** Choose a descriptive variable name like `task` for your loop variable.",
+    "**Step 2:** `enumerate()` returns two values: first the index, then the item. Use `for index, score in enumerate(user_scores):`",
+    "**Step 3:** Check each character individually. Use `or` to check for multiple conditions: `if char == 'T' or char == 'P':`",
+    "**Remember:** Python is case-sensitive! 'T' is different from 't'.",
+    "**Testing:** Run your code to see which characters get printed. 'The Great Python Adventure' contains 'T', 'P', and several other letters."
   ],
-  "tags": ["for-loop", "iteration", "enumerate", "string-methods"],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check project tasks are printed",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\n# Check all project tasks are printed\nassert 'Planning' in lines, 'Should print \"Planning\"'\nassert 'Design' in lines, 'Should print \"Design\"'\nassert 'Coding' in lines, 'Should print \"Coding\"'\nassert 'Testing' in lines, 'Should print \"Testing\"'\nassert 'Launch' in lines, 'Should print \"Launch\"'\n\nprint('TEST_PASSED: All project tasks printed correctly')",
+      "expected": "Output should contain: Planning, Design, Coding, Testing, Launch"
+    },
+    {
+      "name": "Check scores with enumerate",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\n# Check student scores are printed with correct format\nscore_lines = [line for line in lines if 'Student' in line and 'scored' in line]\nassert len(score_lines) >= 4, f'Should print at least 4 score lines, got {len(score_lines)}'\n\n# Check each expected score line exists (order might vary)\nexpected_formats = [\n    'Student 0 scored 88',\n    'Student 1 scored 92',\n    'Student 2 scored 75',\n    'Student 3 scored 99'\n]\n\nfor expected in expected_formats:\n    assert any(expected in line for line in lines), f'Missing: {expected}'\n\nprint('TEST_PASSED: Scores printed correctly with enumerate')",
+      "expected": "Output should contain: Student 0 scored 88, Student 1 scored 92, Student 2 scored 75, Student 3 scored 99"
+    },
+    {
+      "name": "Check string filtering for 'T' and 'P'",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\n# Find characters printed (should be 'T' and 'P' only)\nchar_lines = [line for line in lines if len(line) == 1 and line.isalpha()]\n\n# Should print 'T' (from 'The'), 'P' (from 'Python')\nexpected_chars = ['T', 'P']\nactual_chars = [char for char in char_lines if char in expected_chars]\n\nassert len(actual_chars) >= 2, f'Should print at least T and P, got: {char_lines}'\nassert 'T' in actual_chars, 'Should print T (from \"The\")'\nassert 'P' in actual_chars, 'Should print P (from \"Python\")'\n\n# Should NOT print other letters\nfor char in char_lines:\n    if char not in expected_chars:\n        raise AssertionError(f'Should only print T or P, but printed: {char}')\n\nprint('TEST_PASSED: Correctly filtered for T and P characters')",
+      "expected": "Output should contain only 'T' and 'P' characters"
+    },
+    {
+      "name": "Check for loop structure",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Count for loops\nfor_loops = []\nfor node in ast.walk(tree):\n    if isinstance(node, ast.For):\n        for_loops.append(node)\n\nassert len(for_loops) >= 3, f'Should have at least 3 for loops, found {len(for_loops)}'\n\n# Check for enumerate usage\nenumerate_used = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if hasattr(node.func, 'id') and node.func.id == 'enumerate':\n            enumerate_used = True\n        elif hasattr(node.func, 'attr') and node.func.attr == 'enumerate':\n            enumerate_used = True\n\nassert enumerate_used, 'Should use enumerate() function'\n\n# Check for if statement inside loop\nif_in_loop = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.For):\n        for child in ast.walk(node):\n            if isinstance(child, ast.If):\n                if_in_loop = True\n                break\n\nassert if_in_loop, 'Should have an if statement inside a for loop'\n\nprint('TEST_PASSED: Correct for loop structure')",
+      "expected": "Should have 3 for loops, use enumerate(), and have if statement inside loop"
+    }
+  ],
+  "expectedOutput": "Planning\nDesign\nCoding\nTesting\nLaunch\nStudent 0 scored 88\nStudent 1 scored 92\nStudent 2 scored 75\nStudent 3 scored 99\nT\nP",
+  "tags": ["for-loop", "iteration", "enumerate", "conditional-logic"],
   "challengeGroup": "for-loop-basics"
 }

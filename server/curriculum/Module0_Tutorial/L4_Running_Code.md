@@ -56,13 +56,13 @@ print("Hello World"  # Missing a closing parenthesis!
 
 Running this will show:
 
-![Terminal](./images/TerminalError.PNG)
+![Terminal: Error Message](./images/TerminalError.PNG)
 
 **How to handle errors:**
 
 1. Don't Panic: Every developer sees dozens of errors a day.
 2. Read the bottom line: That’s usually where the "Type" of error is (e.g., `NameError`).
-3. Check the line number: Python points you exactly where it got stuck.
+3. Check the line number: Python tells you exactly where it got stuck.
 
 ## Practice Run
 
@@ -87,7 +87,7 @@ Once you see the results in the terminal, you're ready to move on!
 
 • **Print is King:** If nothing happens when you click Run, check if you used a `print()` statement. Python calculates things silently unless you tell it to "speak."
 
-• **Fix one at a time:** If you have five errors, just fix the first one and run the code again. Often, fixing the first error solves the rest!
+• **Fix one at a time:** If you have five errors, just fix the first one and run the code again. Often, fixing the first error can solve the rest!
 
 ## What's Next?
 

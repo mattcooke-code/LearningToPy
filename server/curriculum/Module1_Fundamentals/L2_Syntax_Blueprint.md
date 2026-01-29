@@ -50,4 +50,4 @@ NOTE: This code editor does automatically format an indentation, but we recommen
 
 ## 🛠️ Challenge: Practice Indentation
 
-Instructions: In the coding window, indent the `print()` statement using 4 spaces so that the program runs without an error. If you remove the indentation, you should see an IndentationError.
+Instructions: In the coding window, indent the `print()` statement using 4 spaces so that the program runs without an error. If you remove the indentation, you should see an **IndentationError**.

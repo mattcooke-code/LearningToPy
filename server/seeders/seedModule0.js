@@ -21,6 +21,7 @@ const seedModule0 = async (
       "Learn how to use this learning platform and get familiar with the coding environment.",
     shortDescription: "Platform introduction and navigation guide",
     order: 0,
+    moduleNumber: "M0",
     difficulty: "beginner",
     estimatedHours: 0.5,
     isPublished: true,

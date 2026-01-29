@@ -1,0 +1,38 @@
+{
+  "questions": [
+    {
+      "id": "m4l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the difference between `break` and `continue`?",
+      "options": [
+        "`break` skips the current iteration, `continue` stops the entire loop",
+        "`break` stops the entire loop, `continue` skips the current iteration",
+        "Both stop the loop, but `break` is for `for` loops and `continue` is for `while` loops",
+        "There is no difference; they can be used interchangeably"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`break` immediately terminates the entire loop, while `continue` only skips the rest of the current iteration and moves to the next item in the sequence (or re-evaluates the while condition)."
+    },
+    {
+      "id": "m4l4_q2",
+      "type": "multiple-choice",
+      "question": "How many times will this code print 'Hello'?\n\n```python\nnumbers = [1, 2, 3, 4, 5]\nfor num in numbers:\n    if num == 3:\n        continue\n    print('Hello')\n```",
+      "options": ["5 times", "4 times", "3 times", "It will run forever"],
+      "correctAnswer": 1,
+      "explanation": "The loop iterates through numbers 1-5. When `num` is 3, the `continue` statement skips the print statement, so 'Hello' is printed for numbers 1, 2, 4, and 5. That's 4 times."
+    },
+    {
+      "id": "m4l4_q3",
+      "type": "multiple-choice",
+      "question": "What happens when a `break` statement is executed inside a nested loop (a loop inside another loop)?",
+      "options": [
+        "It stops both the inner and outer loops",
+        "It only stops the innermost loop that contains it",
+        "It causes a syntax error; break cannot be used in nested loops",
+        "It skips to the next iteration of the outer loop"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`break` only affects the loop it's directly inside. If you have a `break` in an inner loop, it will only stop that inner loop, and the outer loop will continue with its next iteration."
+    }
+  ]
+}

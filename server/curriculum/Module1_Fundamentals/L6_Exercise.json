@@ -12,38 +12,45 @@
   ],
   "starterCode": "# Step 1: Create your first number variable\n\n\n# Step 2: Create your second number variable\n\n\n# Step 3: Calculate sum\n\n\n# Step 4: Calculate difference\n\n\n# Step 5: Calculate product\n\n\n# Step 6: Calculate quotient\n\n\n# Step 7: Print all four results\n",
   "solution": "# Step 1: Create your first number variable\nnumber_a = 50\n\n# Step 2: Create your second number variable\nnumber_b = 7\n\n# Step 3: Calculate sum\nsum_result = number_a + number_b\n\n# Step 4: Calculate difference\ndifference_result = number_a - number_b\n\n# Step 5: Calculate product\nproduct_result = number_a * number_b\n\n# Step 6: Calculate quotient\nquotient_result = number_a / number_b\n\n# Step 7: Print all four results\nprint(sum_result)\nprint(difference_result)\nprint(product_result)\nprint(quotient_result)",
-  "validation": {
-    "type": "flexible-calculator-check",
-    "requiredVariables": [
-      "number_a",
-      "number_b",
-      "sum_result",
-      "difference_result",
-      "product_result",
-      "quotient_result"
-    ],
-    "validationRules": [
-      {
-        "rule": "sum_result must equal number_a + number_b"
-      },
-      {
-        "rule": "difference_result must equal number_a - number_b"
-      },
-      {
-        "rule": "product_result must equal number_a * number_b"
-      },
-      {
-        "rule": "quotient_result must equal number_a / number_b"
-      }
-    ],
-    "requiresPrintStatements": 4,
-    "allowAnyNumbers": true
-  },
   "hints": [
     "You can choose any numbers for number_a and number_b - the validation checks that your math is correct, not what numbers you chose!",
     "Remember: sum uses +, difference uses -, product uses *, quotient uses /",
     "Division (/) always returns a float, even if the numbers divide evenly",
-    "Make sure to print each result variable on a separate line"
+    "Make sure to print each result variable on a separate line",
+    "Try using different numbers to test your calculator!"
+  ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check all required variables exist",
+      "code": "context = {}\nexec(code, context)\n\nrequired_vars = ['number_a', 'number_b', 'sum_result', 'difference_result', 'product_result', 'quotient_result']\nmissing = [var for var in required_vars if var not in context]\nassert len(missing) == 0, f'Missing variables: {missing}'\nprint('TEST_PASSED: All required variables exist')",
+      "expected": "All 6 variables should be created"
+    },
+    {
+      "name": "Check sum_result calculation",
+      "code": "context = {}\nexec(code, context)\nassert context['sum_result'] == context['number_a'] + context['number_b'], \\\n    f'sum_result should equal number_a + number_b ({context[\"number_a\"]} + {context[\"number_b\"]} = {context[\"number_a\"] + context[\"number_b\"]}), got: {context[\"sum_result\"]}'\nprint('TEST_PASSED: sum_result calculation is correct')",
+      "expected": "sum_result = number_a + number_b"
+    },
+    {
+      "name": "Check difference_result calculation",
+      "code": "context = {}\nexec(code, context)\nassert context['difference_result'] == context['number_a'] - context['number_b'], \\\n    f'difference_result should equal number_a - number_b ({context[\"number_a\"]} - {context[\"number_b\"]} = {context[\"number_a\"] - context[\"number_b\"]}), got: {context[\"difference_result\"]}'\nprint('TEST_PASSED: difference_result calculation is correct')",
+      "expected": "difference_result = number_a - number_b"
+    },
+    {
+      "name": "Check product_result calculation",
+      "code": "context = {}\nexec(code, context)\nassert context['product_result'] == context['number_a'] * context['number_b'], \\\n    f'product_result should equal number_a * number_b ({context[\"number_a\"]} * {context[\"number_b\"]} = {context[\"number_a\"] * context[\"number_b\"]}), got: {context[\"product_result\"]}'\nprint('TEST_PASSED: product_result calculation is correct')",
+      "expected": "product_result = number_a * number_b"
+    },
+    {
+      "name": "Check quotient_result calculation",
+      "code": "context = {}\nexec(code, context)\nassert context['quotient_result'] == context['number_a'] / context['number_b'], \\\n    f'quotient_result should equal number_a / number_b ({context[\"number_a\"]} / {context[\"number_b\"]} = {context[\"number_a\"] / context[\"number_b\"]}), got: {context[\"quotient_result\"]}'\nprint('TEST_PASSED: quotient_result calculation is correct')",
+      "expected": "quotient_result = number_a / number_b"
+    },
+    {
+      "name": "Check output has 4 lines",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line for line in output.split('\\n') if line.strip()]\nassert len(lines) >= 4, f'Should print at least 4 results, got {len(lines)} lines'\nprint('TEST_PASSED: Output has sufficient lines')",
+      "expected": "At least 4 lines of output"
+    }
   ],
   "tags": ["project", "calculator", "module-review", "variables", "operators"],
   "challengeGroup": "module-1-final"

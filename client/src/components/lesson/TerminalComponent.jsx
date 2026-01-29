@@ -43,7 +43,7 @@ const TerminalComponent = ({
   // Sample pre-populated code snippets for beginners
   const snippets = [
     { name: "Hello World", code: 'print("Hello, World!")' },
-    { name: "Math", code: "print(5 + 3)\nprint(10 / 2)" },
+    { name: "Calculate", code: "print(5 + 3)\nprint(10 / 2)" },
     {
       name: "Variables",
       code: 'name = "Python Learner"\nprint(f"Hello, {name}!")',
@@ -371,7 +371,7 @@ const TerminalComponent = ({
         className={`flex-grow overflow-y-auto p-4 font-mono text-sm whitespace-pre-wrap ${
           isCodeDark ? "bg-black text-gray-300" : "bg-gray-900 text-gray-100"
         }`}
-        style={{ height: `calc(${height} - 120px)` }}
+        style={{ height }}
       >
         {output.map((item, index) => (
           <div key={index} className="mb-1">
@@ -447,7 +447,7 @@ const TerminalComponent = ({
                   ? "Demo terminal - try: print('Hello')"
                   : "Type Python code here and press Enter..."
               }
-              style={{ minHeight: "40px" }}
+              style={{ minHeight: "60px" }}
             />
           </div>
 

@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "id": "m4l2_q1",
+      "type": "multiple-choice",
+      "question": "What will be the last number printed by this code?\n\n```python\nfor i in range(5, 10):\n    print(i)\n```",
+      "options": ["5", "9", "10", "The loop will print numbers 5 through 10"],
+      "correctAnswer": 1,
+      "explanation": "`range(5, 10)` starts at 5 and stops before 10, so it generates: 5, 6, 7, 8, 9. The last number printed is 9."
+    },
+    {
+      "id": "m4l2_q2",
+      "type": "multiple-choice",
+      "question": "Which `range()` call would generate the sequence: 2, 4, 6, 8?",
+      "options": [
+        "`range(2, 8, 2)`",
+        "`range(2, 10, 2)`",
+        "`range(2, 9, 2)`",
+        "`range(2, 8)`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "To get 2, 4, 6, 8: start at 2, step by 2, and stop before 10 (since 10 would be the next number if we continued). So `range(2, 10, 2)` is correct."
+    },
+    {
+      "id": "m4l2_q3",
+      "type": "multiple-choice",
+      "question": "How many times will this loop execute?\n\n```python\nfor i in range(3, 15, 4):\n    print(i)\n```",
+      "options": ["3 times", "4 times", "5 times", "It will run forever"],
+      "correctAnswer": 0,
+      "explanation": "`range(3, 15, 4)` generates: 3, 7, 11 (and stops before 15). So it executes 3 times. The next number would be 15, but since stop is exclusive, the loop ends."
+    }
+  ]
+}

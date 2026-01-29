@@ -15,6 +15,39 @@
     "**None is Falsy:** Just like an empty string, `None` evaluates to `False`. So `if profile_pic:` will only run if there is an actual filename stored there.",
     "**Printing variables:** When printing the balance in Step 3, remember to use an f-string like `f\"Balance: {balance}\"` to combine the text and the number."
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check username output",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Username: alex_2024' in output, f'Should print username, got: {output[:100]}...'\nprint('TEST_PASSED: Username printed correctly')",
+      "expected": "Username: alex_2024"
+    },
+    {
+      "name": "Check friends_list truthiness",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'No friends yet' in output, f'Empty friends_list should print \"No friends yet\", got: {output[:100]}...'\nassert 'You have friends!' not in output, 'Empty list should not trigger \"You have friends!\"'\nprint('TEST_PASSED: Empty friends_list handled correctly')",
+      "expected": "No friends yet (empty list is falsy)"
+    },
+    {
+      "name": "Check balance truthiness",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Please add funds' in output, f'Zero balance should print \"Please add funds\", got: {output[:100]}...'\nassert 'Balance: $' not in output, 'Zero balance should not print balance amount'\nprint('TEST_PASSED: Zero balance handled correctly')",
+      "expected": "Please add funds (0 is falsy)"
+    },
+    {
+      "name": "Check profile_pic truthiness",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'No profile picture' in output, f'None profile_pic should print \"No profile picture\", got: {output[:100]}...'\nassert 'Profile pic:' not in output, 'None should not trigger profile pic print'\nprint('TEST_PASSED: None profile_pic handled correctly')",
+      "expected": "No profile picture (None is falsy)"
+    },
+    {
+      "name": "Check no comparison operators used",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Look for comparison operators (==, !=, >, <, >=, <=)\ncomparison_ops = []\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Compare):\n        # Get the operator\n        for op in node.ops:\n            op_name = type(op).__name__\n            comparison_ops.append(op_name)\n\n# Should not use comparison operators in this exercise\nassert len(comparison_ops) <= 1, f'Should not use comparison operators (==, !=, etc.) in truthiness exercise. Found: {comparison_ops}'\n# Allow one comparison (the example in step 1 might have it in comments or similar)\n\n# Check for truthiness patterns (if variable: or if not variable:)\nif_count = 0\ntruthy_patterns = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_count += 1\n        # Check if test is a simple Name (if variable:) or UnaryOp with not (if not variable:)\n        if isinstance(node.test, ast.Name):\n            truthy_patterns += 1\n        elif isinstance(node.test, ast.UnaryOp) and isinstance(node.test.op, ast.Not):\n            truthy_patterns += 1\n\nassert if_count >= 4, f'Should have at least 4 if statements, found {if_count}'\nassert truthy_patterns >= 4, f'Should use truthiness patterns (if variable: or if not variable:), found {truthy_patterns} patterns'\n\nprint('TEST_PASSED: Using truthiness patterns (no comparison operators)')",
+      "expected": "Should use truthiness patterns, not comparison operators"
+    },
+    {
+      "name": "Test with different values",
+      "code": "# Test with non-default values\nmodified_code = code.replace(\"friends_list = []\", \"friends_list = ['Alice', 'Bob']\")\nmodified_code = modified_code.replace(\"balance = 0\", \"balance = 100\")\nmodified_code = modified_code.replace(\"profile_pic = None\", \"profile_pic = 'avatar.jpg'\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all outputs changed\nassert 'You have friends!' in output, 'Non-empty list should print \"You have friends!\"'\nassert 'Balance: $100' in output, 'Non-zero balance should print balance'\nassert 'Profile pic: avatar.jpg' in output, 'Non-None profile_pic should print filename'\nprint('TEST_PASSED: Truthiness works with non-default values')",
+      "expected": "Truthiness should work with different values"
+    }
+  ],
   "expectedOutput": "👤 USER PROFILE VALIDATOR\n\nUsername: alex_2024\nNo friends yet\nPlease add funds\nNo profile picture",
   "tags": ["truthiness", "falsiness", "control-flow"],
   "challengeGroup": "conditional-logic"

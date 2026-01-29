@@ -10,7 +10,7 @@
         "`['green', 'yellow']`"
       ],
       "correctAnswer": 1,
-      "explanation": "The slice `[1:3]` starts at index 1 ('blue') and stops BEFORE index 3. So it includes indices 1 and 2, which are 'blue' and 'green'. Remember: the stop index is never included in the slice."
+      "explanation": "The slice `[1:3]` starts at index `1` (`'blue'`) and stops BEFORE index `3`. So it includes indices `1` and `2`, which are `'blue'` and `'green'`. Remember: the stop index is never included in the slice."
     },
     {
       "id": "m2l2_q2",
@@ -22,7 +22,7 @@
         "Removes all negative numbers from the list"
       ],
       "correctAnswer": 1,
-      "explanation": "The slice `[::-1]` uses a step of -1, which reverses the list. The empty start and stop values mean 'from beginning to end', and the -1 step means 'go backwards', effectively reversing the entire list."
+      "explanation": "The slice `[::-1]` uses a step of `-1`, which reverses the list. The empty start and stop values mean 'from beginning to end', and the `-1` step means 'go backwards', effectively reversing the entire list."
     },
     {
       "id": "m2l2_q3",

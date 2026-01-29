@@ -4,9 +4,9 @@ While our in-browser editor is perfect for learning, professional developers use
 
 ## The "Download" Button
 
-On every lesson, you’ll see a Download icon. This allows you to take the lesson code off our platform and run it on your own computer.
+On every lesson, you'll see a Download button. This allows you to take the lesson code off our platform and run it on your own computer.
 
-// IMAGE
+![Code Editor: Dark Mode](./images/CodeEditorDarkMode.png)
 
 ## Why code locally?
 
@@ -18,19 +18,21 @@ On every lesson, you’ll see a Download icon. This allows you to take the lesso
 
 ## 🛠️ The Setup (Two Steps)
 
-To code on your own computer, you need two things: the Engine (Python) and the Dashboard (The Editor).
+To code on your computer, you need two things: the Engine (Python) and the Dashboard (The Editor).
 
 **1. The Engine: Python**
+
 Before you can run code, your computer needs to understand the language. You will need to download and install the latest version of Python from the official site.
 
-Download: python.org/downloads
+Download: [python.org/downloads](https://python.org/downloads)
 
 **2. The Dashboard: An Editor**
+
 We recommend these two industry standards. They are free, powerful, and used by developers at Google and NASA:
 
-• _Visual Studio Code (VS Code):_ Lightweight, extremely popular, and has thousands of plugins to customize your experience. [Link to VSCode]
+- **Visual Studio Code (VS Code):** Lightweight, extremely popular, and has thousands of plugins to customize your experience. [Download VS Code](https://code.visualstudio.com/download)
 
-• _PyCharm:_ A "heavy-duty" editor specifically built for Python. It’s a bit larger but comes with everything pre-configured. [Link to PyCharm]
+- **PyCharm:** A "heavy-duty" editor specifically built for Python. It's a bit larger but comes with everything pre-configured. [Download PyCharm](https://www.jetbrains.com/pycharm/download/)
 
 ## Important Note
 

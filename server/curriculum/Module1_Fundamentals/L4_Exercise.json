@@ -9,43 +9,39 @@
   ],
   "starterCode": "# Replace the placeholder values with the correct data types\nitem_name = None\nstock_count = None\nitem_price = None\nis_available = None\n\n# These will check your variable types:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
   "solution": "# Replace the placeholder values with the correct data types\nitem_name = \"Laptop\"\nstock_count = 150\nitem_price = 12.99\nis_available = True\n\n# These will check your variable types:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
-  "validation": {
-    "type": "data-type-check",
-    "requiredTypes": [
-      {
-        "variableName": "item_name",
-        "expectedType": "str",
-        "allowAnyValue": true
-      },
-      {
-        "variableName": "stock_count",
-        "expectedType": "int",
-        "allowAnyValue": true
-      },
-      {
-        "variableName": "item_price",
-        "expectedType": "float",
-        "allowAnyValue": true
-      },
-      {
-        "variableName": "is_available",
-        "expectedType": "bool",
-        "allowAnyValue": true
-      }
-    ],
-    "checkOutput": true,
-    "expectedOutputPattern": [
-      "<class 'str'>",
-      "<class 'int'>",
-      "<class 'float'>",
-      "<class 'bool'>"
-    ]
-  },
   "hints": [
     "Strings need quotation marks around them (single or double).",
     "Integers are whole numbers without decimal points.",
     "Floats must include a decimal point, even if it's .0",
     "Booleans must be capitalized: True or False (not true or false)."
+  ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check item_name is a string",
+      "code": "context = {}\nexec(code, context)\nassert 'item_name' in context, 'Missing item_name variable'\nassert isinstance(context['item_name'], str), f'item_name should be a string, got {type(context[\"item_name\"])}'\nprint('TEST_PASSED: item_name is a string')",
+      "expected": "item_name should be a string type"
+    },
+    {
+      "name": "Check stock_count is an integer",
+      "code": "context = {}\nexec(code, context)\nassert 'stock_count' in context, 'Missing stock_count variable'\nassert isinstance(context['stock_count'], int), f'stock_count should be an integer, got {type(context[\"stock_count\"])}'\nprint('TEST_PASSED: stock_count is an integer')",
+      "expected": "stock_count should be an integer type"
+    },
+    {
+      "name": "Check item_price is a float",
+      "code": "context = {}\nexec(code, context)\nassert 'item_price' in context, 'Missing item_price variable'\nassert isinstance(context['item_price'], float), f'item_price should be a float, got {type(context[\"item_price\"])}'\nprint('TEST_PASSED: item_price is a float')",
+      "expected": "item_price should be a float type"
+    },
+    {
+      "name": "Check is_available is a boolean",
+      "code": "context = {}\nexec(code, context)\nassert 'is_available' in context, 'Missing is_available variable'\nassert isinstance(context['is_available'], bool), f'is_available should be a boolean, got {type(context[\"is_available\"])}'\nprint('TEST_PASSED: is_available is a boolean')",
+      "expected": "is_available should be a boolean type"
+    },
+    {
+      "name": "Check output shows correct type names",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\nassert any(\"<class 'str'>\" in line for line in lines), 'Output should show string type'\nassert any(\"<class 'int'>\" in line for line in lines), 'Output should show int type'\nassert any(\"<class 'float'>\" in line for line in lines), 'Output should show float type'\nassert any(\"<class 'bool'>\" in line for line in lines), 'Output should show bool type'\nprint('TEST_PASSED: Output shows all correct data types')",
+      "expected": "Output shows str, int, float, and bool types"
+    }
   ],
   "tags": ["data-types", "string", "integer", "float", "boolean"],
   "challengeGroup": "type-mastery"

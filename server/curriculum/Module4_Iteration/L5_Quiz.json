@@ -1,0 +1,43 @@
+{
+  "questions": [
+    {
+      "id": "m4l5_q1",
+      "type": "multiple-choice",
+      "question": "In a nested loop structure, how many times does the inner loop run?",
+      "options": [
+        "Once, at the beginning",
+        "Once for each iteration of the outer loop",
+        "Only when a specific condition is met",
+        "The same number of times as the outer loop"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The inner loop runs to completion for EVERY iteration of the outer loop. If the outer loop runs 3 times and the inner loop runs 4 times each, the inner loop code executes 3 × 4 = 12 times total."
+    },
+    {
+      "id": "m4l5_q2",
+      "type": "multiple-choice",
+      "question": "What will this code print?\n\n```python\nfor i in range(2):\n    for j in range(2):\n        print(i, j)\n```",
+      "options": [
+        "0 0\\n0 1\\n1 0\\n1 1",
+        "0 0\\n1 1",
+        "0 1\\n0 2\\n1 1\\n1 2",
+        "0 0\\n0 0\\n1 1\\n1 1"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The outer loop runs twice (i=0, then i=1). For each i, the inner loop runs twice (j=0, then j=1). So the output is: (0,0), (0,1), (1,0), (1,1)."
+    },
+    {
+      "id": "m4l5_q3",
+      "type": "multiple-choice",
+      "question": "If you have a `break` statement inside the inner loop of nested loops, what happens?",
+      "options": [
+        "Both the inner and outer loops stop immediately",
+        "Only the inner loop stops; the outer loop continues with its next iteration",
+        "The program crashes with an error",
+        "The `break` is ignored because it's in a nested loop"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A `break` statement only affects the loop it's directly inside. In nested loops, a `break` in the inner loop will only stop the inner loop. The outer loop will continue with its next iteration (unless you have additional logic to break it too)."
+    }
+  ]
+}

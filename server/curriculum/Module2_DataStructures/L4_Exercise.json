@@ -17,6 +17,39 @@
     "**Watch the progression:** Each print statement shows how your list shrinks. This helps you understand what each method does!",
     "**Common mistake:** Remember that `remove()` and `pop()` are methods (use parentheses), but `del` is a keyword (no parentheses on del itself)."
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check tasks after step 1 (remove 'Check emails')",
+      "code": "context = {}\nexec(code, context)\nassert 'tasks' in context, 'Missing tasks variable'\n# After step 1: ['Morning workout', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\nassert 'Check emails' not in context['tasks'], \"'Check emails' should be removed from tasks\"\nassert len(context['tasks']) == 5, f'After step 1, tasks should have 5 items, got {len(context[\"tasks\"])}'\nprint('TEST_PASSED: Check emails removed correctly')",
+      "expected": "'Check emails' should be removed, 5 tasks remaining"
+    },
+    {
+      "name": "Check completed_task variable",
+      "code": "context = {}\nexec(code, context)\nassert 'completed_task' in context, 'Missing completed_task variable'\nassert context['completed_task'] == 'Morning workout', f'completed_task should be \"Morning workout\", got: {context[\"completed_task\"]}'\nprint('TEST_PASSED: completed_task stored correctly')",
+      "expected": "completed_task = 'Morning workout'"
+    },
+    {
+      "name": "Check tasks after step 3 (delete last 2 tasks)",
+      "code": "context = {}\nexec(code, context)\n# After step 3: ['Team meeting', 'Lunch break'] (removed 'Code review' and 'Update docs')\nassert len(context['tasks']) == 2, f'After step 3, tasks should have 2 items, got {len(context[\"tasks\"])}'\nassert context['tasks'] == ['Team meeting', 'Lunch break'], \\\n    f'After step 3, tasks should be [\"Team meeting\", \"Lunch break\"], got: {context[\"tasks\"]}'\nprint('TEST_PASSED: Last 2 tasks deleted correctly')",
+      "expected": "tasks should be ['Team meeting', 'Lunch break'] after step 3"
+    },
+    {
+      "name": "Check final_task variable",
+      "code": "context = {}\nexec(code, context)\nassert 'final_task' in context, 'Missing final_task variable'\nassert context['final_task'] == 'Lunch break', f'final_task should be \"Lunch break\", got: {context[\"final_task\"]}'\nprint('TEST_PASSED: final_task stored correctly')",
+      "expected": "final_task = 'Lunch break'"
+    },
+    {
+      "name": "Check final tasks list",
+      "code": "context = {}\nexec(code, context)\n# Final: ['Team meeting']\nassert len(context['tasks']) == 1, f'Final tasks should have 1 item, got {len(context[\"tasks\"])}'\nassert context['tasks'][0] == 'Team meeting', f'Final task should be \"Team meeting\", got: {context[\"tasks\"][0]}'\nprint('TEST_PASSED: Final tasks list is correct')",
+      "expected": "Final tasks list should be ['Team meeting']"
+    },
+    {
+      "name": "Check output progression",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all expected output sections\nassert \"Starting tasks:\" in output, 'Should show starting tasks'\nassert \"After removing 'Check emails':\" in output, 'Should show after removal'\nassert \"After completing first task:\" in output, 'Should show after pop'\nassert \"Completed: Morning workout\" in output, 'Should show completed task'\nassert \"After deleting last 2 tasks:\" in output, 'Should show after deleting'\nassert \"After completing final task:\" in output, 'Should show final step'\nassert \"Final task completed: Lunch break\" in output, 'Should show final task'\nprint('TEST_PASSED: Output shows all progression steps')",
+      "expected": "Output should show tasks at each stage"
+    }
+  ],
   "expectedOutput": "Starting tasks: ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nAfter removing 'Check emails': ['Morning workout', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\nAfter completing first task: ['Team meeting', 'Lunch break', 'Code review', 'Update docs']\nCompleted: Morning workout\nAfter deleting last 2 tasks: ['Team meeting', 'Lunch break']\nAfter completing final task: ['Team meeting']\nFinal task completed: Lunch break",
   "tags": ["lists", "remove", "pop", "del", "list-methods"],
   "challengeGroup": "list-operations"

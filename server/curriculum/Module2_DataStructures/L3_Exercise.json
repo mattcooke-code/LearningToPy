@@ -1,6 +1,6 @@
 {
   "title": "Building Your Playlist",
-  "instructions": "You're creating a music playlist. Practice modifying your list by changing songs, adding new ones, and combining playlists. Each step builds on the previous one!",
+  "instructions": "You're creating a music playlist. Practice modifying `my_playlist` by changing songs, adding new ones, and combining playlists. Each step builds on the previous one!",
   "steps": [
     "**Step 1:** Change the first song. The song at index 0 is 'Placeholder Song'. Use index assignment to replace it with 'Bohemian Rhapsody'.",
     "**Step 2:** Add a new song to the end. Use the `append()` method to add 'Stairway to Heaven' to the end of your playlist.",
@@ -16,6 +16,34 @@
     "**extend() syntax:** Pass in the other list: `my_playlist.extend(friends_playlist)`. This adds each item from friends_playlist individually.",
     "**Watch the output:** The print statements show how your list changes after each step. This helps you see if your code is working correctly!",
     "**Common mistake:** Don't put the list name in quotes! Write `my_playlist.append()`, not `'my_playlist'.append()`."
+  ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check playlist after step 1 (replace first song)",
+      "code": "context = {}\nexec(code, context)\nassert 'my_playlist' in context, 'Missing my_playlist variable'\n# After step 1: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine']\nassert len(context['my_playlist']) >= 3, 'Playlist should have at least 3 songs after step 1'\nassert context['my_playlist'][0] == 'Bohemian Rhapsody', f'First song should be \"Bohemian Rhapsody\", got: {context[\"my_playlist\"][0]}'\nprint('TEST_PASSED: First song replaced correctly')",
+      "expected": "First song should be 'Bohemian Rhapsody'"
+    },
+    {
+      "name": "Check playlist after step 2 (append)",
+      "code": "context = {}\nexec(code, context)\n# After step 2: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine', 'Stairway to Heaven']\nassert len(context['my_playlist']) >= 4, 'Playlist should have at least 4 songs after step 2'\nassert context['my_playlist'][-1] == 'Stairway to Heaven', f'Last song should be \"Stairway to Heaven\", got: {context[\"my_playlist\"][-1]}'\nprint('TEST_PASSED: Song appended correctly')",
+      "expected": "Last song should be 'Stairway to Heaven'"
+    },
+    {
+      "name": "Check playlist after step 3 (insert at index 2)",
+      "code": "context = {}\nexec(code, context)\n# After step 3: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nassert len(context['my_playlist']) >= 5, 'Playlist should have at least 5 songs after step 3'\nassert context['my_playlist'][2] == 'Hotel California', f'Item at index 2 should be \"Hotel California\", got: {context[\"my_playlist\"][2]}'\nprint('TEST_PASSED: Song inserted correctly at index 2')",
+      "expected": "Song at index 2 should be 'Hotel California'"
+    },
+    {
+      "name": "Check final playlist after step 4 (extend)",
+      "code": "context = {}\nexec(code, context)\n# Final: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nassert len(context['my_playlist']) == 7, f'Final playlist should have 7 songs, got {len(context[\"my_playlist\"])}'\nassert context['my_playlist'][-2:] == ['Smells Like Teen Spirit', 'Wonderwall'], \\\n    f'Last two songs should be from friends_playlist, got: {context[\"my_playlist\"][-2:]}'\nprint('TEST_PASSED: Friends playlist extended correctly')",
+      "expected": "Final playlist should have 7 songs with friends' songs at the end"
+    },
+    {
+      "name": "Check output shows progression",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all expected phrases are in output\nassert 'Starting playlist:' in output, 'Should show starting playlist'\nassert 'After replacing first song:' in output, 'Should show after replacement'\nassert 'After appending:' in output, 'Should show after appending'\nassert 'After inserting:' in output, 'Should show after inserting'\nassert 'Final playlist:' in output, 'Should show final playlist'\nprint('TEST_PASSED: Output shows all progression steps')",
+      "expected": "Output should show playlist at each stage"
+    }
   ],
   "expectedOutput": "Starting playlist: ['Placeholder Song', 'Imagine', 'Sweet Child O Mine']\n\nAfter replacing first song: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine']\nAfter appending: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine', 'Stairway to Heaven']\nAfter inserting: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nFinal playlist: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']",
   "tags": ["lists", "mutability", "methods", "append", "insert", "extend"],

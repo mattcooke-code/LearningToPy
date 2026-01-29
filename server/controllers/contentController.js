@@ -170,10 +170,15 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
 
   const user = await User.findById(userId).select("completedLessons");
 
+  const getModuleNumber = (order) => {
+    return `M${order}`;
+  };
+
   const lessonsWithProgress = lessons.map((lesson) => ({
     ...lesson,
     isCompleted: user.completedLessons.includes(lesson._id.toString()),
     isLocked: false,
+    moduleNumber: getModuleNumber(module.order),
   }));
 
   sendJsonResponse(res, 200, "Lessons fetched successfully", {
@@ -181,6 +186,8 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
       title: module.title,
       description: module.description,
       icon: module.icon,
+      order: module.order,
+      moduleNumber: getModuleNumber(module.order),
     },
     lessons: lessonsWithProgress,
   });
@@ -190,10 +197,16 @@ const getLessonContent = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const userId = req.userId;
 
-  const lesson = await Lesson.findById(lessonId).lean();
+  const lesson = await Lesson.findById(lessonId)
+    .populate("moduleId", "order title")
+    .lean();
+
   if (!lesson) {
     return next(new AppError("Lesson not found", 404));
   }
+
+  const moduleId = lesson.moduleId._id;
+  const moduleOrder = lesson.moduleId.order;
 
   const user = await User.findById(userId).select(
     "completedLessons lessonQuizProgress",
@@ -218,6 +231,8 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Lesson content fetched successfully", {
     ...lesson,
+    moduleId: moduleId.toString(),
+    moduleNumber: `M${lesson.moduleId.order}`,
     isCompleted,
     quizProgress: quizProgress
       ? {
@@ -268,11 +283,17 @@ const submitLesson = catchAsync(async (req, res, next) => {
   ) {
     isCorrect = true;
     feedback = "Status checked/Theory completed!";
-  } else {
-    return next(new AppError("Invalid submission", 400));
+
+    if (quizProgress) quizProgress.completed = true;
   }
 
-  const completed = isLessonFullyCompleted(lesson, quizProgress, isCorrect);
+  const isManualCompletion = code === undefined && answer === undefined;
+  const completed = isLessonFullyCompleted(
+    lesson,
+    quizProgress,
+    isCorrect,
+    isManualCompletion,
+  );
 
   // 3. Process Full Completion
   if (completed) {

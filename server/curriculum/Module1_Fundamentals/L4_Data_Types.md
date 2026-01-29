@@ -23,7 +23,7 @@ year_of_birth = 1995
 temperature = -5
 ```
 
-Operation Example: You can perform math: `total = num_of_students + 5`
+Operation Example: You can perform mathematical operations: `total = num_of_students + 5`
 
 ## 3. Decimal Numbers: The Float (`float`)
 

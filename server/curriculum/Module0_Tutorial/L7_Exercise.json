@@ -1,24 +1,42 @@
 {
   "title": "My First Python Program",
-  "description": "Change the name in a simple Python program.",
-  "instructions": "Edit the code to change 'Python Learner' to your name or nickname, then submit.",
+  "instructions": "# Your First Python Program 🎉\n\nTime to practice what you've learned! This simple exercise helps you:\n\n- Edit code in the editor\n- Run a Python program\n- Submit for XP rewards\n\n## The Program\n\nYou'll work with this simple program:\n\n```python\nname = \"Python Learner\"\nprint(f\"Hello, {name}!\")\n```\n\n## Your Task\n\nChange `\"Python Learner\"` to your actual name or nickname.\n\nThat's it! Just one small change.\n\n## Step-by-Step\n\n**Step 1:** Find this line in the code:\n\n```python\nname = \"Python Learner\"\n```\n\n**Step 2:** Change it to your name:\n\n```python\nname = \"Alex\"  # Your name here!\n```\n\n**Step 3:** Run the code (click **Run Code** button)\n\nYou should see: `Hello, Alex!`\n\n**Step 4:** Submit for XP! (click **Submit Code** button)\n\n## Example\n\nBefore:\n\n```python\nname = \"Python Learner\"\nprint(f\"Hello, {name}!\")\n```\n\nOutput: `Hello, Python Learner!`\n\nAfter:\n\n```python\nname = \"Alex\"\nprint(f\"Hello, {name}!\")\n```\n\nOutput: `Hello, Alex!`\n\n## Ready?\n\n1. Change the name\n2. Click **Run Code** to test\n3. Click **Submit Code** to earn XP!\n\nSimple as that! 🎉",
+  "steps": [
+    "Find the line that says: `name = \"Python Learner\"`",
+    "Change `\"Python Learner\"` to your name (keep the quotes!)",
+    "Run the code using the **Run Code** button",
+    "Check that the output shows: `Hello, [Your Name]!`",
+    "Submit using the **Submit Code** button to earn XP!"
+  ],
   "starterCode": "name = \"Python Learner\"\nprint(f\"Hello, {name}!\")",
-  "testCases": [
+  "solution": "# Example solution\nname = \"Alex\"\nprint(f\"Hello, {name}!\")",
+  "hints": [
+    "**Just change the name:** Only edit the part inside quotes on line 1.",
+    "**Keep the quotes:** Make sure your name is inside quotation marks like this: `\"Your Name\"`",
+    "**Test it:** Click Run Code first to make sure it works before submitting!",
+    "**Any name works:** You can use your real name, nickname, or even a fun word like `\"Coder\"`!"
+  ],
+  "validation": "tests",
+  "tests": [
     {
-      "input": "",
-      "expectedOutputRegex": "Hello, .+!",
-      "description": "Should display greeting with your name"
+      "name": "Should print greeting with a name",
+      "code": "# Test that output contains a greeting\nassert 'Hello' in output and '!' in output, 'Output should contain a greeting'",
+      "expected": "Output should contain 'Hello' and end with '!'"
     },
     {
-      "input": "",
-      "expectedOutputDoesNotContain": ["Python Learner"],
-      "description": "Should not contain 'Python Learner'"
+      "name": "Should not contain default name",
+      "code": "# Test that default name is not used\nassert 'Python Learner' not in output, 'You need to change the default name!'",
+      "expected": "Output should not contain 'Python Learner'"
+    },
+    {
+      "name": "Should have changed the name variable",
+      "code": "# Test that name variable was actually changed\nimport sys\nimport io\n\n# Capture the executed code's output\ncontext = {}\nexec(code, context)\n\n# Check if name variable exists and isn't default\nassert 'name' in context, 'Variable \"name\" should exist'\nassert context['name'] != 'Python Learner', 'You need to change the name from \"Python Learner\"!'",
+      "expected": "The 'name' variable should be changed from 'Python Learner' to your name"
     }
   ],
-  "hints": [
-    "Change 'Python Learner' to your name inside the quotes",
-    "Make sure your name is inside quotes: name = \"Your Name\"",
-    "Run the code first to see if it shows your name"
-  ],
-  "solution": "name = \"Alex\"\nprint(f\"Hello, {name}!\")"
+  "expectedOutput": "Hello, Alex!",
+  "tags": ["first-program", "hello-world", "variables", "print"],
+  "challengeGroup": "getting-started",
+  "difficulty": "beginner",
+  "timeEstimate": 5
 }

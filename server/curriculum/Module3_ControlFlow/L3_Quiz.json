@@ -14,7 +14,7 @@
     },
     {
       "id": "m3l3_q2",
-      "question": "What will this code print? \n\n`username = ''` \n`if username:` \n`    print('Hello')` \n`else:` \n`    print('Please log in')`",
+      "question": "What will this code print? \n\n```python\nusername = ''\nif username:\n    print('Hello')\nelse:\n    print('Please log in')\n```",
       "options": ["`'Hello'`", "`'Please log in'`", "Nothing", "Error"],
       "correctAnswer": 1,
       "explanation": "An empty string `''` is Falsy, so the `if` condition evaluates to `False` and the `else` block runs, printing `'Please log in'`. This is a clean way to check if a string has content."

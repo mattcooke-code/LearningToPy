@@ -8,7 +8,7 @@ The terminal is where your code comes to life! It's an interactive Python enviro
 
 ### Terminal Sections:
 
-1. **Terminal Toggle:** Show or hide the terminal window to save screen space.
+1. **Terminal Toggle:** Show or hide the terminal window.
 2. **Terminal Input:** Type individual lines of Python code here to test them instantly.
 3. **Run Button:** Executes the code in the input box. The button turns green as soon as you start typing!
 4. **Terminal Output:** This area displays the results of your code or any error messages.
@@ -19,7 +19,7 @@ The terminal is where your code comes to life! It's an interactive Python enviro
 
 ## Interactive Python Mode
 
-The terminal can also work as an interactive Python shell (REPL - Read-Eval-Print Loop). This means it reads your line of code, evaluates it, and prints the result immediately.
+The terminal can also work as an interactive Python shell (**REPL** - _Read-Eval-Print Loop_). This means it reads your line of code, evaluates it, and prints the result immediately.
 
 ```python
 >>> 2 + 2
@@ -78,7 +78,7 @@ The terminal is your best friend for fixing errors:
 | Feature     | The Editor                | The Terminal                   |
 | ----------- | ------------------------- | ------------------------------ |
 | Primary Use | Writing full programs     | Running and testing code       |
-| Storage     | Saves your code for later | "Immediate, temporary results" |
+| Storage     | Saves your code for later | Immediate, temporary results   |
 | Structure   | Many lines and functions  | Usually line-by-line execution |
 | Style       | Full Syntax Highlighting  | Plain text results and errors  |
 

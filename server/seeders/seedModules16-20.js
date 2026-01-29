@@ -29,10 +29,11 @@ const seedModules16to20 = async (
       "Learn to interact with web services using the powerful requests library.",
     shortDescription: "Master GET/POST requests and handling JSON data.",
     order: 16,
+    moduleNumber: "M16",
     difficulty: "advanced",
     estimatedHours: 4.0,
     isPublished: true,
-    prerequisites: module15_id ? [module15_id] : [], // Clean conditional
+    prerequisites: module15_id ? [module15_id] : [],
     learningObjectives: [
       "HTTP Methods",
       "JSON Parsing",
@@ -106,10 +107,11 @@ const seedModules16to20 = async (
     description: "Practical introduction to data manipulation and analysis.",
     shortDescription: "Working with NumPy Arrays and Pandas DataFrames.",
     order: 17,
+    moduleNumber: "M17",
     difficulty: "advanced",
     estimatedHours: 5.0,
     isPublished: true,
-    prerequisites: [module16._id], // Only immediate prerequisite
+    prerequisites: [module16._id],
     learningObjectives: [
       "NumPy ndarrays",
       "Vectorized math",
@@ -183,10 +185,11 @@ const seedModules16to20 = async (
     description: "Extract structured data from websites using BeautifulSoup.",
     shortDescription: "Extracting data using HTML structure and CSS selectors.",
     order: 18,
+    moduleNumber: "M18",
     difficulty: "advanced",
     estimatedHours: 3.5,
     isPublished: true,
-    prerequisites: [module17._id], // Only immediate prerequisite
+    prerequisites: [module17._id],
     learningObjectives: [
       "HTML/DOM",
       "Parsing with BS4",
@@ -261,10 +264,11 @@ const seedModules16to20 = async (
       "Integrate Python applications with SQLite for persistent storage.",
     shortDescription: "Connecting, executing queries, and managing SQL data.",
     order: 19,
+    moduleNumber: "M19",
     difficulty: "advanced",
     estimatedHours: 3.0,
     isPublished: true,
-    prerequisites: [module18._id], // Only immediate prerequisite
+    prerequisites: [module18._id],
     learningObjectives: [
       "SQL Basics",
       "sqlite3 module",
@@ -330,10 +334,11 @@ const seedModules16to20 = async (
     description: "Build a fully functional, portfolio-ready CLI application.",
     shortDescription: "Integrating APIs, Data, and SQL into one utility.",
     order: 20,
+    moduleNumber: "M20",
     difficulty: "advanced",
     estimatedHours: 6.0,
     isPublished: true,
-    prerequisites: [module19._id], // Only immediate prerequisite
+    prerequisites: [module19._id],
     learningObjectives: [
       "App Design",
       "argparse",

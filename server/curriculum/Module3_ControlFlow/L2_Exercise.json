@@ -1,20 +1,53 @@
 {
   "title": "Building Access Control System",
-  "instructions": "You're building a security system. Instead of writing full `if` statements, you will practice creating **Boolean expressions** that evaluate to `True` or `False` and storing them in variables.\n\n| Goal | Logical Pattern |\n| :--- | :--- |\n| Either of two things is true | `var1 or var2` |\n| Both things must be true | `var1 and var2` |\n| Something is NOT true | `not var1` |\n| A value is within a range | `min <= val <= max` |",
+  "instructions": "You're building a security system. Instead of writing full `if` statements, you will practice creating **Boolean expressions** that evaluate to `True` or `False` and storing them in variables.\n\n| Goal | Logical Pattern |\n| :--- | :--- |\n| Either of two things is true | `var1 or var2` |\n| Both things must be true | `var1 and var2` |\n| Something is NOT true | `not var1` |\n| A value is within a range | `min <= val <= max` |\n\n**Note:** Step 1 has been completed for you in the starter code as a reference pattern.",
   "steps": [
-    "**Step 1 (Example):** Check if the user has EITHER a keycard OR a PIN. (This is done for you in the starter code as an example).",
+    "**Step 1 (Reference):** Review the starter code to see how `has_keycard or has_pin` evaluates to a single Boolean.",
     "**Step 2:** Check if it's a workday. Use the `and` operator to check if `day` equals `'Monday'` AND `is_holiday` is `False`. Store the result in `is_regular_workday`.",
-    "**Step 3:** Check if the user is NOT an admin. Use the `not` operator to check if `user_role` is equal to `'Admin'`, then reverse it. Store the result in `is_regular_user`.",
-    "**Step 4:** Check if the temperature is comfortable. Use a chained comparison to check if `temperature` is between `18` and `24` degrees inclusive (using `<=` and `>=`). Store it in `is_comfortable_temp`."
+    "**Step 3:** Check if the user is NOT an admin. Use the `not` operator to check if `user_role == 'Admin'`, then reverse it. Store the result in `is_regular_user`.",
+    "**Step 4:** Check if the temperature is comfortable. Use a chained comparison to check if `temperature` is between `18` and `24` degrees inclusive. Store it in `is_comfortable_temp`."
   ],
-  "starterCode": "# Security system variables\nhas_keycard = True\nhas_pin = False\nday = 'Monday'\nis_holiday = False\nuser_role = 'Employee'\ntemperature = 22\n\nprint(\"🔐 SECURITY SYSTEM CHECK\")\n\n# Step 1: Pattern Example\n# We want to know if they have a keycard OR a PIN\ncan_enter_building = has_keycard or has_pin\n\nprint(f\"Can enter building: {can_enter_building}\")\n\n# Step 2: Check if it's Monday AND not a holiday (use 'and' and '==')\nis_regular_workday = \n\nprint(f\"Is regular workday: {is_regular_workday}\")\n\n# Step 3: Check if user is NOT an admin (use 'not' and '==')\nis_regular_user = \n\nprint(f\"Is regular user: {is_regular_user}\")\n\n# Step 4: Check if temp is between 18 and 24 inclusive (use chaining)\nis_comfortable_temp = \n\nprint(f\"Is comfortable temperature: {is_comfortable_temp}\")",
+  "starterCode": "# Security system variables\nhas_keycard = True\nhas_pin = False\nday = 'Monday'\nis_holiday = False\nuser_role = 'Employee'\ntemperature = 22\n\nprint(\"🔐 SECURITY SYSTEM CHECK\")\n\n# Step 1: Pattern Example (Already Done)\n# We want to know if they have a keycard OR a PIN\ncan_enter_building = has_keycard or has_pin\n\nprint(f\"Can enter building: {can_enter_building}\")\n\n# Step 2: Check if it's Monday AND not a holiday\nis_regular_workday = \n\n# Step 3: Check if user is NOT an admin\nis_regular_user = \n\n# Step 4: Check if temp is between 18 and 24 inclusive\nis_comfortable_temp = \n\nprint(f\"Is regular workday: {is_regular_workday}\")\nprint(f\"Is regular user: {is_regular_user}\")\nprint(f\"Is comfortable temperature: {is_comfortable_temp}\")",
   "solution": "# Security system variables\nhas_keycard = True\nhas_pin = False\nday = 'Monday'\nis_holiday = False\nuser_role = 'Employee'\ntemperature = 22\n\nprint(\"🔐 SECURITY SYSTEM CHECK\")\n\n# Step 1: Pattern Example\ncan_enter_building = has_keycard or has_pin\n\nprint(f\"Can enter building: {can_enter_building}\")\n\n# Step 2: Check if it's Monday AND not a holiday\nis_regular_workday = day == 'Monday' and is_holiday == False\n\n# Step 3: Check if user is NOT an admin\nis_regular_user = not user_role == 'Admin'\n\n# Step 4: Check if temp is between 18 and 24 inclusive\nis_comfortable_temp = 18 <= temperature <= 24\n\nprint(f\"Is regular workday: {is_regular_workday}\")\nprint(f\"Is regular user: {is_regular_user}\")\nprint(f\"Is comfortable temperature: {is_comfortable_temp}\")",
   "hints": [
-    "**Expressions vs Statements:** In this exercise, don't use the `if` keyword. You are simply calculating a `True/False` value to store in a variable.",
-    "**Boolean Variables:** Variables like `is_holiday` are already Booleans. You can use them directly: `is_holiday == False` or even just `not is_holiday`!",
-    "**Step 2 Syntax:** You'll need to combine a comparison and a logical operator: `variable == 'Value' and other_variable == False`.",
-    "**The 'not' operator:** Think of `not` as a 'flip' switch. If `user_role == 'Admin'` is `True`, adding `not` in front makes the whole thing `False`.",
-    "**Chaining:** For Step 4, follow the pattern `min <= value <= max`. It's like a mathematical inequality!"
+    "**Expressions vs Statements:** You are calculating a `True/False` value to store in a variable. No `if` keywords needed!",
+    "**Boolean Variables:** Variables like `is_holiday` are already Booleans. You can check them using `is_holiday == False`.",
+    "**Step 2 Syntax:** Combine a comparison and a logical operator: `day == 'Monday' and is_holiday == False`.",
+    "**The 'not' operator:** Adding `not` in front of an expression flips its truth value.",
+    "**Chaining:** For Step 4, Python allows the mathematical style: `18 <= temperature <= 24`."
+  ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check can_enter_building variable",
+      "code": "context = {}\nexec(code, context)\nassert 'can_enter_building' in context, 'Missing can_enter_building variable'\nassert context['can_enter_building'] == True, f'can_enter_building should be True (has_keycard or has_pin), got: {context[\"can_enter_building\"]}'\nprint('TEST_PASSED: can_enter_building is correct')",
+      "expected": "can_enter_building = True"
+    },
+    {
+      "name": "Check is_regular_workday variable",
+      "code": "context = {}\nexec(code, context)\nassert 'is_regular_workday' in context, 'Missing is_regular_workday variable'\nassert context['is_regular_workday'] == True, f'is_regular_workday should be True (Monday and not holiday), got: {context[\"is_regular_workday\"]}'\nprint('TEST_PASSED: is_regular_workday is correct')",
+      "expected": "is_regular_workday = True"
+    },
+    {
+      "name": "Check is_regular_user variable",
+      "code": "context = {}\nexec(code, context)\nassert 'is_regular_user' in context, 'Missing is_regular_user variable'\nassert context['is_regular_user'] == True, f'is_regular_user should be True (not Admin), got: {context[\"is_regular_user\"]}'\nprint('TEST_PASSED: is_regular_user is correct')",
+      "expected": "is_regular_user = True"
+    },
+    {
+      "name": "Check is_comfortable_temp variable",
+      "code": "context = {}\nexec(code, context)\nassert 'is_comfortable_temp' in context, 'Missing is_comfortable_temp variable'\nassert context['is_comfortable_temp'] == True, f'is_comfortable_temp should be True (22 is between 18 and 24), got: {context[\"is_comfortable_temp\"]}'\nprint('TEST_PASSED: is_comfortable_temp is correct')",
+      "expected": "is_comfortable_temp = True"
+    },
+    {
+      "name": "Check output contains all variables",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all output lines\nassert '🔐 SECURITY SYSTEM CHECK' in output, 'Should show security check header'\nassert 'Can enter building: True' in output, 'Should show can_enter_building'\nassert 'Is regular workday: True' in output, 'Should show is_regular_workday'\nassert 'Is regular user: True' in output, 'Should show is_regular_user'\nassert 'Is comfortable temperature: True' in output, 'Should show is_comfortable_temp'\nprint('TEST_PASSED: Output contains all required information')",
+      "expected": "Output should show all 4 Boolean variables"
+    },
+    {
+      "name": "Check expression forms (no if statements)",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Count if statements (should be 0)\nif_count = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_count += 1\n\nassert if_count == 0, f'Should not use if statements in this exercise (use Boolean expressions instead). Found {if_count} if statements.'\n\n# Check that we have assignment statements with expressions\nassign_count = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        assign_count += 1\n\nassert assign_count >= 4, f'Should have at least 4 assignment statements, found {assign_count}'\n\nprint('TEST_PASSED: Using Boolean expressions (no if statements)')",
+      "expected": "Should use Boolean expressions, not if statements"
+    }
   ],
   "expectedOutput": "🔐 SECURITY SYSTEM CHECK\nCan enter building: True\nIs regular workday: True\nIs regular user: True\nIs comfortable temperature: True",
   "tags": ["comparison-operators", "logical-operators", "boolean-logic"],

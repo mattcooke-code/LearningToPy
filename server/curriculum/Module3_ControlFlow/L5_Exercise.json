@@ -16,6 +16,39 @@
     "**Case Sensitivity:** Remember that `'Admin'` is different from `'admin'`. Always match the capitalization used in the lists!",
     "**Structure:** For Step 4, remember your colons `:` and the 4-space indentation for your print statements."
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check is_serviced variable",
+      "code": "context = {}\nexec(code, context)\nassert 'is_serviced' in context, 'Missing is_serviced variable'\nassert context['is_serviced'] == False, f'is_serviced should be False (Tokyo not in service areas), got: {context[\"is_serviced\"]}'\nprint('TEST_PASSED: is_serviced is correct')",
+      "expected": "is_serviced = False (Tokyo not in service areas)"
+    },
+    {
+      "name": "Check is_blocked variable",
+      "code": "context = {}\nexec(code, context)\nassert 'is_blocked' in context, 'Missing is_blocked variable'\nassert context['is_blocked'] == True, f'is_blocked should be True (suspicious_ip not in trusted_ips), got: {context[\"is_blocked\"]}'\nprint('TEST_PASSED: is_blocked is correct')",
+      "expected": "is_blocked = True (IP not in trusted list)"
+    },
+    {
+      "name": "Check premium substring detection",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Access granted to premium features.' in output, f'Should detect \"premium\" in account_type, got: {output[:100]}...'\nprint('TEST_PASSED: Premium substring detected correctly')",
+      "expected": "Should print 'Access granted to premium features.'"
+    },
+    {
+      "name": "Check admin role detection",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Standard user access only' in output, f'Should print standard access when Admin not in roles, got: {output[:100]}...'\nassert 'Full admin access granted' not in output, 'Should not print admin access when Admin not in roles'\nprint('TEST_PASSED: Admin role check works correctly')",
+      "expected": "Should print 'Standard user access only' (no Admin in roles)"
+    },
+    {
+      "name": "Check membership operators are used",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Look for 'in' and 'not in' operators\nin_operators = []\nnot_in_operators = []\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Compare):\n        for op in node.ops:\n            if isinstance(op, ast.In):\n                in_operators.append(node)\n            elif isinstance(op, ast.NotIn):\n                not_in_operators.append(node)\n\nassert len(in_operators) >= 2, f'Should use \"in\" operator at least twice (steps 1, 3, 4). Found {len(in_operators)}'\nassert len(not_in_operators) >= 1, f'Should use \"not in\" operator at least once (step 2). Found {len(not_in_operators)}'\n\nprint('TEST_PASSED: Using membership operators (in/not in)')",
+      "expected": "Should use 'in' and 'not in' operators"
+    },
+    {
+      "name": "Test with different data",
+      "code": "# Test with admin in roles\nmodified_code = code.replace(\"user_roles = ['Viewer', 'Editor', 'Contributor']\", \"user_roles = ['Viewer', 'Admin', 'Contributor']\")\nmodified_code = modified_code.replace(\"user_city = 'Tokyo'\", \"user_city = 'Paris'\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Full admin access granted' in output, 'Should print admin access when Admin in roles'\nassert 'Standard user access only' not in output, 'Should not print standard access when Admin in roles'\nprint('TEST_PASSED: Membership operators work with different data')",
+      "expected": "Should detect Admin when present and Paris in service areas"
+    }
+  ],
   "expectedOutput": "🛡️ WEBSITE SECURITY CHECK\nAccess granted to premium features.\nStandard user access only",
   "tags": ["membership-operators", "in", "not-in", "conditionals"],
   "challengeGroup": "conditional-logic"

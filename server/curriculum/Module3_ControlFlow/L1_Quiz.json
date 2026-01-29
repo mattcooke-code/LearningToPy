@@ -6,8 +6,8 @@
       "options": [
         "Python raises an error",
         "The program terminates",
-        "Python skips the `if` block and continues with the next line of code",
-        "Python executes the `if` block anyway"
+        "Python skips the if block and continues with the next line of code",
+        "Python executes the if block anyway"
       ],
       "correctAnswer": 2,
       "explanation": "If the condition is `False` and there's no `else` block, Python simply skips the indented code under the `if` statement and continues executing the next line after it. No error occurs."
@@ -26,7 +26,7 @@
     },
     {
       "id": "m3l1_q3",
-      "question": "What will this code print? \n\n`score = 85` \n`if score >= 90:` \n`    print('A')` \n`elif score >= 80:` \n`    print('B')` \n`else:` \n`    print('C')`",
+      "question": "What will this code print? \n\n```python\nscore = 85\nif score >= 90:\n    print('A')\nelif score >= 80:\n    print('B')\nelse:\n    print('C')\n```",
       "options": ["`'A'`", "`'B'`", "`'C'`", "Nothing - it will error"],
       "correctAnswer": 1,
       "explanation": "The `score` is `85`. The first condition (`score >= 90`) is `False`, so Python checks the `elif` condition (`score >= 80`), which is `True`. It prints `'B'` and skips the `else` block."

@@ -15,7 +15,7 @@
     {
       "id": "m3l2_q2",
       "question": "If a game checks `has_key = True` and `is_door_locked = False`, what does the expression `has_key and is_door_locked` evaluate to?",
-      "options": ["`True`", "`False`", "`None`", "Error"],
+      "options": ["`True`", "`False`", "`None`", "`Error`"],
       "correctAnswer": 1,
       "explanation": "Even though `has_key` is `True`, the `and` operator requires BOTH sides to be `True`. Since `is_door_locked` is `False`, the entire expression evaluates to `False`. It's like saying: 'I have the key AND the door is locked'—that statement is only true if both facts are true!"
     },

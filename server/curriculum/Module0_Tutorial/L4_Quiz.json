@@ -31,7 +31,7 @@
     {
       "id": "m0l4_q3",
       "type": "multiple-choice",
-      "question": "What should you do if the terminal shows a 'SyntaxError' after clicking Run?",
+      "question": "What should you do if the terminal shows a `SyntaxError` after clicking Run?",
       "options": [
         "Ignore it and click Submit immediately",
         "Delete the entire lesson and start over",
@@ -39,7 +39,7 @@
         "Wait 5 minutes for the error to clear itself"
       ],
       "correctAnswer": 2,
-      "explanation": "SyntaxErrors are 'typos' in code. Python provides a line number and a hint in the terminal to help you navigate back to the editor and fix the mistake."
+      "explanation": "`SyntaxError`s are 'typos' in code. Python provides a line number and a hint in the terminal to help you navigate back to the editor and fix the mistake."
     },
     {
       "id": "m0l4_q4",
@@ -61,11 +61,11 @@
       "options": [
         "The terminal is broken",
         "The code ran too fast to see",
-        "You did not use a 'print()' statement to display your results",
+        "You did not use a print() statement to display your results",
         "You are using the wrong theme"
       ],
       "correctAnswer": 2,
-      "explanation": "Python performs calculations silently in the background. If you want to see a result in the terminal, you must explicitly use the print() function."
+      "explanation": "Python performs calculations silently in the background. If you want to see a result in the terminal, you must explicitly use the `print()` function."
     }
   ]
 }

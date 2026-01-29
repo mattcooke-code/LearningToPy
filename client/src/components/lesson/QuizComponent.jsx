@@ -196,7 +196,7 @@ const QuizComponent = ({
                     disabled={showResults || isSubmitting}
                     className={`text-left p-4 rounded-lg border-2 transition-all ${btnClass}`}
                   >
-                    <MarkdownRenderer content={option} />
+                    <MarkdownRenderer content={option} isDark={false} />
                   </button>
                 );
               })}
@@ -217,7 +217,9 @@ const QuizComponent = ({
             {/* Feedback display */}
             {result?.show && (
               <div className="mt-4 text-sm italic text-gray-700 p-3 bg-white/50 rounded border border-gray-200">
-                {serverFeedback[qKey] || q.explanation}
+                <MarkdownRenderer
+                  content={serverFeedback[qKey] || q.explanation || ""}
+                />
                 {!result.isCorrect && !isModuleQuiz && (
                   <button
                     onClick={() => resetQuestion(qKey)}

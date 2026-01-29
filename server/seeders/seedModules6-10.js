@@ -30,6 +30,7 @@ const seedModules6to10 = async (
     shortDescription:
       "Master defining, calling, and returning values from functions.",
     order: 6,
+    moduleNumber: "M6",
     difficulty: "beginner",
     estimatedHours: 2,
     isPublished: true,
@@ -109,6 +110,7 @@ const seedModules6to10 = async (
     shortDescription:
       "Learn to open, read, write, and safely manage local text files.",
     order: 7,
+    moduleNumber: "M7",
     difficulty: "beginner",
     estimatedHours: 2.5,
     isPublished: true,
@@ -188,6 +190,7 @@ const seedModules6to10 = async (
     shortDescription:
       "Master try/except blocks to catch and handle runtime errors safely.",
     order: 8,
+    moduleNumber: "M8",
     difficulty: "beginner",
     estimatedHours: 2,
     isPublished: true,
@@ -268,6 +271,7 @@ const seedModules6to10 = async (
     shortDescription:
       "Learn to create lists and dictionaries efficiently with conditional logic.",
     order: 9,
+    moduleNumber: "M9",
     difficulty: "intermediate",
     estimatedHours: 2.5,
     isPublished: true,
@@ -348,6 +352,7 @@ const seedModules6to10 = async (
     shortDescription:
       "Learn lambda functions, *args/**kwargs, decorators, and functional programming techniques.",
     order: 10,
+    moduleNumber: "M10",
     difficulty: "intermediate",
     estimatedHours: 3.5,
     isPublished: true,

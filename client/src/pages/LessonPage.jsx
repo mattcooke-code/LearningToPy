@@ -1,3 +1,4 @@
+// LessonPage.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth, useNotification, useTheme } from "../context";
@@ -83,10 +84,14 @@ const LessonPage = () => {
     try {
       const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
-        {},
+        { manualCompletion: true },
       );
+      console.log("Server Response:", result);
+
       if (result.completed) {
         handleLessonCompletionUI(result);
+      } else {
+        showToast("Lesson not fully finished yet.", "warning");
       }
     } catch (err) {
       console.error("Completion call failed:", err);
@@ -108,6 +113,7 @@ const LessonPage = () => {
         const moduleData = await apiClient.get(
           `/content/modules/${lessonData.moduleId}`,
         );
+        console.log("Module data:", moduleData);
         setModule(moduleData);
       }
 
@@ -215,6 +221,7 @@ const LessonPage = () => {
       <LessonContent
         key={lessonId}
         lesson={lesson}
+        module={module}
         isReviewMode={isReviewMode}
         onAnswerSubmit={handleCodeSubmit}
         onCodeSubmit={handleCodeSubmit}

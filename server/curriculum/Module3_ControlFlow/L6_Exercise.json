@@ -16,6 +16,44 @@
     "**Comparison Catch:** Remember that `==` is for comparing values, and `=` is for assigning them. If you get a SyntaxError, check your equals signs!",
     "**Testing:** Change `account_age` to `45` and `account_type` to `'VIP'` in the starter code to make sure every branch of your code works!"
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Test with current values (Premium, 15 days)",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Welcome! Premium features unlock in 15 days.' in output, \\\n    f'Premium member with 15 days should show unlock message, got: {output[:100]}...'\nprint('TEST_PASSED: Correct output for Premium member with 15 days')",
+      "expected": "Welcome! Premium features unlock in 15 days."
+    },
+    {
+      "name": "Test VIP member",
+      "code": "modified_code = code.replace(\"account_type = 'Premium'\", \"account_type = 'VIP'\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Welcome VIP! Full access to all games and features.' in output, \\\n    f'VIP member should get VIP message, got: {output[:100]}...'\nprint('TEST_PASSED: Correct output for VIP member')",
+      "expected": "Welcome VIP! Full access to all games and features."
+    },
+    {
+      "name": "Test Premium member with 30+ days",
+      "code": "modified_code = code.replace(\"account_age = 15\", \"account_age = 45\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Welcome Premium member! Access to premium games unlocked.' in output, \\\n    f'Premium member with 45 days should get unlocked message, got: {output[:100]}...'\nprint('TEST_PASSED: Correct output for Premium member with 30+ days')",
+      "expected": "Welcome Premium member! Access to premium games unlocked."
+    },
+    {
+      "name": "Test Free/Other member",
+      "code": "modified_code = code.replace(\"account_type = 'Premium'\", \"account_type = 'Free'\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Welcome! You have access to free games. Upgrade for more!' in output, \\\n    f'Free member should get free games message, got: {output[:100]}...'\nprint('TEST_PASSED: Correct output for Free/Other member')",
+      "expected": "Welcome! You have access to free games. Upgrade for more!"
+    },
+    {
+      "name": "Test edge case: Premium with exactly 30 days",
+      "code": "modified_code = code.replace(\"account_age = 15\", \"account_age = 30\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Welcome Premium member! Access to premium games unlocked.' in output, \\\n    f'Premium member with exactly 30 days should get unlocked message, got: {output[:100]}...'\nprint('TEST_PASSED: Correct output for Premium member with exactly 30 days')",
+      "expected": "Welcome Premium member! Access to premium games unlocked."
+    },
+    {
+      "name": "Check if-elif-else structure",
+      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Count if/elif/else statements\nif_count = 0\nelif_count = 0\nelse_count = 0\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_count += 1\n        # Check for elif blocks\n        for n in node.orelse:\n            if isinstance(n, ast.If):\n                elif_count += 1\n        # Check for else block\n        if any(isinstance(n, ast.Expr) for n in node.orelse):\n            else_count += 1\n\n# Should have proper if-elif-else structure\nassert if_count >= 1, 'Should have at least one if statement'\nassert elif_count >= 2, 'Should have at least 2 elif statements for Premium types'\nassert else_count >= 1, 'Should have an else statement for Free/Other members'\n\n# Check for 'and' operator in conditions\nand_count = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And):\n        and_count += 1\n\nassert and_count >= 1, 'Should use \"and\" operator to check both account_type and account_age'\n\nprint('TEST_PASSED: Proper if-elif-else structure with logical operators')",
+      "expected": "Should have if-elif-else structure with 'and' operator"
+    },
+    {
+      "name": "Test multiple scenarios",
+      "code": "test_cases = [\n    ('VIP', 10, 'Welcome VIP! Full access to all games and features.'),\n    ('Premium', 45, 'Welcome Premium member! Access to premium games unlocked.'),\n    ('Premium', 30, 'Welcome Premium member! Access to premium games unlocked.'),\n    ('Premium', 15, 'Welcome! Premium features unlock in 15 days.'),\n    ('Premium', 1, 'Welcome! Premium features unlock in 29 days.'),\n    ('Free', 100, 'Welcome! You have access to free games. Upgrade for more!'),\n    ('Basic', 50, 'Welcome! You have access to free games. Upgrade for more!'),\n]\n\nall_passed = True\nfor acc_type, age, expected in test_cases:\n    modified_code = code.replace(\"account_type = 'Premium'\", f\"account_type = '{acc_type}'\")\n    modified_code = modified_code.replace(\"account_age = 15\", f\"account_age = {age}\")\n    \n    import io\n    import sys\n    \n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    try:\n        exec(modified_code)\n        output = sys.stdout.getvalue().strip()\n    finally:\n        sys.stdout = old_stdout\n    \n    if expected not in output:\n        print(f'FAILED: account_type={acc_type}, account_age={age} should output containing \"{expected}\", got: {output[:80]}...')\n        all_passed = False\n\nassert all_passed, 'Some test cases failed'\nprint('TEST_PASSED: All test cases pass')",
+      "expected": "All account type/age combinations should work correctly"
+    }
+  ],
   "expectedOutput": "🎮 GAMING PLATFORM LOGIN\nAccount Type: Premium\nMember for: 15 days\n\nWelcome! Premium features unlock in 15 days.",
   "tags": ["if-elif-else", "logical-operators", "project", "module-3"],
   "challengeGroup": "module-3-project"

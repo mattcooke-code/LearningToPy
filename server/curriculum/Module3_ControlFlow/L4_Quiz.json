@@ -14,7 +14,7 @@
     },
     {
       "id": "m3l4_q2",
-      "question": "What will be assigned to `result`? \n\n`score = 45` \n`result = 'Pass' if score >= 50 else 'Fail'`",
+      "question": "What will be assigned to `result`? \n\n```python\nscore = 45\nresult = 'Pass' if score >= 50 else 'Fail'\n```",
       "options": ["`'Pass'`", "`'Fail'`", "`True`", "`45`"],
       "correctAnswer": 1,
       "explanation": "Since `45` is NOT `>= 50`, the condition is `False`, so the value after `else` (`'Fail'`) is assigned to `result`."

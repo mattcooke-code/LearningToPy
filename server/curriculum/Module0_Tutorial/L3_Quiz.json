@@ -35,7 +35,7 @@
       "options": [
         "Your internet connection was lost",
         "The terminal is full and needs to be cleared",
-        "There is a mistake in the way your code is written (like a missing quote)",
+        "There is a mistake in the way your code is written",
         "The code ran perfectly"
       ],
       "correctAnswer": 2,
@@ -48,7 +48,7 @@
       "options": [
         "The Run button",
         "The Download button",
-        "The Clear Terminal (trash can) button",
+        "The Clear Terminal button",
         "The Show Hints button"
       ],
       "correctAnswer": 2,

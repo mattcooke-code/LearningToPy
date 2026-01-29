@@ -16,13 +16,13 @@
       "id": "m2l3_q2",
       "question": "Given `numbers = [10, 20, 30]`, what does `numbers.insert(1, 15)` do?",
       "options": [
-        "Replaces the item at index 1 with `15`",
-        "Inserts `15` at index 1, shifting existing items to the right",
-        "Adds `15` to the end of the list",
+        "Replaces the item at index 1 with 15",
+        "Inserts 15 at index 1, shifting existing items to the right",
+        "Adds 15 to the end of the list",
         "Causes an error because index 1 already exists"
       ],
       "correctAnswer": 1,
-      "explanation": "`insert()` places the new item at the specified index and shifts all existing items to the right. So `numbers` becomes `[10, 15, 20, 30]`. The item that was at index 1 `20` moves to index 2."
+      "explanation": "`insert()` places the new item at the specified index and shifts all existing items to the right. So `numbers` becomes `[10, 15, 20, 30]`. The item that was at index `1` (`20`) moves to index `2`."
     },
     {
       "id": "m2l3_q3",
@@ -34,7 +34,7 @@
         "Lists become immutable after the first modification"
       ],
       "correctAnswer": 2,
-      "explanation": "Lists are mutable data structures, meaning you can change their contents after creation. You can modify existing items, add new items, remove items, and more - all without creating a new list."
+      "explanation": "Lists are mutable data structures, meaning you can change their contents after creation. You can modify existing items, add new items, remove items, and more—all without creating a new list."
     }
   ]
 }

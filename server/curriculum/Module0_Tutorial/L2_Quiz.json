@@ -18,7 +18,7 @@
     {
       "id": "m0l2_q2",
       "type": "multiple-choice",
-      "question": "What happens when you click the 'v' or '>' icon next to a line number?",
+      "question": "What happens when you click the `v` or `>` icon next to a line number?",
       "options": [
         "It deletes the code on that line",
         "It rotates the screen 90 degrees",

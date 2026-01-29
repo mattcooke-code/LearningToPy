@@ -21,7 +21,7 @@
       "question": "Besides a code editor, what must be installed on your computer to run Python code locally?",
       "options": [
         "A specialized gaming mouse",
-        "The Python 'Engine' (Interpreter) from python.org",
+        "The Python 'Engine' from python.org",
         "A premium subscription to a cloud service",
         "Nothing, computers understand Python automatically"
       ],

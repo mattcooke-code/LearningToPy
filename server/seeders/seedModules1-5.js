@@ -26,6 +26,7 @@ const seedModules1to5 = async (
       "Learn the basics of Python programming including variables, data types, and basic operations.",
     shortDescription: "Master Python basics and write your first programs",
     order: 1,
+    moduleNumber: "M1",
     difficulty: "beginner",
     estimatedHours: 3,
     isPublished: true,
@@ -110,6 +111,7 @@ const seedModules1to5 = async (
     shortDescription:
       "Master Lists and Tuples for efficient collection and ordering of data.",
     order: 2,
+    moduleNumber: "M2",
     difficulty: "beginner",
     estimatedHours: 2.5,
     isPublished: true,
@@ -196,6 +198,7 @@ const seedModules1to5 = async (
     shortDescription:
       "Master decision-making logic with conditional statements.",
     order: 3,
+    moduleNumber: "M3",
     difficulty: "beginner",
     estimatedHours: 2,
     isPublished: true,
@@ -281,6 +284,7 @@ const seedModules1to5 = async (
       "Learn how to automate repetitive tasks using for and while loops.",
     shortDescription: "Master loops, range(), and flow control.",
     order: 4,
+    moduleNumber: "M4",
     difficulty: "beginner",
     estimatedHours: 2.5,
     isPublished: true,
@@ -288,7 +292,7 @@ const seedModules1to5 = async (
     learningObjectives: ["For loops", "While loops", "Break and Continue"],
     icon: "🔁",
     xpReward: 130,
-    moduleQuiz: prepareQuizData(m4ReviewQuiz),
+    moduleQuiz: prepareQuizData(m4ReviewQuiz, true),
   });
 
   const m4Lessons = [
@@ -362,6 +366,7 @@ const seedModules1to5 = async (
     shortDescription:
       "Master Dictionaries for key-value data and Sets for unique collections.",
     order: 5,
+    moduleNumber: "M5",
     difficulty: "beginner",
     estimatedHours: 2.5,
     isPublished: true,

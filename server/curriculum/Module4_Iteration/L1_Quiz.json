@@ -1,0 +1,43 @@
+{
+  "questions": [
+    {
+      "id": "m4l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of the **temporary variable** in a `for` loop?",
+      "options": [
+        "It stores the final result after the loop finishes",
+        "It holds the current item being processed in each iteration of the loop",
+        "It counts how many times the loop has executed",
+        "It prevents the loop from running forever"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The temporary variable (like `fruit` in `for fruit in fruits:`) holds the value of the current item as the loop iterates through the sequence. Each time through the loop, it gets a new value from the sequence."
+    },
+    {
+      "id": "m4l1_q2",
+      "type": "multiple-choice",
+      "question": "What does the `enumerate()` function provide when used with a `for` loop?",
+      "options": [
+        "It only provides the index of each item",
+        "It provides both the index and the value of each item",
+        "It makes the loop run faster",
+        "It automatically sorts the items before iterating"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `enumerate()` function returns two values for each item: the index (position) and the value itself. You use it like this: `for index, value in enumerate(my_list):`"
+    },
+    {
+      "id": "m4l1_q3",
+      "type": "multiple-choice",
+      "question": "What will this code print?\n\n```python\nword = \"Loop\"\nfor letter in word:\n    print(letter * 2)\n```",
+      "options": [
+        "`LL oo oo pp`",
+        "`LoopLoop`",
+        "`L o o p` (each on separate lines)",
+        "`LL\\noo\\noo\\npp` (each on separate lines)"
+      ],
+      "correctAnswer": 3,
+      "explanation": "The loop iterates through each character in \"Loop\": 'L', 'o', 'o', 'p'. For each character, it prints `letter * 2`, which duplicates the character. So 'L' becomes 'LL', 'o' becomes 'oo', etc., each on a new line."
+    }
+  ]
+}

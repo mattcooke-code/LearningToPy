@@ -4,28 +4,26 @@ Welcome to your Python playground! The code editor is where you'll write, edit, 
 
 ## Editor Layout
 
-![Code Editor](./images/CodeEditorLightMode.png)
+![Code Editor: Light Mode](./images/CodeEditorLightMode.png)
 
 ### Key Components:
 
-**1. Theme Toggle** Switch between light and dark mode
-**2. Exercise Instructions** Find out what coding tasks need to be carried out for you to pass the exercise
-**3. Editing Area** Where you type your Python code
-**4. Code** Example code. Note the formatting, lines numbers at the side and the different colors of code (syntax highlighting)
-**5. Terminal Toggle** Show or hide the Python terminal (more on this next lesson)
-**6. Submit Code Button** To submit code for testing. This is how you pass an exercise
-**7. Exercise Hints** If you get stuck on an exercise you can click the Show Hints button to see helpful hints
-**8. Download Exercise** If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson
+1. **Theme Toggle:** Switch between light and dark mode
+2. **Exercise Instructions:** Find out what coding tasks need to be carried out for you to pass the exercise
+3. **Editing Area:** Where you type your Python code
+4. **Code:** Example code. Note the formatting, line numbers at the side and the different colors of code (_syntax highlighting_)
+5. **Terminal Toggle:** Show or hide the Python terminal (more on this next lesson)
+6. **Submit Code Button:** To submit code for testing. This is how you pass an exercise
+7. **Exercise Hints:** If you get stuck on an exercise you can click the _Show Hints_ button to see helpful hints
+8. **Download Exercise:** If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson
 
 ## Why Two Themes?
 
 - **Light Mode:** Great for well-lit environments, reduces eye strain in bright light
-
 - **Dark Mode:** Perfect for low-light coding sessions, many developers prefer it for longer sessions
-
 - **Your Choice:** Switch anytime based on your preference or lighting conditions
 
-![Code Editor](./images/CodeEditorDarkMode.png)
+![Code Editor: Dark Mode](./images/CodeEditorDarkMode.png)
 
 ## Syntax Highlighting
 
@@ -57,16 +55,16 @@ for item in collection:  # Creates a complete loop template
 
 If you have a long block of code, you can "fold" it to keep your workspace clean:
 
-![Code Editor](./images/CodeFolding.png)
+![Code Folding](./images/CodeFolding.png)
 
-**1.** Click the `v` next to the line number to collapse the code.
-**2.** Click the `>` next to the line number to expand it again.
+1. Click the `v` next to the line number to collapse the code.
+2. Click the `>` next to the line number to expand it again.
 
-> _"This is great for hiding a function you've already finished so you can focus on the new code you're writing underneath it!"_
+> _This is great for hiding a function you've already finished so you can focus on the new code you're writing underneath it!_
 
 ## Writing Your First Code
 
-Try typing this in the editor (we'll run it in the next lesson):
+Try typing this in the editor (we'll practice running and submitting code later on):
 
 ```python
 # This is a comment - it doesn't run
@@ -83,4 +81,4 @@ print("Age:", age)
 
 ## Next Up: Running Your Code
 
-In the next lesson, you'll learn how to execute this code in the _TERMINAL_ and see the results!
+In the next lesson, you'll learn how to execute code in the _TERMINAL_ and see the results!
