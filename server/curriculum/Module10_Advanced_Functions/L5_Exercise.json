@@ -23,15 +23,8 @@
     "Use generator expressions for memory-efficient data processing",
     "Make builder methods return self to enable method chaining"
   ],
-  "validation": {
-    "requirements": [
-      "All decorator utilities implemented and working",
-      "Functional programming utilities support composition",
-      "Data processing handles large datasets efficiently",
-      "Configuration builder enables method chaining",
-      "Comprehensive error handling throughout"
-    ]
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "project",
     "toolkit",

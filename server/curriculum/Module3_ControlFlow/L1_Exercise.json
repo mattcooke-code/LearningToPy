@@ -6,36 +6,25 @@
     "**Step 2:** Use `elif` statements to check for scores of 80, 70, and 60 respectively, printing the correct grade for each.",
     "**Step 3:** Add a final `else` statement to catch any scores below 60 and print `'Grade: F'`."
   ],
-  "starterCode": "# Student's test score\nstudent_score = 75\n\nprint(f\"Student scored: {student_score}\")\n\n# Write your if-elif-else chain below:\n\n",
-  "solution": "# Student's test score\nstudent_score = 75\n\nprint(f\"Student scored: {student_score}\")\n\n# Write your if-elif-else chain below:\nif student_score >= 90:\n    print('Grade: A')\nelif student_score >= 80:\n    print('Grade: B')\nelif student_score >= 70:\n    print('Grade: C')\nelif student_score >= 60:\n    print('Grade: D')\nelse:\n    print('Grade: F')",
+  "starterCode": "# Student's test score\nstudent_score = 75\n\nprint(f\"Student scored: {student_score}\")\n\n# Write your if-elif-else chain below:\n",
+  "solution": "# Student's test score\nstudent_score = 75\n\nprint(f\"Student scored: {student_score}\")\n\nif student_score >= 90:\n    print('Grade: A')\nelif student_score >= 80:\n    print('Grade: B')\nelif student_score >= 70:\n    print('Grade: C')\nelif student_score >= 60:\n    print('Grade: D')\nelse:\n    print('Grade: F')",
   "hints": [
-    "**Syntax reminder:** Every `if`, `elif`, and `else` statement must end with a colon `:` and the code below must be indented (4 spaces).",
-    "**Order matters!** Python stops at the first `True` match. If you check `>= 60` first, a score of 95 would trigger that and stop, giving the student a 'D' instead of an 'A'!",
-    "**The >= operator:** This means 'greater than OR equal to'. So `student_score >= 90` is `True` for 90, 91, 92, etc.",
-    "**No condition for else:** The `else` block is a catch-all. It doesn't need its own comparison (like `else student_score < 60:`) because it only runs if everything above it failed.",
-    "**Indentation:** Make sure all your `print()` statements are indented under their conditions. Python uses this space to know which code 'belongs' to which block."
+    "**Syntax reminder:** Every `if`, `elif`, and `else` statement must end with a colon `:` and the code below must be indented.",
+    "**Order matters!** Python stops at the first `True` match. If you check `>= 60` first, a score of 95 would trigger that and stop early.",
+    "**The >= operator:** This means 'greater than OR equal to'.",
+    "**No condition for else:** The `else` block is a catch-all and doesn't need its own comparison."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check output for score 75 (should be Grade C)",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Student scored: 75' in output, 'Should show student score'\nassert 'Grade: C' in output, f'Score 75 should output \"Grade: C\", got: {output}'\nprint('TEST_PASSED: Correct grade for score 75')",
-      "expected": "Student scored: 75\\nGrade: C"
+      "name": "Verify all grade boundaries",
+      "code": "import io, sys\n# Test cases to verify the logic across all brackets\nscores_to_test = [(95, 'A'), (85, 'B'), (75, 'C'), (65, 'D'), (55, 'F'), (90, 'A'), (60, 'D')]\n\nfor score, expected_grade in scores_to_test:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    try:\n        # We replace the starter assignment with the test score to bypass the '75' overwrite\n        test_code = code.replace('student_score = 75', f'student_score = {score}')\n        exec(test_code, {})\n        output = sys.stdout.getvalue().strip()\n    finally:\n        sys.stdout = old_stdout\n    \n    expected_string = f'Grade: {expected_grade}'\n    if expected_string not in output:\n        # Extract what they actually printed for better feedback\n        actual = \"Nothing\" if \"Grade:\" not in output else output.split(\"Grade:\")[-1].strip()\n        raise AssertionError(f'Testing score {score}: Expected \"{expected_string}\", but got \"{actual}\". Check your comparison operators!')\n\nprint('TEST_PASSED: All grade boundaries (A-F) work correctly')",
+      "expected": "The calculator should correctly identify A, B, C, D, and F grades by checking multiple score values."
     },
     {
-      "name": "Test multiple grade boundaries",
-      "code": "# Test different scores by modifying the student_score variable\nimport io\nimport sys\n\nscores_to_test = [\n    (95, 'Grade: A'),\n    (85, 'Grade: B'),\n    (75, 'Grade: C'),\n    (65, 'Grade: D'),\n    (55, 'Grade: F'),\n    (90, 'Grade: A'),  # Edge case\n    (80, 'Grade: B'),  # Edge case\n    (70, 'Grade: C'),  # Edge case\n    (60, 'Grade: D'),  # Edge case\n    (0, 'Grade: F')    # Edge case\n]\n\nall_passed = True\nfor score, expected_grade in scores_to_test:\n    # Modify the code to use this score\n    modified_code = code.replace('student_score = 75', f'student_score = {score}')\n    \n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    try:\n        exec(modified_code)\n        output = sys.stdout.getvalue().strip()\n    finally:\n        sys.stdout = old_stdout\n    \n    if expected_grade not in output:\n        print(f'FAILED: Score {score} should output \"{expected_grade}\", got: {output[:50]}...')\n        all_passed = False\n\nassert all_passed, 'Some grade boundaries failed'\nprint('TEST_PASSED: All grade boundaries work correctly')",
-      "expected": "All grade boundaries (A-F) should work correctly"
-    },
-    {
-      "name": "Check if-elif-else structure",
-      "code": "import ast\n\n# Parse the code to check structure\ntree = ast.parse(code)\n\n# Count if/elif/else statements\nif_count = 0\nelif_count = 0\nelse_count = 0\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_count += 1\n        # Check for elif blocks\n        for n in node.orelse:\n            if isinstance(n, ast.If):\n                elif_count += 1\n        # Check for else block\n        if any(isinstance(n, ast.Expr) for n in node.orelse):\n            else_count += 1\n\n# Should have at least one if, multiple elif, and one else\nassert if_count >= 1, 'Should have at least one if statement'\nassert elif_count >= 3, 'Should have at least 3 elif statements for grades B, C, D'\nassert else_count >= 1, 'Should have an else statement for grade F'\n\nprint('TEST_PASSED: Proper if-elif-else structure')",
-      "expected": "Code should have if, elif, and else statements"
-    },
-    {
-      "name": "Check condition order (important!)",
-      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Find the if statement\nif_stmt = None\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        if_stmt = node\n        break\n\nassert if_stmt is not None, 'No if statement found'\n\n# Check conditions are in descending order\nconditions = []\ncurrent = if_stmt\nwhile current:\n    # Extract the condition\n    if hasattr(current, 'test'):\n        # Convert condition to string for checking\n        condition_str = ast.unparse(current.test) if hasattr(ast, 'unparse') else str(current.test)\n        conditions.append(condition_str)\n    \n    # Move to elif or else\n    if current.orelse and len(current.orelse) > 0:\n        if isinstance(current.orelse[0], ast.If):\n            current = current.orelse[0]\n        else:\n            break\n    else:\n        break\n\n# Check that conditions are in descending order (>= 90, >= 80, >= 70, >= 60)\n# This is a simple check - we look for the pattern in the strings\nfor i, cond in enumerate(conditions):\n    if i < len(conditions) - 1:  # Not the last condition\n        # The thresholds should be decreasing: 90, 80, 70, 60\n        if '90' in cond and '80' not in cond:\n            continue  # Good\n        elif '80' in cond and '90' not in cond:\n            continue  # Good\n        elif '70' in cond and '80' not in cond:\n            continue  # Good\n        elif '60' in cond and '70' not in cond:\n            continue  # Good\n\nprint('TEST_PASSED: Conditions are in correct order')",
-      "expected": "Conditions should be in descending order (90, 80, 70, 60)"
+      "name": "Check for proper if-elif-else structure",
+      "code": "import ast\ntree = ast.parse(code)\nif_nodes = [n for n in ast.walk(tree) if isinstance(n, ast.If)]\n\nif not if_nodes:\n    raise AssertionError('You must use an if-elif-else structure.')\n\n# Ensure they used elifs by checking the 'orelse' nesting\nelif_count = 0\ncurr = if_nodes[0]\nwhile curr.orelse and isinstance(curr.orelse[0], ast.If):\n    elif_count += 1\n    curr = curr.orelse[0]\n\nif elif_count < 3:\n    raise AssertionError(f'You should use several \"elif\" statements to check each score range. Found {elif_count} elifs.')\n\nprint('TEST_PASSED: Logic structure is correct')",
+      "expected": "Code should utilize the if-elif-else pattern as requested."
     }
   ],
   "expectedOutput": "Student scored: 75\nGrade: C",

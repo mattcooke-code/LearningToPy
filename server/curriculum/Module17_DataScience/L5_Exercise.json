@@ -16,9 +16,8 @@
     "Remember to use double square brackets `[[]]` when selecting multiple columns.",
     "When combining boolean conditions, each condition must be in parentheses, and you must use `&` for AND (not `and`)."
   ],
-  "validation": {
-    "output": "    Name Department  Salary\n2   Lily      Sales   68000\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["pandas", "dataframe", "filtering", "boolean-masking", "project"],
   "challengeGroup": "data-science-intro"
 }

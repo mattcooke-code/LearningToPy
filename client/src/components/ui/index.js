@@ -8,6 +8,7 @@ export { default as LoadingState } from "./LoadingState";
 export { default as MarkdownRenderer } from "./MarkdownRenderer";
 export { default as Pagination } from "./Pagination";
 export { default as ProgressGauge } from "./ProgressGauge";
+export { default as PythonSyntaxHighlighter } from "./PythonSyntaxHighlighter";
 export { default as RefreshButton } from "./RefreshButton";
 export { default as SegmentedLevelProgressBar } from "./SegmentedLevelProgressBar";
 export { default as Spinner } from "./Spinner";

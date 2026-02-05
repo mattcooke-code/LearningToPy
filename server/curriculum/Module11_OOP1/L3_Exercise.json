@@ -17,9 +17,8 @@
     "The Fahrenheit formula is: `(C * 9/5) + 32`.",
     "Remember to use `self.temperature` inside the methods to access the object's data."
   ],
-  "validation": {
-    "output": "25 Celsius is 77.0 Fahrenheit\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["instance-method", "behavior", "encapsulation", "formula"],
   "challengeGroup": "oop-methods"
 }

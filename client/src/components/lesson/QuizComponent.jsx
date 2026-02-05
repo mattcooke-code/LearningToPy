@@ -1,4 +1,4 @@
-// QuizComponent.jsx
+// QuizComponent.jsx - SIMPLIFIED VERSION
 import { useEffect, useState } from "react";
 import {
   CheckCircle,
@@ -30,6 +30,8 @@ const QuizComponent = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverFeedback, setServerFeedback] = useState({});
   const [quizCompleted, setQuizCompleted] = useState(false);
+  // Track attempts per question
+  const [attempts, setAttempts] = useState({});
 
   // Check if lesson quiz is complete whenever results change
   useEffect(() => {
@@ -45,19 +47,9 @@ const QuizComponent = ({
     }
   }, [results, quizArray, isModuleQuiz, quizCompleted, onQuizComplete]);
 
-  // DEBUGGING
-  useEffect(() => {
-    console.log("Quiz state:", {
-      quizArray: quizArray?.length,
-      results: Object.keys(results).length,
-      isLessonQuizComplete: isLessonQuizComplete(quizArray, results),
-      quizCompleted,
-    });
-  }, [results, quizCompleted, quizArray]);
-
   const handleSelect = (questionId, optionIndex) => {
     // Don't allow changes if already answered correctly
-    if (results[questionId]?.show) return;
+    if (results[questionId]?.completed) return;
 
     setAnswers((prev) => ({
       ...prev,
@@ -76,10 +68,21 @@ const QuizComponent = ({
         questionIndex: index,
       });
 
+      // Update attempts counter
+      setAttempts((prev) => ({
+        ...prev,
+        [questionId]: (prev[questionId] || 0) + 1,
+      }));
+
       // Update results for this question
       setResults((prev) => ({
         ...prev,
-        [questionId]: { show: true, isCorrect: data.isCorrect },
+        [questionId]: {
+          show: true,
+          isCorrect: data.isCorrect,
+          // Only mark as completed if correct
+          completed: data.isCorrect,
+        },
       }));
 
       // Store server feedback
@@ -139,6 +142,42 @@ const QuizComponent = ({
 
   const allAnswered = areAllQuestionsAnswered(quizArray, answers);
 
+  // Helper function to determine what feedback to show
+  const getFeedbackContent = (questionId, questionData) => {
+    const currentAttempts = attempts[questionId] || 0;
+    const isCorrect = results[questionId]?.isCorrect;
+
+    if (isCorrect) {
+      // Show full explanation when answer is correct
+      return (
+        serverFeedback[questionId] || questionData.explanation || "Correct!"
+      );
+    } else if (currentAttempts === 1) {
+      // First wrong attempt - minimal feedback
+      return "Not quite. Try again! Think about what each option means.";
+    } else if (currentAttempts >= 2) {
+      // After 2+ attempts - show correct answer
+      return (
+        serverFeedback[questionId] ||
+        questionData.explanation ||
+        `The correct answer is: ${questionData.options[questionData.correctAnswer]}`
+      );
+    } else {
+      return "Try again!";
+    }
+  };
+
+  // Helper function to determine if we should show the correct answer
+  const shouldShowCorrectAnswer = (questionId) => {
+    const currentAttempts = attempts[questionId] || 0;
+    const isCorrect = results[questionId]?.isCorrect;
+
+    // Show correct answer if:
+    // 1. Answer is correct
+    // 2. User has made 2+ attempts
+    return isCorrect || currentAttempts >= 2;
+  };
+
   return (
     <div className="space-y-8 my-8">
       <div className="flex items-center space-x-2 border-b border-gray-200 pb-4">
@@ -151,24 +190,35 @@ const QuizComponent = ({
       {quizArray.map((q, qIdx) => {
         const qKey = q._id || q.id;
         const result = results[qKey];
+        const currentAttempts = attempts[qKey] || 0;
+        const isCorrect = result?.isCorrect;
 
         return (
           <div
             key={qKey}
             className={`p-6 rounded-xl border transition-all ${
               result?.show
-                ? result.isCorrect
+                ? isCorrect
                   ? "bg-green-50 border-green-200"
-                  : "bg-red-50 border-red-200"
+                  : currentAttempts >= 2
+                    ? "bg-orange-50 border-orange-200"
+                    : "bg-red-50 border-red-200"
                 : "bg-white border-gray-200 shadow-sm"
             }`}
           >
             <div className="flex justify-between items-start mb-4">
-              <span className="text-sm font-bold uppercase tracking-wider text-blue-500">
-                Question {qIdx + 1}
-              </span>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-bold uppercase tracking-wider text-blue-500">
+                  Question {qIdx + 1}
+                </span>
+                {currentAttempts > 0 && (
+                  <span className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-full">
+                    Attempt {currentAttempts}
+                  </span>
+                )}
+              </div>
               {result?.show &&
-                (result.isCorrect ? (
+                (isCorrect ? (
                   <CheckCircle className="text-green-600" size={24} />
                 ) : (
                   <AlertCircle className="text-red-600" size={24} />
@@ -183,11 +233,25 @@ const QuizComponent = ({
               {q.options.map((option, oIdx) => {
                 const isSelected = answers[qKey] === oIdx;
                 const showResults = result?.show;
-                const btnClass = getOptionButtonClass(
+                const isCorrectAnswer = oIdx === q.correctAnswer;
+
+                // Only show correct answer marker if we should reveal it
+                const showAsCorrect =
+                  showResults &&
+                  shouldShowCorrectAnswer(qKey) &&
+                  isCorrectAnswer;
+
+                let btnClass = getOptionButtonClass(
                   isSelected,
                   showResults,
                   result?.isCorrect,
                 );
+
+                // Override for showing correct answer
+                if (showAsCorrect) {
+                  btnClass =
+                    "border-2 border-green-500 bg-green-100 text-green-800";
+                }
 
                 return (
                   <button
@@ -197,13 +261,19 @@ const QuizComponent = ({
                     className={`text-left p-4 rounded-lg border-2 transition-all ${btnClass}`}
                   >
                     <MarkdownRenderer content={option} isDark={false} />
+                    {showAsCorrect && (
+                      <div className="mt-2 text-xs font-bold text-green-600 flex items-center">
+                        <CheckCircle size={12} className="mr-1" />
+                        Correct Answer
+                      </div>
+                    )}
                   </button>
                 );
               })}
             </div>
 
             {/* Lesson Mode Check Button */}
-            {!isModuleQuiz && !result?.show && (
+            {!isModuleQuiz && !result?.completed && (
               <button
                 onClick={() => checkSingleAnswer(qKey, qIdx)}
                 disabled={answers[qKey] === undefined || isSubmitting}
@@ -214,13 +284,22 @@ const QuizComponent = ({
               </button>
             )}
 
-            {/* Feedback display */}
+            {/* Feedback display - CONDITIONAL LOGIC */}
             {result?.show && (
-              <div className="mt-4 text-sm italic text-gray-700 p-3 bg-white/50 rounded border border-gray-200">
-                <MarkdownRenderer
-                  content={serverFeedback[qKey] || q.explanation || ""}
-                />
-                {!result.isCorrect && !isModuleQuiz && (
+              <div
+                className={`mt-4 p-3 rounded border ${
+                  isCorrect
+                    ? "bg-green-50 border-green-200"
+                    : currentAttempts >= 2
+                      ? "bg-orange-50 border-orange-200"
+                      : "bg-red-50 border-red-200"
+                }`}
+              >
+                <div className="text-sm italic">
+                  <MarkdownRenderer content={getFeedbackContent(qKey, q)} />
+                </div>
+
+                {!isCorrect && !isModuleQuiz && (
                   <button
                     onClick={() => resetQuestion(qKey)}
                     className="mt-2 flex items-center text-blue-600 font-bold hover:underline"

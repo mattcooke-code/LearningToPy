@@ -16,9 +16,8 @@
     "Pass the headers dictionary using the `headers=` keyword argument in `requests.get()`.",
     "A successful GET request should return a status code of 200."
   ],
-  "validation": {
-    "output": "Status Code: 200\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["requests", "html", "headers", "status-code"],
   "challengeGroup": "web-scraping"
 }

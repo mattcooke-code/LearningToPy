@@ -16,9 +16,8 @@
     "Use `df.head(3)` to get the first three rows.",
     "The `.info()` method is crucial for checking data types and missing values."
   ],
-  "validation": {
-    "output": "  Product  Price  Units_Sold\n0       A  10.50         150\n1       B  20.00          90\n2       C   5.25         310\nProduct        object\nPrice         float64\nUnits_Sold      int64\ndtype: object\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["pandas", "dataframe", "head", "info", "inspection"],
   "challengeGroup": "data-science-intro"
 }

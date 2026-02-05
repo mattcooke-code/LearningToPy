@@ -10,25 +10,8 @@
   ],
   "starterCode": "matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\\nwords = [\\\"apple\\\", \\\"banana\\\", \\\"cherry\\\", \\\"date\\\", \\\"elderberry\\\", \\\"fig\\\"]\\nstudents_data = {\\n    \\\"math\\\": {\\\"Alice\\\": 85, \\\"Bob\\\": 92, \\\"Charlie\\\": 78},\\n    \\\"science\\\": {\\\"Alice\\\": 88, \\\"Bob\\\": 95, \\\"Diana\\\": 82}\\n}\\n\\n# 1. Flatten 2D list:\\nflattened = \\n\\n# 2. Unique word lengths:\\nunique_lengths = \\n\\n# 3. First 5 even squares (generator):\\neven_squares_gen = \\nfirst_five = \\n\\n# 4. Add 10 points to all scores in nested dict:\\nadjusted_grades = \\n\\n# 5. Complex scenario - choose approach and explain why:\\n# Given: Process items with multiple conditions and side effects\\n# Should you use comprehension or loop? Why?",
   "solution": "matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\\nwords = [\\\"apple\\\", \\\"banana\\\", \\\"cherry\\\", \\\"date\\\", \\\"elderberry\\\", \\\"fig\\\"]\\nstudents_data = {\\n    \\\"math\\\": {\\\"Alice\\\": 85, \\\"Bob\\\": 92, \\\"Charlie\\\": 78},\\n    \\\"science\\\": {\\\"Alice\\\": 88, \\\"Bob\\\": 95, \\\"Diana\\\": 82}\\n}\\n\\n# 1. Flatten 2D list:\\nflattened = [num for row in matrix for num in row]\\n\\n# 2. Unique word lengths:\\nunique_lengths = {len(word) for word in words}\\n\\n# 3. First 5 even squares (generator):\\neven_squares_gen = (x**2 for x in range(20) if x % 2 == 0)\\nfirst_five = [next(even_squares_gen) for _ in range(5)]\\n\\n# 4. Add 10 points to all scores in nested dict:\\nadjusted_grades = {\\n    subject: {student: score + 10 for student, score in scores.items()}\\n    for subject, scores in students_data.items()\\n}\\n\\n# 5. Complex scenario - choose approach and explain why:\\n# Answer: Use traditional loop because:\\n# - Multiple complex conditions\\n# - Potential side effects needed\\n# - Better readability and maintainability\\n# - Easier debugging\\n# Example scenario: Processing items that require validation, transformation, and logging",
-  "validation": {
-    "variables": {
-      "flattened": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-      "unique_lengths": [5, 6, 10, 4, 3],
-      "first_five": [0, 4, 16, 36, 64],
-      "adjusted_grades": {
-        "math": {
-          "Alice": 95,
-          "Bob": 102,
-          "Charlie": 88
-        },
-        "science": {
-          "Alice": 98,
-          "Bob": 105,
-          "Diana": 92
-        }
-      }
-    }
-  },
+  "validation": "tests",
+  "tests": [],
   "hints": [
     "For flattening: [item for sublist in matrix for item in sublist]",
     "Set comprehensions use {} and automatically remove duplicates",

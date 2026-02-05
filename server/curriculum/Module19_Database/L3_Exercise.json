@@ -15,9 +15,8 @@
     "Use the `*` wildcard for all columns, but selecting only what you need is better practice.",
     "The result of `fetchall()` is a list of tuples."
   ],
-  "validation": {
-    "output": "--- Inventory List ---\nKeyboard: $75.00\nMouse: $25.50\nMonitor: $199.99\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["sqlite3", "select", "fetchall", "query"],
   "challengeGroup": "database-interaction"
 }

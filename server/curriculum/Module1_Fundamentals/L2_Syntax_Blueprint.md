@@ -40,14 +40,10 @@ if 5 > 2: # This line is also at level 0
 print("This line runs no matter what")
 ```
 
-If you don't indent correctly, Python will stop and give you an **IndentationError**.
+If you don't indent correctly, Python will stop and give you an `IndentationError`.
 
 ### Important: Be Consistent!
 
 Always use the same indentation style throughout your code. Don't mix tabs and spaces—pick one (we recommend 4 spaces) and stick with it. Most code editors can be set to insert 4 spaces when you press the Tab key.
 
-NOTE: This code editor does automatically format an indentation, but we recommend you get used to inputting your own.
-
-## 🛠️ Challenge: Practice Indentation
-
-Instructions: In the coding window, indent the `print()` statement using 4 spaces so that the program runs without an error. If you remove the indentation, you should see an **IndentationError**.
+NOTE: This code editor does automatically format an indentation (1 space), but we recommend you get used to inputting your own.

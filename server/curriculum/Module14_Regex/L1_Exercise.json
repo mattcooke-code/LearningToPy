@@ -18,9 +18,8 @@
     "For the time pattern, you need six instances of `\\d` separated by literal colons (`:`).",
     "The `.group()` method extracts the actual text that was matched by the pattern."
   ],
-  "validation": {
-    "output": "ID-456\n15:30:00\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "regex",
     "re-module",

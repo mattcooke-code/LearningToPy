@@ -22,7 +22,7 @@
       "options": [
         "It deletes the code on that line",
         "It rotates the screen 90 degrees",
-        "It collapses (folds) or expands blocks of code",
+        "It folds or expands blocks of code",
         "It changes the code's font size"
       ],
       "correctAnswer": 2,
@@ -47,7 +47,7 @@
       "question": "What does the 'Download' button in the editor allow you to do?",
       "options": [
         "Download a PDF certificate",
-        "Save your code to run in a local IDE like VS Code or PyCharm",
+        "Save your code to run in a local editor (IDE)",
         "Download more themes for the website",
         "Update the Python version in your browser"
       ],

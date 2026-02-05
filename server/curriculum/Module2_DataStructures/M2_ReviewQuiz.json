@@ -16,7 +16,7 @@
       "id": "m2_review_q2",
       "question": "Which statement about negative indexing is TRUE?",
       "options": [
-        "Negative indexing starts from 0 at the end of the list",
+        "Negative indexing starts from `0` at the end of the list",
         "Index `-1` refers to the last item in the list",
         "Negative indexing only works with strings, not lists",
         "Negative indexing counts from the front of the list"
@@ -88,10 +88,10 @@
       "id": "m2_review_q8",
       "question": "Given `numbers = [10, 20, 30]`, what does `numbers.insert(1, 15)` do?",
       "options": [
-        "Replaces the item at index 1 with 15",
-        "Inserts 15 at index 1, shifting existing items to the right",
+        "Replaces the item at index `1` with 15",
+        "Inserts 15 at index `1`, shifting existing items to the right",
         "Adds 15 to the end of the list",
-        "Causes an error because index 1 already exists"
+        "Causes an error because index `1` already exists"
       ],
       "correctAnswer": 1,
       "explanation": "`insert()` places the new item at the specified index and shifts all existing items to the right. So `numbers` becomes `[10, 15, 20, 30]`. The item that was at index `1` (`20`) moves to index `2`."

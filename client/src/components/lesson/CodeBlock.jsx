@@ -1,22 +1,21 @@
-//CodeBlock.jsx
+import { useState } from "react";
 import { useTheme } from "../../context";
-import { CodeThemeToggle } from "../ui";
+import { CodeThemeToggle, PythonSyntaxHighlighter } from "../ui";
+import { Check, Copy } from "lucide-react";
 
 const CodeBlock = ({ code, language = "python", isUserCode = false }) => {
   const { isCodeDark } = useTheme();
+  const [copied, setCopied] = useState(false);
 
-  // Visual distinction between provided and user-generated code in dark/light mode
-  const getTextColor = () => {
-    if (isCodeDark) {
-      return isUserCode ? "text-gray-200" : "text-green-400";
-    } else {
-      return isUserCode ? "text-gray-800" : "text-gray-700";
-    }
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div
-      className={`rounded-lg p-4 my-4 overflow-x-auto ${
+      className={`rounded-lg p-4 my-4 overflow-x-auto transition-colors duration-200 ${
         isCodeDark
           ? "bg-gray-900 border border-gray-700"
           : "bg-gray-100 border border-gray-300"
@@ -24,31 +23,44 @@ const CodeBlock = ({ code, language = "python", isUserCode = false }) => {
     >
       <div className="flex justify-between items-center mb-2">
         <span
-          className={`text-sm font-mono ${
-            isCodeDark ? "text-gray-400" : "text-gray-600 "
-          }`}
+          className={`text-sm font-mono ${isCodeDark ? "text-gray-400" : "text-gray-600"}`}
         >
           {language}
         </span>
         <div className="flex items-center space-x-3">
           <CodeThemeToggle />
           <button
-            onClick={() => navigator.clipboard.writeText(code)}
-            className={`text-sm transition ${
-              isCodeDark
-                ? "text-gray-400 hover:text-white"
-                : "text-gray-600 hover:text-gray-900"
+            onClick={handleCopy}
+            className={`flex items-center gap-2 px-2 py-1 rounded transition-all duration-200 ${
+              copied
+                ? "text-green-500 bg-green-500/10"
+                : "text-gray-500 hover:bg-gray-500/10"
             }`}
           >
-            Copy
+            {copied ? (
+              <>
+                <Check size={14} /> <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={14} /> <span>Copy</span>
+              </>
+            )}
           </button>
         </div>
       </div>
-      <pre
-        className={`text-sm font-mono whitespace-pre-wrap ${getTextColor()}`}
-      >
-        <code>{code}</code>
-      </pre>
+
+      {/* If it's Python, use your fancy highlighter. Otherwise, fall back to standard text */}
+      {language.toLowerCase() === "python" ||
+      language.toLowerCase() === "py" ? (
+        <PythonSyntaxHighlighter code={code} isDark={isCodeDark} />
+      ) : (
+        <pre
+          className={`text-sm font-mono whitespace-pre-wrap ${isCodeDark ? "text-green-400" : "text-gray-700"}`}
+        >
+          <code>{code}</code>
+        </pre>
+      )}
     </div>
   );
 };

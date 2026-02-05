@@ -1,27 +1,21 @@
 {
   "title": "Structure Selection Challenge",
-  "instructions": "Based on the requirements, choose the most appropriate Python data structure (List, Tuple, Dictionary, or Set) for each scenario and define the corresponding variable.",
+  "instructions": "Choose the best structure (List, Tuple, Dictionary, or Set) for each real-world scenario.",
   "steps": [
-    "Scenario: Store a collection of **unique** email addresses collected from a sign-up form. Order is not important.",
-    "Scenario: Store the weekly sales data for the last month. The data is **sequential**, and the manager needs to **update** or remove incorrect entries.",
-    "Scenario: Store a record where you must quickly look up a city's **population** using the **city name** as the identifier.",
-    "Scenario: Store the three fixed parts of a server version number (e.g., major, minor, patch). The values are **ordered** and **should not be changed** once released."
+    "**Scenario 1:** Unique email addresses (Order doesn't matter).",
+    "**Scenario 2:** Sequential sales data that needs to be updated (Mutable).",
+    "**Scenario 3:** Looking up a city's population using the city name (Key-Value).",
+    "**Scenario 4:** A server version number like (1, 0, 5) that must never change (Immutable)."
   ],
-  "starterCode": "# 1. Unique Email Addresses (Set):\nemail_set = \n\n# 2. Sequential, Mutable Sales Data (List):\nsales_data = \n\n# 3. Key-Value Lookup (Dictionary):\ncity_populations = \n\n# 4. Fixed, Ordered Version Number (Tuple):\nversion_number = \n",
-  "solution": "# 1. Unique Email Addresses (Set):\nemail_set = {'user1@a.com', 'user2@b.com'}\n\n# 2. Sequential, Mutable Sales Data (List):\nsales_data = [1500, 1800, 1650, 2000]\n\n# 3. Key-Value Lookup (Dictionary):\ncity_populations = {'Tokyo': 13900000, 'London': 8900000}\n\n# 4. Fixed, Ordered Version Number (Tuple):\nversion_number = (1, 0, 5)",
-  "hints": [
-    "The requirement for **unique** items strongly points to one specific structure.",
-    "Sequential and **updateable** data is best handled by one of the mutable sequence types.",
-    "The need to look up a value by a descriptive label (key) points toward the pair-based structure.",
-    "Fixed, ordered, and **unchangeable** data is the primary use case for the immutable sequence type."
+  "starterCode": "email_set = \nsales_data = \ncity_populations = \nversion_number = \n",
+  "solution": "email_set = {'a@b.com', 'c@d.com'}\nsales_data = [100, 200, 150]\ncity_populations = {'Paris': 2000000}\nversion_number = (1, 2, 0)",
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Verify Types",
+      "code": "exec_globals = {}\ntry:\n    exec(code, exec_globals)\nexcept Exception:\n    raise AssertionError('Make sure you assigned valid examples for each variable (e.g., email_set = {\"email@test.com\"})')\n\nif not isinstance(exec_globals.get('email_set'), set): raise AssertionError('Emails should be a Set because they must be unique.')\nif not isinstance(exec_globals.get('sales_data'), list): raise AssertionError('Sales should be a List because the order matters and it is mutable.')\nif not isinstance(exec_globals.get('city_populations'), dict): raise AssertionError('Population should be a Dictionary for fast key-value lookups.')\nif not isinstance(exec_globals.get('version_number'), tuple): raise AssertionError('Version should be a Tuple because version numbers should be immutable.')\nprint('TEST_PASSED: Correct structures chosen!')",
+      "expected": "Matches the scenario to the correct Python data type based on mutability and uniqueness."
+    }
   ],
-  "tags": [
-    "data-structure-review",
-    "comparison",
-    "list",
-    "tuple",
-    "dictionary",
-    "set"
-  ],
-  "challengeGroup": "structure-selection"
+  "tags": ["data-structure-review", "logic"]
 }

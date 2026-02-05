@@ -20,7 +20,7 @@ These are used for working with **numbers** (`int` and `float`).
 
 ```python
 # Basic arithmetic
-total = 10 + 5        # 15
+sum = 10 + 5        # 15
 difference = 10 - 5   # 5
 product = 10 * 5      # 50
 quotient = 10 / 5     # 2.0 (notice it's a float!)
@@ -28,6 +28,8 @@ quotient = 10 / 5     # 2.0 (notice it's a float!)
 # Floor division vs regular division
 regular = 7 / 2       # 3.5
 floored = 7 // 2      # 3 (drops everything after the decimal)
+
+
 
 # Exponentiation
 squared = 3 ** 2      # 9 (3 * 3)
@@ -99,12 +101,13 @@ name = "Vader"
 
 apprentice = rank + name
 print(apprentice) # Output: DarthVader
+# Much to learn you still have
 
 # ✅ Correct: Adding a manual space string
 
 master = rank + " " + name
 print(master) # Output: Darth Vader
-# Your journey to the dark side is now complete!
+# Your journey towards the dark side is now complete!
 
 ```
 
@@ -143,10 +146,10 @@ result = "Test" / 2        # ❌ ERROR!
 - Strings can be combined with `+` and repeated with `*`
 - You cannot mix strings and numbers without converting types
 
-## 💡 Practice Tip
+## 💡 Pro Tip
 
 **Use your terminal to test the code!** For questions involving calculations or code output, you can type the code into your Python terminal to see the results. This helps reinforce your learning and builds confidence.
 
-For example, if a question asks "What does `5 % 2` return?", you can type `print(5 % 2)` in the terminal to verify your answer.
+For example, if a question asks "What does `5 % 2` return?", you can type `print(5 % 2)` in the terminal and then click **Run** to verify your answer.
 
 Now let's practice using these operators! The challenge below will test your understanding of arithmetic calculations and string operations.

@@ -22,7 +22,7 @@
       "options": [
         "As soon as you start the module",
         "After you complete the first lesson",
-        "Only after all lessons in that module are completed (100% progress)",
+        "After all lessons in that module are completed",
         "After you earn 1,000 XP"
       ],
       "correctAnswer": 2,

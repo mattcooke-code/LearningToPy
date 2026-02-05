@@ -1,19 +1,21 @@
 {
   "title": "Set Creation and Manipulation",
-  "instructions": "Practice creating and modifying sets, paying close attention to the unique nature of the structure.",
+  "instructions": "Sets are unordered collections of unique elements. Use them when duplicates aren't allowed.",
   "steps": [
-    "Use the `set()` constructor to convert the `log_entries` list into a set named `unique_entries`. Note how duplicates are removed.",
-    "Use the `.add()` method to add the string 'ERROR' to the `unique_entries` set.",
-    "Use the **safe** `.discard()` method to remove the entry 'INFO' from `unique_entries`.",
-    "Write a conditional statement (`if`): Check if the string 'WARNING' is **`in`** the `unique_entries` set. If it is, assign the boolean `True` to the variable `warning_exists`."
+    "**Step 1:** Convert `log_entries` into a set named `unique_entries` using `set()`.",
+    "**Step 2:** Add 'ERROR' to the set using `.add()`.",
+    "**Step 3:** Safely remove 'INFO' using `.discard()`.",
+    "**Step 4:** Use the `in` keyword to check if 'WARNING' is in the set. If so, set `warning_exists = True`."
   ],
-  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# 1. Create a set of unique entries:\nunique_entries = \n\n# 2. Add 'ERROR' to the set:\n\n\n# 3. Safely discard 'INFO':\n\n\n# 4. Check if 'WARNING' exists:\nwarning_exists = False\n\n",
-  "solution": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# 1. Create a set of unique entries:\nunique_entries = set(log_entries)\n\n# 2. Add 'ERROR' to the set:\nunique_entries.add('ERROR')\n\n# 3. Safely discard 'INFO':\nunique_entries.discard('INFO')\n\n# 4. Check if 'WARNING' exists:\nwarning_exists = False\nif 'WARNING' in unique_entries:\n    warning_exists = True\n\nprint(f'Final unique entries: {unique_entries}')\nprint(f'Warning exists: {warning_exists}')",
-  "hints": [
-    "Remember to pass the list into the `set()` constructor in step 1.",
-    "Use `.add()` for step 2 and the safer `.discard()` for step 3.",
-    "The `in` operator makes membership testing highly readable."
+  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\nwarning_exists = False\n\n# Implement steps 1-4 below:\n",
+  "solution": "unique_entries = set(log_entries)\nunique_entries.add('ERROR')\nunique_entries.discard('INFO')\n\nif 'WARNING' in unique_entries:\n    warning_exists = True",
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check set uniqueness and methods",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\nue = exec_globals.get('unique_entries', set())\n\nif not isinstance(ue, set):\n    raise AssertionError(\"Step 1: unique_entries must be a set. Did you use set(log_entries)?\")\n\nif 'INFO' in ue:\n    raise AssertionError('Step 3: INFO was not discarded. Use .discard().')\n\nif 'ERROR' not in ue:\n    raise AssertionError(\"Step 2: 'ERROR' was not added to the set.\")\n\nif len(ue) != 3:\n    raise AssertionError(f\"The set should have 3 unique items ('WARNING', 'SUCCESS', 'ERROR'), but has {len(ue)}.\")\n\nif not exec_globals.get('warning_exists'):\n    raise AssertionError('Step 4: warning_exists should be True because WARNING is in the set.')\n\nprint('TEST_PASSED: Sets mastered!')",
+      "expected": "Set created with unique items and modified correctly"
+    }
   ],
-  "tags": ["set", "unique", "add", "discard", "membership"],
-  "challengeGroup": "sets-basics"
+  "tags": ["set", "unique", "membership"]
 }

@@ -10,31 +10,31 @@
   "starterCode": "price = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Python\"\nsecond_part = \"Pro\"\n\n# Task 1: Multiply price and quantity\nsubtotal = \n\n# Task 2: Add shipping_fee to subtotal\nfinal_total = \n\n# Task 3: Use floor division (21 and 4)\nlevels_per_world = \n\n# Task 4: Join strings with a space\nfull_phrase = ",
   "solution": "price = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Python\"\nsecond_part = \"Pro\"\n\nsubtotal = price * quantity\nfinal_total = subtotal + shipping_fee\nlevels_per_world = 21 // 4\nfull_phrase = first_part + \" \" + second_part",
   "hints": [
-    "Multiplication uses the * operator",
-    "Addition uses the + operator",
-    "Floor division uses // (two forward slashes)",
-    "String concatenation also uses +, but you need to add a space between words"
+    "Multiplication uses the `*` operator",
+    "Addition uses the `+` operator",
+    "Floor division uses `//` (two forward slashes)",
+    "String concatenation also uses `+`, but you need to add a space between words"
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check subtotal calculation",
-      "code": "context = {}\nexec(code, context)\nassert 'subtotal' in context, 'Missing subtotal variable'\nexpected_subtotal = 5.50 * 4\nassert context['subtotal'] == expected_subtotal, f'subtotal should be {expected_subtotal}, got: {context[\"subtotal\"]}'\nprint('TEST_PASSED: subtotal calculation is correct')",
+      "code": "# Check subtotal variable exists and has correct value\nif 'subtotal' not in locals():\n    raise AssertionError('Missing subtotal variable. Did you calculate it?')\n\nexpected_subtotal = 5.50 * 4\nif subtotal != expected_subtotal:\n    raise AssertionError(f'subtotal should be {expected_subtotal} (5.50 * 4), got: {subtotal}')\n\nprint('TEST_PASSED: subtotal calculation is correct')",
       "expected": "subtotal = 22.0"
     },
     {
       "name": "Check final_total calculation",
-      "code": "context = {}\nexec(code, context)\nassert 'final_total' in context, 'Missing final_total variable'\nexpected_final_total = (5.50 * 4) + 10\nassert context['final_total'] == expected_final_total, f'final_total should be {expected_final_total}, got: {context[\"final_total\"]}'\nprint('TEST_PASSED: final_total calculation is correct')",
+      "code": "# Check final_total variable\nif 'final_total' not in locals():\n    raise AssertionError('Missing final_total variable. Did you calculate it?')\n\nexpected_final_total = (5.50 * 4) + 10\nif final_total != expected_final_total:\n    raise AssertionError(f'final_total should be {expected_final_total} (subtotal + shipping_fee), got: {final_total}')\n\nprint('TEST_PASSED: final_total calculation is correct')",
       "expected": "final_total = 32.0"
     },
     {
       "name": "Check levels_per_world calculation",
-      "code": "context = {}\nexec(code, context)\nassert 'levels_per_world' in context, 'Missing levels_per_world variable'\nassert context['levels_per_world'] == 5, f'levels_per_world should be 5 (21 // 4), got: {context[\"levels_per_world\"]}'\nprint('TEST_PASSED: levels_per_world calculation is correct')",
+      "code": "# Check levels_per_world variable\nif 'levels_per_world' not in locals():\n    raise AssertionError('Missing levels_per_world variable. Did you calculate it?')\n\nif levels_per_world != 5:\n    raise AssertionError(f'levels_per_world should be 5 (21 // 4), got: {levels_per_world}')\n\n# Also check they used floor division, not regular division\nif isinstance(levels_per_world, float):\n    raise AssertionError('Use floor division (//) not regular division (/). Result should be an integer!')\n\nprint('TEST_PASSED: levels_per_world calculation is correct')",
       "expected": "levels_per_world = 5"
     },
     {
       "name": "Check full_phrase concatenation",
-      "code": "context = {}\nexec(code, context)\nassert 'full_phrase' in context, 'Missing full_phrase variable'\nassert context['full_phrase'] == 'Python Pro', f'full_phrase should be \"Python Pro\", got: {context[\"full_phrase\"]}'\nprint('TEST_PASSED: full_phrase concatenation is correct')",
+      "code": "# Check full_phrase variable\nif 'full_phrase' not in locals():\n    raise AssertionError('Missing full_phrase variable. Did you concatenate the strings?')\n\nif full_phrase != 'Python Pro':\n    raise AssertionError(f'full_phrase should be \"Python Pro\" (with a space), got: \"{full_phrase}\"')\n\nprint('TEST_PASSED: full_phrase concatenation is correct')",
       "expected": "full_phrase = 'Python Pro'"
     }
   ],

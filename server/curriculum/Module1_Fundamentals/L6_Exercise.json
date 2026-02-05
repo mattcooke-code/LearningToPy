@@ -23,32 +23,32 @@
   "tests": [
     {
       "name": "Check all required variables exist",
-      "code": "context = {}\nexec(code, context)\n\nrequired_vars = ['number_a', 'number_b', 'sum_result', 'difference_result', 'product_result', 'quotient_result']\nmissing = [var for var in required_vars if var not in context]\nassert len(missing) == 0, f'Missing variables: {missing}'\nprint('TEST_PASSED: All required variables exist')",
+      "code": "# Check that all variables were created\nrequired_vars = ['number_a', 'number_b', 'sum_result', 'difference_result', 'product_result', 'quotient_result']\nmissing = [var for var in required_vars if var not in locals()]\n\nif len(missing) > 0:\n    raise AssertionError(f'Missing variables: {\", \".join(missing)}')\n\nprint('TEST_PASSED: All required variables exist')",
       "expected": "All 6 variables should be created"
     },
     {
       "name": "Check sum_result calculation",
-      "code": "context = {}\nexec(code, context)\nassert context['sum_result'] == context['number_a'] + context['number_b'], \\\n    f'sum_result should equal number_a + number_b ({context[\"number_a\"]} + {context[\"number_b\"]} = {context[\"number_a\"] + context[\"number_b\"]}), got: {context[\"sum_result\"]}'\nprint('TEST_PASSED: sum_result calculation is correct')",
+      "code": "# Verify sum is correct\nexpected_sum = number_a + number_b\n\nif sum_result != expected_sum:\n    raise AssertionError(f'sum_result should equal number_a + number_b ({number_a} + {number_b} = {expected_sum}), got: {sum_result}')\n\nprint('TEST_PASSED: sum_result calculation is correct')",
       "expected": "sum_result = number_a + number_b"
     },
     {
       "name": "Check difference_result calculation",
-      "code": "context = {}\nexec(code, context)\nassert context['difference_result'] == context['number_a'] - context['number_b'], \\\n    f'difference_result should equal number_a - number_b ({context[\"number_a\"]} - {context[\"number_b\"]} = {context[\"number_a\"] - context[\"number_b\"]}), got: {context[\"difference_result\"]}'\nprint('TEST_PASSED: difference_result calculation is correct')",
+      "code": "# Verify difference is correct\nexpected_diff = number_a - number_b\n\nif difference_result != expected_diff:\n    raise AssertionError(f'difference_result should equal number_a - number_b ({number_a} - {number_b} = {expected_diff}), got: {difference_result}')\n\nprint('TEST_PASSED: difference_result calculation is correct')",
       "expected": "difference_result = number_a - number_b"
     },
     {
       "name": "Check product_result calculation",
-      "code": "context = {}\nexec(code, context)\nassert context['product_result'] == context['number_a'] * context['number_b'], \\\n    f'product_result should equal number_a * number_b ({context[\"number_a\"]} * {context[\"number_b\"]} = {context[\"number_a\"] * context[\"number_b\"]}), got: {context[\"product_result\"]}'\nprint('TEST_PASSED: product_result calculation is correct')",
+      "code": "# Verify product is correct\nexpected_product = number_a * number_b\n\nif product_result != expected_product:\n    raise AssertionError(f'product_result should equal number_a * number_b ({number_a} * {number_b} = {expected_product}), got: {product_result}')\n\nprint('TEST_PASSED: product_result calculation is correct')",
       "expected": "product_result = number_a * number_b"
     },
     {
       "name": "Check quotient_result calculation",
-      "code": "context = {}\nexec(code, context)\nassert context['quotient_result'] == context['number_a'] / context['number_b'], \\\n    f'quotient_result should equal number_a / number_b ({context[\"number_a\"]} / {context[\"number_b\"]} = {context[\"number_a\"] / context[\"number_b\"]}), got: {context[\"quotient_result\"]}'\nprint('TEST_PASSED: quotient_result calculation is correct')",
+      "code": "# Verify quotient is correct\nexpected_quotient = number_a / number_b\n\nif quotient_result != expected_quotient:\n    raise AssertionError(f'quotient_result should equal number_a / number_b ({number_a} / {number_b} = {expected_quotient}), got: {quotient_result}')\n\nprint('TEST_PASSED: quotient_result calculation is correct')",
       "expected": "quotient_result = number_a / number_b"
     },
     {
       "name": "Check output has 4 lines",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line for line in output.split('\\n') if line.strip()]\nassert len(lines) >= 4, f'Should print at least 4 results, got {len(lines)} lines'\nprint('TEST_PASSED: Output has sufficient lines')",
+      "code": "import io\nimport sys\n\n# Capture output by re-executing\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line for line in output.split('\\n') if line.strip()]\n\nif len(lines) < 4:\n    raise AssertionError(f'Should print at least 4 results (one per line), got {len(lines)} lines')\n\nprint('TEST_PASSED: Output has sufficient lines')",
       "expected": "At least 4 lines of output"
     }
   ],

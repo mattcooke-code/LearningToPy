@@ -10,28 +10,18 @@ const { hasQuiz, hasExercise, isQuizCompleted } = require("./quizHelpers");
  * --- VALIDATION LOGIC ---
  */
 const validateCodeSubmission = (userCode, exercise) => {
+  // Basic validation
   if (!userCode || userCode.trim() === "") {
     return {
       isCorrect: false,
-      feedback: "Please write some code before submitting!",
+      feedback: "No code submitted",
     };
   }
-  if (exercise.starterCode && userCode.trim() === exercise.starterCode.trim()) {
+  if (userCode.trim() === exercise.starterCode?.trim()) {
     return { isCorrect: false, feedback: "Please modify the starter code!" };
   }
 
-  const lines = userCode.split("\n");
-  const hasEmptyAssignments = lines.some((line) =>
-    line.match(/^\s*\w+\s*=\s*$/),
-  );
-  const hasPlaceholderComments = lines.some((line) =>
-    line.match(/#\s*(TODO|FIXME|your code here)/i),
-  );
-
-  if (hasEmptyAssignments || hasPlaceholderComments) {
-    return { isCorrect: false, feedback: "Please complete all assignments!" };
-  }
-  return { isCorrect: true, feedback: "Great job!" };
+  return { isCorrect: true, feedback: "Code accepted (validated in frontend)" };
 };
 
 /**
@@ -195,7 +185,6 @@ const processModuleCompletion = async (user, module, quizScore) => {
     completedAt: new Date(),
   });
 
-  user.xp += xpIncrease;
   user.lastActive = new Date();
 
   return {

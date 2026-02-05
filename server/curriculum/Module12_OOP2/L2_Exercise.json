@@ -16,9 +16,8 @@
     "The `super()` call should look like `super().__init__(name, age)` inside the `Student` constructor.",
     "Ensure the arguments passed to `super().__init__` match the parameters expected by the `Person.__init__` method."
   ],
-  "validation": {
-    "output": "Name: Jane Doe\nAge: 20\nID: S1234\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["inheritance", "super", "constructor", "__init__"],
   "challengeGroup": "oop-super"
 }

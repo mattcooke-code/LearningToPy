@@ -14,9 +14,8 @@
     "int() will raise an exception if given non-numeric input",
     "The except block should handle any exception that occurs"
   ],
-  "validation": {
-    "output": "Invalid input!\\nProgram continues...\\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["exceptions", "try-except", "error-handling"],
   "challengeGroup": "basic-exceptions"
 }

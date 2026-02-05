@@ -2,55 +2,18 @@
   "title": "Managing Your Task List",
   "instructions": "You're organizing your daily tasks. Practice removing items from your list using different methods - each one is useful in different situations!",
   "steps": [
-    "**Step 1:** Remove a task by its name. Use the `remove()` method to delete the task 'Check emails' from your list. You don't need to know where it is in the list!",
+    "**Step 1:** Remove a task by its name. Use the `remove()` method to delete the task 'Check emails' from your list.",
     "**Step 2:** Complete and store your first task. Use the `pop()` method with index 0 to remove 'Morning workout' and save it in a variable called `completed_task`.",
     "**Step 3:** Delete multiple tasks at once. Use the `del` keyword with slicing to remove the last two tasks from your list.",
     "**Step 4:** Complete your last task. Use `pop()` WITHOUT an index to remove and store the last task in `final_task`."
   ],
   "starterCode": "# Your task list for today\ntasks = ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nprint(\"Starting tasks:\", tasks)\nprint()\n\n# Step 1: Remove 'Check emails' by value using remove()\n\n\nprint(\"After removing 'Check emails':\", tasks)\n\n# Step 2: Pop the first task and save it to completed_task\ncompleted_task = \n\nprint(\"After completing first task:\", tasks)\nprint(\"Completed:\", completed_task)\n\n# Step 3: Delete the last 2 tasks using del and negative slicing [-n:]\n\n\nprint(\"After deleting last 2 tasks:\", tasks)\n\n# Step 4: Pop the last remaining task (no index needed!)\nfinal_task = \n\nprint(\"After completing final task:\", tasks)\nprint(\"Final task completed:\", final_task)",
-  "solution": "# Your task list for today\ntasks = ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nprint(\"Starting tasks:\", tasks)\nprint()\n\n# Step 1: Remove 'Check emails' by value using remove()\ntasks.remove('Check emails')\n\nprint(\"After removing 'Check emails':\", tasks)\n\n# Step 2: Pop the first task (index 0) and save it\ncompleted_task = tasks.pop(0)\n\nprint(\"After completing first task:\", tasks)\nprint(\"Completed:\", completed_task)\n\n# Step 3: Delete the last 2 tasks using del and slicing [-2:]\ndel tasks[-2:]\n\nprint(\"After deleting last 2 tasks:\", tasks)\n\n# Step 4: Pop the last remaining task (no index needed!)\nfinal_task = tasks.pop()\n\nprint(\"After completing final task:\", tasks)\nprint(\"Final task completed:\", final_task)",
-  "hints": [
-    "**remove() syntax:** It's a method, so use `tasks.remove('task name')`. It removes the first item with that exact value.",
-    "**pop() with index:** To remove from a specific position, use `tasks.pop(0)` for the first item. Don't forget to save the return value in your variable!",
-    "**del with slicing:** Use `del tasks[-2:]` to delete from the second-to-last item to the end. Remember del is a keyword, not a method!",
-    "**pop() without index:** Just `tasks.pop()` removes and returns the last item. It's shorthand for `tasks.pop(-1)`.",
-    "**Watch the progression:** Each print statement shows how your list shrinks. This helps you understand what each method does!",
-    "**Common mistake:** Remember that `remove()` and `pop()` are methods (use parentheses), but `del` is a keyword (no parentheses on del itself)."
-  ],
-  "validation": "tests",
+  "solution": "tasks.remove('Check emails')\ncompleted_task = tasks.pop(0)\ndel tasks[-2:]\nfinal_task = tasks.pop()",
   "tests": [
     {
-      "name": "Check tasks after step 1 (remove 'Check emails')",
-      "code": "context = {}\nexec(code, context)\nassert 'tasks' in context, 'Missing tasks variable'\n# After step 1: ['Morning workout', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\nassert 'Check emails' not in context['tasks'], \"'Check emails' should be removed from tasks\"\nassert len(context['tasks']) == 5, f'After step 1, tasks should have 5 items, got {len(context[\"tasks\"])}'\nprint('TEST_PASSED: Check emails removed correctly')",
-      "expected": "'Check emails' should be removed, 5 tasks remaining"
-    },
-    {
-      "name": "Check completed_task variable",
-      "code": "context = {}\nexec(code, context)\nassert 'completed_task' in context, 'Missing completed_task variable'\nassert context['completed_task'] == 'Morning workout', f'completed_task should be \"Morning workout\", got: {context[\"completed_task\"]}'\nprint('TEST_PASSED: completed_task stored correctly')",
-      "expected": "completed_task = 'Morning workout'"
-    },
-    {
-      "name": "Check tasks after step 3 (delete last 2 tasks)",
-      "code": "context = {}\nexec(code, context)\n# After step 3: ['Team meeting', 'Lunch break'] (removed 'Code review' and 'Update docs')\nassert len(context['tasks']) == 2, f'After step 3, tasks should have 2 items, got {len(context[\"tasks\"])}'\nassert context['tasks'] == ['Team meeting', 'Lunch break'], \\\n    f'After step 3, tasks should be [\"Team meeting\", \"Lunch break\"], got: {context[\"tasks\"]}'\nprint('TEST_PASSED: Last 2 tasks deleted correctly')",
-      "expected": "tasks should be ['Team meeting', 'Lunch break'] after step 3"
-    },
-    {
-      "name": "Check final_task variable",
-      "code": "context = {}\nexec(code, context)\nassert 'final_task' in context, 'Missing final_task variable'\nassert context['final_task'] == 'Lunch break', f'final_task should be \"Lunch break\", got: {context[\"final_task\"]}'\nprint('TEST_PASSED: final_task stored correctly')",
-      "expected": "final_task = 'Lunch break'"
-    },
-    {
-      "name": "Check final tasks list",
-      "code": "context = {}\nexec(code, context)\n# Final: ['Team meeting']\nassert len(context['tasks']) == 1, f'Final tasks should have 1 item, got {len(context[\"tasks\"])}'\nassert context['tasks'][0] == 'Team meeting', f'Final task should be \"Team meeting\", got: {context[\"tasks\"][0]}'\nprint('TEST_PASSED: Final tasks list is correct')",
-      "expected": "Final tasks list should be ['Team meeting']"
-    },
-    {
-      "name": "Check output progression",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all expected output sections\nassert \"Starting tasks:\" in output, 'Should show starting tasks'\nassert \"After removing 'Check emails':\" in output, 'Should show after removal'\nassert \"After completing first task:\" in output, 'Should show after pop'\nassert \"Completed: Morning workout\" in output, 'Should show completed task'\nassert \"After deleting last 2 tasks:\" in output, 'Should show after deleting'\nassert \"After completing final task:\" in output, 'Should show final step'\nassert \"Final task completed: Lunch break\" in output, 'Should show final task'\nprint('TEST_PASSED: Output shows all progression steps')",
-      "expected": "Output should show tasks at each stage"
+      "name": "Check Logic and Requirements",
+      "code": "import ast\n\n# 1. Check final variable values\nif completed_task != 'Morning workout':\n    raise AssertionError('completed_task is incorrect. Did you pop index 0?')\nif final_task != 'Lunch break':\n    raise AssertionError('final_task is incorrect. Did you pop() the last item?')\nif tasks != ['Team meeting']:\n    raise AssertionError(f'The final tasks list is incorrect: {tasks}')\n\n# 2. Advanced: Check if they actually used the required keywords/methods\ntree = ast.parse(code)\ncalls = [node.func.attr for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)]\ndeletes = [node for node in ast.walk(tree) if isinstance(node, ast.Delete)]\n\nif 'remove' not in calls:\n    raise AssertionError(\"You must use the .remove() method for Step 1.\")\nif calls.count('pop') < 2:\n    raise AssertionError(\"You must use the .pop() method twice (Step 2 and Step 4).\")\nif not deletes:\n    raise AssertionError(\"You must use the 'del' keyword for Step 3.\")\n\nprint('TEST_PASSED: Great job using remove, pop, and del!')",
+      "expected": "All list operations were used correctly and the final state is accurate."
     }
-  ],
-  "expectedOutput": "Starting tasks: ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nAfter removing 'Check emails': ['Morning workout', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\nAfter completing first task: ['Team meeting', 'Lunch break', 'Code review', 'Update docs']\nCompleted: Morning workout\nAfter deleting last 2 tasks: ['Team meeting', 'Lunch break']\nAfter completing final task: ['Team meeting']\nFinal task completed: Lunch break",
-  "tags": ["lists", "remove", "pop", "del", "list-methods"],
-  "challengeGroup": "list-operations"
+  ]
 }

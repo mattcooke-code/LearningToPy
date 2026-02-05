@@ -19,27 +19,27 @@
   "tests": [
     {
       "name": "Check item_name is a string",
-      "code": "context = {}\nexec(code, context)\nassert 'item_name' in context, 'Missing item_name variable'\nassert isinstance(context['item_name'], str), f'item_name should be a string, got {type(context[\"item_name\"])}'\nprint('TEST_PASSED: item_name is a string')",
+      "code": "# Check item_name variable exists and is correct type\nif 'item_name' not in locals():\n    raise AssertionError('Missing item_name variable')\n\nif not isinstance(item_name, str):\n    raise AssertionError(f'item_name should be a string, got {type(item_name).__name__}')\n\nif item_name is None:\n    raise AssertionError('item_name is still None. Replace it with a string value!')\n\nprint('TEST_PASSED: item_name is a string')",
       "expected": "item_name should be a string type"
     },
     {
       "name": "Check stock_count is an integer",
-      "code": "context = {}\nexec(code, context)\nassert 'stock_count' in context, 'Missing stock_count variable'\nassert isinstance(context['stock_count'], int), f'stock_count should be an integer, got {type(context[\"stock_count\"])}'\nprint('TEST_PASSED: stock_count is an integer')",
+      "code": "# Check stock_count variable\nif 'stock_count' not in locals():\n    raise AssertionError('Missing stock_count variable')\n\nif not isinstance(stock_count, int) or isinstance(stock_count, bool):\n    raise AssertionError(f'stock_count should be an integer, got {type(stock_count).__name__}')\n\nif stock_count is None:\n    raise AssertionError('stock_count is still None. Replace it with an integer value!')\n\nprint('TEST_PASSED: stock_count is an integer')",
       "expected": "stock_count should be an integer type"
     },
     {
       "name": "Check item_price is a float",
-      "code": "context = {}\nexec(code, context)\nassert 'item_price' in context, 'Missing item_price variable'\nassert isinstance(context['item_price'], float), f'item_price should be a float, got {type(context[\"item_price\"])}'\nprint('TEST_PASSED: item_price is a float')",
+      "code": "# Check item_price variable\nif 'item_price' not in locals():\n    raise AssertionError('Missing item_price variable')\n\nif not isinstance(item_price, float):\n    raise AssertionError(f'item_price should be a float (decimal number), got {type(item_price).__name__}')\n\nif item_price is None:\n    raise AssertionError('item_price is still None. Replace it with a float value!')\n\nprint('TEST_PASSED: item_price is a float')",
       "expected": "item_price should be a float type"
     },
     {
       "name": "Check is_available is a boolean",
-      "code": "context = {}\nexec(code, context)\nassert 'is_available' in context, 'Missing is_available variable'\nassert isinstance(context['is_available'], bool), f'is_available should be a boolean, got {type(context[\"is_available\"])}'\nprint('TEST_PASSED: is_available is a boolean')",
+      "code": "# Check is_available variable\nif 'is_available' not in locals():\n    raise AssertionError('Missing is_available variable')\n\nif not isinstance(is_available, bool):\n    raise AssertionError(f'is_available should be a boolean (True or False), got {type(is_available).__name__}')\n\nif is_available is None:\n    raise AssertionError('is_available is still None. Replace it with True or False!')\n\nprint('TEST_PASSED: is_available is a boolean')",
       "expected": "is_available should be a boolean type"
     },
     {
       "name": "Check output shows correct type names",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\nassert any(\"<class 'str'>\" in line for line in lines), 'Output should show string type'\nassert any(\"<class 'int'>\" in line for line in lines), 'Output should show int type'\nassert any(\"<class 'float'>\" in line for line in lines), 'Output should show float type'\nassert any(\"<class 'bool'>\" in line for line in lines), 'Output should show bool type'\nprint('TEST_PASSED: Output shows all correct data types')",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\nif not any(\"<class 'str'>\" in line for line in lines):\n    raise AssertionError('Output should show string type (<class \\'str\\'>)')\n\nif not any(\"<class 'int'>\" in line for line in lines):\n    raise AssertionError('Output should show int type (<class \\'int\\'>)')\n\nif not any(\"<class 'float'>\" in line for line in lines):\n    raise AssertionError('Output should show float type (<class \\'float\\'>)')\n\nif not any(\"<class 'bool'>\" in line for line in lines):\n    raise AssertionError('Output should show bool type (<class \\'bool\\'>)')\n\nprint('TEST_PASSED: Output shows all correct data types')",
       "expected": "Output shows str, int, float, and bool types"
     }
   ],

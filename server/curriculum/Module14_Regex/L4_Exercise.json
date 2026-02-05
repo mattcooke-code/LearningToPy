@@ -19,9 +19,8 @@
     "For the splitting pattern, you can use the OR operator (`|`) to match either a comma or a pipe: `r\",|\"`.",
     "Remember that the hyphen in the phone number pattern must be outside the capturing groups."
   ],
-  "validation": {
-    "output": "Reformatted Phone: (415) 555-1234\nSplit Data: ['Name', 'Age', 'City', '1']\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["re-sub", "re-split", "substitution", "group-referencing"],
   "challengeGroup": "regex-transformation"
 }

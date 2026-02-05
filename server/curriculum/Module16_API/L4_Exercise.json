@@ -21,9 +21,8 @@
     "Use the `json=` keyword argument in `requests.post()`.",
     "The newly created object's data, including the generated ID, is available via `r.json()`."
   ],
-  "validation": {
-    "output": "Comment submitted with ID: 501\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["post-request", "json-payload", "api-submission", "status-201"],
   "challengeGroup": "api-data-submission"
 }

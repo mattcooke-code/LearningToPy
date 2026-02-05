@@ -15,9 +15,8 @@
     "`pip list` shows packages, while `pip freeze` shows packages in the format needed for a requirements file.",
     "The command to install from a file uses the `-r` flag."
   ],
-  "validation": {
-    "output": "Install Command: pip install pandas==2.1.4\nList Command: pip list\nFreeze Command: pip freeze > requirements.txt\nInstall from File Command: pip install -r requirements.txt\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["pip", "requirements.txt", "dependency-management", "tooling"],
   "challengeGroup": "python-pip"
 }

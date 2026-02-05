@@ -6,31 +6,22 @@ import {
   ExternalLink,
   CheckCircle,
   XCircle,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { CodeThemeToggle, Spinner } from "../ui";
 import { CodeBlock, CodeEditor, TerminalComponent } from "../lesson";
 import { useTheme } from "../../context";
-import { usePython } from "../../context/PythonContext";
+import { usePython, apiClient } from "../../context";
 import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
+import { validateWithPyodide, getErrorMessage } from "../../utils";
 
 const ExerciseComponent = ({
   exercise,
   onCodeSubmit,
   isReviewMode,
   solution,
+  lessonId,
 }) => {
-  console.log("=== EXERCISE DEBUG ===");
-  console.log("Exercise object:", exercise);
-  console.log("Steps:", exercise?.steps);
-  console.log("Steps exists:", !!exercise?.steps);
-  console.log("Is array:", Array.isArray(exercise?.steps));
-  console.log("Array length:", exercise?.steps?.length);
-  console.log("First step:", exercise?.steps?.[0]);
-  console.log("=== END DEBUG ===");
-
   const [userCode, setUserCode] = useState(
     isReviewMode ? solution || exercise.starterCode : exercise.starterCode,
   );
@@ -39,76 +30,32 @@ const ExerciseComponent = ({
   const [showTerminal, setShowTerminal] = useState(true);
   const [testResults, setTestResults] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [showTestDetails, setShowTestDetails] = useState(false);
+  const [attemptNumber, setAttemptNumber] = useState(1);
+  const [startTime, setStartTime] = useState(Date.now());
+  const [hasViewedHints, setHasViewedHints] = useState(false);
 
   const { isCodeDark } = useTheme();
-  const { runCode, isReady, checkSyntax } = usePython();
+  const { runCode, isReady } = usePython();
   const { downloadPythonFile } = useFileDownload();
 
-  const runTests = async (tests) => {
-    const results = [];
-    let allPassed = true;
-
-    for (const test of tests) {
-      try {
-        // Combine user code with test - wrap in try/except to catch assertion errors
-        const testCode = `
-${userCode}
-
-# Test: ${test.name}
-try:
-    ${test.code}
-    print("TEST_PASSED: ${test.name}")
-except AssertionError as e:
-    print(f"TEST_FAILED: ${test.name} - {e}")
-except Exception as e:
-    print(f"TEST_ERROR: ${test.name} - {type(e).__name__}: {e}")
-`;
-
-        const result = await runCode(testCode, 3000);
-
-        if (result.success) {
-          // Check if output contains TEST_PASSED
-          const passed = result.output.includes(`TEST_PASSED: ${test.name}`);
-          results.push({
-            name: test.name,
-            passed,
-            expected: test.expected,
-            actual: result.output,
-            rawOutput: result.output,
-          });
-          allPassed = allPassed && passed;
-        } else {
-          results.push({
-            name: test.name,
-            passed: false,
-            error: result.error,
-            rawOutput: result.output,
-          });
-          allPassed = false;
-        }
-      } catch (error) {
-        results.push({
-          name: test.name,
-          passed: false,
-          error: error.message,
-          rawOutput: "",
-        });
-        allPassed = false;
-      }
-    }
-
-    return { allPassed, results };
-  };
-
+  // ExerciseComponent.jsx - Simplified handleSubmit
   const handleSubmit = async () => {
-    if (!isReady) {
-      alert("Python engine is not ready yet. Please wait a moment.");
-      return;
-    }
+    console.log("🔍 handleSubmit called");
+    console.log("runCode from hook:", runCode);
+    console.log("isReady:", isReady);
 
     if (isReviewMode) {
       setShowSolution(true);
+      return;
+    }
+
+    if (!isReady) {
+      console.log("❌ Python not ready");
+      setTestResults({
+        success: false,
+        error: "Python Engine Loading",
+        message: "Python engine is still loading. Please wait...",
+      });
       return;
     }
 
@@ -116,75 +63,71 @@ except Exception as e:
     setTestResults(null);
 
     try {
-      // First, run the user's code to get output
-      const result = await runCode(userCode, 5000);
+      console.log("🔍 Calling validateWithPyodide with runCode:", !!runCode);
+      // Pyodide Validation
+      const validationResult = await validateWithPyodide(
+        userCode,
+        exercise,
+        runCode,
+      );
 
-      if (!result.success) {
+      if (!validationResult.success) {
+        // Handle Pyodide validation errors (not network errors)
         setTestResults({
           success: false,
-          error: "Runtime Error",
-          message: result.error,
-          output: result.output || "(no output)",
+          error: "Validation Failed",
+          message: validationResult.feedback || "Tests failed. Try again!",
         });
+        setAttemptNumber((prev) => prev + 1);
+        setIsRunning(false);
         return;
       }
 
-      // VALIDATION LOGIC
-      if (exercise.validation === "tests" && exercise.tests?.length > 0) {
-        const testsPassed = await runTests(exercise.tests);
+      // If local validation passes, send to backend
+      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
 
-        setTestResults({
-          success: testsPassed.allPassed,
-          message: testsPassed.allPassed
-            ? "🎉 All tests passed! Great job!"
-            : `${testsPassed.results.filter((r) => r.passed).length}/${testsPassed.results.length} tests passed. Keep trying!`,
-          details: testsPassed.results,
-          output: result.output || "(no output)",
-          rawOutput: result.output,
-        });
+      const response = await apiClient.post(
+        `/content/lessons/${lessonId}/submit`,
+        {
+          code: userCode,
+          validationResult: validationResult,
+          attemptNumber,
+          elapsedSeconds: elapsedSeconds,
+          usedHints: hasViewedHints,
+          wasOptimalSolution: validationResult.isOptimal || false,
+          isCorrect: validationResult.success,
+          testsPassed: validationResult.testsPassed,
+          totalTests: validationResult.totalTests,
+        },
+      );
 
-        // Submit to parent if all tests passed
-        if (testsPassed.allPassed && onCodeSubmit) {
-          onCodeSubmit(userCode);
-        }
-      } else if (exercise.validation === "output" && exercise.expectedOutput) {
-        // Compare with expected output
-        const userOutput = (result.output || "").trim();
-        const expectedOutput = exercise.expectedOutput.trim();
-        const isCorrect = userOutput === expectedOutput;
+      const result = response.data || response;
 
-        setTestResults({
-          success: isCorrect,
-          message: isCorrect
-            ? "🎉 Correct output! Great job!"
-            : "Output doesn't match expected result",
-          output: userOutput || "(no output)",
-          expected: expectedOutput,
-        });
+      setTestResults({
+        success: true,
+        message: result.feedback || "🎉 All tests passed!",
+        output: "Tests passed on server",
+        xpEarned: result.xpEarned || 25,
+      });
 
-        // Submit to parent if correct
-        if (isCorrect && onCodeSubmit) {
-          onCodeSubmit(userCode);
-        }
-      } else {
-        // No validation - just execute
-        setTestResults({
-          success: true,
-          message: "Code executed successfully!",
-          output: result.output || "(no output)",
-        });
-
-        // Submit for completion (optional)
-        if (onCodeSubmit) {
-          onCodeSubmit(userCode);
-        }
+      if (onCodeSubmit) {
+        onCodeSubmit(userCode, result);
       }
-    } catch (error) {
+
+      setAttemptNumber(1);
+      setStartTime(Date.now());
+    } catch (err) {
+      // Handle network/HTTP errors
+      console.error("Submission error:", err);
       setTestResults({
         success: false,
-        error: "Execution Error",
-        message: error.message,
+        error: "Submission Error",
+        message: getErrorMessage(
+          err,
+          "Failed to submit code. Please try again.",
+        ),
       });
+      setAttemptNumber((prev) => prev + 1);
     } finally {
       setIsRunning(false);
     }
@@ -195,7 +138,6 @@ except Exception as e:
     setShowSolution(false);
     setShowHints(false);
     setTestResults(null);
-    setShowTestDetails(false);
   };
 
   const openInExternalIDE = () => {
@@ -204,18 +146,6 @@ except Exception as e:
 
   const handleTerminalExecute = (result) => {
     console.log("Terminal execution:", result);
-  };
-
-  // Helper function to extract clean test output
-  const getCleanTestOutput = (rawOutput) => {
-    if (!rawOutput) return "";
-
-    // Remove TEST_ prefixes for cleaner display
-    return rawOutput
-      .replace(/TEST_PASSED:.*?\n/g, "")
-      .replace(/TEST_FAILED:.*?-\s*/g, "Failed: ")
-      .replace(/TEST_ERROR:.*?-\s*/g, "Error: ")
-      .trim();
   };
 
   return (
@@ -276,6 +206,7 @@ except Exception as e:
       <div className={`mb-4 ${isCodeDark ? "text-gray-300" : "text-gray-800"}`}>
         <MarkdownRenderer content={exercise.instructions} isDark={isCodeDark} />
       </div>
+
       {/* Render Steps if they exist */}
       {exercise.steps && exercise.steps.length > 0 && (
         <div
@@ -420,7 +351,8 @@ except Exception as e:
                       : "text-red-800"
                 }`}
               >
-                {testResults.error || "Test Results"}
+                {testResults.error ||
+                  (testResults.isPreview ? "Code Preview" : "Test Results")}
               </h4>
               <p
                 className={
@@ -436,15 +368,30 @@ except Exception as e:
                 {testResults.message}
               </p>
 
-              {/* Code Output */}
-              {testResults.output && (
+              {/* XP Earned */}
+              {testResults.xpEarned && (
+                <div className="mt-2">
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
+                      isCodeDark
+                        ? "bg-yellow-900 text-yellow-200"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    🎉 +{testResults.xpEarned} XP
+                  </span>
+                </div>
+              )}
+
+              {/* Code Output (for preview runs) */}
+              {testResults.output && testResults.isPreview && (
                 <div className="mt-3">
                   <p
                     className={`text-sm font-semibold mb-1 ${
                       isCodeDark ? "text-gray-300" : "text-gray-700"
                     }`}
                   >
-                    Your Output:
+                    Output:
                   </p>
                   <pre
                     className={`mt-1 p-2 rounded text-sm whitespace-pre-wrap ${
@@ -455,170 +402,6 @@ except Exception as e:
                   >
                     {testResults.output}
                   </pre>
-                </div>
-              )}
-
-              {/* Expected Output (for output validation) */}
-              {testResults.expected && !testResults.success && (
-                <div className="mt-3">
-                  <p
-                    className={`text-sm font-semibold mb-1 ${
-                      isCodeDark ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    Expected Output:
-                  </p>
-                  <pre
-                    className={`mt-1 p-2 rounded text-sm whitespace-pre-wrap ${
-                      isCodeDark
-                        ? "bg-gray-800 text-gray-300"
-                        : "bg-white text-gray-800"
-                    }`}
-                  >
-                    {testResults.expected}
-                  </pre>
-                </div>
-              )}
-
-              {/* Test Details */}
-              {testResults.details && testResults.details.length > 0 && (
-                <div className="mt-4">
-                  <button
-                    onClick={() => setShowTestDetails(!showTestDetails)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium ${
-                      isCodeDark
-                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-                    }`}
-                  >
-                    {showTestDetails ? (
-                      <ChevronUp size={16} />
-                    ) : (
-                      <ChevronDown size={16} />
-                    )}
-                    <span>View Test Details</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs ${
-                        testResults.success
-                          ? isCodeDark
-                            ? "bg-green-800 text-green-200"
-                            : "bg-green-200 text-green-800"
-                          : isCodeDark
-                            ? "bg-red-800 text-red-200"
-                            : "bg-red-200 text-red-800"
-                      }`}
-                    >
-                      {testResults.details.filter((t) => t.passed).length}/
-                      {testResults.details.length}
-                    </span>
-                  </button>
-
-                  {showTestDetails && (
-                    <div className="mt-3 space-y-3">
-                      <h5
-                        className={`font-semibold ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
-                      >
-                        Test Details:
-                      </h5>
-                      {testResults.details.map((test, index) => (
-                        <div
-                          key={index}
-                          className={`p-3 rounded-lg ${
-                            test.passed
-                              ? isCodeDark
-                                ? "bg-green-900/30 border border-green-700"
-                                : "bg-green-50 border border-green-200"
-                              : isCodeDark
-                                ? "bg-red-900/30 border border-red-700"
-                                : "bg-red-50 border border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              {test.passed ? (
-                                <CheckCircle
-                                  size={16}
-                                  className="text-green-500"
-                                />
-                              ) : (
-                                <XCircle size={16} className="text-red-500" />
-                              )}
-                              <span className="font-medium">{test.name}</span>
-                            </div>
-                            <span
-                              className={`px-2 py-1 rounded text-xs font-medium ${
-                                test.passed
-                                  ? isCodeDark
-                                    ? "bg-green-800 text-green-200"
-                                    : "bg-green-200 text-green-800"
-                                  : isCodeDark
-                                    ? "bg-red-800 text-red-200"
-                                    : "bg-red-200 text-red-800"
-                              }`}
-                            >
-                              {test.passed ? "PASSED" : "FAILED"}
-                            </span>
-                          </div>
-
-                          {!test.passed && (
-                            <div className="mt-3 pt-3 border-t border-gray-700/30">
-                              <div className="space-y-2">
-                                {test.error ? (
-                                  <div>
-                                    <p
-                                      className={`font-semibold text-sm ${isCodeDark ? "text-red-300" : "text-red-600"}`}
-                                    >
-                                      Error:
-                                    </p>
-                                    <p
-                                      className={`text-sm ${isCodeDark ? "text-red-200" : "text-red-700"}`}
-                                    >
-                                      {test.error}
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <>
-                                    {test.expected && (
-                                      <div>
-                                        <p
-                                          className={`font-semibold text-sm ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
-                                        >
-                                          Expected:
-                                        </p>
-                                        <p
-                                          className={`text-sm ${isCodeDark ? "text-gray-200" : "text-gray-600"}`}
-                                        >
-                                          {test.expected}
-                                        </p>
-                                      </div>
-                                    )}
-                                    {test.rawOutput && (
-                                      <div>
-                                        <p
-                                          className={`font-semibold text-sm ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
-                                        >
-                                          Test Output:
-                                        </p>
-                                        <pre
-                                          className={`mt-1 p-2 rounded text-xs whitespace-pre-wrap ${
-                                            isCodeDark
-                                              ? "bg-gray-800 text-gray-300"
-                                              : "bg-gray-100 text-gray-700"
-                                          }`}
-                                        >
-                                          {getCleanTestOutput(test.rawOutput)}
-                                        </pre>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -702,25 +485,22 @@ except Exception as e:
       <div className="flex flex-wrap gap-4 mt-4">
         <button
           onClick={handleSubmit}
-          disabled={isRunning || !isReady}
+          disabled={isRunning || !isReady || isReviewMode}
           className={`px-6 py-2 rounded-lg font-semibold transition flex items-center space-x-2 ${
-            isRunning || !isReady
+            isRunning || !isReady || isReviewMode
               ? "bg-gray-400 cursor-not-allowed"
-              : isReviewMode
-                ? "bg-gray-600 text-white hover:bg-gray-700"
-                : "bg-yellow-600 text-white hover:bg-yellow-700"
+              : "bg-yellow-600 text-white hover:bg-yellow-700"
           }`}
         >
           {isRunning ? (
             <>
               <Spinner size={16} />
-              <span>Running...</span>
+              <span>Submitting...</span>
             </>
           ) : (
-            <span>{isReviewMode ? "Check Solution" : "Submit Code"}</span>
+            <span>Submit Code</span>
           )}
         </button>
-
         {isReviewMode && solution && (
           <button
             onClick={() => setShowSolution(!showSolution)}
@@ -729,7 +509,6 @@ except Exception as e:
             {showSolution ? "Hide Solution" : "Show Solution"}
           </button>
         )}
-
         {isReviewMode && (
           <button
             onClick={resetExercise}
@@ -739,14 +518,15 @@ except Exception as e:
             <span>Reset</span>
           </button>
         )}
-
         <button
-          onClick={() => setShowHints(!showHints)}
+          onClick={() => {
+            setShowHints(!showHints);
+            if (!hasViewedHints) setHasViewedHints(true);
+          }}
           className="bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition"
         >
           {showHints ? "Hide Hints" : "Show Hints"}
         </button>
-
         {/* Download button for all exercises */}
         <button
           onClick={openInExternalIDE}

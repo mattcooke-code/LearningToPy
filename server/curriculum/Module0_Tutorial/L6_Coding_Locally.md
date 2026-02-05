@@ -6,7 +6,7 @@ While our in-browser editor is perfect for learning, professional developers use
 
 On every lesson, you'll see a Download button. This allows you to take the lesson code off our platform and run it on your own computer.
 
-![Code Editor: Dark Mode](./images/CodeEditorDarkMode.png)
+![Code Editor: Download Button](./images/CodeEditorDarkMode.png)
 
 ## Why code locally?
 
@@ -34,6 +34,6 @@ We recommend these two industry standards. They are free, powerful, and used by 
 
 - **PyCharm:** A "heavy-duty" editor specifically built for Python. It's a bit larger but comes with everything pre-configured. [Download PyCharm](https://www.jetbrains.com/pycharm/download/)
 
-## Important Note
+## ⚠️ Important Note ⚠️
 
 You don't need these to finish this course! Our browser editor has everything you need to become a Python pro and earn your certificates. These tools are simply your "next step" for when you're ready to build your own standalone applications outside of this platform.

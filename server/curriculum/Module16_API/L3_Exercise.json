@@ -17,9 +17,8 @@
     "Since `users_data` is a list of dictionaries, use `users_data[0:3]` to get the first three items.",
     "Access the values within the dictionary using square brackets, e.g., `user['name']`."
   ],
-  "validation": {
-    "output": "Name: Leanne Graham, Email: Sincere@april.biz\nName: Ervin Howell, Email: Shanna@melissa.tv\nName: Clementine Bauch, Email: Nathan@yesenia.net\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["json-parsing", "requests", "data-extraction", "list-of-dicts"],
   "challengeGroup": "api-data-handling"
 }

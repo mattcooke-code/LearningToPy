@@ -16,10 +16,8 @@
     "To create a simple boolean flag that is True if passed, use `action='store_true'` for the argument.",
     "The arguments are accessed via dot notation: `args.argument_name`."
   ],
-  "validation": {
-    "command_line_args": "--setup-db",
-    "output": "Database 'final_project.db' initialized successfully.\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["argparse", "sqlite3", "cli", "project", "final"],
   "challengeGroup": "final-project"
 }

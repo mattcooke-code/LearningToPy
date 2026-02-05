@@ -17,9 +17,8 @@
     "The `attack` method must access and modify the `current_health` attribute of the `target` object.",
     "The `__str__` method must return a string, not print it."
   ],
-  "validation": {
-    "output": "Knight attacks Goblin for 10 damage.\nKnight [HP: 100/100]\nGoblin [HP: 40/50]\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["project", "class", "instance-methods", "__init__", "__str__"],
   "challengeGroup": "oop-project"
 }

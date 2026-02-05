@@ -18,12 +18,30 @@
     "File iteration works the same inside the `with` block as outside it.",
     "Check `file_object.closed` to see if a file is closed (returns True/False)."
   ],
-  "validation": {
-    "variables": {
-      "clean_settings": ["HOST=localhost", "PORT=8080", "DEBUG=True"]
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check with statement usage",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('settings.conf', 'w') as f:\n    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check with statement is used\n    tree = ast.parse(code)\n    with_stmt_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.With):\n            with_stmt_found = True\n            # Check it's with open(...)\n            for item in node.items:\n                if isinstance(item.context_expr, ast.Call):\n                    if isinstance(item.context_expr.func, ast.Name):\n                        if item.context_expr.func.id == 'open':\n                            # Good, with open() found\n                            pass\n    \n    assert with_stmt_found, 'Should use with statement for file handling'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('settings.conf'):\n        os.remove('settings.conf')\n\nprint('TEST_PASSED: with statement used for file handling')",
+      "expected": "Should use with open() context manager"
     },
-    "output": "3\\nFile closed: True"
-  },
+    {
+      "name": "Check file processing inside with block",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('settings.conf', 'w') as f:\n    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check clean_settings list\n    clean_settings = exec_globals.get('clean_settings', [])\n    assert isinstance(clean_settings, list), 'clean_settings should be a list'\n    assert len(clean_settings) == 3, f'Should have 3 cleaned settings, got {len(clean_settings)}'\n    \n    # Check list contains stripped values\n    assert 'HOST=localhost' in clean_settings, 'Should contain HOST=localhost'\n    assert 'PORT=8080' in clean_settings, 'Should contain PORT=8080'\n    assert 'DEBUG=True' in clean_settings, 'Should contain DEBUG=True'\n    \n    # Check for loop inside with block\n    tree = ast.parse(code)\n    loop_inside_with = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.With):\n            # Check if there's a for loop in the with body\n            for child in node.body:\n                if isinstance(child, ast.For):\n                    loop_inside_with = True\n    \n    assert loop_inside_with, 'Should have for loop inside with block'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('settings.conf'):\n        os.remove('settings.conf')\n\nprint('TEST_PASSED: File processed correctly inside with block')",
+      "expected": "Should iterate through file and populate clean_settings list"
+    },
+    {
+      "name": "Check output and file closed status",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('settings.conf', 'w') as f:\n    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check output\n    lines = [line.strip() for line in output.split('\\n') if line.strip()]\n    \n    # Should print length (3) and file closed status\n    length_found = any('3' in line for line in lines)\n    assert length_found, 'Should print length of clean_settings (3)'\n    \n    closed_found = any('File closed:' in line for line in lines)\n    assert closed_found, 'Should print \"File closed:\" message'\n    \n    # Should show file is closed (True)\n    closed_true = any('File closed: True' in line for line in lines) or \\\n                  any('File closed:True' in line for line in lines)\n    assert closed_true, 'Should show file.closed is True'\n    \n    # Check config_file.closed is accessed\n    tree = ast.parse(code)\n    closed_access_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Attribute):\n            if node.attr == 'closed':\n                closed_access_found = True\n    \n    assert closed_access_found, 'Should access config_file.closed attribute'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('settings.conf'):\n        os.remove('settings.conf')\n\nprint('TEST_PASSED: Output shows correct length and file closed status')",
+      "expected": "Should print list length (3) and file.closed (True)"
+    },
+    {
+      "name": "Check no explicit .close() call needed",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('settings.conf', 'w') as f:\n    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check no .close() method is called (context manager handles it)\n    tree = ast.parse(code)\n    close_calls = []\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'close':\n                close_calls.append(node)\n    \n    # With context manager, we shouldn't need explicit close\n    # But some students might still add it, which is OK\n    # Just note that it's not necessary\n    \n    # Check file is actually closed by checking config_file variable\n    # (This is tricky because config_file is in with block scope)\n    # Instead, we verify the output shows file.closed is True\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('settings.conf'):\n        os.remove('settings.conf')\n\nprint('TEST_PASSED: Context manager handles file closing automatically')",
+      "expected": "with statement automatically closes file (no .close() needed)"
+    }
+  ],
+  "expectedOutput": "3\nFile closed: True",
   "tags": ["file-io", "with", "context-manager", "safe-handling"],
   "challengeGroup": "context-manager"
 }

@@ -2,8 +2,8 @@
   "title": "Slicing Your Weekly Schedule",
   "instructions": "You're organizing your weekly study schedule. Use slicing to extract different parts of your schedule. Remember: slicing uses [start:stop] and the stop index is NOT included!",
   "steps": [
-    "**Step 1:** Get your weekday schedule (Monday through Friday). Use a slice that starts at index 0 and stops BEFORE index 5. Store it in `weekdays`.",
-    "**Step 2:** Get your weekend schedule (Saturday and Sunday). These are the last 2 items. Use negative indexing to slice from index -2 to the end. Store it in `weekend`.",
+    "**Step 1:** Get your weekday schedule (Monday through Friday). Use a slice that starts at index `0` and stops BEFORE index `5`. Store it in `weekdays`.",
+    "**Step 2:** Get your weekend schedule (Saturday and Sunday). These are the last 2 items. Use negative indexing to slice from index `-2` to the end. Store it in `weekend`.",
     "**Step 3:** Get every other day starting from Monday (Monday, Wednesday, Friday, Sunday). Use a step of 2 to skip days. Store it in `alternate_days`.",
     "**Step 4:** Create a reversed copy of the entire week using `[::-1]`. This doesn't change the original! Store it in `week_reversed`."
   ],
@@ -20,32 +20,32 @@
   "tests": [
     {
       "name": "Check weekdays slice",
-      "code": "context = {}\nexec(code, context)\nassert 'weekdays' in context, 'Missing weekdays variable'\nassert context['weekdays'] == [2, 3, 2, 4, 3], f'weekdays should be [2, 3, 2, 4, 3], got: {context[\"weekdays\"]}'\nprint('TEST_PASSED: weekdays slice is correct')",
+      "code": "# Check weekdays variable\nif 'weekdays' not in locals():\n    raise AssertionError('Missing weekdays variable. Did you create it?')\n\nif weekdays != [2, 3, 2, 4, 3]:\n    raise AssertionError(f'weekdays should be [2, 3, 2, 4, 3] (indices 0-4), got: {weekdays}')\n\nprint('TEST_PASSED: weekdays slice is correct')",
       "expected": "weekdays = [2, 3, 2, 4, 3]"
     },
     {
       "name": "Check weekend slice",
-      "code": "context = {}\nexec(code, context)\nassert 'weekend' in context, 'Missing weekend variable'\nassert context['weekend'] == [5, 1], f'weekend should be [5, 1], got: {context[\"weekend\"]}'\nprint('TEST_PASSED: weekend slice is correct')",
+      "code": "# Check weekend variable\nif 'weekend' not in locals():\n    raise AssertionError('Missing weekend variable. Did you create it?')\n\nif weekend != [5, 1]:\n    raise AssertionError(f'weekend should be [5, 1] (last 2 items), got: {weekend}')\n\nprint('TEST_PASSED: weekend slice is correct')",
       "expected": "weekend = [5, 1]"
     },
     {
       "name": "Check alternate_days slice",
-      "code": "context = {}\nexec(code, context)\nassert 'alternate_days' in context, 'Missing alternate_days variable'\nassert context['alternate_days'] == [2, 2, 3, 1], f'alternate_days should be [2, 2, 3, 1], got: {context[\"alternate_days\"]}'\nprint('TEST_PASSED: alternate_days slice is correct')",
+      "code": "# Check alternate_days variable\nif 'alternate_days' not in locals():\n    raise AssertionError('Missing alternate_days variable. Did you create it?')\n\nif alternate_days != [2, 2, 3, 1]:\n    raise AssertionError(f'alternate_days should be [2, 2, 3, 1] (every other day), got: {alternate_days}')\n\nprint('TEST_PASSED: alternate_days slice is correct')",
       "expected": "alternate_days = [2, 2, 3, 1]"
     },
     {
       "name": "Check week_reversed slice",
-      "code": "context = {}\nexec(code, context)\nassert 'week_reversed' in context, 'Missing week_reversed variable'\nassert context['week_reversed'] == [1, 5, 3, 4, 2, 3, 2], f'week_reversed should be [1, 5, 3, 4, 2, 3, 2], got: {context[\"week_reversed\"]}'\nprint('TEST_PASSED: week_reversed slice is correct')",
+      "code": "# Check week_reversed variable\nif 'week_reversed' not in locals():\n    raise AssertionError('Missing week_reversed variable. Did you create it?')\n\nif week_reversed != [1, 5, 3, 4, 2, 3, 2]:\n    raise AssertionError(f'week_reversed should be [1, 5, 3, 4, 2, 3, 2] (reversed), got: {week_reversed}')\n\nprint('TEST_PASSED: week_reversed slice is correct')",
       "expected": "week_reversed = [1, 5, 3, 4, 2, 3, 2]"
     },
     {
       "name": "Check original list unchanged",
-      "code": "context = {}\nexec(code, context)\nassert 'week_schedule' in context, 'Missing week_schedule variable'\nassert context['week_schedule'] == [2, 3, 2, 4, 3, 5, 1], f'Original week_schedule should remain unchanged as [2, 3, 2, 4, 3, 5, 1]'\nprint('TEST_PASSED: Original list is unchanged')",
+      "code": "# Verify original list wasn't modified\nif 'week_schedule' not in locals():\n    raise AssertionError('Missing week_schedule variable')\n\nif week_schedule != [2, 3, 2, 4, 3, 5, 1]:\n    raise AssertionError(f'Original week_schedule should remain unchanged as [2, 3, 2, 4, 3, 5, 1], got: {week_schedule}')\n\nprint('TEST_PASSED: Original list is unchanged')",
       "expected": "Original week_schedule should remain [2, 3, 2, 4, 3, 5, 1]"
     },
     {
       "name": "Check output matches expected",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check key parts of output\nassert 'Weekdays: [2, 3, 2, 4, 3]' in output, 'Output should contain weekday schedule'\nassert 'Weekend: [5, 1]' in output, 'Output should contain weekend schedule'\nassert 'Alternate days: [2, 2, 3, 1]' in output, 'Output should contain alternate days'\nassert 'Week reversed: [1, 5, 3, 4, 2, 3, 2]' in output, 'Output should contain reversed week'\nassert 'Original unchanged: [2, 3, 2, 4, 3, 5, 1]' in output, 'Output should show original is unchanged'\nprint('TEST_PASSED: Output contains all expected results')",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check key parts of output\nif 'Weekdays: [2, 3, 2, 4, 3]' not in output:\n    raise AssertionError('Output should contain weekday schedule')\n\nif 'Weekend: [5, 1]' not in output:\n    raise AssertionError('Output should contain weekend schedule')\n\nif 'Alternate days: [2, 2, 3, 1]' not in output:\n    raise AssertionError('Output should contain alternate days')\n\nif 'Week reversed: [1, 5, 3, 4, 2, 3, 2]' not in output:\n    raise AssertionError('Output should contain reversed week')\n\nif 'Original unchanged: [2, 3, 2, 4, 3, 5, 1]' not in output:\n    raise AssertionError('Output should show original is unchanged')\n\nprint('TEST_PASSED: Output contains all expected results')",
       "expected": "All output lines with correct values"
     }
   ],

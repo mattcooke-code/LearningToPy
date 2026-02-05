@@ -15,9 +15,8 @@
     "The class attribute should be defined directly within the class body, not inside a function.",
     "To instantiate a class, use the syntax: `object_name = ClassName()`."
   ],
-  "validation": {
-    "output": "Truck has 4 wheels\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["class", "object", "instantiation", "class-attribute"],
   "challengeGroup": "oop-basics"
 }

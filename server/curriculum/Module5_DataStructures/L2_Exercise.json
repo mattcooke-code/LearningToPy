@@ -1,19 +1,21 @@
 {
   "title": "Dictionary Manipulation & Loop",
-  "instructions": "Practice adding, removing, and iterating over a dictionary using the correct methods.",
+  "instructions": "Practice adding, removing, and iterating over dictionaries.",
   "steps": [
-    "Use bracket notation to add a new key-value pair to `user_data`: 'status' with the value 'online'.",
-    "Use the **`.pop()` method** to remove the 'temp_id' key from `user_data` and assign the removed value to `removed_id`.",
-    "Use a **`for` loop** and the **`.values()` method** to sum all numeric values in the `item_prices` dictionary. Assign the final sum to `total_price`.",
-    "Use a **`for` loop** and the **`.items()` method** to iterate over `user_data`. Print each key-value pair in the format: 'Key: [Key], Value: [Value]'."
+    "**Step 1:** Add 'status': 'online' to `user_data`.",
+    "**Step 2:** Use `.pop()` to remove 'temp_id' and store its value in `removed_id`.",
+    "**Step 3:** Use a `for` loop with `.values()` to add all prices in `item_prices` to `total_price`.",
+    "**Step 4:** Use `.items()` in a `for` loop to print each pair as: 'Key: [Key], Value: [Value]'."
   ],
-  "starterCode": "user_data = {'username': 'test_user', 'level': 10, 'temp_id': 999}\nitem_prices = {'apple': 0.50, 'banana': 0.30, 'kiwi': 0.75}\ntotal_price = 0\n\n# 1. Add 'status': 'online'\n\n\n# 2. Pop 'temp_id':\nremoved_id = \n\n\n# 3. Sum item_prices using .values() method:\nfor price in item_prices.values():\n    \n\n\n# 4. Iterate over user_data using .items():\n\n",
-  "solution": "# 1. Create the dictionary:\nplayer_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\n\n# 2. Access 'class' using brackets:\nplayer_class = player_stats['class']\n\n# 3. Safely access 'stamina' using .get():\nstamina_level = player_stats.get('stamina', 20)\n\n# 4. Update 'health':\nplayer_stats['health'] = 85\n\nprint(f'Player class: {player_class}')\nprint(f'Stamina level: {stamina_level}')\nprint(f'Updated stats: {player_stats}')",
-  "hints": [
-    "In step 2, remember that `pop()` returns the value you are removing, so you must assign the result to `removed_id`.",
-    "In step 3, the loop variable (`price`) will already hold the floating-point value.",
-    "In step 4, use two variables (`key, value`) in the `for` loop definition to unpack the tuple returned by `.items()`."
+  "starterCode": "user_data = {'username': 'test_user', 'level': 10, 'temp_id': 999}\nitem_prices = {'apple': 0.50, 'banana': 0.30, 'kiwi': 0.75}\ntotal_price = 0\n\n# Implement steps 1-4 below:\n",
+  "solution": "user_data['status'] = 'online'\nremoved_id = user_data.pop('temp_id')\n\nfor price in item_prices.values():\n    total_price += price\n\nfor key, value in user_data.items():\n    print(f'Key: {key}, Value: {value}')",
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check mutation and loops",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec_globals = {}\ntry:\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\nud = exec_globals.get('user_data', {})\nif 'temp_id' in ud:\n    raise AssertionError('Step 2: temp_id was not removed. Use .pop().')\nif ud.get('status') != 'online':\n    raise AssertionError(\"Step 1: 'status' was not set to 'online'.\")\n\n# Using 0.001 tolerance for float math\nif abs(exec_globals.get('total_price', 0) - 1.55) > 0.001:\n    raise AssertionError(f\"Step 3: Total price should be 1.55, got {exec_globals.get('total_price')}\")\n\nif 'Key: username' not in output:\n    raise AssertionError(\"Step 4: Output missing. Did you loop through user_data.items() and print?\")\n\nprint('TEST_PASSED: Manipulation and iteration successful')",
+      "expected": "Dictionary modified and iterated correctly with correct price totals."
+    }
   ],
-  "tags": ["dictionary", "pop", "items", "values", "iteration"],
-  "challengeGroup": "dictionary-methods"
+  "tags": ["pop", "items", "values", "iteration"]
 }

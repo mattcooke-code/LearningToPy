@@ -21,9 +21,8 @@
     "Remember to use the `f-string` to combine the `BASE_URL` with the `/todos` endpoint.",
     "In Task 2, the `id` key of the created task will be a large placeholder value (e.g., 201) since JSONPlaceholder doesn't truly save the data."
   ],
-  "validation": {
-    "output": "\n--- Pending Tasks for User 8 ---\n[ ] omnis et sit voluptatem quis vel ab\n[ ] ullam et saepe et animi non debitis ipsam\n[ ] illum et at debitis ut consectetur\n[ ] non sunt Lorem\n[ ] non et provident\n[ ] non eaque non non et et perc\n\n--- Submitting New Task ---\nSuccessfully created task with ID: 201\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "project",
     "api-client",

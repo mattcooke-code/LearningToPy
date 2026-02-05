@@ -10,7 +10,7 @@ The basic syntax for slicing uses the colon (`:`) separator inside the square br
 
 ### `list[start:stop]`
 
-- **`start`**: The index where the slice **begins**. This element is **included** in the new list. If omitted, it defaults to **0**.
+- **`start`**: The index where the slice **begins**. This element is **included** in the new list. If omitted, it defaults to `0`.
 - **`stop`**: The index where the slice **ends**. This element is **NOT included** in the new list (it stops _before_ this index). If omitted, it defaults to the **end of the list**.
 
 ```python
@@ -29,7 +29,7 @@ end_part = letters[3:] # Result: ["D", "E", "F"]
 
 ## 2. Copying a List
 
-A common and useful slice is the full slice [:].
+A common and useful slice is the full slice `[:]`.
 
 Using `new_list = old_list[:]` creates a shallow copy of the original list. This is the safest way to ensure that changes to `new_list` do not affect `old_list`.
 

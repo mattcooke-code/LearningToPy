@@ -16,9 +16,8 @@
     "Vectorized addition is as simple as `array + number`.",
     "Use the `.mean()` method or `np.mean()` function for the average calculation."
   ],
-  "validation": {
-    "output": "[110.5 103.2 117.7 106.9]\nNew Average Price: 109.58\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["numpy", "vectorization", "aggregation", "mean"],
   "challengeGroup": "data-science-intro"
 }

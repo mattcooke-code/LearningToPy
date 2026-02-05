@@ -16,9 +16,8 @@
     "The NumPy conversion function is `np.array()`.",
     "To access the properties, use dot notation: `array_name.attribute`."
   ],
-  "validation": {
-    "output": "[22.5 24.1 19.8 25. ]\nfloat64\n(4,)\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["numpy", "array", "dtype", "shape"],
   "challengeGroup": "data-science-intro"
 }

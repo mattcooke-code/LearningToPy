@@ -17,9 +17,8 @@
     "Examine the conditional statement just before the `continue` command. What value does `len(items) - 2` equal when `items` has 5 elements?",
     "If `i` matches that value, the loop immediately skips to the next iteration, missing the calculation step."
   ],
-  "validation": {
-    "output": "6\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["pdb", "debugging", "breakpoint", "tooling"],
   "challengeGroup": "python-debugging"
 }

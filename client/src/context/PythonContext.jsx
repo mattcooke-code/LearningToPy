@@ -1,3 +1,4 @@
+// PythonContext.jsx
 import {
   createContext,
   useContext,
@@ -85,7 +86,7 @@ export const PythonProvider = ({ children }) => {
         workerRef.current.postMessage({ code, id });
       });
     },
-    [isReady, initWorker]
+    [isReady, initWorker],
   );
 
   return (

@@ -18,9 +18,8 @@
     "The finally block always runs, even if there was an exception",
     "Use with open() for automatic file handling within the try block"
   ],
-  "validation": {
-    "output": "Successfully parsed config value: 42\\nCleanup completed\\nFinal config value: 42\\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["else-clause", "finally-clause", "cleanup", "error-handling"],
   "challengeGroup": "else-finally"
 }

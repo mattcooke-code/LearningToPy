@@ -18,6 +18,30 @@
     "Don't forget the final step: `file_object.close()` - we'll learn automatic methods later!",
     "This manual pattern helps you understand what happens behind the scenes."
   ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check file opening with correct mode",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('messages.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check file was opened with correct mode\n    tree = ast.parse(code)\n    open_call_found = False\n    correct_mode = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if isinstance(node.func, ast.Name) and node.func.id == 'open':\n                open_call_found = True\n                # Check arguments\n                if len(node.args) >= 2:\n                    if isinstance(node.args[1], ast.Constant) and node.args[1].value == 'r':\n                        correct_mode = True\n    \n    assert open_call_found, 'Should use open() function'\n    assert correct_mode, 'Should open file in read mode \"r\"'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('messages.txt'):\n        os.remove('messages.txt')\n\nprint('TEST_PASSED: File opened correctly in read mode')",
+      "expected": "Should use open('messages.txt', 'r')"
+    },
+    {
+      "name": "Check file reading and content",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('messages.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check output contains file content\n    assert 'This is the first line.' in output, 'Should print first line'\n    assert 'This is the second line.' in output, 'Should print second line'\n    assert 'And the final message.' in output, 'Should print final message'\n    \n    # Check .read() method is used\n    tree = ast.parse(code)\n    read_method_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'read':\n                read_method_found = True\n    \n    assert read_method_found, 'Should use .read() method on file object'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('messages.txt'):\n        os.remove('messages.txt')\n\nprint('TEST_PASSED: File content read and printed correctly')",
+      "expected": "Should read file content with .read() and print it"
+    },
+    {
+      "name": "Check file is closed properly",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('messages.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check .close() method is called\n    tree = ast.parse(code)\n    close_method_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'close':\n                close_method_found = True\n    \n    assert close_method_found, 'Should use .close() method on file object'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('messages.txt'):\n        os.remove('messages.txt')\n\nprint('TEST_PASSED: File closed properly with .close()')",
+      "expected": "Should close the file with .close() method"
+    },
+    {
+      "name": "Check variable assignments",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('messages.txt', 'w') as f:\n    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check variables exist\n    assert 'msg_file' in exec_globals, 'Should have msg_file variable'\n    assert 'file_data' in exec_globals, 'Should have file_data variable'\n    \n    # Check file_data contains content\n    file_data = exec_globals['file_data']\n    assert isinstance(file_data, str), 'file_data should be a string'\n    assert 'This is the first line.' in file_data, 'file_data should contain file content'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('messages.txt'):\n        os.remove('messages.txt')\n\nprint('TEST_PASSED: Variables correctly assigned')",
+      "expected": "Should assign file object to msg_file and content to file_data"
+    }
+  ],
+  "expectedOutput": "This is the first line.\nThis is the second line.\nAnd the final message.",
   "notes": [
     "This exercise uses the manual file handling pattern to build foundational understanding.",
     "In real projects, you'll use context managers (coming in Lesson 7.3) for automatic file closure."

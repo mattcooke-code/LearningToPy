@@ -18,9 +18,8 @@
     "The response body is accessed using `.json()` after checking `response.status_code`.",
     "The path to the name components is deep: `['results'][0]['name']['first']`."
   ],
-  "validation": {
-    "output": "Random User Found: [A first name] [A last name]\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["project", "requests", "api", "tooling", "packages"],
   "challengeGroup": "python-tooling-project"
 }

@@ -6,33 +6,22 @@ Now let's put everything together! You've seen the **Editor** (where you write) 
 
 On this platform, the Editor and Terminal are connected.
 
-• **Live Sync:** When you type code into the Editor, it is automatically mirrored in the Terminal's background.
+- **Live Sync:** When you type code into the Editor, it is automatically mirrored in the Terminal's background.
 
-• **Execution:** When you click "Run" or "Submit," you are telling the Terminal to process exactly what is currently visible in your Editor window.
+- **Execution:** When you click "Run" or "Submit," you are telling the Terminal to process exactly what is currently visible in your Editor window.
 
 ## 🚦 Run vs. Submit: Know the Difference
 
 This is the most important part of your workflow. Think of it like a rehearsal versus a live performance.
 
-### 1. The "Run" Button (The Rehearsal)
+| Feature           | 🎭 Run Button (The Rehearsal)                                                              | 🎯 Submit Button (The Performance)                                     |
+| ----------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| **Purpose**       | Testing and experimenting                                                                  | Proving you've solved the exercise                                     |
+| **Result**        | Code executes in the terminal so you can check for bugs or see if calculations are correct | System verifies your answer after you type your solution in the editor |
+| **XP & Progress** | No XP awarded, lesson not marked complete                                                  | Awards **XP** points and unlocks the next lesson                       |
+| **When to Use**   | Constantly! Every few lines to make sure everything works                                  | Only once you're happy with the output from "Run"                      |
 
-• **Purpose:** Testing and experimenting.
-
-• **Result:** Your code executes in the terminal so you can check for bugs or see if the calculations are correct.
-
-• **XP & Progress:** No XP is awarded, and the lesson is not marked as complete.
-
-• **Pro Tip:** Use this constantly. Professional developers run their code every few lines to make sure everything is working as expected.
-
-### 2. The "Submit" Button (The Performance)
-
-• **Purpose:** Proving you've solved the exercise.
-
-• **Result:** Our system runs your code against "Test Cases" to ensure it meets the lesson requirements.
-
-• **XP & Progress:** Awards **XP** points and unlocks the next lesson.
-
-• **Best Practice:** Only click this once you are happy with the output you saw after clicking "Run."
+**Pro Tip:** Professional developers run their code every few lines to make sure everything is working as expected. Get into this habit early!
 
 ## Understanding Execution Flow
 
@@ -48,7 +37,7 @@ Order matters! If you try to use a variable before you define it, Python will ge
 
 ## Error Messages Are Your Friends 🚨
 
-If your code has a typo, Python won't just sit there—it will tell you exactly what’s wrong.
+If your code has a typo, Python won't just sit there—it will tell you exactly what's wrong.
 
 ```python
 print("Hello World"  # Missing a closing parenthesis!
@@ -61,7 +50,7 @@ Running this will show:
 **How to handle errors:**
 
 1. Don't Panic: Every developer sees dozens of errors a day.
-2. Read the bottom line: That’s usually where the "Type" of error is (e.g., `NameError`).
+2. Read the bottom line: That's usually where the "Type" of error is (e.g., `NameError`).
 3. Check the line number: Python tells you exactly where it got stuck.
 
 ## Practice Run
@@ -81,13 +70,13 @@ print(f"Total fruit: {apples + oranges}")
 
 Once you see the results in the terminal, you're ready to move on!
 
-## Shortcuts & Pro Tips 💡
+## Pro Tip 💡
 
-• **Keyboard Shortcut:** Press `Ctrl + Enter` (or `Cmd + Enter` on Mac) to "Run" instantly.
+- **Keyboard Shortcut:** Press `Ctrl + Enter` (or `Cmd + Enter` on Mac) to "Run" instantly. Make sure you do this from the _TERMINAL_ not the _EDITOR_.
 
-• **Print is King:** If nothing happens when you click Run, check if you used a `print()` statement. Python calculates things silently unless you tell it to "speak."
+- **Print is King:** If nothing happens when you click Run, check if you used a `print()` statement. Python calculates things silently unless you tell it to "speak."
 
-• **Fix one at a time:** If you have five errors, just fix the first one and run the code again. Often, fixing the first error can solve the rest!
+- **Fix one at a time:** If you have five errors, just fix the first one and run the code again. Often, fixing the first error can solve the rest!
 
 ## What's Next?
 

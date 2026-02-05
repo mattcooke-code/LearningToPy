@@ -70,7 +70,7 @@ The terminal is your best friend for fixing errors:
 
 1. Read the error message carefully
 2. Check the line number mentioned
-3. Go back to editor and fix that line
+3. Go back to the editor and fix that line
 4. Run again to see if it works
 
 ## Terminal vs Editor
@@ -80,9 +80,8 @@ The terminal is your best friend for fixing errors:
 | Primary Use | Writing full programs     | Running and testing code       |
 | Storage     | Saves your code for later | Immediate, temporary results   |
 | Structure   | Many lines and functions  | Usually line-by-line execution |
-| Style       | Full Syntax Highlighting  | Plain text results and errors  |
 
-## Practice
+## Pro Tip 💡
 
 Feel free to spend some time getting used to the terminal. Click some of the buttons. Try running some of the **Quick Examples**.
 

@@ -20,34 +20,9 @@
   "validation": "tests",
   "tests": [
     {
-      "name": "Check player_x variable",
-      "code": "context = {}\nexec(code, context)\nassert 'player_x' in context, 'Missing player_x variable'\nassert context['player_x'] == 150, f'player_x should be 150, got: {context[\"player_x\"]}'\nprint('TEST_PASSED: player_x is correct')",
-      "expected": "player_x = 150"
-    },
-    {
-      "name": "Check player_y variable",
-      "code": "context = {}\nexec(code, context)\nassert 'player_y' in context, 'Missing player_y variable'\nassert context['player_y'] == 200, f'player_y should be 200, got: {context[\"player_y\"]}'\nprint('TEST_PASSED: player_y is correct')",
-      "expected": "player_y = 200"
-    },
-    {
-      "name": "Check map_size variable",
-      "code": "context = {}\nexec(code, context)\nassert 'map_size' in context, 'Missing map_size variable'\nassert context['map_size'] == (800, 600), f'map_size should be (800, 600), got: {context[\"map_size\"]}'\nprint('TEST_PASSED: map_size is correct')",
-      "expected": "map_size = (800, 600)"
-    },
-    {
-      "name": "Check checkpoint_data variable",
-      "code": "context = {}\nexec(code, context)\nassert 'checkpoint_data' in context, 'Missing checkpoint_data variable'\nassert context['checkpoint_data'] == (150, 200, 12, 30, 45), \\\n    f'checkpoint_data should be (150, 200, 12, 30, 45), got: {context[\"checkpoint_data\"]}'\nprint('TEST_PASSED: checkpoint_data is correct')",
-      "expected": "checkpoint_data = (150, 200, 12, 30, 45)"
-    },
-    {
-      "name": "Check original tuples unchanged",
-      "code": "context = {}\nexec(code, context)\n# Check original tuples are still intact\nassert 'player_position' in context, 'Missing player_position variable'\nassert 'map_info' in context, 'Missing map_info variable'\nassert 'checkpoint_time' in context, 'Missing checkpoint_time variable'\n\nassert context['player_position'] == (150, 200), 'player_position should remain unchanged'\nassert context['map_info'] == ('Forest Level', 800, 600), 'map_info should remain unchanged'\nassert context['checkpoint_time'] == (12, 30, 45), 'checkpoint_time should remain unchanged'\nprint('TEST_PASSED: Original tuples are unchanged')",
-      "expected": "All original tuples should remain unchanged"
-    },
-    {
-      "name": "Check output format",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check key output lines\nlines = [line.strip() for line in output.split('\\n')]\nassert any('Player X coordinate: 150' in line for line in lines), 'Should show player X coordinate'\nassert any('Player Y coordinate: 200' in line for line in lines), 'Should show player Y coordinate'\nassert any('Map size (width, height): (800, 600)' in line for line in lines), 'Should show map size'\nassert any('Checkpoint data: (150, 200, 12, 30, 45)' in line for line in lines), 'Should show checkpoint data'\nprint('TEST_PASSED: Output contains all required information')",
-      "expected": "Output should show all coordinates and checkpoint data"
+      "name": "Validate Coordinate Extraction and Tuples",
+      "code": "import ast\n# 1. Logic Check\nif player_x != 150 or player_y != 200:\n    raise AssertionError('Coordinates are incorrect. Check indices 0 and 1.')\nif map_size != (800, 600):\n    raise AssertionError('map_size should be the last two elements: (800, 600).')\nif checkpoint_data != (150, 200, 12, 30, 45):\n    raise AssertionError('checkpoint_data should be the combination of both tuples.')\n\n# 2. Syntax Check\ntree = ast.parse(code)\nbin_ops = [node.op for node in ast.walk(tree) if isinstance(node, ast.BinOp)]\nif not any(isinstance(op, ast.Add) for op in bin_ops):\n    raise AssertionError('You must use the + operator to combine the tuples in Step 4.')\n\nprint('TEST_PASSED: Coordinates and tuple operations are perfect!')",
+      "expected": "Variables extracted correctly using indexing, slicing, and concatenation."
     }
   ],
   "expectedOutput": "Player position: (150, 200)\nMap info: ('Forest Level', 800, 600)\n\nPlayer X coordinate: 150\nPlayer Y coordinate: 200\nMap size (width, height): (800, 600)\nCheckpoint data: (150, 200, 12, 30, 45)",

@@ -15,11 +15,8 @@
     "To calculate days, hours, and minutes in `time_until_event`, use the `total_seconds()` method of the resulting `timedelta` and perform integer division (`//`) and modulo (`%`) operations.",
     "The number of seconds in a day is $24 \\times 3600 = 86400$."
   ],
-  "validation": {
-    "output": "Valid (12/25/2025, %m/%d/%Y): True\nInvalid (Dec 25 2025, %m/%d/%Y): False\nTime until 2030-01-01: ",
-    "fuzzyMatch": true,
-    "partialOutput": true
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["project", "datetime", "timedelta", "strptime", "try-except"],
   "challengeGroup": "datetime-project"
 }

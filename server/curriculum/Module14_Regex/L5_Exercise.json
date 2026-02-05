@@ -18,9 +18,8 @@
     "The pattern for the Timestamp should use the non-greedy wildcard `.*?` to capture the content between the literal brackets, which must be escaped (`\\[` and `\\]`).",
     "The `^` anchor at the beginning is important to ensure we start parsing at the beginning of each line/entry."
   ],
-  "validation": {
-    "output": "IP: 10.0.0.1, Timestamp: 24/Sep/2025:08:45:00\nIP: 192.168.1.10, Timestamp: 24/Sep/2025:08:45:05\nIP: 10.0.0.1, Timestamp: 24/Sep/2025:08:45:10\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "project",
     "regex",

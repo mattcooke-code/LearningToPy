@@ -92,7 +92,7 @@
       "options": [
         "Your internet connection was lost",
         "The terminal is full and needs to be cleared",
-        "There is a mistake in the way your code is written (like a missing quote)",
+        "There is a mistake in the way your code is written",
         "The code ran perfectly"
       ],
       "correctAnswer": 2,
@@ -116,8 +116,8 @@
       "type": "multiple-choice",
       "question": "What is the primary difference between 'Run Code' and 'Submit Code'?",
       "options": [
-        "Run Code is for practicing/testing, while Submit Code checks for correctness and awards XP",
-        "Run Code is for Python, while Submit Code is for other languages",
+        "Run Code is for practicing, Submit Code verifies your answer",
+        "Run Code is for Python, Submit Code is for other languages",
         "Submit Code is only used for downloading files",
         "There is no difference; they perform the same action"
       ],
@@ -182,7 +182,7 @@
       "question": "Besides a code editor, what must be installed on your computer to run Python code locally?",
       "options": [
         "A specialized gaming mouse",
-        "The Python 'Engine' (Interpreter) from python.org",
+        "Python from python.org",
         "A premium subscription to a cloud service",
         "Nothing, computers understand Python automatically"
       ],

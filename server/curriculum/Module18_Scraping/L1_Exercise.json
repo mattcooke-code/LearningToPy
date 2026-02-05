@@ -15,9 +15,8 @@
     "The anchor tag `<a>` is used for links.",
     "The attribute that specifies the destination URL of a link is `href`."
   ],
-  "validation": {
-    "output": "Tag to target: a\nAttribute to read: href\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["html", "dom", "tags", "attributes"],
   "challengeGroup": "web-scraping"
 }

@@ -221,6 +221,7 @@ const LessonPage = () => {
       <LessonContent
         key={lessonId}
         lesson={lesson}
+        lessonId={lessonId}
         module={module}
         isReviewMode={isReviewMode}
         onAnswerSubmit={handleCodeSubmit}

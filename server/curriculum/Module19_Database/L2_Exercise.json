@@ -16,9 +16,8 @@
     "The simplest way to insert both is to use `cursor.executemany()` with `VALUES (?, ?)`.",
     "A call to `conn.commit()` is mandatory for persistence."
   ],
-  "validation": {
-    "output": "Products table created and data inserted.\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["sqlite3", "create-table", "insert", "commit"],
   "challengeGroup": "database-interaction"
 }

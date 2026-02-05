@@ -17,14 +17,8 @@
     "products.json": "{\n \t\"P001\": {\"name\": \"Wireless Mouse\", \"category\": \"Electronics\", \"cost\": 15.00},\n \t\"P002\": {\"name\": \"Mechanical Keyboard\", \"category\": \"Electronics\", \"cost\": 35.00},\n \t\"P003\": {\"name\": \"Desk Lamp\", \"category\": \"Office Supplies\", \"cost\": 25.00}\n}",
     "employees.txt": "E101,Alice Johnson,Sales\nE102,Bob Smith,Sales\nE103,Carol Davis,Management"
   },
-  "validation": {
-    "checkFiles": [
-      "sales_summary.txt",
-      "product_performance.json",
-      "employee_commissions.txt",
-      "category_breakdown.txt"
-    ]
-  },
+  "validation": "tests",
+  "tests": [],
   "hints": [
     "Use csv.DictReader for easy dictionary-based CSV parsing",
     "Validate data during loading with conditional list comprehensions",

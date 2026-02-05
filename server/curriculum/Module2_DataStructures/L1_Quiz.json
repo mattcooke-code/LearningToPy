@@ -16,7 +16,7 @@
       "id": "m2l1_q2",
       "question": "Which statement about negative indexing is TRUE?",
       "options": [
-        "Negative indexing starts from 0 at the end of the list",
+        "Negative indexing starts from `0` at the end of the list",
         "Index `-1` refers to the last item in the list",
         "Negative indexing only works with strings, not lists",
         "Negative indexing counts from the front of the list"

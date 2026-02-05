@@ -19,11 +19,8 @@
     "`zip()` is an excellent Python function for iterating through two lists in parallel.",
     "Use `json.dump(data, file_object, indent=4)` to save the data in a readable format."
   ],
-  "validation": {
-    "output": "Data saved to quotes.json!\n",
-    "file_check": "quotes.json",
-    "expected_content": "[\n    {\n        \"quote\": \"Life is what happens when you're busy making other plans.\",\n        \"author\": \"John Lennon\"\n    },\n    {\n        \"quote\": \"The only way to do great work is to love what you do.\",\n        \"author\": \"Steve Jobs\"\n    }\n]"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["beautifulsoup", "json", "file-io", "project", "data-extraction"],
   "challengeGroup": "web-scraping"
 }

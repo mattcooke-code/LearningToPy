@@ -38,7 +38,7 @@ This short tutorial (Module 0) will teach you how to use our learning platform. 
 1. How to write code in our editor
 2. How to run Python programs
 3. How to navigate between lessons
-4. Useful keyboard shortcuts
+4. Coding in an editor on your own computer
 5. How to complete your first exercise
 
 **No prior programming experience needed!** We'll guide you through every step.

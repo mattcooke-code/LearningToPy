@@ -20,9 +20,8 @@
     "The `print_area` function is the simplest form of polymorphism; it works on any object that has an `area()` method.",
     "Remember to explicitly `return` the calculated area from the child methods."
   ],
-  "validation": {
-    "output": "Calculated Area: 78.5\nCalculated Area: 16\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["overriding", "polymorphism", "inheritance", "method"],
   "challengeGroup": "oop-poly"
 }

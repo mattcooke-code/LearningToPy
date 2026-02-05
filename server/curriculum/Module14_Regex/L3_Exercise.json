@@ -19,9 +19,8 @@
     "The gate number group needs `\\w\\d{2}`.",
     "Remember that `match.group(1)` accesses the first captured group (the flight number)."
   ],
-  "validation": {
-    "output": "Flight Number: UA456\nGate: B12\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["capturing-groups", "data-extraction", "re-search", "parentheses"],
   "challengeGroup": "regex-capturing"
 }

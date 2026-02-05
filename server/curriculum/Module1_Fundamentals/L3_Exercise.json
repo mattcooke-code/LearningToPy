@@ -19,17 +19,17 @@
   "tests": [
     {
       "name": "Check project_name variable exists with correct value",
-      "code": "# Execute code and check variables\ncontext = {}\nexec(code, context)\n\n# Check project_name\nassert 'project_name' in context, 'Missing project_name variable'\nassert context['project_name'] == 'PyGame', f'project_name should be \"PyGame\", got: {context[\"project_name\"]}'\nprint('TEST_PASSED: project_name variable is correct')",
+      "code": "# Check project_name variable (it should exist after user code ran)\nif 'project_name' not in locals():\n    raise AssertionError('Missing project_name variable. Did you create it?')\n\nif project_name != 'PyGame':\n    raise AssertionError(f'project_name should be \"PyGame\", got: {project_name}')\n\nprint('TEST_PASSED: project_name variable is correct')",
       "expected": "project_name = 'PyGame'"
     },
     {
       "name": "Check hours_spent variable exists with correct value",
-      "code": "context = {}\nexec(code, context)\n\n# Check hours_spent\nassert 'hours_spent' in context, 'Missing hours_spent variable'\nassert context['hours_spent'] == 45, f'hours_spent should be 45, got: {context[\"hours_spent\"]}'\nprint('TEST_PASSED: hours_spent variable is correct')",
+      "code": "# Check hours_spent variable\nif 'hours_spent' not in locals():\n    raise AssertionError('Missing hours_spent variable. Did you create it?')\n\nif hours_spent != 45:\n    raise AssertionError(f'hours_spent should be 45, got: {hours_spent}')\n\nprint('TEST_PASSED: hours_spent variable is correct')",
       "expected": "hours_spent = 45"
     },
     {
       "name": "Check output contains both values",
-      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check output\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\nassert 'PyGame' in lines, f'Output should contain \"PyGame\", got: {output}'\nassert '45' in lines, f'Output should contain \"45\", got: {output}'\nprint('TEST_PASSED: Output contains both values')",
+      "code": "import io\nimport sys\n\n# Capture output by re-executing\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check output\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\nif 'PyGame' not in lines:\n    raise AssertionError(f'Output should contain \"PyGame\". Got: {output}')\n\nif '45' not in lines:\n    raise AssertionError(f'Output should contain \"45\". Got: {output}')\n\nprint('TEST_PASSED: Output contains both values')",
       "expected": "Output contains 'PyGame' and '45'"
     }
   ],

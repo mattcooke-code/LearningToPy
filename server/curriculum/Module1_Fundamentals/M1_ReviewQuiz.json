@@ -52,9 +52,9 @@
       "type": "multiple-choice",
       "question": "How many spaces does Python recommend for each level of indentation?",
       "options": [
-        "`2` spaces",
-        "`3` spaces",
-        "`4` spaces",
+        "2 spaces",
+        "3 spaces",
+        "4 spaces",
         "It doesn't matter, any amount works"
       ],
       "correctAnswer": 2,
@@ -118,7 +118,7 @@
       "question": "What data type is the variable `score = 100`?",
       "options": ["String", "Integer", "Float", "Boolean"],
       "correctAnswer": 1,
-      "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a float."
+      "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a `float`."
     },
     {
       "id": "m1_review_q10",

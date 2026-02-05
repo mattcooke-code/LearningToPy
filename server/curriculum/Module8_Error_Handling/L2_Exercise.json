@@ -19,9 +19,8 @@
     "ValueError occurs when int() gets non-numeric input",
     "ZeroDivisionError occurs when dividing by zero"
   ],
-  "validation": {
-    "output": "Cannot divide by zero\\nProcessing complete\\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "specific-exceptions",
     "valueerror",

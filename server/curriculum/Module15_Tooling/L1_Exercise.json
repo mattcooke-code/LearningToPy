@@ -15,9 +15,8 @@
     "Activation and deactivation are shell commands that manage your environment's PATH settings.",
     "The commands for activation differ slightly between operating systems, but `deactivate` is universal."
   ],
-  "validation": {
-    "output": "STEP 1: Virtual environment 'tutorial_env' created.\nSTEP 2: Virtual environment 'tutorial_env' activated.\nSTEP 3: Dependency environment is now isolated.\nSTEP 4: Virtual environment deactivated.\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["venv", "virtual-environment", "tooling", "pip"],
   "challengeGroup": "python-tooling"
 }

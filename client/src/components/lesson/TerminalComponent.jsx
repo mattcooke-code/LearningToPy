@@ -9,7 +9,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { usePython, useTheme } from "../../context";
-import { Spinner } from "../ui";
+import { PythonSyntaxHighlighter, Spinner } from "../ui";
 import { useFileDownload } from "../../hooks/useFileDownload";
 
 const TerminalComponent = ({
@@ -374,15 +374,27 @@ const TerminalComponent = ({
         style={{ height }}
       >
         {output.map((item, index) => (
-          <div key={index} className="mb-1">
+          <div key={index} className="mb-2">
             {item.type === "input" && (
-              <div className="text-green-400">{`>>> ${item.content}`}</div>
+              <div className="flex">
+                <span className="text-green-400 mr-2">&gt;&gt;&gt;</span>
+                <div className="flex-1">
+                  <PythonSyntaxHighlighter
+                    code={item.content}
+                    isDark={isCodeDark}
+                  />
+                </div>
+              </div>
             )}
             {item.type === "output" && (
-              <div className="text-gray-300 ml-4">{item.content}</div>
+              <div className="text-gray-300 ml-4 leading-relaxed whitespace-pre-line">
+                {item.content}
+              </div>
             )}
             {item.type === "error" && (
-              <div className="text-red-400 ml-4">{`Error: ${item.content}`}</div>
+              <div className="text-red-400 ml-4 leading-relaxed">
+                {`Error: ${item.content}`}
+              </div>
             )}
           </div>
         ))}

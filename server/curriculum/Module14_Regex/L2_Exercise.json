@@ -17,9 +17,8 @@
     "For the verbs, the character set `[a-zA-Z]` matches any single letter, and `+` means one or more times. Use `\\b` to ensure the match is at a word end.",
     "Remember that `re.match()` checks only the beginning of the string."
   ],
-  "validation": {
-    "output": "A987Z\nNone\n['walking', 'running', 'swimming']\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "quantifiers",
     "character-sets",

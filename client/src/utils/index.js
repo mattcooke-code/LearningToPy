@@ -38,3 +38,4 @@ export {
   calculateUserDashboardStats,
 } from "./statsManagement";
 export { normalizeUserData } from "./userUtils";
+export { validateWithPyodide } from "./validationUtils";

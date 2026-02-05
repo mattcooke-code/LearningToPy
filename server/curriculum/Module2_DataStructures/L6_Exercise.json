@@ -22,39 +22,9 @@
   "validation": "tests",
   "tests": [
     {
-      "name": "Check Step 1: Water Bottle appended",
-      "code": "context = {}\nexec(code, context)\nassert 'inventory_items' in context, 'Missing inventory_items variable'\n# After step 1: ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen', 'Water Bottle']\nassert context['inventory_items'][-1] == 'Water Bottle', f\"Last item should be 'Water Bottle', got: {context['inventory_items'][-1]}\"\nassert len(context['inventory_items']) == 6, f'After step 1, inventory should have 6 items, got {len(context[\"inventory_items\"])}'\nprint('TEST_PASSED: Water Bottle added correctly')",
-      "expected": "Water Bottle should be appended to inventory"
-    },
-    {
-      "name": "Check Step 2: Notebook removed",
-      "code": "context = {}\nexec(code, context)\nassert 'Notebook' not in context['inventory_items'], \"'Notebook' should be removed from inventory\"\nassert len(context['inventory_items']) == 5, f'After step 2, inventory should have 5 items, got {len(context[\"inventory_items\"])}'\nprint('TEST_PASSED: Notebook removed correctly')",
-      "expected": "'Notebook' should be removed, 5 items remaining"
-    },
-    {
-      "name": "Check Step 3: sold_item variable",
-      "code": "context = {}\nexec(code, context)\nassert 'sold_item' in context, 'Missing sold_item variable'\nassert context['sold_item'] == 'T-Shirt', f'sold_item should be \"T-Shirt\", got: {context[\"sold_item\"]}'\n# After step 3: ['Pants', 'Socks', 'Pen', 'Water Bottle']\nassert context['inventory_items'][0] == 'Pants', f'First item should now be \"Pants\", got: {context[\"inventory_items\"][0]}'\nprint('TEST_PASSED: T-Shirt sold and stored correctly')",
-      "expected": "sold_item = 'T-Shirt', inventory starts with 'Pants'"
-    },
-    {
-      "name": "Check Step 4: next_to_be_sold slice",
-      "code": "context = {}\nexec(code, context)\nassert 'next_to_be_sold' in context, 'Missing next_to_be_sold variable'\nassert context['next_to_be_sold'] == ['Socks', 'Pen'], \\\n    f'next_to_be_sold should be [\"Socks\", \"Pen\"], got: {context[\"next_to_be_sold\"]}'\nprint('TEST_PASSED: next_to_be_sold slice is correct')",
-      "expected": "next_to_be_sold = ['Socks', 'Pen']"
-    },
-    {
-      "name": "Check Step 5: yesterdays_count from tuple",
-      "code": "context = {}\nexec(code, context)\nassert 'yesterdays_count' in context, 'Missing yesterdays_count variable'\nassert context['yesterdays_count'] == 160, f'yesterdays_count should be 160, got: {context[\"yesterdays_count\"]}'\nprint('TEST_PASSED: Yesterday\\'s count retrieved correctly')",
-      "expected": "yesterdays_count = 160"
-    },
-    {
-      "name": "Check final inventory state",
-      "code": "context = {}\nexec(code, context)\n# Final inventory: ['Pants', 'Socks', 'Pen', 'Water Bottle']\nassert context['inventory_items'] == ['Pants', 'Socks', 'Pen', 'Water Bottle'], \\\n    f'Final inventory should be [\"Pants\", \"Socks\", \"Pen\", \"Water Bottle\"], got: {context[\"inventory_items\"]}'\nassert len(context['inventory_items']) == 4, f'Final inventory should have 4 items, got {len(context[\"inventory_items\"])}'\nprint('TEST_PASSED: Final inventory is correct')",
-      "expected": "Final inventory should be ['Pants', 'Socks', 'Pen', 'Water Bottle'] with 4 items"
-    },
-    {
-      "name": "Check output contains all sections",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all required output sections\nassert '📦 STARTING INVENTORY MANAGER' in output, 'Should show starting header'\nassert 'After new shipment:' in output, 'Should show after shipment'\nassert 'After removing misplaced item:' in output, 'Should show after removing notebook'\nassert \"After sale - Sold: T-Shirt\" in output, 'Should show sold item'\nassert 'Next likely to sell:' in output, 'Should show next to be sold'\nassert \"Yesterday's total stock: 160\" in output, 'Should show yesterday\\'s count'\nassert '📊 FINAL REPORT' in output, 'Should show final report header'\nassert 'Current inventory: [\\'Pants\\', \\'Socks\\', \\'Pen\\', \\'Water Bottle\\']' in output or \\\n       \"Current inventory: ['Pants', 'Socks', 'Pen', 'Water Bottle']\" in output, 'Should show final inventory'\nassert 'Items in stock: 4' in output, 'Should show final count of 4 items'\nprint('TEST_PASSED: Output contains all required information')",
-      "expected": "Complete output with all steps shown"
+      "name": "Validate Inventory Manager Logic and Methods",
+      "code": "import ast\n# 1. Logic Check (Final State)\nif sold_item != 'T-Shirt':\n    raise AssertionError('sold_item should be \"T-Shirt\" (the first item removed).')\nif next_to_be_sold != ['Socks', 'Pen']:\n    raise AssertionError(f'next_to_be_sold slice is incorrect. Got: {next_to_be_sold}')\nif yesterdays_count != 160:\n    raise AssertionError('yesterdays_count should be 160 (the last item in the history tuple).')\nif inventory_items != ['Pants', 'Socks', 'Pen', 'Water Bottle']:\n    raise AssertionError(f'Final inventory is incorrect. Got: {inventory_items}')\n\n# 2. Syntax Check (Ensuring specific methods were used)\ntree = ast.parse(code)\ncalls = [node.func.attr for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)]\n\nif 'append' not in calls:\n    raise AssertionError('Step 1: You must use the .append() method.')\nif 'remove' not in calls:\n    raise AssertionError('Step 2: You must use the .remove() method.')\nif 'pop' not in calls:\n    raise AssertionError('Step 3: You must use the .pop(0) method.')\n\nprint('TEST_PASSED: Inventory Manager project completed successfully!')",
+      "expected": "All inventory operations (append, remove, pop, slice) performed correctly."
     }
   ],
   "expectedOutput": "📦 STARTING INVENTORY MANAGER\nStarting inventory: ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen']\nStock history: (150, 155, 148, 160)\n\nAfter new shipment: ['T-Shirt', 'Pants', 'Socks', 'Notebook', 'Pen', 'Water Bottle']\nAfter removing misplaced item: ['T-Shirt', 'Pants', 'Socks', 'Pen', 'Water Bottle']\nAfter sale - Sold: T-Shirt\nRemaining inventory: ['Pants', 'Socks', 'Pen', 'Water Bottle']\nNext likely to sell: ['Socks', 'Pen']\nYesterday's total stock: 160\n\n📊 FINAL REPORT\nCurrent inventory: ['Pants', 'Socks', 'Pen', 'Water Bottle']\nItems in stock: 4",

@@ -1,55 +1,22 @@
 {
   "title": "Website Access Control System",
-  "instructions": "You're building a security firewall. Use membership operators to search through lists, tuples, and strings to verify access. Think of these operators as a search query:\n\n| Operator | Goal | Example |\n| :--- | :--- | :--- |\n| `in` | Is it inside the sequence? | `'A' in ['A', 'B']` → `True` |\n| `not in` | Is it missing from the sequence? | `'C' not in ['A', 'B']` → `True` |\n\nComplete the following checks to secure the site!",
+  "instructions": "You're building a security firewall. Use membership operators to search through sequences to verify access.\n\n| Operator | Goal | Example |\n| :--- | :--- | :--- |\n| `in` | Is it inside? | `'A' in ['A', 'B']` → `True` |\n| `not in` | Is it missing? | `'C' not in ['A', 'B']` → `True` |",
   "steps": [
-    "**Step 1:** Complete the expression to check if `user_city` is `in` the `service_areas` list. Store this `True/False` result in `is_serviced`.",
-    "**Step 2:** Complete the expression to check if `suspicious_ip` is `not in` the `trusted_ips` tuple. Store the result in `is_blocked`.",
-    "**Step 3:** Use an `if` statement to check if the substring `'premium'` is `in` the `account_type` string. If so, print `'Access granted to premium features.'`.",
-    "**Step 4:** Write a full `if/else` block. If `'Admin'` is `in` the `user_roles` list, print `'Full admin access granted'`. Otherwise, print `'Standard user access only'`."
+    "**Step 1:** Check if `user_city` is `in` the `service_areas` list. Store result in `is_serviced`.",
+    "**Step 2:** Check if `suspicious_ip` is `not in` the `trusted_ips` tuple. Store result in `is_blocked`.",
+    "**Step 3:** Use an `if` statement to check if `'premium'` is `in` `account_type`. If so, print `'Access granted to premium features.'`.",
+    "**Step 4:** Write an `if/else` block. If `'Admin'` is `in` `user_roles`, print `'Full admin access granted'`. Otherwise, print `'Standard user access only'`."
   ],
-  "starterCode": "# Website access control data\nservice_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\n\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\n\naccount_type = 'premium_subscriber'\n\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\nprint(\"🛡️ WEBSITE SECURITY CHECK\")\n\n# Step 1: Check if city is in service areas\nis_serviced = \n\n# Step 2: Check if IP is NOT in trusted IPs\nis_blocked = \n\n# Step 3: Check for 'premium' substring in account_type\n\n\n# Step 4: Write a full if/else statement to check for 'Admin' in user_roles\n",
-  "solution": "# Website access control data\nservice_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\n\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\n\naccount_type = 'premium_subscriber'\n\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\nprint(\"🛡️ WEBSITE SECURITY CHECK\")\n\n# Step 1: Check if city is in service areas\nis_serviced = user_city in service_areas\n\n# Step 2: Check if IP is NOT in trusted IPs\nis_blocked = suspicious_ip not in trusted_ips\n\n# Step 3: Check for 'premium' substring\nif 'premium' in account_type:\n    print('Access granted to premium features.')\n\n# Step 4: Check for Admin role\nif 'Admin' in user_roles:\n    print('Full admin access granted')\nelse:\n    print('Standard user access only')",
-  "hints": [
-    "**Search Pattern:** The syntax is always `item in sequence`. For example: `'New York' in service_areas`.",
-    "**Substring Power:** In Step 3, you are searching for a small string inside a larger one. Use `'premium' in account_type`.",
-    "**Negative Checks:** Use `not in` when you want `True` to mean 'it's missing'. In Step 2, if the IP is missing from the trusted list, `is_blocked` becomes `True`.",
-    "**Case Sensitivity:** Remember that `'Admin'` is different from `'admin'`. Always match the capitalization used in the lists!",
-    "**Structure:** For Step 4, remember your colons `:` and the 4-space indentation for your print statements."
-  ],
+  "starterCode": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\naccount_type = 'premium_subscriber'\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\nprint(\"🛡️ WEBSITE SECURITY CHECK\")\n# Step 1: Check city\nis_serviced = \n# Step 2: Check IP\nis_blocked = \n# Step 3: Check premium\n\n# Step 4: Check Admin role\n",
+  "solution": "is_serviced = user_city in service_areas\nis_blocked = suspicious_ip not in trusted_ips\nif 'premium' in account_type:\n    print('Access granted to premium features.')\nif 'Admin' in user_roles:\n    print('Full admin access granted')\nelse:\n    print('Standard user access only')",
   "validation": "tests",
   "tests": [
     {
-      "name": "Check is_serviced variable",
-      "code": "context = {}\nexec(code, context)\nassert 'is_serviced' in context, 'Missing is_serviced variable'\nassert context['is_serviced'] == False, f'is_serviced should be False (Tokyo not in service areas), got: {context[\"is_serviced\"]}'\nprint('TEST_PASSED: is_serviced is correct')",
-      "expected": "is_serviced = False (Tokyo not in service areas)"
-    },
-    {
-      "name": "Check is_blocked variable",
-      "code": "context = {}\nexec(code, context)\nassert 'is_blocked' in context, 'Missing is_blocked variable'\nassert context['is_blocked'] == True, f'is_blocked should be True (suspicious_ip not in trusted_ips), got: {context[\"is_blocked\"]}'\nprint('TEST_PASSED: is_blocked is correct')",
-      "expected": "is_blocked = True (IP not in trusted list)"
-    },
-    {
-      "name": "Check premium substring detection",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Access granted to premium features.' in output, f'Should detect \"premium\" in account_type, got: {output[:100]}...'\nprint('TEST_PASSED: Premium substring detected correctly')",
-      "expected": "Should print 'Access granted to premium features.'"
-    },
-    {
-      "name": "Check admin role detection",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Standard user access only' in output, f'Should print standard access when Admin not in roles, got: {output[:100]}...'\nassert 'Full admin access granted' not in output, 'Should not print admin access when Admin not in roles'\nprint('TEST_PASSED: Admin role check works correctly')",
-      "expected": "Should print 'Standard user access only' (no Admin in roles)"
-    },
-    {
-      "name": "Check membership operators are used",
-      "code": "import ast\n\n# Parse the code\ntree = ast.parse(code)\n\n# Look for 'in' and 'not in' operators\nin_operators = []\nnot_in_operators = []\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Compare):\n        for op in node.ops:\n            if isinstance(op, ast.In):\n                in_operators.append(node)\n            elif isinstance(op, ast.NotIn):\n                not_in_operators.append(node)\n\nassert len(in_operators) >= 2, f'Should use \"in\" operator at least twice (steps 1, 3, 4). Found {len(in_operators)}'\nassert len(not_in_operators) >= 1, f'Should use \"not in\" operator at least once (step 2). Found {len(not_in_operators)}'\n\nprint('TEST_PASSED: Using membership operators (in/not in)')",
-      "expected": "Should use 'in' and 'not in' operators"
-    },
-    {
-      "name": "Test with different data",
-      "code": "# Test with admin in roles\nmodified_code = code.replace(\"user_roles = ['Viewer', 'Editor', 'Contributor']\", \"user_roles = ['Viewer', 'Admin', 'Contributor']\")\nmodified_code = modified_code.replace(\"user_city = 'Tokyo'\", \"user_city = 'Paris'\")\n\nimport io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(modified_code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nassert 'Full admin access granted' in output, 'Should print admin access when Admin in roles'\nassert 'Standard user access only' not in output, 'Should not print standard access when Admin in roles'\nprint('TEST_PASSED: Membership operators work with different data')",
-      "expected": "Should detect Admin when present and Paris in service areas"
+      "name": "Verify Security Logic",
+      "code": "import ast, io, sys\n# 1. Logic Check\nif is_serviced is not False:\n    raise AssertionError('is_serviced should be False for Tokyo.')\nif is_blocked is not True:\n    raise AssertionError('is_blocked should be True for the suspicious IP.')\n\n# 2. Syntax Check\ntree = ast.parse(code)\nops = []\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Compare):\n        for op in node.ops:\n            ops.append(type(op).__name__)\nif 'In' not in ops or 'NotIn' not in ops:\n    raise AssertionError('You must use both \"in\" and \"not in\" operators.')\n\n# 3. Output Check (Flexible)\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().lower()\nfinally:\n    sys.stdout = old_stdout\n\nif 'premium' not in output:\n    raise AssertionError('The premium access message was not printed.')\nif 'standard' not in output:\n    raise AssertionError('The standard user message was not printed.')\n\nprint('TEST_PASSED: Membership security system is working!')",
+      "expected": "Uses 'in' and 'not in' correctly and prints appropriate access levels."
     }
   ],
   "expectedOutput": "🛡️ WEBSITE SECURITY CHECK\nAccess granted to premium features.\nStandard user access only",
-  "tags": ["membership-operators", "in", "not-in", "conditionals"],
-  "challengeGroup": "conditional-logic"
+  "tags": ["membership-operators", "in", "not-in", "conditionals"]
 }

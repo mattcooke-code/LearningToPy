@@ -9,7 +9,7 @@
       "question": "What data type is the variable `score = 100`?",
       "options": ["String", "Integer", "Float", "Boolean"],
       "correctAnswer": 1,
-      "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a float."
+      "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a `float`."
     },
     {
       "id": "m1l4_q2",

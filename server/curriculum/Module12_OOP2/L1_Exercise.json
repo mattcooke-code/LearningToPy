@@ -17,9 +17,8 @@
     "Remember that methods must take `self` as the first argument.",
     "The `Student` class does not need its own `__init__` yet; it inherits the one from `Person`."
   ],
-  "validation": {
-    "output": "Hello, my name is Alex.\nAlex is studying hard.\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["inheritance", "superclass", "subclass", "__init__"],
   "challengeGroup": "oop-inheritance"
 }

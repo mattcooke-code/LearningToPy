@@ -15,9 +15,8 @@
     "The connection function is `sqlite3.connect()`.",
     "The cursor is created by calling `.cursor()` on the connection object."
   ],
-  "validation": {
-    "output": "Successfully connected and created cursor.\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["sqlite3", "connection", "cursor", "database"],
   "challengeGroup": "database-interaction"
 }

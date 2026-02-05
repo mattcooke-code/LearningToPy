@@ -27,28 +27,23 @@ Welcome to your Python playground! The code editor is where you'll write, edit, 
 
 ## Syntax Highlighting
 
-Your code is automatically color-coded based on its function:
-
-**Benefits:**
-
 Your code is automatically color-coded based on its function. This helps you:
 
 - **Spot errors quickly:** Incorrect syntax often breaks the color pattern.
 - **Understand structure:** See the difference between code, comments, and strings at a glance.
-
-> **PRO TIP:** Example code in lessons often appears in green with a **COPY** button. You can use this to quickly move code into the editor.
 
 ## Intelligent Auto-complete
 
 As you type, the editor suggests completions to save you time:
 
 ```python
-# Type "pri" then press Tab or Enter
+# Type "pri" then press Enter
 print("Hello!")  # Auto-completes to "print()"
 
-# Type "for" then press Tab
+# Type "for" then press Enter
 for item in collection:  # Creates a complete loop template
     pass
+
 ```
 
 ## Code Folding
@@ -78,6 +73,10 @@ age = 25
 print("Name:", name)
 print("Age:", age)
 ```
+
+## Pro Tip 💡
+
+_Use the **COPY** button at the top right to save time. **However:** we recommend you get used to typing the code yourself_
 
 ## Next Up: Running Your Code
 

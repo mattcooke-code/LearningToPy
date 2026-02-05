@@ -10,36 +10,8 @@
   ],
   "starterCode": "numbers = [1, 2, 3, 4, 5]\\nkeys = [\\\"name\\\", \\\"age\\\", \\\"city\\\"]\\nvalues = [\\\"Alice\\\", 30, \\\"New York\\\"]\\noriginal_dict = {\\\"a\\\": 1, \\\"b\\\": 2, \\\"c\\\": 3}\\ndata_tuples = [(\\\"apple\\\", 5), (\\\"banana\\\", 3), (\\\"cherry\\\", 8), (\\\"apple\\\", 2)]\\nstudent_grades = {\\\"Alice\\\": 85, \\\"Bob\\\": 92, \\\"Charlie\\\": 78, \\\"Diana\\\": 85}\\n\\n# 1. Numbers to squares:\\nsquares_dict = \\n\\n# 2. Parallel lists to dictionary:\\nperson_dict = \\n\\n# 3. Transform dictionary (uppercase keys, double values):\\ntransformed_dict = \\n\\n# 4. Filtered dictionary from tuples (only quantities > 4):\\nfiltered_inventory = \\n\\n# 5. Swap grades and students (handle duplicate grades):\\ngrade_to_students = ",
   "solution": "numbers = [1, 2, 3, 4, 5]\\nkeys = [\\\"name\\\", \\\"age\\\", \\\"city\\\"]\\nvalues = [\\\"Alice\\\", 30, \\\"New York\\\"]\\noriginal_dict = {\\\"a\\\": 1, \\\"b\\\": 2, \\\"c\\\": 3}\\ndata_tuples = [(\\\"apple\\\", 5), (\\\"banana\\\", 3), (\\\"cherry\\\", 8), (\\\"apple\\\", 2)]\\nstudent_grades = {\\\"Alice\\\": 85, \\\"Bob\\\": 92, \\\"Charlie\\\": 78, \\\"Diana\\\": 85}\\n\\n# 1. Numbers to squares:\\nsquares_dict = {num: num**2 for num in numbers}\\n\\n# 2. Parallel lists to dictionary:\\nperson_dict = {keys[i]: values[i] for i in range(len(keys))}\\n\\n# 3. Transform dictionary (uppercase keys, double values):\\ntransformed_dict = {k.upper(): v * 2 for k, v in original_dict.items()}\\n\\n# 4. Filtered dictionary from tuples (only quantities > 4):\\nfiltered_inventory = {item: qty for item, qty in data_tuples if qty > 4}\\n\\n# 5. Swap grades and students (handle duplicate grades):\\ngrade_to_students = {}\\nfor student, grade in student_grades.items():\\n    if grade not in grade_to_students:\\n        grade_to_students[grade] = []\\n    grade_to_students[grade].append(student)",
-  "validation": {
-    "variables": {
-      "squares_dict": {
-        "1": 1,
-        "2": 4,
-        "3": 9,
-        "4": 16,
-        "5": 25
-      },
-      "person_dict": {
-        "name": "Alice",
-        "age": 30,
-        "city": "New York"
-      },
-      "transformed_dict": {
-        "A": 2,
-        "B": 4,
-        "C": 6
-      },
-      "filtered_inventory": {
-        "apple": 5,
-        "cherry": 8
-      },
-      "grade_to_students": {
-        "85": ["Alice", "Diana"],
-        "92": ["Bob"],
-        "78": ["Charlie"]
-      }
-    }
-  },
+  "validation": "tests",
+  "tests": [],
   "hints": [
     "Use {key_expr: value_expr for item in iterable} for basic dict comprehensions",
     "For parallel lists, use range(len(keys)) and index both lists",

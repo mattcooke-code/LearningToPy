@@ -2,16 +2,16 @@
   "title": "Accessing Items in Your Shopping List",
   "instructions": "You're building a simple shopping list app. Practice accessing specific items from your list using both positive and negative indexing. Remember: Python starts counting at 0!",
   "steps": [
-    "**Step 1:** Use positive indexing to get the FIRST item in the shopping list. Remember, the first item is at index 0. Store it in the variable `first_item`.",
-    "**Step 2:** Use positive indexing to get the THIRD item in the shopping list. Count carefully: 0 is first, 1 is second, so 2 is third! Store it in the variable `third_item`.",
-    "**Step 3:** Use negative indexing to get the LAST item in the shopping list. The last item is always at index -1. Store it in the variable `last_item`.",
-    "**Step 4:** Use negative indexing to get the SECOND-TO-LAST item. If -1 is the last item, what would the second-to-last be? Store it in the variable `second_to_last`."
+    "**Step 1:** Use positive indexing to get the FIRST item in the shopping list. Remember, the first item is at index `0`. Store it in the variable `first_item`.",
+    "**Step 2:** Use positive indexing to get the THIRD item in the shopping list. Count carefully: `0` is first, `1` is second, so `2` is third! Store it in the variable `third_item`.",
+    "**Step 3:** Use negative indexing to get the LAST item in the shopping list. The last item is always at index `-1`. Store it in the variable `last_item`.",
+    "**Step 4:** Use negative indexing to get the SECOND-TO-LAST item. If `-1` is the last item, what would the second-to-last be? Store it in the variable `second_to_last`."
   ],
-  "starterCode": "# Here's your shopping list\nshopping_list = ['milk', 'eggs', 'bread', 'butter', 'cheese']\n\n# Step 1: Get the first item (index 0)\nfirst_item = \n\n# Step 2: Get the third item (remember: 0, 1, 2...)\nthird_item = \n\n# Step 3: Get the last item (use -1)\nlast_item = \n\n# Step 4: Get the second-to-last item\nsecond_to_last = \n\n# Don't modify below this line - this prints your answers\nprint(f\"First item: {first_item}\")\nprint(f\"Third item: {third_item}\")\nprint(f\"Last item: {last_item}\")\nprint(f\"Second-to-last item: {second_to_last}\")",
-  "solution": "# Here's your shopping list\nshopping_list = ['milk', 'eggs', 'bread', 'butter', 'cheese']\n\n# Step 1: Get the first item (index 0)\nfirst_item = shopping_list[0]\n\n# Step 2: Get the third item (remember: 0, 1, 2...)\nthird_item = shopping_list[2]\n\n# Step 3: Get the last item (use -1)\nlast_item = shopping_list[-1]\n\n# Step 4: Get the second-to-last item\nsecond_to_last = shopping_list[-2]\n\n# Don't modify below this line - this prints your answers\nprint(f\"First item: {first_item}\")\nprint(f\"Third item: {third_item}\")\nprint(f\"Last item: {last_item}\")\nprint(f\"Second-to-last item: {second_to_last}\")",
+  "starterCode": "# Here's your shopping list\nshopping_list = ['milk', 'eggs', 'bread', 'butter', 'cheese']\n\n# Step 1: Get the first item\nfirst_item = \n\n# Step 2: Get the third item (remember: 0, 1, 2...)\nthird_item = \n\n# Step 3: Get the last item (use -1)\nlast_item = \n\n# Step 4: Get the second-to-last item\nsecond_to_last = \n\n# Don't modify below this line - this prints your answers\nprint(f\"First item: {first_item}\")\nprint(f\"Third item: {third_item}\")\nprint(f\"Last item: {last_item}\")\nprint(f\"Second-to-last item: {second_to_last}\")",
+  "solution": "# Here's your shopping list\nshopping_list = ['milk', 'eggs', 'bread', 'butter', 'cheese']\n\n# Step 1: Get the first item\nfirst_item = shopping_list[0]\n\n# Step 2: Get the third item (remember: 0, 1, 2...)\nthird_item = shopping_list[2]\n\n# Step 3: Get the last item (use -1)\nlast_item = shopping_list[-1]\n\n# Step 4: Get the second-to-last item\nsecond_to_last = shopping_list[-2]\n\n# Don't modify below this line - this prints your answers\nprint(f\"First item: {first_item}\")\nprint(f\"Third item: {third_item}\")\nprint(f\"Last item: {last_item}\")\nprint(f\"Second-to-last item: {second_to_last}\")",
   "hints": [
-    "**Positive indexing reminder:** The first item is at index 0, the second at index 1, the third at index 2, and so on.",
-    "**Negative indexing reminder:** The last item is at index -1, the second-to-last is at -2, the third-to-last is at -3, and so on.",
+    "**Positive indexing reminder:** The first item is at index `0`, the second at index `1`, the third at index `2`, and so on.",
+    "**Negative indexing reminder:** The last item is at index `-1`, the second-to-last is at `-2`, the third-to-last is at `-3`, and so on.",
     "**How to access an item:** Use square brackets after the list name, like this: `shopping_list[0]` gets the first item.",
     "**Common mistake:** Don't put quotes around the index! Write `shopping_list[0]`, NOT `shopping_list['0']`."
   ],
@@ -19,27 +19,27 @@
   "tests": [
     {
       "name": "Check first_item variable",
-      "code": "context = {}\nexec(code, context)\nassert 'first_item' in context, 'Missing first_item variable'\nassert context['first_item'] == 'milk', f'first_item should be \"milk\", got: {context[\"first_item\"]}'\nprint('TEST_PASSED: first_item is correct')",
+      "code": "# Check first_item exists and has correct value\nif 'first_item' not in locals():\n    raise AssertionError('Missing first_item variable. Did you create it?')\n\nif first_item != 'milk':\n    raise AssertionError(f'first_item should be \"milk\" (index 0), got: {first_item}')\n\nprint('TEST_PASSED: first_item is correct')",
       "expected": "first_item = 'milk'"
     },
     {
       "name": "Check third_item variable",
-      "code": "context = {}\nexec(code, context)\nassert 'third_item' in context, 'Missing third_item variable'\nassert context['third_item'] == 'bread', f'third_item should be \"bread\", got: {context[\"third_item\"]}'\nprint('TEST_PASSED: third_item is correct')",
+      "code": "# Check third_item exists and has correct value\nif 'third_item' not in locals():\n    raise AssertionError('Missing third_item variable. Did you create it?')\n\nif third_item != 'bread':\n    raise AssertionError(f'third_item should be \"bread\" (index 2), got: {third_item}. Remember: 0=first, 1=second, 2=third!')\n\nprint('TEST_PASSED: third_item is correct')",
       "expected": "third_item = 'bread'"
     },
     {
       "name": "Check last_item variable",
-      "code": "context = {}\nexec(code, context)\nassert 'last_item' in context, 'Missing last_item variable'\nassert context['last_item'] == 'cheese', f'last_item should be \"cheese\", got: {context[\"last_item\"]}'\nprint('TEST_PASSED: last_item is correct')",
+      "code": "# Check last_item exists and has correct value\nif 'last_item' not in locals():\n    raise AssertionError('Missing last_item variable. Did you create it?')\n\nif last_item != 'cheese':\n    raise AssertionError(f'last_item should be \"cheese\" (index -1), got: {last_item}')\n\nprint('TEST_PASSED: last_item is correct')",
       "expected": "last_item = 'cheese'"
     },
     {
       "name": "Check second_to_last variable",
-      "code": "context = {}\nexec(code, context)\nassert 'second_to_last' in context, 'Missing second_to_last variable'\nassert context['second_to_last'] == 'butter', f'second_to_last should be \"butter\", got: {context[\"second_to_last\"]}'\nprint('TEST_PASSED: second_to_last is correct')",
+      "code": "# Check second_to_last exists and has correct value\nif 'second_to_last' not in locals():\n    raise AssertionError('Missing second_to_last variable. Did you create it?')\n\nif second_to_last != 'butter':\n    raise AssertionError(f'second_to_last should be \"butter\" (index -2), got: {second_to_last}')\n\nprint('TEST_PASSED: second_to_last is correct')",
       "expected": "second_to_last = 'butter'"
     },
     {
       "name": "Check output format",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = output.split('\\n')\nexpected_lines = [\n    'First item: milk',\n    'Third item: bread',\n    'Last item: cheese',\n    'Second-to-last item: butter'\n]\n\nfor i, expected in enumerate(expected_lines):\n    if i < len(lines):\n        assert lines[i].strip() == expected, f'Line {i+1}: expected \"{expected}\", got \"{lines[i].strip()}\"'\n    else:\n        raise AssertionError(f'Missing line {i+1}: {expected}')\n\nprint('TEST_PASSED: Output format is correct')",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = output.split('\\n')\nexpected_lines = [\n    'First item: milk',\n    'Third item: bread',\n    'Last item: cheese',\n    'Second-to-last item: butter'\n]\n\nfor i, expected in enumerate(expected_lines):\n    if i >= len(lines):\n        raise AssertionError(f'Missing line {i+1}: {expected}')\n    \n    if lines[i].strip() != expected:\n        raise AssertionError(f'Line {i+1}: expected \"{expected}\", got \"{lines[i].strip()}\"')\n\nprint('TEST_PASSED: Output format is correct')",
       "expected": "Four formatted output lines showing each item"
     }
   ],

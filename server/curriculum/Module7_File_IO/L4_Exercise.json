@@ -19,11 +19,30 @@
     "The second `with` block will add to the end of the file.",
     "Use the same `with` pattern for reading that you learned in the previous lesson."
   ],
-  "validation": {
-    "variables": {
-      "final_content": "Overwrite line 1\\nAppend line 2\\n"
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check write mode with 'w'",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Ensure file doesn't exist initially\nif os.path.exists('data.txt'):\n    os.remove('data.txt')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check write mode with is used\n    tree = ast.parse(code)\n    write_mode_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.With):\n            for item in node.items:\n                if isinstance(item.context_expr, ast.Call):\n                    if isinstance(item.context_expr.func, ast.Name) and item.context_expr.func.id == 'open':\n                        if len(item.context_expr.args) >= 2:\n                            mode_arg = item.context_expr.args[1]\n                            if isinstance(mode_arg, ast.Constant) and mode_arg.value == 'w':\n                                write_mode_found = True\n    \n    assert write_mode_found, 'Should open file in write mode (\\'w\\')'\n    \n    # Check .write() method is called\n    write_call_found = False\n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'write':\n                write_call_found = True\n    \n    assert write_call_found, 'Should use .write() method'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('data.txt'):\n        os.remove('data.txt')\n\nprint('TEST_PASSED: File opened in write mode and written to')",
+      "expected": "Should use open('data.txt', 'w') and .write()"
+    },
+    {
+      "name": "Check append mode with 'a'",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Ensure file doesn't exist initially\nif os.path.exists('data.txt'):\n    os.remove('data.txt')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check append mode is used\n    tree = ast.parse(code)\n    append_mode_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.With):\n            for item in node.items:\n                if isinstance(item.context_expr, ast.Call):\n                    if isinstance(item.context_expr.func, ast.Name) and item.context_expr.func.id == 'open':\n                        if len(item.context_expr.args) >= 2:\n                            mode_arg = item.context_expr.args[1]\n                            if isinstance(mode_arg, ast.Constant) and mode_arg.value == 'a':\n                                append_mode_found = True\n    \n    assert append_mode_found, 'Should open file in append mode (\\'a\\')'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('data.txt'):\n        os.remove('data.txt')\n\nprint('TEST_PASSED: File opened in append mode for adding content')",
+      "expected": "Should use open('data.txt', 'a') for appending"
+    },
+    {
+      "name": "Check final content is read",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Ensure file doesn't exist initially\nif os.path.exists('data.txt'):\n    os.remove('data.txt')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check final_content variable\n    final_content = exec_globals.get('final_content', '')\n    assert isinstance(final_content, str), 'final_content should be a string'\n    \n    # Should contain both lines\n    assert 'Overwrite line 1' in final_content, 'Should contain written line'\n    assert 'Append line 2' in final_content, 'Should contain appended line'\n    \n    # Check read mode is used\n    tree = ast.parse(code)\n    read_mode_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.With):\n            for item in node.items:\n                if isinstance(item.context_expr, ast.Call):\n                    if isinstance(item.context_expr.func, ast.Name) and item.context_expr.func.id == 'open':\n                        if len(item.context_expr.args) >= 2:\n                            mode_arg = item.context_expr.args[1]\n                            if isinstance(mode_arg, ast.Constant) and mode_arg.value == 'r':\n                                read_mode_found = True\n    \n    assert read_mode_found, 'Should open file in read mode (\\'r\\') to get final content'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('data.txt'):\n        os.remove('data.txt')\n\nprint('TEST_PASSED: Final content read correctly with both lines')",
+      "expected": "Should read file content containing both written and appended lines"
+    },
+    {
+      "name": "Check file operations sequence",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create initial file for testing\nwith open('data.txt', 'w') as f:\n    f.write('Initial content\\n')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Verify the file operations sequence\n    # Write mode ('w') should overwrite existing content\n    # Append mode ('a') should add to end\n    \n    final_content = exec_globals.get('final_content', '')\n    lines = final_content.split('\\n')\n    \n    # Should have exactly 2 non-empty lines\n    non_empty_lines = [line for line in lines if line.strip()]\n    assert len(non_empty_lines) == 2, f'Should have 2 lines, got {len(non_empty_lines)}'\n    \n    # First line should be write content\n    assert non_empty_lines[0] == 'Overwrite line 1', f'First line should be write, got: {non_empty_lines[0]}'\n    \n    # Second line should be append content\n    assert non_empty_lines[1] == 'Append line 2', f'Second line should be append, got: {non_empty_lines[1]}'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('data.txt'):\n        os.remove('data.txt')\n\nprint('TEST_PASSED: Write then append operations work in correct sequence')",
+      "expected": "Write mode should overwrite, append mode should add to end"
     }
-  },
+  ],
+  "expectedOutput": "",
   "tags": ["file-io", "write", "append", "file-modes", "context-manager"],
   "challengeGroup": "file-writing"
 }

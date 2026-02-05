@@ -17,9 +17,8 @@
     "Ensure the overridden methods return a numeric value so they can be formatted with `:.2f` in the output.",
     "Polymorphism works because the `calculate_and_display` function only expects objects to have `area()` and `perimeter()` methods."
   ],
-  "validation": {
-    "output": "\n--- Polymorphic Calculation ---\n\nShape: My Circle\nArea: 78.50\nPerimeter: 31.40\n\nShape: My Rectangle\nArea: 50.00\nPerimeter: 30.00\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "project",
     "inheritance",

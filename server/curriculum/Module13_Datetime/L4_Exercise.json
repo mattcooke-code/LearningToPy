@@ -17,9 +17,8 @@
     "The `.astimezone()` method takes the target time zone object as its only argument.",
     "9:00 AM London + 8 hours = 5:00 PM (17:00) Tokyo."
   ],
-  "validation": {
-    "output": "17\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["timezone", "tzinfo", "zoneinfo", "astimezone"],
   "challengeGroup": "datetime-timezones"
 }

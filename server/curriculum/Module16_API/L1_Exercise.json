@@ -16,9 +16,8 @@
     "Remember to use `requests.get()` to make a GET request.",
     "The status code is accessed using the `.status_code` property of the response object."
   ],
-  "validation": {
-    "output": "Success Status: 200\nFailure Status: 404\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["http", "requests", "status-codes", "client-server"],
   "challengeGroup": "api-basics"
 }

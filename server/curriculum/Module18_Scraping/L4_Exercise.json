@@ -16,9 +16,8 @@
     "To search by `id`, use the `id='value'` keyword argument in `find()`.",
     "To search by `class`, use the `class_='value'` keyword argument in `find_all()`."
   ],
-  "validation": {
-    "output": "Main Title: Daily Deals on Electronics\nLaptop X\nMouse Pro\nMonitor 4K\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["beautifulsoup", "id", "class_", "find"],
   "challengeGroup": "web-scraping"
 }

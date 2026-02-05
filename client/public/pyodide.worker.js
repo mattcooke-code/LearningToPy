@@ -1,4 +1,4 @@
-// pyodide.worker.js
+// public/pyodide.worker.js
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
 
 let pyodide;

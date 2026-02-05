@@ -21,7 +21,7 @@
       "question": "Besides a code editor, what must be installed on your computer to run Python code locally?",
       "options": [
         "A specialized gaming mouse",
-        "The Python 'Engine' from python.org",
+        "Python from python.org",
         "A premium subscription to a cloud service",
         "Nothing, computers understand Python automatically"
       ],
@@ -35,7 +35,7 @@
       "options": [
         "A fast type of internet for developers",
         "A special keyboard used for Python",
-        "Professional 'all-in-one' software for writing and testing code (like VS Code)",
+        "Software for writing and testing code (like VS Code)",
         "The part of the computer that stores your files"
       ],
       "correctAnswer": 2,
@@ -49,7 +49,7 @@
         "It makes your internet faster",
         "Advanced features like real-time error detection and project management",
         "It lets you play video games while you code",
-        "It automatically writes the code for you"
+        "It automatically writes all of the code for you"
       ],
       "correctAnswer": 1,
       "explanation": "Local IDEs provide 'Power Tools' like real-time error detection (spotting bugs as you type) and the ability to manage projects with many different files."

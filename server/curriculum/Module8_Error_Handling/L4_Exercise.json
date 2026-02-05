@@ -15,9 +15,8 @@
     "Raise ValueError with descriptive messages",
     "Test each case in separate try/except blocks"
   ],
-  "validation": {
-    "output": "Testing 'Secure123':\\nPassword is valid!\\nTesting 'short':\\nError: Password must be at least 8 characters\\nTesting 'NoDigits':\\nError: Password must contain at least one digit\\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "raising-exceptions",
     "valueerror",

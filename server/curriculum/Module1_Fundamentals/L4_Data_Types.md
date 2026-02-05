@@ -10,7 +10,7 @@ Used for all **text** data. You must enclose strings in either single quotes (`'
 
 ```python
 favorite_book = "The Hitchhiker's Guide" # Double quotes work
-message = 'Hello world!' # Single quotes work too
+message = 'So Long and Thanks for All The Fish!' # Single quotes work too
 ```
 
 ## 2. Whole Numbers: The Integer (`int`)

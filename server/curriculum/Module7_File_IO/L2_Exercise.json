@@ -20,12 +20,30 @@
     "`.strip()` removes newlines and other whitespace from both ends.",
     "You must close and reopen to reset the file pointer to the beginning."
   ],
-  "validation": {
-    "variables": {
-      "last_item_stripped": "Cheese",
-      "all_items_list": ["Milk\\n", "Eggs\\n", "Bread\\n", "Cheese"]
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check file iteration with for loop",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check output contains all items stripped\n    lines = [line.strip() for line in output.split('\\n') if line.strip()]\n    assert 'Milk' in lines, 'Should print Milk'\n    assert 'Eggs' in lines, 'Should print Eggs'\n    assert 'Bread' in lines, 'Should print Bread'\n    assert 'Cheese' in lines, 'Should print Cheese'\n    \n    # Check for loop over file object\n    tree = ast.parse(code)\n    for_loop_found = False\n    file_iteration = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.For):\n            for_loop_found = True\n            # Check it iterates over a file variable\n            if isinstance(node.iter, ast.Name):\n                file_iteration = True\n    \n    assert for_loop_found, 'Should use for loop for iteration'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: File iterated line by line with for loop')",
+      "expected": "Should iterate through file with for loop and print stripped lines"
+    },
+    {
+      "name": "Check .strip() usage and last_item tracking",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check last_item_stripped variable\n    last_item = exec_globals.get('last_item_stripped', '')\n    assert last_item == 'Cheese', f'last_item_stripped should be \"Cheese\", got \"{last_item}\"'\n    \n    # Check .strip() method is used\n    tree = ast.parse(code)\n    strip_method_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'strip':\n                strip_method_found = True\n    \n    assert strip_method_found, 'Should use .strip() method on lines'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: Lines stripped and last item tracked correctly')",
+      "expected": "Should use .strip() and track last_item_stripped as 'Cheese'"
+    },
+    {
+      "name": "Check file closing and reopening",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check file is opened twice (reopened)\n    tree = ast.parse(code)\n    open_calls = []\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if isinstance(node.func, ast.Name) and node.func.id == 'open':\n                open_calls.append(node)\n    \n    assert len(open_calls) >= 2, f'Should open file at least twice (close and reopen), got {len(open_calls)} calls'\n    \n    # Check both files are closed\n    close_calls = []\n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'close':\n                close_calls.append(node)\n    \n    assert len(close_calls) >= 2, f'Should close both file handles, got {len(close_calls)} close calls'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: File closed and reopened correctly')",
+      "expected": "Should close first handle and reopen file for .readlines()"
+    },
+    {
+      "name": "Check .readlines() usage and list content",
+      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check all_items_list variable\n    all_items = exec_globals.get('all_items_list', [])\n    assert isinstance(all_items, list), 'all_items_list should be a list'\n    assert len(all_items) == 4, f'Should have 4 items in list, got {len(all_items)}'\n    \n    # Check list contains expected content (with newlines)\n    assert 'Milk\\n' in all_items or 'Milk' in all_items[0], 'First item should be Milk'\n    assert 'Cheese' in all_items[-1] or 'Cheese\\n' in all_items[-1], 'Last item should be Cheese'\n    \n    # Check .readlines() method is used\n    tree = ast.parse(code)\n    readlines_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'readlines':\n                readlines_found = True\n    \n    assert readlines_found, 'Should use .readlines() method'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: .readlines() used correctly, list contains file lines')",
+      "expected": "Should use .readlines() to get list of file lines"
     }
-  },
+  ],
+  "expectedOutput": "Milk\nEggs\nBread\nCheese",
   "tags": ["file-io", "readlines", "iteration", "file-pointer"],
   "challengeGroup": "file-line-processing"
 }

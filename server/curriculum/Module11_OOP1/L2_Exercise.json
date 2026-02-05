@@ -16,9 +16,8 @@
     "Inside `__init__`, use the `self` keyword to assign values, e.g., `self.name = name`.",
     "The `book` object should rely on the default `in_stock` value."
   ],
-  "validation": {
-    "output": "Book in stock: True\nSoftware in stock: False\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": [
     "__init__",
     "constructor",

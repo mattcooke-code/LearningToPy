@@ -2,9 +2,9 @@
   "title": "Building Your Playlist",
   "instructions": "You're creating a music playlist. Practice modifying `my_playlist` by changing songs, adding new ones, and combining playlists. Each step builds on the previous one!",
   "steps": [
-    "**Step 1:** Change the first song. The song at index 0 is 'Placeholder Song'. Use index assignment to replace it with 'Bohemian Rhapsody'.",
+    "**Step 1:** Change the first song. The song at index `0` is 'Placeholder Song'. Use index assignment to replace it with 'Bohemian Rhapsody'.",
     "**Step 2:** Add a new song to the end. Use the `append()` method to add 'Stairway to Heaven' to the end of your playlist.",
-    "**Step 3:** Insert a song in the middle. Use the `insert()` method to add 'Hotel California' at index 2 (between 'Imagine' and 'Sweet Child O Mine').",
+    "**Step 3:** Insert a song in the middle. Use the `insert()` method to add 'Hotel California' at index `2` (between 'Imagine' and 'Sweet Child O Mine').",
     "**Step 4:** Merge with your friend's playlist. Use the `extend()` method to add all songs from `friends_playlist` to your `my_playlist`."
   ],
   "starterCode": "# Your current playlist\nmy_playlist = ['Placeholder Song', 'Imagine', 'Sweet Child O Mine']\n\n# Your friend's playlist to merge later\nfriends_playlist = ['Smells Like Teen Spirit', 'Wonderwall']\n\nprint(\"Starting playlist:\", my_playlist)\nprint()\n\n# Step 1: Replace the first song (index 0) with 'Bohemian Rhapsody'\n\n\nprint(\"After replacing first song:\", my_playlist)\n\n# Step 2: Add 'Stairway to Heaven' to the end using append()\n\n\nprint(\"After appending:\", my_playlist)\n\n# Step 3: Insert 'Hotel California' at index 2 using insert()\n\n\nprint(\"After inserting:\", my_playlist)\n\n# Step 4: Merge friends_playlist using extend()\n\n\nprint(\"Final playlist:\", my_playlist)",
@@ -21,27 +21,27 @@
   "tests": [
     {
       "name": "Check playlist after step 1 (replace first song)",
-      "code": "context = {}\nexec(code, context)\nassert 'my_playlist' in context, 'Missing my_playlist variable'\n# After step 1: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine']\nassert len(context['my_playlist']) >= 3, 'Playlist should have at least 3 songs after step 1'\nassert context['my_playlist'][0] == 'Bohemian Rhapsody', f'First song should be \"Bohemian Rhapsody\", got: {context[\"my_playlist\"][0]}'\nprint('TEST_PASSED: First song replaced correctly')",
+      "code": "# After step 1: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine']\nif 'my_playlist' not in locals():\n    raise AssertionError('Missing my_playlist variable')\n\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\n\nif my_playlist[0] != 'Bohemian Rhapsody':\n    raise AssertionError(f'First song should be \"Bohemian Rhapsody\", got: {my_playlist[0]}')\n\nprint('TEST_PASSED: First song replaced correctly')",
       "expected": "First song should be 'Bohemian Rhapsody'"
     },
     {
       "name": "Check playlist after step 2 (append)",
-      "code": "context = {}\nexec(code, context)\n# After step 2: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine', 'Stairway to Heaven']\nassert len(context['my_playlist']) >= 4, 'Playlist should have at least 4 songs after step 2'\nassert context['my_playlist'][-1] == 'Stairway to Heaven', f'Last song should be \"Stairway to Heaven\", got: {context[\"my_playlist\"][-1]}'\nprint('TEST_PASSED: Song appended correctly')",
-      "expected": "Last song should be 'Stairway to Heaven'"
+      "code": "# After step 2: 'Stairway to Heaven' should be in the playlist\nif 'Stairway to Heaven' not in my_playlist:\n    raise AssertionError('\"Stairway to Heaven\" should be in the playlist')\n\n# It should be at index 4 in the final playlist (before the extended songs)\nif my_playlist[4] != 'Stairway to Heaven':\n    raise AssertionError(f'\"Stairway to Heaven\" should be at index 4, got: {my_playlist[4]}')\n\nprint('TEST_PASSED: Song appended correctly')",
+      "expected": "'Stairway to Heaven' should be in playlist at index 4"
     },
     {
       "name": "Check playlist after step 3 (insert at index 2)",
-      "code": "context = {}\nexec(code, context)\n# After step 3: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nassert len(context['my_playlist']) >= 5, 'Playlist should have at least 5 songs after step 3'\nassert context['my_playlist'][2] == 'Hotel California', f'Item at index 2 should be \"Hotel California\", got: {context[\"my_playlist\"][2]}'\nprint('TEST_PASSED: Song inserted correctly at index 2')",
+      "code": "# After step 3: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\n\nif my_playlist[2] != 'Hotel California':\n    raise AssertionError(f'Item at index 2 should be \"Hotel California\", got: {my_playlist[2]}')\n\n# Verify the order of the first 5 songs\nexpected_first_five = ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nif my_playlist[:5] != expected_first_five:\n    raise AssertionError(f'First 5 songs should be {expected_first_five}, got: {my_playlist[:5]}')\n\nprint('TEST_PASSED: Song inserted correctly at index 2')",
       "expected": "Song at index 2 should be 'Hotel California'"
     },
     {
       "name": "Check final playlist after step 4 (extend)",
-      "code": "context = {}\nexec(code, context)\n# Final: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nassert len(context['my_playlist']) == 7, f'Final playlist should have 7 songs, got {len(context[\"my_playlist\"])}'\nassert context['my_playlist'][-2:] == ['Smells Like Teen Spirit', 'Wonderwall'], \\\n    f'Last two songs should be from friends_playlist, got: {context[\"my_playlist\"][-2:]}'\nprint('TEST_PASSED: Friends playlist extended correctly')",
+      "code": "# Final: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\n\nif my_playlist[-2:] != ['Smells Like Teen Spirit', 'Wonderwall']:\n    raise AssertionError(f'Last two songs should be from friends_playlist, got: {my_playlist[-2:]}')\n\nif my_playlist[-1] != 'Wonderwall':\n    raise AssertionError(f'Last song should be \"Wonderwall\", got: {my_playlist[-1]}')\n\n# Verify complete final playlist\nexpected_final = ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nif my_playlist != expected_final:\n    raise AssertionError(f'Final playlist incorrect. Expected: {expected_final}, Got: {my_playlist}')\n\nprint('TEST_PASSED: Friends playlist extended correctly')",
       "expected": "Final playlist should have 7 songs with friends' songs at the end"
     },
     {
       "name": "Check output shows progression",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all expected phrases are in output\nassert 'Starting playlist:' in output, 'Should show starting playlist'\nassert 'After replacing first song:' in output, 'Should show after replacement'\nassert 'After appending:' in output, 'Should show after appending'\nassert 'After inserting:' in output, 'Should show after inserting'\nassert 'Final playlist:' in output, 'Should show final playlist'\nprint('TEST_PASSED: Output shows all progression steps')",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all expected phrases are in output\nif 'Starting playlist:' not in output:\n    raise AssertionError('Should show starting playlist')\n\nif 'After replacing first song:' not in output:\n    raise AssertionError('Should show after replacement')\n\nif 'After appending:' not in output:\n    raise AssertionError('Should show after appending')\n\nif 'After inserting:' not in output:\n    raise AssertionError('Should show after inserting')\n\nif 'Final playlist:' not in output:\n    raise AssertionError('Should show final playlist')\n\nprint('TEST_PASSED: Output shows all progression steps')",
       "expected": "Output should show playlist at each stage"
     }
   ],

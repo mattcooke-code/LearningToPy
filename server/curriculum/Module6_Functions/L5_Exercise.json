@@ -1,175 +1,51 @@
 {
   "title": "Module Project: Calculator Builder",
-  "description": "Build a modular calculator system using fundamental function concepts. Create specialized functions that work together to perform various mathematical operations.",
-  "exercises": [
+  "instructions": "Build a modular calculator system using fundamental function concepts. Create specialized functions that work together to perform various mathematical operations.\n\n## Project Overview\nYou'll build a complete calculator system with:\n1. **Basic operations**: add, subtract, multiply, divide\n2. **Advanced operations**: power, square root, percentage\n3. **Utility functions**: number validation, checks\n4. **Main router**: function that directs to appropriate operation\n\n## Important Notes\n- Handle edge cases (division by zero, negative square roots)\n- Validate string inputs\n- Return appropriate error messages",
+  "steps": [
+    "**Step 1:** Implement basic arithmetic functions: `add`, `subtract`, `multiply`, `divide`. The `divide` function should return error message for division by zero.",
+    "**Step 2:** Implement advanced functions: `power`, `square_root`, `percentage`. Handle negative numbers in `square_root` and zero in `percentage`.",
+    "**Step 3:** Implement utility functions: `is_even`, `is_positive`, `validate_number`. `validate_number` should convert strings to floats or return error.",
+    "**Step 4:** Create the main `calculate` function that routes operations to appropriate functions and handles input validation.",
+    "**Step 5:** Test your calculator with various operations including edge cases."
+  ],
+  "starterCode": "# 1. Basic arithmetic functions:\ndef add(a, b):\n    \n\ndef subtract(a, b):\n    \n\ndef multiply(a, b):\n    \n\ndef divide(a, b):\n    \n\n# 2. Advanced functions:\ndef power(base, exponent):\n    \n\ndef square_root(number):\n    \n\ndef percentage(part, whole):\n    \n\n# 3. Utility functions:\ndef is_even(number):\n    \n\ndef is_positive(number):\n    \n\ndef validate_number(input_str):\n    \n\n# 4. Main calculator function:\ndef calculate(operation, num1, num2=None):\n    \n\n# 5. Test the calculator:\nprint('Testing basic operations:')\nprint('5 + 3 =', calculate('add', 5, 3))\nprint('10 - 4 =', calculate('subtract', 10, 4))\nprint('3 × 7 =', calculate('multiply', 3, 7))\nprint('15 ÷ 3 =', calculate('divide', 15, 3))\nprint('Divide by zero:', calculate('divide', 8, 0))\n\nprint('\\nTesting advanced operations:')\nprint('2^3 =', calculate('power', 2, 3))\nprint('√25 =', calculate('square_root', 25))\nprint('30% of 150 =', calculate('percentage', 30, 150))\nprint('√(-9) =', calculate('square_root', -9))\n\nprint('\\nTesting utility functions:')\nprint('Is 4 even?', calculate('is_even', 4))\nprint('Is -5 positive?', calculate('is_positive', -5))\n\nprint('\\nTesting string inputs:')\nprint('add \"10\" + \"5\" =', calculate('add', '10', '5'))\nprint('Invalid input:', calculate('add', 'abc', 5))\n\nprint('\\nTesting unknown operation:')\nprint('unknown op:', calculate('unknown', 5, 3))",
+  "solution": "# 1. Basic arithmetic functions:\ndef add(a, b):\n    return a + b\n\ndef subtract(a, b):\n    return a - b\n\ndef multiply(a, b):\n    return a * b\n\ndef divide(a, b):\n    if b == 0:\n        return 'Error: Cannot divide by zero'\n    return a / b\n\n# 2. Advanced functions:\ndef power(base, exponent):\n    return base ** exponent\n\ndef square_root(number):\n    if number < 0:\n        return 'Error: Cannot calculate square root of negative number'\n    return number ** 0.5\n\ndef percentage(part, whole):\n    if whole == 0:\n        return 0\n    return (part / whole) * 100\n\n# 3. Utility functions:\ndef is_even(number):\n    return number % 2 == 0\n\ndef is_positive(number):\n    return number > 0\n\ndef validate_number(input_str):\n    try:\n        return float(input_str)\n    except ValueError:\n        return 'Error: Please enter a valid number'\n\n# 4. Main calculator function:\ndef calculate(operation, num1, num2=None):\n    # Validate num1 if it's a string\n    if isinstance(num1, str):\n        num1 = validate_number(num1)\n        if isinstance(num1, str):\n            return num1\n    \n    # Validate num2 if provided and it's a string\n    if num2 is not None and isinstance(num2, str):\n        num2 = validate_number(num2)\n        if isinstance(num2, str):\n            return num2\n    \n    # Route to appropriate operation\n    if operation == 'add':\n        return add(num1, num2)\n    elif operation == 'subtract':\n        return subtract(num1, num2)\n    elif operation == 'multiply':\n        return multiply(num1, num2)\n    elif operation == 'divide':\n        return divide(num1, num2)\n    elif operation == 'power':\n        return power(num1, num2)\n    elif operation == 'square_root':\n        return square_root(num1)\n    elif operation == 'percentage':\n        return percentage(num1, num2)\n    elif operation == 'is_even':\n        return is_even(num1)\n    elif operation == 'is_positive':\n        return is_positive(num1)\n    else:\n        return 'Error: Unknown operation'\n\n# 5. Test the calculator:\nprint('Testing basic operations:')\nprint('5 + 3 =', calculate('add', 5, 3))\nprint('10 - 4 =', calculate('subtract', 10, 4))\nprint('3 × 7 =', calculate('multiply', 3, 7))\nprint('15 ÷ 3 =', calculate('divide', 15, 3))\nprint('Divide by zero:', calculate('divide', 8, 0))\n\nprint('\\nTesting advanced operations:')\nprint('2^3 =', calculate('power', 2, 3))\nprint('√25 =', calculate('square_root', 25))\nprint('30% of 150 =', calculate('percentage', 30, 150))\nprint('√(-9) =', calculate('square_root', -9))\n\nprint('\\nTesting utility functions:')\nprint('Is 4 even?', calculate('is_even', 4))\nprint('Is -5 positive?', calculate('is_positive', -5))\n\nprint('\\nTesting string inputs:')\nprint('add \"10\" + \"5\" =', calculate('add', '10', '5'))\nprint('Invalid input:', calculate('add', 'abc', 5))\n\nprint('\\nTesting unknown operation:')\nprint('unknown op:', calculate('unknown', 5, 3))",
+  "hints": [
+    "**Step 1:** Check if b == 0 in divide() before dividing.",
+    "**Step 2:** Use number < 0 check in square_root() and whole == 0 check in percentage().",
+    "**Step 3:** Use try-except in validate_number() to catch conversion errors.",
+    "**Step 4:** Use isinstance() to check if inputs are strings before validating.",
+    "**Step 5:** Test all operations including error cases to ensure robust calculator."
+  ],
+  "validation": "tests",
+  "tests": [
     {
-      "id": 1,
-      "type": "code",
-      "question": "Implement the four basic arithmetic functions: add, subtract, multiply, and divide. The divide function should handle division by zero by returning 'Error: Cannot divide by zero'.",
-      "hints": [
-        "Keep each function simple and focused on one operation",
-        "For division, check if the second number is zero before dividing",
-        "Remember to return the result from each function"
-      ],
-      "solution": "def add(a, b):\n    return a + b\n\ndef subtract(a, b):\n    return a - b\n\ndef multiply(a, b):\n    return a * b\n\ndef divide(a, b):\n    if b == 0:\n        return 'Error: Cannot divide by zero'\n    return a / b",
-      "tests": [
-        {
-          "input": "add(5, 3)",
-          "expected": 8
-        },
-        {
-          "input": "subtract(10, 4)",
-          "expected": 6
-        },
-        {
-          "input": "multiply(3, 7)",
-          "expected": 21
-        },
-        {
-          "input": "divide(15, 3)",
-          "expected": 5.0
-        },
-        {
-          "input": "divide(8, 0)",
-          "expected": "Error: Cannot divide by zero"
-        }
-      ]
+      "name": "Check basic arithmetic functions",
+      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check all basic functions exist\n    assert 'add' in exec_globals, 'Should define add function'\n    assert 'subtract' in exec_globals, 'Should define subtract function'\n    assert 'multiply' in exec_globals, 'Should define multiply function'\n    assert 'divide' in exec_globals, 'Should define divide function'\n    \n    # Test basic operations\n    add_func = exec_globals['add']\n    subtract_func = exec_globals['subtract']\n    multiply_func = exec_globals['multiply']\n    divide_func = exec_globals['divide']\n    \n    assert add_func(5, 3) == 8, 'add(5, 3) should return 8'\n    assert subtract_func(10, 4) == 6, 'subtract(10, 4) should return 6'\n    assert multiply_func(3, 7) == 21, 'multiply(3, 7) should return 21'\n    assert divide_func(15, 3) == 5.0, 'divide(15, 3) should return 5.0'\n    \n    # Test division by zero error\n    zero_div_result = divide_func(8, 0)\n    assert 'Error' in str(zero_div_result), 'divide(8, 0) should return error message'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: Basic arithmetic functions work correctly')",
+      "expected": "All basic arithmetic functions should work, divide handles zero division"
     },
     {
-      "id": 2,
-      "type": "code",
-      "question": "Implement the advanced calculation functions: power, square_root, and percentage. The square_root function should return an error for negative numbers, and percentage should handle the case where whole is zero.",
-      "hints": [
-        "Use the ** operator for power and square root",
-        "Check if the number is negative before calculating square root",
-        "For percentage, return 0 if whole is 0 to avoid division by zero"
-      ],
-      "solution": "def power(base, exponent):\n    return base ** exponent\n\ndef square_root(number):\n    if number < 0:\n        return 'Error: Cannot calculate square root of negative number'\n    return number ** 0.5\n\ndef percentage(part, whole):\n    if whole == 0:\n        return 0\n    return (part / whole) * 100",
-      "tests": [
-        {
-          "input": "power(2, 3)",
-          "expected": 8
-        },
-        {
-          "input": "power(5, 2)",
-          "expected": 25
-        },
-        {
-          "input": "square_root(25)",
-          "expected": 5.0
-        },
-        {
-          "input": "square_root(-9)",
-          "expected": "Error: Cannot calculate square root of negative number"
-        },
-        {
-          "input": "percentage(25, 100)",
-          "expected": 25.0
-        },
-        {
-          "input": "percentage(30, 0)",
-          "expected": 0
-        }
-      ]
+      "name": "Check advanced functions",
+      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check advanced functions exist\n    assert 'power' in exec_globals, 'Should define power function'\n    assert 'square_root' in exec_globals, 'Should define square_root function'\n    assert 'percentage' in exec_globals, 'Should define percentage function'\n    \n    # Test advanced operations\n    power_func = exec_globals['power']\n    sqrt_func = exec_globals['square_root']\n    perc_func = exec_globals['percentage']\n    \n    assert power_func(2, 3) == 8, 'power(2, 3) should return 8'\n    assert power_func(5, 2) == 25, 'power(5, 2) should return 25'\n    \n    assert sqrt_func(25) == 5.0, 'square_root(25) should return 5.0'\n    \n    negative_sqrt = sqrt_func(-9)\n    assert 'Error' in str(negative_sqrt), 'square_root(-9) should return error message'\n    \n    assert perc_func(25, 100) == 25.0, 'percentage(25, 100) should return 25.0'\n    assert perc_func(30, 0) == 0, 'percentage(30, 0) should return 0'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: Advanced functions work correctly')",
+      "expected": "Power, square root, percentage functions with error handling"
     },
     {
-      "id": 3,
-      "type": "code",
-      "question": "Implement the utility functions: is_even, is_positive, and validate_number. validate_number should convert a string to a float or return an error message if conversion fails.",
-      "hints": [
-        "Use modulo operator % to check if a number is even",
-        "A number is positive if it's greater than 0",
-        "Use try-except to handle string to number conversion"
-      ],
-      "solution": "def is_even(number):\n    return number % 2 == 0\n\ndef is_positive(number):\n    return number > 0\n\ndef validate_number(input_str):\n    try:\n        return float(input_str)\n    except ValueError:\n        return 'Error: Please enter a valid number'",
-      "tests": [
-        {
-          "input": "is_even(4)",
-          "expected": true
-        },
-        {
-          "input": "is_even(7)",
-          "expected": false
-        },
-        {
-          "input": "is_positive(5)",
-          "expected": true
-        },
-        {
-          "input": "is_positive(-3)",
-          "expected": false
-        },
-        {
-          "input": "validate_number('42')",
-          "expected": 42.0
-        },
-        {
-          "input": "validate_number('3.14')",
-          "expected": 3.14
-        },
-        {
-          "input": "validate_number('abc')",
-          "expected": "Error: Please enter a valid number"
-        }
-      ]
+      "name": "Check utility functions",
+      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check utility functions exist\n    assert 'is_even' in exec_globals, 'Should define is_even function'\n    assert 'is_positive' in exec_globals, 'Should define is_positive function'\n    assert 'validate_number' in exec_globals, 'Should define validate_number function'\n    \n    # Test utility functions\n    is_even_func = exec_globals['is_even']\n    is_positive_func = exec_globals['is_positive']\n    validate_func = exec_globals['validate_number']\n    \n    assert is_even_func(4) == True, 'is_even(4) should return True'\n    assert is_even_func(7) == False, 'is_even(7) should return False'\n    \n    assert is_positive_func(5) == True, 'is_positive(5) should return True'\n    assert is_positive_func(-3) == False, 'is_positive(-3) should return False'\n    \n    assert validate_func('42') == 42.0, 'validate_number(\"42\") should return 42.0'\n    assert validate_func('3.14') == 3.14, 'validate_number(\"3.14\") should return 3.14'\n    \n    invalid_result = validate_func('abc')\n    assert 'Error' in str(invalid_result), 'validate_number(\"abc\") should return error message'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: Utility functions work correctly')",
+      "expected": "Number validation and checking functions work correctly"
     },
     {
-      "id": 4,
-      "type": "code",
-      "question": "Implement the main calculate function that routes operations to the appropriate function. It should handle both numeric and string inputs, and return error messages for unknown operations.",
-      "hints": [
-        "Use conditional statements (if/elif/else) to check the operation",
-        "Call validate_number on string inputs before processing",
-        "Return appropriate error messages for invalid operations or inputs"
-      ],
-      "solution": "def calculate(operation, num1, num2=None):\n    # Validate num1 if it's a string\n    if isinstance(num1, str):\n        num1 = validate_number(num1)\n        if isinstance(num1, str):\n            return num1\n    \n    # Validate num2 if provided and it's a string\n    if num2 is not None and isinstance(num2, str):\n        num2 = validate_number(num2)\n        if isinstance(num2, str):\n            return num2\n    \n    # Route to appropriate operation\n    if operation == 'add':\n        return add(num1, num2)\n    elif operation == 'subtract':\n        return subtract(num1, num2)\n    elif operation == 'multiply':\n        return multiply(num1, num2)\n    elif operation == 'divide':\n        return divide(num1, num2)\n    elif operation == 'power':\n        return power(num1, num2)\n    elif operation == 'square_root':\n        return square_root(num1)\n    elif operation == 'percentage':\n        return percentage(num1, num2)\n    elif operation == 'is_even':\n        return is_even(num1)\n    elif operation == 'is_positive':\n        return is_positive(num1)\n    else:\n        return 'Error: Unknown operation'",
-      "tests": [
-        {
-          "input": "calculate('add', 5, 3)",
-          "expected": 8
-        },
-        {
-          "input": "calculate('multiply', 4, 7)",
-          "expected": 28
-        },
-        {
-          "input": "calculate('square_root', 16)",
-          "expected": 4.0
-        },
-        {
-          "input": "calculate('divide', 10, 0)",
-          "expected": "Error: Cannot divide by zero"
-        },
-        {
-          "input": "calculate('add', '10', '5')",
-          "expected": 15.0
-        },
-        {
-          "input": "calculate('unknown', 5, 3)",
-          "expected": "Error: Unknown operation"
-        },
-        {
-          "input": "calculate('add', 'abc', 5)",
-          "expected": "Error: Please enter a valid number"
-        }
-      ]
+      "name": "Check calculate function routing",
+      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check calculate function exists\n    assert 'calculate' in exec_globals, 'Should define calculate function'\n    calc_func = exec_globals['calculate']\n    \n    # Test various operations through calculate\n    assert calc_func('add', 5, 3) == 8, 'calculate(\"add\", 5, 3) should return 8'\n    assert calc_func('multiply', 4, 7) == 28, 'calculate(\"multiply\", 4, 7) should return 28'\n    assert calc_func('square_root', 16) == 4.0, 'calculate(\"square_root\", 16) should return 4.0'\n    \n    # Test error handling\n    div_zero = calc_func('divide', 10, 0)\n    assert 'Error' in str(div_zero), 'calculate(\"divide\", 10, 0) should return error'\n    \n    # Test string inputs\n    str_result = calc_func('add', '10', '5')\n    assert str_result == 15.0, 'calculate(\"add\", \"10\", \"5\") should return 15.0'\n    \n    # Test invalid string input\n    invalid_str = calc_func('add', 'abc', 5)\n    assert 'Error' in str(invalid_str), 'calculate(\"add\", \"abc\", 5) should return error'\n    \n    # Test unknown operation\n    unknown_op = calc_func('unknown', 5, 3)\n    assert 'Error' in str(unknown_op), 'calculate(\"unknown\", 5, 3) should return error'\n    \n    # Check calculate has proper routing logic\n    tree = ast.parse(code)\n    calculate_def_found = False\n    has_routing_logic = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.FunctionDef) and node.name == 'calculate':\n            calculate_def_found = True\n            # Check for if/elif chain for routing\n            for child in node.body:\n                if isinstance(child, ast.If):\n                    has_routing_logic = True\n                    break\n    \n    assert calculate_def_found, 'Should define calculate function'\n    assert has_routing_logic, 'calculate should have if/elif routing logic'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: calculate function routes operations correctly')",
+      "expected": "calculate function should route to appropriate operations with error handling"
     },
     {
-      "id": 5,
-      "type": "code",
-      "question": "Create a comprehensive test function that verifies all calculator operations work correctly. Test at least 5 different operations including edge cases.",
-      "hints": [
-        "Test both normal cases and error cases",
-        "Use assert statements to verify expected results",
-        "Include tests for string input validation"
-      ],
-      "solution": "def run_comprehensive_tests():\n    # Test basic operations\n    assert calculate('add', 2, 3) == 5\n    assert calculate('subtract', 10, 4) == 6\n    assert calculate('multiply', 3, 7) == 21\n    assert calculate('divide', 15, 3) == 5.0\n    \n    # Test advanced operations\n    assert calculate('power', 2, 3) == 8\n    assert calculate('square_root', 25) == 5.0\n    assert calculate('percentage', 30, 150) == 20.0\n    \n    # Test utility operations\n    assert calculate('is_even', 4) == True\n    assert calculate('is_positive', -5) == False\n    \n    # Test error handling\n    assert 'Error' in str(calculate('divide', 5, 0))\n    assert 'Error' in str(calculate('square_root', -9))\n    assert 'Error' in str(calculate('add', 'abc', 5))\n    \n    # Test string inputs\n    assert calculate('add', '10', '5') == 15.0\n    assert calculate('multiply', '3', '7') == 21.0\n    \n    return 'All tests passed!'\n\n# Call the test function\nresult = run_comprehensive_tests()",
-      "tests": [
-        {
-          "input": "run_comprehensive_tests()",
-          "expected": "All tests passed!"
-        }
-      ]
+      "name": "Check comprehensive test output",
+      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\n# Check all test sections are present\nassert any('Testing basic operations:' in line for line in lines), 'Should test basic operations'\nassert any('Testing advanced operations:' in line for line in lines), 'Should test advanced operations'\nassert any('Testing utility functions:' in line for line in lines), 'Should test utility functions'\nassert any('Testing string inputs:' in line for line in lines), 'Should test string inputs'\nassert any('Testing unknown operation:' in line for line in lines), 'Should test unknown operation'\n\n# Check key results are present\nassert any('5 + 3 = 8' in line for line in lines), 'Should show 5+3=8'\nassert any('Divide by zero:' in line and 'Error' in line for line in lines), 'Should show division by zero error'\nassert any('2^3 = 8' in line for line in lines), 'Should show 2^3=8'\nassert any('√25 = 5.0' in line for line in lines), 'Should show √25=5.0'\nassert any('√(-9) = Error' in line for line in lines), 'Should show square root error'\nassert any('add \"10\" + \"5\" = 15.0' in line for line in lines), 'Should show string addition'\nassert any('Invalid input:' in line and 'Error' in line for line in lines), 'Should show invalid input error'\nassert any('unknown op: Error' in line for line in lines), 'Should show unknown operation error'\n\nprint('TEST_PASSED: All test outputs show correct results')",
+      "expected": "Should print comprehensive test results showing all calculator features"
     }
-  ]
+  ],
+  "expectedOutput": "Testing basic operations:\n5 + 3 = 8\n10 - 4 = 6\n3 × 7 = 21\n15 ÷ 3 = 5.0\nDivide by zero: Error: Cannot divide by zero\n\nTesting advanced operations:\n2^3 = 8\n√25 = 5.0\n30% of 150 = 20.0\n√(-9) = Error: Cannot calculate square root of negative number\n\nTesting utility functions:\nIs 4 even? True\nIs -5 positive? False\n\nTesting string inputs:\nadd \"10\" + \"5\" = 15.0\nInvalid input: Error: Please enter a valid number\n\nTesting unknown operation:\nunknown op: Error: Unknown operation",
+  "tags": ["project", "calculator", "functions", "modular", "error-handling"],
+  "challengeGroup": "module-6-project"
 }

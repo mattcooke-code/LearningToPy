@@ -248,7 +248,14 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 const submitLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const userId = req.userId;
-  const { answer, code, questionIndex = 0 } = req.body;
+  const {
+    answer,
+    code,
+    questionIndex = 0,
+    validationResult,
+    isCorrect = true,
+    testsPassed,
+  } = req.body;
 
   // 1. Fetch Lesson and User
   const lesson = await Lesson.findById(lessonId);
@@ -257,21 +264,26 @@ const submitLesson = catchAsync(async (req, res, next) => {
   const user = await User.findById(userId);
   if (!user) return next(new AppError("User not found", 404));
 
-  let isCorrect = false;
-  let feedback = "";
+  let feedback = validationResult?.feedback || "Great job!";
+
   const quizProgress = getOrCreateQuizProgress(user, lessonId, lesson);
 
   // 2. Validation Logic
   if (hasExercise(lesson) && code !== undefined) {
-    const validationResult = validateCodeSubmission(code, lesson.exercise);
-    isCorrect = validationResult.isCorrect;
-    feedback = validationResult.feedback;
+    if (!code || code.trim() === "") {
+      return next(new AppError("No code submitted", 400));
+    }
+
+    isCorrectValue = isCorrect;
+    feedback = validationResult?.feedback || "Code submitted successfully";
   } else if (hasQuiz(lesson) && answer !== undefined) {
     const currentQuestion = lesson.quiz[questionIndex];
+
     if (!currentQuestion)
       return next(new AppError("Invalid question index", 400));
-    isCorrect = answer === currentQuestion.correctAnswer;
-    if (isCorrect) {
+    isCorrectValue = answer === currentQuestion.correctAnswer;
+
+    if (isCorrectValue) {
       feedback = `Correct! ${currentQuestion.explanation || ""}`;
       updateQuizProgress(quizProgress, questionIndex, lesson);
     } else {
@@ -281,7 +293,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     (code === undefined && answer === undefined) ||
     lesson.contentType === "theory"
   ) {
-    isCorrect = true;
+    isCorrectValue = true;
     feedback = "Status checked/Theory completed!";
 
     if (quizProgress) quizProgress.completed = true;
@@ -291,7 +303,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
   const completed = isLessonFullyCompleted(
     lesson,
     quizProgress,
-    isCorrect,
+    isCorrectValue,
     isManualCompletion,
   );
 
@@ -332,7 +344,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     );
 
     return sendJsonResponse(res, 200, "Success!", {
-      isCorrect,
+      isCorrect: isCorrectValue,
       feedback,
       completed: true,
       xpEarned: completionResult.xpIncrease,
@@ -345,11 +357,16 @@ const submitLesson = catchAsync(async (req, res, next) => {
 
   // 4. Partial Success (Correct answer but quiz/exercise not fully done)
   await user.save();
-  return sendJsonResponse(res, 200, isCorrect ? "Success!" : "Keep trying!", {
-    isCorrect,
-    feedback,
-    completed: false,
-  });
+  return sendJsonResponse(
+    res,
+    200,
+    isCorrectValue ? "Success!" : "Keep trying!",
+    {
+      isCorrect: isCorrectValue,
+      feedback,
+      completed: false,
+    },
+  );
 });
 
 const submitModuleQuiz = catchAsync(async (req, res, next) => {

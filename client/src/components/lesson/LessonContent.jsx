@@ -2,7 +2,7 @@
 import { Lightbulb } from "lucide-react";
 import { useTheme } from "../../context";
 import { QuizComponent, ExerciseComponent, CodeBlock } from "../lesson";
-import { MarkdownRenderer } from "../ui";
+import { MarkdownRenderer, PythonSyntaxHighlighter } from "../ui";
 
 const LessonContent = ({
   lesson,
@@ -12,6 +12,7 @@ const LessonContent = ({
   markTheoryComplete,
   isSubmitting,
   onQuizComplete,
+  lessonId,
   exerciseCompleted,
   setExerciseCompleted,
   quizCompleted,
@@ -48,7 +49,7 @@ const LessonContent = ({
             <Lightbulb className="text-blue-600" size={20} />
             <h3 className="text-lg font-semibold text-gray-800">Example</h3>
           </div>
-          <CodeBlock code={lesson.codeExample.code} />
+          <CodeBlock code={lesson.codeExample.code} language="python" />
           <div className="text-gray-600 text-sm mt-2">
             <MarkdownRenderer content={lesson.codeExample.explanation} />
           </div>
@@ -61,6 +62,7 @@ const LessonContent = ({
         <ExerciseComponent
           exercise={lesson.exercise}
           onCodeSubmit={onCodeSubmit}
+          lessonId={lessonId}
           isReviewMode={isReviewMode}
           solution={lesson.exercise.solution}
         />

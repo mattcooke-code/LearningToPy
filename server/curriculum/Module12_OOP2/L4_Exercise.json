@@ -17,9 +17,8 @@
     "Remember that `VideoFile` must also define its `__init__` if it wants to handle file-specific attributes (though in the solution, we rely on the parent's `__init__`).",
     "The child class must inherit from the abstract class: `class VideoFile(MediaFile):`"
   ],
-  "validation": {
-    "output": "Video File: movie.mp4 - Playing...\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["abc", "abstract", "inheritance", "interface"],
   "challengeGroup": "oop-abstract"
 }

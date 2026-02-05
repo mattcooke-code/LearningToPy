@@ -31,7 +31,7 @@
     {
       "id": "m0l3_q3",
       "type": "multiple-choice",
-      "question": "If you see a 'SyntaxError' in the terminal output, what does it usually mean?",
+      "question": "If you see a `SyntaxError` in the terminal output, what does it usually mean?",
       "options": [
         "Your internet connection was lost",
         "The terminal is full and needs to be cleared",
@@ -39,7 +39,7 @@
         "The code ran perfectly"
       ],
       "correctAnswer": 2,
-      "explanation": "A SyntaxError means Python didn't understand your instructions because they didn't follow the language rules—like a typo or a missing bracket."
+      "explanation": "A `SyntaxError` means Python didn't understand your instructions because they didn't follow the language rules—like a typo or a missing bracket."
     },
     {
       "id": "m0l3_q4",

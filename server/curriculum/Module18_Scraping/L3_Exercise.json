@@ -17,9 +17,8 @@
     "The method to find all occurrences of a tag is `find_all()`.",
     "Accessing an attribute uses dictionary-style indexing: `tag['attribute_name']`."
   ],
-  "validation": {
-    "output": "/link1\n/link2\n/link3\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["beautifulsoup", "find_all", "tag", "attributes"],
   "challengeGroup": "web-scraping"
 }

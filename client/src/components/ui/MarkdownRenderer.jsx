@@ -82,30 +82,22 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     li: ({ children }) => <li className="pl-2 mb-1">{children}</li>,
 
     // Inline Code and Code Blocks
-    code: ({ children, className, inline, node }) => {
+    code: ({ children, className, inline }) => {
       const match = /language-(\w+)/.exec(className || "");
       const isInline = inline || !className || !match;
 
       if (isInline) {
         return (
-          <code
-            className={`px-1.5 py-0.5 rounded border text-[0.9em] font-mono shadow-sm ${
-              isDark
-                ? "bg-gray-900 text-pink-400 border-gray-700"
-                : "bg-gray-100 text-red-700 border-gray-300"
-            }`}
-          >
+          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200 text-red-700 border-gray-300 shadow-sm">
             {children}
           </code>
         );
       }
 
-      const language = match[1];
       return (
         <CodeBlock
           code={String(children).replace(/\n$/, "")}
-          language={language}
-          isUserCode={false}
+          language={match[1]}
         />
       );
     },

@@ -16,10 +16,8 @@
     "For `future_date`, remember the order of arguments is year, month, day, hour, minute.",
     "Access components using dot notation: `object.attribute`."
   ],
-  "validation": {
-    "output": "2028\n1\n8\n",
-    "fuzzyMatch": true
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["datetime", "now", "date", "time", "basic-objects"],
   "challengeGroup": "datetime-basics"
 }

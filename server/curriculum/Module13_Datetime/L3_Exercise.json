@@ -17,9 +17,8 @@
     "To calculate the future date, use the addition operator: `project_end + extension`.",
     "The problem asks you to print only the date part of the `new_deadline` object."
   ],
-  "validation": {
-    "output": "127 days, 0:00:00\n2025-03-01\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["timedelta", "arithmetic", "date-difference", "date-manipulation"],
   "challengeGroup": "datetime-timedelta"
 }

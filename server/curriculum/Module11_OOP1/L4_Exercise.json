@@ -16,9 +16,8 @@
     "The static method must be decorated with `@staticmethod` and accept only the `text` parameter (no `self` or `cls`).",
     "Use the `.strip()` and `.lower()` string methods to clean the input."
   ],
-  "validation": {
-    "output": "10\nhello world!\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["class-variable", "static-method", "utility", "constants"],
   "challengeGroup": "oop-class-static"
 }

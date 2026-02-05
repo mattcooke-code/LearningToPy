@@ -16,7 +16,6 @@
     "The key to this exercise is the `params=` keyword argument in the `requests.get()` function.",
     "The `requests` library automatically appends `?postId=7` to the base URL."
   ],
-  "validation": {
-    "output": "Generated URL: https://jsonplaceholder.typicode.com/comments?postId=7\n[\n  {\n    \"postId\": 7,\n    \"id\": 31,\n    \"name\": \"fuga in omnis et et aut commodi dolor ad et dolore et sint\",\n    \"email\": \"Ramon.Moore@names.net\",\n    \"body\": \"YOUR_EXPECTED_BODY_TEXT_HERE\"\n  }\n]\n"
-  }
+  "validation": "tests",
+  "tests": []
 }

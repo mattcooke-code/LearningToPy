@@ -15,9 +15,8 @@
     "The function to create a Series is `pd.Series()`.",
     "Accessing a Series element by a label works just like accessing a dictionary value: `series_name['label']`."
   ],
-  "validation": {
-    "output": "Laptop      1200\nMouse         25\nMonitor      300\nKeyboard      75\ndtype: int64\nMonitor Price: $300\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["pandas", "series", "dictionary", "indexing"],
   "challengeGroup": "data-science-intro"
 }

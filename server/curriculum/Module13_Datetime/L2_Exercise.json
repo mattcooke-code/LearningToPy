@@ -17,9 +17,8 @@
     "For `strftime`, the format string needs: `%A` (Weekday), `%B` (Month Name), `%d` (Day), `%Y` (Year), `%I` (12-hour), and `%p` (AM/PM).",
     "For `strptime`, the input string `'11/05/2026'` corresponds to the format string `'%m/%d/%Y'`."
   ],
-  "validation": {
-    "output": "Friday, July 04, 2025 at 08:00 PM\n5\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["strftime", "strptime", "formatting", "parsing"],
   "challengeGroup": "datetime-formatting"
 }

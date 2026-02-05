@@ -1,8 +1,13 @@
-// ModuleQuizPage.jsx
+// ModuleQuizPage.jsx - UPDATED
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth, useNotification, useTheme } from "../context";
-import { LoadingState, ErrorState, BackToTopButton } from "../components/ui";
+import {
+  LoadingState,
+  ErrorState,
+  BackToTopButton,
+  MarkdownRenderer,
+} from "../components/ui"; // ADD MarkdownRenderer
 import { getErrorMessage } from "../utils";
 import {
   Trophy,
@@ -64,7 +69,6 @@ const ModuleQuizPage = () => {
   }, [fetchModule]);
 
   // Function to shuffle array (Fisher-Yates algorithm)
-  // Possible utils file refactor?
   const shuffleArray = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -100,16 +104,12 @@ const ModuleQuizPage = () => {
   }, [module]);
 
   const handleAnswerSelect = (questionId, displayIndex) => {
-    // displayIndex is the index in the displayed/shuffled options
-    // We need to map it back to the original index
     const optionsMapping = shuffledOptions[questionId];
     let actualIndex;
 
     if (optionsMapping && optionsMapping.shuffledIndices) {
-      // Map display index to original index
       actualIndex = optionsMapping.shuffledIndices[displayIndex];
     } else {
-      // No shuffling, use display index directly
       actualIndex = displayIndex;
     }
 
@@ -139,14 +139,13 @@ const ModuleQuizPage = () => {
     if (unansweredCount > 0) {
       showToast(
         `Please answer all questions (${unansweredCount} remaining)`,
-        "error"
+        "error",
       );
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Convert any string answers into numbers for backend to process
       const numericAnswers = {};
       Object.entries(userAnswers).forEach(([questionId, answer]) => {
         if (typeof answer === "string") {
@@ -161,7 +160,7 @@ const ModuleQuizPage = () => {
         {
           answers: numericAnswers,
           questionOrder: shuffledQuestions.map((q) => q._id),
-        }
+        },
       );
 
       setQuizResults(result);
@@ -170,25 +169,25 @@ const ModuleQuizPage = () => {
       if (result.passed) {
         showToast(
           `🎊 Module completed! +${result.xpEarned} XP earned!`,
-          "success"
+          "success",
         );
 
         if (result.progress?.courseProgressPercentage !== undefined) {
           updateThemeFromCourseProgress(
-            result.progress.courseProgressPercentage
+            result.progress.courseProgressPercentage,
           );
         }
       } else {
         showToast(
           `Quiz score: ${result.score}%. Need ${result.passingScore}% to pass.`,
-          "error"
+          "error",
         );
       }
     } catch (err) {
       console.error("Failed to submit quiz:", err);
       showToast(
         getErrorMessage(err, "Failed to submit quiz. Please try again."),
-        "error"
+        "error",
       );
     } finally {
       setIsSubmitting(false);
@@ -363,38 +362,39 @@ const ModuleQuizPage = () => {
       </div>
 
       {shuffledQuestions.length > 0 ? (
-        // Question Card
+        // Question Card - UPDATED: Using MarkdownRenderer
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            {currentQuestion.question}
+            {/* REPLACE plain text with MarkdownRenderer */}
+            <MarkdownRenderer
+              content={currentQuestion.question}
+              moduleId={moduleId}
+            />
           </h2>
 
-          {/* Answer Options - Now using shuffled options if available */}
+          {/* Answer Options */}
           <div className="space-y-3">
             {(() => {
               const questionId = currentQuestion._id;
               const optionsMapping = shuffledOptions[questionId];
 
-              // Use shuffled options if available, otherwise use original order
               const optionsToDisplay = optionsMapping
                 ? optionsMapping.shuffledIndices.map(
-                    (idx) => currentQuestion.options[idx]
+                    (idx) => currentQuestion.options[idx],
                   )
                 : currentQuestion.options;
 
               return optionsToDisplay.map((option, displayIndex) => {
-                const optionKey = String.fromCharCode(65 + displayIndex); // A, B, C, D
+                const optionKey = String.fromCharCode(65 + displayIndex);
 
-                // For selection highlighting, we need to check if this display index corresponds to selected answer
                 const optionsMapping = shuffledOptions[questionId];
                 let isSelected = false;
 
                 if (optionsMapping && optionsMapping.shuffledIndices) {
-                  // Check if the selected answer corresponds to this display position
                   const selectedOriginalIndex = userAnswers[questionId];
                   const displayIndexOfSelected =
                     optionsMapping.shuffledIndices.indexOf(
-                      selectedOriginalIndex
+                      selectedOriginalIndex,
                     );
                   isSelected = displayIndexOfSelected === displayIndex;
                 } else {
@@ -404,7 +404,7 @@ const ModuleQuizPage = () => {
                 return (
                   <button
                     key={displayIndex}
-                    onClick={() => handleAnswerSelect(questionId, displayIndex)} // Pass display index
+                    onClick={() => handleAnswerSelect(questionId, displayIndex)}
                     className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                       isSelected
                         ? "border-blue-500 bg-blue-50"
@@ -412,10 +412,16 @@ const ModuleQuizPage = () => {
                     }`}
                   >
                     <div className="flex items-start">
-                      <span className="font-semibold text-gray-700 mr-3">
+                      <span className="font-semibold text-gray-700 mr-3 min-w-5">
                         {optionKey}.
                       </span>
-                      <span className="text-gray-800">{option}</span>
+                      {/* UPDATED: Render option with MarkdownRenderer too */}
+                      <div className="flex-1">
+                        <MarkdownRenderer
+                          content={option}
+                          moduleId={moduleId}
+                        />
+                      </div>
                       {isSelected && (
                         <CheckCircle
                           className="ml-auto text-blue-500"
@@ -474,7 +480,7 @@ const ModuleQuizPage = () => {
         )}
       </div>
 
-      {/* Question Grid (optional - shows which questions are answered) */}
+      {/* Question Grid */}
       <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">
           Question Progress

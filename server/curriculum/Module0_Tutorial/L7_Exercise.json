@@ -1,6 +1,6 @@
 {
   "title": "My First Python Program",
-  "instructions": "# Your First Python Program 🎉\n\nTime to practice what you've learned! This simple exercise helps you:\n\n- Edit code in the editor\n- Run a Python program\n- Submit for XP rewards\n\n## The Program\n\nYou'll work with this simple program:\n\n```python\nname = \"Python Learner\"\nprint(f\"Hello, {name}!\")\n```\n\n## Your Task\n\nChange `\"Python Learner\"` to your actual name or nickname.\n\nThat's it! Just one small change.\n\n## Step-by-Step\n\n**Step 1:** Find this line in the code:\n\n```python\nname = \"Python Learner\"\n```\n\n**Step 2:** Change it to your name:\n\n```python\nname = \"Alex\"  # Your name here!\n```\n\n**Step 3:** Run the code (click **Run Code** button)\n\nYou should see: `Hello, Alex!`\n\n**Step 4:** Submit for XP! (click **Submit Code** button)\n\n## Example\n\nBefore:\n\n```python\nname = \"Python Learner\"\nprint(f\"Hello, {name}!\")\n```\n\nOutput: `Hello, Python Learner!`\n\nAfter:\n\n```python\nname = \"Alex\"\nprint(f\"Hello, {name}!\")\n```\n\nOutput: `Hello, Alex!`\n\n## Ready?\n\n1. Change the name\n2. Click **Run Code** to test\n3. Click **Submit Code** to earn XP!\n\nSimple as that! 🎉",
+  "instructions": "Change `\"Python Learner\"` to your actual name or nickname in the code below. Then run and submit your code to earn XP!",
   "steps": [
     "Find the line that says: `name = \"Python Learner\"`",
     "Change `\"Python Learner\"` to your name (keep the quotes!)",
@@ -20,17 +20,17 @@
   "tests": [
     {
       "name": "Should print greeting with a name",
-      "code": "# Test that output contains a greeting\nassert 'Hello' in output and '!' in output, 'Output should contain a greeting'",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Test that output contains a greeting\nif 'Hello' not in output:\n    raise AssertionError('Output should contain \"Hello\"')\nif '!' not in output:\n    raise AssertionError('Output should end with \"!\"')\n\nprint('TEST_PASSED: Greeting printed correctly')",
       "expected": "Output should contain 'Hello' and end with '!'"
     },
     {
       "name": "Should not contain default name",
-      "code": "# Test that default name is not used\nassert 'Python Learner' not in output, 'You need to change the default name!'",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Test that default name is not used\nif 'Python Learner' in output:\n    raise AssertionError('You need to change the default name from \"Python Learner\"!')\n\nprint('TEST_PASSED: Default name was changed')",
       "expected": "Output should not contain 'Python Learner'"
     },
     {
       "name": "Should have changed the name variable",
-      "code": "# Test that name variable was actually changed\nimport sys\nimport io\n\n# Capture the executed code's output\ncontext = {}\nexec(code, context)\n\n# Check if name variable exists and isn't default\nassert 'name' in context, 'Variable \"name\" should exist'\nassert context['name'] != 'Python Learner', 'You need to change the name from \"Python Learner\"!'",
+      "code": "# Check the code string directly\nif 'name = \"Python Learner\"' in code or \"name = 'Python Learner'\" in code:\n    raise AssertionError('You need to change the name from \"Python Learner\"!')\n\n# Also verify by executing\nif 'name' not in locals():\n    raise AssertionError('Variable \"name\" should exist')\n\nif name == 'Python Learner':\n    raise AssertionError('You need to change the name from \"Python Learner\" to your own name!')\n\nprint('TEST_PASSED: Name variable was changed')",
       "expected": "The 'name' variable should be changed from 'Python Learner' to your name"
     }
   ],

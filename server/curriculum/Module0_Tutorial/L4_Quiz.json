@@ -7,8 +7,8 @@
       "type": "multiple-choice",
       "question": "What is the primary difference between 'Run Code' and 'Submit Code'?",
       "options": [
-        "Run Code is for practicing/testing, while Submit Code checks for correctness and awards XP",
-        "Run Code is for Python, while Submit Code is for other languages",
+        "Run Code is for practicing, Submit Code verifies your answers",
+        "Run Code is for Python, Submit Code is for other languages",
         "Submit Code is only used for downloading files",
         "There is no difference; they perform the same action"
       ],
@@ -35,7 +35,7 @@
       "options": [
         "Ignore it and click Submit immediately",
         "Delete the entire lesson and start over",
-        "Read the error message to find the line number and fix the typo",
+        "Read the error message, find the line number, fix the typo",
         "Wait 5 minutes for the error to clear itself"
       ],
       "correctAnswer": 2,
@@ -61,7 +61,7 @@
       "options": [
         "The terminal is broken",
         "The code ran too fast to see",
-        "You did not use a print() statement to display your results",
+        "You did not use a print() statement",
         "You are using the wrong theme"
       ],
       "correctAnswer": 2,

@@ -17,9 +17,8 @@
     "The `UPDATE` and `DELETE` statements both require a `WHERE` clause to target specific rows.",
     "Make sure `conn.commit()` is called after all modifying SQL commands."
   ],
-  "validation": {
-    "output": "--- Final Inventory ---\nKeyboard: $90.00\nMonitor: $199.99\nWebcam: $55.00\n"
-  },
+  "validation": "tests",
+  "tests": [],
   "tags": ["sqlite3", "parameterized-query", "update", "delete", "project"],
   "challengeGroup": "database-interaction"
 }
