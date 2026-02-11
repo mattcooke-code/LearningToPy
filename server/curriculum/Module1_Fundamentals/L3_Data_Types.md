@@ -10,7 +10,7 @@ Used for all **text** data. You must enclose strings in either single quotes (`'
 
 ```python
 favorite_book = "The Hitchhiker's Guide" # Double quotes work
-message = 'So Long and Thanks for All The Fish!' # Single quotes work too
+message = 'So long and thanks for all the fish!' # Single quotes work too
 ```
 
 ## 2. Whole Numbers: The Integer (`int`)
@@ -47,7 +47,9 @@ is_weekend = False
 has_permission = True
 ```
 
-**Common Mistake:** Writing `true` or `false` (lowercase) will cause an error! Always capitalize: `True` and `False`.
+:::warning
+Writing `true` or `false` (lowercase) will cause an error! Always capitalize: `True` and `False`.
+:::
 
 ## Checking Data Types
 
@@ -65,12 +67,13 @@ print(type(height))     # Output: <class 'float'>
 print(type(is_student)) # Output: <class 'bool'>
 ```
 
-## What You've Learned
+:::summary
 
 - **Strings (`str`)** hold text and need quotation marks
 - **Integers (`int`)** hold whole numbers with no decimal point
 - **Floats (`float`)** hold numbers with decimal points
 - **Booleans (`bool`)** hold `True` or `False` (capitalized!)
 - Use `type()` to check a variable's data type
+  :::
 
 Now let's practice! In the challenge below, you'll create variables of each type and verify them using the `type()` function.

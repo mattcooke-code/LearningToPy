@@ -1,22 +1,31 @@
 {
   "title": "Inventory and Tag Manager",
-  "instructions": "Manage a complex product inventory by combining dictionary iteration with set operations.",
+  "instructions": "Build an inventory management system that combines dictionaries and sets. You'll process product data, check stock levels, validate tags, and consolidate all tags used.\n\n**Key Operations:**\n- Dictionary iteration with `.items()`\n- Set difference (`-`) to find missing tags\n- Set union (`|`) to combine all tags\n- Conditional logic for stock alerts",
   "steps": [
-    "**Step 1:** Initialize `all_inventory_tags` as an empty set.",
-    "**Step 2:** Use `inventory.items()` in a loop to access `sku` and `details`.",
-    "**Step 3:** If `details['stock']` < 10, print a 'LOW STOCK ALERT' for that SKU.",
-    "**Step 4:** Find missing tags by subtracting `details['tags']` from `REQUIRED_TAGS`. Print them if the set isn't empty.",
-    "**Step 5:** Update `all_inventory_tags` by performing a union (`|`) with the current product's tags."
+    "Step 1: Loop through `inventory` using `.items()` to get SKU and product details",
+    "Step 2: Check if stock < 10 and print alert if true",
+    "Step 3: Find missing required tags using set difference: `REQUIRED_TAGS - product_tags`",
+    "Step 4: Print which tags are missing for each product (if any)",
+    "Step 5: Update `all_inventory_tags` by union with current product's tags",
+    "Step 6: After the loop, print all unique tags found"
   ],
-  "starterCode": "inventory = {\n  'SKU101': {'name': 'Charger', 'stock': 12, 'tags': {'electronics', 'power'}},\n  'SKU102': {'name': 'Mouse', 'stock': 5, 'tags': {'electronics', 'input'}}\n}\nREQUIRED_TAGS = {'electronics', 'power', 'input'}\nall_inventory_tags = set()\n\n# Start your loop here:\n",
-  "solution": "for sku, details in inventory.items():\n    if details['stock'] < 10:\n        print(f'LOW STOCK ALERT: {sku}')\n    \n    missing_tags = REQUIRED_TAGS - details['tags']\n    if missing_tags:\n        print(f'{sku} missing: {missing_tags}')\n    \n    all_inventory_tags = all_inventory_tags | details['tags']\n\nprint('All Tags:', all_inventory_tags)",
+  "starterCode": "inventory = {\n  'SKU101': {'name': 'Charger', 'stock': 12, 'tags': {'electronics', 'power'}},\n  'SKU102': {'name': 'Mouse', 'stock': 5, 'tags': {'electronics', 'input'}}\n}\nREQUIRED_TAGS = {'electronics', 'power', 'input'}\nall_inventory_tags = set()\n\n# Process each product in inventory\n",
+  "solution": "for sku, details in inventory.items():\n    # Check stock\n    if details['stock'] < 10:\n        print(f'LOW STOCK ALERT: {sku} ({details[\"name\"]})')\n    \n    # Find missing tags\n    missing_tags = REQUIRED_TAGS - details['tags']\n    if missing_tags:\n        print(f'{sku} missing tags: {missing_tags}')\n    \n    # Add to master tag set\n    all_inventory_tags = all_inventory_tags | details['tags']\n    # Alternative: all_inventory_tags |= details['tags']\n\nprint('All inventory tags:', all_inventory_tags)",
+  "hints": [
+    "Step 1: Use `for sku, details in inventory.items():` to loop",
+    "Step 2: Access stock: `details['stock']`. Check: `if details['stock'] < 10:`",
+    "Step 3: Set difference: `missing_tags = REQUIRED_TAGS - details['tags']`",
+    "Step 4: Print if missing_tags is not empty: `if missing_tags:`",
+    "Step 5: Set union: `all_inventory_tags | details['tags']` or `all_inventory_tags |= details['tags']`",
+    "Step 6: Final print is outside the loop (not indented)",
+    "Remember: Sets use `{}` but `set()` for empty set. `{'a', 'b'}` is a set with elements"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check Inventory Logic",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec_globals = {}\ntry:\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().upper()\nfinally:\n    sys.stdout = old_stdout\n\nif 'SKU102' not in output or 'LOW STOCK' not in output:\n    raise AssertionError('Step 3: Did not detect/print low stock alert for SKU102.')\n\nif 'SKU101' in output and 'INPUT' in output:\n    # This confirms they found that SKU101 is missing the 'input' tag\n    pass\nelse:\n    if 'MISSING' not in output:\n        raise AssertionError('Step 4: Missing tags were not identified or printed.')\n\nfinal_tags = exec_globals.get('all_inventory_tags', set())\nif not {'electronics', 'power', 'input'}.issubset(final_tags):\n    raise AssertionError('Step 5: The master tag set is missing items. Did you use the union operator?')\n\nprint('TEST_PASSED: Inventory system fully functional')",
-      "expected": "Handles stock alerts, missing tags via subtraction, and tag consolidation via union."
+      "name": "Check inventory processing",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec_globals = {}\nexec(code, exec_globals)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check low stock alert\nif 'LOW STOCK' not in output or 'SKU102' not in output:\n    raise AssertionError('Step 2: Should alert for SKU102 (stock: 5 < 10)')\n\n# Check missing tags\nif 'missing tags' not in output:\n    raise AssertionError('Step 3-4: Should identify missing tags')\n\n# Check final tag set\nfinal_tags = exec_globals.get('all_inventory_tags', set())\nif not {'electronics', 'power', 'input'}.issubset(final_tags):\n    raise AssertionError(f'Step 5: Master tag set missing items. Got: {final_tags}')\n\n# Check SKU101 has 'input' missing\nif 'SKU101' in output and 'input' in output.lower():\n    pass  # Good - found missing tag\n\nprint('✓ Inventory system fully functional!')"
     }
   ],
-  "tags": ["project", "dictionary", "set", "iteration"]
+  "tags": ["project", "dictionary", "set", "iteration", "advanced"]
 }

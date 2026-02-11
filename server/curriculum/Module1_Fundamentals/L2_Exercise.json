@@ -1,38 +1,38 @@
 {
-  "title": "Indentation Practice",
-  "instructions": "In the coding window, indent the `print()` statement using exactly 4 spaces so that the program runs without an error. If you remove the indentation, you should see an `IndentationError`.",
+  "title": "Variable Creation Challenge",
+  "instructions": "Your goal is to successfully create two variables using proper naming conventions and print their values to the console.",
   "steps": [
-    "Look at the if statement on line 1",
-    "Add exactly 4 spaces before the print statement on line 2",
-    "Run the code to make sure it works",
-    "Try removing the spaces to see the error!"
+    "Create a variable named `project_name` and assign it the string value \"PyGame\".",
+    "Create a variable named `hours_spent` and assign it an integer value of `45`.",
+    "Print the value of `project_name`.",
+    "Print the value of `hours_spent`."
   ],
-  "starterCode": "if 1 == 1:\nprint(\"I need to be indented!\")",
-  "solution": "if 1 == 1:\n    print(\"I need to be indented!\")",
+  "starterCode": "# Create your two variables here:\n\n\n# Print their values below:\n",
+  "solution": "# Create your two variables here:\nproject_name = \"PyGame\"\nhours_spent = 45\n\n# Print their values below:\nprint(project_name)\nprint(hours_spent)",
   "hints": [
-    "Python requires consistent indentation for code blocks",
-    "Use exactly 4 spaces for each level of indentation",
-    "The print statement should be indented under the if statement",
-    "Don't use tabs - use 4 space characters"
+    "Make sure your variable names use `snake_case` (lowercase with underscores).",
+    "Strings need quotation marks around them (single or double quotes).",
+    "Numbers do not need quotation marks.",
+    "Use print() to display each variable's value on separate lines."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check code runs without indentation error",
-      "code": "# The user's code has already been executed above\n# If we got here without error, it worked!\nprint('TEST_PASSED: Code executed without indentation error')",
-      "expected": "Code should run without IndentationError"
+      "name": "Check project_name variable exists with correct value",
+      "code": "# Check project_name variable (it should exist after user code ran)\nif 'project_name' not in locals():\n    raise AssertionError('Missing project_name variable. Did you create it?')\n\nif project_name != 'PyGame':\n    raise AssertionError(f'project_name should be \"PyGame\", got: {project_name}')\n\nprint('TEST_PASSED: project_name variable is correct')",
+      "expected": "project_name = 'PyGame'"
     },
     {
-      "name": "Check correct output",
-      "code": "import io\nimport sys\n\n# Capture output from user code\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    # Re-execute the user's code to capture output\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nif output != 'I need to be indented!':\n    raise AssertionError(f'Expected \"I need to be indented!\" but got: {output}')\n\nprint('TEST_PASSED: Correct output')",
-      "expected": "I need to be indented!"
+      "name": "Check hours_spent variable exists with correct value",
+      "code": "# Check hours_spent variable\nif 'hours_spent' not in locals():\n    raise AssertionError('Missing hours_spent variable. Did you create it?')\n\nif hours_spent != 45:\n    raise AssertionError(f'hours_spent should be 45, got: {hours_spent}')\n\nprint('TEST_PASSED: hours_spent variable is correct')",
+      "expected": "hours_spent = 45"
     },
     {
-      "name": "Check exact indentation (4 spaces)",
-      "code": "# Check that line 2 starts with exactly 4 spaces\nlines = code.split('\\n')\nif len(lines) < 2:\n    raise AssertionError('Code should have at least 2 lines')\n\nline2 = lines[1]\nif not line2.startswith('    '):\n    raise AssertionError('Line 2 must start with exactly 4 spaces for indentation')\n\nif line2.strip() != 'print(\"I need to be indented!\")':\n    raise AssertionError('Line 2 should contain the print statement after 4 spaces')\n\nprint('TEST_PASSED: Correct indentation with 4 spaces')",
-      "expected": "Line 2 indented with exactly 4 spaces"
+      "name": "Check output contains both values",
+      "code": "import io\nimport sys\n\n# Capture output by re-executing\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check output\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\nif 'PyGame' not in lines:\n    raise AssertionError(f'Output should contain \"PyGame\". Got: {output}')\n\nif '45' not in lines:\n    raise AssertionError(f'Output should contain \"45\". Got: {output}')\n\nprint('TEST_PASSED: Output contains both values')",
+      "expected": "Output contains 'PyGame' and '45'"
     }
   ],
-  "tags": ["syntax", "indentation", "beginner"],
-  "challengeGroup": "fundamentals"
+  "tags": ["variables", "beginner", "snake-case"],
+  "challengeGroup": "variable-assignment"
 }

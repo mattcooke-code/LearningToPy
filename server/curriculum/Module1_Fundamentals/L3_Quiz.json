@@ -1,43 +1,43 @@
 {
   "lessonId": "M1L3",
-  "title": "Variables: The Labelled Box - Quiz",
+  "title": "Basic Data Types - Quiz",
   "questions": [
     {
       "id": "m1l3_q1",
       "sourceLesson": "M1L3",
       "type": "multiple-choice",
-      "question": "Which of the following is a valid variable name in Python?",
-      "options": [
-        "`2nd_score`",
-        "`user-name`",
-        "`total_price`",
-        "`my variable`"
-      ],
-      "correctAnswer": 2,
-      "explanation": "`total_price` is valid because it starts with a letter and uses only letters and underscores. Variable names cannot start with numbers (`2nd_score`), cannot use hyphens (`user-name`), and cannot contain spaces (`my variable`)."
+      "question": "What data type is the variable `score = 100`?",
+      "options": ["String", "Integer", "Float", "Boolean"],
+      "correctAnswer": 1,
+      "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a `float`."
     },
     {
       "id": "m1l3_q2",
       "sourceLesson": "M1L3",
       "type": "multiple-choice",
-      "question": "What is the assignment operator in Python?",
-      "options": ["`==`", "`=`", "`:`", "`<-`"],
+      "question": "Which of the following will cause an error?",
+      "options": [
+        "`is_ready = True`",
+        "`is_ready = true`",
+        "`is_ready = False`",
+        "`is_ready = 'True'`"
+      ],
       "correctAnswer": 1,
-      "explanation": "The single equals sign `=` is the assignment operator. It assigns the value on the right to the variable on the left. The double equals `==` is used for comparison, not assignment."
+      "explanation": "Python booleans must be capitalized: `True` and `False`. Writing `'true'` (lowercase) will cause a `NameError`. Note that `'True'` in quotes is a string, not a boolean."
     },
     {
       "id": "m1l3_q3",
       "sourceLesson": "M1L3",
       "type": "multiple-choice",
-      "question": "Are 'Score' and 'score' the same variable in Python?",
+      "question": "What's the difference between `price = 50` and `price = 50.0`?",
       "options": [
-        "Yes, Python ignores capitalization",
-        "No, Python is case sensitive",
-        "Only if they're in the same function",
-        "It depends on the Python version"
+        "There is no difference",
+        "The first is an integer, the second is a float",
+        "The first is a float, the second is an integer",
+        "Both are strings"
       ],
       "correctAnswer": 1,
-      "explanation": "Python is case sensitive, meaning `'Score'` and `'score'` are treated as two completely different variables. Always be careful with capitalization when naming variables."
+      "explanation": "`50` is an integer (whole number), while `50.0` is a float (decimal number). Even though they represent the same value, Python treats them as different data types."
     }
   ]
 }

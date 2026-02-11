@@ -35,6 +35,15 @@ print("Loop finished.")
 
 ```
 
+```python
+delorean_speed = 0
+while delorean_speed < 88:
+    print(f"If my calculations are correct, when this baby hits 88 miles per hour... you're gonna see some serious {flux_capacitor}")
+    delorean_speed += 22
+
+print("1.21 gigawatts!!! Great Scott!")
+```
+
 ## 2. Using `while` for User Input
 
 A common, practical use of the while loop is to repeatedly ask a user for input until they provide valid data.
@@ -48,6 +57,10 @@ while not username:
 print(f"Welcome, {username}!")
 ```
 
+:::tip
+**Input Validation Pattern:** The `while not valid_input:` pattern is so common it has a name: "validation loop." Remember this structure - you'll use it often when getting user input that must meet certain criteria.
+:::
+
 ## 3. The Endless Loop (and how to stop it)
 
 An _infinite loop_ is created when the condition always remains `True`. While usually a bug, sometimes it's intentional (e.g., in game loops or server processes).
@@ -60,6 +73,10 @@ If you accidentally create an infinite loop, you can stop the program execution 
 # while status == True:
 #     print("Processing...")
 ```
+
+:::warning
+**Common Infinite Loop Bug:** Forgetting to increment/decrement your counter is the most common cause of infinite `while` loops. Always double-check that your loop condition will eventually become `False`.
+:::
 
 ## 4. Practical Example: Guess the Number
 
@@ -83,3 +100,14 @@ print("You guessed it! The number was", secret_number)
 # Guessing: 7
 # You guessed it! The number was 7
 ```
+
+:::summary
+
+- `while` loops run **while** a condition is `True`
+- Syntax: `while condition:` with indented code block
+- **Crucial**: Must modify condition inside loop to avoid infinite loops
+- Perfect for **indefinite iteration** (user input, game loops)
+- Use `Ctrl + C` to stop accidental infinite loops
+- Check for empty values: `while not username:`
+
+:::

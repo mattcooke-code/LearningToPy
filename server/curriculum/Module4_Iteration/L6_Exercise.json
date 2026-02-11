@@ -2,22 +2,31 @@
   "title": "Galactic Cargo Manager",
   "instructions": "Implement the cargo loading system for the starship Pythonia. Process the cargo manifest while adhering to all safety protocols.\n\n## Mission Objectives\n1. **Filter invalid cargo**: Skip containers with weight ≤ 0 or > 500 tons.\n2. **Enforce safety limits**: Halt loading if the next container would exceed 95% of ship capacity.\n3. **Calculate statistics**: Track total weight and counts.",
   "steps": [
-    "**Step 1:** Initialize tracking variables: `total_weight_loaded`, `containers_processed`, `containers_loaded`, `containers_rejected`.",
-    "**Step 2:** Loop through `cargo_manifest`. Increment `containers_processed` for every item.",
-    "**Step 3:** If weight is ≤ 0 or > 500, print a rejection message, increment `containers_rejected`, and use `continue`.",
-    "**Step 4:** Check if adding current weight to `total_weight_loaded` exceeds `ship_capacity * 0.95`. If so, print an emergency halt and `break`.",
-    "**Step 5:** Otherwise, update totals and print a confirmation."
+    "Step 1: Initialize tracking variables",
+    "Step 2: Loop through cargo_manifest, process each container",
+    "Step 3: Skip invalid containers (≤0 or >500) with continue",
+    "Step 4: Check safety threshold (95% capacity), break if exceeded",
+    "Step 5: Load valid containers and update statistics",
+    "Step 6: Print mission summary"
   ],
   "starterCode": "ship_capacity = 1000\ncargo_manifest = [150, 75, 0, 420, 210, 600, 180, -50, 90]\n\n# Initialize tracking variables\ntotal_weight_loaded = 0\ncontainers_processed = 0\ncontainers_loaded = 0\ncontainers_rejected = 0\n\n# Process cargo_manifest\n",
   "solution": "for weight in cargo_manifest:\n    containers_processed += 1\n    if weight <= 0 or weight > 500:\n        print(f'REJECTED: {weight} tons')\n        containers_rejected += 1\n        continue\n    \n    if total_weight_loaded + weight > ship_capacity * 0.95:\n        print('⚠️ EMERGENCY HALT: Safety limit reached')\n        break\n    \n    total_weight_loaded += weight\n    containers_loaded += 1\n    print(f'✅ LOADED: {weight} tons')\n\nprint('\\n--- MISSION SUMMARY ---')\nprint(f'Total Weight: {total_weight_loaded}')\nprint(f'Processed: {containers_processed} Loaded: {containers_loaded} Rejected: {containers_rejected}')",
+  "hints": [
+    "Step 1: Already done for you - these variables track progress",
+    "Step 2: Use `for weight in cargo_manifest:` to process each container",
+    "Step 3: Check `if weight <= 0 or weight > 500:` then `print()`, increment rejected, `continue`",
+    "Step 4: Calculate safety limit: `ship_capacity * 0.95` (950 tons). Check `if total_weight_loaded + weight > 950:` then `break`",
+    "Step 5: Add weight to total, increment loaded count, print success message",
+    "Step 6: Print summary AFTER the loop (not indented!)",
+    "Remember: `continue` skips to next container, `break` stops entire loading process"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Verify Loading Logic",
-      "code": "import io, sys\n# We test with a smaller ship to ensure they used the variable, not a hardcoded 950\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntest_code = code.replace('ship_capacity = 1000', 'ship_capacity = 200')\ntest_code = test_code.replace('cargo_manifest = [150, 75, 0, 420, 210, 600, 180, -50, 90]', 'cargo_manifest = [100, 50, 100]')\n\ntry:\n    env = {}\n    exec(test_code, {}, env)\n    output = sys.stdout.getvalue()\n    \n    if env.get('total_weight_loaded') != 150:\n        raise AssertionError(f'Logic failed on a 200-capacity ship. Expected 150 loaded, got {env.get(\"total_weight_loaded\")}. Check your 95% threshold logic!')\n    if 'REJECTED' not in output and 'MANIFEST' not in code:\n        # Simple check for continue usage if original manifest used\n        pass\nexcept Exception as e:\n    raise e\nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: Cargo management logic is sound')",
-      "expected": "Properly filters invalid items and respects safety thresholds dynamically."
+      "name": "Verify cargo loading logic",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {'total_weight_loaded': 0, 'containers_processed': 0, 'containers_loaded': 0, 'containers_rejected': 0}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check final statistics\nif local_vars['total_weight_loaded'] != 855:\n    raise AssertionError(f'Total weight should be 855, got {local_vars[\"total_weight_loaded\"]}')\nif local_vars['containers_loaded'] != 4:\n    raise AssertionError(f'Should load 4 containers, loaded {local_vars[\"containers_loaded\"]}')\nif local_vars['containers_rejected'] != 3:\n    raise AssertionError(f'Should reject 3 containers, rejected {local_vars[\"containers_rejected\"]}')\n\n# Check that loading halted before last container (90 tons)\nif '✅ LOADED: 90 tons' in output:\n    raise AssertionError('Should halt before loading 90 tons (would exceed 95% capacity)')\n\nprint('✓ Cargo system working correctly! Safety protocols engaged.')"
     }
   ],
   "expectedOutput": "✅ LOADED: 150 tons\n✅ LOADED: 75 tons\nREJECTED: 0 tons\n✅ LOADED: 420 tons\n✅ LOADED: 210 tons\nREJECTED: 600 tons\n⚠️ EMERGENCY HALT: Safety limit reached\n\n--- MISSION SUMMARY ---\nTotal Weight: 855\nProcessed: 7 Loaded: 4 Rejected: 3",
-  "tags": ["project", "for-loop", "break", "continue", "iteration"]
+  "tags": ["project", "for-loop", "break", "continue", "iteration", "advanced"]
 }

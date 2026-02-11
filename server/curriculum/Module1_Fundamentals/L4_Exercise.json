@@ -1,48 +1,43 @@
 {
-  "title": "Data Type Creation Challenge",
-  "instructions": "Create four variables with the correct data types. Each variable has been started for you - replace the placeholder values with the correct type of data.",
+  "title": "Operators Practice Challenge",
+  "instructions": "Use your knowledge of arithmetic and string operators to complete the tasks below.",
   "steps": [
-    "Change `item_name` to hold a string (text) value - any text you want!",
-    "Change `stock_count` to hold an integer (whole number) value.",
-    "Change `item_price` to hold a float (decimal number) value.",
-    "Change `is_available` to hold a boolean (True or False) value."
+    "Task 1: Calculate the `subtotal` by multiplying the price and quantity variables.",
+    "Task 2: Calculate the `final_total` by adding the `shipping_fee` to your `subtotal`.",
+    "Task 3: We have 21 levels in our game and 4 worlds. Use the floor division operator (`//`) to find out how many levels are in each world equally. Store this in `levels_per_world`.",
+    "Task 4: Join `first_part` and `second_part` together with a space in between. Store in `full_phrase`."
   ],
-  "starterCode": "# Replace the placeholder values with the correct data types\nitem_name = None\nstock_count = None\nitem_price = None\nis_available = None\n\n# These will check your variable types:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
-  "solution": "# Replace the placeholder values with the correct data types\nitem_name = \"Laptop\"\nstock_count = 150\nitem_price = 12.99\nis_available = True\n\n# These will check your variable types:\nprint(type(item_name))\nprint(type(stock_count))\nprint(type(item_price))\nprint(type(is_available))",
+  "starterCode": "price = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Python\"\nsecond_part = \"Pro\"\n\n# Task 1: Multiply price and quantity\nsubtotal = \n\n# Task 2: Add shipping_fee to subtotal\nfinal_total = \n\n# Task 3: Use floor division (21 and 4)\nlevels_per_world = \n\n# Task 4: Join strings with a space\nfull_phrase = ",
+  "solution": "price = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Python\"\nsecond_part = \"Pro\"\n\nsubtotal = price * quantity\nfinal_total = subtotal + shipping_fee\nlevels_per_world = 21 // 4\nfull_phrase = first_part + \" \" + second_part",
   "hints": [
-    "Strings need quotation marks around them (single or double).",
-    "Integers are whole numbers without decimal points.",
-    "Floats must include a decimal point, even if it's .0",
-    "Booleans must be capitalized: True or False (not true or false)."
+    "Multiplication uses the `*` operator",
+    "Addition uses the `+` operator",
+    "Floor division uses `//` (two forward slashes)",
+    "String concatenation also uses `+`, but you need to add a space between words"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check item_name is a string",
-      "code": "# Check item_name variable exists and is correct type\nif 'item_name' not in locals():\n    raise AssertionError('Missing item_name variable')\n\nif not isinstance(item_name, str):\n    raise AssertionError(f'item_name should be a string, got {type(item_name).__name__}')\n\nif item_name is None:\n    raise AssertionError('item_name is still None. Replace it with a string value!')\n\nprint('TEST_PASSED: item_name is a string')",
-      "expected": "item_name should be a string type"
+      "name": "Check subtotal calculation",
+      "code": "# Check subtotal variable exists and has correct value\nif 'subtotal' not in locals():\n    raise AssertionError('Missing subtotal variable. Did you calculate it?')\n\nexpected_subtotal = 5.50 * 4\nif subtotal != expected_subtotal:\n    raise AssertionError(f'subtotal should be {expected_subtotal} (5.50 * 4), got: {subtotal}')\n\nprint('TEST_PASSED: subtotal calculation is correct')",
+      "expected": "subtotal = 22.0"
     },
     {
-      "name": "Check stock_count is an integer",
-      "code": "# Check stock_count variable\nif 'stock_count' not in locals():\n    raise AssertionError('Missing stock_count variable')\n\nif not isinstance(stock_count, int) or isinstance(stock_count, bool):\n    raise AssertionError(f'stock_count should be an integer, got {type(stock_count).__name__}')\n\nif stock_count is None:\n    raise AssertionError('stock_count is still None. Replace it with an integer value!')\n\nprint('TEST_PASSED: stock_count is an integer')",
-      "expected": "stock_count should be an integer type"
+      "name": "Check final_total calculation",
+      "code": "# Check final_total variable\nif 'final_total' not in locals():\n    raise AssertionError('Missing final_total variable. Did you calculate it?')\n\nexpected_final_total = (5.50 * 4) + 10\nif final_total != expected_final_total:\n    raise AssertionError(f'final_total should be {expected_final_total} (subtotal + shipping_fee), got: {final_total}')\n\nprint('TEST_PASSED: final_total calculation is correct')",
+      "expected": "final_total = 32.0"
     },
     {
-      "name": "Check item_price is a float",
-      "code": "# Check item_price variable\nif 'item_price' not in locals():\n    raise AssertionError('Missing item_price variable')\n\nif not isinstance(item_price, float):\n    raise AssertionError(f'item_price should be a float (decimal number), got {type(item_price).__name__}')\n\nif item_price is None:\n    raise AssertionError('item_price is still None. Replace it with a float value!')\n\nprint('TEST_PASSED: item_price is a float')",
-      "expected": "item_price should be a float type"
+      "name": "Check levels_per_world calculation",
+      "code": "# Check levels_per_world variable\nif 'levels_per_world' not in locals():\n    raise AssertionError('Missing levels_per_world variable. Did you calculate it?')\n\nif levels_per_world != 5:\n    raise AssertionError(f'levels_per_world should be 5 (21 // 4), got: {levels_per_world}')\n\n# Also check they used floor division, not regular division\nif isinstance(levels_per_world, float):\n    raise AssertionError('Use floor division (//) not regular division (/). Result should be an integer!')\n\nprint('TEST_PASSED: levels_per_world calculation is correct')",
+      "expected": "levels_per_world = 5"
     },
     {
-      "name": "Check is_available is a boolean",
-      "code": "# Check is_available variable\nif 'is_available' not in locals():\n    raise AssertionError('Missing is_available variable')\n\nif not isinstance(is_available, bool):\n    raise AssertionError(f'is_available should be a boolean (True or False), got {type(is_available).__name__}')\n\nif is_available is None:\n    raise AssertionError('is_available is still None. Replace it with True or False!')\n\nprint('TEST_PASSED: is_available is a boolean')",
-      "expected": "is_available should be a boolean type"
-    },
-    {
-      "name": "Check output shows correct type names",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line.strip() for line in output.split('\\n') if line.strip()]\n\nif not any(\"<class 'str'>\" in line for line in lines):\n    raise AssertionError('Output should show string type (<class \\'str\\'>)')\n\nif not any(\"<class 'int'>\" in line for line in lines):\n    raise AssertionError('Output should show int type (<class \\'int\\'>)')\n\nif not any(\"<class 'float'>\" in line for line in lines):\n    raise AssertionError('Output should show float type (<class \\'float\\'>)')\n\nif not any(\"<class 'bool'>\" in line for line in lines):\n    raise AssertionError('Output should show bool type (<class \\'bool\\'>)')\n\nprint('TEST_PASSED: Output shows all correct data types')",
-      "expected": "Output shows str, int, float, and bool types"
+      "name": "Check full_phrase concatenation",
+      "code": "# Check full_phrase variable\nif 'full_phrase' not in locals():\n    raise AssertionError('Missing full_phrase variable. Did you concatenate the strings?')\n\nif full_phrase != 'Python Pro':\n    raise AssertionError(f'full_phrase should be \"Python Pro\" (with a space), got: \"{full_phrase}\"')\n\nprint('TEST_PASSED: full_phrase concatenation is correct')",
+      "expected": "full_phrase = 'Python Pro'"
     }
   ],
-  "tags": ["data-types", "string", "integer", "float", "boolean"],
-  "challengeGroup": "type-mastery"
+  "tags": ["operators", "arithmetic", "floor-division", "string-concatenation"],
+  "challengeGroup": "operators"
 }

@@ -1,0 +1,40 @@
+{
+  "lessonId": "M5L2",
+  "title": "Dictionary Methods - Quiz",
+  "questions": [
+    {
+      "id": "m5l2_q1",
+      "type": "multiple-choice",
+      "question": "What is the difference between `del my_dict[\"key\"]` and `my_dict.pop(\"key\")`?",
+      "options": [
+        "`pop()` returns the removed value, `del` does not",
+        "`del` can remove multiple keys at once, `pop()` cannot",
+        "`pop()` is faster than `del`",
+        "There is no difference; they do the same thing"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Both remove a key-value pair, but `pop()` returns the value that was removed, allowing you to use it. `del` simply removes the pair and doesn't return anything."
+    },
+    {
+      "id": "m5l2_q2",
+      "type": "multiple-choice",
+      "question": "Which method would you use to iterate through both keys and values of a dictionary simultaneously?",
+      "options": ["`.keys()`", "`.values()`", "`.items()`", "`.pairs()`"],
+      "correctAnswer": 2,
+      "explanation": "The `.items()` method returns key-value pairs as tuples, which you can unpack in a loop: `for key, value in my_dict.items():`. `.keys()` gives only keys, `.values()` gives only values, and `.pairs()` doesn't exist."
+    },
+    {
+      "id": "m5l2_q3",
+      "type": "multiple-choice",
+      "question": "What happens if you use bracket notation to assign a value to a key that already exists in a dictionary?",
+      "options": [
+        "It adds a duplicate key (both are kept)",
+        "It raises a `KeyError`",
+        "It overwrites the existing value",
+        "It creates a list containing both values"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Dictionary keys must be unique. If you assign a value to an existing key, it overwrites the previous value. This is true for both adding new keys and updating existing ones: `my_dict[\"key\"] = value`."
+    }
+  ]
+}

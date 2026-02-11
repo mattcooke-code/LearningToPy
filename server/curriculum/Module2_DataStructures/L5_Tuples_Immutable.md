@@ -50,6 +50,10 @@ settings = ('max_users', 50)
 settings = ('max_users', 100)
 ```
 
+:::tip
+**Memory Efficiency:** Because tuples are immutable, Python can optimize their memory usage. If you're creating many similar collections that won't change, tuples use less memory than lists.
+:::
+
 ## 4. When to Use Tuples
 
 Tuples should be used instead of lists in a few common scenarios:
@@ -61,3 +65,13 @@ Tuples should be used instead of lists in a few common scenarios:
 • **Safety:** They prevent accidental modification of critical data.
 
 • **Dictionary Keys:** Unlike lists, tuples can be used as keys in dictionaries because of their immutability (you will learn more about this in Module 5).
+
+:::summary
+
+- Tuples are **immutable** ordered collections using parentheses `()`
+- Access elements with indexing/slicing like lists
+- Single-item tuples require a trailing comma: `(5,)`
+- Use tuples for **fixed data** that shouldn't change
+- Tuples are slightly faster than lists and can be dictionary keys
+
+:::

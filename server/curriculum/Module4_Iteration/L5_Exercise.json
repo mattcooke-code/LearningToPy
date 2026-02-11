@@ -1,21 +1,26 @@
 {
-  "title": "Space Station Control Panel",
-  "instructions": "Manage station modules using nested loops. Remember: the inner loop completes all its iterations for every single iteration of the outer loop!",
+  "title": "Nested Loops Practice",
+  "instructions": "Master nested loops for processing 2D data (grids, matrices, lists of lists).\n\n**Execution Order:** Outer loop runs once → Inner loop runs completely → Outer loop runs again → Repeat.\n\n**Key Insight:** `break` only affects the innermost loop it's in!",
   "steps": [
-    "**Step 1:** Use nested loops to print coordinates from (0,0) to (2,3). Format: 'Station at ( x , y )'.",
-    "**Step 2:** Iterate through the `station_modules` list of lists and print every equipment item.",
-    "**Step 3:** Scan `system_codes`. If you find 'FAULTY', print '⚠️ Fault detected!' and `break` the inner loop to move to the next module."
+    "Task 1: Create a 3×4 grid using nested range() loops",
+    "Task 2: Print all equipment from station_modules (list of lists)",
+    "Task 3: Scan system codes, break inner loop on 'FAULTY'"
   ],
-  "starterCode": "station_modules = [['Oxygen', 'Water'], ['Solar', 'Radar'], ['Engine', 'Nav']]\nsystem_codes = [['NOMINAL', 'FAULTY'], ['NOMINAL', 'NOMINAL']]\n\n# 1. Coordinates (0-2, 0-3)\n\n# 2. Equipment Inventory\n\n# 3. Emergency Scan\n",
-  "solution": "for x in range(3):\n    for y in range(4):\n        print(f'Station at ( {x} , {y} )')\n\nfor module in station_modules:\n    for item in module:\n        print(item)\n\nfor idx, module in enumerate(system_codes):\n    print(f'Scanning Module {idx} ...')\n    for sys in module:\n        print('Checking:', sys)\n        if sys == 'FAULTY':\n            print('⚠️ Fault detected!')\n            break",
+  "starterCode": "station_modules = [['Oxygen', 'Water'], ['Solar', 'Radar'], ['Engine', 'Nav']]\nsystem_codes = [['NOMINAL', 'FAULTY'], ['NOMINAL', 'NOMINAL']]\n\n# Task 1: Grid coordinates (0-2 rows, 0-3 columns)\n\n# Task 2: Print all equipment\n\n# Task 3: Emergency scan with break\n",
+  "solution": "# Task 1\nfor row in range(3):\n    for col in range(4):\n        print(f'Station at ( {row} , {col} )')\n\n# Task 2\nfor module in station_modules:\n    for item in module:\n        print(item)\n\n# Task 3\nfor module_index, module in enumerate(system_codes):\n    print(f'Scanning Module {module_index}...')\n    for code in module:\n        print('Checking:', code)\n        if code == 'FAULTY':\n            print('⚠️ Fault detected!')\n            break",
+  "hints": [
+    "Task 1: Outer loop: `for row in range(3):` → Inner loop: `for col in range(4):`",
+    "Task 2: Outer loop gets each module list → Inner loop gets each item in that module",
+    "Task 3: Use `enumerate()` to get module index: `for idx, module in enumerate(system_codes):`",
+    "Remember: `break` in Task 3 only stops scanning current module, not all modules",
+    "The inner loop in Task 3 should check `if code == 'FAULTY':` then `break`"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check nested structure",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\nif output.count('Station at') != 12:\n    raise AssertionError('Step 1: Grid should have 12 entries (rows 0-2, columns 0-3).')\nif 'Oxygen' not in output or 'Nav' not in output:\n    raise AssertionError('Step 2: Equipment inventory iteration failed.')\nif output.count('Scanning Module') < 2:\n    raise AssertionError('Step 3: The break should only exit the inner scan, not the entire loop.')\nprint('TEST_PASSED: Nested loops and localized break working')",
-      "expected": "Correct coordinate grid, inventory, and localized break behavior"
+      "name": "Check nested loop outputs",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = output.strip().split('\\n')\n\n# Check Task 1 - 12 grid points\nstation_lines = [line for line in lines if 'Station at' in line]\nif len(station_lines) != 12:\n    raise AssertionError(f'Task 1 failed: Should print 12 grid points, printed {len(station_lines)}')\n\n# Check Task 2 - all 6 equipment items\nequipment = ['Oxygen', 'Water', 'Solar', 'Radar', 'Engine', 'Nav']\nfor item in equipment:\n    if item not in output:\n        raise AssertionError(f'Task 2 failed: Missing equipment {item}')\n\n# Check Task 3 - should scan both modules\nif 'Scanning Module 0...' not in output:\n    raise AssertionError('Task 3 failed: Should scan Module 0')\nif 'Scanning Module 1...' not in output:\n    raise AssertionError('Task 3 failed: Should scan Module 1 (break only affects inner loop)')\n\nprint('✓ Nested loops working correctly!')"
     }
   ],
-  "expectedOutput": "Station at ( 0 , 0 )\n...\nStation at ( 2 , 3 )\nOxygen\n...\nNav\nScanning Module 0 ...\nChecking: NOMINAL\nChecking: FAULTY\n⚠️ Fault detected!\nScanning Module 1 ...\nChecking: NOMINAL",
-  "tags": ["nested-loops", "grids", "break", "iteration"]
+  "tags": ["nested-loops", "grids", "2d-data", "intermediate"]
 }

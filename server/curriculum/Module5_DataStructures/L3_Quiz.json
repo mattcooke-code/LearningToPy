@@ -1,0 +1,40 @@
+{
+  "lessonId": "M5L3",
+  "title": "Sets - Quiz",
+  "questions": [
+    {
+      "id": "m5l3_q1",
+      "type": "multiple-choice",
+      "question": "How do you create an empty set in Python?",
+      "options": ["`{}`", "`set()`", "`[]`", "`()`"],
+      "correctAnswer": 1,
+      "explanation": "Empty curly braces `{}` create an empty dictionary, not a set. To create an empty set, you must use `set()`. For a set with elements: `{1, 2, 3}`."
+    },
+    {
+      "id": "m5l3_q2",
+      "type": "multiple-choice",
+      "question": "What is the main advantage of using a set over a list for membership testing (`in` operator)?",
+      "options": [
+        "Sets are ordered, making lookup faster",
+        "Sets allow duplicates, giving more accurate results",
+        "Sets use hash tables for O(1) average lookup time",
+        "There is no advantage; lists are faster for this"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Sets use hash tables, making membership testing (`in`) very fast (O(1) average time). Lists require checking each element (O(n) time), which gets slower as the list grows."
+    },
+    {
+      "id": "m5l3_q3",
+      "type": "multiple-choice",
+      "question": "What is the difference between `.remove()` and `.discard()` for sets?",
+      "options": [
+        "`.remove()` returns the removed element, `.discard()` does not",
+        "`.remove()` raises an error if the element doesn't exist, `.discard()` does nothing",
+        "`.discard()` is faster than `.remove()`",
+        "They are identical and can be used interchangeably"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Both remove an element, but `.remove()` raises a `KeyError` if the element isn't in the set. `.discard()` does nothing if the element isn't found, making it safer when you're not sure if the element exists."
+    }
+  ]
+}

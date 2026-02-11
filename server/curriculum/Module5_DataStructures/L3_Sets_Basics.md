@@ -25,9 +25,13 @@ unique_numbers = set(mixed_list)
 # unique_numbers is now: {1, 2, 3, 4}
 ```
 
+:::warning
+**Immutable Elements Only:** Set elements must be immutable (hashable). You can't put lists or other sets inside a set because they're mutable. Use tuples instead: `{(1, 2), (3, 4)}` works, but `{[1, 2], [3, 4]}` doesn't.
+:::
+
 ## 2. The Key Property: Uniqueness
 
-When you create a set from a sequence that contains duplicates, the set will automatically discard them. This is the most common use case for a set: deduplication.
+When you create a set from a sequence that contains duplicates, the set will automatically discard them. This is the most common use case for a set: **deduplication**.
 
 ```python
 user_ids = [101, 205, 101, 310, 205]
@@ -41,7 +45,7 @@ Sets are mutable, so you can add and remove elements after creation.
 
 ### A. Adding Elements: `.add()`
 
-Use the .add() method to introduce a single element. If the element already exists, the set simply ignores the command.
+Use the `.add()` method to introduce a single element. If the element already exists, the set simply ignores the command.
 
 ```python
 colors = {"red", "green"}
@@ -53,9 +57,9 @@ colors.add("red")
 
 ### B. Removing Elements: `.remove()` and `.discard()`
 
-.remove(element): Removes the element. If the element is not in the set, it raises a KeyError.
+`.remove(element)`: Removes the element. If the element is not in the set, it raises a `KeyError`.
 
-.discard(element): Removes the element. If the element is not in the set, it does nothing (no error). Use this for safer deletion.
+`.discard(element)`: Removes the element. If the element is not in the set, it does nothing (no error). Use this for safer deletion.
 
 ```python
 fruits = {"apple", "banana", "kiwi"}
@@ -66,7 +70,7 @@ fruits.remove("apple")   # Removal
 
 ## 4. Membership Testing
 
-Like lists and tuples, you can efficiently check if an element is present in a set using the in operator.
+Like lists and tuples, you can efficiently check if an element is present in a set using the `in` operator.
 
 ```python
 required_permissions = {"read", "write", "execute"}
@@ -75,3 +79,19 @@ user_perm = "write"
 if user_perm in required_permissions:
     print("Permission granted.")
 ```
+
+:::tip
+**Speed Advantage:** Checking `item in set` is much faster than `item in list`, especially for large collections. Sets use hash tables for O(1) lookups, while lists require O(n) linear search. Use sets when you do frequent membership checks!
+:::
+
+:::summary
+
+- Sets store **unique, unordered** elements using `{element}` or `set()`
+- **Empty set**: Must use `set()` not `{}` (that's an empty dict)
+- **Main use**: Remove duplicates from lists/tuples
+- **Add elements**: `.add(element)` (ignores if already exists)
+- **Remove elements**: `.remove(element)` (errors if missing) or `.discard(element)` (safe)
+- **Membership testing**: Very fast with `in` operator
+- Sets are **mutable** but elements must be immutable
+
+:::

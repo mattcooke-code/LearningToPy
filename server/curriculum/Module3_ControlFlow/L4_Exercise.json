@@ -1,6 +1,6 @@
 {
   "title": "Quick Status Checker",
-  "instructions": "Practice using ternary operators to assign values in a single line. Ternary operators are perfect for simple two-way choices! Remember the pattern: value_if_true if condition else value_if_false",
+  "instructions": "Practice using ternary operators to assign values in a single line. Ternary operators are perfect for simple two-way choices! Remember the pattern: `value_if_true` `if condition` `else value_if_false`",
   "steps": [
     "**Step 1:** Use a ternary operator to check if `temperature` is greater than 30. If True, assign 'Hot' to `weather_status`. Otherwise, assign 'Pleasant'.",
     "**Step 2:** Use a ternary operator to check if `age` is greater than or equal to 18. If True, assign 'Adult' to `age_category`. Otherwise, assign 'Minor'.",
@@ -9,6 +9,14 @@
   ],
   "starterCode": "# System variables\ntemperature = 35\nage = 16\nerror_code = 0\nitems_in_cart = 3\n\nprint(\"⚡ QUICK STATUS CHECKER\")\n\n# Step 1: Check temperature\nweather_status = \n\n# Step 2: Check age\nage_category = \n\n# Step 3: Check error code using truthiness\nsystem_status = \n\n# Step 4: Calculate total price\ntotal_price = \n\nprint(f\"Weather: {weather_status}\")\nprint(f\"Age category: {age_category}\")\nprint(f\"System: {system_status}\")\nprint(f\"Total price: ${total_price}\")",
   "solution": "weather_status = 'Hot' if temperature > 30 else 'Pleasant'\nage_category = 'Adult' if age >= 18 else 'Minor'\nsystem_status = 'Error detected' if error_code else 'All systems normal'\ntotal_price = items_in_cart * 15 if items_in_cart > 0 else 0",
+  "hints": [
+    "**Ternary format:** The pattern is `value_if_true if condition else value_if_false`. All on ONE line!",
+    "**Example:** `status = 'Hot' if temp > 30 else 'Cold'` - this assigns 'Hot' when `temp > 30` is True, otherwise 'Cold'.",
+    "**Comparison operators:** Use `>`, `>=`, `<`, `<=`, `==` in your condition. Example: `age >= 18` checks if age is 18 or more.",
+    "**With calculations:** You can put math expressions in the value sections! Example: `total = items * 15 if items > 0 else 0`.",
+    "**Truthiness in ternaries:** For Step 3, you can use the variable directly as the condition: `'Error' if error_code else 'Normal'` (no comparison operator needed).",
+    "**Testing your ternaries:** Each ternary should assign a value to a variable. Make sure you're assigning to the correct variable name for each step!"
+  ],
   "validation": "tests",
   "tests": [
     {

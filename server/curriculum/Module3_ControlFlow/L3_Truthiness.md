@@ -28,23 +28,23 @@ In Python, these values are treated as **False** (or _Falsy_) when used in an `i
 You can check if a list has items by using the list directly in an `if` statement:
 
 ```python
-shopping_cart = ["Milk", "Eggs"]
+shopping_basket = ["Milk", "Eggs"]
 
-if shopping_cart:
-    print("You have items in your cart.")
+if shopping_basket:
+    print("You have items in your basket.")
 else:
-    print("Your cart is empty.")
-# Prints: "You have items in your cart."
+    print("Your basket is empty.")
+# Prints: "You have items in your basket."
 ```
 
 ```python
-shopping_cart = []
+shopping_basket = []
 
-if shopping_cart:
-    print("You have items in your cart.")
+if shopping_basket:
+    print("You have items in your basket.")
 else:
-    print("Your cart is empty.")
-# Prints: "Your cart is empty."
+    print("Your basket is empty.")
+# Prints: "Your basket is empty."
 ```
 
 **Why this works:** When the list has items, it's treated as `True`. When it's empty `[]`, it's treated as `False`.
@@ -54,13 +54,13 @@ else:
 The same principle works for checking if a string is empty:
 
 ```python
-username = "Alex"
+username = "Spock"
 
 if username:
     print(f"Welcome, {username}!")
 else:
     print("Please enter a username.")
-# Prints: "Welcome, Alex!"
+# Prints: "Welcome, Spock!"
 ```
 
 ```python
@@ -99,6 +99,10 @@ else:
 # Prints: "Game Over!"
 ```
 
+:::warning
+**Watch Out for Zero!** Since `0` is treated as `False`, be careful when checking numeric values. If you need to distinguish between `0` and other falsy values, use explicit comparison: `if number == 0:` instead of `if not number:`.
+:::
+
 ## 5. When to Use This
 
 This shortcut is most useful when you want to check:
@@ -127,3 +131,16 @@ if my_number:  # Not zero?
 if not my_list:  # Is empty?
 if not my_string:  # Is empty?
 ```
+
+:::summary
+
+- Python treats empty values as **False** in conditions:
+  - Empty strings: `""`
+  - Empty lists: `[]`
+  - Zero: `0`
+  - `None` and `False`
+- Non-empty values are **True** in conditions
+- Use this for simple checks: `if my_list:` or `if not my_string:`
+- Still use comparison operators for specific value checks
+
+:::

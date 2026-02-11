@@ -9,6 +9,15 @@
   ],
   "starterCode": "account_type = 'Premium'\naccount_age = 15\n\nprint(\"🎮 GAMING PLATFORM LOGIN\")\n# Write your access control logic below:\n",
   "solution": "if account_type == 'VIP':\n    print('Welcome VIP! Full access to all games and features.')\nelif account_type == 'Premium' and account_age >= 30:\n    print('Welcome Premium member! Access to premium games unlocked.')\nelif account_type == 'Premium':\n    print(f'Welcome! Premium features unlock in {30 - account_age} days.')\nelse:\n    print('Welcome! You have access to free games. Upgrade for more!')",
+  "hints": [
+    "**if-elif-else chain:** Start with `if`, add one or more `elif` for additional conditions, end with `else` for everything else. Each needs a colon and indented block!",
+    "**Order matters:** Python checks conditions from top to bottom and stops at the FIRST match. Put more specific conditions before general ones.",
+    "**Multiple conditions:** Use `and` to combine conditions: `if account_type == 'Premium' and account_age >= 30:` requires BOTH to be True.",
+    "**String comparison:** Use `==` to check exact matches: `account_type == 'VIP'`. Strings are case-sensitive!",
+    "**The else catch-all:** The final `else:` catches any case that didn't match the previous conditions. No condition needed after `else:`!",
+    "**f-strings for dynamic text:** In Step 3, use an f-string to calculate days: `f'...unlock in {30 - account_age} days.'` - the curly braces evaluate the math!",
+    "**elif vs nested if:** Use `elif` when conditions are alternatives (only one should run). Use separate `if` statements when multiple conditions could be true simultaneously."
+  ],
   "validation": "tests",
   "tests": [
     {

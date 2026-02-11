@@ -43,6 +43,10 @@ if "tuple" in website:
 
 ```
 
+:::warning
+**Case Sensitivity:** Membership checks in strings are **case-sensitive**! `"python" in "Learn Python"` returns `False` because of the capital P. If you need case-insensitive checking, convert both to the same case first: `"python" in "Learn Python".lower()` returns `True`.
+:::
+
 ## 2. The `not in` Operator
 
 The `not in` operator is the opposite of `in`. It checks if a specified value is not a member of a sequence.
@@ -80,3 +84,13 @@ if user_plan in premium_features:
 else:
     print("Feature not available on your plan.")
 ```
+
+:::summary
+
+- `in` checks if value exists in a sequence (list, string, tuple)
+- `not in` checks if value is **not** in a sequence
+- Works with strings (substring checks), lists, and tuples
+- Returns `True` or `False`
+- Often used in `if` statements for permission checks, validation, etc.
+
+:::

@@ -2,21 +2,29 @@
   "title": "User Profile Validator",
   "instructions": "You're building a user profile system. In Python, you don't need to compare variables to empty values (like `if name == ''`). Practice using 'Truthiness' directly!",
   "steps": [
-    "**Step 1 (Example):** Check for a username. If `username` has content, print it.",
+    "**Step 1:** Check for a username. Use `if username:` to see if it has content. If True, print the username. Otherwise, print `'No username set'`.",
     "**Step 2:** Check the `friends_list`. Use `if friends_list:` to check if it has items. If True, print `'You have friends!'`. Otherwise, print `'No friends yet'`.",
     "**Step 3:** Check for an empty `balance`. Use `if not balance:` to see if it's zero. If it is zero, print `'Please add funds'`. Otherwise, print the balance.",
     "**Step 4:** Check for a `profile_pic`. Use `if profile_pic:` to see if it contains a value. If True, print the filename. Otherwise, print `'No profile picture'`."
   ],
-  "starterCode": "username = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\n# Step 2: Check if friends_list has items\n\n\n# Step 3: Check if balance is zero\n\n\n# Step 4: Check if profile_pic exists\n",
-  "solution": "if friends_list:\n    print('You have friends!')\nelse:\n    print('No friends yet')\n\nif not balance:\n    print('Please add funds')\nelse:\n    print(f'Balance: {balance}')\n\nif profile_pic:\n    print(profile_pic)\nelse:\n    print('No profile picture')",
+  "starterCode": "username = 'alex_2024'\nfriends_list = []\nbalance = 0\nprofile_pic = None\n\n# Step 1: Check if username has content\n\n\n# Step 2: Check if friends_list has items\n\n\n# Step 3: Check if balance is zero\n\n\n# Step 4: Check if profile_pic exists\n",
+  "solution": "if username:\n    print(username)\nelse:\n    print('No username set')\n\nif friends_list:\n    print('You have friends!')\nelse:\n    print('No friends yet')\n\nif not balance:\n    print('Please add funds')\nelse:\n    print(f'Balance: {balance}')\n\nif profile_pic:\n    print(profile_pic)\nelse:\n    print('No profile picture')",
+  "hints": [
+    "**Truthiness basics:** In Python, empty collections (like `[]` or `None`) are Falsy, while collections with items are Truthy. You can use them directly in conditions!",
+    "**Direct checking:** Instead of `if friends_list == []`, just write `if friends_list:`. Python automatically checks if it's empty or not.",
+    "**not operator:** Use `not` to check for empty/zero values. Example: `if not balance:` is `True` when balance is 0.",
+    "**Common Falsy values:** These evaluate to `False`: `0`, `None`, `''` (empty string), `[]` (empty list), `{}` (empty dict). Everything else is usually Truthy!",
+    "**if-else structure:** Remember the format: `if condition:` on one line, indented code block, then `else:` with its own indented block.",
+    "**No comparisons needed:** The exercise specifically asks you NOT to use `==` or `!=`. Trust the variable's truthiness directly!"
+  ],
   "validation": "tests",
   "tests": [
     {
       "name": "Verify Truthiness Syntax",
-      "code": "import ast\ntree = ast.parse(code)\n# Find all comparisons like ==, !=, <, >\ncomparisons = [n for n in ast.walk(tree) if isinstance(n, ast.Compare)]\n\nif len(comparisons) > 0:\n    raise AssertionError(\"Don't use comparison operators like '==' or '!='. Use the 'Truthiness' of the variable directly!\")\n\n# Run code to check output logic\nimport io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    exec(code, {'username':'a','friends_list':[],'balance':0,'profile_pic':None})\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\nif 'No friends yet' not in output or 'Please add funds' not in output:\n    raise AssertionError(\"Logic check failed. Ensure you handled the empty list and zero balance correctly.\")\n\nprint('TEST_PASSED: Pythonic truthiness applied correctly!')",
-      "expected": "No comparison operators should be used; logic must handle Falsy values."
+      "code": "import ast\ntree = ast.parse(code)\n# Find all comparisons like ==, !=, <, >\ncomparisons = [n for n in ast.walk(tree) if isinstance(n, ast.Compare)]\n\nif len(comparisons) > 0:\n    raise AssertionError(\"Don't use comparison operators like '==' or '!='. Use the 'Truthiness' of the variable directly!\")\n\n# Run code to check output logic\nimport io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    exec(code, {'username':'alex_2024','friends_list':[],'balance':0,'profile_pic':None})\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\nif 'alex_2024' not in output or 'No friends yet' not in output or 'Please add funds' not in output or 'No profile picture' not in output:\n    raise AssertionError(\"Logic check failed. Ensure you handled all four conditions correctly.\")\n\nprint('TEST_PASSED: Pythonic truthiness applied correctly!')",
+      "expected": "No comparison operators should be used; logic must handle all four variables."
     }
   ],
-  "expectedOutput": "No friends yet\nPlease add funds\nNo profile picture",
+  "expectedOutput": "alex_2024\nNo friends yet\nPlease add funds\nNo profile picture",
   "tags": ["truthiness", "falsiness", "control-flow"]
 }

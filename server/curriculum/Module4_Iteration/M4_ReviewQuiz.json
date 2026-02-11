@@ -126,15 +126,15 @@
     {
       "id": "m4_review_q12",
       "type": "multiple-choice",
-      "question": "What happens when a `break` statement is executed inside a nested loop (a loop inside another loop)?",
+      "question": "In this input validation loop, what happens when the user enters '5'?\n\n```python\nwhile True:\n    user_input = input(\"Enter a number 1-10: \")\n    if user_input.isdigit():\n        num = int(user_input)\n        if 1 <= num <= 10:\n            break\n    print(\"Invalid input, try again.\")\nprint(\"Valid number entered.\")\n```",
       "options": [
-        "It stops both the inner and outer loops",
-        "It only stops the innermost loop that contains it",
-        "It causes a syntax error; break cannot be used in nested loops",
-        "It skips to the next iteration of the outer loop"
+        "It prints \"Invalid input, try again.\" repeatedly",
+        "The `break` executes, exiting the loop and printing \"Valid number entered.\"",
+        "The `continue` statement is missing, so it causes an error",
+        "It creates an infinite loop"
       ],
       "correctAnswer": 1,
-      "explanation": "`break` only affects the loop it's directly inside. If you have a `break` in an inner loop, it will only stop that inner loop, and the outer loop will continue with its next iteration."
+      "explanation": "When the user enters '5', it's a digit (`.isdigit()` returns True) and between 1-10, so the `break` statement executes. This exits the `while True:` loop, and the program continues with `print(\"Valid number entered.\")`."
     },
     {
       "id": "m4_review_q13",

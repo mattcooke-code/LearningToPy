@@ -1,0 +1,39 @@
+{
+  "title": "Indentation & Comments Practice",
+  "instructions": "In the coding window, you'll see a comment and an 'if' statement. Your job is to indent the `print()` statement using exactly 4 spaces so the program runs. Notice how Python ignores the note at the top!",
+  "steps": [
+    "Identify the comment on line 1 (starting with #)",
+    "Look at the if statement on line 2",
+    "Add exactly 4 spaces before the print statement on line 3",
+    "Run the code to see your message!",
+    "Bonus: Try changing the text inside the print quotes!"
+  ],
+  "starterCode": "# This is a note for Python to ignore\nif 1 == 1:\nprint(\"I need to be indented!\")",
+  "solution": "# This is a note for Python to ignore\nif 1 == 1:\n    print(\"I need to be indented!\")",
+  "hints": [
+    "Python ignores lines starting with #, so leave line 1 as it is.",
+    "Use exactly 4 spaces for each level of indentation.",
+    "The print statement must be 'inside' the if block by being pushed to the right.",
+    "Ensure you don't delete the quotes around your text!"
+  ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check for comment usage",
+      "code": "if '#' not in code:\n    raise AssertionError('Don\\'t forget to keep the comment starting with # at the top!')\nprint('TEST_PASSED: Comment present')",
+      "expected": "Code should contain a comment"
+    },
+    {
+      "name": "Check exact indentation (4 spaces)",
+      "code": "lines = code.split('\\n')\n# Find the line containing the print statement\nprint_line = next((l for l in lines if 'print' in l), '')\nif not print_line.startswith('    '):\n    raise AssertionError('The print statement must start with exactly 4 spaces.')\nprint('TEST_PASSED: Correct indentation')",
+      "expected": "Print statement indented with 4 spaces"
+    },
+    {
+      "name": "Check code execution",
+      "code": "# Execute user code\ntry:\n    exec(code)\nexcept IndentationError:\n    raise AssertionError('Check your spaces! You have an IndentationError.')\nexcept Exception as e:\n    raise AssertionError(f'Something else went wrong: {e}')\nprint('TEST_PASSED: Code executed successfully')",
+      "expected": "Code runs without errors"
+    }
+  ],
+  "tags": ["syntax", "indentation", "comments"],
+  "challengeGroup": "fundamentals"
+}

@@ -11,11 +11,11 @@
   "solution": "# Your current playlist\nmy_playlist = ['Placeholder Song', 'Imagine', 'Sweet Child O Mine']\n\n# Your friend's playlist to merge later\nfriends_playlist = ['Smells Like Teen Spirit', 'Wonderwall']\n\nprint(\"Starting playlist:\", my_playlist)\nprint()\n\n# Step 1: Replace the first song (index 0) with 'Bohemian Rhapsody'\nmy_playlist[0] = 'Bohemian Rhapsody'\n\nprint(\"After replacing first song:\", my_playlist)\n\n# Step 2: Add 'Stairway to Heaven' to the end using append()\nmy_playlist.append('Stairway to Heaven')\n\nprint(\"After appending:\", my_playlist)\n\n# Step 3: Insert 'Hotel California' at index 2 using insert()\nmy_playlist.insert(2, 'Hotel California')\n\nprint(\"After inserting:\", my_playlist)\n\n# Step 4: Merge friends_playlist using extend()\nmy_playlist.extend(friends_playlist)\n\nprint(\"Final playlist:\", my_playlist)",
   "hints": [
     "**Index assignment:** To change an item, use the format `list_name[index] = new_value`. For example: `my_list[0] = 'new item'`.",
-    "**append() syntax:** Call it on your list like this: `my_playlist.append('song name')`. It only takes ONE argument - the item to add.",
-    "**insert() syntax:** It needs TWO arguments: first the index position, then the item. Like this: `my_playlist.insert(2, 'song name')`.",
-    "**extend() syntax:** Pass in the other list: `my_playlist.extend(friends_playlist)`. This adds each item from friends_playlist individually.",
+    "**append() syntax:** Call it on your list like this: `my_list.append('song name')`. It only takes ONE argument - the item to add.",
+    "**insert() syntax:** It needs TWO arguments: first the index position, then the item. Like this: `my_list.insert(3, 'song name')`.",
+    "**extend() syntax:** Pass in the other list: `my_list.extend(friends_list)`. This adds each item from friends_list individually.",
     "**Watch the output:** The print statements show how your list changes after each step. This helps you see if your code is working correctly!",
-    "**Common mistake:** Don't put the list name in quotes! Write `my_playlist.append()`, not `'my_playlist'.append()`."
+    "**Common mistake:** Don't put the list name in quotes! Write `my_list.append()`, not `'my_list'.append()`."
   ],
   "validation": "tests",
   "tests": [

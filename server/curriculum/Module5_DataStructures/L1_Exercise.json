@@ -2,20 +2,26 @@
   "title": "Dictionary Creation and Access",
   "instructions": "Practice defining dictionaries and retrieving values using both bracket notation and the safe `.get()` method.",
   "steps": [
-    "**Step 1:** Create a dictionary `player_stats` with: 'health' (100), 'mana' (50), and 'class' ('Warrior').",
-    "**Step 2:** Retrieve 'class' using brackets `[]` and assign to `player_class`.",
-    "**Step 3:** Use `.get()` to retrieve 'stamina'. Set a default of **20** if not found. Assign to `stamina_level`.",
-    "**Step 4:** Update 'health' to **85** using bracket notation."
+    "Task 1: Create a dictionary `player_stats` with keys: 'health' (100), 'mana' (50), 'class' ('Warrior')",
+    "Task 2: Retrieve the 'class' value using bracket notation `[]` and assign to `player_class`",
+    "Task 3: Use `.get()` to retrieve 'stamina' with a default value of 20 if not found",
+    "Task 4: Update 'health' to 85 using bracket notation"
   ],
-  "starterCode": "player_stats = {}\n\n# 2. Access 'class' using brackets:\nplayer_class = \n\n# 3. Safely access 'stamina' using .get():\nstamina_level = \n\n# 4. Update 'health':\n",
+  "starterCode": "# Task 1: Create player_stats dictionary\nplayer_stats = \n\n# Task 2: Access 'class' using brackets\nplayer_class = \n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = \n\n# Task 4: Update 'health' to 85\n",
   "solution": "player_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\n\nplayer_class = player_stats['class']\nstamina_level = player_stats.get('stamina', 20)\nplayer_stats['health'] = 85",
+  "hints": [
+    "Task 1: Use curly braces: `{'health': 100, 'mana': 50, 'class': 'Warrior'}`",
+    "Task 2: Access dictionary values: `player_stats['class']` gets the value for key 'class'",
+    "Task 3: `.get()` returns default if key missing: `player_stats.get('stamina', 20)`",
+    "Task 4: Update values with assignment: `player_stats['health'] = 85`",
+    "Note: Keys are strings, so use quotes: `'health'`, `'class'`, etc."
+  ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check dictionary operations",
-      "code": "import io, sys, ast\nexec_globals = {}\ntry:\n    exec(code, exec_globals)\nexcept Exception as e:\n    raise AssertionError(f\"Code failed to run: {e}\")\n\nps = exec_globals.get('player_stats', {})\nif ps.get('health') != 85:\n    raise AssertionError(\"Step 4: 'health' was not updated to 85. Remember: player_stats['health'] = 85\")\n\nif exec_globals.get('stamina_level') != 20:\n    raise AssertionError(\"Step 3: stamina_level should be 20. Did you provide the default value in .get('stamina', 20)?\")\n\n# Syntax Check for .get()\ntree = ast.parse(code)\ngets = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, 'attr', '') == 'get']\nif not gets:\n    raise AssertionError(\"You must use the .get() method for Step 3.\")\n\nprint('TEST_PASSED: Dictionary basics mastered!')",
-      "expected": "Dictionary created, accessed, and updated correctly using both brackets and .get()"
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nps = exec_globals.get('player_stats', {})\nif not isinstance(ps, dict):\n    raise AssertionError('player_stats should be a dictionary')\n\nif ps.get('health') != 85:\n    raise AssertionError(\"Task 4: 'health' should be updated to 85\")\n\nif exec_globals.get('player_class') != 'Warrior':\n    raise AssertionError(\"Task 2: player_class should be 'Warrior'\")\n\nif exec_globals.get('stamina_level') != 20:\n    raise AssertionError(\"Task 3: stamina_level should be 20 (default value)\")\n\nprint('✓ Dictionary basics mastered!')"
     }
   ],
-  "tags": ["dictionary", "key-value", "get-method"]
+  "tags": ["dictionary", "key-value", "get-method", "beginner"]
 }

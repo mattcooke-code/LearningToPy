@@ -10,11 +10,11 @@ The structure is simple but reads backward from a traditional `if/else` statemen
 
 ### `value_if_true if condition else value_if_false`
 
-• **`value_if_true`**: The result assigned if the `condition` is `True`.
-
-• **`if condition`**: The check that is performed.
-
-• **`else value_if_false`**: The result assigned if the `condition` is `False`.
+| Component             | Purpose                                           |
+| --------------------- | ------------------------------------------------- |
+| `value_if_true`       | The result assigned if the `condition` is `True`  |
+| `if condition`        | The check that is performed                       |
+| `else value_if_false` | The result assigned if the `condition` is `False` |
 
 ## 2. Example: Single-Line Assignment
 
@@ -28,10 +28,9 @@ if score >= 60:
     status = "Passed"
 else:
     status = "Failed"
-
 ```
 
-## Ternary Operator Version
+### Ternary Operator Version
 
 ```python
 score = 95
@@ -51,4 +50,16 @@ The ternary operator is best used for simple, two-way choices that result in ass
 | Numeric Choice    | `price = base_price * 0.9 if discount_active else base_price` |
 | List/String Check | `title = name if name else "Untitled Document"`               |
 
-💡 **Keep it Simple:** Avoid nesting ternary operators or using them for complex logic. If your logic requires `elif`, stick to the traditional multi-line `if/elif/else` structure for better readability.
+:::tip
+Keep it Simple! Avoid nesting ternary operators or using them for complex logic. If your logic requires `elif`, stick to the traditional multi-line `if/elif/else` structure for better readability.
+:::
+
+:::summary
+
+- **Ternary operator**: `value_if_true if condition else value_if_false`
+- Used for simple **one-line** conditional assignments
+- More readable than multi-line `if/else` for simple cases
+- **Don't nest** ternary operators - keep them simple
+- Use traditional `if/elif/else` for complex logic
+
+:::

@@ -27,13 +27,17 @@ for fruit in fruits:
 
 ```
 
+:::warning
+**Don't Modify While Iterating:** Avoid adding or removing items from a list while you're iterating over it with a `for` loop. This can cause unexpected behavior or errors. If you need to modify, iterate over a copy or use a different approach.
+:::
+
 ## 2. Looping Over Different Sequences
 
 The `for` loop is universally applicable to any iterable in Python.
 
 ### A. Looping Over Strings
 
-A loop can process a string, treating each individual character as the item_variable.
+A loop can process a string, treating each individual character as the `item_variable`.
 
 ```python
 word = "Code"
@@ -61,3 +65,13 @@ for index, color in enumerate(colors):
 # Color #2 is Green.
 # Color #3 is Blue.
 ```
+
+:::summary
+
+- `for` loops iterate over sequences (lists, strings, tuples)
+- Syntax: `for item in sequence:` with indented code block
+- Use `enumerate()` to get both index and value: `for index, value in enumerate(sequence):`
+- Works with any iterable, including strings (character by character)
+- Automatically stops when sequence ends
+
+:::

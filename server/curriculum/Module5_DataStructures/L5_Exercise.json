@@ -1,21 +1,29 @@
 {
-  "title": "Structure Selection Challenge",
-  "instructions": "Choose the best structure (List, Tuple, Dictionary, or Set) for each real-world scenario.",
+  "title": "Choosing the Right Data Structure",
+  "instructions": "Practice selecting the optimal data structure for different scenarios. Consider: mutability, ordering, uniqueness, and access patterns.",
   "steps": [
-    "**Scenario 1:** Unique email addresses (Order doesn't matter).",
-    "**Scenario 2:** Sequential sales data that needs to be updated (Mutable).",
-    "**Scenario 3:** Looking up a city's population using the city name (Key-Value).",
-    "**Scenario 4:** A server version number like (1, 0, 5) that must never change (Immutable)."
+    "Task 1: Store unique email addresses for a newsletter (no duplicates allowed)",
+    "Task 2: Track daily sales totals that need updating each day (order matters)",
+    "Task 3: Look up customer names by their ID numbers (fast lookup needed)",
+    "Task 4: Store fixed RGB color values that won't change (immutable needed)"
   ],
-  "starterCode": "email_set = \nsales_data = \ncity_populations = \nversion_number = \n",
-  "solution": "email_set = {'a@b.com', 'c@d.com'}\nsales_data = [100, 200, 150]\ncity_populations = {'Paris': 2000000}\nversion_number = (1, 2, 0)",
+  "starterCode": "# Task 1: Unique email addresses (choose: list, tuple, dict, or set)\nemail_collection = \n\n# Task 2: Daily sales data (choose: list, tuple, dict, or set)\nsales_data = \n\n# Task 3: Customer ID to name mapping (choose: list, tuple, dict, or set)\ncustomer_directory = \n\n# Task 4: Fixed RGB color (choose: list, tuple, dict, or set)\ncolor_red = ",
+  "solution": "# Task 1: Set - unique elements, unordered\nemail_collection = {'alice@example.com', 'bob@example.com'}\n\n# Task 2: List - ordered, mutable\nsales_data = [1200, 1500, 1800]\n\n# Task 3: Dictionary - key-value pairs for lookup\ncustomer_directory = {1001: 'Alice Smith', 1002: 'Bob Johnson'}\n\n# Task 4: Tuple - immutable, ordered\ncolor_red = (255, 0, 0)",
+  "hints": [
+    "Task 1: Use a **set** for unique items where order doesn't matter",
+    "Task 2: Use a **list** for ordered data that needs updating",
+    "Task 3: Use a **dictionary** for looking up values by key (ID → name)",
+    "Task 4: Use a **tuple** for fixed data that shouldn't change",
+    "Think about: Do you need duplicates? (set = no, others = yes)",
+    "Think about: Does order matter? (list/tuple = yes, set/dict(3.7+) = insertion order)",
+    "Think about: Will data change? (list/dict/set = mutable, tuple = immutable)"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Verify Types",
-      "code": "exec_globals = {}\ntry:\n    exec(code, exec_globals)\nexcept Exception:\n    raise AssertionError('Make sure you assigned valid examples for each variable (e.g., email_set = {\"email@test.com\"})')\n\nif not isinstance(exec_globals.get('email_set'), set): raise AssertionError('Emails should be a Set because they must be unique.')\nif not isinstance(exec_globals.get('sales_data'), list): raise AssertionError('Sales should be a List because the order matters and it is mutable.')\nif not isinstance(exec_globals.get('city_populations'), dict): raise AssertionError('Population should be a Dictionary for fast key-value lookups.')\nif not isinstance(exec_globals.get('version_number'), tuple): raise AssertionError('Version should be a Tuple because version numbers should be immutable.')\nprint('TEST_PASSED: Correct structures chosen!')",
-      "expected": "Matches the scenario to the correct Python data type based on mutability and uniqueness."
+      "name": "Check structure choices",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nemail = exec_globals.get('email_collection')\nsales = exec_globals.get('sales_data')\ncustomers = exec_globals.get('customer_directory')\ncolor = exec_globals.get('color_red')\n\nif not isinstance(email, set):\n    raise AssertionError('Task 1: email_collection should be a SET (unique emails)')\n\nif not isinstance(sales, list):\n    raise AssertionError('Task 2: sales_data should be a LIST (ordered, mutable data)')\n\nif not isinstance(customers, dict):\n    raise AssertionError('Task 3: customer_directory should be a DICTIONARY (ID → name lookup)')\n\nif not isinstance(color, tuple):\n    raise AssertionError('Task 4: color_red should be a TUPLE (immutable fixed values)')\n\nprint('✓ Correct structures chosen for each scenario!')"
     }
   ],
-  "tags": ["data-structure-review", "logic"]
+  "tags": ["data-structures", "design", "problem-solving", "intermediate"]
 }

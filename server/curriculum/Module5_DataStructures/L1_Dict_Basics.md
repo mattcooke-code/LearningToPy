@@ -43,9 +43,9 @@ print(settings["notifications"]) # Output: False
 
 ## 3. The Safe Way to Access: The `.get()` Method
 
-If you try to access a key that doesn't exist using the bracket notation (settings["non_existent_key"]), Python will raise a KeyError and crash your program.
+If you try to access a key that doesn't exist using the bracket notation (settings["non_existent_key"]), Python will raise a `KeyError` and crash your program.
 
-The .get() method provides a safer alternative because it returns None (or a default value you specify) instead of raising an error.
+The `.get()` method provides a safer alternative because it returns `None` (or a default value you specify) instead of raising an error.
 
 ### Syntax: `dictionary.get(key, default_value)`
 
@@ -60,3 +60,18 @@ print(port) # Output: None
 user_color = config.get("color", "blue")
 print(user_color) # Output: blue
 ```
+
+:::tip
+**Default Values:** The second argument to `.get()` is a default value. This is perfect for configuration settings: `retries = config.get("max_retries", 3)`. If "max_retries" isn't in config, it defaults to 3.
+:::
+
+:::summary
+
+- Dictionaries store **key-value pairs** using `{key: value}` syntax
+- Keys must be **unique and immutable** (strings, numbers, tuples)
+- Values can be **any data type** (lists, other dicts, etc.)
+- Access values with bracket notation: `dict["key"]`
+- Use `.get(key, default)` to safely access without errors
+- Dictionaries are **mutable** - you can add/change/remove items
+
+:::

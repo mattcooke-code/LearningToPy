@@ -34,7 +34,7 @@
         "`LL oo oo pp`",
         "`LoopLoop`",
         "`L o o p` (each on separate lines)",
-        "`LL\\noo\\noo\\npp` (each on separate lines)"
+        "`LL oo oo pp` (each on separate lines)"
       ],
       "correctAnswer": 3,
       "explanation": "The loop iterates through each character in \"Loop\": 'L', 'o', 'o', 'p'. For each character, it prints `letter * 2`, which duplicates the character. So 'L' becomes 'LL', 'o' becomes 'oo', etc., each on a new line."

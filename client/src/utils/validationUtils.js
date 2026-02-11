@@ -1,16 +1,8 @@
-// utils/validationUtils.js
-
 /**
  * Run exercise validation using Pyodide
  */
 export const validateWithPyodide = async (userCode, exercise, runCode) => {
-  console.log("🎯 validateWithPyodide called");
-  console.log("userCode length:", userCode?.length);
-  console.log("exercise:", exercise?.title);
-  console.log("runCode type:", typeof runCode);
-
   if (!runCode) {
-    console.log("❌ ERROR: runCode is falsy!");
     return {
       success: false,
       feedback: "Python engine is not available. Please try again.",
@@ -19,13 +11,13 @@ export const validateWithPyodide = async (userCode, exercise, runCode) => {
   }
 
   try {
-    console.log("🔍 Starting validation...");
-
+    // 1. Tests Mode (Logic-based validation)
     if (exercise.validation === "tests" && exercise.tests) {
-      console.log("🔍 Running tests mode");
       return await runTestsWithPyodide(userCode, exercise, runCode);
-    } else if (exercise.validation === "output") {
-      console.log("🔍 Running output validation mode");
+    }
+
+    // 2. Output Mode (Comparison-based validation)
+    if (exercise.validation === "output") {
       return await validateOutputWithPyodide(
         userCode,
         exercise.expectedOutput,
@@ -33,13 +25,12 @@ export const validateWithPyodide = async (userCode, exercise, runCode) => {
       );
     }
 
-    console.log("🔍 Default validation (theory lesson)");
+    // 3. Theory Mode (No validation required)
     return {
       success: true,
       feedback: "Completed successfully!",
     };
   } catch (error) {
-    console.log("❌ Validation error:", error);
     return {
       success: false,
       feedback: `Validation error: ${error.message}`,
@@ -53,12 +44,8 @@ export const validateWithPyodide = async (userCode, exercise, runCode) => {
  */
 const runTestsWithPyodide = async (userCode, exercise, runCode) => {
   const tests = exercise.tests;
-
   if (!tests || !Array.isArray(tests)) {
-    return {
-      success: false,
-      feedback: "No test cases found for this exercise.",
-    };
+    return { success: false, feedback: "No test cases found." };
   }
 
   const validationResults = [];
@@ -78,7 +65,6 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
     }
   }
 
-  console.log("🎉 All tests passed!");
   return {
     success: true,
     feedback: "All tests passed! Great job! 🎉",
@@ -93,160 +79,101 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
  */
 const runSingleTest = async (userCode, test, runCode) => {
   try {
-    // Escape the user code properly for inclusion in a Python string
-    const escapedUserCode = userCode
-      .replace(/\\/g, "\\\\")
-      .replace(/"/g, '\\"')
-      .replace(/\n/g, "\\n");
+    // Using JSON.stringify ensures the userCode is a perfectly escaped Python string
+    const safeUserCode = JSON.stringify(userCode);
 
-    // FIXED: Create test code with 'code' variable defined FIRST
-    // Then execute the user's code, then run the test
     const fullCode = `
-code = "${escapedUserCode}"
-${userCode}
+import sys, io, ast
+code = ${safeUserCode}
+
+# Execute the test suite logic
 ${test.code}
 `.trim();
 
-    // Execute with longer timeout for complex tests
     const result = await runCode(fullCode, 30000);
-    console.log("🔍 Execution result:", {
-      success: result.success,
-      error: result.error?.substring(0, 100),
-      output: result.stdout?.substring(0, 100),
-    });
 
     if (!result.success) {
-      // Provide friendly error messages
       let feedback = result.error || "Unknown error";
 
-      // Clean up error messages
-      if (feedback.includes("AssertionError:")) {
-        const parts = feedback.split("AssertionError:");
-        feedback = parts[1]?.trim() || feedback;
-      }
+      // Error cleaning logic
+      if (feedback.includes("AssertionError:"))
+        feedback = feedback.split("AssertionError:")[1]?.trim();
+      if (feedback.includes("NameError:"))
+        feedback = `Missing variable: ${feedback.split("NameError:")[1]?.trim()}`;
+      if (feedback.includes("IndentationError:"))
+        feedback = "Check your indentation (spacing)!";
 
-      if (feedback.includes("NameError:")) {
-        const parts = feedback.split("NameError:");
-        feedback = parts[1]?.trim() || feedback;
-        feedback = `Missing variable or function: ${feedback}`;
-      }
-
-      if (feedback.includes("IndentationError:")) {
-        feedback = "Indentation error! Check your spacing carefully.";
-      }
-
-      return {
-        passed: false,
-        feedback: feedback,
-        error: result.error,
-        output: result.stdout || "",
-      };
+      return { passed: false, feedback, error: result.error };
     }
 
-    // Check for TEST_PASSED in output
-    const output = result.stdout || result.output || "";
+    const output = result.stdout || "";
     if (output.includes("TEST_PASSED")) {
-      return {
-        passed: true,
-        output: output,
-        feedback: "Test passed! ✓",
-      };
+      return { passed: true, feedback: "Test passed! ✓" };
     }
 
-    // If no TEST_PASSED but no error either
     return {
       passed: false,
-      feedback: `Test "${test.name}" didn't produce expected output. Check your implementation.`,
+      feedback: `Test "${test.name}" failed to confirm logic.`,
       output: output,
-      expected: test.expected,
     };
   } catch (error) {
-    return {
-      passed: false,
-      feedback: `Test execution error: ${error.message}`,
-      error: error.message,
-    };
+    return { passed: false, feedback: `Execution error: ${error.message}` };
   }
 };
 
 /**
- * Validate output matches expected
+ * Validate output matches expected with normalization
  */
 export const validateOutputWithPyodide = async (
   userCode,
   expectedOutput,
   runCode,
 ) => {
-  console.log("🔍 validateOutputWithPyodide called");
   try {
     const result = await runCode(userCode, 10000);
-    console.log("🔍 Output validation result:", result);
+    if (!result.success)
+      return { success: false, feedback: `Runtime error: ${result.error}` };
 
-    if (!result.success) {
-      return {
-        success: false,
-        feedback: `Runtime error: ${result.error}`,
-        output: result.stdout || "",
-      };
-    }
+    // NORMALIZATION: Convert to lowercase, trim whitespace, and unify line endings
+    const normalize = (str) => str.toLowerCase().replace(/\r\n/g, "\n").trim();
 
-    const actualOutput = (result.output || "").trim();
-    const normalizedExpected = expectedOutput.trim();
+    const actual = normalize(result.stdout || "");
+    const expected = normalize(expectedOutput || "");
 
-    console.log("🔍 Comparing output:");
-    console.log("  Expected:", normalizedExpected);
-    console.log("  Actual:", actualOutput);
-
-    if (actualOutput === normalizedExpected) {
+    if (actual === expected) {
+      return { success: true, feedback: "Output matched exactly! 🎉" };
+    } else if (actual.includes(expected)) {
       return {
         success: true,
-        feedback: "Output matched exactly. Perfect! 🎉",
-        output: actualOutput,
-      };
-    } else if (actualOutput.includes(normalizedExpected)) {
-      return {
-        success: true,
-        feedback: "Output contains expected result. Good job!",
-        output: actualOutput,
+        feedback: "Output contains the correct answer. Good job!",
       };
     } else {
       return {
         success: false,
-        feedback: `Output does not match expected. \nExpected: "${normalizedExpected}"\nGot: "${actualOutput}"`,
-        output: actualOutput,
+        feedback: "Output doesn't match. Check your print statements!",
+        output: actual,
       };
     }
   } catch (error) {
-    return {
-      success: false,
-      feedback: `Validation error: ${error.message}`,
-      error: error.message,
-    };
+    return { success: false, feedback: `Validation error: ${error.message}` };
   }
 };
 
 /**
- * Check if solution is optimal (simplified version)
+ * Check if solution is optimal
  */
 export const checkIfOptimalSolution = (userCode, exercise) => {
-  const lines = userCode.split("\n").filter((line) => line.trim().length > 0);
+  if (!userCode) return false;
+  const lines = userCode.split("\n").filter((l) => l.trim());
 
-  // 1. Check for specific complexity constraints defined in the exercise JSON
-  if (exercise.maxLines && lines.length > exercise.maxLines) {
-    return false;
-  }
+  if (exercise.maxLines && lines.length > exercise.maxLines) return false;
 
-  // 2. Look for "Hardcoded" solutions
-  // If they just print the answer instead of calculating it
+  // Check for hardcoded answers if forbidden patterns exist
   if (exercise.forbiddenPatterns) {
     for (const pattern of exercise.forbiddenPatterns) {
       if (new RegExp(pattern).test(userCode)) return false;
     }
   }
 
-  // 3. Basic "Clean Code" Heuristics
-  const hasMultiplePrints = (userCode.match(/print\(/g) || []).length > 3;
-  const isExcessivelyLong = userCode.length > 500;
-
-  return !hasMultiplePrints && !isExcessivelyLong;
+  return true;
 };

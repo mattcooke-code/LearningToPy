@@ -1,0 +1,179 @@
+{
+  "questions": [
+    {
+      "id": "m5_review_q1",
+      "type": "multiple-choice",
+      "question": "What happens when you try to access a dictionary key that doesn't exist using bracket notation: `my_dict[\"nonexistent\"]`?",
+      "options": [
+        "It returns `None`",
+        "It returns an empty string",
+        "It raises a `KeyError`",
+        "It automatically adds the key with a value of `None`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Using bracket notation to access a non-existent key raises a `KeyError`. This is why we use `.get()` for safe access: `my_dict.get(\"nonexistent\")` returns `None` instead of raising an error."
+    },
+    {
+      "id": "m5_review_q2",
+      "type": "multiple-choice",
+      "question": "Which of these is NOT a valid dictionary key?",
+      "options": [
+        "`\"username\"` (a string)",
+        "`123` (an integer)",
+        "`[1, 2, 3]` (a list)",
+        "`(\"x\", \"y\")` (a tuple)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Dictionary keys must be immutable (cannot change). Lists are mutable, so they cannot be used as dictionary keys. Strings, integers, and tuples are all immutable and can be used as keys."
+    },
+    {
+      "id": "m5_review_q3",
+      "type": "multiple-choice",
+      "question": "What does the `.get()` method return if you don't specify a default value and the key doesn't exist?",
+      "options": [
+        "`False`",
+        "An empty string `\"\"`",
+        "`None`",
+        "It raises a `KeyError`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `.get()` method returns `None` by default when a key doesn't exist. You can specify a different default value as the second argument: `my_dict.get(\"key\", \"default_value\")`."
+    },
+    {
+      "id": "m5_review_q4",
+      "type": "multiple-choice",
+      "question": "What is the difference between `del my_dict[\"key\"]` and `my_dict.pop(\"key\")`?",
+      "options": [
+        "`pop()` returns the removed value, `del` does not",
+        "`del` can remove multiple keys at once, `pop()` cannot",
+        "`pop()` is faster than `del`",
+        "There is no difference; they do the same thing"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Both remove a key-value pair, but `pop()` returns the value that was removed, allowing you to use it. `del` simply removes the pair and doesn't return anything."
+    },
+    {
+      "id": "m5_review_q5",
+      "type": "multiple-choice",
+      "question": "Which method would you use to iterate through both keys and values of a dictionary simultaneously?",
+      "options": ["`.keys()`", "`.values()`", "`.items()`", "`.pairs()`"],
+      "correctAnswer": 2,
+      "explanation": "The `.items()` method returns key-value pairs as tuples, which you can unpack in a loop: `for key, value in my_dict.items():`. `.keys()` gives only keys, `.values()` gives only values, and `.pairs()` doesn't exist."
+    },
+    {
+      "id": "m5_review_q6",
+      "type": "multiple-choice",
+      "question": "What happens if you use bracket notation to assign a value to a key that already exists in a dictionary?",
+      "options": [
+        "It adds a duplicate key (both are kept)",
+        "It raises a `KeyError`",
+        "It overwrites the existing value",
+        "It creates a list containing both values"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Dictionary keys must be unique. If you assign a value to an existing key, it overwrites the previous value. This is true for both adding new keys and updating existing ones: `my_dict[\"key\"] = value`."
+    },
+    {
+      "id": "m5_review_q7",
+      "type": "multiple-choice",
+      "question": "How do you create an empty set in Python?",
+      "options": ["`{}`", "`set()`", "`[]`", "`()`"],
+      "correctAnswer": 1,
+      "explanation": "Empty curly braces `{}` create an empty dictionary, not a set. To create an empty set, you must use `set()`. For a set with elements: `{1, 2, 3}`."
+    },
+    {
+      "id": "m5_review_q8",
+      "type": "multiple-choice",
+      "question": "What is the main advantage of using a set over a list for membership testing (`in` operator)?",
+      "options": [
+        "Sets are ordered, making lookup faster",
+        "Sets allow duplicates, giving more accurate results",
+        "Sets use hash tables for O(1) average lookup time",
+        "There is no advantage; lists are faster for this"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Sets use hash tables, making membership testing (`in`) very fast (O(1) average time). Lists require checking each element (O(n) time), which gets slower as the list grows."
+    },
+    {
+      "id": "m5_review_q9",
+      "type": "multiple-choice",
+      "question": "What is the difference between `.remove()` and `.discard()` for sets?",
+      "options": [
+        "`.remove()` returns the removed element, `.discard()` does not",
+        "`.remove()` raises an error if the element doesn't exist, `.discard()` does nothing",
+        "`.discard()` is faster than `.remove()`",
+        "They are identical and can be used interchangeably"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Both remove an element, but `.remove()` raises a `KeyError` if the element isn't in the set. `.discard()` does nothing if the element isn't found, making it safer when you're not sure if the element exists."
+    },
+    {
+      "id": "m5_review_q10",
+      "type": "multiple-choice",
+      "question": "What does the expression `set_a | set_b` return?",
+      "options": [
+        "Elements in both sets (intersection)",
+        "Elements in set_a but not in set_b",
+        "Elements in either set (union)",
+        "Elements unique to each set (symmetric difference)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `|` operator performs a union, returning all elements that are in either set (or both). Duplicates are automatically removed in the resulting set."
+    },
+    {
+      "id": "m5_review_q11",
+      "type": "multiple-choice",
+      "question": "If `set_a = {1, 2, 3}` and `set_b = {3, 4, 5}`, what is `set_a - set_b`?",
+      "options": ["`{1, 2}`", "`{4, 5}`", "`{1, 2, 3, 4, 5}`", "`{3}`"],
+      "correctAnswer": 0,
+      "explanation": "The difference operator `-` returns elements in the first set that are NOT in the second set. So `{1, 2, 3} - {3, 4, 5} = {1, 2}`. The element `3` is in both sets, so it's excluded."
+    },
+    {
+      "id": "m5_review_q12",
+      "type": "multiple-choice",
+      "question": "Which operation would you use to find elements that are in exactly one of two sets (not both)?",
+      "options": [
+        "Union (`|`)",
+        "Intersection (`&`)",
+        "Difference (`-`)",
+        "Symmetric Difference (`^`)"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Symmetric difference (`^`) returns elements that are in either set, but NOT in both. It's equivalent to `(set_a | set_b) - (set_a & set_b)` or `(set_a - set_b) | (set_b - set_a)`."
+    },
+    {
+      "id": "m5_review_q13",
+      "type": "multiple-choice",
+      "question": "Which data structure should you use to store a collection of RGB color values that won't change?",
+      "options": ["List", "Tuple", "Dictionary", "Set"],
+      "correctAnswer": 1,
+      "explanation": "Tuples are ideal for fixed data like RGB values because they're immutable. Example: `color = (255, 0, 0)` for red. Lists would work but allow modification, which you might not want for constant values."
+    },
+    {
+      "id": "m5_review_q14",
+      "type": "multiple-choice",
+      "question": "You need to store user settings where each setting has a name (like \"theme\") and a value (like \"dark\"). Which structure is best?",
+      "options": [
+        "List of tuples",
+        "Dictionary",
+        "Set of strings",
+        "Tuple of lists"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Dictionaries are perfect for key-value pairs like settings: `{\"theme\": \"dark\", \"volume\": 80}`. They allow quick lookup by setting name and easy updates to values."
+    },
+    {
+      "id": "m5_review_q15",
+      "type": "multiple-choice",
+      "question": "You have a list of student IDs with duplicates. You need to get only the unique IDs for emailing. Which is the simplest approach?",
+      "options": [
+        "Use a loop to check each ID and build a new list",
+        "Convert to a set and back to a list",
+        "Use the `.unique()` method on the list",
+        "Sort the list and remove adjacent duplicates"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Converting to a set automatically removes duplicates: `unique_ids = list(set(student_ids))`. Sets only store unique elements, so this is the most Pythonic and efficient way to deduplicate."
+    }
+  ]
+}

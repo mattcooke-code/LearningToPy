@@ -1,0 +1,40 @@
+{
+  "lessonId": "M5L4",
+  "title": "Set Operations - Quiz",
+  "questions": [
+    {
+      "id": "m5l4_q1",
+      "type": "multiple-choice",
+      "question": "What does the expression `set_a | set_b` return?",
+      "options": [
+        "Elements in both sets (intersection)",
+        "Elements in set_a but not in set_b",
+        "Elements in either set (union)",
+        "Elements unique to each set (symmetric difference)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `|` operator performs a union, returning all elements that are in either set (or both). Duplicates are automatically removed in the resulting set."
+    },
+    {
+      "id": "m5l4_q2",
+      "type": "multiple-choice",
+      "question": "If `set_a = {1, 2, 3}` and `set_b = {3, 4, 5}`, what is `set_a - set_b`?",
+      "options": ["`{1, 2}`", "`{4, 5}`", "`{1, 2, 3, 4, 5}`", "`{3}`"],
+      "correctAnswer": 0,
+      "explanation": "The difference operator `-` returns elements in the first set that are NOT in the second set. So `{1, 2, 3} - {3, 4, 5} = {1, 2}`. The element `3` is in both sets, so it's excluded."
+    },
+    {
+      "id": "m5l4_q3",
+      "type": "multiple-choice",
+      "question": "Which operation would you use to find elements that are in exactly one of two sets (not both)?",
+      "options": [
+        "Union (`|`)",
+        "Intersection (`&`)",
+        "Difference (`-`)",
+        "Symmetric Difference (`^`)"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Symmetric difference (`^`) returns elements that are in either set, but NOT in both. It's equivalent to `(set_a | set_b) - (set_a & set_b)` or `(set_a - set_b) | (set_b - set_a)`."
+    }
+  ]
+}

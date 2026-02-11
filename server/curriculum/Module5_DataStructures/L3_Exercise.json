@@ -1,21 +1,28 @@
 {
   "title": "Set Creation and Manipulation",
-  "instructions": "Sets are unordered collections of unique elements. Use them when duplicates aren't allowed.",
+  "instructions": "Sets store unique, unordered elements. Use them when you need to remove duplicates or check membership quickly.",
   "steps": [
-    "**Step 1:** Convert `log_entries` into a set named `unique_entries` using `set()`.",
-    "**Step 2:** Add 'ERROR' to the set using `.add()`.",
-    "**Step 3:** Safely remove 'INFO' using `.discard()`.",
-    "**Step 4:** Use the `in` keyword to check if 'WARNING' is in the set. If so, set `warning_exists = True`."
+    "Task 1: Convert `log_entries` list to a set to remove duplicates",
+    "Task 2: Add 'ERROR' to the set using `.add()`",
+    "Task 3: Safely remove 'INFO' using `.discard()` (won't error if missing)",
+    "Task 4: Check if 'WARNING' is in the set using `in` operator"
   ],
-  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\nwarning_exists = False\n\n# Implement steps 1-4 below:\n",
+  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\nwarning_exists = False\n\n# Task 1: Create set from list\nunique_entries = \n\n# Task 2: Add 'ERROR'\n\n# Task 3: Remove 'INFO' safely\n\n# Task 4: Check if 'WARNING' exists\nif 'WARNING' in unique_entries:\n    warning_exists = True",
   "solution": "unique_entries = set(log_entries)\nunique_entries.add('ERROR')\nunique_entries.discard('INFO')\n\nif 'WARNING' in unique_entries:\n    warning_exists = True",
+  "hints": [
+    "Task 1: Convert list to set: `set(log_entries)` automatically removes duplicates",
+    "Task 2: Add single element: `unique_entries.add('ERROR')`",
+    "Task 3: Safe removal: `unique_entries.discard('INFO')` (no error if 'INFO' not found)",
+    "Task 4: Membership test: `'WARNING' in unique_entries` returns True/False",
+    "Remember: Sets are unordered - don't expect elements in any particular order",
+    "`.discard()` is safer than `.remove()` - it won't crash if element doesn't exist"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check set uniqueness and methods",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\nue = exec_globals.get('unique_entries', set())\n\nif not isinstance(ue, set):\n    raise AssertionError(\"Step 1: unique_entries must be a set. Did you use set(log_entries)?\")\n\nif 'INFO' in ue:\n    raise AssertionError('Step 3: INFO was not discarded. Use .discard().')\n\nif 'ERROR' not in ue:\n    raise AssertionError(\"Step 2: 'ERROR' was not added to the set.\")\n\nif len(ue) != 3:\n    raise AssertionError(f\"The set should have 3 unique items ('WARNING', 'SUCCESS', 'ERROR'), but has {len(ue)}.\")\n\nif not exec_globals.get('warning_exists'):\n    raise AssertionError('Step 4: warning_exists should be True because WARNING is in the set.')\n\nprint('TEST_PASSED: Sets mastered!')",
-      "expected": "Set created with unique items and modified correctly"
+      "name": "Check set operations",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nue = exec_globals.get('unique_entries', set())\nif not isinstance(ue, set):\n    raise AssertionError('unique_entries should be a set')\n\nif 'INFO' in ue:\n    raise AssertionError('Task 3: INFO should be removed with .discard()')\n\nif 'ERROR' not in ue:\n    raise AssertionError(\"Task 2: 'ERROR' should be added with .add()\")\n\nif len(ue) != 3:\n    raise AssertionError(f'Set should have 3 unique items, has {len(ue)}')\n\nif not exec_globals.get('warning_exists'):\n    raise AssertionError('Task 4: warning_exists should be True')\n\nprint('✓ Set operations mastered!')"
     }
   ],
-  "tags": ["set", "unique", "membership"]
+  "tags": ["set", "unique", "membership", "beginner"]
 }

@@ -4,8 +4,228 @@ import remarkGfm from "remark-gfm";
 import { CodeBlock } from "../lesson";
 
 const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
+  // Custom component for containers
+  const CustomContainer = ({ type, children }) => {
+    const containerStyles = {
+      summary: {
+        light: {
+          bg: "bg-blue-50",
+          border: "border-l-4 border-blue-500",
+          text: "text-blue-800",
+          title: "text-blue-900",
+          emoji: "📝", // Pencil/memo emoji for summary
+        },
+        dark: {
+          bg: "bg-blue-900/20",
+          border: "border-l-4 border-blue-400",
+          text: "text-blue-200",
+          title: "text-blue-200",
+          emoji: "📝",
+        },
+        title: "What You've Learned",
+      },
+      tip: {
+        light: {
+          bg: "bg-yellow-50",
+          border: "border-l-4 border-yellow-500",
+          text: "text-yellow-800",
+          title: "text-yellow-900",
+          emoji: "💡",
+        },
+        dark: {
+          bg: "bg-yellow-900/20",
+          border: "border-l-4 border-yellow-400",
+          text: "text-yellow-200",
+          title: "text-yellow-200",
+          emoji: "💡",
+        },
+        title: "Pro Tip",
+      },
+      warning: {
+        light: {
+          bg: "bg-red-50",
+          border: "border-l-4 border-red-500",
+          text: "text-red-800",
+          title: "text-red-900",
+          emoji: "⚠️",
+        },
+        dark: {
+          bg: "bg-red-900/20",
+          border: "border-l-4 border-red-400",
+          text: "text-red-200",
+          title: "text-red-200",
+          emoji: "⚠️",
+        },
+        title: "Important",
+      },
+    };
+
+    const style = containerStyles[type] || containerStyles.summary;
+    const colors = isDark ? style.dark : style.light;
+
+    return (
+      <div className={`my-6 p-4 rounded-r-lg ${colors.bg} ${colors.border}`}>
+        <div className="flex items-start">
+          <span className="mr-2 text-xl">{colors.emoji}</span>{" "}
+          {/* Emoji for all containers */}
+          <div className="flex-1">
+            <strong
+              className={`block mb-3 text-lg font-semibold ${colors.title}`}
+            >
+              {style.title}
+            </strong>
+            {/* FIXED: Only render children once, with ContainerContent */}
+            <ContainerContent type={type} isDark={isDark}>
+              {children}
+            </ContainerContent>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // New component to render content with dynamic colors
+  const ContainerContent = ({ type, isDark, children }) => {
+    // Define text colors for each container type
+    const textColors = {
+      summary: {
+        light: "text-blue-800",
+        dark: "text-blue-200",
+      },
+      tip: {
+        light: "text-yellow-800",
+        dark: "text-yellow-200",
+      },
+      warning: {
+        light: "text-red-800",
+        dark: "text-red-200",
+      },
+    };
+
+    const color = textColors[type] || textColors.summary;
+    const textColor = isDark ? color.dark : color.light;
+
+    // Create dynamic components based on container type
+    const dynamicComponents = {
+      h1: ({ children }) => (
+        <h2 className={`text-xl font-semibold mb-3 mt-2 ${textColor}`}>
+          {children}
+        </h2>
+      ),
+      h2: ({ children }) => (
+        <h3 className={`text-lg font-semibold mb-2 mt-2 ${textColor}`}>
+          {children}
+        </h3>
+      ),
+      h3: ({ children }) => (
+        <h4 className={`font-semibold mb-1 mt-2 ${textColor}`}>{children}</h4>
+      ),
+      p: ({ children }) => (
+        <p className={`mb-2 leading-relaxed ${textColor}`}>{children}</p>
+      ),
+      ul: ({ children }) => (
+        <ul className={`list-disc ml-6 mb-3 space-y-1 ${textColor}`}>
+          {children}
+        </ul>
+      ),
+      ol: ({ children }) => (
+        <ol className={`list-decimal ml-6 mb-3 space-y-1 ${textColor}`}>
+          {children}
+        </ol>
+      ),
+      li: ({ children }) => <li className="pl-2 mb-1">{children}</li>,
+      code: ({ children, className, inline }) => {
+        const match = /language-(\w+)/.exec(className || "");
+        const isInline = inline || !className || !match;
+
+        if (isInline) {
+          return (
+            <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700 border-gray-300 shadow-sm">
+              {children}
+            </code>
+          );
+        }
+        return (
+          <CodeBlock
+            code={String(children).replace(/\n$/, "")}
+            language={match[1]}
+          />
+        );
+      },
+      strong: ({ children }) => (
+        <strong className={`font-bold ${textColor}`}>{children}</strong>
+      ),
+      em: ({ children }) => (
+        <em className={`italic ${textColor}`}>{children}</em>
+      ),
+      a: ({ href, children }) => (
+        <a
+          href={href}
+          className={`font-medium underline ${isDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      ),
+    };
+
+    return (
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={dynamicComponents}>
+        {children}
+      </ReactMarkdown>
+    );
+  };
+
+  // Parse content and extract containers
+  const parseContent = (text) => {
+    const lines = text.split("\n");
+    const result = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      // Check if line starts a container
+      if (lines[i].trim().startsWith(":::")) {
+        const type = lines[i].trim().replace(":::", "").trim();
+        const containerLines = [];
+        i++;
+
+        // Collect container content
+        while (i < lines.length && lines[i].trim() !== ":::") {
+          containerLines.push(lines[i]);
+          i++;
+        }
+        i++; // Skip closing :::
+
+        const content = containerLines.join("\n");
+
+        // Create a custom container element
+        result.push({
+          type: "container",
+          containerType: type,
+          content: content,
+        });
+      } else {
+        // Regular content
+        const regularLines = [];
+        while (i < lines.length && !lines[i].trim().startsWith(":::")) {
+          regularLines.push(lines[i]);
+          i++;
+        }
+        result.push({
+          type: "markdown",
+          content: regularLines.join("\n"),
+        });
+      }
+    }
+
+    return result;
+  };
+
+  const parsedContent = parseContent(content);
+
+  // Regular markdown components (same as before)
   const markdownComponents = {
-    // Headings
     h1: ({ children }) => (
       <h1
         className={`text-2xl font-bold mb-4 mt-6 ${isDark ? "text-white" : "text-gray-800"}`}
@@ -27,8 +247,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         {children}
       </h3>
     ),
-
-    // Paragraphs
     p: ({ children, node }) => {
       if (
         node?.children?.length === 1 &&
@@ -37,7 +255,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
       ) {
         return <>{children}</>;
       }
-
       return (
         <p
           className={`mb-4 leading-relaxed last:mb-0 ${isDark ? "text-gray-300" : "text-gray-700"}`}
@@ -46,8 +263,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         </p>
       );
     },
-
-    // Links - FIXED & IMPROVED
     a: ({ href, children }) => (
       <a
         href={href}
@@ -62,9 +277,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         {children}
       </a>
     ),
-
-    // Lists
-    // Lists
     ul: ({ children }) => (
       <ul
         className={`list-disc ml-6 mb-4 space-y-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}
@@ -80,20 +292,17 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
       </ol>
     ),
     li: ({ children }) => <li className="pl-2 mb-1">{children}</li>,
-
-    // Inline Code and Code Blocks
     code: ({ children, className, inline }) => {
       const match = /language-(\w+)/.exec(className || "");
       const isInline = inline || !className || !match;
 
       if (isInline) {
         return (
-          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200 text-red-700 border-gray-300 shadow-sm">
+          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700 border-gray-300 shadow-sm">
             {children}
           </code>
         );
       }
-
       return (
         <CodeBlock
           code={String(children).replace(/\n$/, "")}
@@ -101,8 +310,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         />
       );
     },
-
-    // Strong & Em
     strong: ({ children }) => (
       <strong
         className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}
@@ -115,15 +322,12 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         {children}
       </em>
     ),
-
-    // Images
     img: ({ src, alt }) => {
       let imageSrc = src;
       if (src && src.startsWith("./images/")) {
         const imageName = src.replace("./images/", "");
         imageSrc = `/api/content/modules/${moduleId}/images/${imageName}`;
       }
-
       return (
         <div className="my-8 text-center">
           <img
@@ -144,15 +348,11 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         </div>
       );
     },
-
-    // Horizontal rule
     hr: () => (
       <hr
         className={`my-8 border-t ${isDark ? "border-gray-700" : "border-gray-300"}`}
       />
     ),
-
-    // Tables - RESTORED & THEMED
     table: ({ children }) => (
       <div className="overflow-x-auto my-8">
         <table
@@ -188,8 +388,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         {children}
       </td>
     ),
-
-    // Add blockquote back too just in case!
     blockquote: ({ children }) => (
       <blockquote
         className={`border-l-4 pl-4 italic my-4 ${
@@ -203,10 +401,123 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     ),
   };
 
+  // Components for content INSIDE containers
+  const containerMarkdownComponents = {
+    h1: ({ children }) => (
+      <h2
+        className={`text-xl font-semibold mb-3 mt-2 ${isDark ? "text-blue-100" : "text-blue-900"}`}
+      >
+        {children}
+      </h2>
+    ),
+    h2: ({ children }) => (
+      <h3
+        className={`text-lg font-semibold mb-2 mt-2 ${isDark ? "text-blue-100" : "text-blue-900"}`}
+      >
+        {children}
+      </h3>
+    ),
+    h3: ({ children }) => (
+      <h4
+        className={`font-semibold mb-1 mt-2 ${isDark ? "text-blue-100" : "text-blue-900"}`}
+      >
+        {children}
+      </h4>
+    ),
+    p: ({ children }) => (
+      <p
+        className={`mb-2 leading-relaxed ${isDark ? "text-blue-100" : "text-blue-800"}`}
+      >
+        {children}
+      </p>
+    ),
+    ul: ({ children }) => (
+      <ul
+        className={`list-disc ml-6 mb-3 space-y-1 ${isDark ? "text-blue-100" : "text-blue-800"}`}
+      >
+        {children}
+      </ul>
+    ),
+    ol: ({ children }) => (
+      <ol
+        className={`list-decimal ml-6 mb-3 space-y-1 ${isDark ? "text-blue-100" : "text-blue-800"}`}
+      >
+        {children}
+      </ol>
+    ),
+    li: ({ children }) => <li className="pl-2 mb-1">{children}</li>,
+
+    // Code - matches your regular styling
+    code: ({ children, className, inline }) => {
+      const match = /language-(\w+)/.exec(className || "");
+      const isInline = inline || !className || !match;
+
+      if (isInline) {
+        return (
+          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700 border-gray-300 shadow-sm">
+            {children}
+          </code>
+        );
+      }
+
+      return (
+        <CodeBlock
+          code={String(children).replace(/\n$/, "")}
+          language={match[1]}
+        />
+      );
+    },
+
+    // Strong/bold - blue inside containers
+    strong: ({ children }) => (
+      <strong
+        className={`font-bold ${isDark ? "text-blue-100" : "text-blue-800"}`}
+      >
+        {children}
+      </strong>
+    ),
+
+    // Italics - blue inside containers ONLY
+    em: ({ children }) => (
+      <em className={`italic ${isDark ? "text-blue-100" : "text-blue-800"}`}>
+        {children}
+      </em>
+    ),
+
+    a: ({ href, children }) => (
+      <a
+        href={href}
+        className={`font-medium underline ${isDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {children}
+      </a>
+    ),
+  };
+
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-      {content}
-    </ReactMarkdown>
+    <div>
+      {parsedContent.map((section, index) => {
+        if (section.type === "container") {
+          return (
+            <CustomContainer key={index} type={section.containerType}>
+              {section.content}
+            </CustomContainer>
+          );
+        } else {
+          return (
+            <ReactMarkdown
+              key={index}
+              remarkPlugins={[remarkGfm]}
+              components={markdownComponents}
+            >
+              {section.content}
+            </ReactMarkdown>
+          );
+        }
+      })}
+    </div>
   );
 };
 

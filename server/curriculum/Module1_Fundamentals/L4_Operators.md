@@ -97,12 +97,14 @@ When joining strings, Python does not add a space for you. You must include it e
 rank = "Darth"
 name = "Vader"
 
+# ==============================
 # ❌ Incorrect: No space
 
 apprentice = rank + name
 print(apprentice) # Output: DarthVader
 # Much to learn you still have
 
+# ==============================
 # ✅ Correct: Adding a manual space string
 
 master = rank + " " + name
@@ -138,18 +140,22 @@ result = "Hello" - "lo"    # ❌ ERROR!
 result = "Test" / 2        # ❌ ERROR!
 ```
 
-## What You've Learned
+:::summary
 
 - Python has 7 arithmetic operators: `+`, `-`, `*`, `/`, `//`, `%`, `**`
 - The modulus operator (`%`) returns the remainder after division
 - Python follows **PEMDAS** order of operations (use parentheses for clarity!)
 - Strings can be combined with `+` and repeated with `*`
-- You cannot mix strings and numbers without converting types
+- You cannot mix strings and numbers without converting types (using `str()`)
 
-## 💡 Pro Tip
+:::
+
+:::tip
 
 **Use your terminal to test the code!** For questions involving calculations or code output, you can type the code into your Python terminal to see the results. This helps reinforce your learning and builds confidence.
 
 For example, if a question asks "What does `5 % 2` return?", you can type `print(5 % 2)` in the terminal and then click **Run** to verify your answer.
+
+:::
 
 Now let's practice using these operators! The challenge below will test your understanding of arithmetic calculations and string operations.

@@ -1,23 +1,29 @@
 {
   "title": "Range Function Workout",
-  "instructions": "Use the `range()` function to generate specific sequences of numbers.",
+  "instructions": "Master the `range()` function by generating different number sequences. Remember: `range(stop)` goes 0 to stop-1, `range(start, stop)` goes start to stop-1, and `range(start, stop, step)` uses a custom step.\n\n**Important:** The stop value is never included!",
   "steps": [
-    "**Step 1:** Print numbers 0 through 7 (inclusive) using `range(8)`.",
-    "**Step 2:** Print numbers 10 through 13 (inclusive) using `range(10, 14)`.",
-    "**Step 3:** Calculate the sum of 3, 6, and 9 using `range(3, 10, 3)`. Store it in `sum_of_multiples_of_three`.",
-    "**Step 4:** Use a negative step to print a countdown from 4 down to 1."
+    "Task 1: Print numbers 0 through 7 using `range(8)`",
+    "Task 2: Print numbers 10 through 13 using `range(10, 14)`",
+    "Task 3: Calculate sum of 3, 6, 9 using `range(3, 10, 3)`",
+    "Task 4: Countdown from 4 to 1 using negative step"
   ],
-  "starterCode": "# 1. Print 0 to 7:\n\n# 2. Print 10 to 13:\n\n# 3. Sum of multiples of three (3, 6, 9):\nsum_of_multiples_of_three = 0\n\n# 4. Countdown from 4 to 1:\n",
-  "solution": "for i in range(8):\n    print(i)\nfor i in range(10, 14):\n    print(i)\nfor i in range(3, 10, 3):\n    sum_of_multiples_of_three += i\nfor i in range(4, 0, -1):\n    print(i)",
+  "starterCode": "# Task 1: Print 0 through 7\n\n# Task 2: Print 10 through 13\n\n# Task 3: Sum of multiples of three (3, 6, 9)\nsum_of_multiples = 0\n\n# Task 4: Countdown from 4 to 1\n",
+  "solution": "# Task 1\nfor i in range(8):\n    print(i)\n\n# Task 2\nfor i in range(10, 14):\n    print(i)\n\n# Task 3\nfor i in range(3, 10, 3):\n    sum_of_multiples += i\n\n# Task 4\nfor i in range(4, 0, -1):\n    print(i)",
+  "hints": [
+    "Task 1: `range(8)` generates 0,1,2,3,4,5,6,7",
+    "Task 2: `range(10, 14)` generates 10,11,12,13",
+    "Task 3: `range(3, 10, 3)` generates 3,6,9 - add these to `sum_of_multiples`",
+    "Task 4: Use `range(4, 0, -1)` to count backward",
+    "Remember: Start a for loop with `for variable_name in range(...):`",
+    "Don't forget to indent the code inside the loop!"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check sequences",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntest_globals = {'sum_of_multiples_of_three': 0}\ntry:\n    exec(code, test_globals)\n    output = sys.stdout.getvalue().split()\nfinally:\n    sys.stdout = old_stdout\n\n# Step 1 Check\nif '7' not in output or '8' in output[:8]:\n    raise AssertionError('Step 1: Range should result in 0-7.')\n# Step 2 Check\nif '13' not in output or '14' in output:\n    raise AssertionError('Step 2: Range should result in 10-13.')\n# Step 3 Check\nif test_globals.get('sum_of_multiples_of_three') != 18:\n    raise AssertionError(f'Step 3: Sum of 3, 6, 9 should be 18, got {test_globals.get(\"sum_of_multiples_of_three\")}.')\n# Step 4 Check\nif '4' not in output or '1' not in output or output[-1] != '1':\n    raise AssertionError('Step 4: Countdown from 4 to 1 is incorrect.')\nprint('TEST_PASSED: All range sequences correct')",
-      "expected": "Correct range sequences and sum calculation"
+      "name": "Check sequences output",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {'sum_of_multiples': 0}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# Check Task 1\nif '0' not in lines or '7' not in lines:\n    raise AssertionError('Task 1 failed: Should print 0 through 7')\n\n# Check Task 2\nif '10' not in lines or '13' not in lines:\n    raise AssertionError('Task 2 failed: Should print 10 through 13')\n\n# Check Task 3\nif local_vars['sum_of_multiples'] != 18:\n    raise AssertionError(f'Task 3 failed: Sum should be 18, got {local_vars[\"sum_of_multiples\"]}')\n\n# Check Task 4\nif '4' not in lines or '1' not in lines:\n    raise AssertionError('Task 4 failed: Should countdown 4,3,2,1')\n\nprint('✓ All tasks completed successfully!')"
     }
   ],
-  "expectedOutput": "0\n1\n2\n3\n4\n5\n6\n7\n10\n11\n12\n13\n4\n3\n2\n1",
-  "tags": ["range", "for-loop", "counting", "stepping"],
+  "tags": ["range", "for-loop", "counting", "stepping", "beginner"],
   "challengeGroup": "for-loop-basics"
 }

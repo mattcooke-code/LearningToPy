@@ -64,3 +64,17 @@ print(inventory) # Output: ['Melon']
 | `remove()` | Removes by Value                | None             | Deleting an item when you know what it is, but not where it is.     |
 | `pop()`    | Removes by Index (or last item) | The Removed Item | Removing an item because you want to use it or move it elsewhere.   |
 | `del`      | Removes by Index or Slice       | None             | "Hard delete"—cleanly removing an item or a whole chunk of the list |
+
+:::warning
+`remove()` only deletes the **first occurrence** of a value. If you have duplicates and need to remove all of them, you'll need a different approach (like a list comprehension, which you'll learn later).
+:::
+
+:::summary
+
+- Use `remove(value)` to delete by value (first occurrence)
+- Use `pop(index)` to remove by index and **get the value back**
+- Use `pop()` without index to remove the last item
+- Use `del` keyword to delete by index or slice
+- Each method has specific use cases (see table for reference)
+
+:::

@@ -1,0 +1,40 @@
+{
+  "lessonId": "M5L5",
+  "title": "Data Structure Review - Quiz",
+  "questions": [
+    {
+      "id": "m5l5_q1",
+      "type": "multiple-choice",
+      "question": "Which data structure should you use to store a collection of RGB color values that won't change?",
+      "options": ["List", "Tuple", "Dictionary", "Set"],
+      "correctAnswer": 1,
+      "explanation": "Tuples are ideal for fixed data like RGB values because they're immutable. Example: `color = (255, 0, 0)` for red. Lists would work but allow modification, which you might not want for constant values."
+    },
+    {
+      "id": "m5l5_q2",
+      "type": "multiple-choice",
+      "question": "You need to store user settings where each setting has a name (like \"theme\") and a value (like \"dark\"). Which structure is best?",
+      "options": [
+        "List of tuples",
+        "Dictionary",
+        "Set of strings",
+        "Tuple of lists"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Dictionaries are perfect for key-value pairs like settings: `{\"theme\": \"dark\", \"volume\": 80}`. They allow quick lookup by setting name and easy updates to values."
+    },
+    {
+      "id": "m5l5_q3",
+      "type": "multiple-choice",
+      "question": "You have a list of student IDs with duplicates. You need to get only the unique IDs for emailing. Which is the simplest approach?",
+      "options": [
+        "Use a loop to check each ID and build a new list",
+        "Convert to a set and back to a list",
+        "Use the `.unique()` method on the list",
+        "Sort the list and remove adjacent duplicates"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Converting to a set automatically removes duplicates: `unique_ids = list(set(student_ids))`. Sets only store unique elements, so this is the most Pythonic and efficient way to deduplicate."
+    }
+  ]
+}

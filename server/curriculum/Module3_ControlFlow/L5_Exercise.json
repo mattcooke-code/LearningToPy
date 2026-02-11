@@ -9,6 +9,14 @@
   ],
   "starterCode": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\naccount_type = 'premium_subscriber'\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\nprint(\"🛡️ WEBSITE SECURITY CHECK\")\n# Step 1: Check city\nis_serviced = \n# Step 2: Check IP\nis_blocked = \n# Step 3: Check premium\n\n# Step 4: Check Admin role\n",
   "solution": "is_serviced = user_city in service_areas\nis_blocked = suspicious_ip not in trusted_ips\nif 'premium' in account_type:\n    print('Access granted to premium features.')\nif 'Admin' in user_roles:\n    print('Full admin access granted')\nelse:\n    print('Standard user access only')",
+  "hints": [
+    "**in operator:** Checks if a value exists inside a sequence (list, tuple, string). Format: `value in sequence` returns `True` or `False`.",
+    "**not in operator:** The opposite - checks if a value is missing from a sequence. Format: `value not in sequence`.",
+    "**Storing results:** For Steps 1 and 2, you're storing the Boolean result: `is_something = value in sequence`. No `if` needed!",
+    "**Substring search:** For Step 3, `'premium' in account_type` checks if the word 'premium' appears anywhere in the string (like 'premium_subscriber').",
+    "**if with in:** For Steps 3 and 4, combine `in` with `if` statements: `if value in sequence:` then your indented code block.",
+    "**List membership:** For Step 4, remember that `'Admin'` needs to match exactly. Check the `user_roles` list - does it contain that exact string?"
+  ],
   "validation": "tests",
   "tests": [
     {

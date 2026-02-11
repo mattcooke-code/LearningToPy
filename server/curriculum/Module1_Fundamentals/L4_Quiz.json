@@ -1,43 +1,40 @@
 {
   "lessonId": "M1L4",
-  "title": "Basic Data Types - Quiz",
+  "title": "Operators - Quiz",
   "questions": [
     {
       "id": "m1l4_q1",
       "sourceLesson": "M1L4",
       "type": "multiple-choice",
-      "question": "What data type is the variable `score = 100`?",
-      "options": ["String", "Integer", "Float", "Boolean"],
+      "question": "What is the result of `10 % 3` in Python?",
+      "options": ["`3`", "`1`", "`0.33`", "`3.33`"],
       "correctAnswer": 1,
-      "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a `float`."
+      "explanation": "The modulus operator `%` returns the remainder after division. `10` divided by `3` is `3` with a remainder of `1`, so `10 % 3` equals `1`.",
+      "terminalHint": "💡 Try this in your terminal! Type: `print(10 % 3)`"
     },
     {
       "id": "m1l4_q2",
       "sourceLesson": "M1L4",
       "type": "multiple-choice",
-      "question": "Which of the following will cause an error?",
-      "options": [
-        "`is_ready = True`",
-        "`is_ready = true`",
-        "`is_ready = False`",
-        "`is_ready = 'True'`"
-      ],
+      "question": "What is the result of `2 + 3 * 4`?",
+      "options": ["`20`", "`14`", "`11`", "`24`"],
       "correctAnswer": 1,
-      "explanation": "Python booleans must be capitalized: `True` and `False`. Writing `'true'` (lowercase) will cause a `NameError`. Note that `'True'` in quotes is a string, not a boolean."
+      "explanation": "Following PEMDAS order of operations, multiplication happens before addition. So `3 * 4 = 12`, then `2 + 12 = 14`. If you wanted `20`, you'd need parentheses: `(2 + 3) * 4`.",
+      "terminalHint": "💡 Try this in your terminal! Type: `print(2 + 3 * 4)` and `print((2 + 3) * 4)`"
     },
     {
       "id": "m1l4_q3",
       "sourceLesson": "M1L4",
       "type": "multiple-choice",
-      "question": "What's the difference between `price = 50` and `price = 50.0`?",
+      "question": "What happens when you try to run: `result = \"Hello\" + 5`?",
       "options": [
-        "There is no difference",
-        "The first is an integer, the second is a float",
-        "The first is a float, the second is an integer",
-        "Both are strings"
+        "It prints \"Hello5\"",
+        "It prints \"Hello 5\"",
+        "It causes an error",
+        "It prints 5"
       ],
-      "correctAnswer": 1,
-      "explanation": "`50` is an integer (whole number), while `50.0` is a float (decimal number). Even though they represent the same value, Python treats them as different data types."
+      "correctAnswer": 2,
+      "explanation": "Python cannot directly add a string and a number - this causes a `TypeError`. You need to convert the number to a string first: `\"Hello\" + str(5)`."
     }
   ]
 }

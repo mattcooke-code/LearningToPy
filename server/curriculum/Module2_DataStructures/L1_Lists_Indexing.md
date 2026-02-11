@@ -64,6 +64,17 @@ print(colors[10])
 
 What the error looks like: `IndexError: list index out of range`
 
-**Pro-Tip:** If you have a list with 4 items, the highest index is always `3` (Length - 1). If you ever get this error, check if you accidentally used the length of the list as your index.
+:::tip
+If you have a list with 4 items, the highest index is always `3` (Length - 1). If you ever get this error, check if you accidentally used the length of the list as your index.
+:::
 
 Always ensure your index is within the valid range!
+
+:::summary
+
+- Lists are ordered collections created with square brackets `[]`
+- Use **indexing** (`list[0]`) to access single elements (starts at 0)
+- Use **negative indexing** (`list[-1]`) to access from the end
+- Watch out for `IndexError` when accessing invalid indices
+
+:::

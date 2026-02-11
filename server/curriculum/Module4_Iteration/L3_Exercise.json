@@ -1,21 +1,26 @@
 {
-  "title": "Conditional Repetition",
-  "instructions": "Use `while` loops to repeat actions until a specific condition is met. Remember to modify your condition variable inside the loop to avoid infinite loops!",
+  "title": "While Loop Practice",
+  "instructions": "Practice using `while` loops for indefinite repetition. **CRITICAL:** Always modify the loop condition inside the loop to avoid infinite loops!\n\n**Common Pattern:** `while condition:` → do work → update condition → repeat",
   "steps": [
-    "**Step 1:** While `fuel_level` (start at 10) > 0, print 'Fuel remaining:' and the level, then decrease by 1.",
-    "**Step 2:** While `damage` (start at 0) < 50, print 'Current damage:' and the value, then increase by 15.",
-    "**Step 3:** While `login_attempts` (start at 3) > 0, print 'X attempts remaining.', then decrease by 1. Print 'Account Locked' after the loop."
+    "Task 1: Count down fuel from 10 to 0, printing 'Fuel remaining: X' each time",
+    "Task 2: Increase damage from 0 by 15 each loop until it reaches at least 50",
+    "Task 3: Count login attempts from 3 to 0, then print 'Account Locked'"
   ],
-  "starterCode": "fuel_level = 10\ndamage = 0\nlogin_attempts = 3\n\n# 1. Fuel Countdown\n\n# 2. Damage Accumulation\n\n# 3. Login Attempts\n",
-  "solution": "while fuel_level > 0:\n    print('Fuel remaining:', fuel_level)\n    fuel_level -= 1\n\nwhile damage < 50:\n    print('Current damage:', damage)\n    damage += 15\n\nwhile login_attempts > 0:\n    print(f'{login_attempts} attempts remaining.')\n    login_attempts -= 1\nprint('Account Locked')",
+  "starterCode": "fuel_level = 10\ndamage = 0\nlogin_attempts = 3\n\n# Task 1: Fuel countdown\n\n# Task 2: Damage accumulation\n\n# Task 3: Login attempts\n",
+  "solution": "# Task 1\nwhile fuel_level > 0:\n    print('Fuel remaining:', fuel_level)\n    fuel_level -= 1\n\n# Task 2\nwhile damage < 50:\n    print('Current damage:', damage)\n    damage += 15\n\n# Task 3\nwhile login_attempts > 0:\n    print(f'{login_attempts} attempts remaining.')\n    login_attempts -= 1\nprint('Account Locked')",
+  "hints": [
+    "Task 1: Use `while fuel_level > 0:` then decrease with `fuel_level -= 1`",
+    "Task 2: Use `while damage < 50:` then increase with `damage += 15`",
+    "Task 3: Use `while login_attempts > 0:` then decrease with `login_attempts -= 1`",
+    "Remember: The print statement after Task 3 is NOT inside the loop!",
+    "Infinite loop warning: Make sure you modify the variable inside each loop"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Verify While Loop Logic and Output",
-      "code": "import io, sys\n# We must run this in a fresh environment to ensure variables start at default values\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    test_env = {'fuel_level': 10, 'damage': 0, 'login_attempts': 3}\n    exec(code, {}, test_env)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\nif test_env['fuel_level'] != 0:\n    raise AssertionError('Step 1: fuel_level should reach 0.')\nif 'Fuel remaining: 1' not in output:\n    raise AssertionError('Step 1: Fuel countdown output is incorrect.')\n\nif test_env['damage'] < 50:\n    raise AssertionError('Step 2: damage should be at least 50.')\nif 'Current damage: 45' not in output:\n    raise AssertionError('Step 2: Damage accumulation output missing.')\n\nif test_env['login_attempts'] != 0:\n    raise AssertionError('Step 3: login_attempts should reach 0.')\nif 'Account Locked' not in output:\n    raise AssertionError('Step 3: \"Account Locked\" must be printed after the loop.')\n\nprint('TEST_PASSED: While loops correctly implemented')",
-      "expected": "Variables reach exit conditions and all messages are printed."
+      "name": "Check while loop logic",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {'fuel_level': 10, 'damage': 0, 'login_attempts': 3}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check final values\nif local_vars['fuel_level'] != 0:\n    raise AssertionError(f'Task 1 failed: fuel_level should be 0, got {local_vars[\"fuel_level\"]}')\n\nif local_vars['damage'] < 50:\n    raise AssertionError(f'Task 2 failed: damage should be ≥50, got {local_vars[\"damage\"]}')\n\nif local_vars['login_attempts'] != 0:\n    raise AssertionError(f'Task 3 failed: login_attempts should be 0, got {local_vars[\"login_attempts\"]}')\n\n# Check outputs\nif 'Fuel remaining: 1' not in output:\n    raise AssertionError('Task 1 failed: Should print fuel from 10 down to 1')\n\nif 'Current damage: 45' not in output:\n    raise AssertionError('Task 2 failed: Should print damage at 0, 15, 30, 45')\n\nif 'Account Locked' not in output:\n    raise AssertionError('Task 3 failed: Must print \"Account Locked\" after loop')\n\nprint('✓ All while loops working correctly!')"
     }
   ],
-  "expectedOutput": "Fuel remaining: 10\n...\nFuel remaining: 1\nCurrent damage: 0\n...\nCurrent damage: 45\n3 attempts remaining.\n2 attempts remaining.\n1 attempts remaining.\nAccount Locked",
-  "tags": ["while-loop", "iteration", "indefinite-loop"]
+  "tags": ["while-loop", "iteration", "indefinite-loop", "beginner"]
 }

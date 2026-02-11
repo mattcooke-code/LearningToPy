@@ -9,6 +9,14 @@
   ],
   "starterCode": "# Security system variables\nhas_keycard = True\nhas_pin = False\nday = 'Monday'\nis_holiday = False\nuser_role = 'Employee'\ntemperature = 22\n\nprint(\"🔐 SECURITY SYSTEM CHECK\")\n\n# Step 1: Pattern Example (Already Done)\ncan_enter_building = has_keycard or has_pin\n\nprint(f\"Can enter building: {can_enter_building}\")\n\n# Step 2: Check if it's Monday AND not a holiday\nis_regular_workday = \n\n# Step 3: Check if user is NOT an admin\nis_regular_user = \n\n# Step 4: Check if temp is between 18 and 24 inclusive\nis_comfortable_temp = \n\nprint(f\"Is regular workday: {is_regular_workday}\")\nprint(f\"Is regular user: {is_regular_user}\")\nprint(f\"Is comfortable temperature: {is_comfortable_temp}\")",
   "solution": "is_regular_workday = day == 'Monday' and is_holiday == False\nis_regular_user = not user_role == 'Admin'\nis_comfortable_temp = 18 <= temperature <= 24",
+  "hints": [
+    "**Boolean expressions:** These evaluate to `True` or `False` without needing an `if` statement. Example: `is_cold = temperature < 10` stores `True` or `False` in the variable.",
+    "**and operator:** Both conditions must be `True` for the whole expression to be `True`. Format: `condition1 and condition2`.",
+    "**not operator:** Flips the Boolean value. If something is `True`, `not` makes it `False`, and vice versa. Example: `not is_admin` or `not user == 'Admin'`.",
+    "**Chained comparisons:** Python lets you chain multiple comparisons in one line! Instead of `x >= 18 and x <= 24`, write `18 <= x <= 24`.",
+    "**Equality check:** Remember to use `==` (double equals) to compare values, not `=` (single equals, which is for assignment).",
+    "**Testing your logic:** The starter code already has variables set. Your expressions should evaluate based on those values. Check the expected output to see what each should be!"
+  ],
   "validation": "tests",
   "tests": [
     {

@@ -58,6 +58,10 @@ for score in scores:
 | `break`    | Exits  | The loop is permanently terminated.                                                     |
 | `continue` | Skips  | Only the current iteration is skipped; the loop continues with the next item/condition. |
 
+:::warning
+**Use Sparingly:** Overusing `break` and `continue` can make your code harder to follow. Sometimes it's clearer to structure your conditions differently. Use them when they genuinely simplify the logic, not just to skip writing proper conditions.
+:::
+
 ## 4. Practical Example: Input Validation Loop
 
 ```python
@@ -88,3 +92,19 @@ print("Thank you for entering a valid number.")
 # Valid number entered: 7
 # Thank you for entering a valid number.
 ```
+
+:::tip
+**The `while True:` Pattern:** Using `while True:` with `break` is a common and clean pattern for input validation or menus. The loop runs forever until a specific condition (checked inside) triggers a `break`. This is often clearer than trying to craft the perfect `while` condition.
+:::
+
+:::summary
+
+- `break` **exits** the loop immediately (permanently)
+- `continue` **skips** current iteration and continues to next
+- Use `break` when you find what you're searching for
+- Use `continue` to filter/skip unwanted items
+- `break` stops all further iterations
+- `continue` only skips current iteration's remaining code
+- Often used with `while True:` for input validation
+
+:::

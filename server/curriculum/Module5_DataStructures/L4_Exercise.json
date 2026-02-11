@@ -1,21 +1,34 @@
 {
   "title": "Data Comparison with Sets",
-  "instructions": "Use set operators (`|`, `&`, `-`, `^`) to compare groups of data efficiently.",
+  "instructions": "Use set operations to combine and compare groups of data. These are like mathematical operations on sets!",
   "steps": [
-    "**Step 1:** Use the **union operator (`|`)** to combine `set_a` and `set_b` into `combined_unique_numbers`.",
-    "**Step 2:** Use the **intersection operator (`&`)** to find common elements between `set_a` and `set_c` as `common_elements`.",
-    "**Step 3:** Use the **difference operator (`-`)** to find users in `premium_users` who are **not** in `active_subscribers`. Assign to `stale_premium_users`.",
-    "**Step 4:** Use the **symmetric difference operator (`^`)** to find items unique to either `set_c` or `set_b` (but not both). Assign to `unique_to_each_set`."
+    "Task 1: Combine `set_a` and `set_b` using **union** (`|`) - all elements from either set",
+    "Task 2: Find common elements between `set_a` and `set_c` using **intersection** (`&`)",
+    "Task 3: Find premium users who are NOT active subscribers using **difference** (`-`)",
+    "Task 4: Find elements in either `set_c` OR `set_b` but NOT both using **symmetric difference** (`^`)"
   ],
-  "starterCode": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# Implement steps 1-4 below:\n",
+  "starterCode": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# Task 1: Union - combine set_a and set_b\ncombined_unique_numbers = \n\n# Task 2: Intersection - common in set_a and set_c\ncommon_elements = \n\n# Task 3: Difference - in premium_users but not active_subscribers\nstale_premium_users = \n\n# Task 4: Symmetric difference - in either set_c or set_b but not both\nunique_to_each_set = ",
   "solution": "combined_unique_numbers = set_a | set_b\ncommon_elements = set_a & set_c\nstale_premium_users = premium_users - active_subscribers\nunique_to_each_set = set_c ^ set_b",
+  "hints": [
+    "Task 1: Union (`|`): All elements from both sets. Example: `set_a | set_b`",
+    "Task 2: Intersection (`&`): Elements that are in BOTH sets. Example: `set_a & set_c`",
+    "Task 3: Difference (`-`): Elements in first set but NOT in second. Example: `premium_users - active_subscribers`",
+    "Task 4: Symmetric difference (`^`): Elements in either set but NOT in both. Example: `set_c ^ set_b`",
+    "Remember: Order matters for difference! `A - B` ≠ `B - A`",
+    "These operations create NEW sets - original sets remain unchanged"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check Set Operators",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\nif exec_globals.get('combined_unique_numbers') != {1, 5, 7, 8, 10, 12}:\n    raise AssertionError('Union (|) logic is incorrect.')\nif exec_globals.get('common_elements') != {1, 5, 8}:\n    raise AssertionError('Intersection (&) logic is incorrect.')\nif exec_globals.get('stale_premium_users') != {'B', 'C'}:\n    raise AssertionError('Difference (-) logic is incorrect.')\nif exec_globals.get('unique_to_each_set') != {1, 2, 7, 8, 10, 12}:\n    raise AssertionError('Symmetric Difference (^) logic is incorrect.')\nprint('TEST_PASSED: Set theory operators applied correctly')",
-      "expected": "Correctly applies |, &, -, and ^ operators"
+      "name": "Check set operations",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nunion = exec_globals.get('combined_unique_numbers')\nif union != {1, 5, 7, 8, 10, 12}:\n    raise AssertionError(f'Task 1: Union should be {{1,5,7,8,10,12}}, got {union}')\n\nintersection = exec_globals.get('common_elements')\nif intersection != {1, 5, 8}:\n    raise AssertionError(f'Task 2: Intersection should be {{1,5,8}}, got {intersection}')\n\ndifference = exec_globals.get('stale_premium_users')\nif difference != {'B', 'C'}:\n    raise AssertionError(f'Task 3: Difference should be {{\"B\",\"C\"}}, got {difference}')\n\nsym_diff = exec_globals.get('unique_to_each_set')\nif sym_diff != {1, 2, 7, 8, 10, 12}:\n    raise AssertionError(f'Task 4: Symmetric diff should be {{1,2,7,8,10,12}}, got {sym_diff}')\n\nprint('✓ All set operations correct!')"
     }
   ],
-  "tags": ["set-operations", "union", "intersection", "difference"]
+  "tags": [
+    "set-operations",
+    "union",
+    "intersection",
+    "difference",
+    "intermediate"
+  ]
 }

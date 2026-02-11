@@ -1,5 +1,6 @@
 // server/seeders/seedModules16-20.js
 const { prepareQuizData, loadLessonAsset } = require("../utils/seederHelpers");
+const { MODULE_CONFIGS, MODULE_HELPERS } = require("../config/moduleConfigs");
 
 const seedModules16to20 = async (
   Lesson,
@@ -14,358 +15,99 @@ const seedModules16to20 = async (
     modules: seedConfig.modules || "all",
   });
 
-  // Only need the immediate prerequisite (Module 15)
+  const createdModules = [];
   const { module15_id = null } = options;
 
-  //  ======================================
-  // || MODULE 16: HTTP REQUESTS & APIs ||
-  //  ======================================
-  console.log("📘 Creating Module 16: HTTP Requests & APIs...");
-  const m16Folder = "Module16_API";
-  const m16ReviewQuiz = parseJSONContent(m16Folder, "M16_ReviewQuiz.json");
-  const module16 = await Module.create({
-    title: "HTTP Requests & APIs",
-    description:
-      "Learn to interact with web services using the powerful requests library.",
-    shortDescription: "Master GET/POST requests and handling JSON data.",
-    order: 16,
-    moduleNumber: "M16",
-    difficulty: "advanced",
-    estimatedHours: 4.0,
-    isPublished: true,
-    prerequisites: module15_id ? [module15_id] : [],
-    learningObjectives: [
-      "HTTP Methods",
-      "JSON Parsing",
-      "Status Codes",
-      "Error Handling",
-    ],
-    icon: "🌐",
-    xpReward: 300,
-    moduleQuiz: prepareQuizData(m16ReviewQuiz),
-  });
+  // Define which modules to seed (16-20)
+  const modulesToSeed = ["M16", "M17", "M18", "M19", "M20"];
 
-  const m16Lessons = [
-    {
-      file: "L1_HTTP_Basics.md",
-      quiz: "L1_Quiz.json",
-      title: "HTTP Basics and Library Setup",
-      type: "guided-setup",
-      ex: "L1_Exercise.json",
-    },
-    {
-      file: "L2_GET_Requests.md",
-      quiz: "L2_Quiz.json",
-      title: "Making GET Requests",
-      type: "exercise",
-      ex: "L2_Exercise.json",
-    },
-    {
-      file: "L3_JSON_Handling.md",
-      quiz: "L3_Quiz.json",
-      title: "Handling JSON Data",
-      type: "exercise",
-      ex: "L3_Exercise.json",
-    },
-    {
-      file: "L4_POST_Requests.md",
-      quiz: "L4_Quiz.json",
-      title: "Sending Data with POST",
-      type: "exercise",
-      ex: "L4_Exercise.json",
-    },
-    {
-      file: "L5_Project_API_Client.md",
-      title: "Project: Simple API Client",
-      type: "project",
-      ex: "L5_Exercise.json",
-    },
-  ];
+  for (const moduleNum of modulesToSeed) {
+    const moduleConfig = MODULE_CONFIGS[moduleNum];
+    if (!moduleConfig) {
+      console.warn(`⚠️ Module ${moduleNum} not found in config, skipping...`);
+      continue;
+    }
 
-  for (let i = 0; i < m16Lessons.length; i++) {
-    const l = m16Lessons[i];
-    await Lesson.create({
-      title: l.title,
-      content: readContent(m16Folder, l.file),
-      order: i + 1,
-      moduleId: module16._id,
-      contentType: l.type,
-      quiz: loadLessonAsset(parseJSONContent, m16Folder, l.quiz, "quiz"),
-      exercise: loadLessonAsset(parseJSONContent, m16Folder, l.ex, "exercise"),
+    console.log(`📘 Creating ${moduleNum}: ${moduleConfig.title}...`);
+
+    // Get review quiz (except for M20)
+    let reviewQuiz = null;
+    if (moduleNum !== "M20") {
+      reviewQuiz = parseJSONContent(
+        moduleConfig.folder,
+        `${moduleNum}_ReviewQuiz.json`,
+      );
+    }
+
+    // Get metadata
+    const metadata = MODULE_HELPERS.getModuleMetadata(moduleNum);
+    const learningObjectives = MODULE_HELPERS.getLearningObjectives(moduleNum);
+
+    // Build prerequisites
+    const prerequisites = [];
+    if (moduleNum === "M16" && module15_id) {
+      prerequisites.push(module15_id);
+    } else if (moduleNum !== "M16") {
+      const prevModuleNum = `M${parseInt(moduleNum.slice(1)) - 1}`;
+      const prevModule = createdModules.find(
+        (m) => m.moduleNumber === prevModuleNum,
+      );
+      if (prevModule) {
+        prerequisites.push(prevModule._id);
+      }
+    }
+
+    // Create module
+    const module = await Module.create({
+      title: moduleConfig.title,
+      description: moduleConfig.description,
+      shortDescription: moduleConfig.description.substring(0, 100) + "...",
+      order: parseInt(moduleNum.slice(1)),
+      moduleNumber: moduleNum,
+      difficulty: metadata.difficulty,
+      estimatedHours: metadata.estimatedHours,
       isPublished: true,
+      prerequisites: prerequisites,
+      learningObjectives: learningObjectives,
+      icon: metadata.icon,
+      xpReward: metadata.xpReward,
+      moduleQuiz: reviewQuiz ? prepareQuizData(reviewQuiz, true) : null,
     });
+
+    createdModules.push(module);
+
+    // Create lessons
+    for (let i = 0; i < moduleConfig.lessons.length; i++) {
+      const lessonConfig = moduleConfig.lessons[i];
+      await Lesson.create({
+        title: lessonConfig.title,
+        content: readContent(moduleConfig.folder, lessonConfig.file),
+        order: i + 1,
+        moduleId: module._id,
+        contentType: lessonConfig.type,
+        quiz: loadLessonAsset(
+          parseJSONContent,
+          moduleConfig.folder,
+          lessonConfig.quiz,
+          "quiz",
+        ),
+        exercise: loadLessonAsset(
+          parseJSONContent,
+          moduleConfig.folder,
+          lessonConfig.ex,
+          "exercise",
+        ),
+        isPublished: true,
+      });
+    }
+
+    console.log(
+      `✅ ${moduleNum} created with ${moduleConfig.lessons.length} lessons`,
+    );
   }
-
-  //  ============================================================
-  // || MODULE 17: INTRODUCTION TO DATA SCIENCE (NUMPY/PANDAS) ||
-  //  ============================================================
-  console.log("📘 Creating Module 17: Data Science...");
-  const m17Folder = "Module17_DataScience";
-  const m17ReviewQuiz = parseJSONContent(m17Folder, "M17_ReviewQuiz.json");
-  const module17 = await Module.create({
-    title: "Introduction to Data Science (NumPy/Pandas)",
-    description: "Practical introduction to data manipulation and analysis.",
-    shortDescription: "Working with NumPy Arrays and Pandas DataFrames.",
-    order: 17,
-    moduleNumber: "M17",
-    difficulty: "advanced",
-    estimatedHours: 5.0,
-    isPublished: true,
-    prerequisites: [module16._id],
-    learningObjectives: [
-      "NumPy ndarrays",
-      "Vectorized math",
-      "Pandas DataFrames",
-      "Data Filtering",
-    ],
-    icon: "📊",
-    xpReward: 350,
-    moduleQuiz: prepareQuizData(m17ReviewQuiz),
-  });
-
-  const m17Lessons = [
-    {
-      file: "L1_NumPy_Arrays.md",
-      quiz: "L1_Quiz.json",
-      title: "NumPy Arrays Basics",
-      type: "exercise",
-      ex: "L1_Exercise.json",
-    },
-    {
-      file: "L2_NumPy_Vectorized.md",
-      quiz: "L2_Quiz.json",
-      title: "Vectorized Operations",
-      type: "exercise",
-      ex: "L2_Exercise.json",
-    },
-    {
-      file: "L3_Pandas_Series.md",
-      quiz: "L3_Quiz.json",
-      title: "Pandas Series",
-      type: "exercise",
-      ex: "L3_Exercise.json",
-    },
-    {
-      file: "L4_Pandas_DataFrames.md",
-      quiz: "L4_Quiz.json",
-      title: "Working with DataFrames",
-      type: "exercise",
-      ex: "L4_Exercise.json",
-    },
-    {
-      file: "L5_Project_Data_Filtering.md",
-      title: "Project: Data Selection and Filtering",
-      type: "project",
-      ex: "L5_Exercise.json",
-    },
-  ];
-
-  for (let i = 0; i < m17Lessons.length; i++) {
-    const l = m17Lessons[i];
-    await Lesson.create({
-      title: l.title,
-      content: readContent(m17Folder, l.file),
-      order: i + 1,
-      moduleId: module17._id,
-      contentType: l.type,
-      quiz: loadLessonAsset(parseJSONContent, m17Folder, l.quiz, "quiz"),
-      exercise: loadLessonAsset(parseJSONContent, m17Folder, l.ex, "exercise"),
-      isPublished: true,
-    });
-  }
-
-  //  ====================================
-  // || MODULE 18: WEB SCRAPING BASICS ||
-  //  ====================================
-  console.log("📘 Creating Module 18: Web Scraping...");
-  const m18Folder = "Module18_Scraping";
-  const m18ReviewQuiz = parseJSONContent(m18Folder, "M18_ReviewQuiz.json");
-  const module18 = await Module.create({
-    title: "Web Scraping Basics",
-    description: "Extract structured data from websites using BeautifulSoup.",
-    shortDescription: "Extracting data using HTML structure and CSS selectors.",
-    order: 18,
-    moduleNumber: "M18",
-    difficulty: "advanced",
-    estimatedHours: 3.5,
-    isPublished: true,
-    prerequisites: [module17._id],
-    learningObjectives: [
-      "HTML/DOM",
-      "Parsing with BS4",
-      "CSS Selectors",
-      "Scraping Etiquette",
-    ],
-    icon: "🕸️",
-    xpReward: 280,
-    moduleQuiz: prepareQuizData(m18ReviewQuiz),
-  });
-
-  const m18Lessons = [
-    {
-      file: "L1_Introduction to HTML.md",
-      quiz: "L1_Quiz.json",
-      title: "HTML Structure and the DOM",
-      type: "exercise",
-      ex: "L1_Exercise.json",
-    },
-    {
-      file: "L2_Requests.md",
-      quiz: "L2_Quiz.json",
-      title: "Fetching HTML with Requests",
-      type: "exercise",
-      ex: "L2_Exercise.json",
-    },
-    {
-      file: "L3_BeautifulSoup.md",
-      quiz: "L3_Quiz.json",
-      title: "Parsing with BeautifulSoup",
-      type: "exercise",
-      ex: "L3_Exercise.json",
-    },
-    {
-      file: "L4_Class_Id.md",
-      quiz: "L4_Quiz.json",
-      title: "Locating Data with Class and ID",
-      type: "exercise",
-      ex: "L4_Exercise.json",
-    },
-    {
-      file: "L5_Project_Basic Web Scraping.md",
-      title: "Project: Data Extraction and Storage",
-      type: "project",
-      ex: "L5_Exercise.json",
-    },
-  ];
-
-  for (let i = 0; i < m18Lessons.length; i++) {
-    const l = m18Lessons[i];
-    await Lesson.create({
-      title: l.title,
-      content: readContent(m18Folder, l.file),
-      order: i + 1,
-      moduleId: module18._id,
-      contentType: l.type,
-      quiz: loadLessonAsset(parseJSONContent, m18Folder, l.quiz, "quiz"),
-      exercise: loadLessonAsset(parseJSONContent, m18Folder, l.ex, "exercise"),
-      isPublished: true,
-    });
-  }
-
-  //  ===========================================
-  // || MODULE 19: DATABASE INTERACTION (SQL) ||
-  //  ===========================================
-  console.log("📘 Creating Module 19: Databases...");
-  const m19Folder = "Module19_Database";
-  const m19ReviewQuiz = parseJSONContent(m19Folder, "M19_ReviewQuiz.json");
-  const module19 = await Module.create({
-    title: "Database Interaction (SQL)",
-    description:
-      "Integrate Python applications with SQLite for persistent storage.",
-    shortDescription: "Connecting, executing queries, and managing SQL data.",
-    order: 19,
-    moduleNumber: "M19",
-    difficulty: "advanced",
-    estimatedHours: 3.0,
-    isPublished: true,
-    prerequisites: [module18._id],
-    learningObjectives: [
-      "SQL Basics",
-      "sqlite3 module",
-      "CRUD Operations",
-      "Parameterized Queries",
-    ],
-    icon: "💾",
-    xpReward: 260,
-    moduleQuiz: prepareQuizData(m19ReviewQuiz),
-  });
-
-  const m19Lessons = [
-    {
-      file: "L1_Database_Basics.md",
-      quiz: "L1_Quiz.json",
-      title: "DB Basics and Connecting",
-      type: "exercise",
-      ex: "L1_Exercise.json",
-    },
-    {
-      file: "L2_CREATE_INSERT.md",
-      quiz: "L2_Quiz.json",
-      title: "Creating Tables and Inserting",
-      type: "exercise",
-      ex: "L2_Exercise.json",
-    },
-    {
-      file: "L3_SELECT_Data.md",
-      quiz: "L3_Quiz.json",
-      title: "Retrieving Data with Cursors",
-      type: "exercise",
-      ex: "L3_Exercise.json",
-    },
-    {
-      file: "L4_Project_CRUD.md",
-      title: "Project: Parameterized Queries and Updates",
-      type: "project",
-      ex: "L4_Exercise.json",
-    },
-  ];
-
-  for (let i = 0; i < m19Lessons.length; i++) {
-    const l = m19Lessons[i];
-    await Lesson.create({
-      title: l.title,
-      content: readContent(m19Folder, l.file),
-      order: i + 1,
-      moduleId: module19._id,
-      contentType: l.type,
-      quiz: loadLessonAsset(parseJSONContent, m19Folder, l.quiz, "quiz"),
-      exercise: loadLessonAsset(parseJSONContent, m19Folder, l.ex, "exercise"),
-      isPublished: true,
-    });
-  }
-
-  //  =================================================
-  // || MODULE 20: FINAL PROJECT: COMMAND LINE TOOL ||
-  //  =================================================
-  console.log("📘 Creating Module 20: Final Project...");
-  const m20Folder = "Module20_Project";
-  const module20 = await Module.create({
-    title: "Final Project: Command Line Tool",
-    description: "Build a fully functional, portfolio-ready CLI application.",
-    shortDescription: "Integrating APIs, Data, and SQL into one utility.",
-    order: 20,
-    moduleNumber: "M20",
-    difficulty: "advanced",
-    estimatedHours: 6.0,
-    isPublished: true,
-    prerequisites: [module19._id],
-    learningObjectives: [
-      "App Design",
-      "argparse",
-      "Tool Integration",
-      "Clean Code",
-    ],
-    icon: "🏆",
-    xpReward: 500,
-  });
-
-  await Lesson.create({
-    title: "Phase 3 Final Project: Command Line Utility",
-    content: readContent(m20Folder, "L1_Final_Project.md"),
-    order: 1,
-    moduleId: module20._id,
-    contentType: "project",
-    exercise: loadLessonAsset(
-      parseJSONContent,
-      m20Folder,
-      "L1_Final_Project.json",
-      "exercise",
-    ),
-    isPublished: true,
-  });
 
   console.log("🎉 Modules 16-20 seeding completed!");
-  return [module16, module17, module18, module19, module20];
+  return createdModules;
 };
 
 module.exports = seedModules16to20;

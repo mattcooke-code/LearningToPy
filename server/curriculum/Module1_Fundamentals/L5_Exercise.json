@@ -1,43 +1,44 @@
 {
-  "title": "Operators Practice Challenge",
-  "instructions": "Use your knowledge of arithmetic and string operators to complete the tasks below.",
+  "title": "F-Strings Conversion Challenge",
+  "instructions": "Convert the messy concatenation code to clean, readable f-strings.",
   "steps": [
-    "Task 1: Calculate the `subtotal` by multiplying the price and quantity variables.",
-    "Task 2: Calculate the `final_total` by adding the `shipping_fee` to your `subtotal`.",
-    "Task 3: We have 21 levels in our game and 4 worlds. Use the floor division operator (`//`) to find out how many levels are in each world equally. Store this in `levels_per_world`.",
-    "Task 4: Join `first_part` and `second_part` together with a space in between. Store in `full_phrase`."
+    "Task 1: Convert the first message to an f-string",
+    "Task 2: Convert the character stats message to an f-string",
+    "Task 3: Convert the shopping cart message to an f-string",
+    "Task 4: Create a new f-string with the temperature conversion"
   ],
-  "starterCode": "price = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Python\"\nsecond_part = \"Pro\"\n\n# Task 1: Multiply price and quantity\nsubtotal = \n\n# Task 2: Add shipping_fee to subtotal\nfinal_total = \n\n# Task 3: Use floor division (21 and 4)\nlevels_per_world = \n\n# Task 4: Join strings with a space\nfull_phrase = ",
-  "solution": "price = 5.50\nquantity = 4\nshipping_fee = 10\nfirst_part = \"Python\"\nsecond_part = \"Pro\"\n\nsubtotal = price * quantity\nfinal_total = subtotal + shipping_fee\nlevels_per_world = 21 // 4\nfull_phrase = first_part + \" \" + second_part",
+  "starterCode": "# Old concatenation code that needs cleaning up\nname = \"Alex\"\nage = 28\ncity = \"Paris\"\n\n# Task 1: Convert this to an f-string\nmessage1 = \"Hello, my name is \" + name + \", I am \" + str(age) + \" years old, and I live in \" + city + \".\"\n\n# Task 2: Convert this to an f-string\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = \"Character: \" + character + \" | Health: \" + str(health) + \" | Mana: \" + str(mana)\n\n# Task 3: Convert this to an f-string\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = \"Item: \" + item + \" | Price per item: $\" + str(price) + \" | Total: $\" + str(price * quantity)\n\n# Task 4: Create an f-string for temperature conversion\n# Convert 25°C to Fahrenheit: (25 * 9/5) + 32 = 77°F\n# Create an f-string that shows both temperatures\n# Format should be: \"25°C is 77.0°F\"\ntemp_c = 25\ntemp_f = temp_c * 9/5 + 32\ntemperature_message = \"\" # Replace with your f-string",
+  "solution": "name = \"Alex\"\nage = 28\ncity = \"Paris\"\n\n# Task 1: Convert this to an f-string\nmessage1 = f\"Hello, my name is {name}, I am {age} years old, and I live in {city}.\"\n\n# Task 2: Convert this to an f-string\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = f\"Character: {character} | Health: {health} | Mana: {mana}\"\n\n# Task 3: Convert this to an f-string\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = f\"Item: {item} | Price per item: ${price} | Total: ${price * quantity}\"\n\n# Task 4: Create an f-string for temperature conversion\ntemp_c = 25\ntemp_f = temp_c * 9/5 + 32\ntemperature_message = f\"{temp_c}°C is {temp_f}°F\"",
   "hints": [
-    "Multiplication uses the `*` operator",
-    "Addition uses the `+` operator",
-    "Floor division uses `//` (two forward slashes)",
-    "String concatenation also uses `+`, but you need to add a space between words"
+    "Start with an 'f' before the opening quote: f\"...\"",
+    "Put variables inside curly braces: {variable_name}",
+    "You can put expressions inside curly braces too: {price * quantity}",
+    "No need to use str() with f-strings!",
+    "For Task 4, just use the variables inside the f-string"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check subtotal calculation",
-      "code": "# Check subtotal variable exists and has correct value\nif 'subtotal' not in locals():\n    raise AssertionError('Missing subtotal variable. Did you calculate it?')\n\nexpected_subtotal = 5.50 * 4\nif subtotal != expected_subtotal:\n    raise AssertionError(f'subtotal should be {expected_subtotal} (5.50 * 4), got: {subtotal}')\n\nprint('TEST_PASSED: subtotal calculation is correct')",
-      "expected": "subtotal = 22.0"
+      "name": "Check message1 f-string conversion",
+      "code": "# Check message1 variable exists\nif 'message1' not in locals():\n    raise AssertionError('Missing message1 variable. Did you create it?')\n\n# Check it's an f-string (starts with f)\nif not isinstance(message1, str):\n    raise AssertionError('message1 should be a string')\n\n# Check content\nif 'Alex' not in message1 or '28' not in message1 or 'Paris' not in message1:\n    raise AssertionError('message1 should contain name, age, and city')\n\n# Check for concatenation artifacts\nif 'str(' in message1 or '+ \"' in message1 or '\" +' in message1:\n    raise AssertionError('message1 should be an f-string, not concatenation. Remove + signs and str() calls')\n\n# Check f-string format\nif not (message1.startswith('f\"') or message1.startswith(\"f'\")):\n    # Check if student wrote it correctly in code\n    print('Note: message1 is correct but check if you used f before the quotes in your code')\n\nprint('TEST_PASSED: message1 f-string conversion is correct')",
+      "expected": "message1 = f\"Hello, my name is Alex, I am 28 years old, and I live in Paris.\""
     },
     {
-      "name": "Check final_total calculation",
-      "code": "# Check final_total variable\nif 'final_total' not in locals():\n    raise AssertionError('Missing final_total variable. Did you calculate it?')\n\nexpected_final_total = (5.50 * 4) + 10\nif final_total != expected_final_total:\n    raise AssertionError(f'final_total should be {expected_final_total} (subtotal + shipping_fee), got: {final_total}')\n\nprint('TEST_PASSED: final_total calculation is correct')",
-      "expected": "final_total = 32.0"
+      "name": "Check message2 f-string conversion",
+      "code": "# Check message2 variable\nif 'message2' not in locals():\n    raise AssertionError('Missing message2 variable. Did you create it?')\n\n# Check content\nif 'Wizard' not in message2 or '85' not in message2 or '120' not in message2:\n    raise AssertionError('message2 should contain character, health, and mana values')\n\n# Check for concatenation artifacts\nif 'str(' in message2 or '+ \"' in message2 or '\" +' in message2:\n    raise AssertionError('message2 should be an f-string, not concatenation. Remove + signs and str() calls')\n\nprint('TEST_PASSED: message2 f-string conversion is correct')",
+      "expected": "message2 = f\"Character: Wizard | Health: 85 | Mana: 120\""
     },
     {
-      "name": "Check levels_per_world calculation",
-      "code": "# Check levels_per_world variable\nif 'levels_per_world' not in locals():\n    raise AssertionError('Missing levels_per_world variable. Did you calculate it?')\n\nif levels_per_world != 5:\n    raise AssertionError(f'levels_per_world should be 5 (21 // 4), got: {levels_per_world}')\n\n# Also check they used floor division, not regular division\nif isinstance(levels_per_world, float):\n    raise AssertionError('Use floor division (//) not regular division (/). Result should be an integer!')\n\nprint('TEST_PASSED: levels_per_world calculation is correct')",
-      "expected": "levels_per_world = 5"
+      "name": "Check message3 f-string conversion",
+      "code": "# Check message3 variable\nif 'message3' not in locals():\n    raise AssertionError('Missing message3 variable. Did you create it?')\n\n# Check content\nif 'Magic Wand' not in message3 or '49.99' not in message3 or '99.98' not in message3:\n    raise AssertionError('message3 should contain item, price, and total (price * quantity = 99.98)')\n\n# Check it calculates total correctly\nif not ('99.98' in message3 or '99.980' in message3):\n    raise AssertionError('Total should be 49.99 * 2 = 99.98')\n\n# Check for concatenation artifacts\nif 'str(' in message3 or '+ \"' in message3 or '\" +' in message3:\n    raise AssertionError('message3 should be an f-string, not concatenation. Remove + signs and str() calls')\n\nprint('TEST_PASSED: message3 f-string conversion is correct')",
+      "expected": "message3 = f\"Item: Magic Wand | Price per item: $49.99 | Total: $99.98\""
     },
     {
-      "name": "Check full_phrase concatenation",
-      "code": "# Check full_phrase variable\nif 'full_phrase' not in locals():\n    raise AssertionError('Missing full_phrase variable. Did you concatenate the strings?')\n\nif full_phrase != 'Python Pro':\n    raise AssertionError(f'full_phrase should be \"Python Pro\" (with a space), got: \"{full_phrase}\"')\n\nprint('TEST_PASSED: full_phrase concatenation is correct')",
-      "expected": "full_phrase = 'Python Pro'"
+      "name": "Check temperature_message f-string",
+      "code": "# Check temperature_message variable\nif 'temperature_message' not in locals():\n    raise AssertionError('Missing temperature_message variable. Did you create it?')\n\n# Check content\nif '25' not in temperature_message or '77' not in temperature_message:\n    raise AssertionError('temperature_message should contain both temperatures')\n\n# Check format\nif '°C' not in temperature_message or '°F' not in temperature_message:\n    raise AssertionError('temperature_message should include °C and °F symbols')\n\n# Check it's an f-string with expression\nif not (temperature_message == '25°C is 77.0°F' or temperature_message == '25°C is 77°F'):\n    raise AssertionError('temperature_message should be in format: \"25°C is 77.0°F\"')\n\nprint('TEST_PASSED: temperature_message f-string is correct')",
+      "expected": "temperature_message = f\"25°C is 77.0°F\""
     }
   ],
-  "tags": ["operators", "arithmetic", "floor-division", "string-concatenation"],
-  "challengeGroup": "operators"
+  "tags": ["f-strings", "string-formatting", "concatenation", "conversion"],
+  "challengeGroup": "f-strings"
 }

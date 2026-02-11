@@ -9,6 +9,14 @@
   ],
   "starterCode": "# Your task list for today\ntasks = ['Morning workout', 'Check emails', 'Team meeting', 'Lunch break', 'Code review', 'Update docs']\n\nprint(\"Starting tasks:\", tasks)\nprint()\n\n# Step 1: Remove 'Check emails' by value using remove()\n\n\nprint(\"After removing 'Check emails':\", tasks)\n\n# Step 2: Pop the first task and save it to completed_task\ncompleted_task = \n\nprint(\"After completing first task:\", tasks)\nprint(\"Completed:\", completed_task)\n\n# Step 3: Delete the last 2 tasks using del and negative slicing [-n:]\n\n\nprint(\"After deleting last 2 tasks:\", tasks)\n\n# Step 4: Pop the last remaining task (no index needed!)\nfinal_task = \n\nprint(\"After completing final task:\", tasks)\nprint(\"Final task completed:\", final_task)",
   "solution": "tasks.remove('Check emails')\ncompleted_task = tasks.pop(0)\ndel tasks[-2:]\nfinal_task = tasks.pop()",
+  "hints": [
+    "**remove() syntax:** Call it on your list with the exact value you want to remove: `my_list.remove('item name')`. It removes the FIRST occurrence of that value.",
+    "**pop() with index:** Use `pop(index)` to remove AND return an item at a specific position. Example: `removed_item = my_list.pop(0)` removes the first item and saves it.",
+    "**del with slicing:** The `del` keyword can delete multiple items at once. Use negative slicing to count from the end: `del my_list[-2:]` removes the last 2 items.",
+    "**pop() without index:** When you call `pop()` with NO argument, it automatically removes and returns the LAST item in the list. Like this: `last = my_list.pop()`.",
+    "**Watch the progression:** Each print statement shows how your list changes. This helps you verify you're removing the right items at each step!",
+    "**Key difference:** `remove()` deletes by value, `pop()` deletes by position and gives you the item back, and `del` just deletes without returning anything."
+  ],
   "tests": [
     {
       "name": "Check Logic and Requirements",

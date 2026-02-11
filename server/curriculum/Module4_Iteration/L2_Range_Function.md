@@ -42,13 +42,16 @@ for even in range(0, 10, 2):
 # Generates: 0, 2, 4, 6, 8
 ```
 
+:::tip
+**Memory Efficiency:** `range()` doesn't create a list in memory - it generates numbers on demand. This makes `for i in range(1000000):` much more memory efficient than `for i in list(range(1000000)):` for large ranges.
+:::
+
 ## 2. Counting Backward
 
 To count backward (or reverse a loop), you must:
 
-Set the start value to be greater than the stop value.
-
-Set the step value to a negative number (e.g., -1).
+- Set the start value to be greater than the stop value.
+- Set the step value to a negative number (e.g., `-1`).
 
 ```python
 for countdown in range(5, 0, -1):
@@ -72,6 +75,17 @@ print(data) # Output: ['a', 'b', 'c']
 
 ```
 
+```python
+print("🍄 Super Mario - Invincibility Star:")
+invincible_time = 10  # seconds
+
+for seconds_left in range(invincible_time, 0, -1):
+    print(f"Star Power: {seconds_left} seconds remaining")
+    # Game logic would go here
+
+print("The star power has worn off! Watch out for Goombas!")
+```
+
 ## 4. Practical Example: Building a Pattern
 
 ```python
@@ -87,3 +101,16 @@ for i in range(1, 6):
 #  ****
 # *****
 ```
+
+:::summary
+
+- `range()` generates number sequences efficiently (no list created)
+- **Three forms**:
+  - `range(stop)` → 0 to stop-1
+  - `range(start, stop)` → start to stop-1
+  - `range(start, stop, step)` → with custom increment
+- `stop` value is **exclusive** (not included)
+- Use **negative step** to count backward: `range(5, 0, -1)`
+- Often used with `for` loops for counting/repeating
+
+:::

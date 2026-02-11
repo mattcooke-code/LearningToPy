@@ -63,3 +63,13 @@ even_index = numbers[0::2] # Result: [10, 30, 50]
 # Reverse the entire list
 reversed_list = numbers[::-1] # Result: [60, 50, 40, 30, 20, 10]
 ```
+
+:::summary
+
+- Use **slicing** (`list[start:stop]`) to extract sub-lists
+- The `stop` index is **exclusive** (not included in result)
+- Use `list[:]` to safely copy a list
+- The `step` parameter (`[::2]`) skips elements
+- Use `[::-1]` to reverse a list
+
+:::

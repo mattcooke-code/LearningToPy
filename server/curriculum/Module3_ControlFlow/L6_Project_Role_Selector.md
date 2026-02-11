@@ -35,8 +35,10 @@ Your code should work correctly for all these test scenarios:
 - Premium member with 15 days → "Premium features unlock in 15 days"
 - Free member → Free games only
 
-## Tips
+:::tips
 
 - Use `elif` to handle the different Premium member cases
 - Remember to check account_type AND account_age together using `and`
 - Use subtraction to calculate days remaining: `30 - account_age`
+
+:::

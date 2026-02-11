@@ -1,0 +1,45 @@
+{
+  "lessonId": "M5L1",
+  "title": "Dictionaries - Quiz",
+  "questions": [
+    {
+      "id": "m5l1_q1",
+      "type": "multiple-choice",
+      "question": "What happens when you try to access a dictionary key that doesn't exist using bracket notation: `my_dict[\"nonexistent\"]`?",
+      "options": [
+        "It returns `None`",
+        "It returns an empty string",
+        "It raises a `KeyError`",
+        "It automatically adds the key with a value of `None`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Using bracket notation to access a non-existent key raises a `KeyError`. This is why we use `.get()` for safe access: `my_dict.get(\"nonexistent\")` returns `None` instead of raising an error."
+    },
+    {
+      "id": "m5l1_q2",
+      "type": "multiple-choice",
+      "question": "Which of these is NOT a valid dictionary key?",
+      "options": [
+        "`\"username\"` (a string)",
+        "`123` (an integer)",
+        "`[1, 2, 3]` (a list)",
+        "`(\"x\", \"y\")` (a tuple)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Dictionary keys must be immutable (cannot change). Lists are mutable, so they cannot be used as dictionary keys. Strings, integers, and tuples are all immutable and can be used as keys."
+    },
+    {
+      "id": "m5l1_q3",
+      "type": "multiple-choice",
+      "question": "What does the `.get()` method return if you don't specify a default value and the key doesn't exist?",
+      "options": [
+        "`False`",
+        "An empty string `\"\"`",
+        "`None`",
+        "It raises a `KeyError`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `.get()` method returns `None` by default when a key doesn't exist. You can specify a different default value as the second argument: `my_dict.get(\"key\", \"default_value\")`."
+    }
+  ]
+}

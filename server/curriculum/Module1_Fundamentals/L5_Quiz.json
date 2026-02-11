@@ -1,40 +1,50 @@
 {
   "lessonId": "M1L5",
-  "title": "Operators - Quiz",
+  "title": "F-Strings - Quiz",
   "questions": [
     {
       "id": "m1l5_q1",
       "sourceLesson": "M1L5",
       "type": "multiple-choice",
-      "question": "What is the result of `10 % 3` in Python?",
-      "options": ["`3`", "`1`", "`0.33`", "`3.33`"],
+      "question": "What is the correct syntax for an f-string that includes the variable `name`?",
+      "options": [
+        "`\"Hello {name}\"`",
+        "`f\"Hello {name}\"`",
+        "`\"Hello\" + name`",
+        "`str(\"Hello \") + name`"
+      ],
       "correctAnswer": 1,
-      "explanation": "The modulus operator `%` returns the remainder after division. `10` divided by `3` is `3` with a remainder of `1`, so `10 % 3` equals `1`.",
-      "terminalHint": "💡 Try this in your terminal! Type: `print(10 % 3)`"
+      "explanation": "F-strings require an `f` before the opening quote. The correct syntax is `f\"Hello {name}\"`. Without the `f`, Python treats it as a regular string with literal curly braces.",
+      "terminalHint": "💡 Try this in your terminal! Type: `name = \"Alice\"; print(f\"Hello {name}\")`"
     },
     {
       "id": "m1l5_q2",
       "sourceLesson": "M1L5",
       "type": "multiple-choice",
-      "question": "What is the result of `2 + 3 * 4`?",
-      "options": ["`20`", "`14`", "`11`", "`24`"],
+      "question": "Look at this code: `name = \"Sam\"; age = 25`. Which f-string will print \"Sam is 25 years old\"?",
+      "options": [
+        "`print(f\"name is age years old\")`",
+        "`print(f\"{name} is {age} years old\")`",
+        "`print(f\"Sam is 25 years old\")`",
+        "`print(\"Sam is 25 years old\")`"
+      ],
       "correctAnswer": 1,
-      "explanation": "Following PEMDAS order of operations, multiplication happens before addition. So `3 * 4 = 12`, then `2 + 12 = 14`. If you wanted `20`, you'd need parentheses: `(2 + 3) * 4`.",
-      "terminalHint": "💡 Try this in your terminal! Type: `print(2 + 3 * 4)` and `print((2 + 3) * 4)`"
+      "explanation": "To use variables in an f-string, put them inside curly braces `{}`. So `{name}` becomes \"Sam\" and `{age}` becomes 25, giving us \"Sam is 25 years old\".",
+      "terminalHint": "💡 Try all options in your terminal! See which one uses the variables correctly."
     },
     {
       "id": "m1l5_q3",
       "sourceLesson": "M1L5",
       "type": "multiple-choice",
-      "question": "What happens when you try to run: `result = \"Hello\" + 5`?",
+      "question": "Which of these is an advantage of f-strings over concatenation?",
       "options": [
-        "It prints \"Hello5\"",
-        "It prints \"Hello 5\"",
-        "It causes an error",
-        "It prints 5"
+        "F-strings are faster to write and easier to read",
+        "F-strings only work with string variables",
+        "F-strings require importing a special module",
+        "F-strings don't work with expressions"
       ],
-      "correctAnswer": 2,
-      "explanation": "Python cannot directly add a string and a number - this causes a `TypeError`. You need to convert the number to a string first: `\"Hello\" + str(5)`."
+      "correctAnswer": 0,
+      "explanation": "F-strings are cleaner, faster to write, and easier to read than concatenation. They automatically convert other data types to strings, can include expressions directly, and don't require any imports in modern Python (3.6+)."
     }
   ]
 }

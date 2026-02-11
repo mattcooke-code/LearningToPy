@@ -15,10 +15,12 @@ Comparison operators are used to compare two values and return a Boolean result 
 |   `>=`    | Greater than or equal | `20 >= 20`                 | `True`  |
 |   `<=`    | Less than or equal    | `15 <= 10`                 | `False` |
 
-> **⚠️ Watch out for `==` vs. `=`: **
->
-> - `==` is used for **comparison** (Are these two values the same?).
-> - `=` is used for **assignment** (Set this variable equal to this value).
+:::warning
+Watch out for `==` vs. `=`:
+
+- `==` is used for **comparison** (Are these two values the same?).
+- `=` is used for **assignment** (Set this variable equal to this value).
+  :::
 
 ## 2. Logical Operators
 
@@ -72,3 +74,18 @@ Python allows you to write natural-language style chains of comparison, which is
 Instead of writing: `if x > 0 and x < 10:`
 
 You can simply write: `if 0 < x < 10:` # This is read as: 0 is less than x, and x is less than 10.
+
+:::tip
+Chained comparisons like `0 < x < 10` not only save typing but are often easier to read than the equivalent `and` expression. Use them whenever you're checking if a value falls within a range.
+:::
+
+:::summary
+
+- **Comparison operators** (`==`, `!=`, `>`, `<`, `>=`, `<=`) compare values
+- **Logical operators** (`and`, `or`, `not`) combine conditions
+- `and` requires **both** conditions to be True
+- `or` requires **at least one** condition to be True
+- `not` reverses a Boolean value
+- You can **chain comparisons**: `0 < x < 10` instead of `x > 0 and x < 10`
+
+:::

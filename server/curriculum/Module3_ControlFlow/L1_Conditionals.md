@@ -25,6 +25,10 @@ print("Continue your journey.")
 # If is_raining is False, only the last line prints.
 ```
 
+:::warning
+**Indentation Matters!** Python uses indentation to define code blocks. If your `if` statement's code isn't indented correctly, Python will either give an error or execute code you didn't intend. Always use consistent indentation (4 spaces is standard).
+:::
+
 ## 2. The `else` Statement
 
 If you want your program to do something only when the if condition is `False`, you use the _else_ block. An `else` statement is guaranteed to run when the `if` statement immediately preceding it does not.
@@ -73,3 +77,17 @@ if user_logged_in:
 else:
     print("Please log in to continue.")
 ```
+
+:::tip
+When you have many `elif` conditions, consider the order carefully. Put the most common or important conditions first for better performance and readability.
+:::
+
+:::summary
+
+- Use `if` statements to make decisions based on conditions
+- Add `elif` for multiple conditions (checked in order)
+- Use `else` as a catch-all when no conditions match
+- Code blocks must be **indented** (4 spaces) after `:`
+- You can **nest** conditionals for complex logic
+
+:::

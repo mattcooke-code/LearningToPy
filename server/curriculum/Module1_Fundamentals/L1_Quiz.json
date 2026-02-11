@@ -6,7 +6,7 @@
       "id": "m1l1_q1",
       "sourceLesson": "M1L1",
       "type": "multiple-choice",
-      "question": "What does the print() function do in Python?",
+      "question": "What does the `print()` function do in Python?",
       "options": [
         "Saves text to a file on your computer",
         "Displays text on the screen",
@@ -20,15 +20,24 @@
       "id": "m1l1_q2",
       "sourceLesson": "M1L1",
       "type": "multiple-choice",
-      "question": "Which of these print statements is written correctly?",
+      "question": "What character is used to create a comment in Python?",
+      "options": ["`//`", "`#`", "`/*`", "`--`"],
+      "correctAnswer": 1,
+      "explanation": "In Python, comments start with the `#` symbol. Everything after `#` on that line is ignored by Python."
+    },
+    {
+      "id": "m1l1_q3",
+      "sourceLesson": "M1L1",
+      "type": "multiple-choice",
+      "question": "How many spaces does Python recommend for each level of indentation?",
       "options": [
-        "`print(Hello World)`",
-        "`print['Hello World']`",
-        "`print(\"Hello World\")`",
-        "`Print(\"Hello World\")`"
+        "`2` spaces",
+        "`3` spaces",
+        "`4` spaces",
+        "It doesn't matter, any amount works"
       ],
       "correctAnswer": 2,
-      "explanation": "`print(\"Hello World\")` is correct. The text must be in quotation marks, we use parentheses (not brackets), and 'print' must be lowercase."
+      "explanation": "Python's official style guide (PEP 8) recommends using `4` spaces for each indentation level. While other amounts technically work, `4` spaces is the standard."
     }
   ]
 }

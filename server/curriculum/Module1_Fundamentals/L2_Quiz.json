@@ -1,43 +1,43 @@
 {
   "lessonId": "M1L2",
-  "title": "Comments & Indentation - Quiz",
+  "title": "Variables: The Labelled Box - Quiz",
   "questions": [
     {
       "id": "m1l2_q1",
       "sourceLesson": "M1L2",
       "type": "multiple-choice",
-      "question": "What character is used to create a comment in Python?",
-      "options": ["`//`", "`#`", "`/*`", "`--`"],
-      "correctAnswer": 1,
-      "explanation": "In Python, comments start with the `#` symbol. Everything after `#` on that line is ignored by Python."
+      "question": "Which of the following is a valid variable name in Python?",
+      "options": [
+        "`2nd_score`",
+        "`user-name`",
+        "`total_price`",
+        "`my variable`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`total_price` is valid because it starts with a letter and uses only letters and underscores. Variable names cannot start with numbers (`2nd_score`), cannot use hyphens (`user-name`), and cannot contain spaces (`my variable`)."
     },
     {
       "id": "m1l2_q2",
       "sourceLesson": "M1L2",
       "type": "multiple-choice",
-      "question": "How many spaces does Python recommend for each level of indentation?",
-      "options": [
-        "`2` spaces",
-        "`3` spaces",
-        "`4` spaces",
-        "It doesn't matter, any amount works"
-      ],
-      "correctAnswer": 2,
-      "explanation": "Python's official style guide (PEP 8) recommends using `4` spaces for each indentation level. While other amounts technically work, `4` spaces is the standard."
+      "question": "What is the assignment operator in Python?",
+      "options": ["`==`", "`=`", "`:`", "`<-`"],
+      "correctAnswer": 1,
+      "explanation": "The single equals sign `=` is the assignment operator. It assigns the value on the right to the variable on the left. The double equals `==` is used for comparison, not assignment."
     },
     {
       "id": "m1l2_q3",
       "sourceLesson": "M1L2",
       "type": "multiple-choice",
-      "question": "What will happen if you don't indent code that should be inside an 'if' block?",
+      "question": "Are 'Score' and 'score' the same variable in Python?",
       "options": [
-        "Python will automatically fix it",
-        "The code will run but give wrong results",
-        "Python will give an `IndentationError`",
-        "Nothing, indentation is optional"
+        "Yes, Python ignores capitalization",
+        "No, Python is case sensitive",
+        "Only if they're in the same function",
+        "It depends on the Python version"
       ],
-      "correctAnswer": 2,
-      "explanation": "Python uses indentation to determine which code belongs inside a block. Missing or incorrect indentation will cause an `IndentationError` and your program won't run."
+      "correctAnswer": 1,
+      "explanation": "Python is case sensitive, meaning `'Score'` and `'score'` are treated as two completely different variables. Always be careful with capitalization when naming variables."
     }
   ]
 }

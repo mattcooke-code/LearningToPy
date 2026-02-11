@@ -139,7 +139,7 @@ balance + 50     # ❌ This does NOTHING - no assignment!
 print(balance)  # Output: 100 (still 100, not 150)
 ```
 
-## What You've Learned
+:::summary
 
 - Variables store data using the assignment operator `=`
 - Variable names must follow Python's naming rules
@@ -148,5 +148,7 @@ print(balance)  # Output: 100 (still 100, not 150)
 - Use `print()` to display variable values
 - Variables create a **single source of truth** - making code maintainable and clear
 - Always use `=` to save changes to a variable
+
+:::
 
 Now you're ready to practice! In the challenge below, you'll create two variables using proper naming conventions and print their values.

@@ -1,21 +1,26 @@
 {
-  "title": "Loop Interruption",
-  "instructions": "Use `break` to stop a loop entirely and `continue` to skip the current iteration and move to the next. \n\n| Keyword | Action | Real-world Analogy |\n| :--- | :--- | :--- |\n| `break` | Exit loop | Emergency Stop button |\n| `continue` | Skip item | Tossing out a bruised apple and moving to the next one |",
+  "title": "Break and Continue Practice",
+  "instructions": "Learn to control loop flow with `break` (stop entire loop) and `continue` (skip current iteration).\n\n**Key Difference:**\n- `break` = Emergency stop button (exits loop completely)\n- `continue` = Skip this item (goes to next iteration)",
   "steps": [
-    "**Step 1:** Loop through `status_codes`. If a code is `404`, print 'Error encountered. Halting process.' and `break`.",
-    "**Step 2:** Loop through `transaction_amounts`. If an amount is `<= 0`, print 'Skipping invalid transaction.' and `continue`. Otherwise, add it to `total_revenue`.",
-    "**Step 3:** Use a `while True:` loop. Print `password_attempts`, then decrease it. If it hits 0, print 'Locked Out!' and `break`."
+    "Task 1: Loop through status codes, break when you find 404",
+    "Task 2: Loop through transactions, skip invalid (≤0), sum valid ones",
+    "Task 3: Use while True with break for password attempts"
   ],
-  "starterCode": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# 1. BREAK on 404\n\n# 2. CONTINUE on invalid amount\n\n# 3. WHILE TRUE with BREAK\n",
-  "solution": "for code in status_codes:\n    if code == 404:\n        print('Error encountered. Halting process.')\n        break\n    print('Processing code', code)\n\nfor amount in transaction_amounts:\n    if amount <= 0:\n        print('Skipping invalid transaction.')\n        continue\n    total_revenue += amount\n\nwhile True:\n    print(f'{password_attempts} attempts remaining.')\n    password_attempts -= 1\n    if password_attempts == 0:\n        print('Locked Out!')\n        break\n\nprint('Total Revenue:', total_revenue)",
+  "starterCode": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# Task 1: Break on 404\n\n# Task 2: Continue on invalid amounts (≤0)\n\n# Task 3: While True with break\n",
+  "solution": "# Task 1\nfor code in status_codes:\n    if code == 404:\n        print('Error encountered. Halting process.')\n        break\n    print('Processing code', code)\n\n# Task 2\nfor amount in transaction_amounts:\n    if amount <= 0:\n        print('Skipping invalid transaction.')\n        continue\n    total_revenue += amount\n\n# Task 3\nwhile True:\n    print(f'{password_attempts} attempts remaining.')\n    password_attempts -= 1\n    if password_attempts == 0:\n        print('Locked Out!')\n        break\n\nprint('Total Revenue:', total_revenue)",
+  "hints": [
+    "Task 1: Use `if code == 404:` then `break` - codes after 404 shouldn't process",
+    "Task 2: Use `if amount <= 0:` then `continue` - skip to next transaction",
+    "Task 3: `while True:` creates infinite loop - must use `break` to exit",
+    "Note: `print('Processing code', code)` not `print('Processing code', code)` - the comma is outside quotes!",
+    "In Task 2, only add to total_revenue if amount is valid (not skipped)"
+  ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check break and continue logic",
-      "code": "import io, sys, ast\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n# Test with specific values to ensure logic isn't hardcoded\ntest_code = code.replace('password_attempts = 5', 'password_attempts = 2')\ntry:\n    exec(test_code)\n    output = sys.stdout.getvalue()\nexcept Exception as e:\n    raise AssertionError(f'Code failed to run: {e}')\nfinally:\n    sys.stdout = old_stdout\n\nif '500' in output:\n    raise AssertionError('Break failed: processed codes after 404 was found.')\nif 'Locked Out!' not in output:\n    raise AssertionError('The while True loop did not reach the break condition.')\n\ntree = ast.parse(code)\nif_nodes = [n for n in ast.walk(tree) if isinstance(n, ast.Break)]\nif len(if_nodes) < 2:\n    raise AssertionError('You must use the \"break\" keyword in at least two places.')\n\nprint('TEST_PASSED: Loop control keywords used correctly')",
-      "expected": "Handles break, continue, and while-break logic correctly."
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {'total_revenue': 0, 'password_attempts': 5}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check Task 1 - shouldn't process code 500\nif 'Processing code 500' in output:\n    raise AssertionError('Task 1 failed: Should break before processing code 500')\n\n# Check Task 2 - revenue calculation\nif local_vars['total_revenue'] != 200:\n    raise AssertionError(f'Task 2 failed: total_revenue should be 200, got {local_vars[\"total_revenue\"]}')\n\n# Check Task 3 - break condition\nif 'Locked Out!' not in output:\n    raise AssertionError('Task 3 failed: Should print \"Locked Out!\" when attempts reach 0')\n\nprint('✓ Break and continue working correctly!')"
     }
   ],
-  "expectedOutput": "Processing code 200\nProcessing code 201\nProcessing code 302\nError encountered. Halting process.\nSkipping invalid transaction.\nSkipping invalid transaction.\n5 attempts remaining.\n4 attempts remaining.\n3 attempts remaining.\n2 attempts remaining.\n1 attempts remaining.\nLocked Out!\nTotal Revenue: 200",
-  "tags": ["break", "continue", "loop-control"]
+  "tags": ["break", "continue", "loop-control", "intermediate"]
 }

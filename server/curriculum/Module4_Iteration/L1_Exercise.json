@@ -1,27 +1,34 @@
 {
   "title": "Basic Iteration Practice",
-  "instructions": "Practice using the basic `for` loop structure to process lists and strings, and utilize the `enumerate()` function.",
+  "instructions": "Practice using `for` loops to iterate over lists and strings, and learn to use `enumerate()` to get both index and value.\n\n**Key Concepts:**\n- `for item in sequence:` iterates through each element\n- `enumerate(sequence)` returns (index, value) pairs\n- Strings are sequences of characters",
   "steps": [
-    "**Step 1:** Use a `for` loop to iterate over `project_tasks` and print each task.",
-    "**Step 2:** Use a `for` loop and `enumerate()` on `user_scores`. Print in the format: 'Student [index] scored [score]'.",
-    "**Step 3:** Iterate over `document_title`. Print the character ONLY if it is 'T' or 'P'."
+    "Task 1: Loop through `project_tasks` and print each task",
+    "Task 2: Use `enumerate()` on `user_scores` to print 'Student X scored Y'",
+    "Task 3: Loop through `document_title` and print only 'T' or 'P' characters"
   ],
-  "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# 1. Iterate and print project tasks:\n\n# 2. Iterate and print scores with index:\n\n# 3. Filter and print 'T' or 'P':\n",
+  "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# Task 1: Print each task\n\n# Task 2: Print scores with index using enumerate()\n\n# Task 3: Print only 'T' or 'P' characters\n",
   "solution": "for task in project_tasks:\n    print(task)\n\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\nfor char in document_title:\n    if char == 'T' or char == 'P':\n        print(char)",
+  "hints": [
+    "Task 1: Use `for task in project_tasks:` then `print(task)` inside the loop",
+    "Task 2: `enumerate()` gives you two values: `for index, score in enumerate(user_scores):`",
+    "Task 3: Check each character with `if char == 'T' or char == 'P':` - note uppercase!",
+    "Remember: Strings iterate character by character, just like lists iterate item by item"
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check loop outputs",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\nif 'Planning' not in output or 'Launch' not in output:\n    raise AssertionError('Task names from the list are missing in output.')\nif 'Student 0 scored 88' not in output:\n    raise AssertionError('Enumerate output format is incorrect or missing. Use: Student [index] scored [score]')\nif 'T' not in output or 'P' not in output:\n    raise AssertionError('Filtering for T and P failed. Did you check both uppercase characters?')\n\nprint('TEST_PASSED: All loop outputs are correct')",
-      "expected": "Prints tasks, enumerated scores, and filtered characters"
+      "name": "Check all tasks printed",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = output.strip().split('\\n')\nif 'Planning' not in lines or 'Launch' not in lines:\n    raise AssertionError('Task 1 failed: Not all tasks were printed')\nprint('✓ Task 1: All tasks printed correctly')"
     },
     {
-      "name": "Verify enumerate usage",
-      "code": "import ast\ntree = ast.parse(code)\ncalls = [n.func.id for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)]\nif 'enumerate' not in calls:\n    raise AssertionError('You must use the enumerate() function for Step 2.')\nprint('TEST_PASSED: enumerate() used correctly')",
-      "expected": "Uses enumerate()"
+      "name": "Check enumerate usage",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nif 'Student 0 scored 88' not in output:\n    raise AssertionError('Task 2 failed: Use enumerate() to get index and score together')\nif 'Student 3 scored 99' not in output:\n    raise AssertionError('Task 2 failed: Make sure you handle all 4 scores')\nprint('✓ Task 2: enumerate() used correctly')"
+    },
+    {
+      "name": "Check character filtering",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = output.strip().split('\\n')\nt_count = sum(1 for line in lines if line == 'T')\np_count = sum(1 for line in lines if line == 'P')\n\nif t_count != 1:\n    raise AssertionError(f'Task 3 failed: Should find 1 \"T\", found {t_count}')\nif p_count != 1:\n    raise AssertionError(f'Task 3 failed: Should find 1 \"P\", found {p_count}')\nprint('✓ Task 3: Characters filtered correctly')"
     }
   ],
-  "expectedOutput": "Planning\nDesign\nCoding\nTesting\nLaunch\nStudent 0 scored 88\nStudent 1 scored 92\nStudent 2 scored 75\nStudent 3 scored 99\nT\nP",
-  "tags": ["for-loop", "iteration", "enumerate"],
+  "tags": ["for-loop", "iteration", "enumerate", "beginner"],
   "challengeGroup": "for-loop-basics"
 }

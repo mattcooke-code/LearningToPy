@@ -22,11 +22,13 @@ You will define variables for two numbers and then perform and display four diff
 
 ---
 
-## Tips for Success
+:::tip
 
 - Choose your own numbers for `number_a` and `number_b` - any values will work!
 - Make sure you use the variable names exactly as specified
 - Remember that division (`/`) always returns a float
 - Test your code with different numbers to make sure it works correctly
+
+:::
 
 Success in this project means you have completed the core training! Your final step before **Module 2: Data Structures** is the **Module 1 Review Quiz**. Good luck!

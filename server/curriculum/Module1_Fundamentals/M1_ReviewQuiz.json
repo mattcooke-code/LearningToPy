@@ -11,8 +11,6 @@
   "questions": [
     {
       "id": "m1_review_q1",
-      "sourceLesson": "M1L1",
-      "type": "multiple-choice",
       "question": "What does the print() function do in Python?",
       "options": [
         "Saves text to a file on your computer",
@@ -25,31 +23,13 @@
     },
     {
       "id": "m1_review_q2",
-      "sourceLesson": "M1L1",
-      "type": "multiple-choice",
-      "question": "Which of these print statements is written correctly?",
-      "options": [
-        "`print(Hello World)`",
-        "`print['Hello World']`",
-        "`print(\"Hello World\")`",
-        "`Print(\"Hello World\")`"
-      ],
-      "correctAnswer": 2,
-      "explanation": "`print(\"Hello World\")` is correct. The text must be in quotation marks, we use parentheses (not brackets), and 'print' must be lowercase."
-    },
-    {
-      "id": "m1_review_q3",
-      "sourceLesson": "M1L2",
-      "type": "multiple-choice",
       "question": "What character is used to create a comment in Python?",
       "options": ["`//`", "`#`", "`/*`", "`--`"],
       "correctAnswer": 1,
       "explanation": "In Python, comments start with the `#` symbol. Everything after `#` on that line is ignored by Python."
     },
     {
-      "id": "m1_review_q4",
-      "sourceLesson": "M1L2",
-      "type": "multiple-choice",
+      "id": "m1_review_q3",
       "question": "How many spaces does Python recommend for each level of indentation?",
       "options": [
         "2 spaces",
@@ -61,23 +41,7 @@
       "explanation": "Python's official style guide (PEP 8) recommends using `4` spaces for each indentation level. While other amounts technically work, `4` spaces is the standard."
     },
     {
-      "id": "m1_review_q5",
-      "sourceLesson": "M1L2",
-      "type": "multiple-choice",
-      "question": "What will happen if you don't indent code that should be inside an 'if' block?",
-      "options": [
-        "Python will automatically fix it",
-        "The code will run but give wrong results",
-        "Python will give an `IndentationError`",
-        "Nothing, indentation is optional"
-      ],
-      "correctAnswer": 2,
-      "explanation": "Python uses indentation to determine which code belongs inside a block. Missing or incorrect indentation will cause an `IndentationError` and your program won't run."
-    },
-    {
-      "id": "m1_review_q6",
-      "sourceLesson": "M1L3",
-      "type": "multiple-choice",
+      "id": "m1_review_q4",
       "question": "Which of the following is a valid variable name in Python?",
       "options": [
         "`2nd_score`",
@@ -89,18 +53,14 @@
       "explanation": "`total_price` is valid because it starts with a letter and uses only letters and underscores. Variable names cannot start with numbers (`2nd_score`), cannot use hyphens (`user-name`), and cannot contain spaces (`my variable`)."
     },
     {
-      "id": "m1_review_q7",
-      "sourceLesson": "M1L3",
-      "type": "multiple-choice",
+      "id": "m1_review_q5",
       "question": "What is the assignment operator in Python?",
       "options": ["`==`", "`=`", "`:`", "`<-`"],
       "correctAnswer": 1,
       "explanation": "The single equals sign `=` is the assignment operator. It assigns the value on the right to the variable on the left. The double equals `==` is used for comparison, not assignment."
     },
     {
-      "id": "m1_review_q8",
-      "sourceLesson": "M1L3",
-      "type": "multiple-choice",
+      "id": "m1_review_q6",
       "question": "Are 'Score' and 'score' the same variable in Python?",
       "options": [
         "Yes, Python ignores capitalization",
@@ -112,18 +72,14 @@
       "explanation": "Python is case sensitive, meaning `'Score'` and `'score'` are treated as two completely different variables. Always be careful with capitalization when naming variables."
     },
     {
-      "id": "m1_review_q9",
-      "sourceLesson": "M1L4",
-      "type": "multiple-choice",
+      "id": "m1_review_q7",
       "question": "What data type is the variable `score = 100`?",
       "options": ["String", "Integer", "Float", "Boolean"],
       "correctAnswer": 1,
       "explanation": "Since `100` has no decimal point and no quotation marks, it's an integer (`int`). If it were `100.0`, it would be a `float`."
     },
     {
-      "id": "m1_review_q10",
-      "sourceLesson": "M1L4",
-      "type": "multiple-choice",
+      "id": "m1_review_q8",
       "question": "Which of the following will cause an error?",
       "options": [
         "`is_ready = True`",
@@ -135,9 +91,7 @@
       "explanation": "Python booleans must be capitalized: `True` and `False`. Writing `'true'` (lowercase) will cause a `NameError`. Note that `'True'` in quotes is a string, not a boolean."
     },
     {
-      "id": "m1_review_q11",
-      "sourceLesson": "M1L4",
-      "type": "multiple-choice",
+      "id": "m1_review_q9",
       "question": "What's the difference between `price = 50` and `price = 50.0`?",
       "options": [
         "There is no difference",
@@ -149,9 +103,7 @@
       "explanation": "`50` is an integer (whole number), while `50.0` is a float (decimal number). Even though they represent the same value, Python treats them as different data types."
     },
     {
-      "id": "m1_review_q12",
-      "sourceLesson": "M1L5",
-      "type": "multiple-choice",
+      "id": "m1_review_q10",
       "question": "What is the result of `10 % 3` in Python?",
       "options": ["`3`", "`1`", "`0.33`", "`3.33`"],
       "correctAnswer": 1,
@@ -159,9 +111,7 @@
       "terminalHint": "💡 Try this in your terminal! Type: `print(10 % 3)`"
     },
     {
-      "id": "m1_review_q13",
-      "sourceLesson": "M1L5",
-      "type": "multiple-choice",
+      "id": "m1_review_q11",
       "question": "What is the result of `2 + 3 * 4`?",
       "options": ["`20`", "`14`", "`11`", "`24`"],
       "correctAnswer": 1,
@@ -169,9 +119,7 @@
       "terminalHint": "💡 Try this in your terminal! Type: `print(2 + 3 * 4)` and `print((2 + 3) * 4)`"
     },
     {
-      "id": "m1_review_q14",
-      "sourceLesson": "M1L5",
-      "type": "multiple-choice",
+      "id": "m1_review_q12",
       "question": "What happens when you try to run: `result = \"Hello\" + 5`?",
       "options": [
         "It prints \"Hello5\"",
@@ -181,6 +129,42 @@
       ],
       "correctAnswer": 2,
       "explanation": "Python cannot directly add a string and a number - this causes a `TypeError`. You need to convert the number to a string first: `\"Hello\" + str(5)`."
+    },
+    {
+      "id": "m1_review_q13",
+      "question": "What is the correct syntax for an f-string that includes the variable `name`?",
+      "options": [
+        "`\"Hello {name}\"`",
+        "`f\"Hello {name}\"`",
+        "`\"Hello\" + name`",
+        "`str(\"Hello \") + name`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "F-strings require an `f` before the opening quote. The correct syntax is `f\"Hello {name}\"`. Without the `f`, Python treats it as a regular string with literal curly braces."
+    },
+    {
+      "id": "m1_review_q14",
+      "question": "Look at this code: `name = \"Sam\"; age = 25`. Which f-string will print \"Sam is 25 years old\"?",
+      "options": [
+        "`print(f\"name is age years old\")`",
+        "`print(f\"{name} is {age} years old\")`",
+        "`print(f\"Sam is 25 years old\")`",
+        "`print(\"Sam is 25 years old\")`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "To use variables in an f-string, put them inside curly braces `{}`. So `{name}` becomes \"Sam\" and `{age}` becomes 25, giving us \"Sam is 25 years old\"."
+    },
+    {
+      "id": "m1_review_q15",
+      "question": "Which of these is an advantage of f-strings over concatenation?",
+      "options": [
+        "F-strings are faster to write and easier to read",
+        "F-strings only work with string variables",
+        "F-strings require importing a special module",
+        "F-strings don't work with expressions"
+      ],
+      "correctAnswer": 0,
+      "explanation": "F-strings are cleaner, faster to write, and easier to read than concatenation. They automatically convert other data types to strings, can include expressions directly, and don't require any imports in modern Python (3.6+)."
     }
   ]
 }
