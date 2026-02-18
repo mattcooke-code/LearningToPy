@@ -37,7 +37,9 @@ print(planets[0:2])  # Output: ('Mars', 'Jupiter')
 
 The most important property of a tuple is that it is immutable—you cannot change its contents after creation.
 
+:::note
 If you try to use methods like `append()`, `remove()`, or assign a new value to an index, Python will raise a `TypeError`.
+:::
 
 ```python
 settings = ('max_users', 50)

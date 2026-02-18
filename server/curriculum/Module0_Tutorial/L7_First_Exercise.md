@@ -32,12 +32,12 @@ name = "Python Learner"
 **Step 2:** Change it to your name:
 
 ```python
-name = "Alex"  # Your name here!
+name = "Dave"  # Your name here!
 ```
 
 **Step 3:** Run the code (click **Run Code** button)
 
-You should see: `Hello, Alex!`
+You should see: `Hello, Dave!`
 
 **Step 4:** Submit for XP! (click **Submit Code** button)
 
@@ -55,11 +55,11 @@ Output: `Hello, Python Learner!`
 After:
 
 ```python
-name = "Alex"
+name = "Dave"
 print(f"Hello, {name}!")
 ```
 
-Output: `Hello, Alex!`
+Output: `Hello, Dave!`
 
 ## Ready?
 

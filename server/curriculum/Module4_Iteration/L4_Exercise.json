@@ -2,24 +2,35 @@
   "title": "Break and Continue Practice",
   "instructions": "Learn to control loop flow with `break` (stop entire loop) and `continue` (skip current iteration).\n\n**Key Difference:**\n- `break` = Emergency stop button (exits loop completely)\n- `continue` = Skip this item (goes to next iteration)",
   "steps": [
-    "Task 1: Loop through status codes, break when you find 404",
-    "Task 2: Loop through transactions, skip invalid (≤0), sum valid ones",
-    "Task 3: Use while True with break for password attempts"
+    "Task 1: Loop through status codes, print each one, but break when you find 404",
+    "Task 2: Loop through transactions, skip invalid ones (≤0), sum the valid ones",
+    "Task 3: Use while True with break for password attempts countdown"
   ],
-  "starterCode": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# Task 1: Break on 404\n\n# Task 2: Continue on invalid amounts (≤0)\n\n# Task 3: While True with break\n",
-  "solution": "# Task 1\nfor code in status_codes:\n    if code == 404:\n        print('Error encountered. Halting process.')\n        break\n    print('Processing code', code)\n\n# Task 2\nfor amount in transaction_amounts:\n    if amount <= 0:\n        print('Skipping invalid transaction.')\n        continue\n    total_revenue += amount\n\n# Task 3\nwhile True:\n    print(f'{password_attempts} attempts remaining.')\n    password_attempts -= 1\n    if password_attempts == 0:\n        print('Locked Out!')\n        break\n\nprint('Total Revenue:', total_revenue)",
+  "starterCode": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# Task 1: Break on 404 - print codes until you hit 404, then stop\n# Write your for loop here\n\n# Task 2: Continue on invalid - skip amounts ≤ 0, add valid ones to total_revenue\n# Write your for loop here\n\n# Task 3: While True with break - countdown attempts, break when 0\n# Write your while loop here\n\nprint(total_revenue)  # Should print 200\n",
+  "solution": "status_codes = [200, 201, 302, 404, 500, 200]\ntransaction_amounts = [50, 0, 120, -10, 30]\ntotal_revenue = 0\npassword_attempts = 5\n\n# Task 1: Break on 404\nfor code in status_codes:\n    print(code)\n    if code == 404:\n        break\n\n# Task 2: Continue on invalid amounts\nfor amount in transaction_amounts:\n    if amount <= 0:\n        continue\n    total_revenue += amount\n\n# Task 3: While True with break\nwhile True:\n    print(password_attempts)\n    password_attempts -= 1\n    if password_attempts == 0:\n        break\n\nprint(total_revenue)",
   "hints": [
-    "Task 1: Use `if code == 404:` then `break` - codes after 404 shouldn't process",
-    "Task 2: Use `if amount <= 0:` then `continue` - skip to next transaction",
-    "Task 3: `while True:` creates infinite loop - must use `break` to exit",
-    "Note: `print('Processing code', code)` not `print('Processing code', code)` - the comma is outside quotes!",
-    "In Task 2, only add to total_revenue if amount is valid (not skipped)"
+    "Task 1: Use `for code in status_codes:` to loop through the list",
+    "Task 1: Print the code, then check `if code == 404:` use `break` to stop the loop",
+    "Task 2: Use `for amount in transaction_amounts:` to loop through amounts",
+    "Task 2: Check `if amount <= 0:` use `continue` to skip invalid amounts",
+    "Task 2: After the if/continue check, add valid amounts: `total_revenue += amount`",
+    "Task 3: Start with `while True:` to create an infinite loop",
+    "Task 3: Print attempts, decrease it, check if it's 0, then `break` to exit loop",
+    "Remember: `continue` skips to next iteration, `break` exits the loop entirely"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check break and continue logic",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {'total_revenue': 0, 'password_attempts': 5}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check Task 1 - shouldn't process code 500\nif 'Processing code 500' in output:\n    raise AssertionError('Task 1 failed: Should break before processing code 500')\n\n# Check Task 2 - revenue calculation\nif local_vars['total_revenue'] != 200:\n    raise AssertionError(f'Task 2 failed: total_revenue should be 200, got {local_vars[\"total_revenue\"]}')\n\n# Check Task 3 - break condition\nif 'Locked Out!' not in output:\n    raise AssertionError('Task 3 failed: Should print \"Locked Out!\" when attempts reach 0')\n\nprint('✓ Break and continue working correctly!')"
+      "name": "Check Task 1 - Break stops loop",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nuser_code = code\nexec(user_code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Should print codes up to and including 404\nif '200' not in output or '404' not in output:\n    raise AssertionError('Task 1 failed: Should print codes including 404')\n\n# Should NOT process code 500 (after 404)\nlines = output.strip().split('\\n')\nif '500' in lines[:5]:  # Check first few lines\n    raise AssertionError('Task 1 failed: Should break before processing code 500')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Task 2 - Continue skips invalid",
+      "code": "local_vars = {'total_revenue': 0}\nuser_code = code\nexec(user_code, {}, local_vars)\n\n# Should sum: 50 + 120 + 30 = 200 (skip 0 and -10)\nif local_vars['total_revenue'] != 200:\n    raise AssertionError(f'Task 2 failed: total_revenue should be 200 (50+120+30), got {local_vars[\"total_revenue\"]}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Task 3 - While True with break",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nuser_code = code\nexec(user_code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Should print 5, 4, 3, 2, 1 (countdown)\nfor i in range(5, 0, -1):\n    if str(i) not in output:\n        raise AssertionError(f'Task 3 failed: Should print {i} during countdown')\n\n# Check that password_attempts ended at 0\nlocal_vars = {}\nexec(user_code, {}, local_vars)\nif local_vars.get('password_attempts') != 0:\n    raise AssertionError(f'Task 3 failed: password_attempts should end at 0, got {local_vars.get(\"password_attempts\")}')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": ["break", "continue", "loop-control", "intermediate"]

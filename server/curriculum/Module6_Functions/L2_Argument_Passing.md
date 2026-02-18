@@ -18,7 +18,9 @@ configure_user("Alex", "a@mail.com")
 # User: Alex, Email: a@mail.com
 ```
 
-Problem: If you swap the positions, the logic breaks, even though the data types are correct: `configure_user("a@mail.com", "Alex")` would incorrectly set the username to the email.
+:::warning
+If you swap the positions, the logic breaks, even though the data types are correct: `configure_user("a@mail.com", "Alex")` would incorrectly set the username to the email.
+:::
 
 ## 2. Keyword Arguments
 
@@ -26,9 +28,8 @@ Keyword arguments allow you to explicitly name which parameter each argument val
 
 ### Benefits of Keyword Arguments:
 
-     1. Clarity: Code is easier to read and understand.
-
-     2. Order Independence: You can pass the arguments in any order.
+1.  Clarity: Code is easier to read and understand.
+2.  Order Independence: You can pass the arguments in any order.
 
 ```python
 def set_settings(theme, font_size):
@@ -45,7 +46,9 @@ set_settings(font_size=12, theme="dark")
 
 You can mix both types in a single function call, but you must follow one strict rule:
 
-Rule: Positional arguments _MUST_ come before keyword arguments.
+:::note
+Positional arguments **_MUST_** come before keyword arguments.
+:::
 
 ```python
 def create_product(name, price, stock=1):
@@ -70,3 +73,25 @@ def log_message(message, level="INFO"): # "INFO" is the default
 log_message("System started.") # Uses default level="INFO"
 log_message("Access denied.", level="ERROR") # Overrides default
 ```
+
+```python
+def ninja_shout(name, cry="Turtle Power!"):
+    print(f"{name} shouts: {cry}")
+
+# Uses the default value
+ninja_shout("Leonardo")
+# Output: Leonardo shouts: Turtle Power!
+
+# Overrides the default value with a custom argument
+ninja_shout("Michelangelo", cry="Cowabunga!")
+# Output: Michelangelo shouts: Cowabunga!
+```
+
+:::summary
+
+- **Positional arguments** are assigned based on their order in the function call.
+- **Keyword arguments** use the parameter name (e.g., `name="Leo"`) and are order-independent.
+- When mixing types, _positional arguments_ **must always come first** before _keyword arguments_.
+- **Default arguments** allow parameters to have a fallback value if no argument is provided during the call.
+
+:::

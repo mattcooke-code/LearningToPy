@@ -8,7 +8,9 @@ Sets are primarily used when the presence of an element is important, but its or
 
 Sets are defined using **curly braces** (`{}`) or by casting another iterable (like a list or tuple) with the **`set()` constructor**.
 
-> **⚠️ Watch Out:** An empty pair of curly braces `{}` creates an empty **Dictionary**, not an empty Set. To create an empty Set, you must use `set()`.
+:::note
+An empty pair of curly braces `{}` creates an empty **Dictionary**, not an empty Set. To create an empty Set, you must use `set()`.
+:::
 
 ### Creation Examples
 
@@ -41,7 +43,7 @@ unique_ids = set(user_ids)
 
 ## 3. Basic Set Operations
 
-Sets are mutable, so you can add and remove elements after creation.
+Unlike the elements contained within them, sets **_are_** mutable, so you can add and remove elements after creation.
 
 ### A. Adding Elements: `.add()`
 
@@ -68,6 +70,12 @@ fruits.remove("apple")   # Removal
 # fruits is now: {"kiwi"}
 ```
 
+:::note
+
+- **The Set is Mutable:** You can add or remove items from the collection at any time.
+- **The Items are Immutable:** Every individual item you put into a set must be a type that cannot change (like a string, integer, or tuple).
+  :::
+
 ## 4. Membership Testing
 
 Like lists and tuples, you can efficiently check if an element is present in a set using the `in` operator.
@@ -81,7 +89,7 @@ if user_perm in required_permissions:
 ```
 
 :::tip
-**Speed Advantage:** Checking `item in set` is much faster than `item in list`, especially for large collections. Sets use hash tables for O(1) lookups, while lists require O(n) linear search. Use sets when you do frequent membership checks!
+**Speed Advantage:** Checking if an item exists using `in` is significantly faster in a **Set** than in a **List**. If your main goal is to constantly check "Is this item in my collection?", a set is your best friend.
 :::
 
 :::summary

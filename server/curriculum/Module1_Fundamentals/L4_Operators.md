@@ -40,7 +40,11 @@ cubed = 2 ** 3        # 8 (2 * 2 * 2)
 
 The **modulus** operator is highly useful in coding. It returns the _remainder_ after division.
 
-**Real-world example:** If you have 10 cookies and 3 friends, you can give each friend 3 cookies (`10 // 3 = 3`). How many cookies are left over? `10 % 3 = 1` - there's **1** cookie remaining!
+:::note
+**Real-world example:**
+
+If you have 10 cookies and 3 friends, you can give each friend 3 cookies (`10 // 3 = 3`). How many cookies are left over? `10 % 3 = 1` - there's **1** cookie remaining!
+:::
 
 ```python
 print(10 % 3)   # Output: 1 (the remainder)
@@ -69,7 +73,9 @@ result_b = (2 + 3) * 4    # (2 + 3) is done first (5), then * 4
                           # Result: 20
 ```
 
-**Best Practice:** When in doubt, use parentheses! They make your code clearer and prevent mistakes.
+:::tip
+When in doubt, use parentheses! They make your code clearer and prevent mistakes.
+:::
 
 ```python
 # Which is clearer?

@@ -32,21 +32,19 @@ except ZeroDivisionError:
 
 ## 3. Multiple Exceptions in One Block
 
-You can catch multiple exception types in a single except block using parentheses:
+You can catch multiple exception types in a single `except` block using parentheses:
 
 ```python
 try:
-    # Code that might raise multiple types of errors
-    file = open("data.txt", "r")
-    content = file.read()
-    number = int(content.strip())
-except (FileNotFoundError, ValueError) as e:
-    print(f"Error: {type(e).__name__} - {e}")
+    with open("config.txt", "r") as file:
+        value = int(file.read().strip())
+except (FileNotFoundError, ValueError):
+    print("Could not load configuration. Using defaults.")
 ```
 
 ## 4. Getting Exception Information
 
-Use `as` to capture the exception object for more detailed error messages:
+Use the `as` keyword to capture the exception object for more detailed error messages:
 
 ```python
 try:
@@ -56,15 +54,14 @@ except ValueError as e:
     # Output: "Caught ValueError: invalid literal for int() with base 10: 'not_a_number'"
 ```
 
-## 5. Best Practices
+:::tip
 
-1. **Be specific**: Catch only the exceptions you can handle
+1. **Catch what you can handle, leave the rest**: Be specific with your exceptions. Unexpected errors are bugs - let them surface so you can fix them.
 
 2. **Order matters**: Put more specific exceptions first
 
-3. **Don't catch everything**: Let unexpected exceptions propagate for debugging
-
-4. **Provide useful messages**: Help users understand what went wrong
+3. **Provide useful messages**: Help users understand what went wrong
+   :::
 
 ### Good vs Bad Practice
 
@@ -83,3 +80,14 @@ except ValueError as e:
 except FileNotFoundError:
     print("File not found. Please check the filename.")
 ```
+
+:::summary
+
+- Catch **specific exceptions** to handle different errors differently
+- Common built-in exceptions: `ValueError`, `TypeError`, `ZeroDivisionError`, `FileNotFoundError`, `IndexError`, `KeyError`
+- Use multiple `except` blocks for different error types
+- Catch multiple **exceptions** in one block using parentheses: `except (TypeError, ValueError):`
+- Use `as e` to capture exception details for informative messages
+- Don't catch **all** exceptions indiscriminately - let unexpected ones surface during development
+
+:::

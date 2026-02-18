@@ -22,7 +22,7 @@ for i in range(5):
 
 ### B. Two Arguments: `range(start, stop)`
 
-This allows you to specify a custom starting point. It counts from start up to, but not including, stop.
+This allows you to specify a custom starting point. It counts from _start_ up to, but not including, _stop_.
 
 ```python
 for count in range(10, 13):
@@ -41,10 +41,6 @@ for even in range(0, 10, 2):
 
 # Generates: 0, 2, 4, 6, 8
 ```
-
-:::tip
-**Memory Efficiency:** `range()` doesn't create a list in memory - it generates numbers on demand. This makes `for i in range(1000000):` much more memory efficient than `for i in list(range(1000000)):` for large ranges.
-:::
 
 ## 2. Counting Backward
 

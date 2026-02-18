@@ -1,0 +1,45 @@
+{
+  "lessonId": "M7L2",
+  "title": "Reading Files - Quiz",
+  "questions": [
+    {
+      "id": "m7l2_q1",
+      "type": "multiple-choice",
+      "question": "What does `.readline()` return when it reaches the end of a file?",
+      "options": [
+        "None",
+        "An empty string `\"\"`",
+        "A `StopIteration` error",
+        "An empty list `[]`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When the file pointer reaches the end of the file, `.readline()` returns an empty string. This is often used as a signal in loops to stop reading."
+    },
+    {
+      "id": "m7l2_q2",
+      "type": "multiple-choice",
+      "question": "Why is iterating over a file object (using a `for` loop) preferred over `.readlines()` for large files?",
+      "options": [
+        "It is the only way to read a file in Python",
+        "It automatically sorts the lines alphabetically",
+        "It reads one line at a time instead of loading the whole file into memory",
+        "It automatically closes the file for you"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Iterating over the file object is 'lazy,' meaning it only loads the current line being processed into memory. `.readlines()` loads the entire file into a list at once, which can crash your program if the file is several gigabytes large."
+    },
+    {
+      "id": "m7l2_q3",
+      "type": "multiple-choice",
+      "question": "You have just finished reading a file using a `for` loop. If you want to read it again from the top without closing it, what should you do?",
+      "options": [
+        "Call `file_handle.reset()`",
+        "Use `file_handle.seek(0)` to move the pointer to the start",
+        "Call `.readline()` again; it resets automatically",
+        "There is no way to read a file twice"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The file pointer stays at the end of the file after a full read. To go back to the beginning without reopening the file, you use `.seek(0)` to move the pointer back to the byte at index 0."
+    }
+  ]
+}

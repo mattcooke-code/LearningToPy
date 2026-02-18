@@ -81,11 +81,12 @@ The terminal is your best friend for fixing errors:
 | Storage     | Saves your code for later | Immediate, temporary results   |
 | Structure   | Many lines and functions  | Usually line-by-line execution |
 
-## Pro Tip 💡
+:::note
 
 Feel free to spend some time getting used to the terminal. Click some of the buttons. Try running some of the **Quick Examples**.
 
 _Remember: you can always click the **Clear Terminal** button._
+:::
 
 ## Next Up: Running Code
 

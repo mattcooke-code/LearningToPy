@@ -1,6 +1,6 @@
 // server/seeders/seedModules16-20.js
 const { prepareQuizData, loadLessonAsset } = require("../utils/seederHelpers");
-const { MODULE_CONFIGS, MODULE_HELPERS } = require("../config/moduleConfigs");
+const { MODULE_CONFIGS, MODULE_HELPERS } = require("../config/moduleConfig");
 
 const seedModules16to20 = async (
   Lesson,

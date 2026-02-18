@@ -1,6 +1,6 @@
 # ⚡ List Comprehensions Basics
 
-List comprehensions provide a concise way to create lists in Python. They transform one list (or any iterable) into another list by applying an operation to each element.
+_List Comprehensions_ provide a concise way to create lists in Python. They transform one list (or any iterable) into another list by applying an operation to each element.
 
 ## 1. Basic Syntax
 
@@ -29,9 +29,9 @@ print(squared)  # [1, 4, 9, 16, 25]
 ### String Operations
 
 ```python
-names = ["alice", "bob", "charlie"]
+names = ["tionne", "lisa", "rozonda"]
 capitalized = [name.title() for name in names]
-print(capitalized)  # ['Alice', 'Bob', 'Charlie']
+print(capitalized)  # ['Tionne', 'Lisa', 'Rozonda']
 ```
 
 ### Mathematical Operations
@@ -87,25 +87,17 @@ print(x_coords)  # [1, 3, 5]
 
 ## 5. When to Use List Comprehensions
 
-### Good for:
-
-• Simple transformations and filtering
-
-• Creating new lists from existing iterables
-
-• Operations that fit comfortably on one line
-
-### Avoid when:
-
-• The logic becomes complex or hard to read
-
-• You need multiple statements in the transformation
-
-• You're modifying existing data (use loops instead)
+| Good for:                                      | Avoid when:                                           |
+| ---------------------------------------------- | ----------------------------------------------------- |
+| ✅ Simple transformations and filtering        | ❌ The logic becomes complex or hard to read          |
+| ✅ Creating new lists from existing iterables  | ❌ You need multiple statements in the transformation |
+| ✅ Operations that fit comfortably on one line | ❌ You're modifying existing data (use loops instead) |
 
 ## 6. Memory Considerations
 
-List comprehensions create the entire list in memory at once. For very large datasets, consider generator expressions (covered in advanced modules).
+:::note
+List comprehensions create the entire list in memory at once. For very large datasets, consider **generator expressions** (covered in advanced modules).
+:::
 
 ```python
 # Creates entire list in memory
@@ -114,3 +106,15 @@ large_list = [x**2 for x in range(1000000)]
 # More memory efficient (generator)
 large_generator = (x**2 for x in range(1000000))
 ```
+
+:::summary
+
+- **List comprehensions** provide a concise syntax: `[expression for item in iterable]`
+- They _transform_ one iterable into a new list by applying an expression to each element
+- Common uses: mathematical operations, string transformations, type conversions
+- Work with any iterable: lists, strings, ranges, tuples
+- Benefits: concise, readable, fast, and **Pythonic**
+- Use when logic is simple and fits on one line; avoid when complex
+- Creates **entire list in memory** - for large data, consider _generator expressions_
+
+:::

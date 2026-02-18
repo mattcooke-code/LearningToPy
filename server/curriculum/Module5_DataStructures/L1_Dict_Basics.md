@@ -43,7 +43,7 @@ print(settings["notifications"]) # Output: False
 
 ## 3. The Safe Way to Access: The `.get()` Method
 
-If you try to access a key that doesn't exist using the bracket notation (settings["non_existent_key"]), Python will raise a `KeyError` and crash your program.
+If you try to access a key that doesn't exist using bracket notation (`settings["non_existent_key"]`), Python will raise a `KeyError` and crash your program.
 
 The `.get()` method provides a safer alternative because it returns `None` (or a default value you specify) instead of raising an error.
 

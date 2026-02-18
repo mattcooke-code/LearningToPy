@@ -18,6 +18,7 @@ const {
  * Usage:
  *   node updateCurriculum.js --lesson M1L2        (update Module 1, Lesson 2)
  *   node updateCurriculum.js --module M3          (update all lessons in Module 3)
+ *   node updateCurriculum.js --module M3 --with-quiz (update module + module quiz)
  *   node updateCurriculum.js --modules M1,M3,M5   (update multiple modules)
  *   node updateCurriculum.js --all-content        (update all lesson content only)
  *   node updateCurriculum.js --list               (show all configured modules)
@@ -43,6 +44,29 @@ class CurriculumUpdater {
   async disconnect() {
     await mongoose.connection.close();
     console.log("🔌 MongoDB connection closed");
+  }
+
+  /**
+   * Update module quiz (review quiz)
+   */
+  async updateModuleQuiz(moduleNum, config, module) {
+    try {
+      const reviewQuizFile = `${moduleNum}_ReviewQuiz.json`;
+      const reviewQuiz = parseJSONContent(config.folder, reviewQuizFile);
+
+      if (!reviewQuiz) {
+        console.log(`  ⚠️  No review quiz found for ${moduleNum}`);
+        return false;
+      }
+
+      module.moduleQuiz = prepareQuizData(reviewQuiz, true);
+      await module.save();
+      console.log(`  ✅ Updated module quiz`);
+      return true;
+    } catch (error) {
+      console.log(`  ⚠️  Could not update module quiz: ${error.message}`);
+      return false;
+    }
   }
 
   /**
@@ -141,25 +165,44 @@ class CurriculumUpdater {
       // Find existing module
       const module = await this.Module.findOne({ moduleNumber: moduleNum });
       if (!module) {
-        throw new Error(
-          `Module ${moduleNum} not found in database. ` +
-            `Use 'npm run seed' for new modules.`,
-        );
+        if (options.createMissing) {
+          console.log(`⚠️  Module ${moduleNum} not found, creating...`);
+          // Create module with basic data (you'd need to import MODULE_HELPERS)
+          const MODULE_HELPERS =
+            require("../config/moduleConfig").MODULE_HELPERS;
+          const metadata = MODULE_HELPERS.getModuleMetadata(moduleNum);
+
+          // Create module
+          const newModule = await this.Module.create({
+            title: config.title,
+            description: config.description,
+            shortDescription: config.description.substring(0, 100) + "...",
+            order: parseInt(moduleNum.slice(1)),
+            moduleNumber: moduleNum,
+            difficulty: metadata.difficulty,
+            estimatedHours: metadata.estimatedHours,
+            isPublished: true,
+            learningObjectives: MODULE_HELPERS.getLearningObjectives(moduleNum),
+            icon: metadata.icon,
+            xpReward: metadata.xpReward,
+          });
+
+          // Use the created module
+          module = newModule;
+          console.log(`✅ Created new module: ${moduleNum}`);
+        } else {
+          throw new Error(
+            `Module ${moduleNum} not found in database. ` +
+              `Use --create-missing flag to create it.`,
+          );
+        }
       }
 
       console.log(`Found module: ${module.title}`);
 
       // Update module quiz if requested
       if (options.updateModuleQuiz) {
-        const reviewQuizFile = `${moduleNum}_ReviewQuiz.json`;
-        try {
-          const reviewQuiz = parseJSONContent(config.folder, reviewQuizFile);
-          module.moduleQuiz = prepareQuizData(reviewQuiz, true);
-          await module.save();
-          console.log(`✅ Updated module quiz`);
-        } catch (error) {
-          console.warn(`⚠️  Could not update module quiz: ${error.message}`);
-        }
+        await this.updateModuleQuiz(moduleNum, config, module);
       }
 
       // Update all lessons
@@ -211,9 +254,6 @@ class CurriculumUpdater {
       throw error;
     }
   }
-
-  // server/seeders/updateCurriculum.js (ADDITIONS)
-  // Add this method to the CurriculumUpdater class:
 
   /**
    * Safely update multiple modules with progress reporting
@@ -283,44 +323,6 @@ class CurriculumUpdater {
   }
 
   /**
-   * Create missing module (for dev/test environments)
-   */
-  async createMissingModule(moduleNum) {
-    console.warn(`⚠️ Module ${moduleNum} not found, attempting to create...`);
-
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        `Cannot create module ${moduleNum} in production. ` +
-          `Use 'npm run seed' to create new modules.`,
-      );
-    }
-
-    // You could call the appropriate seeder here
-    // This is a simplified version - you might want to implement this differently
-    const config = getModuleConfig(moduleNum);
-    if (!config) {
-      throw new Error(`No configuration found for ${moduleNum}`);
-    }
-
-    // Create module with basic data
-    const metadata = MODULE_HELPERS.getModuleMetadata(moduleNum);
-    const module = await this.Module.create({
-      title: config.title,
-      description: config.description,
-      shortDescription: config.description.substring(0, 100) + "...",
-      order: parseInt(moduleNum.slice(1)),
-      moduleNumber: moduleNum,
-      difficulty: metadata.difficulty,
-      estimatedHours: metadata.estimatedHours,
-      icon: metadata.icon,
-      xpReward: metadata.xpReward,
-      isPublished: true,
-    });
-
-    console.log(`✅ Created missing module: ${moduleNum}`);
-    return module;
-  }
-  /**
    * Update only content files (markdown/json) without changing database structure
    */
   async updateAllContent() {
@@ -376,6 +378,19 @@ class CurriculumUpdater {
           console.log(
             `  ✓ ${module.moduleNumber}L${lesson.order}: ${lesson.title}`,
           );
+        }
+
+        // Optionally update module quiz
+        try {
+          const reviewQuizFile = `${module.moduleNumber}_ReviewQuiz.json`;
+          const reviewQuiz = parseJSONContent(config.folder, reviewQuizFile);
+          if (reviewQuiz) {
+            module.moduleQuiz = prepareQuizData(reviewQuiz, true);
+            await module.save();
+            console.log(`  ✓ ${module.moduleNumber} review quiz updated`);
+          }
+        } catch (error) {
+          // Silently ignore missing quiz files
         }
       }
 
@@ -439,7 +454,7 @@ class CurriculumUpdater {
       // Verify config exists
       if (!hasModuleConfig(module.moduleNumber)) {
         issues.push(
-          `${module.moduleNumber}: No configuration found in moduleConfigs.js`,
+          `${module.moduleNumber}: No configuration found in moduleConfig.js`,
         );
       }
     }
@@ -456,7 +471,6 @@ class CurriculumUpdater {
 }
 
 // CLI handler
-// In the main() function, update the argument parsing:
 async function main() {
   const args = process.argv.slice(2);
   const updater = new CurriculumUpdater();
@@ -490,11 +504,13 @@ async function main() {
           process.env.NODE_ENV !== "production" &&
           args.includes("--create-missing");
         if (shouldCreate) {
-          await updater.createMissingModule(moduleNum);
+          // Note: This would need MODULE_HELPERS imported
+          console.error("--create-missing not fully implemented for lessons");
+          process.exit(1);
         } else {
           throw new Error(
             `Module ${moduleNum} doesn't exist. ` +
-              `Use 'npm run seed' to create it first, or add --create-missing flag in development.`,
+              `Use 'npm run seed' to create it first.`,
           );
         }
       }
@@ -513,10 +529,12 @@ async function main() {
       const moduleList = args[args.indexOf("--modules") + 1].split(",");
       const updateQuiz = args.includes("--with-quiz");
       const stopOnError = args.includes("--stop-on-error");
+      const createMissing = args.includes("--create-missing");
 
       await updater.updateModulesBatch(moduleList, {
         updateModuleQuiz: updateQuiz,
         stopOnError,
+        createMissing,
       });
     } else if (args.includes("--all-content")) {
       console.log(
@@ -563,13 +581,12 @@ Usage:
   npm run update:module M3 -- --with-quiz         Update module + module quiz
   npm run update:modules M1,M3,M5                 Update multiple modules
   npm run update:all-content                      Update all content files
-  npm run update:verify                           Check curriculum integrity
-  npm run update:list                             Show configured modules
+  npm run update:verify                            Check curriculum integrity
+  npm run update:list                              Show configured modules
 
 Advanced:
-  --create-missing                                Create missing modules (dev only)
-  --stop-on-error                                 Stop batch on first error
-  --dry-run                                       Validate without making changes
+  --create-missing                                 Create missing modules (dev only)
+  --stop-on-error                                   Stop batch on first error
 
 Examples:
   node server/seeders/updateCurriculum.js --lesson M2L3

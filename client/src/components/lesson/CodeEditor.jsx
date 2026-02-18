@@ -3,6 +3,7 @@ import { useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { lintGutter } from "@codemirror/lint";
+import { indentUnit } from "@codemirror/language";
 import { usePython, useTheme } from "../../context";
 import { Spinner } from "../ui";
 import { Play, AlertCircle } from "lucide-react";
@@ -69,7 +70,7 @@ const CodeEditor = ({
         <CodeMirror
           value={value}
           onChange={onChange}
-          extensions={[python(), lintGutter()]}
+          extensions={[python(), lintGutter(), indentUnit.of("    ")]}
           theme={isCodeDark ? "dark" : "light"}
           height={height}
           editable={!readOnly}
@@ -127,8 +128,8 @@ const CodeEditor = ({
                 ? "bg-green-900 border border-green-600"
                 : "bg-green-50 border border-green-300"
               : isCodeDark
-              ? "bg-red-900 border border-red-600"
-              : "bg-red-50 border border-red-300"
+                ? "bg-red-900 border border-red-600"
+                : "bg-red-50 border border-red-300"
           }`}
         >
           {quickResult.success ? (

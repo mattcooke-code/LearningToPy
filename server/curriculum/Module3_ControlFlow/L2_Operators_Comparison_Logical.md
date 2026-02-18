@@ -15,7 +15,7 @@ Comparison operators are used to compare two values and return a Boolean result 
 |   `>=`    | Greater than or equal | `20 >= 20`                 | `True`  |
 |   `<=`    | Less than or equal    | `15 <= 10`                 | `False` |
 
-:::warning
+:::note
 Watch out for `==` vs. `=`:
 
 - `==` is used for **comparison** (Are these two values the same?).

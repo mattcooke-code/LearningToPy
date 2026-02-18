@@ -1,0 +1,45 @@
+{
+  "lessonId": "M8L3",
+  "title": "Else and Finally Clauses - Quiz",
+  "questions": [
+    {
+      "id": "m8l3_q1",
+      "type": "multiple-choice",
+      "question": "When does the `else` clause in a `try/except` block execute?",
+      "options": [
+        "Always, regardless of whether an exception occurred",
+        "Only if an exception occurred in the `try` block",
+        "Only if **no** exceptions occurred in the `try` block",
+        "Only if the `finally` clause also executes"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `else` clause runs only when the `try` block completes successfully without raising any exceptions."
+    },
+    {
+      "id": "m8l3_q2",
+      "type": "multiple-choice",
+      "question": "What is guaranteed about the `finally` clause?",
+      "options": [
+        "It only runs if an exception occurs",
+        "It only runs if no exception occurs",
+        "It always runs, whether an exception occurred or not",
+        "It runs before the `except` block"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `finally` clause always executes, regardless of whether an exception was raised or caught. It's perfect for cleanup operations like closing files."
+    },
+    {
+      "id": "m8l3_q3",
+      "type": "multiple-choice",
+      "question": "Select the correct order of operations from the following:",
+      "options": [
+        "`try` → `else` → `except` → `finally`",
+        "`try` → `except` → `finally` → `else`",
+        "`try` → `except` → `else` → `finally`",
+        "The order doesn't matter; Python figures it out"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The correct order is `try` first, then one or more `except` blocks, then optional `else`, then optional `finally`. The `else` must come after all `except` blocks but before `finally`."
+    }
+  ]
+}

@@ -4,7 +4,11 @@ To save data permanently, you need to write it back to a file. This requires ope
 
 ## 1. The Write Mode (`'w'`)
 
-The write mode (`'w'`) is used to write data to a file. **Be cautious**—if the file already exists, opening it in `'w'` mode will **truncate** (delete) all existing content, starting the file completely fresh. If the file does not exist, Python will create it for you.
+The write mode (`'w'`) is used to write data to a file.
+
+:::warning
+If the file already exists, opening it in `'w'` mode will **truncate** (delete) all existing content, starting the file completely fresh. If the file does not exist, Python will create it for you.
+:::
 
 To write, you use the **`.write(string)`** method on the file object. This method takes a single string argument and writes it to the file.
 
@@ -25,7 +29,9 @@ with open('notes.txt', 'w') as f:
 
 The append mode (`'a'`) is the safer option when you want to **add** content to an existing file without deleting its original data.
 
+:::note
 If the file exists, the new data is written starting at the **end of the file**. If the file does not exist, Python will create it.
+:::
 
 ### Example: Using 'a' (Adding to the End)
 
@@ -70,21 +76,19 @@ with open('output.txt', 'w') as f:
 # Line 2
 ```
 
+:::tip
+You can actually use the `print()` function to write to a file! It handles the newlines for you:
+`print("Hello World", file=f_handle)`
+:::
+
 ## 4. When to Use Each Mode
 
-### Use Write Mode (`'w'`) for:
-
-- **Creating new files** from scratch
-- **Overwriting configuration files**
-- **Generating reports** (fresh start each time)
-- **Temporary/cache files** that get regenerated
-
-### Use Append Mode (`'a'`) for:
-
-- **Log files** (adding new events)
-- **Data collection** (accumulating results)
-- **Audit trails** (preserving history)
-- **User activity tracking**
+| Write Mode `'w'`                               | Append Mode `'a'`                          |
+| ---------------------------------------------- | ------------------------------------------ |
+| **Creating new files** from scratch            | **Log files** (adding new events)          |
+| **Overwriting configuration files**            | **Data collection** (accumulating results) |
+| **Generating reports** (fresh start each time) | **Audit trails** (preserving history)      |
+| **Temporary/cache files**                      | **User activity tracking**                 |
 
 ### Example: Application Logging
 
@@ -123,6 +127,12 @@ with open('output.txt', 'w') as f:
         f.write(f"{item}\\n")  # Add newline for each item
 ```
 
-# Expected final_content after both operations:
+:::summary
 
-# "Overwrite line 1\nAppend line 2\n"
+- **`'w'` Mode:** Overwrites the file if it exists; creates it if it doesn't.
+- **`'a'` Mode:** Adds data to the end of the file; creates it if it doesn't exist.
+- **`.write()`:** Only accepts strings and does not add newlines automatically.
+- **`.writelines()`:** Writes a list of strings to a file.
+- **Newlines:** You must include `\n` to separate lines in your file.
+
+:::

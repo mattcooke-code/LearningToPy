@@ -1,0 +1,45 @@
+{
+  "lessonId": "M9L1",
+  "title": "List Comprehensions Basics - Quiz",
+  "questions": [
+    {
+      "id": "m9l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax for a list comprehension that squares each number in a list called `nums`?",
+      "options": [
+        "`[x**2 for x in nums]`",
+        "`for x in nums: x**2`",
+        "`(x**2 for x in nums)`",
+        "`[x**2 while x in nums]`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`[x**2 for x in nums]` is the correct syntax. It takes each x in nums, squares it, and collects the results in a new list."
+    },
+    {
+      "id": "m9l1_q2",
+      "type": "multiple-choice",
+      "question": "What will `[char.upper() for char in \"python\"]` produce?",
+      "options": [
+        "`['P', 'Y', 'T', 'H', 'O', 'N']`",
+        "`'PYTHON'`",
+        "`['python']`",
+        "`['P', 'y', 't', 'h', 'o', 'n']`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The comprehension iterates through each character in 'python', applies `.upper()` to each, and collects them in a list, resulting in `['P', 'Y', 'T', 'H', 'O', 'N']`."
+    },
+    {
+      "id": "m9l1_q3",
+      "type": "multiple-choice",
+      "question": "Given `points = [(1, 2), (3, 4), (5, 6)]`, which comprehension extracts all y-coordinates?",
+      "options": [
+        "`[x for x, y in points]`",
+        "`[y for x, y in points]`",
+        "`[points[y] for y in points]`",
+        "`[y[1] for y in points]`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`[y for x, y in points]` unpacks each tuple into x and y, then selects only the y-coordinate values."
+    }
+  ]
+}

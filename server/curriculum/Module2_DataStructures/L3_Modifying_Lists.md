@@ -66,7 +66,9 @@ print(current_stones)
 If you're adding multiple items, `extend()` is more efficient than repeatedly calling `append()` in a loop. For example: `list.extend([item1, item2, item3])` instead of three separate `append()` calls.
 :::
 
+:::note
 ⚡ **The Plus Operator (+)**: You can also use the `+` operator to combine two lists, but this creates a new list entirely, rather than modifying the original list in place. Use append/insert/extend when you want to change the existing list.
+:::
 
 :::summary
 

@@ -1,0 +1,45 @@
+{
+  "lessonId": "M7L3",
+  "title": "Context Managers - Quiz",
+  "questions": [
+    {
+      "id": "m7l3_q1",
+      "type": "multiple-choice",
+      "question": "What is the primary benefit of using the `with` statement when opening files?",
+      "options": [
+        "It makes the file read faster",
+        "It automatically closes the file when the block is finished",
+        "It prevents the file from being deleted",
+        "It allows you to open a file without specifying a mode"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `with` statement acts as a context manager, ensuring that `file.close()` is called automatically, which prevents memory leaks and file corruption."
+    },
+    {
+      "id": "m7l3_q2",
+      "type": "multiple-choice",
+      "question": "What happens if an error occurs inside a `with open(...)` block?",
+      "options": [
+        "The file remains open until the computer restarts",
+        "The file is corrupted immediately",
+        "The file is closed safely",
+        "The `with` block ignores the error and continues"
+      ],
+      "correctAnswer": 2,
+      "explanation": "This is a key safety feature. Even if an exception is raised, the context manager's 'exit' logic is triggered, closing the file safely."
+    },
+    {
+      "id": "m7l3_q3",
+      "type": "multiple-choice",
+      "question": "Which of the following is the correct syntax for opening two files simultaneously using a context manager?",
+      "options": [
+        "`with open('f1.txt') as x and open('f2.txt') as y:`",
+        "`with open('f1.txt') as x, open('f2.txt') as y:`",
+        "`with open('f1.txt', 'f2.txt') as x, y:`",
+        "`with open('f1.txt') as x + open('f2.txt') as y:`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "You can manage multiple resources in a single `with` statement by separating the `open()` calls with a comma."
+    }
+  ]
+}

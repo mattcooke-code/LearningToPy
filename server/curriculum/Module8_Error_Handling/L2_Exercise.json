@@ -2,11 +2,11 @@
   "title": "Handling Specific Exceptions",
   "instructions": "Practice catching specific exception types and providing appropriate error messages for different error scenarios.",
   "steps": [
-    "Write a try block that attempts to open and read a file, then convert its content to an integer",
-    "Add an except block for FileNotFoundError that prints 'File not found'",
-    "Add an except block for ValueError that prints 'File contains invalid number'",
-    "Add an except block for ZeroDivisionError that prints 'Cannot divide by zero'",
-    "After the try/except, print 'Processing complete'"
+    "Write a `try` block that attempts to open and read a file, then convert its content to an integer",
+    "Add an `except` block for `FileNotFoundError` that prints 'File not found'",
+    "Add an `except` block for `ValueError` that prints 'File contains invalid number'",
+    "Add an `except` block for `ZeroDivisionError` that prints 'Cannot divide by zero'",
+    "After the `try/except`, print 'Processing complete'"
   ],
   "starterCode": "result = 0\n\n# 1. Try block with file operations and division:\n\n\n# 2. Handle file not found:\n\n\n# 3. Handle invalid number conversion:\n\n\n# 4. Handle division by zero:\n\n\n# 5. Completion message:\nprint('Processing complete')",
   "solution": "result = 0\n\n# 1. Try block with file operations and division:\ntry:\n    with open('data.txt', 'r') as f:\n        content = f.read().strip()\n    number = int(content)\n    result = 100 / number\n    print(f\"Result: {result}\")\n\n# 2. Handle file not found:\nexcept FileNotFoundError:\n    print(\"File not found\")\n\n# 3. Handle invalid number conversion:\nexcept ValueError:\n    print(\"File contains invalid number\")\n\n# 4. Handle division by zero:\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")\n\n# 5. Completion message:\nprint('Processing complete')",
@@ -15,12 +15,33 @@
   },
   "hints": [
     "Remember the order: more specific exceptions should come first",
-    "FileNotFoundError occurs when the file doesn't exist",
-    "ValueError occurs when int() gets non-numeric input",
-    "ZeroDivisionError occurs when dividing by zero"
+    "`FileNotFoundError` occurs when the file doesn't exist",
+    "`ValueError` occurs when `int()` gets non-numeric input",
+    "`ZeroDivisionError` occurs when dividing by zero"
   ],
   "validation": "tests",
-  "tests": [],
+  "tests": [
+    {
+      "name": "Check for try/except structure",
+      "code": "import ast\n\ntree = ast.parse(code)\n\n# Check for try block\ntry_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.Try)]\nif not try_nodes:\n    raise AssertionError('Your code must include a try block')\n\n# Check for exception handlers\ntry_node = try_nodes[0]\nif len(try_node.handlers) < 3:\n    raise AssertionError('Your try block should have at least 3 except handlers')\n\n# Check for specific exception types\nexception_names = []\nfor handler in try_node.handlers:\n    if handler.type:\n        exception_names.append(handler.type.id)\n\nif 'FileNotFoundError' not in exception_names:\n    raise AssertionError('Missing except block for FileNotFoundError')\nif 'ValueError' not in exception_names:\n    raise AssertionError('Missing except block for ValueError')\nif 'ZeroDivisionError' not in exception_names:\n    raise AssertionError('Missing except block for ZeroDivisionError')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test with file not found scenario",
+      "code": "import sys\nimport os\nfrom io import StringIO\n\n# Create a temporary file to work with\ntest_filename = 'data.txt'\n\n# Ensure file doesn't exist for this test\nif os.path.exists(test_filename):\n    os.remove(test_filename)\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check for expected output\nif 'File not found' not in output:\n    raise AssertionError('When file is missing, should print \"File not found\"')\n\nif 'Processing complete' not in output:\n    raise AssertionError('Should print \"Processing complete\" after handling error')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test with invalid number in file",
+      "code": "import sys\nimport os\nfrom io import StringIO\n\n# Create file with invalid number\ntest_filename = 'data.txt'\nwith open(test_filename, 'w') as f:\n    f.write('abc')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n    # Clean up\n    os.remove(test_filename)\n\n# Check for expected output\nif 'File contains invalid number' not in output:\n    raise AssertionError('When file contains non-numeric data, should print \"File contains invalid number\"')\n\nif 'Processing complete' not in output:\n    raise AssertionError('Should print \"Processing complete\" after handling error')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test with zero in file",
+      "code": "import sys\nimport os\nfrom io import StringIO\n\n# Create file with zero\ntest_filename = 'data.txt'\nwith open(test_filename, 'w') as f:\n    f.write('0')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n    # Clean up\n    os.remove(test_filename)\n\n# Check for expected output\nif 'Cannot divide by zero' not in output:\n    raise AssertionError('When file contains 0, should print \"Cannot divide by zero\"')\n\nif 'Processing complete' not in output:\n    raise AssertionError('Should print \"Processing complete\" after handling error')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test with valid number in file",
+      "code": "import sys\nimport os\nfrom io import StringIO\n\n# Create file with valid number\ntest_filename = 'data.txt'\nwith open(test_filename, 'w') as f:\n    f.write('5')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n    # Clean up\n    os.remove(test_filename)\n\n# Check for expected output\nif 'Result: 20.0' not in output:\n    raise AssertionError('When file contains 5, should print \"Result: 20.0\"')\n\nif 'File not found' in output or 'File contains invalid number' in output or 'Cannot divide by zero' in output:\n    raise AssertionError('Should not print error messages for valid input')\n\nif 'Processing complete' not in output:\n    raise AssertionError('Should print \"Processing complete\" after success')\n\nprint('TEST_PASSED')"
+    }
+  ],
   "tags": [
     "specific-exceptions",
     "valueerror",

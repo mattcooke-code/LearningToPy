@@ -21,15 +21,17 @@ const LessonContent = ({
   const { isCodeDark } = useTheme();
 
   const getModuleNumber = () => {
-    if (lesson.moduleOrder !== undefined) {
-      return `M${lesson.moduleOrder}`;
+    if (lesson.moduleNumber) {
+      return lesson.moduleNumber;
     }
 
     if (lesson.module?.order !== undefined) {
       return `M${lesson.module.order}`;
     }
 
-    console.warn("Module order not found, defaulting to M0");
+    console.warn(
+      `Module order not found for lesson: ${lesson}, defaulting to M0`,
+    );
     return "M0";
   };
 

@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "m6l1_q1",
+      "question": "Which keyword is required to begin a function definition in Python?",
+      "options": ["function", "def", "define", "call"],
+      "correctAnswer": 1,
+      "explanation": "The `def` keyword (short for define) is used to start a function header. It must be followed by the function name and parentheses."
+    },
+    {
+      "id": "m6l1_q2",
+      "question": "What is the primary difference between a parameter and an argument?",
+      "options": [
+        "Parameters are values passed; arguments are placeholders.",
+        "Parameters are the placeholders in the definition; arguments are the actual values passed during the call.",
+        "Parameters are for numbers; arguments are for strings.",
+        "There is no technical difference between them."
+      ],
+      "correctAnswer": 1,
+      "explanation": "A parameter is the variable name listed in the function's definition. An argument is the real data you send to the function when you call it."
+    },
+    {
+      "id": "m6l1_q3",
+      "question": "What value does a Python function return if it does not have a `return` statement?",
+      "options": ["0", "True", "None", "An empty string ''"],
+      "correctAnswer": 2,
+      "explanation": "If a function finishes its code block without hitting a `return` statement, it implicitly returns the special Python value `None`."
+    }
+  ]
+}

@@ -14,9 +14,11 @@
     "settings.conf": "HOST=localhost\nPORT=8080\nDEBUG=True"
   },
   "hints": [
-    "The syntax is `with open('filename', 'mode') as handle_name:`",
-    "File iteration works the same inside the `with` block as outside it.",
-    "Check `file_object.closed` to see if a file is closed (returns True/False)."
+    "**Syntax Refresher**: The standard pattern is `with open('filename', 'r') as handle_name:`. Don't forget the colon at the end!",
+    "**Indentation Matters**: Anything you want to do while the file is still open (like looping or reading) must be indented inside the `with` block. As soon as you 'un-indent' (move back to the left margin), Python closes the file.",
+    "**The 'closed' Property**: Every file object has a built-in property called `.closed`. It is a Boolean—it will be `False` inside the block and `True` as soon as you exit the block.",
+    "**Verifying the Result**: To print the length of your list, use `len(clean_settings)`. Make sure this print statement is NOT indented, otherwise you are printing it while the file is still technically open.",
+    "**Why no .close()?**: The beauty of the `with` statement is that you never have to type `config_file.close()`. Python handles the teardown for you automatically!"
   ],
   "validation": "tests",
   "tests": [

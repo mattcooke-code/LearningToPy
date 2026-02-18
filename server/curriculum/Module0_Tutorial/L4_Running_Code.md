@@ -21,7 +21,9 @@ This is the most important part of your workflow. Think of it like a rehearsal v
 | **XP & Progress** | No XP awarded, lesson not marked complete                                                  | Awards **XP** points and unlocks the next lesson                       |
 | **When to Use**   | Constantly! Every few lines to make sure everything works                                  | Only once you're happy with the output from "Run"                      |
 
-**Pro Tip:** Professional developers run their code every few lines to make sure everything is working as expected. Get into this habit early!
+:::tip
+Professional developers run their code every few lines to make sure everything is working as expected. Get into this habit early!
+:::
 
 ## Understanding Execution Flow
 
@@ -70,13 +72,14 @@ print(f"Total fruit: {apples + oranges}")
 
 Once you see the results in the terminal, you're ready to move on!
 
-## Pro Tip 💡
+:::tip
 
 - **Keyboard Shortcut:** Press `Ctrl + Enter` (or `Cmd + Enter` on Mac) to "Run" instantly. Make sure you do this from the _TERMINAL_ not the _EDITOR_.
 
 - **Print is King:** If nothing happens when you click Run, check if you used a `print()` statement. Python calculates things silently unless you tell it to "speak."
 
 - **Fix one at a time:** If you have five errors, just fix the first one and run the code again. Often, fixing the first error can solve the rest!
+  :::
 
 ## What's Next?
 

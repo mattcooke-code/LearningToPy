@@ -16,9 +16,12 @@ The syntax is similar to an `if` statement, but the indented code block is execu
 
 • The loop body must be **indented**.
 
+:::note
+
 ### The Crucial Need for a Counter
 
 If the condition never becomes `False`, the loop will run forever, creating an **infinite loop**. Therefore, you must include a statement _inside the loop_ that eventually modifies the condition to `False`. This is usually an incrementing or decrementing variable (a counter).
+:::
 
 ```python
 count = 0
@@ -36,10 +39,11 @@ print("Loop finished.")
 ```
 
 ```python
-delorean_speed = 0
+delorean_speed = 80
 while delorean_speed < 88:
-    print(f"If my calculations are correct, when this baby hits 88 miles per hour... you're gonna see some serious {flux_capacitor}")
-    delorean_speed += 22
+    print(f"If my calculations are correct, when this baby hits 88 miles per hour..."
+          f"you're gonna see some serious {flux_capacitor}")
+    delorean_speed += 8
 
 print("1.21 gigawatts!!! Great Scott!")
 ```
@@ -57,7 +61,7 @@ while not username:
 print(f"Welcome, {username}!")
 ```
 
-:::tip
+:::note
 **Input Validation Pattern:** The `while not valid_input:` pattern is so common it has a name: "validation loop." Remember this structure - you'll use it often when getting user input that must meet certain criteria.
 :::
 

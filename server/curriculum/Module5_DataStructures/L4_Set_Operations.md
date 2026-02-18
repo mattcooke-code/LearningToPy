@@ -27,7 +27,9 @@ print(all_characters)
 all_characters_method = sunnydale.union(los_angeles)
 ```
 
-Notice how "Angel" and "Cordelia" appear in both original sets, but only once in the union - duplicates are automatically removed!
+:::note
+Notice how **Angel** and **Cordelia** appear in both original sets, but only once in the _union_ - duplicates are automatically removed!
+:::
 
 ## 2. Intersection: Finding Common Elements
 
@@ -45,7 +47,7 @@ crossover_characters = sunnydale & los_angeles
 print(crossover_characters) # Output: {"Angel", "Cordelia"}
 ```
 
-The intersection gives us only the characters who appeared in both the Sunnydale cast **and** the Los Angeles cast.
+The intersection gives us only the characters who appeared in both the Sunnydale cast **and** the Los Angeles cast (**Angel** and **Cordelia**).
 
 ## 3. Difference: Finding Unique Elements
 
@@ -61,7 +63,7 @@ los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Lorne", "Wesley"}
 sunnydale_only = sunnydale - los_angeles
 print(sunnydale_only) # Output: {"Buffy", "Willow", "Xander", "Giles"}
 
-# Characters who were only in Los Angeles (never in Sunnydale)
+# Characters who were only in Los Angeles (not in Sunnydale as a MAIN character)
 los_angeles_only = los_angeles - sunnydale
 print(los_angeles_only) # Output: {"Fred", "Gunn", "Lorne", "Wesley"}
 ```
@@ -91,12 +93,30 @@ Think of Symmetric Difference as the "Anti-Intersection." It finds everyone exce
 
 ## 5. Chaining Operations (The Master Class)
 
-You can chain these operations together to answer complex questions. Use parentheses to control the order, just like in mathematics.
+You can chain set operations together to solve complex questions in a single line.
+
+**Scenario:** You want to find every character from both shows (_Union_), but you want to filter the list to show **_only the humans_**.
 
 ```python
-# Who is in Sunnydale, but NOT a crossover character?
-# (sunnydale | los_angeles) - los_angeles ... is just sunnydale_only!
+sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Cordelia", "Angel"}
+los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Lorne", "Wesley"}
+non_humans = {"Angel", "Lorne"}
+
+# 1. Combine both casts (Union)
+# 2. Subtract the non-humans (Difference)
+human_characters = (sunnydale | los_angeles) - non_humans
+
+print(human_characters)
+# Output: {'Buffy', 'Willow', 'Xander', 'Giles', 'Cordelia', 'Fred', 'Gunn', 'Wesley'}
 ```
+
+### Why use Parentheses?
+
+In the example above, the parentheses `(sunnydale | los_angeles)` tell Python to combine the characters **first**, and then subtract the `non_humans` from that total.
+
+:::tip
+While Python has a specific "order of operations" for sets, always use parentheses `()` to make your code easier for other humans to read. It removes the guesswork!
+:::
 
 :::summary
 

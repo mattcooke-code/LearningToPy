@@ -52,12 +52,16 @@ print("-" * 40)
 
 Implement the core loading logic using a `for` loop with `continue` for rejections and `break` for emergency halts.
 
+:::note
+
 ### Requirements:
 
 1. Skip containers with weight ≤ 0 (sensor glitches)
 2. Skip containers > 500 tons (too large for loading bay)
 3. Halt ALL loading if next container would exceed 95% capacity (950 tons)
 4. Otherwise, load the container and update total weight
+
+:::
 
 ## 🏆 Bonus Mission: Multi-Container Verification
 
@@ -86,29 +90,35 @@ print("Some cargo entries contain multiple items that must be verified individua
 3. Reject entire shipment if ANY item violates rules
 4. Track total items loaded vs total shipments processed
 
+:::note
+
 ## Expected Output (Standard Mission)
 
-```
 🚀 INITIATING CARGO LOADING SEQUENCE
+
 📊 Ship Capacity: 1000 tons
-----------------------------------------
-✅ LOADED: Container 150 tons
-✅ LOADED: Container 75 tons
-🚫 REJECTED: Sensor glitch detected (0 tons)
-✅ LOADED: Container 420 tons
-✅ LOADED: Container 210 tons
-🚫 REJECTED: Container too large for bay (600 tons > 500 limit)
-✅ LOADED: Container 180 tons
-🚫 REJECTED: Sensor error detected (-50 tons)
-⚠️  EMERGENCY HALT: Next container (90 tons) would exceed 95% capacity!
-   Current load: 1035 tons would exceed 950 ton safety threshold
+
+---
+
+- ✅ LOADED: Container 150 tons
+- ✅ LOADED: Container 75 tons
+- 🚫 REJECTED: Sensor glitch detected (0 tons)
+- ✅ LOADED: Container 420 tons
+- ✅ LOADED: Container 210 tons
+- 🚫 REJECTED: Container too large for bay (600 tons > 500 limit)
+- ✅ LOADED: Container 180 tons
+- 🚫 REJECTED: Sensor error detected (-50 tons)
+- ⚠️ EMERGENCY HALT: Next container (90 tons) would exceed 95% capacity!
+- Current load: 1035 tons would exceed 950 ton safety threshold
 
 --- MISSION SUMMARY ---
-📦 Total Weight Loaded: 1035 tons
-🎯 Safety Threshold: 950 tons (95% of capacity)
-⚡ Loading Status: HALTED - Safety protocols engaged
-📈 Efficiency: 7 containers processed, 4 loaded, 3 rejected
-```
+
+- 📦 Total Weight Loaded: 1035 tons
+- 🎯 Safety Threshold: 950 tons (95% of capacity)
+- ⚡ Loading Status: HALTED - Safety protocols engaged
+- 📈 Efficiency: 7 containers processed, 4 loaded, 3 rejected
+
+:::
 
 ## Success Criteria
 

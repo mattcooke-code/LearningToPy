@@ -8,6 +8,18 @@ In this final challenge for the module, you will build a tiny, functional calcul
 
 You will define variables for two numbers and then perform and display four different arithmetic operations on them. This demonstrates that you can store data and manipulate it correctly.
 
+:::note
+**Why build a calculator?**
+This project combines everything you've learned:
+
+- ✅ Variables → store the numbers
+- ✅ Data types → ints and floats
+- ✅ Operators → +, -, \*, /
+- ✅ Print → show the results
+
+You're not just learning pieces - you're learning how they fit together!
+:::
+
 ---
 
 ## Project Requirements

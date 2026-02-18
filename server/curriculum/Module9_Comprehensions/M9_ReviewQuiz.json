@@ -1,0 +1,82 @@
+{
+  "questions": [
+    {
+      "id": "m9_review_q1",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax for a list comprehension that squares each number in a list called `nums`?",
+      "options": [
+        "`[x**2 for x in nums]`",
+        "`for x in nums: x**2`",
+        "`(x**2 for x in nums)`",
+        "`[x**2 while x in nums]`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`[x**2 for x in nums]` is the correct syntax. It takes each x in nums, squares it, and collects the results in a new list."
+    },
+    {
+      "id": "m9_review_q2",
+      "type": "multiple-choice",
+      "question": "What will `[char.upper() for char in \"python\"]` produce?",
+      "options": [
+        "`['P', 'Y', 'T', 'H', 'O', 'N']`",
+        "`'PYTHON'`",
+        "`['python']`",
+        "`['P', 'y', 't', 'h', 'o', 'n']`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The comprehension iterates through each character in 'python', applies `.upper()` to each, and collects them in a list, resulting in `['P', 'Y', 'T', 'H', 'O', 'N']`."
+    },
+    {
+      "id": "m9_review_q3",
+      "type": "multiple-choice",
+      "question": "Given `points = [(1, 2), (3, 4), (5, 6)]`, which comprehension extracts all y-coordinates?",
+      "options": [
+        "`[x for x, y in points]`",
+        "`[y for x, y in points]`",
+        "`[points[y] for y in points]`",
+        "`[y[1] for y in points]`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`[y for x, y in points]` unpacks each tuple into x and y, then selects only the y-coordinate values."
+    },
+    {
+      "id": "m9_review_q4",
+      "type": "multiple-choice",
+      "question": "Which comprehension correctly filters a list `nums` to keep only numbers greater than 10?",
+      "options": [
+        "`[x for x in nums if x > 10]`",
+        "`[x if x > 10 for x in nums]`",
+        "`[x > 10 for x in nums]`",
+        "`[for x in nums if x > 10]`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`[x for x in nums if x > 10]` is correct. The filter condition `if x > 10` comes at the end."
+    },
+    {
+      "id": "m9_review_q5",
+      "type": "multiple-choice",
+      "question": "What will `[x if x % 2 == 0 else 'odd' for x in [1, 2, 3, 4]]` produce?",
+      "options": [
+        "`['odd', 2, 'odd', 4]`",
+        "`['odd', 'even', 'odd', 'even']`",
+        "`[1, 2, 3, 4]`",
+        "`['even', 'odd', 'even', 'odd']`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "For each number: if it's even, keep the number; if it's odd, replace with 'odd'. So 1→'odd', 2→2, 3→'odd', 4→4."
+    },
+    {
+      "id": "m9_review_q6",
+      "type": "multiple-choice",
+      "question": "What does the `if` condition in `[email for email in emails if '@' in email and '.' in email.split('@')[1]]` check for?",
+      "options": [
+        "Emails with both @ and a domain containing a dot",
+        "Emails that contain exactly one @ symbol",
+        "Emails with more than one dot",
+        "Emails without any @ symbol"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The condition checks two things: the email must contain '@', and the part after '@' (the domain) must contain a dot. This ensures a basic valid email format."
+    }
+  ]
+}

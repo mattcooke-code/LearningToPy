@@ -34,6 +34,7 @@ We recommend these two industry standards. They are free, powerful, and used by 
 
 - **PyCharm:** A "heavy-duty" editor specifically built for Python. It's a bit larger but comes with everything pre-configured. [Download PyCharm](https://www.jetbrains.com/pycharm/download/)
 
-## ⚠️ Important Note ⚠️
+:::note
 
 You don't need these to finish this course! Our browser editor has everything you need to become a Python pro and earn your certificates. These tools are simply your "next step" for when you're ready to build your own standalone applications outside of this platform.
+:::

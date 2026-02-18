@@ -8,19 +8,20 @@
     "Task 4: Update 'health' to 85 using bracket notation"
   ],
   "starterCode": "# Task 1: Create player_stats dictionary\nplayer_stats = \n\n# Task 2: Access 'class' using brackets\nplayer_class = \n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = \n\n# Task 4: Update 'health' to 85\n",
-  "solution": "player_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\n\nplayer_class = player_stats['class']\nstamina_level = player_stats.get('stamina', 20)\nplayer_stats['health'] = 85",
+  "solution": "# Task 1: Create player_stats dictionary\nplayer_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\n\n# Task 2: Access 'class' using brackets\nplayer_class = player_stats['class']\n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = player_stats.get('stamina', 20)\n\n# Task 4: Update 'health' to 85\nplayer_stats['health'] = 85",
   "hints": [
     "Task 1: Use curly braces: `{'health': 100, 'mana': 50, 'class': 'Warrior'}`",
     "Task 2: Access dictionary values: `player_stats['class']` gets the value for key 'class'",
     "Task 3: `.get()` returns default if key missing: `player_stats.get('stamina', 20)`",
     "Task 4: Update values with assignment: `player_stats['health'] = 85`",
-    "Note: Keys are strings, so use quotes: `'health'`, `'class'`, etc."
+    "Note: Keys are strings, so use quotes: `'health'`, `'class'`, etc.",
+    "You can use either single quotes 'key' or double quotes \"key\" for string keys"
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check dictionary operations",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nps = exec_globals.get('player_stats', {})\nif not isinstance(ps, dict):\n    raise AssertionError('player_stats should be a dictionary')\n\nif ps.get('health') != 85:\n    raise AssertionError(\"Task 4: 'health' should be updated to 85\")\n\nif exec_globals.get('player_class') != 'Warrior':\n    raise AssertionError(\"Task 2: player_class should be 'Warrior'\")\n\nif exec_globals.get('stamina_level') != 20:\n    raise AssertionError(\"Task 3: stamina_level should be 20 (default value)\")\n\nprint('✓ Dictionary basics mastered!')"
+      "code": "user_code = code\nlocal_vars = {}\nexec(user_code, {}, local_vars)\n\n# Check player_stats exists and is a dictionary\nif 'player_stats' not in local_vars:\n    raise AssertionError('Task 1: player_stats dictionary not found. Did you create it?')\n\nps = local_vars['player_stats']\nif not isinstance(ps, dict):\n    raise AssertionError('Task 1: player_stats should be a dictionary (use curly braces {})')\n\n# Check initial values were set (before update)\nif 'mana' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'mana' key\")\nif ps.get('mana') != 50:\n    raise AssertionError(\"Task 1: 'mana' should be 50\")\n\nif 'class' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'class' key\")\nif ps.get('class') != 'Warrior':\n    raise AssertionError(\"Task 1: 'class' should be 'Warrior'\")\n\n# Check health was updated\nif 'health' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'health' key\")\nif ps.get('health') != 85:\n    raise AssertionError(\"Task 4: 'health' should be updated to 85\")\n\n# Check player_class variable\nif 'player_class' not in local_vars:\n    raise AssertionError(\"Task 2: player_class variable not found. Did you assign it?\")\nif local_vars['player_class'] != 'Warrior':\n    raise AssertionError(\"Task 2: player_class should be 'Warrior'\")\n\n# Check stamina_level variable\nif 'stamina_level' not in local_vars:\n    raise AssertionError(\"Task 3: stamina_level variable not found. Did you use .get()?\")\nif local_vars['stamina_level'] != 20:\n    raise AssertionError(\"Task 3: stamina_level should be 20 (the default value, since 'stamina' key doesn't exist)\")\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": ["dictionary", "key-value", "get-method", "beginner"]

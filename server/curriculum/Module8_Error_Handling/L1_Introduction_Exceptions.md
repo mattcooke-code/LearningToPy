@@ -56,6 +56,32 @@ except:
 # Program continues running instead of crashing
 ```
 
+## Example: Amity Island
+
+```python
+def shark_hunt():
+    print("🦈 They caught A shark. Not THE shark!")
+
+    try:
+        shark_size = 25  # feet
+        boat_size = 20   # feet
+
+        if shark_size > boat_size:
+            # Manually trigger an error - this shark is too big!
+            raise Exception("Shark exceeds boat capacity!")
+
+        print(f"✅ Caught a {shark_size}-foot shark!")
+
+    except:
+        print("⛵ YOU'RE GONNA NEED A BIGGER BOAT!")
+
+shark_hunt()
+
+# Output:
+# 🦈 They caught A shark. Not THE shark!
+# ⛵ YOU'RE GONNA NEED A BIGGER BOAT!
+```
+
 ## 3. Why Use Error Handling?
 
 1. **Prevent crashes**: Keep your program running even when errors occur
@@ -68,6 +94,20 @@ except:
 
 ## 4. Catching All Exceptions
 
-While `except`: catches everything, it's usually better to catch specific exceptions (we'll cover this in the next lesson).
+A bare `except:` catches every possible error. While helpful for beginners, it has a downside:
 
-⚠️ Important: Catching all exceptions can hide bugs! Use it carefully.
+:::warning
+Catching all exceptions can hide bugs! Use it carefully.
+:::
+
+In the next lesson we will look at a better approach: **Specific Exceptions**.
+
+:::summary
+
+- **Syntax Errors:** Caught before the code runs (grammar mistakes).
+- **Exceptions:** Caught while the code is running (logical mistakes).
+- `try` block: Wraps the code you think might fail.
+- `except` block: Contains the code that runs _only_ if an error happens in the `try` block.
+- **Resilience:** Using `try/except` allows the rest of your script to keep executing even after a failure.
+
+:::

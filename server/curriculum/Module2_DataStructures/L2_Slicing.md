@@ -2,7 +2,9 @@
 
 While **indexing** allows you to grab a single item from a list, **slicing** allows you to extract a **sequence** of items (a sub-list) from a larger list.
 
+:::note
 Slicing creates a brand new list, leaving the original list unchanged.
+:::
 
 ## 1. The Slicing Syntax
 

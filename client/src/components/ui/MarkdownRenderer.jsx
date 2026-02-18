@@ -13,7 +13,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
           border: "border-l-4 border-blue-500",
           text: "text-blue-800",
           title: "text-blue-900",
-          emoji: "📝", // Pencil/memo emoji for summary
+          emoji: "📝",
         },
         dark: {
           bg: "bg-blue-900/20",
@@ -58,6 +58,23 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         },
         title: "Important",
       },
+      note: {
+        light: {
+          bg: "bg-emerald-50",
+          border: "border-l-4 border-emerald-500",
+          text: "text-emerald-800",
+          title: "text-emerald-900",
+          emoji: "📌",
+        },
+        dark: {
+          bg: "bg-emerald-900/20",
+          border: "border-l-4 border-emerald-400",
+          text: "text-emerald-200",
+          title: "text-emerald-200",
+          emoji: "📌",
+        },
+        title: "Note",
+      },
     };
 
     const style = containerStyles[type] || containerStyles.summary;
@@ -99,6 +116,10 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
       warning: {
         light: "text-red-800",
         dark: "text-red-200",
+      },
+      note: {
+        light: "text-green-800",
+        dark: "text-green-200",
       },
     };
 
@@ -179,6 +200,8 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
 
   // Parse content and extract containers
   const parseContent = (text) => {
+    if (!text) return [];
+
     const lines = text.split("\n");
     const result = [];
     let i = 0;

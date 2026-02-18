@@ -131,7 +131,57 @@ finally:
     print("Request attempt completed")
 ```
 
-## 5. Key Points to Remember
+## 5. Fun Example: Cylon Attack
+
+```python
+def launch_vipers(condition):
+    print("🔴 ACTION STATIONS! Set Condition One throughout the ship.")
+
+    try:
+        print("This is not a drill!")
+        if condition != "combat":
+            raise ValueError("The starboard launch tube is a gift shop now.")
+
+        print("✅ Viper pilots report to Vipers immediately.")
+
+    except ValueError as alert:
+        print(f"❌ {alert}")
+    else:
+        # This runs only if no exception occurred
+        print("🚀 LAUNCH VIPERS! Grab your gun and bring in the cat!")
+    finally:
+        # This ALWAYS runs
+        print("📢 Alert the fleet to emergency jump!")
+        print("Spool up the FTL!\n")
+
+# Test different scenarios
+print("--- SCENARIO 1: Combat Ready ---")
+launch_vipers("combat")
+
+print("--- SCENARIO 2: Not Ready ---")
+launch_vipers("retreat")
+```
+
+### Output
+
+```text
+--- SCENARIO 1: Combat Ready ---
+🔴 ACTION STATIONS! Set Condition One throughout the ship.
+This is not a drill!
+✅ Viper pilots report to Vipers immediately.
+🚀 LAUNCH VIPERS! Grab your gun and bring in the cat!
+📢 Alert the fleet to emergency jump!
+Spool up the FTL!
+
+--- SCENARIO 2: Not Ready ---
+🔴 ACTION STATIONS! Set Condition One throughout the ship.
+This is not a drill!
+❌ The starboard launch tube is a gift shop now.
+📢 Alert the fleet to emergency jump!
+Spool up the FTL!
+```
+
+## 6. Key Points to Remember
 
 • **Else**: Runs only when try block succeeds completely
 
@@ -140,3 +190,15 @@ finally:
 • **Order matters**: try → except → else → finally
 
 • **Use finally for cleanup**: File closing, network connection cleanup, resource release
+
+:::summary
+
+- The `else` clause runs **only if no exceptions occurred** in the try block
+- The `finally` clause **always runs**, whether an exception occurred or not
+- Use `finally` for cleanup operations (closing files, database connections)
+- All four parts can be combined: `try` → `except` → `else` → `finally`
+- `else` helps separate the **success path** from error handling
+- `finally` runs even if you `return` early or raise an exception
+- Perfect for **resource management** - ensuring files close, connections terminate
+
+:::

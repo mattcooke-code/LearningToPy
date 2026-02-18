@@ -16,15 +16,15 @@ file_object = open(file_path, mode)
 
 ### Common File Modes
 
-| Mode  | Name       | Description                                                                  | If File Doesn't Exist           |
-| ----- | ---------- | ---------------------------------------------------------------------------- | ------------------------------- |
-| `'r'` | **Read**   | Default mode. Used only for reading data.                                    | ⚠️ Raises a `FileNotFoundError` |
-| `'w'` | **Write**  | Used for writing data. <br>**⚠️ CAUTION**: Overwrites the file if it exists! | ✅ Creates a new file           |
-| `'a'` | **Append** | Used for adding new data to the end of the file.                             | ✅ Creates a new file           |
+| Mode  | Name       | Description                                                              | If File Doesn't Exist           |
+| ----- | ---------- | ------------------------------------------------------------------------ | ------------------------------- |
+| `'r'` | **Read**   | Default mode. Used only for reading data.                                | ⚠️ Raises a `FileNotFoundError` |
+| `'w'` | **Write**  | Used for writing data. **⚠️ CAUTION**: Overwrites the file if it exists! | ✅ Creates a new file           |
+| `'a'` | **Append** | Used for adding new data to the end of the file.                         | ✅ Creates a new file           |
 
 For reading a plain text file, we typically use the `'r'` mode.
 
-## 2. Reading the Entire File: .read()
+## 2. Reading the Entire File: `.read()`
 
 Once you have a file object, you can use its methods to pull the data into your program. The most straightforward is the `.read()` method, which reads the entire file content into a single string.
 
@@ -32,8 +32,9 @@ Once you have a file object, you can use its methods to pull the data into your 
 
 Imagine a file named `greetings.txt` contains:
 
-Hello, World!
-Welcome to Python.
+**_Hello, World!_**
+
+**_Welcome to Python._**
 
 ```python
 # 1. Open the file in read mode ('r')
@@ -53,18 +54,34 @@ file_handle.close()
 
 When you're done with a file, you must call the `.close()` method on the file object.
 
+:::note
 Why is closing important?
 
-1. Releases Resources: It frees up system resources and ensures the file is available for other programs.
+1. **Releases Resources:** It frees up system resources and ensures the file is available for other programs.
 
-2. Saves Data (for writing): When writing to a file, the operating system often buffers the data (holds it in temporary memory). The data is only guaranteed to be saved (flushed) to the disk when the file is closed.
+2. **Saves Data (for writing):** When writing to a file, the operating system often buffers the data (holds it in temporary memory). The data is only guaranteed to be saved (flushed) to the disk when the file is closed.
+   :::
 
+:::warning
 Failing to close a file can lead to resource leaks and potential data corruption.
+:::
 
 ## 4. Looking Ahead: A Better Way
 
-⚠️ IMPORTANT NOTE: While the manual `open()/close()` pattern works and helps you understand the file lifecycle, it's considered outdated practice in modern Python because it's easy to forget the `.close()` step.
+In **Lesson 7.3**, we'll introduce **context managers** (the `with` statement), which automatically handle file closure for you, making your code safer and cleaner. For now, we will practice the manual method to build foundational understanding.
 
-In **Lesson 7.3**, we'll introduce **context managers** (the `with` statement), which automatically handle file closure for you, making your code safer and cleaner. For now, we practice the manual method to build foundational understanding.
+:::warning
+While the manual `open()/close()` pattern works and helps you understand the file lifecycle, it's considered outdated practice in modern Python because it's easy to forget the `.close()` step.
+:::
 
 **Remember**: Always pair every `open()` with a corresponding `.close()`!
+
+:::summary
+
+- Use `open(path, mode)` to create a file object (handle) that connects your code to the disk.
+- The default mode is `'r'` (Read). Use `'w'` (Write) to start fresh, or `'a'` (Append) to add to existing data.
+- The `.read()` method pulls the entire content of a file into a single string.
+- **CRITICAL:** You must call `.close()` to release system resources and ensure all data is safely saved to the disk.
+- While manual closing is foundational, modern Python usually automates this with the `with` statement (coming in L7.3).
+
+:::

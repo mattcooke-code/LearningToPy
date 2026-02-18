@@ -202,8 +202,8 @@ const MODULE_CONFIGS = {
         ex: "L5_Exercise.json",
       },
       {
-        file: "L6_Project_Role_Selector.md",
-        title: "Module Project: The Role Selector",
+        file: "L6_Project_Gaming_Platform.md",
+        title: "Module Project: Gaming Platform Access Control",
         type: "project",
         ex: "L6_Exercise.json",
       },
@@ -301,8 +301,8 @@ const MODULE_CONFIGS = {
         ex: "L5_Exercise.json",
       },
       {
-        file: "L6_Project_Tag_Manager.md",
-        title: "Module Project: Inventory and Tag Manager",
+        file: "L6_Project_World_Explorer.md",
+        title: "Module Project: World Explorer Research Tool",
         type: "project",
         ex: "L6_Exercise.json",
       },
@@ -688,9 +688,9 @@ const MODULE_CONFIGS = {
   },
   M15: {
     folder: "Module15_Tooling",
-    title: "Python Tooling & Environment",
+    title: "Professional Python Development",
     description:
-      "Learn professional skills like managing dependencies and virtual environments.",
+      "Master the tools, structure, and practices used in real-world Python development - from virtual environments to building installable packages.",
     lessons: [
       {
         file: "L1_Virtual_Environments.md",
@@ -699,6 +699,7 @@ const MODULE_CONFIGS = {
         type: "guided-setup",
         ex: "L1_Exercise.json",
       },
+
       {
         file: "L2_Pip_Requirements.md",
         quiz: "L2_Quiz.json",
@@ -706,6 +707,7 @@ const MODULE_CONFIGS = {
         type: "exercise",
         ex: "L2_Exercise.json",
       },
+
       {
         file: "L3_Debugging_PDB.md",
         quiz: "L3_Quiz.json",
@@ -713,11 +715,34 @@ const MODULE_CONFIGS = {
         type: "exercise",
         ex: "L3_Exercise.json",
       },
+
       {
-        file: "L4_Project_Package_Setup.md",
-        title: "Project: Package Setup and Use",
-        type: "project",
+        file: "L4_Organising_Projects.md",
+        quiz: "L4_Quiz.json",
+        title: "Organising Python Projects",
+        description:
+          "Learn how to structure multi-file projects using modules and packages.",
+        type: "exercise",
         ex: "L4_Exercise.json",
+      },
+
+      {
+        file: "L5_Creating_Importing_Packages.md",
+        quiz: "L5_Quiz.json",
+        title: "Creating and Importing Packages",
+        description:
+          "Build your own installable Python packages with setup.py.",
+        type: "exercise",
+        ex: "L5_Exercise.json",
+      },
+
+      {
+        file: "L6_Project_Package_Setup.md",
+        title: "Project: Professional CLI Tool",
+        description:
+          "Build a production-ready, multi-file CLI tool and package it for installation.",
+        type: "project",
+        ex: "L6_Exercise.json",
       },
     ],
   },
@@ -939,25 +964,25 @@ const MODULE_HELPERS = {
         icon: "📖",
       },
       M6: {
-        difficulty: "intermediate",
+        difficulty: "beginner",
         estimatedHours: 3,
         xpReward: 180,
         icon: "⚙️",
       },
       M7: {
-        difficulty: "intermediate",
+        difficulty: "beginner",
         estimatedHours: 2.5,
         xpReward: 160,
         icon: "📁",
       },
       M8: {
-        difficulty: "intermediate",
+        difficulty: "beginner",
         estimatedHours: 2.5,
         xpReward: 140,
         icon: "🛡️",
       },
       M9: {
-        difficulty: "intermediate",
+        difficulty: "beginner",
         estimatedHours: 2.5,
         xpReward: 150,
         icon: "✨",
@@ -994,8 +1019,8 @@ const MODULE_HELPERS = {
       },
       M15: {
         difficulty: "intermediate",
-        estimatedHours: 2.5,
-        xpReward: 140,
+        estimatedHours: 4,
+        xpReward: 250,
         icon: "🛠️",
       },
       M16: {
@@ -1042,10 +1067,11 @@ const MODULE_HELPERS = {
 
   /**
    * Get learning objectives for a module
-   * This can be customized per module
+   * Now complete for ALL modules M1-M20
    */
   getLearningObjectives: (moduleNum) => {
     const objectivesMap = {
+      //  🔴 PHASE 1: Python Fundamentals (M1-9)
       M1: [
         "Understand Python syntax and basic concepts",
         "Work with variables and data types",
@@ -1057,36 +1083,140 @@ const MODULE_HELPERS = {
         "Perform indexing and slicing",
       ],
       M3: [
-        "Write conditional logic",
-        "Use comparison operators",
-        "Logical operators",
+        "Write conditional logic with if/elif/else",
+        "Use comparison and logical operators",
+        "Understand truthiness and ternary expressions",
       ],
-      M4: ["For loops", "While loops", "Break and Continue"],
+      M4: [
+        "Master for loops and while loops",
+        "Use range() for counting and stepping",
+        "Control flow with break and continue",
+      ],
       M5: [
-        "Dictionary manipulation",
-        "Set operations",
-        "Choosing the right tool",
+        "Manipulate dictionaries and sets",
+        "Perform set operations",
+        "Choose the right data structure",
       ],
-      M16: ["HTTP Methods", "JSON Parsing", "Status Codes", "Error Handling"],
+      M6: [
+        "Define and call functions with parameters",
+        "Understand positional vs keyword arguments",
+        "Differentiate between local and global scope",
+        "Return values from functions effectively",
+        "Build reusable function-based programs",
+      ],
+      M7: [
+        "Open and read text files using open() and read()",
+        "Process files line by line with readlines()",
+        "Implement context managers with 'with' statements",
+        "Write and append data to files",
+        "Build a log file processor application",
+      ],
+      M8: [
+        "Identify and differentiate syntax errors from exceptions",
+        "Handle runtime errors using try/except blocks",
+        "Catch and handle specific exception types",
+        "Implement else and finally clauses",
+        "Raise exceptions intentionally for validation",
+        "Build robust applications that fail gracefully",
+      ],
+      M9: [
+        "Transform lists using comprehension syntax",
+        "Apply conditional logic within comprehensions",
+        "Create dictionaries using comprehension patterns",
+        "Write nested comprehensions for complex data",
+        "Know when comprehensions improve vs harm readability",
+        "Build data transformation pipelines",
+      ],
+
+      // 🟡 PHASE 2: Intermediate Python (M10-15)
+      M10: [
+        "Write anonymous functions using lambda expressions",
+        "Use lambda functions with sorted(), map(), and filter()",
+        "Implement flexible functions with *args and **kwargs",
+        "Create and apply function decorators",
+        "Understand closures and function factories",
+        "Apply functional programming patterns in Python",
+      ],
+      M11: [
+        "Define classes and instantiate objects",
+        "Implement the __init__ constructor method",
+        "Create instance methods and attributes",
+        "Understand encapsulation and name mangling",
+        "Differentiate class variables from instance variables",
+        "Build game character systems using OOP",
+      ],
+      M12: [
+        "Create class hierarchies through inheritance",
+        "Override parent methods in child classes",
+        "Call parent constructors using super()",
+        "Implement polymorphism across class hierarchies",
+        "Design abstract base classes (ABCs)",
+        "Build extensible shape hierarchy systems",
+      ],
+      M13: [
+        "Create and manipulate datetime objects",
+        "Format dates and times for display",
+        "Parse string representations into datetime objects",
+        "Perform date arithmetic with timedelta",
+        "Handle timezone conversions appropriately",
+        "Build event timer and validation applications",
+      ],
+      M14: [
+        "Write regex patterns for text matching",
+        "Use quantifiers, anchors, and character classes",
+        "Extract data using capturing groups",
+        "Perform search and match operations",
+        "Implement find and replace with sub()",
+        "Split strings using regex patterns",
+        "Build log file analysis tools",
+      ],
+      M15: [
+        "Create and manage virtual environments for project isolation",
+        "Install and manage packages with pip and requirements.txt",
+        "Debug Python code effectively using pdb breakpoints",
+        "Structure multi-file projects using modules and packages",
+        "Create installable Python packages with setup.py",
+        "Build and distribute a complete CLI tool",
+      ],
+
+      // 🟢 PHASE 3: Advanced Applications (M16-20)
+      M16: [
+        "Make HTTP requests with the requests library",
+        "Parse and handle JSON responses",
+        "Understand HTTP status codes and error handling",
+        "Send data with POST requests",
+        "Build a complete API client application",
+      ],
       M17: [
-        "NumPy ndarrays",
-        "Vectorized math",
-        "Pandas DataFrames",
-        "Data Filtering",
+        "Create and manipulate NumPy arrays",
+        "Perform vectorized mathematical operations",
+        "Work with Pandas Series and DataFrames",
+        "Filter and transform tabular data",
+        "Build data analysis pipelines",
       ],
       M18: [
-        "HTML/DOM",
-        "Parsing with BS4",
-        "CSS Selectors",
-        "Scraping Etiquette",
+        "Understand HTML structure and the DOM",
+        "Fetch web pages using requests",
+        "Parse HTML with BeautifulSoup",
+        "Extract data using CSS selectors and class/ID attributes",
+        "Implement ethical web scraping practices",
+        "Build data extraction and storage tools",
       ],
       M19: [
-        "SQL Basics",
-        "sqlite3 module",
-        "CRUD Operations",
-        "Parameterized Queries",
+        "Connect to SQLite databases",
+        "Execute CREATE and INSERT statements",
+        "Retrieve data with SELECT queries",
+        "Implement parameterized queries for security",
+        "Perform full CRUD operations",
+        "Build database-driven applications",
       ],
-      M20: ["App Design", "argparse", "Tool Integration", "Clean Code"],
+      M20: [
+        "Design and structure a complete CLI application",
+        "Parse command-line arguments with argparse",
+        "Integrate APIs, data processing, and database storage",
+        "Write clean, maintainable production code",
+        "Create a portfolio-ready final project",
+      ],
     };
 
     return (

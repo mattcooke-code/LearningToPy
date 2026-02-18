@@ -6,7 +6,7 @@
     "Inside the block, use `.write()` to write the string `\"Overwrite line 1\\n\"` to `f_write`.",
     "Use `with open()` again to open `data.txt` in **append mode (`'a'`)** and assign it to `f_append`.",
     "Inside the block, use `.write()` to append the string `\"Append line 2\\n\"` to `f_append`.",
-    "Use `with open()` to read `data.txt` in read mode (`'r'`) and store its content in `final_content`."
+    "Use `with open()` to read `data.txt` in read mode (`'r'`), assign the handle to `file_reader`, and store its content in `final_content`."
   ],
   "starterCode": "# The file 'data.txt' is available (initially empty).\nfinal_content = ''\n\n# 1. Open in 'w' mode and overwrite:\n\n\n# 2. Open in 'a' mode and append:\n\n\n# 3. Read the final content:\n",
   "solution": "# The file 'data.txt' is available (initially empty).\nfinal_content = ''\n\n# 1. Open in 'w' mode and overwrite:\nwith open('data.txt', 'w') as f_write:\n   f_write.write(\"Overwrite line 1\\n\")\n\n# 2. Open in 'a' mode and append:\nwith open('data.txt', 'a') as f_append:\n   f_append.write(\"Append line 2\\n\")\n\n# 3. Read the final content:\nwith open('data.txt', 'r') as file_reader:\n   final_content = file_reader.read()",
@@ -14,10 +14,11 @@
     "data.txt": ""
   },
   "hints": [
-    "Remember that the string passed to `.write()` must contain the `\\n` if you want a newline.",
-    "The first `with` block will reset the file content.",
-    "The second `with` block will add to the end of the file.",
-    "Use the same `with` pattern for reading that you learned in the previous lesson."
+    "**Mode 'w' vs 'a'**: Remember that `'w'` is like a 'Reset' button—it wipes the file clean before writing. `'a'` is like adding a sticky note to the bottom—it keeps what was there and adds more.",
+    "**The Newline Character**: Python won't move to the next line for you. You must include `\\n` at the end of your string inside the `.write()` method to ensure the next write operation starts on a fresh line.",
+    "**Variable Names**: Pay close attention to the instructions for variable names like `f_write`, `f_append`, and `file_reader`. These are the aliases you use to call the `.write()` or `.read()` methods.",
+    "**Closing the Context**: You don't need to manually close the file! Once you stop indenting, the `with` statement automatically closes the file for that specific mode, allowing you to open it again in a different mode immediately after.",
+    "**Final Reading**: In step 3, make sure to use `final_content = file_reader.read()` so the entire content of the file is saved into the variable for the tests to check."
   ],
   "validation": "tests",
   "tests": [

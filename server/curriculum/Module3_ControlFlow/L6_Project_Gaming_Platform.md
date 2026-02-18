@@ -26,6 +26,8 @@ Your system needs to handle four types of users:
 
 - Print: `'Welcome! You have access to free games. Upgrade for more!'`
 
+:::note
+
 ## Test Your Code
 
 Your code should work correctly for all these test scenarios:
@@ -34,8 +36,9 @@ Your code should work correctly for all these test scenarios:
 - Premium member with 45 days → Premium access
 - Premium member with 15 days → "Premium features unlock in 15 days"
 - Free member → Free games only
+  :::
 
-:::tips
+  :::tip
 
 - Use `elif` to handle the different Premium member cases
 - Remember to check account_type AND account_age together using `and`

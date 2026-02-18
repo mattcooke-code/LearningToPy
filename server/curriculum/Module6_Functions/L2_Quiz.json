@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "m6l2_q1",
+      "question": "In the following call, which type of arguments are being used?\n\n`set_settings(theme='dark', font_size=12)`",
+      "options": [
+        "Positional arguments",
+        "Keyword arguments",
+        "Default arguments",
+        "Required arguments"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Because the parameter names (theme and font_size) are explicitly linked to the values using the '=' sign, these are keyword arguments."
+    },
+    {
+      "id": "m6l2_q2",
+      "question": "What is the strict rule when mixing positional and keyword arguments in a single function call?",
+      "options": [
+        "Keyword arguments must come before positional arguments.",
+        "They must be separated by a semicolon.",
+        "Positional arguments must come before keyword arguments.",
+        "You cannot mix them; you must choose one style."
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python requires all positional arguments to be placed first. If a keyword argument appears before a positional one, it will trigger a SyntaxError."
+    },
+    {
+      "id": "m6l2_q3",
+      "question": "Consider this function: `def greet(name, msg='Hello'):`. What happens if you call `greet('Raphael')`?",
+      "options": [
+        "An error occurs because 'msg' is missing.",
+        "It prints 'Raphael Hello' using the default value for 'msg'.",
+        "It prints 'Hello Hello' because 'name' is ignored.",
+        "The function returns None without printing anything."
+      ],
+      "correctAnswer": 1,
+      "explanation": "Since 'msg' has a default value of 'Hello', providing only the 'name' argument is perfectly valid; Python simply fills in the default for the second parameter."
+    }
+  ]
+}

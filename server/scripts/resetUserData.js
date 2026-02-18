@@ -1,4 +1,4 @@
-// server/seeders/resetUserData.js (IMPROVED)
+// server/seeders/resetUserData.js
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const { getDatabaseUri, isProduction } = require("../config/envConfig");
@@ -57,43 +57,7 @@ const resetProgress = async () => {
       process.exit(0);
     }
 
-    // 4. Backup option (optional but recommended)
-    const backupAnswer = await new Promise((resolve) => {
-      const rl2 = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      rl2.question("Create backup before reset? (yes/no): ", resolve);
-      rl2.close();
-    });
-
-    if (backupAnswer.toLowerCase() === "yes") {
-      console.log("💾 Creating backup...");
-      // You could implement a simple backup here
-      const users = await User.find({});
-      const backup = {
-        timestamp: new Date(),
-        userCount: users.length,
-        users: users.map((u) => ({
-          email: u.email,
-          completedLessons: u.completedLessons,
-          completedModules: u.completedModules,
-          xp: u.xp,
-          level: u.level,
-        })),
-      };
-      // Save backup to file
-      const fs = require("fs");
-      const backupDir = "./backups";
-      if (!fs.existsSync(backupDir)) {
-        fs.mkdirSync(backupDir);
-      }
-      const backupFile = `${backupDir}/user_backup_${Date.now()}.json`;
-      fs.writeFileSync(backupFile, JSON.stringify(backup, null, 2));
-      console.log(`✅ Backup saved to: ${backupFile}`);
-    }
-
-    // 5. Define the reset values
+    // 4. Define the reset values
     const resetFields = {
       completedLessons: [],
       completedModules: [],
@@ -114,7 +78,7 @@ const resetProgress = async () => {
       // lastLoginDate: null // Optional: reset last login too
     };
 
-    // 6. Run the update query
+    // 5. Run the update query
     console.log("\n🔄 Resetting user data...");
 
     // Optional: Keep test user or admin users
@@ -142,7 +106,7 @@ const resetProgress = async () => {
     console.log("   - Badges and statistics");
     console.log("   - Progress history");
 
-    // 7. Verification
+    // 6. Verification
     const remainingProgress = await User.aggregate([
       {
         $match: {
@@ -168,7 +132,7 @@ const resetProgress = async () => {
     console.error("❌ Error resetting user data:", err);
     process.exit(1);
   } finally {
-    // 8. Disconnect
+    // 7. Disconnect
     await mongoose.disconnect();
     console.log("\n🔏 Database connection closed.");
   }

@@ -2,7 +2,7 @@
   "title": "Galactic Cargo Manager",
   "instructions": "Implement the cargo loading system for the starship Pythonia. Process the cargo manifest while adhering to all safety protocols.\n\n## Mission Objectives\n1. **Filter invalid cargo**: Skip containers with weight ≤ 0 or > 500 tons.\n2. **Enforce safety limits**: Halt loading if the next container would exceed 95% of ship capacity.\n3. **Calculate statistics**: Track total weight and counts.",
   "steps": [
-    "Step 1: Initialize tracking variables",
+    "Step 1: Initialize tracking variables (already done)",
     "Step 2: Loop through cargo_manifest, process each container",
     "Step 3: Skip invalid containers (≤0 or >500) with continue",
     "Step 4: Check safety threshold (95% capacity), break if exceeded",
@@ -10,13 +10,14 @@
     "Step 6: Print mission summary"
   ],
   "starterCode": "ship_capacity = 1000\ncargo_manifest = [150, 75, 0, 420, 210, 600, 180, -50, 90]\n\n# Initialize tracking variables\ntotal_weight_loaded = 0\ncontainers_processed = 0\ncontainers_loaded = 0\ncontainers_rejected = 0\n\n# Process cargo_manifest\n",
-  "solution": "for weight in cargo_manifest:\n    containers_processed += 1\n    if weight <= 0 or weight > 500:\n        print(f'REJECTED: {weight} tons')\n        containers_rejected += 1\n        continue\n    \n    if total_weight_loaded + weight > ship_capacity * 0.95:\n        print('⚠️ EMERGENCY HALT: Safety limit reached')\n        break\n    \n    total_weight_loaded += weight\n    containers_loaded += 1\n    print(f'✅ LOADED: {weight} tons')\n\nprint('\\n--- MISSION SUMMARY ---')\nprint(f'Total Weight: {total_weight_loaded}')\nprint(f'Processed: {containers_processed} Loaded: {containers_loaded} Rejected: {containers_rejected}')",
+  "solution": "ship_capacity = 1000\ncargo_manifest = [150, 75, 0, 420, 210, 600, 180, -50, 90]\n\n# Initialize tracking variables\ntotal_weight_loaded = 0\ncontainers_processed = 0\ncontainers_loaded = 0\ncontainers_rejected = 0\n\n# Process cargo_manifest\nfor weight in cargo_manifest:\n    containers_processed += 1\n    if weight <= 0 or weight > 500:\n        print(f'REJECTED: {weight} tons')\n        containers_rejected += 1\n        continue\n    \n    if total_weight_loaded + weight > ship_capacity * 0.95:\n        print('⚠️ EMERGENCY HALT: Safety limit reached')\n        break\n    \n    total_weight_loaded += weight\n    containers_loaded += 1\n    print(f'✅ LOADED: {weight} tons')\n\nprint('\\n--- MISSION SUMMARY ---')\nprint(f'Total Weight: {total_weight_loaded}')\nprint(f'Processed: {containers_processed} | Loaded: {containers_loaded} | Rejected: {containers_rejected}')",
   "hints": [
-    "Step 1: Already done for you - these variables track progress",
     "Step 2: Use `for weight in cargo_manifest:` to process each container",
-    "Step 3: Check `if weight <= 0 or weight > 500:` then `print()`, increment rejected, `continue`",
-    "Step 4: Calculate safety limit: `ship_capacity * 0.95` (950 tons). Check `if total_weight_loaded + weight > 950:` then `break`",
-    "Step 5: Add weight to total, increment loaded count, print success message",
+    "Step 2: Increment containers_processed at the start of each loop iteration",
+    "Step 3: Check `if weight <= 0 or weight > 500:` then print rejection, increment rejected, and `continue`",
+    "Step 4: Calculate safety limit: `ship_capacity * 0.95` (950 tons). Check `if total_weight_loaded + weight > 950:`",
+    "Step 4: If safety limit exceeded, print emergency halt and `break`",
+    "Step 5: Add weight to total_weight_loaded, increment containers_loaded, print success",
     "Step 6: Print summary AFTER the loop (not indented!)",
     "Remember: `continue` skips to next container, `break` stops entire loading process"
   ],
@@ -24,9 +25,9 @@
   "tests": [
     {
       "name": "Verify cargo loading logic",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {'total_weight_loaded': 0, 'containers_processed': 0, 'containers_loaded': 0, 'containers_rejected': 0}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check final statistics\nif local_vars['total_weight_loaded'] != 855:\n    raise AssertionError(f'Total weight should be 855, got {local_vars[\"total_weight_loaded\"]}')\nif local_vars['containers_loaded'] != 4:\n    raise AssertionError(f'Should load 4 containers, loaded {local_vars[\"containers_loaded\"]}')\nif local_vars['containers_rejected'] != 3:\n    raise AssertionError(f'Should reject 3 containers, rejected {local_vars[\"containers_rejected\"]}')\n\n# Check that loading halted before last container (90 tons)\nif '✅ LOADED: 90 tons' in output:\n    raise AssertionError('Should halt before loading 90 tons (would exceed 95% capacity)')\n\nprint('✓ Cargo system working correctly! Safety protocols engaged.')"
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\n# Execute the user's code\nuser_code = code\nexec(user_code)\n\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Re-execute to check final variable values\nlocal_vars = {\n    'ship_capacity': 1000,\n    'cargo_manifest': [150, 75, 0, 420, 210, 600, 180, -50, 90],\n    'total_weight_loaded': 0,\n    'containers_processed': 0,\n    'containers_loaded': 0,\n    'containers_rejected': 0\n}\nexec(user_code, {}, local_vars)\n\n# Check final statistics\nif local_vars['total_weight_loaded'] != 855:\n    raise AssertionError(f'Total weight should be 855 tons (150+75+420+210), got {local_vars[\"total_weight_loaded\"]}')\n\nif local_vars['containers_loaded'] != 4:\n    raise AssertionError(f'Should load 4 containers, loaded {local_vars[\"containers_loaded\"]}')\n\nif local_vars['containers_rejected'] != 2:\n    raise AssertionError(f'Should reject 2 containers (0, 600) before breaking, rejected {local_vars[\"containers_rejected\"]}')\n\nif local_vars['containers_processed'] != 7:\n    raise AssertionError(f'Should process 7 containers before breaking, processed {local_vars[\"containers_processed\"]}')\n\n# Check that loading halted (emergency halt message should appear)\nif 'EMERGENCY HALT' not in output:\n    raise AssertionError('Should print emergency halt message when safety limit would be exceeded')\n\n# Check that 180 was NOT loaded\nif '180' in output and 'LOADED' in output:\n    loaded_lines = [line for line in output.split('\\n') if 'LOADED' in line and '180' in line]\n    if loaded_lines:\n        raise AssertionError('Should halt before loading 180 tons (would exceed 95% capacity)')\n\nprint('TEST_PASSED')"
     }
   ],
-  "expectedOutput": "✅ LOADED: 150 tons\n✅ LOADED: 75 tons\nREJECTED: 0 tons\n✅ LOADED: 420 tons\n✅ LOADED: 210 tons\nREJECTED: 600 tons\n⚠️ EMERGENCY HALT: Safety limit reached\n\n--- MISSION SUMMARY ---\nTotal Weight: 855\nProcessed: 7 Loaded: 4 Rejected: 3",
+  "expectedOutput": "✅ LOADED: 150 tons\n✅ LOADED: 75 tons\nREJECTED: 0 tons\n✅ LOADED: 420 tons\n✅ LOADED: 210 tons\nREJECTED: 600 tons\n⚠️ EMERGENCY HALT: Safety limit reached\n\n--- MISSION SUMMARY ---\nTotal Weight: 855\nProcessed: 7 | Loaded: 4 | Rejected: 2",
   "tags": ["project", "for-loop", "break", "continue", "iteration", "advanced"]
 }

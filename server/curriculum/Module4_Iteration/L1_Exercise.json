@@ -7,7 +7,7 @@
     "Task 3: Loop through `document_title` and print only 'T' or 'P' characters"
   ],
   "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# Task 1: Print each task\n\n# Task 2: Print scores with index using enumerate()\n\n# Task 3: Print only 'T' or 'P' characters\n",
-  "solution": "for task in project_tasks:\n    print(task)\n\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\nfor char in document_title:\n    if char == 'T' or char == 'P':\n        print(char)",
+  "solution": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# Task 1: Print each task\nfor task in project_tasks:\n    print(task)\n\n# Task 2: Print scores with index using enumerate()\n# Both options work: index (0-based) or index + 1 (1-based)\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\n# Task 3: Print only 'T' or 'P' characters\nfor char in document_title:\n    if char == 'T' or char == 'P':\n        print(char)",
   "hints": [
     "Task 1: Use `for task in project_tasks:` then `print(task)` inside the loop",
     "Task 2: `enumerate()` gives you two values: `for index, score in enumerate(user_scores):`",
@@ -18,15 +18,15 @@
   "tests": [
     {
       "name": "Check all tasks printed",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = output.strip().split('\\n')\nif 'Planning' not in lines or 'Launch' not in lines:\n    raise AssertionError('Task 1 failed: Not all tasks were printed')\nprint('✓ Task 1: All tasks printed correctly')"
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check if all tasks appear in the output\nif 'Planning' not in output:\n    raise AssertionError('Task 1 failed: \"Planning\" not found in output. Did you print all tasks?')\nif 'Design' not in output:\n    raise AssertionError('Task 1 failed: \"Design\" not found in output')\nif 'Coding' not in output:\n    raise AssertionError('Task 1 failed: \"Coding\" not found in output')\nif 'Testing' not in output:\n    raise AssertionError('Task 1 failed: \"Testing\" not found in output')\nif 'Launch' not in output:\n    raise AssertionError('Task 1 failed: \"Launch\" not found in output. Did you print all tasks?')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check enumerate usage",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nif 'Student 0 scored 88' not in output:\n    raise AssertionError('Task 2 failed: Use enumerate() to get index and score together')\nif 'Student 3 scored 99' not in output:\n    raise AssertionError('Task 2 failed: Make sure you handle all 4 scores')\nprint('✓ Task 2: enumerate() used correctly')"
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Accept both 0-based indexing (Student 0, 1, 2, 3) and 1-based (Student 1, 2, 3, 4)\n# Check for 0-based indexing\nhas_zero_based = 'Student 0 scored 88' in output and 'Student 3 scored 99' in output\n\n# Check for 1-based indexing (index + 1)\nhas_one_based = 'Student 1 scored 88' in output and 'Student 4 scored 99' in output\n\nif not (has_zero_based or has_one_based):\n    raise AssertionError('Task 2 failed: Use enumerate() to print each score. Format should be \"Student X scored Y\" where X is either the index or index+1')\n\n# Make sure all 4 scores appear in output\nif '88' not in output or '92' not in output or '75' not in output or '99' not in output:\n    raise AssertionError('Task 2 failed: Make sure you print all 4 scores')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check character filtering",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = output.strip().split('\\n')\nt_count = sum(1 for line in lines if line == 'T')\np_count = sum(1 for line in lines if line == 'P')\n\nif t_count != 1:\n    raise AssertionError(f'Task 3 failed: Should find 1 \"T\", found {t_count}')\nif p_count != 1:\n    raise AssertionError(f'Task 3 failed: Should find 1 \"P\", found {p_count}')\nprint('✓ Task 3: Characters filtered correctly')"
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# Count T and P characters that were printed\nt_count = sum(1 for line in lines if line == 'T')\np_count = sum(1 for line in lines if line == 'P')\n\n# The title 'The Great Python Adventure' has 1 'T' and 1 'P' (uppercase)\nif t_count != 1:\n    raise AssertionError(f'Task 3 failed: Should print 1 \"T\" character, but found {t_count}. Check your loop and if condition')\nif p_count != 1:\n    raise AssertionError(f'Task 3 failed: Should print 1 \"P\" character, but found {p_count}. Check your loop and if condition')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": ["for-loop", "iteration", "enumerate", "beginner"],

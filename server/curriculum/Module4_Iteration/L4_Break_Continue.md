@@ -6,9 +6,10 @@ In both `for` and `while` loops, you often need to alter the loop's natural flow
 
 The **`break`** keyword is used to **immediately terminate** the loop it is currently running in. Once `break` is executed, the program skips the remaining code in the loop and moves to the first instruction _after_ the loop.
 
-### Common Use Case: Searching
+:::note
 
 `break` is often used when searching through a list. As soon as the desired item is found, there is no need to check the remaining items, saving processing time.
+:::
 
 ```python
 search_list = ["A", "B", "Target", "C", "D"]
@@ -29,9 +30,10 @@ for item in search_list:
 
 The `continue` keyword is used to skip the rest of the code inside the loop for the current iteration only. The loop immediately jumps to the next item or re-evaluates the `while` condition.
 
-### Common Use Case: Filtering
+:::note
 
 `continue` is useful for filtering data or skipping items that do not meet a certain condition.
+:::
 
 ```python
 scores = [85, 42, 98, 55, 70]  # 50 is failing
@@ -58,7 +60,7 @@ for score in scores:
 | `break`    | Exits  | The loop is permanently terminated.                                                     |
 | `continue` | Skips  | Only the current iteration is skipped; the loop continues with the next item/condition. |
 
-:::warning
+:::tip
 **Use Sparingly:** Overusing `break` and `continue` can make your code harder to follow. Sometimes it's clearer to structure your conditions differently. Use them when they genuinely simplify the logic, not just to skip writing proper conditions.
 :::
 
@@ -93,7 +95,7 @@ print("Thank you for entering a valid number.")
 # Thank you for entering a valid number.
 ```
 
-:::tip
+:::note
 **The `while True:` Pattern:** Using `while True:` with `break` is a common and clean pattern for input validation or menus. The loop runs forever until a specific condition (checked inside) triggers a `break`. This is often clearer than trying to craft the perfect `while` condition.
 :::
 

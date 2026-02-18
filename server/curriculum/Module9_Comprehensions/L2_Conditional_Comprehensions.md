@@ -28,7 +28,7 @@ print(long_words)  # ['elephant', 'butterfly']
 
 ## 2. Conditional Expressions (If-Else)
 
-Use conditional expressions to transform elements differently based on conditions:
+Use conditional expressions to transform elements differently based on conditions. This follows the same pattern as the **_ternary operator_** you learned in **Module 3:** `true_value if condition else false_value`.
 
 ```python
 [true_expression if condition else false_expression for item in iterable]
@@ -87,6 +87,15 @@ valid_emails = [email for email in emails if '@' in email and '.' in email.split
 print(valid_emails)  # ['user@example.com', 'test@domain.org', 'valid@test.com']
 ```
 
+### Breaking this down:
+
+- `if '@' in email` checks for the @ symbol
+- `and` ensures both conditions must be true
+- `email.split('@')[1]` splits the email at @ and takes the domain part
+- `'.'` in checks that the domain contains a dot (like .com, .org)
+
+This ensures we only keep emails with both @ and a valid domain format.
+
 ### Example: Data Cleaning
 
 ```python
@@ -118,9 +127,9 @@ print(grades)  # ['B', 'A', 'C', 'D', 'F', 'A', 'F']
 
 Comprehensions with conditions are generally faster than equivalent loops, but be careful with very complex conditions that hurt readability.
 
-### Readability Tip
-
-If your comprehension becomes hard to read, consider breaking it into multiple lines:
+:::tip
+If your comprehension becomes hard to read, consider breaking it into multiple lines.
+:::
 
 ```python
 # Hard to read
@@ -136,11 +145,14 @@ result = [
 
 ## 7. Common Pitfalls
 
-1. **Order matters**: The conditional expression (if-else) comes before `for`, but the filtering `if` comes after
+:::note
+
+1. **Order matters**: When using both `if` and `if-else`, remember the `if` filter comes at the end, while the `if-else` expression comes before `for`.
 
 2. **Don't overcomplicate**: If it gets too complex, use a regular loop
 
 3. **Watch for side effects**: Comprehensions should be pure transformations when possible
+   :::
 
 ### Wrong Order
 
@@ -151,3 +163,15 @@ result = [x for x in numbers if x > 0 else 0]
 # ✅ Correct
 result = [x if x > 0 else 0 for x in numbers]
 ```
+
+:::summary
+
+- **Filtering comprehensions:** `[expr for item in iterable if condition]`- includes only items that satisfy the condition
+- **Conditional expressions:** `[true_val if condition else false_val for item in iterable]` - transforms each item based on condition
+- **Multiple conditions:** Combine with `and`/`or` in the filter
+- **Complex filtering:** Can include multiple logic steps (like email validation)
+- **Nested conditions:** Chain `if-else` expressions for multi-level logic
+- **Readability:** Break complex comprehensions across multiple lines
+- **Order matters:** Filter `if` goes at the end, conditional expression goes before `for`
+
+:::

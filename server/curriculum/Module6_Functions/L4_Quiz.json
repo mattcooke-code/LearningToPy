@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "m6l4_q1",
+      "question": "What is the primary benefit of using functions for data validation, such as checking an email format?",
+      "options": [
+        "It makes the code run faster.",
+        "It ensures consistency.",
+        "It allows the user to skip entering data.",
+        "It automatically fixes the data for you."
+      ],
+      "correctAnswer": 1,
+      "explanation": "By centralizing validation in a function, you ensure that 'is_valid_email' always uses the same rules, no matter where in your program it is called."
+    },
+    {
+      "id": "m6l4_q2",
+      "question": "When a function returns multiple values (e.g., `return avg, letter`), how can you capture them in variables?",
+      "options": [
+        "You can only capture one; the other is lost.",
+        "Use a single variable and Python will choose the best one.",
+        "Use 'tuple unpacking'.",
+        "You must call the function twice to get both values."
+      ],
+      "correctAnswer": 2,
+      "explanation": "Python returns multiple values as a tuple. You can 'unpack' these directly into separate variables in one line of code."
+    },
+    {
+      "id": "m6l4_q3",
+      "question": "According to best practices, what is a sign that a function might be doing too much?",
+      "options": [
+        "The function name is longer than 10 characters.",
+        "The function uses more than one 'if' statement.",
+        "The function name includes the word 'and'.",
+        "The function has a default argument."
+      ],
+      "correctAnswer": 2,
+      "explanation": "Functions should follow the 'Single Responsibility Principle.' If you name a function 'validate_and_save_user', it is likely performing two distinct tasks that should be separated."
+    }
+  ]
+}

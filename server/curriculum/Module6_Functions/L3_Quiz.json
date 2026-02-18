@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "id": "m6l3_q1",
+      "question": "What happens if you try to access a local variable from outside the function it was defined in?",
+      "options": [
+        "Python returns None.",
+        "Python raises a NameError.",
+        "Python searches for a global variable with the same name.",
+        "The variable is successfully accessed as long as the function has run."
+      ],
+      "correctAnswer": 1,
+      "explanation": "Local variables are 'encapsulated' within their function. Once the function finishes, the variables are destroyed, and trying to access them outside results in a NameError."
+    },
+    {
+      "id": "m6l3_q2",
+      "question": "Which keyword must be used inside a function to update a variable defined at the top level of the program?",
+      "options": ["nonlocal", "update", "def", "global"],
+      "correctAnswer": 3,
+      "explanation": "By default, functions can read global variables but cannot change them. To modify a global variable, you must explicitly declare it using the `global` keyword inside the function."
+    },
+    {
+      "id": "m6l3_q3",
+      "question": "What is the 'LEGB Rule' in Python?",
+      "options": [
+        "A rule for naming functions.",
+        "The order in which Python looks up variable names.",
+        "A type of mathematical operator.",
+        "A rule for indentation."
+      ],
+      "correctAnswer": 1,
+      "explanation": "LEGB stands for Local, Enclosing, Global, and Built-in. It defines the hierarchy Python uses to search for a variable name."
+    }
+  ]
+}

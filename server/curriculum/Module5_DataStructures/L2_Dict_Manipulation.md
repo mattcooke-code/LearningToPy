@@ -26,9 +26,8 @@ config["theme"] = "light"
 
 ### B. Removing Items: `.pop()` and `del`
 
-`.pop(key)`: Removes the item associated with the specified key and returns the removed value. This is the safer method, as you can retrieve the value you just deleted.
-
-`del`: A statement that permanently removes a key-value pair. It does not return the value.
+- `.pop(key)`: Removes the item associated with the specified key and returns the removed value. This is the safer method, as you can retrieve the value you just deleted.
+- `del`: A statement that permanently removes a key-value pair. It does not return the value.
 
 ```python
 user = {"name": "Alex", "points": 100, "temp_data": 5}

@@ -6,7 +6,7 @@ The **`with` statement** provides a safer, more robust, and Pythonic way to hand
 
 ## 1. Introducing the Context Manager
 
-The `with` statement uses a **context manager** to ensure a setup step (like opening a file) and a teardown step (like closing a file) are automatically executed, even if errors occur.
+The `with` statement uses a **context manager** to ensure a _setup step_ (like opening a file) and a _teardown step_ (like closing a file) are automatically executed, even if errors occur.
 
 The syntax looks like this:
 
@@ -21,11 +21,14 @@ print("File operation complete. File is closed.")
 
 ## 2. Automatic Closure and Error Safety
 
-The main advantage of `with open(...)` is that it guarantees the file's `.close()` method is called:
+The main advantage of `with open(...)` is that it guarantees the file's `.close()` method is called.
+
+:::note
 
 1. **Normal Execution**: When the code reaches the end of the `with` block.
 
 2. **Exception/Error**: If an error (exception) occurs inside the `with` block, the file is still closed before the program crashes or the exception is handled by a `try/except` block.
+   :::
 
 ## 3. Comparing Approaches
 
@@ -100,3 +103,13 @@ with open('output.txt', 'w') as file:
     file.write("Hello, World!\\n")
     file.write("Second line\\n")
 ```
+
+:::summary
+
+- `with` **statement:** Creates a "context" where the file is open; exits automatically.
+- **Automatic `.close()`:** You no longer need to manually call `file.close()`.
+- **Error Safety:** Files are closed even if an error occurs inside the `with` block.
+- **Scope:** The file handle variable is only intended for use inside the indented block.
+- **Multiple Files:** You can open multiple files in one `with` statement using a comma.
+
+:::

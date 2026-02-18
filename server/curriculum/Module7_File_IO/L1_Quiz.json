@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "m7l1_q1",
+      "question": "Which of the following is the correct way to open a file named 'notes.txt' just to read its content?",
+      "options": [
+        "`file = open('notes.txt', 'w')`",
+        "`file = read('notes.txt')`",
+        "`file = open('notes.txt', 'r')`",
+        "`file = open('notes.txt', 'a')`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "To read a file, you use the `open()` function with the `'r'` (read) mode. Note that `'r'` is also the default if you don't specify a mode."
+    },
+    {
+      "id": "m7l1_q2",
+      "question": "What is a major risk of using the `'w'` (Write) mode on a file that already contains data?",
+      "options": [
+        "It will cause a `FileNotFoundError`.",
+        "It will add the new data to the end of the existing content.",
+        "It will delete (overwrite) all existing content in the file.",
+        "It will open the file in read-only mode instead."
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `'w'` mode is destructive for existing files; it wipes the file clean as soon as it is opened. If you want to keep existing data, you should use `'a'` (Append) mode instead."
+    },
+    {
+      "id": "m7l1_q3",
+      "question": "Why is it considered a best practice to call the `.close()` method?",
+      "options": [
+        "It is the only way to print the file's content.",
+        "It deletes the file from the hard drive to save space.",
+        "It tells Python which mode to use for the next file.",
+        "It frees up system resources and ensures all data is successfully written to the disk."
+      ],
+      "correctAnswer": 3,
+      "explanation": "Closing the file is like hanging up a phone call; it tells the Operating System that your program is finished with the resource, preventing memory leaks and data corruption."
+    }
+  ]
+}

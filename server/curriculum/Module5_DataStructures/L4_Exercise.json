@@ -21,7 +21,7 @@
   "tests": [
     {
       "name": "Check set operations",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nunion = exec_globals.get('combined_unique_numbers')\nif union != {1, 5, 7, 8, 10, 12}:\n    raise AssertionError(f'Task 1: Union should be {{1,5,7,8,10,12}}, got {union}')\n\nintersection = exec_globals.get('common_elements')\nif intersection != {1, 5, 8}:\n    raise AssertionError(f'Task 2: Intersection should be {{1,5,8}}, got {intersection}')\n\ndifference = exec_globals.get('stale_premium_users')\nif difference != {'B', 'C'}:\n    raise AssertionError(f'Task 3: Difference should be {{\"B\",\"C\"}}, got {difference}')\n\nsym_diff = exec_globals.get('unique_to_each_set')\nif sym_diff != {1, 2, 7, 8, 10, 12}:\n    raise AssertionError(f'Task 4: Symmetric diff should be {{1,2,7,8,10,12}}, got {sym_diff}')\n\nprint('✓ All set operations correct!')"
+      "code": "local_vars = {}\nexec(code, {}, local_vars)\n\nexpected = {\n    'combined_unique_numbers': {1, 5, 7, 8, 10, 12},\n    'common_elements': {1, 5, 8},\n    'stale_premium_users': {'B', 'C'},\n    'unique_to_each_set': {1, 2, 7, 8, 10, 12}\n}\n\nfor var, val in expected.items():\n    actual = local_vars.get(var)\n    if actual != val:\n        raise AssertionError(f'Error in {var}. Expected {val}, but got {actual}.')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": [

@@ -1,6 +1,6 @@
 # ✍️ Defining and Calling Functions
 
-A **Function** is a block of organized, reusable code that is used to perform a single, related action. They allow you to break your program into smaller, manageable chunks, making code easier to read, test, and debug.
+A **Function** is a block of organized, reusable code that is used to perform a single, related action. Functions allow you to break your program into smaller, manageable chunks, making code easier to read, test, and debug.
 
 ## 1. Defining a Function: The `def` Keyword
 
@@ -63,7 +63,9 @@ personalized_greeting("Bob")
 # Hello, Bob! How are you?
 ```
 
+:::note
 Functions can accept multiple parameters, separated by commas.
+:::
 
 ## 4. The `return` Statement
 
@@ -80,3 +82,12 @@ def calculate_area(length, width):
 room_area = calculate_area(5, 10)
 print(f"The area is: {room_area}") # Output: The area is: 50
 ```
+
+:::summary
+
+- Functions are defined using the `def` keyword followed by `name()` and a colon `:`
+- Execute a function's code by _calling_ it using its name and parentheses (e.g., `my_function()`).
+- Use **parameters** as placeholders in the definition and **arguments** to pass real data during the call.
+- The `return` statement sends a result back to the caller; otherwise, the function returns `None` by default.
+
+:::

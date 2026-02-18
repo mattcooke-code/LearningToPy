@@ -1,43 +1,40 @@
 {
-  "title": "Local and Global Scope Challenge",
-  "instructions": "Practice accessing and modifying variables in different scopes using the `global` keyword when necessary.",
+  "title": "Scope: Global Keyword vs Return Values",
+  "instructions": "Learn two ways to work with variables across functions: using the `global` keyword (Part A) and using return values (Part B - the better approach).",
   "steps": [
-    "Define a function named `increment_score` that **modifies** the global variable `game_score` by adding 10 to it. Use the `global` keyword inside the function.",
-    "Call the `increment_score` function.",
-    "Define a function named `check_max` that checks if the local parameter `current_value` is greater than the global variable `MAX_CAPACITY`. If it is, assign `True` to the global variable `exceeded_limit` (using the `global` keyword).",
-    "Call `check_max` with an argument of 250."
+    "Part A: Using Global Keyword",
+    "Task 1: Define `increment_score` that modifies the global `game_score` by adding 10 using the `global` keyword",
+    "Task 2: Call `increment_score` once",
+    "Part B: Using Return Values (Better Approach)",
+    "Task 3: Define `add_points` that takes `current_score` and `points` as parameters and returns their sum",
+    "Task 4: Call `add_points` with `player_score` and 25, reassigning the result back to `player_score`"
   ],
-  "starterCode": "game_score = 0\nMAX_CAPACITY = 200\nexceeded_limit = False\n\n# 1. Define increment_score (must use global):\n\n\n# 2. Call the function:\n\n\n# 3. Define check_max (must use global for exceeded_limit):\n\n\n# 4. Call check_max:\n\n",
-  "solution": "game_score = 0\nMAX_CAPACITY = 200\nexceeded_limit = False\n\n# 1. Define increment_score (must use global):\ndef increment_score():\n    global game_score\n    game_score += 10\n\n# 2. Call the function:\nincrement_score()\n\n# 3. Define check_max (must use global for exceeded_limit):\ndef check_max(current_value):\n    global exceeded_limit\n    if current_value > MAX_CAPACITY:\n        exceeded_limit = True\n\n# 4. Call check_max:\ncheck_max(250)",
+  "starterCode": "# Part A: Global keyword approach\ngame_score = 0\n\n# Task 1: Define increment_score using global\n\n# Task 2: Call increment_score\n\n\n# Part B: Return values approach (better!)\nplayer_score = 0\n\n# Task 3: Define add_points that returns the sum\n\n# Task 4: Call add_points and reassign to player_score\n",
+  "solution": "# Part A: Global keyword approach\ngame_score = 0\n\n# Task 1: Define increment_score using global\ndef increment_score():\n    global game_score\n    game_score += 10\n\n# Task 2: Call increment_score\nincrement_score()\n\n\n# Part B: Return values approach (better!)\nplayer_score = 0\n\n# Task 3: Define add_points that returns the sum\ndef add_points(current_score, points):\n    return current_score + points\n\n# Task 4: Call add_points and reassign to player_score\nplayer_score = add_points(player_score, 25)",
   "hints": [
-    "Remember that the `global` declaration must be the first line of code inside the function before you try to change the variable.",
-    "In `check_max`, you are reading `MAX_CAPACITY` but modifying `exceeded_limit`, so only `exceeded_limit` needs the `global` declaration.",
-    "In step 4, the argument 250 is passed as a local parameter, so the function can access `MAX_CAPACITY` globally for comparison."
+    "Task 1: Use `global game_score` as the first line in the function",
+    "Task 1: Then use `game_score += 10` to modify it",
+    "Task 2: Just call the function: `increment_score()`",
+    "Task 3: This function takes TWO parameters and returns their sum",
+    "Task 3: No global keyword needed! Just `return current_score + points`",
+    "Task 4: Remember to reassign: `player_score = add_points(player_score, 25)`",
+    "Notice how Part B is clearer - you can see exactly what values go in and come out!"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check global variable modification with increment_score",
-      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check game_score was incremented from 0 to 10\n    game_score = exec_globals.get('game_score')\n    assert game_score == 10, f'game_score should be 10 after increment, got {game_score}'\n    \n    # Check global keyword is used in increment_score\n    tree = ast.parse(code)\n    increment_score_def_found = False\n    global_keyword_found = False\n    game_score_global = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.FunctionDef):\n            if node.name == 'increment_score':\n                increment_score_def_found = True\n                # Check for global statement in function body\n                for child in node.body:\n                    if isinstance(child, ast.Global):\n                        global_keyword_found = True\n                        # Check it includes game_score\n                        if 'game_score' in child.names:\n                            game_score_global = True\n    \n    assert increment_score_def_found, 'Should define increment_score function'\n    assert global_keyword_found, 'Should use global keyword in increment_score'\n    assert game_score_global, 'Should declare global game_score'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: increment_score modifies global variable correctly')",
-      "expected": "increment_score should use global game_score and increment it by 10"
+      "name": "Check Part A - Global keyword usage",
+      "code": "# Execute in a way that allows global to work properly\nuser_code = code\n\n# Execute with shared global and local namespace\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Check game_score was incremented\nif 'game_score' not in exec_namespace:\n    raise AssertionError('game_score variable not found')\n\nif exec_namespace['game_score'] != 10:\n    raise AssertionError(f'Task 1-2: game_score should be 10 after calling increment_score, got {exec_namespace[\"game_score\"]}')\n\n# Check function exists\nif 'increment_score' not in exec_namespace:\n    raise AssertionError('Task 1: increment_score function not defined')\n\nif not callable(exec_namespace['increment_score']):\n    raise AssertionError('Task 1: increment_score should be a function')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check increment_score function call",
-      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check increment_score was called\n    tree = ast.parse(code)\n    increment_score_call_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if isinstance(node.func, ast.Name) and node.func.id == 'increment_score':\n                increment_score_call_found = True\n    \n    assert increment_score_call_found, 'Should call increment_score() function'\n    \n    # Verify game_score was actually modified by the call\n    # (already checked in previous test)\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: increment_score function is called')",
-      "expected": "Should call increment_score() function"
+      "name": "Check Part B - Return values approach",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Check player_score was updated\nif 'player_score' not in exec_namespace:\n    raise AssertionError('player_score variable not found')\n\nif exec_namespace['player_score'] != 25:\n    raise AssertionError(f'Task 3-4: player_score should be 25 after calling add_points, got {exec_namespace[\"player_score\"]}')\n\n# Check function exists and works\nif 'add_points' not in exec_namespace:\n    raise AssertionError('Task 3: add_points function not defined')\n\nif not callable(exec_namespace['add_points']):\n    raise AssertionError('Task 3: add_points should be a function')\n\n# Test the function\ntry:\n    result = exec_namespace['add_points'](10, 5)\n    if result != 15:\n        raise AssertionError(f'Task 3: add_points(10, 5) should return 15, got {result}')\nexcept TypeError:\n    raise AssertionError('Task 3: add_points should take two parameters (current_score, points)')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check check_max function with global and parameter",
-      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check exceeded_limit was set to True (250 > 200)\n    exceeded_limit = exec_globals.get('exceeded_limit')\n    assert exceeded_limit == True, f'exceeded_limit should be True (250 > 200), got {exceeded_limit}'\n    \n    # Check MAX_CAPACITY unchanged\n    max_capacity = exec_globals.get('MAX_CAPACITY')\n    assert max_capacity == 200, f'MAX_CAPACITY should remain 200, got {max_capacity}'\n    \n    # Check check_max function definition\n    tree = ast.parse(code)\n    check_max_def_found = False\n    has_parameter = False\n    global_exceeded_found = False\n    comparison_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.FunctionDef):\n            if node.name == 'check_max':\n                check_max_def_found = True\n                # Check it has one parameter\n                assert len(node.args.args) == 1, 'check_max should have one parameter'\n                param_name = node.args.args[0].arg\n                has_parameter = True\n                \n                # Check for global statement\n                for child in node.body:\n                    if isinstance(child, ast.Global):\n                        if 'exceeded_limit' in child.names:\n                            global_exceeded_found = True\n                    # Check for comparison\n                    elif isinstance(child, ast.If):\n                        comparison_found = True\n    \n    assert check_max_def_found, 'Should define check_max function'\n    assert has_parameter, 'check_max should take current_value parameter'\n    assert global_exceeded_found, 'Should declare global exceeded_limit in check_max'\n    assert comparison_found, 'Should have if statement comparing current_value > MAX_CAPACITY'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: check_max function modifies global variable based on comparison')",
-      "expected": "check_max should use global exceeded_limit, compare current_value > MAX_CAPACITY"
-    },
-    {
-      "name": "Check check_max function call with argument",
-      "code": "import io\nimport sys\nimport ast\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check check_max was called with argument 250\n    tree = ast.parse(code)\n    check_max_call_found = False\n    correct_argument = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if isinstance(node.func, ast.Name) and node.func.id == 'check_max':\n                check_max_call_found = True\n                # Check it has one argument with value 250\n                if len(node.args) == 1:\n                    arg = node.args[0]\n                    if isinstance(arg, ast.Constant) and arg.value == 250:\n                        correct_argument = True\n    \n    assert check_max_call_found, 'Should call check_max function'\n    assert correct_argument, 'Should call check_max(250) with argument 250'\n    \nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED: check_max is called with correct argument')",
-      "expected": "Should call check_max(250)"
+      "name": "Compare both approaches",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Verify both methods achieved the goal\nif exec_namespace.get('game_score') != 10:\n    raise AssertionError('Part A (global) should result in game_score = 10')\n\nif exec_namespace.get('player_score') != 25:\n    raise AssertionError('Part B (return) should result in player_score = 25')\n\n# Both work! But Part B is cleaner and more Pythonic\nprint('TEST_PASSED')"
     }
   ],
-  "expectedOutput": "",
-  "tags": ["function", "scope", "global", "local"],
+  "tags": ["function", "scope", "global", "return-values", "best-practices"],
   "challengeGroup": "function-scope"
 }

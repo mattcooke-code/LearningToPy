@@ -1,31 +1,35 @@
 {
-  "title": "Robust File Data Processor",
-  "instructions": "Build a robust data processor that handles various file and data validation errors gracefully while generating comprehensive reports.",
+  "title": "User Data Validator",
+  "instructions": "Build a validation function that uses `try`/`except`/`else`/`finally` to validate user data. Once your function is defined correctly, the pre-written test runner at the bottom will automatically validate the test cases.",
   "steps": [
-    "Create a function validate_user_data that takes name, age, email and raises appropriate ValueErrors for invalid data",
-    "Read users.txt line by line, tracking line numbers for error reporting",
-    "For each line, split by commas and validate all three fields using your validation function",
-    "Count valid users and track errors with descriptive messages",
-    "Write the processing report to user_report.txt",
-    "Log all errors to error_log.txt with timestamps",
-    "Use appropriate error handling for file operations"
+    "Step 1: Define a function `validate_user()` with parameters: `name`, `age_str`, `email` ",
+    "Step 2: Inside the function, use a `try` block to convert `age_str` to an `int`",
+    "Step 3: Add validation rules: name must not be empty, age must be 18-120, and email must contain '@'",
+    "Step 4: Use `raise ValueError('message')` for any validation failures",
+    "Step 5: Use an `else` block to print a success message and `return True` only when validation passes",
+    "Step 6: Use a `finally` block to print 'Validation attempted' (this should run every time)",
+    "Step 7: Catch `ValueError` in an `except` block to print the error message and `return False`"
   ],
-  "starterCode": "import datetime\n\ndef validate_user_data(name, age_str, email):\n    \"\"\"Validate user data and raise ValueError for any invalid fields.\"\"\"\n    # TODO: Implement validation\n    pass\n\n# Main processing logic\nvalid_users = []\nerrors = []\n\n# TODO: Implement file reading and processing\n\n# TODO: Generate reports\n",
-  "solution": "import datetime\n\ndef validate_user_data(name, age_str, email):\n    \"\"\"Validate user data and raise ValueError for any invalid fields.\"\"\"\n    # Validate name\n    if not name or not isinstance(name, str):\n        raise ValueError(\"Name must be a non-empty string\")\n    \n    # Validate age\n    try:\n        age = int(age_str)\n    except ValueError:\n        raise ValueError(f\"Age must be a number, got '{age_str}'\")\n    \n    if age < 18:\n        raise ValueError(f\"Age must be 18 or older, got {age}\")\n    if age > 120:\n        raise ValueError(f\"Age seems unrealistic: {age}\")\n    \n    # Validate email\n    if not email or '@' not in email:\n        raise ValueError(\"Email must contain '@' character\")\n    \n    return name, age, email\n\n# Main processing logic\nvalid_users = []\nerrors = []\n\ntry:\n    with open('users.txt', 'r') as file:\n        for line_num, line in enumerate(file, 1):\n            line = line.strip()\n            if not line:  # Skip empty lines\n                continue\n                \n            try:\n                parts = line.split(',')\n                if len(parts) != 3:\n                    raise ValueError(f\"Expected 3 comma-separated values, got {len(parts)}\")\n                \n                name, age, email = validate_user_data(parts[0].strip(), parts[1].strip(), parts[2].strip())\n                valid_users.append((name, age, email))\n                \n            except ValueError as e:\n                errors.append(f\"Line {line_num}: {e}\")\n                # Log to error file\n                with open('error_log.txt', 'a') as error_file:\n                    timestamp = datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\n                    error_file.write(f\"[{timestamp}] Line {line_num}: {e} - Data: {line}\\n\")\n                    \nexcept FileNotFoundError:\n    errors.append(\"CRITICAL: users.txt file not found\")\n    with open('error_log.txt', 'a') as error_file:\n        timestamp = datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\n        error_file.write(f\"[{timestamp}] FileNotFoundError: users.txt not found\\n\")\n\n# Generate report\ntry:\n    with open('user_report.txt', 'w') as report_file:\n        report_file.write(\"=== USER DATA PROCESSING REPORT ===\\n\")\n        report_file.write(f\"Total lines processed: {len(valid_users) + len(errors)}\\n\")\n        report_file.write(f\"Successfully processed: {len(valid_users)} users\\n\")\n        report_file.write(f\"Failed to process: {len(errors)} lines\\n\\n\")\n        \n        if valid_users:\n            report_file.write(\"VALID USERS:\\n\")\n            for name, age, email in valid_users:\n                report_file.write(f\"- {name} ({age}): {email}\\n\")\n        \n        if errors:\n            report_file.write(\"\\nERROR SUMMARY:\\n\")\n            for error in errors:\n                report_file.write(f\"- {error}\\n\")\n                \n        print(\"Report generated: user_report.txt\")\n        \nexcept Exception as e:\n    print(f\"Failed to generate report: {e}\")",
-  "fileSetup": {
-    "users.txt": "Alice,30,alice@example.com\\nBob,twenty-five,bob@email.com\\nCharlie,35\\nDiana,40,diana@example.com\\nEve,17,eve@test.org"
-  },
-  "expectedOutputFiles": {
-    "user_report.txt": "=== USER DATA PROCESSING REPORT ===\\nTotal lines processed: 5\\nSuccessfully processed: 2 users\\nFailed to process: 3 lines\\n\\nVALID USERS:\\n- Alice (30): alice@example.com\\n- Diana (40): diana@example.com\\n\\nERROR SUMMARY:\\n- Line 2: Age must be a number, got 'twenty-five'\\n- Line 3: Expected 3 comma-separated values, got 2\\n- Line 5: Age must be 18 or older, got 17\\n",
-    "error_log.txt": "Contains timestamped error entries"
-  },
+  "starterCode": "# Steps 1-7: Define your validate_user function below\n# Ensure it returns True on success and False on failure\n\n\n\n\n\n# --- TEST RUNNER (DO NOT MODIFY) ---\ntest_users = [\n    (\"Alice\", \"30\", \"alice@example.com\"),    # Valid\n    (\"Bob\", \"twenty-five\", \"bob@email.com\"), # Invalid age format\n    (\"\", \"25\", \"charlie@test.com\"),          # Empty name\n    (\"Diana\", \"40\", \"diana@test.org\"),       # Valid\n    (\"Eve\", \"17\", \"eve@test.org\"),           # Age under 18\n    (\"Frank\", \"150\", \"frank@email.com\"),     # Age over 120\n    (\"Grace\", \"28\", \"grace.email.com\"),      # Missing @\n]\n\nprint(\"🔍 TESTING USER VALIDATION...\")\nprint(\"=\" * 30)\n\npassed = 0\nfailed = 0\n\ntry:\n    for name, age_str, email in test_users:\n        if validate_user(name, age_str, email):\n            passed += 1\n        else:\n            failed += 1\nexcept NameError:\n    print(\"\\n❌ Error: validate_user function not found. Please check Step 1.\")\n\nprint(\"\\n📊 SUMMARY\")\nprint(\"=\" * 30)\nprint(f\"Total tested: {len(test_users)}\")\nprint(f\"Passed: {passed}\")\nprint(f\"Failed: {failed}\")",
+  "solution": "def validate_user(name, age_str, email):\n    try:\n        age = int(age_str)\n        if not name:\n            raise ValueError(\"Name cannot be empty\")\n        if age < 18 or age > 120:\n            raise ValueError(f\"Age out of range: {age}\")\n        if '@' not in email:\n            raise ValueError(\"Invalid email format\")\n    except ValueError as e:\n        print(f\"❌ FAIL: {name} - {e}\")\n        return False\n    else:\n        print(f\"✅ PASS: {name} validated successfully.\")\n        return True\n    finally:\n        print(f\"   Validation attempted for {name}\")\n\n# Test runner remains as provided in starter code",
   "hints": [
-    "Use enumerate() to track line numbers for error reporting",
-    "Handle file operations with try/except blocks",
-    "Use datetime.datetime.now() for error log timestamps",
-    "Validate each field separately with clear error messages",
-    "Make sure to handle the case where error_log.txt doesn't exist yet"
+    "Step 1: Your function needs exactly three arguments in the order specified.",
+    "Step 2: `int(age_str)` will throw a ValueError if the user typed words instead of numbers.",
+    "Step 5: The `else` block in a try/except only runs if NO exceptions were raised.",
+    "Step 6: The `finally` block is great for 'cleanup' or logging that must happen regardless of success or failure.",
+    "Step 7: Make sure your `except` block catches `ValueError` specifically so you don't accidentally hide syntax errors."
   ],
-  "tags": ["project", "error-handling", "file-io", "validation", "logging"],
-  "challengeGroup": "robust-processor"
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check validate_user function structure",
+      "code": "import ast\ntree = ast.parse(code)\ntry_nodes = [n for n in ast.walk(tree) if isinstance(n, ast.Try)]\nif not try_nodes:\n    raise AssertionError('Function must contain a try block')\ntn = try_nodes[0]\nif not tn.handlers or not tn.orelse or not tn.finalbody:\n    raise AssertionError('Your try block is missing an except, else, or finally clause.')\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Verify passing/failing logic",
+      "code": "exec_namespace = {}\nexec(code, exec_namespace)\nvalidate = exec_namespace['validate_user']\nassert validate('Alice', '30', 'a@b.com') == True, 'Valid data should return True'\nassert validate('Bob', '15', 'a@b.com') == False, 'Underage should return False'\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["project", "error-handling", "try-except", "raise", "validation"],
+  "challengeGroup": "module-8-project"
 }

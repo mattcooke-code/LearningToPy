@@ -35,7 +35,9 @@ height = 6.2
 price = 19.99
 ```
 
-**Important:** If you write `age = 25`, it's an `int`. If you write `age = 25.0`, it's a `float`.
+:::note
+If you write `age = 25`, it's an `int`. If you write `age = 25.0`, it's a `float`.
+:::
 
 ## 4. True or False: The Boolean (`bool`)
 

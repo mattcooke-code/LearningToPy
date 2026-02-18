@@ -22,7 +22,7 @@ Let's understand each part:
 
 - **print** - This is the function name. It tells Python we want to display something.
 - **()** - Parentheses hold the information we want to print. Functions in Python always use parentheses.
-- **"Hello, Python!"** - This is a **string** (text). We put strings inside quotation marks so Python knows it's text, not code.
+- **"Hello, Python!"** - This is a **string** (text). We put strings inside quotation marks so Python knows it is text, not code.
 
 When you run this code, you'll see this output:
 
@@ -64,7 +64,7 @@ Every language has rules—and Python's rules for structure are simple but stric
 
 ```python
 # This is a comment, Python skips this line.
-print("I'm running!") # You can also add comments on the same line.
+print("I'm running!")  # You can also add comments on the same line.
 ```
 
 For longer explanations, you can use multiple comment lines:
@@ -75,13 +75,17 @@ For longer explanations, you can use multiple comment lines:
 # We'll learn about functions in Module 6
 ```
 
+:::tip
+When adding a comment on the same line as code, use at least two spaces before the `#` to keep things readable.
+:::
+
 ## 📐 2. Indentation: Python's Structure
 
 This is the most important rule of Python's structure: **Indentation** (the space at the beginning of a line) is used to define blocks of code.
 
-Unlike many other languages that use curly braces `{}` or keywords like `END`, Python uses white space to group statements. We recommend using **4 spaces** for every level of indentation.
+Unlike many other languages that use curly braces `{}` or keywords like `END`, Python uses white space to group statements.
 
-For example, when we learn about loops or functions, the lines that belong inside that loop or function must be indented:
+Look at this example of an `if` statement. The code **MUST** be indented for the `if` logic to run properly.
 
 ```python
 # This line is at level 0 (no indentation)
@@ -98,10 +102,12 @@ If you don't indent correctly, Python will stop and give you an `IndentationErro
 
 ### Be Consistent!
 
-Always use the same indentation style throughout your code. Don't mix tabs and spaces—pick one (we recommend 4 spaces) and stick with it. Most code editors can be set to insert 4 spaces when you press the Tab key.
+Always use the same indentation style throughout your code. Don't mix tabs and spaces—pick one and stick with it. The industry standard (_PEP 8 style guide_) recommends using **4 spaces** for every level of indentation.
 
-:::warning
-NOTE: This code editor does automatically format an indentation (1 space), but we recommend you get used to inputting your own.
+_Why 4 spaces?_ While Python will technically run with a 1-space indent, it makes the code very hard for humans to read. Sticking to 4 spaces is the "universal language" of Python developers. Most code editors can be set to insert 4 spaces when you press the Tab key.
+
+:::note
+The code editor used in this course formats an indentation of 4 spaces. Just press Tab.
 :::
 
 :::summary
@@ -111,7 +117,7 @@ NOTE: This code editor does automatically format an indentation (1 space), but w
 - Text (strings) must be wrapped in quotation marks (`"` or `'`)
 - Comments `#` let you leave notes that Python ignores
 - **Indentation** defines code blocks in Python (use 4 spaces consistently)
-- Python is strict about indentation and will give errors if it's incorrect
+- Python is strict about indentation and will give errors if it is incorrect
 
 :::
 

@@ -1,0 +1,157 @@
+{
+  "questions": [
+    {
+      "id": "m7_review_q1",
+      "question": "Which of the following is the correct way to open a file named 'notes.txt' just to read its content?",
+      "options": [
+        "`file = open('notes.txt', 'w')`",
+        "`file = read('notes.txt')`",
+        "`file = open('notes.txt', 'r')`",
+        "`file = open('notes.txt', 'a')`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "To read a file, you use the `open()` function with the `'r'` (read) mode. Note that `'r'` is also the default if you don't specify a mode."
+    },
+    {
+      "id": "m7_review_q2",
+      "question": "What is a major risk of using the `'w'` (Write) mode on a file that already contains data?",
+      "options": [
+        "It will cause a `FileNotFoundError`.",
+        "It will add the new data to the end of the existing content.",
+        "It will delete (overwrite) all existing content in the file.",
+        "It will open the file in read-only mode instead."
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `'w'` mode is destructive for existing files; it wipes the file clean as soon as it is opened. If you want to keep existing data, you should use `'a'` (Append) mode instead."
+    },
+    {
+      "id": "m7_review_q3",
+      "question": "Why is it considered a best practice to call the `.close()` method?",
+      "options": [
+        "It is the only way to print the file's content.",
+        "It deletes the file from the hard drive to save space.",
+        "It tells Python which mode to use for the next file.",
+        "It frees up system resources and ensures all data is successfully written to the disk."
+      ],
+      "correctAnswer": 3,
+      "explanation": "Closing the file is like hanging up a phone call; it tells the Operating System that your program is finished with the resource, preventing memory leaks and data corruption."
+    },
+    {
+      "id": "m7_review_q4",
+      "type": "multiple-choice",
+      "question": "What does `.readline()` return when it reaches the end of a file?",
+      "options": [
+        "None",
+        "An empty string `\"\"`",
+        "A `StopIteration` error",
+        "An empty list `[]`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When the file pointer reaches the end of the file, `.readline()` returns an empty string. This is often used as a signal in loops to stop reading."
+    },
+    {
+      "id": "m7_review_q5",
+      "type": "multiple-choice",
+      "question": "Why is iterating over a file object (using a `for` loop) preferred over `.readlines()` for large files?",
+      "options": [
+        "It is the only way to read a file in Python",
+        "It automatically sorts the lines alphabetically",
+        "It reads one line at a time instead of loading the whole file into memory",
+        "It automatically closes the file for you"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Iterating over the file object is 'lazy,' meaning it only loads the current line being processed into memory. `.readlines()` loads the entire file into a list at once, which can crash your program if the file is several gigabytes large."
+    },
+    {
+      "id": "m7_review_q6",
+      "type": "multiple-choice",
+      "question": "You have just finished reading a file using a `for` loop. If you want to read it again from the top without closing it, what should you do?",
+      "options": [
+        "Call `file_handle.reset()`",
+        "Use `file_handle.seek(0)` to move the pointer to the start",
+        "Call `.readline()` again; it resets automatically",
+        "There is no way to read a file twice"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The file pointer stays at the end of the file after a full read. To go back to the beginning without reopening the file, you use `.seek(0)` to move the pointer back to the byte at index 0."
+    },
+    {
+      "id": "m7_review_q7",
+      "type": "multiple-choice",
+      "question": "What is the primary benefit of using the `with` statement when opening files?",
+      "options": [
+        "It makes the file read faster",
+        "It automatically closes the file when the block is finished",
+        "It prevents the file from being deleted",
+        "It allows you to open a file without specifying a mode"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `with` statement acts as a context manager, ensuring that `file.close()` is called automatically, which prevents memory leaks and file corruption."
+    },
+    {
+      "id": "m7_review_q8",
+      "type": "multiple-choice",
+      "question": "What happens if an error occurs inside a `with open(...)` block?",
+      "options": [
+        "The file remains open until the computer restarts",
+        "The file is corrupted immediately",
+        "The file is closed safely",
+        "The `with` block ignores the error and continues"
+      ],
+      "correctAnswer": 2,
+      "explanation": "This is a key safety feature. Even if an exception is raised, the context manager's 'exit' logic is triggered, closing the file safely."
+    },
+    {
+      "id": "m7_review_q9",
+      "type": "multiple-choice",
+      "question": "Which of the following is the correct syntax for opening two files simultaneously using a context manager?",
+      "options": [
+        "`with open('f1.txt') as x and open('f2.txt') as y:`",
+        "`with open('f1.txt') as x, open('f2.txt') as y:`",
+        "`with open('f1.txt', 'f2.txt') as x, y:`",
+        "`with open('f1.txt') as x + open('f2.txt') as y:`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "You can manage multiple resources in a single `with` statement by separating the `open()` calls with a comma."
+    },
+    {
+      "id": "m7_review_q10",
+      "type": "multiple-choice",
+      "question": "What happens if you open an existing file using the `'w'` mode?",
+      "options": [
+        "Python throws an error to prevent data loss",
+        "The file is opened and the new data is added to the end",
+        "The existing content is deleted and the file starts fresh",
+        "The file is opened in read-only mode instead"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Write mode `'w'` is destructive for existing files. It 'truncates' the file, meaning it wipes all current content before you start writing."
+    },
+    {
+      "id": "m7_review_q11",
+      "type": "multiple-choice",
+      "question": "Which of the following code snippets correctly writes two separate lines to a file?",
+      "options": [
+        "`f.write('Line 1', 'Line 2')`",
+        "`f.write('Line 1')\nf.write('Line 2')`",
+        "`f.write('Line 1\\n')\nf.write('Line 2\\n')`",
+        "`f.write('Line 1' + 'Line 2')`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Because `.write()` does not add newlines automatically, you must explicitly include the `\\n` character at the end of your strings to separate lines."
+    },
+    {
+      "id": "m7_review_q12",
+      "type": "multiple-choice",
+      "question": "If you are building a system to track error messages throughout the day, which mode should you use to open the log file?",
+      "options": [
+        "`'r'` (Read)",
+        "`'w'` (Write)",
+        "`'a'` (Append)",
+        "`'x'` (Execute)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Append mode `'a'` is ideal for logs because it preserves the existing history and adds new data to the end of the file."
+    }
+  ]
+}

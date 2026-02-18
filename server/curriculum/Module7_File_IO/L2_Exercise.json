@@ -15,10 +15,11 @@
     "shopping_list.txt": "Milk\nEggs\nBread\nCheese"
   },
   "hints": [
-    "File pointers: After reading through a file once, the pointer is at the end - you can't read more without resetting.",
-    "Use `for line in file_handle:` for efficient line-by-line processing.",
-    "`.strip()` removes newlines and other whitespace from both ends.",
-    "You must close and reopen to reset the file pointer to the beginning."
+    "**Step 2 (Stripping)**: Inside your loop, use `line.strip()` to remove the hidden `\\n` at the end of each item. You can assign this to a variable like `clean_name = line.strip()` before printing.",
+    "**Tracking the last item**: To keep track of the last item, simply update your `last_item_stripped` variable inside the loop. By the time the loop finishes, it will hold the value of the final line.",
+    "**The 'Invisible Cursor'**: Think of the file pointer as a cursor. After your `for` loop finishes, that cursor is stuck at the very end of the file. If you try to call `.readlines()` immediately, you'll get an empty list because there is nothing left to read!",
+    "**Starting Over**: To move the 'cursor' back to the start, the easiest way is to `close()` the current file handle and `open()` it again under a new variable name.",
+    "**Iteration Syntax**: Remember the pattern: `for line in f_handle:`—this automatically pulls one line at a time until the file is empty."
   ],
   "validation": "tests",
   "tests": [

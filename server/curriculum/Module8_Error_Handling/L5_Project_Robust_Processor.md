@@ -18,17 +18,13 @@ Your program must:
 
 ## File Format Example
 
-**Valid `users.txt`:**
-Alice,30,alice@example.com
-Bob,25,bob@email.com
-Charlie,35,charlie@test.org
-
-**Corrupt `users.txt` (for testing):**
-Alice,30,alice@example.com
-Bob,twenty-five,bob@email.com # Invalid age
-Charlie,35 # Missing email
-Diana,40,diana@example.com
-Eve,17,eve@test.org # Under 18
+| Status     | Line                          | Name    | Age         | Email             | Issue               |
+| ---------- | ----------------------------- | ------- | ----------- | ----------------- | ------------------- |
+| ✅ Valid   | Alice,30,alice@example.com    | Alice   | 30          | alice@example.com | -                   |
+| ✅ Valid   | Diana,40,diana@example.com    | Diana   | 40          | diana@example.com | -                   |
+| ❌ Corrupt | Bob,twenty-five,bob@email.com | Bob     | twenty-five | bob@email.com     | Invalid age format  |
+| ❌ Corrupt | Charlie,35                    | Charlie | 35          | missing           | Missing email field |
+| ❌ Corrupt | Eve,17,eve@test.org           | Eve     | 17          | eve@test.org      | Age under 18        |
 
 ## Validation Rules
 
@@ -41,6 +37,7 @@ Eve,17,eve@test.org # Under 18
 
 Your program should create `user_report.txt` with:
 
+```text
 === USER DATA PROCESSING REPORT ===
 Total lines processed: 5
 Successfully processed: 2 users
@@ -59,13 +56,15 @@ ERROR SUMMARY:
 • Line 3: Missing email field
 
 • Line 5: Age must be 18 or older, got 17
+```
 
 And `error_log.txt` with detailed error information.
 
-## Implementation Tips
+:::tip
 
 1. Use specific exception handling for different error types
-2. Use try/except/else/finally appropriately
+2. Use `try`/`except`/`else`/`finally` appropriately
 3. Raise custom exceptions for validation failures
 4. Ensure files are properly closed even when errors occur
 5. Provide clear, user-friendly error messages
+   :::

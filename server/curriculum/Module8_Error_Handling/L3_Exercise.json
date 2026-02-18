@@ -1,25 +1,54 @@
 {
-  "title": "Using Else and Finally",
-  "instructions": "Practice using else and finally clauses to handle successful execution and ensure proper cleanup in error handling scenarios.",
+  "title": "Using Else and Finally with Functions",
+  "instructions": "Combine functions with `try`/`except`/`else`/`finally` to handle errors gracefully while ensuring cleanup always happens.",
   "steps": [
-    "Write a try block that attempts to read a configuration value from a file and convert it to an integer",
-    "Add an except block for FileNotFoundError that sets a default value",
-    "Add an else block that prints a success message with the parsed value",
-    "Add a finally block that prints 'Cleanup completed' regardless of what happens",
-    "After the entire structure, print the final configuration value"
+    "Define a function called `calculate_average` that takes one parameter called `numbers`",
+    "Inside the function, add a `try` block that calculates the average: `sum(numbers) / len(numbers)`",
+    "Add an `except` block for `ZeroDivisionError` that returns the string `'Error: Cannot calculate average of empty list'`",
+    "Add an `else` block that prints `'Calculation successful'` and returns the average (only runs if no error occurred)",
+    "Add a `finally` block that prints `'Function execution completed'` (always runs)",
+    "Test your function by calling it three times with different inputs (test code provided)"
   ],
-  "starterCode": "config_value = 0\n\n# 1. Complete try/except/else/finally structure:\n\n\n\n\n\n\n# 2. Print final value:\nprint(f\"Final config value: {config_value}\")",
-  "solution": "config_value = 0\n\n# 1. Complete try/except/else/finally structure:\ntry:\n    with open('config.txt', 'r') as f:\n        content = f.read().strip()\n    config_value = int(content)\nexcept FileNotFoundError:\n    print(\"Config file not found, using default value 100\")\n    config_value = 100\nelse:\n    print(f\"Successfully parsed config value: {config_value}\")\nfinally:\n    print(\"Cleanup completed\")\n\n# 2. Print final value:\nprint(f\"Final config value: {config_value}\")",
-  "fileSetup": {
-    "config.txt": "42"
-  },
+  "starterCode": "# Step 1-6: Define calculate_average function\n\n\n\n\n\n\n\n# Step 7: Test the function\nprint('Test 1:', calculate_average([10, 20, 30, 40]))\nprint('Test 2:', calculate_average([]))\nprint('Test 3:', calculate_average([100]))",
+  "solution": "# Step 1-6: Define calculate_average function\ndef calculate_average(numbers):\n    try:\n        average = sum(numbers) / len(numbers)\n    except ZeroDivisionError:\n        return 'Error: Cannot calculate average of empty list'\n    else:\n        print('Calculation successful')\n    finally:\n        print('Function execution completed')\n    return average\n\n# Step 7: Test the function\nprint('Test 1:', calculate_average([10, 20, 30, 40]))\nprint('Test 2:', calculate_average([]))\nprint('Test 3:', calculate_average([100]))",
   "hints": [
-    "The else block runs only if no exceptions occurred in the try block",
-    "The finally block always runs, even if there was an exception",
-    "Use with open() for automatic file handling within the try block"
+    "Step 1: Start with `def calculate_average(numbers):`",
+    "Step 2: Calculate average as `sum(numbers) / len(numbers)` inside the `try` block",
+    "Step 3: Catch `ZeroDivisionError` when the list is empty (dividing by zero)",
+    "Step 4: The `else` block only runs if the `try` block succeeded without exceptions",
+    "Step 5: The `finally` block always runs, whether there was an error or not",
+    "Step 6: You can return the average from either the `try` block or after the `else` block",
+    "Remember: Functions from Module 6 use `def function_name(parameters):` and `return` values"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["else-clause", "finally-clause", "cleanup", "error-handling"],
+  "tests": [
+    {
+      "name": "Check function is defined",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'calculate_average' not in exec_namespace:\n    raise AssertionError('Step 1: calculate_average function not defined')\n\nif not callable(exec_namespace['calculate_average']):\n    raise AssertionError('Step 1: calculate_average should be a function')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check function handles normal input",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\ncalc_func = exec_namespace['calculate_average']\n\n# Test with normal list\nsys.stdout = io.StringIO()\nresult = calc_func([10, 20, 30, 40])\ntest_output = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nif result != 25.0:\n    raise AssertionError(f'Step 2/6: calculate_average([10, 20, 30, 40]) should return 25.0, got {result}')\n\n# Check else block runs (prints success message)\nif 'successful' not in test_output.lower():\n    raise AssertionError('Step 4: else block should print success message when calculation succeeds')\n\n# Check finally block runs\nif 'completed' not in test_output.lower():\n    raise AssertionError('Step 5: finally block should print completion message')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check function handles empty list",
+      "code": "import io, sys\n\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\ncalc_func = exec_namespace['calculate_average']\n\n# Test with empty list\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nresult = calc_func([])\ntest_output = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nif 'error' not in str(result).lower():\n    raise AssertionError('Step 3: calculate_average([]) should return an error message for empty list')\n\n# Check finally block still runs even with error\nif 'completed' not in test_output.lower():\n    raise AssertionError('Step 5: finally block should run even when exception occurs')\n\n# Check else block did NOT run (no success message for error case)\nif 'successful' in test_output.lower():\n    raise AssertionError('Step 4: else block should NOT run when exception occurs')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check function handles single number",
+      "code": "import io, sys\n\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\ncalc_func = exec_namespace['calculate_average']\n\n# Test with single number\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nresult = calc_func([100])\ntest_output = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nif result != 100.0:\n    raise AssertionError(f'Step 2/6: calculate_average([100]) should return 100.0, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check all test calls execute",
+      "code": "import io, sys\n\nuser_code = code\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check that all three test calls appear in output\nif 'Test 1:' not in output:\n    raise AssertionError('Step 6: Missing Test 1 output')\nif 'Test 2:' not in output:\n    raise AssertionError('Step 6: Missing Test 2 output')\nif 'Test 3:' not in output:\n    raise AssertionError('Step 6: Missing Test 3 output')\n\n# Check Test 1 shows correct average\nif '25' not in output:\n    raise AssertionError('Step 6: Test 1 should show average of 25.0')\n\n# Check Test 2 shows error (case-insensitive)\nif 'error' not in output.lower():\n    raise AssertionError('Step 6: Test 2 should show error message for empty list')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": [
+    "functions",
+    "else-clause",
+    "finally-clause",
+    "error-handling",
+    "zero-division"
+  ],
   "challengeGroup": "else-finally"
 }

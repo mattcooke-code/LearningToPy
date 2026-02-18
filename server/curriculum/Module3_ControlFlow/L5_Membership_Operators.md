@@ -43,7 +43,7 @@ if "tuple" in website:
 
 ```
 
-:::warning
+:::note
 **Case Sensitivity:** Membership checks in strings are **case-sensitive**! `"python" in "Learn Python"` returns `False` because of the capital P. If you need case-insensitive checking, convert both to the same case first: `"python" in "Learn Python".lower()` returns `True`.
 :::
 
@@ -61,9 +61,9 @@ if user_role not in admin_roles:
 
 ```python
 s_club = ["Tina", "Jon", "Paul", "Hannah", "Bradley", "Jo"]
-member_to_check = "Rachel"
+singer_to_check = "Rachel"
 
-if member_to_check not in s_club:
+if singer_to_check not in s_club:
     print("Some Girls") # This runs because Rachel isn't in the list
 else:
     print("Reach for the stars!")
@@ -73,7 +73,7 @@ else:
 
 Membership operators are frequently used as the condition inside an `if` statement to control program flow based on the presence or absence of data.
 
-Example: Checking User Permissions
+_Example: Checking User Permissions_
 
 ```python
 premium_features = ["HD_Streaming", "Offline_Mode", "Ad_Free"]

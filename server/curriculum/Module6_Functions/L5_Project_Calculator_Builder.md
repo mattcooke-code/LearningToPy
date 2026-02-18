@@ -2,314 +2,301 @@
 
 ## The Challenge
 
-You're building the core engine for a modular calculator system. Instead of one giant calculator function, you'll create a collection of specialized functions that work together. This approach makes your code more organized, testable, and maintainable.
+Build a modular calculator system using functions. Instead of one giant calculator, you'll create specialized functions that each do one job well. This makes your code organized, testable, and easy to maintain.
 
-## Project Requirements
+## Project Goals
 
-Create a Python module with the following functions:
+:::note
+By the end of this project, you'll have:
 
-### 1. **Basic Arithmetic Functions**
+- ✅ A set of mathematical operation functions
+- ✅ Functions that handle edge cases gracefully
+- ✅ A main function that routes operations
+- ✅ A complete, working calculator system
 
-- `add(a, b)` - Returns the sum of two numbers
-- `subtract(a, b)` - Returns the difference between two numbers
-- `multiply(a, b)` - Returns the product of two numbers
-- `divide(a, b)` - Returns the quotient of two numbers, handles division by zero
+:::
 
-### 2. **Advanced Calculation Functions**
+## Understanding Modular Design
 
-- `power(base, exponent)` - Returns base raised to exponent power
-- `square_root(number)` - Returns square root, handles negative numbers
-- `percentage(part, whole)` - Returns what percentage part is of whole
+Think of your calculator like a restaurant kitchen:
 
-### 3. **Utility Functions**
+- Each chef (function) has ONE specialty
+- The head chef (main function) directs orders to the right specialist
+- If one station needs updating, you don't rebuild the whole kitchen
 
-- `is_even(number)` - Returns True if number is even, False otherwise
-- `is_positive(number)` - Returns True if number is positive, False otherwise
-- `validate_number(input_str)` - Converts string to number or returns error
-
-### 4. **Main Calculator Function**
-
-- `calculate(operation, num1, num2=None)` - Main function that routes to appropriate operation
-
-## Step-by-Step Implementation
-
-### Step 1: Basic Arithmetic Functions
-
-Let's start with the fundamental operations:
+### Bad Approach (one giant function):
 
 ```python
-def add(a, b):
-    """Return the sum of two numbers."""
-    return a + b
-
-def subtract(a, b):
-    """Return the difference between two numbers (a - b)."""
-    return a - b
-
-def multiply(a, b):
-    """Return the product of two numbers."""
-    return a * b
-
-def divide(a, b):
-    """
-    Return the quotient of two numbers.
-    Handles division by zero by returning a helpful message.
-    """
-    if b == 0:
-        return "Error: Cannot divide by zero"
-    return a / b
+def calculator(x, y, operation):
+    if operation == "add":
+        return x + y
+    elif operation == "subtract":
+        return x - y
+    # ... 50 more lines of elif statements
+    # Hard to test, hard to maintain!
 ```
 
-## Step 2: Advanced Calculation Functions
-
-Now add more sophisticated operations:
+### Good Approach (modular):
 
 ```python
-def power(base, exponent):
-    """Return base raised to the power of exponent."""
-    return base ** exponent
+def add_numbers(x, y):
+    return x + y
 
-def square_root(number):
-    """
-    Return the square root of a number.
-    Handles negative numbers by returning an error message.
-    """
-    if number < 0:
-        return "Error: Cannot calculate square root of negative number"
-    return number ** 0.5
+def subtract_numbers(x, y):
+    return x - y
 
-def percentage(part, whole):
-    """
-    Return what percentage part is of whole.
-    Returns 0 if whole is 0 to avoid division by zero.
-    """
-    if whole == 0:
+def calculator(operation, x, y):
+    if operation == "add":
+        return add_numbers(x, y)
+    # Much cleaner!
+```
+
+## Part 1: Basic Operations
+
+Your calculator needs to perform fundamental arithmetic. Here's how to think about each operation:
+
+### Addition & Subtraction
+
+These are straightforward - just return the result of the operation.
+
+**Example pattern:**
+
+```python
+def combine_values(first, second):
+    return first + second
+
+# Usage
+result = combine_values(10, 5)  # Returns 15
+```
+
+### Multiplication
+
+Same pattern - perform the operation and return.
+
+**Example pattern:**
+
+```python
+def calculate_total(quantity, price):
+    return quantity * price
+
+# Usage
+total = calculate_total(3, 25)  # Returns 75
+```
+
+### Division - Special Case!
+
+:::note
+Division needs extra care because you **cannot divide by zero**. If someone tries, return an error message instead of crashing.
+:::
+
+```python
+def split_equally(total_amount, num_people):
+    if num_people == 0:
+        return "Error: Cannot split among zero people"
+    return total_amount / num_people
+
+# Usage
+each_person = split_equally(100, 4)  # Returns 25.0
+zero_people = split_equally(100, 0)  # Returns error message
+```
+
+**Your Task:** Create `add`, `subtract`, `multiply`, and `divide` functions following these patterns.
+
+## Part 2: Advanced Operations
+
+### Exponentiation (Power)
+
+Raising a number to a power uses the `**` operator.
+
+**Example pattern:**
+
+```python
+def calculate_area_of_square(side_length):
+    return side_length ** 2
+
+# Usage
+area = calculate_area_of_square(5)  # Returns 25
+```
+
+### Square Root
+
+Square root is the inverse of squaring. You can use `number ** 0.5` to calculate it.
+
+:::warning
+Edge Case: You cannot take the square root of a negative number (without complex numbers). Return an error message if the input is negative.
+:::
+
+**Example pattern:**
+
+```python
+def find_side_length(area):
+    if area < 0:
+        return "Error: Area cannot be negative"
+    return area ** 0.5
+
+# Usage
+side = find_side_length(25)  # Returns 5.0
+```
+
+### Percentage
+
+To find what percentage one number is of another: `(part / whole) * 100`
+
+:::warning
+Edge Case: If the whole is zero, return 0 (can't calculate percentage of nothing).
+:::
+
+Example pattern:
+
+```python
+def calculate_score_percentage(points_earned, total_points):
+    if total_points == 0:
         return 0
-    return (part / whole) * 100
+    return (points_earned / total_points) * 100
+
+# Usage
+percentage = calculate_score_percentage(45, 50)  # Returns 90.0
 ```
 
-## Step 3: Utility Functions
+**Your Task:** Create `power`, `square_root`, and `percentage` functions using these concepts.
 
-These helper functions make our calculator more robust:
+## Part 3: Utility Functions
+
+These helper functions make your calculator smarter.
+
+### Checking Even Numbers
+
+Use the modulo operator `%`. If `number % 2 == 0`, it's even.
+
+**Example pattern:**
 
 ```python
-def is_even(number):
-    """Return True if number is even, False otherwise."""
-    return number % 2 == 0
+def is_divisible_by_two(value):
+    return value % 2 == 0
 
-def is_positive(number):
-    """Return True if number is positive, False otherwise."""
-    return number > 0
-
-def validate_number(input_str):
-    """
-    Convert string input to number.
-    Returns the number if valid, or an error message if invalid.
-    """
-    try:
-        return float(input_str)
-    except ValueError:
-        return "Error: Please enter a valid number"
+# Usage
+result = is_divisible_by_two(4)  # Returns True
+result = is_divisible_by_two(7)  # Returns False
 ```
 
-## Step 4: Main Calculator Function
+### Checking Positive Numbers
 
-This function ties everything together:
+Simply check if the number is greater than zero.
+
+**Example pattern:**
 
 ```python
-def calculate(operation, num1, num2=None):
-    """
-    Main calculator function that routes to appropriate operation.
+def is_above_zero(value):
+    return value > 0
 
-    Parameters:
-    operation (str): The operation to perform ('add', 'subtract', etc.)
-    num1: First number
-    num2: Second number (optional for some operations)
+# Usage
+result = is_above_zero(5)   # Returns True
+result = is_above_zero(-3)  # Returns False
+```
 
-    Returns:
-    Result of the operation or error message
-    """
-    # First, validate that num1 is a number
-    if isinstance(num1, str):
-        num1 = validate_number(num1)
-        if isinstance(num1, str):  # Still a string means it's an error message
-            return num1
+**Your Task:** Create `is_even` and `is_positive` functions following these patterns.
 
-    # Validate num2 if provided
-    if num2 is not None and isinstance(num2, str):
-        num2 = validate_number(num2)
-        if isinstance(num2, str):  # Still a string means it's an error message
-            return num2
+## Part 4: The Main Router Function
 
-    # Route to the appropriate operation
-    if operation == 'add':
-        return add(num1, num2)
-    elif operation == 'subtract':
-        return subtract(num1, num2)
-    elif operation == 'multiply':
-        return multiply(num1, num2)
-    elif operation == 'divide':
-        return divide(num1, num2)
-    elif operation == 'power':
-        return power(num1, num2)
-    elif operation == 'square_root':
-        return square_root(num1)
-    elif operation == 'percentage':
-        return percentage(num1, num2)
-    elif operation == 'is_even':
-        return is_even(num1)
-    elif operation == 'is_positive':
-        return is_positive(num1)
+This is the "head chef" - it takes an operation name and directs it to the right function.
+
+**Concept:**
+
+```python
+def process_order(dish_name, ingredient1, ingredient2=None):
+    if dish_name == "pasta":
+        return make_pasta(ingredient1, ingredient2)
+    elif dish_name == "salad":
+        return make_salad(ingredient1)
     else:
-        return "Error: Unknown operation"
+        return "Error: Unknown dish"
 ```
 
-## Step 5: Demonstration and Testing
+**Your Task:** Create a `calculate` function that:
 
-Let's test our calculator with various operations:
+- Takes parameters: `operation` (string), `num1`, and optional `num2`
+- Uses `if/elif` to route to the correct function
+- Returns `"Error: Unknown operation"` for invalid operations
 
-```python
-# Test basic arithmetic
-print("Basic Arithmetic:")
-print(f"5 + 3 = {calculate('add', 5, 3)}")
-print(f"10 - 4 = {calculate('subtract', 10, 4)}")
-print(f"6 * 7 = {calculate('multiply', 6, 7)}")
-print(f"15 / 3 = {calculate('divide', 15, 3)}")
-print(f"8 / 0 = {calculate('divide', 8, 0)}")  # Division by zero
+:::note
 
-print("\nAdvanced Operations:")
-print(f"2 ^ 8 = {calculate('power', 2, 8)}")
-print(f"√25 = {calculate('square_root', 25)}")
-print(f"√(-4) = {calculate('square_root', -4)}")  # Negative number
-print(f"25 is what % of 100? {calculate('percentage', 25, 100)}%")
+## Operations to support:
 
-print("\nUtility Checks:")
-print(f"Is 7 even? {calculate('is_even', 7)}")
-print(f"Is -5 positive? {calculate('is_positive', -5)}")
+- 'add', 'subtract', 'multiply', 'divide' (need num2)
+- 'power' (need num2)
+- 'square_root' (only needs num1)
+- 'percentage' (need num2)
+- 'is_even', 'is_positive' (only need num1)
+  :::
 
-print("\nString Input Handling:")
-print(f"'10' + '5' = {calculate('add', '10', '5')}")
-print(f"'abc' + 5 = {calculate('add', 'abc', 5)}")  # Invalid input
-```
+:::tip
+A good calculator handles both normal cases AND edge cases:
 
-## Advanced Features (Bonus)
+- ✅ **Normal:** `calculate('add', 5, 3) → 8`
+- ✅ **Edge Case:** `calculate('divide', 10, 0)` → Error message
+- ✅ **Unknown Op:** `calculate('explode', 5, 3)` → Error message
 
-### Feature 1: Calculation History
+Test every function with:
 
-```python
-# Global variable to store history (use carefully!)
-calculation_history = []
+1. Normal inputs
+2. Edge cases (zero, negative numbers)
+3. Invalid operations
+   :::
 
-def calculate_with_history(operation, num1, num2=None):
-    """Enhanced calculate function that keeps history."""
-    result = calculate(operation, num1, num2)
+## Project Requirements Checklist
 
-    # Create history entry
-    if num2 is not None:
-        entry = f"{operation}({num1}, {num2}) = {result}"
-    else:
-        entry = f"{operation}({num1}) = {result}"
+### Your calculator must:
 
-    calculation_history.append(entry)
-    return result
+**Basic Functions:**
 
-def show_history():
-    """Display the calculation history."""
-    if not calculation_history:
-        print("No calculations yet!")
-        return
+- `add(a, b)` - returns sum
+- `subtract(a, b)` - returns difference
+- `multiply(a, b)` - returns product
+- `divide(a, b)` - returns quotient, handles zero
 
-    print("\n--- Calculation History ---")
-    for i, entry in enumerate(calculation_history, 1):
-        print(f"{i}. {entry}")
-```
+**Advanced Functions:**
 
-## Feature 2: Batch Operations
+- `power(base, exponent)` - returns base^exponent
+- `square_root(number)` - returns √number, handles negatives
+- `percentage(part, whole)` - returns percentage, handles zero
 
-```python
-def batch_calculate(operations):
-    """
-    Perform multiple calculations at once.
-    operations: List of tuples (operation, num1, num2)
-    """
-    results = []
-    for op in operations:
-        if len(op) == 3:
-            operation, num1, num2 = op
-            result = calculate(operation, num1, num2)
-        else:
-            operation, num1 = op
-            result = calculate(operation, num1)
-        results.append(result)
-    return results
+**Utility Functions:**
 
-# Example batch operations
-operations = [
-    ('add', 5, 3),
-    ('multiply', 4, 7),
-    ('square_root', 16),
-    ('is_even', 9)
-]
+- `is_even(number)` - returns True/False
+- `is_positive(number)` - returns True/False
 
-results = batch_calculate(operations)
-print("Batch Results:", results)
-```
+**Main Function:**
 
-### Best Practices Demonstrated
+- `calculate(operation, num1, num2=None)` - routes to correct function
+- Handle unknown operations with error message
 
-1. **Single Responsibility**: Each function does one thing well
+:::tip
+Tips for Success
 
-2. **Error Handling**: Graceful handling of edge cases
+1. **Start Small:** Get add/subtract working first
+2. **Test As You Go:** Don't write everything then test
+3. **Handle Errors:** Every edge case should return a helpful message
+4. **Use Descriptive Names:** `num1` and `num2` are fine parameters
+5. **One Thing Per Function:** Each function should do ONE job well
+   :::
 
-3. **Clear Documentation**: Each function explains what it does
+:::note
+Common Mistakes to Avoid
 
-4. **Flexible Input**: Handles both numbers and strings
+- ❌ Returning `None` instead of an error message
+- ❌ Forgetting to check for division by zero
+- ❌ Not handling negative square roots
+- ❌ Using `print()` instead of return
+- ❌ Making the calculate function do all the work instead of calling other functions
+  :::
 
-5. **Modular Design**: Functions can be used independently or together
+## Bonus Challenges (Optional)
 
-### Testing Your Implementation
+If you finish early, try:
 
-Create comprehensive tests to ensure everything works:
+1. Add a `factorial` function
+2. Add a `absolute_value` function
+3. Support chaining operations: calculate the result, then use it in the next operation
+4. Keep track of the last result
 
-```python
-def run_tests():
-    """Test all calculator functions."""
-    print("Running Calculator Tests...")
-
-    # Test basic arithmetic
-    assert calculate('add', 2, 3) == 5
-    assert calculate('subtract', 10, 4) == 6
-    assert calculate('multiply', 3, 7) == 21
-    assert calculate('divide', 15, 3) == 5
-
-    # Test error handling
-    assert "Error" in calculate('divide', 5, 0)
-    assert "Error" in calculate('square_root', -9)
-
-    # Test utility functions directly
-    assert is_even(4) == True
-    assert is_even(7) == False
-    assert is_positive(5) == True
-    assert is_positive(-3) == False
-
-    print("All tests passed! ✅")
-
-# Run the tests
-run_tests()
-```
-
-### Project Submission
-
-Your completed calculator should:
-
-• ✅ Have all required functions implemented
-
-• ✅ Handle errors gracefully (division by zero, invalid inputs)
-
-• ✅ Work with both numbers and string inputs
-
-• ✅ Include clear documentation for each function
-
-• ✅ Pass all the test cases in the exercise
-
-This modular approach makes your code reusable - you can easily add new operations or modify existing ones without breaking the entire system!
+Remember: The goal isn't just to make a working calculator - it's to practice **modular design** with functions. Each function should be a self-contained unit that does its job well!

@@ -2,20 +2,33 @@
   "title": "Basic Exception Handling",
   "instructions": "Practice using try/except blocks to handle common exceptions and prevent program crashes.",
   "steps": [
-    "Write a try block that attempts to convert user input to an integer",
-    "Add an except block that catches all exceptions and prints 'Invalid input!'",
-    "After the try/except, print 'Program continues...' to show the program doesn't crash"
+    "Write a `try` block that attempts to convert user input to an integer",
+    "Add an `except` block that catches all exceptions and prints `'Invalid input!'`",
+    "After the `try/except`, print `'Program continues...'` to show the program doesn't crash"
   ],
   "starterCode": "# 1. Try block for integer conversion:\n\n\n# 2. Except block:\n\n\n# 3. Program continues:\nprint('Program continues...')",
   "solution": "# 1. Try block for integer conversion:\ntry:\n    user_input = input(\"Enter a number: \")\n    number = int(user_input)\n    print(f\"You entered: {number}\")\n\n# 2. Except block:\nexcept:\n    print(\"Invalid input!\")\n\n# 3. Program continues:\nprint('Program continues...')",
   "simulatedInput": ["abc"],
   "hints": [
-    "Use input() inside the try block to get user input",
-    "int() will raise an exception if given non-numeric input",
-    "The except block should handle any exception that occurs"
+    "Use `input()` inside the `try` block to get user input",
+    "`int()` will raise an exception if given non-numeric input",
+    "The `except` block should handle any exception that occurs"
   ],
   "validation": "tests",
-  "tests": [],
+  "tests": [
+    {
+      "name": "Check for try/except structure",
+      "code": "import ast\n\ntree = ast.parse(code)\n\n# Check for try block\ntry_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.Try)]\nif not try_nodes:\n    raise AssertionError('Your code must include a try block')\n\n# Check for except handler\ntry_node = try_nodes[0]\nif not try_node.handlers:\n    raise AssertionError('Your try block must have an except handler')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test with invalid input",
+      "code": "import sys\nfrom io import StringIO\n\n# Simulate user input 'abc'\nold_stdin = sys.stdin\nsys.stdin = StringIO('abc\\n')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdin = old_stdin\n    sys.stdout = old_stdout\n\n# Check for expected output\nif 'Invalid input!' not in output:\n    raise AssertionError('When user enters \"abc\", should print \"Invalid input!\"')\n\nif 'Program continues...' not in output:\n    raise AssertionError('Should print \"Program continues...\" after try/except')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test with valid input",
+      "code": "import sys\nfrom io import StringIO\n\n# Simulate user input '42'\nold_stdin = sys.stdin\nsys.stdin = StringIO('42\\n')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdin = old_stdin\n    sys.stdout = old_stdout\n\n# Check for expected output\nif 'You entered: 42' not in output:\n    raise AssertionError('When user enters \"42\", should print \"You entered: 42\"')\n\nif 'Invalid input!' in output:\n    raise AssertionError('Should not print error message for valid input')\n\nif 'Program continues...' not in output:\n    raise AssertionError('Should print \"Program continues...\" after try/except')\n\nprint('TEST_PASSED')"
+    }
+  ],
   "tags": ["exceptions", "try-except", "error-handling"],
   "challengeGroup": "basic-exceptions"
 }

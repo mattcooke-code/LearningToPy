@@ -1,0 +1,45 @@
+{
+  "lessonId": "M9L2",
+  "title": "Conditional List Comprehensions - Quiz",
+  "questions": [
+    {
+      "id": "m9l2_q1",
+      "type": "multiple-choice",
+      "question": "Which comprehension correctly filters a list `nums` to keep only numbers greater than 10?",
+      "options": [
+        "`[x for x in nums if x > 10]`",
+        "`[x if x > 10 for x in nums]`",
+        "`[x > 10 for x in nums]`",
+        "`[for x in nums if x > 10]`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`[x for x in nums if x > 10]` is correct. The filter condition `if x > 10` comes at the end."
+    },
+    {
+      "id": "m9l2_q2",
+      "type": "multiple-choice",
+      "question": "What will `[x if x % 2 == 0 else 'odd' for x in [1, 2, 3, 4]]` produce?",
+      "options": [
+        "`['odd', 2, 'odd', 4]`",
+        "`['odd', 'even', 'odd', 'even']`",
+        "`[1, 2, 3, 4]`",
+        "`['even', 'odd', 'even', 'odd']`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "For each number: if it's even, keep the number; if it's odd, replace with 'odd'. So 1→'odd', 2→2, 3→'odd', 4→4."
+    },
+    {
+      "id": "m9l2_q3",
+      "type": "multiple-choice",
+      "question": "What does the `if` condition in `[email for email in emails if '@' in email and '.' in email.split('@')[1]]` check for?",
+      "options": [
+        "Emails with both @ and a domain containing a dot",
+        "Emails that contain exactly one @ symbol",
+        "Emails with more than one dot",
+        "Emails without any @ symbol"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The condition checks two things: the email must contain '@', and the part after '@' (the domain) must contain a dot. This ensures a basic valid email format."
+    }
+  ]
+}

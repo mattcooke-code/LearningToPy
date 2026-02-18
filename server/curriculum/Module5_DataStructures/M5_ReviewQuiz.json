@@ -84,15 +84,15 @@
     {
       "id": "m5_review_q8",
       "type": "multiple-choice",
-      "question": "What is the main advantage of using a set over a list for membership testing (`in` operator)?",
+      "question": "When should you prefer using a Set over a List for membership testing (using the `in` operator)?",
       "options": [
-        "Sets are ordered, making lookup faster",
-        "Sets allow duplicates, giving more accurate results",
-        "Sets use hash tables for O(1) average lookup time",
-        "There is no advantage; lists are faster for this"
+        "Only when you need the items to stay in the order they were added",
+        "When the collection is large and you need the search to be significantly faster",
+        "When you want to allow multiple identical items in the collection",
+        "Never; lists are always faster for searching items"
       ],
-      "correctAnswer": 2,
-      "explanation": "Sets use hash tables, making membership testing (`in`) very fast (O(1) average time). Lists require checking each element (O(n) time), which gets slower as the list grows."
+      "correctAnswer": 1,
+      "explanation": "Checking if an item exists using 'in' is significantly faster in a Set than in a List. While lists have to look through every item one by one, sets are internally optimized for nearly instant searching."
     },
     {
       "id": "m5_review_q9",

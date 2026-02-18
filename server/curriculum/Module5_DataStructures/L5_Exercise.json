@@ -1,29 +1,25 @@
 {
   "title": "Choosing the Right Data Structure",
-  "instructions": "Practice selecting the optimal data structure for different scenarios. Consider: mutability, ordering, uniqueness, and access patterns.",
+  "instructions": "Below are four different data scenarios. Your job is to initialize the variable with the provided data using the most appropriate Python structure (List, Tuple, Set, or Dictionary).",
   "steps": [
-    "Task 1: Store unique email addresses for a newsletter (no duplicates allowed)",
-    "Task 2: Track daily sales totals that need updating each day (order matters)",
-    "Task 3: Look up customer names by their ID numbers (fast lookup needed)",
-    "Task 4: Store fixed RGB color values that won't change (immutable needed)"
+    "Task 1: Store these unique email subscribers: 'dev@example.com' and 'user@test.org'. Ensure no duplicate emails can ever exist in this collection.",
+    "Task 2: Store the following stock prices in the order they were recorded: 142.50, 143.75, 141.20. New prices will be added every hour.",
+    "Task 3: Map Product Codes to their Prices. Map 'A101' to 19.99 and 'B202' to 25.50 for instant price lookups.",
+    "Task 4: Store a fixed status code: 200, 'OK'. This pair represents a standard that should not be changed by the program."
   ],
-  "starterCode": "# Task 1: Unique email addresses (choose: list, tuple, dict, or set)\nemail_collection = \n\n# Task 2: Daily sales data (choose: list, tuple, dict, or set)\nsales_data = \n\n# Task 3: Customer ID to name mapping (choose: list, tuple, dict, or set)\ncustomer_directory = \n\n# Task 4: Fixed RGB color (choose: list, tuple, dict, or set)\ncolor_red = ",
-  "solution": "# Task 1: Set - unique elements, unordered\nemail_collection = {'alice@example.com', 'bob@example.com'}\n\n# Task 2: List - ordered, mutable\nsales_data = [1200, 1500, 1800]\n\n# Task 3: Dictionary - key-value pairs for lookup\ncustomer_directory = {1001: 'Alice Smith', 1002: 'Bob Johnson'}\n\n# Task 4: Tuple - immutable, ordered\ncolor_red = (255, 0, 0)",
+  "starterCode": "# Task 1: Unique Email Subscribers\nsubscriber_emails = \n\n# Task 2: Hourly Stock Prices\nstock_history = \n\n# Task 3: Product Price Catalog\nprice_catalog = \n\n# Task 4: Standard Response Code (Fixed)\nsuccess_response = ",
+  "solution": "# Task 1: Set (Unique items)\nsubscriber_emails = {'dev@example.com', 'user@test.org'}\n\n# Task 2: List (Ordered and growing)\nstock_history = [142.50, 143.75, 141.20]\n\n# Task 3: Dictionary (Label-based mapping)\nprice_catalog = {'A101': 19.99, 'B202': 25.50}\n\n# Task 4: Tuple (Fixed/Immutable constant)\nsuccess_response = (200, 'OK')",
   "hints": [
-    "Task 1: Use a **set** for unique items where order doesn't matter",
-    "Task 2: Use a **list** for ordered data that needs updating",
-    "Task 3: Use a **dictionary** for looking up values by key (ID → name)",
-    "Task 4: Use a **tuple** for fixed data that shouldn't change",
-    "Think about: Do you need duplicates? (set = no, others = yes)",
-    "Think about: Does order matter? (list/tuple = yes, set/dict(3.7+) = insertion order)",
-    "Think about: Will data change? (list/dict/set = mutable, tuple = immutable)"
+    "Task 1: If order doesn't matter but uniqueness does, curly braces {} (without colons) create a Set.",
+    "Task 2: Use square brackets [] for a sequence of numbers that you intend to update or append to.",
+    "Task 3: Use {key: value} to create a Dictionary for fast lookups.",
+    "Task 4: Parentheses () create a Tuple, which is ideal for data that stays constant throughout a program. Include the number `200`, and 'OK'"
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check structure choices",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nemail = exec_globals.get('email_collection')\nsales = exec_globals.get('sales_data')\ncustomers = exec_globals.get('customer_directory')\ncolor = exec_globals.get('color_red')\n\nif not isinstance(email, set):\n    raise AssertionError('Task 1: email_collection should be a SET (unique emails)')\n\nif not isinstance(sales, list):\n    raise AssertionError('Task 2: sales_data should be a LIST (ordered, mutable data)')\n\nif not isinstance(customers, dict):\n    raise AssertionError('Task 3: customer_directory should be a DICTIONARY (ID → name lookup)')\n\nif not isinstance(color, tuple):\n    raise AssertionError('Task 4: color_red should be a TUPLE (immutable fixed values)')\n\nprint('✓ Correct structures chosen for each scenario!')"
+      "code": "local_vars = {}\nexec(code, {}, local_vars)\n\nif not isinstance(local_vars.get('subscriber_emails'), set):\n    raise AssertionError('Task 1: Subscribers should be a SET to prevent duplicate entries.')\n\nif not isinstance(local_vars.get('stock_history'), list):\n    raise AssertionError('Task 2: Stock history should be a LIST because it is an ordered, growing sequence.')\n\nif not isinstance(local_vars.get('price_catalog'), dict):\n    raise AssertionError('Task 3: The catalog should be a DICTIONARY for fast key-to-price mapping.')\n\nif not isinstance(local_vars.get('success_response'), tuple):\n    raise AssertionError('Task 4: Response codes should be a TUPLE because they are fixed constants.')\n\nprint('TEST_PASSED')"
     }
-  ],
-  "tags": ["data-structures", "design", "problem-solving", "intermediate"]
+  ]
 }

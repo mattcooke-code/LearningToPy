@@ -1,31 +1,30 @@
 {
-  "title": "Inventory and Tag Manager",
-  "instructions": "Build an inventory management system that combines dictionaries and sets. You'll process product data, check stock levels, validate tags, and consolidate all tags used.\n\n**Key Operations:**\n- Dictionary iteration with `.items()`\n- Set difference (`-`) to find missing tags\n- Set union (`|`) to combine all tags\n- Conditional logic for stock alerts",
+  "title": "World Explorer Research Tool",
+  "instructions": "You are building a research tool to analyze country data. You will use dictionaries to store country profiles and sets to manage their 'regional tags.' Your goal is to identify missing information and create a master list of all unique geographic features found in your data.\n\n**Data Structure Goals:**\n- **Iteration:** Use `.items()` to process each country's facts.\n- **Filtering:** Use Set Difference (`-`) to find which mandatory categories are missing from a country.\n- **Aggregation:** Use Set Union (`|`) to compile a complete list of all geographic features across all countries.",
   "steps": [
-    "Step 1: Loop through `inventory` using `.items()` to get SKU and product details",
-    "Step 2: Check if stock < 10 and print alert if true",
-    "Step 3: Find missing required tags using set difference: `REQUIRED_TAGS - product_tags`",
-    "Step 4: Print which tags are missing for each product (if any)",
-    "Step 5: Update `all_inventory_tags` by union with current product's tags",
-    "Step 6: After the loop, print all unique tags found"
+    "Step 1: Create a loop that visits every country in the `world_data` dictionary. You'll need access to both the country name (key) and its specific facts (value).",
+    "Step 2: Check the population. If it is less than 10 million, print an alert stating the country is a 'Small Population' country.",
+    "Step 3: Every country *should* have these three tags: 'capital', 'continent', and 'river'. Compare the `REQUIRED_TAGS` against the `tags` currently in the country's facts to find what is missing. Store in a variable called 'missing'.",
+    "Step 4: If there are missing tags, print a helpful message showing the `country` name and which specific categories it is `missing`.",
+    "Step 5: We want to build a master list of every unique feature found. Update the `all_geographic_features` set by combining it with the tags from the current country.",
+    "Step 6: Finally, once the loop has finished its work, print out the complete set of unique geographic features."
   ],
-  "starterCode": "inventory = {\n  'SKU101': {'name': 'Charger', 'stock': 12, 'tags': {'electronics', 'power'}},\n  'SKU102': {'name': 'Mouse', 'stock': 5, 'tags': {'electronics', 'input'}}\n}\nREQUIRED_TAGS = {'electronics', 'power', 'input'}\nall_inventory_tags = set()\n\n# Process each product in inventory\n",
-  "solution": "for sku, details in inventory.items():\n    # Check stock\n    if details['stock'] < 10:\n        print(f'LOW STOCK ALERT: {sku} ({details[\"name\"]})')\n    \n    # Find missing tags\n    missing_tags = REQUIRED_TAGS - details['tags']\n    if missing_tags:\n        print(f'{sku} missing tags: {missing_tags}')\n    \n    # Add to master tag set\n    all_inventory_tags = all_inventory_tags | details['tags']\n    # Alternative: all_inventory_tags |= details['tags']\n\nprint('All inventory tags:', all_inventory_tags)",
+  "starterCode": "world_data = {\n  'Egypt': {'pop_m': 109, 'tags': {'river', 'continent', 'desert'}},\n  'Iceland': {'pop_m': 0.3, 'tags': {'island', 'volcano'}}\n}\n\nREQUIRED_TAGS = {'capital', 'continent', 'river'}\nall_geographic_features = set()\n\n# Start your World Research processing here\n",
+  "solution": "for country, facts in world_data.items():\n    # Check population size\n    if facts['pop_m'] < 10:\n        print(f'Small Population Alert: {country}')\n    \n    # Identify missing research categories\n    missing = REQUIRED_TAGS - facts['tags']\n    if missing:\n        print(f'{country} is missing info for: {missing}')\n    \n    # Consolidate all unique features\n    all_geographic_features = all_geographic_features | facts['tags']\n\nprint('Master List of Geographic Features:', all_geographic_features)",
   "hints": [
-    "Step 1: Use `for sku, details in inventory.items():` to loop",
-    "Step 2: Access stock: `details['stock']`. Check: `if details['stock'] < 10:`",
-    "Step 3: Set difference: `missing_tags = REQUIRED_TAGS - details['tags']`",
-    "Step 4: Print if missing_tags is not empty: `if missing_tags:`",
-    "Step 5: Set union: `all_inventory_tags | details['tags']` or `all_inventory_tags |= details['tags']`",
-    "Step 6: Final print is outside the loop (not indented)",
-    "Remember: Sets use `{}` but `set()` for empty set. `{'a', 'b'}` is a set with elements"
+    "Step 1: To get both pieces of a dictionary at once, use: `for country, facts in world_data.items():`",
+    "Step 2: Access the population value using the key `'pop_m'` inside your `facts` variable. Use a standard `if` statement to check if it is `< 10`.",
+    "Step 3: To find what is in one set but NOT another, use the minus `-` operator. Remove `facts['tags']` from `REQUIRED_TAGS` and store in a variable called `missing`.",
+    "Step 4: In Python, an empty set is 'Falsey.' Use `if missing:` to ensure you only print when there is actually something missing. Don't forget to print both the `country` name and the `missing` variable.",
+    "Step 5: You need to update `all_geographic_features` by combining its current contents with the current country's `facts['tags']`. Use the Union operator `|` to merge them. Remember sets are mutable, so they can be reassigned: `set_a = set_a | set_b`",
+    "Step 6: Print your newly updated version of `all_geographic_features`. Make sure your final `print()` is not indented! If it's indented, it will print after every single country instead of waiting until the end."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check inventory processing",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec_globals = {}\nexec(code, exec_globals)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check low stock alert\nif 'LOW STOCK' not in output or 'SKU102' not in output:\n    raise AssertionError('Step 2: Should alert for SKU102 (stock: 5 < 10)')\n\n# Check missing tags\nif 'missing tags' not in output:\n    raise AssertionError('Step 3-4: Should identify missing tags')\n\n# Check final tag set\nfinal_tags = exec_globals.get('all_inventory_tags', set())\nif not {'electronics', 'power', 'input'}.issubset(final_tags):\n    raise AssertionError(f'Step 5: Master tag set missing items. Got: {final_tags}')\n\n# Check SKU101 has 'input' missing\nif 'SKU101' in output and 'input' in output.lower():\n    pass  # Good - found missing tag\n\nprint('✓ Inventory system fully functional!')"
+      "name": "Check geography research logic",
+      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue().lower()\nsys.stdout = old_stdout\n\n# Check population check\nif 'small population' not in output or 'iceland' not in output:\n    raise AssertionError('Step 2: Did not find a small population alert for Iceland.')\n\n# Check Set Difference (Missing Tags)\nif 'egypt' in output and 'capital' not in output:\n    raise AssertionError('Step 4: Egypt should be flagged as missing the \"capital\" tag.')\nif 'iceland' in output and ('river' not in output or 'capital' not in output):\n    raise AssertionError('Step 4: Iceland should be flagged as missing \"river\" and \"capital\".')\n\n# Check Set Union\nfinal_features = local_vars.get('all_geographic_features', set())\nexpected = {'river', 'continent', 'desert', 'island', 'volcano'}\nif not expected.issubset(final_features):\n    raise AssertionError(f'Step 5: The Master List is missing some features. Found: {final_features}')\n\nprint('TEST_PASSED')"
     }
   ],
-  "tags": ["project", "dictionary", "set", "iteration", "advanced"]
+  "tags": ["geography", "dictionary", "set", "loops", "logic"]
 }

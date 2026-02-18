@@ -45,7 +45,7 @@ my variable = 5       # Can't have spaces
 
 ## 3. Best Practice: Snake Case
 
-The Python community strongly prefers `snake_case` for variable names, where words are separated by underscores.
+The official recommendation (_PEP 8 style guide_) is to use `snake_case` for variable names, with words separated by underscores.
 
 ```python
 # Good snake_case examples
@@ -113,6 +113,12 @@ print(f"{pokemon} gained 10xp!")  # Now says "Charmeleon gained 10xp!"
 
 print("✅ Changed ONE line, updated THREE outputs!")
 ```
+
+:::note
+**Variables don't remember their history:**
+When you reassign `pokemon = "Charmeleon"`, the old value "Charmander" is gone forever.
+Think of it like a whiteboard - you can erase and write something new, but you can't get the old writing back!
+:::
 
 ### Three Key Benefits:
 

@@ -9,11 +9,18 @@ Your journey to becoming a Python developer is organized into a clear hierarchy.
 **1. Phases (The Big Picture)**
 The course is divided into three major Phases:
 
-- **Phase 1: Fundamentals** _(Modules 1-10)_: Master the basics like variables, loops, and functions.
+• **Phase 1: Python Fundamentals** _(Modules 1-9)_
+Master the core language, from your first "Hello World" to writing reusable functions,
+handling files, managing errors, and creating elegant list comprehensions.
 
-- **Phase 2: Intermediate** _(Modules 11-15)_: Dive into Object-Oriented Programming (OOP) and professional tooling.
+• **Phase 2: Intermediate Python** _(Modules 10-15)_
+Level up with lambda functions, object-oriented programming, regex, datetime handling,
+and professional development tooling.
 
-- **Phase 3: Advanced Applications** _(Modules 16-20)_: Build real-world applications using APIs, Databases, and Data Science.
+• **Phase 3: Advanced Applications** _(Modules 16-20)_
+Apply your skills to the real world: interact with Web APIs, analyze data with
+Data Science tools, scrape websites, work with databases, and build a portfolio-ready
+final project.
 
 **2. Modules (The Milestones)**
 
@@ -24,17 +31,16 @@ Each Phase contains several _Modules_. A Module focuses on one specific topic (e
 - Completing all lessons unlocks the **Module Quiz**, which grants a large XP bonus!
 
 **3. Lessons (The Daily Steps)**
-Inside each module are 5-6 lessons. These are your bite-sized learning units, consisting of:
 
-- 📚 **Theory:** Learn concepts through interactive explanations and live code examples.
+Inside each module are 5-6 lessons. These are your bite-sized learning units:
 
-- 💻 **Exercise:** Put theory into practice with coding challenges. You'll use the **Run** button to test and the **Submit** button to verify your solution.
-
-- ❓ **Lesson Quiz:** Confirm your mastery with a quick check for understanding after each exercise.
-
-- 🏆 **Project:** Larger, "Boss Level" challenges at the end of modules that combine everything you've learned into one working program.
-
-- 🎓 **The Grand Finale** _(Module 20):_ Once you reach the end, the entire final module is dedicated to your **Capstone Project** - a fully functional Command Line Tool that integrates APIs, Databases, and Logic into one professional utility.
+| Component                             | Description                                                                                                                                                                       |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 📚 **Theory**                         | Learn concepts through interactive explanations and live code examples                                                                                                            |
+| 💻 **Exercise**                       | Put theory into practice with coding challenges. You'll use the **Run** button to test and the **Submit** button to verify your solution                                          |
+| ❓ **Lesson Quiz**                    | Confirm your mastery with a quick check for understanding after each exercise                                                                                                     |
+| 🏆 **Project**                        | Larger, "Boss Level" challenges at the end of modules that combine everything you've learned into one working program                                                             |
+| 🎓 **The Grand Finale** _(Module 20)_ | The entire final module is dedicated to your **Capstone Project** - a fully functional Command Line Tool that integrates APIs, Databases, and Logic into one professional utility |
 
 ## Understanding Your Progress Indicators
 
@@ -52,21 +58,38 @@ The platform uses three distinct systems to help you track where you are and wha
 
 **Why it matters:** This is your real-time indicator of module completion. Use it to see how close you are to unlocking the quiz and moving to the next module.
 
-### 2. Lesson Status Icons
+### 2. Progress Icons
+
+The platform uses different visual indicators depending on where you are in the course.
+
+**Module Page Icons**
+
+_Location:_ Main course dashboard showing all modules
+
+_What they show:_ The availability and completion status of each module.
+
+_Icon meanings:_
+
+- **Locked Icon (🔒):** This module isn't available yet. You must complete earlier modules to unlock it.
+- **No Icon:** This module is unlocked and available to start.
+- **Green Checkmark (✓):** You've successfully completed all lessons in this module.
+
+**Lesson Page Icons**
 
 ![Lesson Progress](./images/LessonList.PNG)
 
-**Location:** Lesson list within each Module page
+_Location:_ Lesson list within each Module page
 
-**What they show:** The completion status of individual lessons.
+_What they show:_ The completion status of individual lessons within a module.
 
-**Icon meanings:**
+_Icon meanings:_
 
+- **Play Button (▶):** This lesson is available but not yet completed. Click to start or continue.
 - **Green Checkmark (✓):** You've successfully completed this lesson. You can revisit it anytime for review.
-- **Locked Icon (🔒):** This lesson or module isn't available yet. You must complete earlier content to unlock it.
-- **No Icon:** This lesson is available but not yet completed.
 
-**Pro Tip:** Enable _Review Mode_ on any completed lesson to practice without affecting your score or progress.
+:::tip
+Enable _Review Mode_ on any completed lesson to practice without affecting your score or progress.
+:::
 
 ### 3. XP & Reward System
 
@@ -107,11 +130,12 @@ Think of it this way:
 
 Each system serves a different purpose, but together they give you a complete picture of your learning journey from daily tasks to major milestones.
 
-## Pro Tip 💡
+:::tip
 
 1. **Follow the Sequence:** Lessons are designed to build on top of one another.
 2. **Use the Sidebar:** The sidebar allows you to jump between modules quickly if you need to refresh your memory on an old topic.
 3. **Check your Profile:** Visit your Profile page to see your total XP, current Level, and collected Badges.
+   :::
 
 ## What's Next?
 

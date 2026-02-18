@@ -1,0 +1,45 @@
+{
+  "lessonId": "M8L4",
+  "title": "Raising Exceptions - Quiz",
+  "questions": [
+    {
+      "id": "m8l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax to raise a `ValueError` with a custom message?",
+      "options": [
+        "`error ValueError(\"Message\")`",
+        "`raise ValueError(\"Message\")`",
+        "`throw ValueError(\"Message\")`",
+        "`ValueError.raise(\"Message\")`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The correct syntax is `raise ValueError(\"Message\")`. Python uses `raise`, not `throw` like some other languages."
+    },
+    {
+      "id": "m8l4_q2",
+      "type": "multiple-choice",
+      "question": "Which built-in exception should you raise when a function receives an argument of the wrong type?",
+      "options": [
+        "`ValueError`",
+        "`TypeError`",
+        "`RuntimeError`",
+        "`AttributeError`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`TypeError` is the appropriate exception for type mismatches. Use `ValueError` for invalid values of the correct type."
+    },
+    {
+      "id": "m8l4_q3",
+      "type": "multiple-choice",
+      "question": "What does the following code do?\n\n```python\ntry:\n    risky_operation()\nexcept ValueError:\n    print(\"Logging error\")\n    raise\n```",
+      "options": [
+        "It catches the exception and prevents it from propagating further",
+        "It prints a message and then re-raises the same exception",
+        "It raises a new exception after printing the message",
+        "It causes a syntax error because `raise` needs an argument"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `raise` statement without any arguments re-raises the current exception. This allows you to log the error locally while still letting it propagate up to higher-level handlers."
+    }
+  ]
+}

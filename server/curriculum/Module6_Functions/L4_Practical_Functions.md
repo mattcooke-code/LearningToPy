@@ -27,7 +27,7 @@ def is_valid_email(email):
     # 3. Both parts must not be empty
     if len(username) == 0 or len(domain) == 0:
         return False
-    # 4. Domain must contain a period (e.g., .com, .org)
+    # 4. Domain must contain a dot (e.g., .com, .org)
     if '.' not in domain:
         return False
 
@@ -38,6 +38,14 @@ print(is_valid_email("user@example.com"))       # True
 print(is_valid_email("invalid.email"))          # False
 print(is_valid_email("user@com"))               # False
 ```
+
+:::note
+
+In these practical examples, you’ll see two very common built-in Python functions:
+
+- `len()`: Short for "length." It returns the number of items in an object. If you pass it a string, it counts the characters: `len("Python")` is **6**. If you pass it a list, it counts the elements: `len([10, 20])` is **2**.
+- `round(number, ndigits)`: This is used to trim floating-point numbers. For example, `round(3.14159, 2)` gives you 3.14. This is essential when dealing with money or averages where you don't want a "tail" of decimal places.
+  :::
 
 ### Example: Age Category Classifier
 
@@ -309,5 +317,15 @@ def debug_example(x, y):
 
     return final
 ```
+
+:::summary
+
+- **Gatekeeping:** Use functions to validate data (like emails or ages) before your program processes it.
+- **Flexibility:** Default arguments (like `tax_rate=0.08`) allow your functions to handle common cases automatically while remaining customizable.
+- **Multiple Returns:** You can return more than one value by separating them with commas (e.g., `return avg, grade`).
+- **Encapsulation:** Keep functions focused on _one task_. If a function name needs the word "and," it should probably be two separate functions.
+- **Debugging:** Use `print()` statements inside your function to track how data changes at each step before the final return.
+
+:::
 
 Now you're ready to practice building practical functions! The exercises will challenge you to create useful functions for various real-world scenarios.

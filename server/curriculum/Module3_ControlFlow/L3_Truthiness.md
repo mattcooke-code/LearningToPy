@@ -113,11 +113,13 @@ This shortcut is most useful when you want to check:
 
 You're checking for the **presence** or **absence** of content, not comparing specific values.
 
+:::note
 **Still use comparison operators when:**
 
 - Comparing specific values: `if score > 100:`
 - Checking equality: `if role == "Admin":`
 - Comparing numbers: `if age >= 18:`
+  :::
 
 ## Quick Reference
 

@@ -17,11 +17,14 @@ Welcome to your Python playground! The code editor is where you'll write, edit, 
 7. **Exercise Hints:** If you get stuck on an exercise you can click the _Show Hints_ button to see helpful hints
 8. **Download Exercise:** If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson
 
+:::note
+
 ## Why Two Themes?
 
 - **Light Mode:** Great for well-lit environments, reduces eye strain in bright light
 - **Dark Mode:** Perfect for low-light coding sessions, many developers prefer it for longer sessions
 - **Your Choice:** Switch anytime based on your preference or lighting conditions
+  :::
 
 ![Code Editor: Dark Mode](./images/CodeEditorDarkMode.png)
 
@@ -55,7 +58,10 @@ If you have a long block of code, you can "fold" it to keep your workspace clean
 1. Click the `v` next to the line number to collapse the code.
 2. Click the `>` next to the line number to expand it again.
 
-> _This is great for hiding a function you've already finished so you can focus on the new code you're writing underneath it!_
+:::note
+**Keep your workspace tidy:**
+Use code folding to hide functions you've already finished so you can focus on the new code you're writing underneath it!
+:::
 
 ## Writing Your First Code
 
@@ -74,9 +80,9 @@ print("Name:", name)
 print("Age:", age)
 ```
 
-## Pro Tip 💡
-
+:::tip
 _Use the **COPY** button at the top right to save time. **However:** we recommend you get used to typing the code yourself_
+:::
 
 ## Next Up: Running Your Code
 

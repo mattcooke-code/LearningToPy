@@ -1,0 +1,45 @@
+{
+  "lessonId": "M7L4",
+  "title": "Writing to Files - Quiz",
+  "questions": [
+    {
+      "id": "m7l4_q1",
+      "type": "multiple-choice",
+      "question": "What happens if you open an existing file using the `'w'` mode?",
+      "options": [
+        "Python throws an error to prevent data loss",
+        "The file is opened and the new data is added to the end",
+        "The existing content is deleted and the file starts fresh",
+        "The file is opened in read-only mode instead"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Write mode `'w'` is destructive for existing files. It 'truncates' the file, meaning it wipes all current content before you start writing."
+    },
+    {
+      "id": "m7l4_q2",
+      "type": "multiple-choice",
+      "question": "Which of the following code snippets correctly writes two separate lines to a file?",
+      "options": [
+        "`f.write('Line 1', 'Line 2')`",
+        "`f.write('Line 1')\nf.write('Line 2')`",
+        "`f.write('Line 1\\n')\nf.write('Line 2\\n')`",
+        "`f.write('Line 1' + 'Line 2')`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Because `.write()` does not add newlines automatically, you must explicitly include the `\\n` character at the end of your strings to separate lines."
+    },
+    {
+      "id": "m7l4_q3",
+      "type": "multiple-choice",
+      "question": "If you are building a system to track error messages throughout the day, which mode should you use to open the log file?",
+      "options": [
+        "`'r'` (Read)",
+        "`'w'` (Write)",
+        "`'a'` (Append)",
+        "`'x'` (Execute)"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Append mode `'a'` is ideal for logs because it preserves the existing history and adds new data to the end of the file."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "lessonId": "M8L1",
+  "title": "Introduction to Exceptions - Quiz",
+  "questions": [
+    {
+      "id": "m8l1_q1",
+      "type": "multiple-choice",
+      "question": "Which of these is a Syntax Error rather than an Exception?",
+      "options": [
+        "Dividing a number by zero",
+        "Forgetting to indent code inside an `if` statement",
+        "Trying to add a string and an integer",
+        "Converting 'hello' to an integer"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Syntax errors are mistakes in the structure of the code (like indentation or colons) that prevent the program from starting. The others are runtime exceptions."
+    },
+    {
+      "id": "m8l1_q2",
+      "type": "multiple-choice",
+      "question": "If a line of code inside a `try` block works perfectly, what happens to the `except` block?",
+      "options": [
+        "It runs immediately after the `try` block",
+        "It is ignored completely",
+        "It runs only if the user clicks 'Retry'",
+        "It causes a `SyntaxError`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `except` block is a safety net. If the code in the `try` block succeeds, the safety net is never needed and is skipped."
+    },
+    {
+      "id": "m8l1_q3",
+      "type": "multiple-choice",
+      "question": "Why is a 'bare except' (except with no specific error type) considered risky?",
+      "options": [
+        "It makes the code run slower",
+        "It can hide unexpected bugs that you didn't mean to catch",
+        "It only works for division errors",
+        "It is not allowed in modern Python"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A bare except catches EVERYTHING, including programming typos. This can make it very difficult to find and fix actual mistakes in your logic."
+    }
+  ]
+}

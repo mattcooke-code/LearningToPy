@@ -2,12 +2,14 @@
 
 You are tasked with building the core logic for a simple retail inventory system. This system will track items in stock using a **List** and manage stock levels (quantities) using a separate **Tuple**.
 
+:::note
 This project will test your knowledge of:
 
 1.  **List Indexing and Slicing:** To check and display specific item details.
 2.  **Mutability (Lists):** To add and remove items from the inventory.
 3.  **Immutability (Tuples):** To keep the total stock history secure.
 4.  **Basic Operators:** To perform simple arithmetic on stock counts.
+    :::
 
 ## The Goal
 

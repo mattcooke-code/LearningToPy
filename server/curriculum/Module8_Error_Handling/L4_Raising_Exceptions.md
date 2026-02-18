@@ -74,7 +74,9 @@ except (TypeError, ValueError) as e:
 
 ## 4. Re-raising Exceptions
 
-Sometimes you want to handle an exception but also let it propagate up:
+Sometimes you want to log an error but still let the exception **propagate** up to a higher level where it can be handled appropriately. This is called **re-raising**.
+
+Use `raise` without any arguments inside an `except` block to re-raise the current exception:
 
 ```python
 def read_config_file(filename):
@@ -91,6 +93,16 @@ try:
 except FileNotFoundError:
     print("Could not load configuration")
 ```
+
+:::note
+**Why re-raise?**
+
+This pattern is useful when:
+
+- You want to log errors locally but let the calling code decide how to respond
+- You're building a library and want to preserve the exception for the user
+- You need to perform cleanup but still indicate that something went wrong
+  :::
 
 ## 5. Custom Exception Classes
 
@@ -123,6 +135,8 @@ except InsufficientFundsError as e:
 
 ## 6. Best Practices for Raising Exceptions
 
+:::tip
+
 1. **Be specific**: Use the most appropriate exception type
 
 2. **Clear messages**: Explain what went wrong and how to fix it
@@ -130,6 +144,7 @@ except InsufficientFundsError as e:
 3. **Fail fast**: Raise exceptions as soon as you detect invalid state
 
 4. **Document exceptions**: Use docstrings to document what exceptions your functions raise
+   :::
 
 ### Good Example
 
@@ -156,3 +171,15 @@ def divide_numbers(a, b):
 
     return a / b
 ```
+
+:::summary
+
+- Use `raise` to trigger exceptions intentionally when detecting invalid conditions
+- Choose appropriate **built-in** exceptions (`ValueError`, `TypeError`, etc.) for common situations
+- Provide clear, helpful error messages that explain what went wrong
+- Re-raise exceptions with `raise` alone when you need to log errors but let them propagate
+- Create custom exception classes for application-specific error types
+- **Fail fast** - validate inputs and raise exceptions as soon as you detect problems
+- Document exceptions in docstrings so users know what to expect
+
+:::
