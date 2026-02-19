@@ -1,42 +1,62 @@
 {
-  "title": "Data Transformation Pipeline Project",
-  "instructions": "Build a comprehensive data processing pipeline using comprehensions to analyze sales data from multiple sources and generate various business intelligence reports.",
+  "title": "Module 9 Project: Student Grade Analytics",
+  "instructions": "Build a grade analytics system using list, conditional, dictionary, and nested comprehensions to process student data and generate reports.",
   "steps": [
-    "Load and parse sales data from CSV using list comprehensions with data validation",
-    "Load product information from JSON and create lookup dictionaries using dict comprehensions",
-    "Load employee data and create efficient lookup structures",
-    "Calculate key metrics: total revenue, profit, best-selling products using comprehensions",
-    "**Identify unique product categories using a set comprehension**",
-    "Generate various reports using appropriate comprehension patterns",
-    "**Use an explicit generator expression to calculate average transaction revenue**"
+    "Use a list comprehension to calculate the average score for each student and store in `averages` list",
+    "Use a conditional comprehension to create a list of names of students with averages 85 or higher, store in `honor_roll`",
+    "Use a dictionary comprehension to create `class_rosters` mapping each class name to a list of student names in that class",
+    "Use a dictionary comprehension to create `performance_report` mapping each student name to a performance category ('Excellent' for 90+, 'Good' for 80-89, 'Satisfactory' for 70-79, 'Needs Improvement' for below 70)",
+    "Use a nested comprehension to flatten all individual scores from all students into a single list called `all_scores`"
   ],
-  "starterCode": "import json\nimport csv\nfrom typing import List, Dict, Any\n\n# Data structures to hold loaded data\nsales_data = []\nproducts = {}\nemployees = {}\n\n# 1. Load sales data from CSV\n# TODO: Implement CSV loading with validation\n\n# 2. Load products from JSON\n# TODO: Implement JSON loading\n\n# 3. Load employees from text file\n# TODO: Implement employee data loading\n\n# 4. Data analysis and transformation\n# TODO: Implement various analyses using comprehensions\n\n# 5. Report generation\n# TODO: Generate required reports",
-  "solution": "import json\nimport csv\nfrom typing import List, Dict, Any\nfrom collections import defaultdict\n\n# 1. Load sales data from CSV with validation\ndef load_sales_data(filename: str) -> List[Dict]:\n \twith open(filename, \"r\") as file:\n \t\treader = csv.DictReader(file)\n \t\treturn [\n \t\t\t{\n \t\t\t\t\"transaction_id\": int(row[\"transaction_id\"]),\n \t\t\t\t\"product_id\": row[\"product_id\"],\n \t\t\t\t\"employee_id\": row[\"employee_id\"],\n \t\t\t\t\"quantity\": int(row[\"quantity\"]),\n \t\t\t\t\"unit_price\": float(row[\"unit_price\"]),\n \t\t\t\t\"sale_date\": row[\"sale_date\"]\n \t\t\t}\n \t\t\tfor row in reader\n \t\t\tif row[\"transaction_id\"].isdigit() and row[\"quantity\"].isdigit()\n \t\t]\n\n# 2. Load products from JSON\ndef load_products(filename: str) -> Dict:\n \twith open(filename, \"r\") as file:\n \t\tdata = json.load(file)\n \t\treturn {pid: info for pid, info in data.items()}\n\n# 3. Load employees from text file\ndef load_employees(filename: str) -> Dict:\n \twith open(filename, \"r\") as file:\n \t\treturn {\n \t\t\tparts[0]: {\"name\": parts[1], \"department\": parts[2]}\n \t\t\tfor line in file\n \t\t\tif (parts := line.strip().split(\",\")) and len(parts) == 3\n \t\t}\n\n# Load all data\nsales_data = load_sales_data(\"sales.csv\")\nproducts = load_products(\"products.json\")\nemployees = load_employees(\"employees.txt\")\n\n# 4. Data analysis using comprehensions\n\n# Calculate total revenue per product (uses nested generator expression)\nproduct_revenue = {\n \tproduct_id: sum(sale[\"quantity\"] * sale[\"unit_price\"] for sale in sales_data if sale[\"product_id\"] == product_id)\n \tfor product_id in products.keys()\n}\n\n# Calculate profit per product (uses nested generator expression)\nproduct_profit = {\n \tpid: revenue - (products[pid][\"cost\"] * sum(sale[\"quantity\"] for sale in sales_data if sale[\"product_id\"] == pid))\n \tfor pid, revenue in product_revenue.items()\n}\n\n# Employee performance\nemployee_sales = {\n \temp_id: sum(sale[\"quantity\"] * sale[\"unit_price\"] for sale in sales_data if sale[\"employee_id\"] == emp_id)\n \tfor emp_id in employees.keys()\n}\n\n# Unique categories (Set Comprehension)\nunique_categories = {\n    info[\"category\"] \n    for info in products.values()\n}\n\n# Explicit Generator Expression for memory-efficient calculation of average revenue\ntotal_revenue_gen = (\n    sale[\"quantity\"] * sale[\"unit_price\"]\n    for sale in sales_data\n)\naverage_revenue = sum(total_revenue_gen) / len(sales_data) if sales_data else 0\n\n# Category analysis (Aggregation - uses loop for side-effects, as is Pythonic)\ncategory_revenue = defaultdict(float)\nfor sale in sales_data:\n \tproduct_id = sale[\"product_id\"]\n \tif product_id in products:\n \t\tcategory = products[product_id][\"category\"]\n \t\tcategory_revenue[category] += sale[\"quantity\"] * sale[\"unit_price\"]\n\n# 5. Report generation\n\n# Sales summary\nwith open(\"sales_summary.txt\", \"w\") as f:\n \tf.write(\"=== SALES SUMMARY ===\\n\")\n \tf.write(f\"Total Transactions: {len(sales_data)}\\n\")\n \tf.write(f\"Total Revenue: ${sum(product_revenue.values()):.2f}\\n\")\n \tf.write(f\"Total Profit: ${sum(product_profit.values()):.2f}\\n\\n\")\n \t\n \tf.write(\"Top Products by Revenue:\\n\")\n \ttop_products = sorted(product_revenue.items(), key=lambda x: x[1], reverse=True)[:5]\n \tfor product_id, revenue in top_products:\n \t\tf.write(f\"- {products[product_id][\\\"name\\\"]}: ${revenue:.2f}\\n\")\n \tf.write(f\"\\nUnique Categories Analyzed: {', '.join(sorted(list(unique_categories)))}\\n\")\n \tf.write(f\"Average Revenue Per Transaction (via Generator): ${average_revenue:.2f}\\n\")\n\n# Product performance JSON (Nested Dict Comp)\nproduct_performance = {\n \tpid: {\n \t\t\"name\": products[pid][\"name\"],\n \t\t\"category\": products[pid][\"category\"],\n \t\t\"revenue\": revenue,\n \t\t\"profit\": product_profit[pid],\n \t\t\"margin\": (product_profit[pid] / revenue * 100) if revenue > 0 else 0\n \t}\n \tfor pid, revenue in product_revenue.items()\n}\n\nwith open(\"product_performance.json\", \"w\") as f:\n \tjson.dump(product_performance, f, indent=2)\n\n# Employee commissions\nwith open(\"employee_commissions.txt\", \"w\") as f:\n \tf.write(\"=== EMPLOYEE COMMISSIONS ===\\n\")\n \tfor emp_id, sales in sorted(employee_sales.items(), key=lambda x: x[1], reverse=True):\n \t\tcommission = sales * 0.05 \t# 5% commission\n \t\tf.write(f\"{employees[emp_id][\\\"name\\\"]}: ${sales:.2f} sales, ${commission:.2f} commission\\n\")\n\n# Category breakdown\nwith open(\"category_breakdown.txt\", \"w\") as f:\n \tf.write(\"=== CATEGORY BREAKDOWN ===\\n\")\n \tfor category, revenue in sorted(category_revenue.items(), key=lambda x: x[1], reverse=True):\n \t\tf.write(f\"{category}: ${revenue:.2f}\\n\")\n\nprint(\"All reports generated successfully!\")",
-  "fileSetup": {
-    "sales.csv": "transaction_id,product_id,employee_id,quantity,unit_price,sale_date\n1001,P001,E101,2,25.99,2024-01-15\n1002,P002,E102,1,49.99,2024-01-15\n1003,P001,E101,3,25.99,2024-01-16\n1004,P003,E101,1,39.99,2024-01-16\n1005,P002,E103,2,49.99,2024-01-17",
-    "products.json": "{\n \t\"P001\": {\"name\": \"Wireless Mouse\", \"category\": \"Electronics\", \"cost\": 15.00},\n \t\"P002\": {\"name\": \"Mechanical Keyboard\", \"category\": \"Electronics\", \"cost\": 35.00},\n \t\"P003\": {\"name\": \"Desk Lamp\", \"category\": \"Office Supplies\", \"cost\": 25.00}\n}",
-    "employees.txt": "E101,Alice Johnson,Sales\nE102,Bob Smith,Sales\nE103,Carol Davis,Management"
-  },
-  "validation": "tests",
-  "tests": [],
+  "starterCode": "students = [\n    {'name': 'Alice', 'class': 'Math', 'scores': [85, 92, 88, 90]},\n    {'name': 'Bob', 'class': 'Math', 'scores': [78, 82, 75, 80]},\n    {'name': 'Charlie', 'class': 'Math', 'scores': [92, 95, 88, 91]},\n    {'name': 'Diana', 'class': 'Science', 'scores': [88, 85, 90, 87]},\n    {'name': 'Eve', 'class': 'Science', 'scores': [72, 68, 70, 65]},\n    {'name': 'Frank', 'class': 'Science', 'scores': [95, 92, 94, 96]},\n    {'name': 'Grace', 'class': 'English', 'scores': [88, 90, 85, 87]},\n    {'name': 'Henry', 'class': 'English', 'scores': [65, 70, 68, 72]},\n]\n\n# Task 1: Calculate average for each student\naverages = \n\n# Task 2: Honor roll (average >= 85)\nhonor_roll = \n\n# Task 3: Group students by class\nclass_rosters = \n\n# Task 4: Performance categories\nperformance_report = \n\n# Task 5: Flatten all scores\nall_scores = \n\n# Display results\nprint('Averages:', averages)\nprint('Honor Roll:', honor_roll)\nprint('Class Rosters:', class_rosters)\nprint('Performance Report:', performance_report)\nprint('All Scores Count:', len(all_scores))",
+  "solution": "students = [\n    {'name': 'Alice', 'class': 'Math', 'scores': [85, 92, 88, 90]},\n    {'name': 'Bob', 'class': 'Math', 'scores': [78, 82, 75, 80]},\n    {'name': 'Charlie', 'class': 'Math', 'scores': [92, 95, 88, 91]},\n    {'name': 'Diana', 'class': 'Science', 'scores': [88, 85, 90, 87]},\n    {'name': 'Eve', 'class': 'Science', 'scores': [72, 68, 70, 65]},\n    {'name': 'Frank', 'class': 'Science', 'scores': [95, 92, 94, 96]},\n    {'name': 'Grace', 'class': 'English', 'scores': [88, 90, 85, 87]},\n    {'name': 'Henry', 'class': 'English', 'scores': [65, 70, 68, 72]},\n]\n\n# Task 1: Calculate average for each student\naverages = [sum(student['scores']) / len(student['scores']) for student in students]\n\n# Task 2: Honor roll (average >= 85)\nhonor_roll = [\n    student['name'] \n    for student in students \n    if sum(student['scores']) / len(student['scores']) >= 85\n]\n\n# Task 3: Group students by class\nclass_rosters = {\n    class_name: [student['name'] for student in students if student['class'] == class_name]\n    for class_name in set(student['class'] for student in students)\n}\n\n# Task 4: Performance categories\ndef get_category(avg):\n    if avg >= 90:\n        return 'Excellent'\n    elif avg >= 80:\n        return 'Good'\n    elif avg >= 70:\n        return 'Satisfactory'\n    else:\n        return 'Needs Improvement'\n\nperformance_report = {\n    student['name']: get_category(sum(student['scores']) / len(student['scores']))\n    for student in students\n}\n\n# Task 5: Flatten all scores\nall_scores = [score for student in students for score in student['scores']]\n\n# Display results\nprint('Averages:', averages)\nprint('Honor Roll:', honor_roll)\nprint('Class Rosters:', class_rosters)\nprint('Performance Report:', performance_report)\nprint('All Scores Count:', len(all_scores))",
   "hints": [
-    "Use csv.DictReader for easy dictionary-based CSV parsing",
-    "Validate data during loading with conditional list comprehensions",
-    "Use dict comprehensions to create efficient lookup structures (Step 2)",
-    "Use a **set comprehension** to quickly find all unique product categories (Step 5)",
-    "Use a **generator expression** for memory-efficient calculations like total revenue (Step 7)",
-    "Consider using defaultdict for aggregating data by category (for aggregation loops)",
-    "F-strings make report formatting much cleaner"
+    "Task 1: The pattern is [expression for item in collection]",
+    "Task 1: Use sum(student['scores']) / len(student['scores']) to calculate average",
+    "Task 1: Structure: [average_calculation for student in students]",
+    "Task 2: Add an if condition to filter: [item for item in collection if condition]",
+    "Task 2: You'll need to calculate the average inside the condition",
+    "Task 2: Structure: [student['name'] for student in students if average >= 85]",
+    "Task 3: First get unique class names: set(student['class'] for student in students)",
+    "Task 3: For each class, filter students: [student['name'] for student in students if student['class'] == class_name]",
+    "Task 3: Combine into dict: {class_name: [students in that class] for class_name in unique_classes}",
+    "Task 4: You'll need a helper function to convert average to category",
+    "Task 4: Define a function like: def get_category(avg): if avg >= 90: return 'Excellent' ...",
+    "Task 4: Structure: {student['name']: get_category(average) for student in students}",
+    "Task 5: Nested comprehension for flattening: [inner_item for outer_item in collection for inner_item in outer_item]",
+    "Task 5: Structure: [score for student in students for score in student['scores']]",
+    "Task 5: Outer loop gets each student, inner loop gets each score from that student"
+  ],
+  "validation": "tests",
+  "tests": [
+    {
+      "name": "Check Task 1 - Calculate averages",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'averages' not in exec_namespace:\n    raise AssertionError('Task 1: averages list not found')\n\naverages = exec_namespace['averages']\n\nif not isinstance(averages, list):\n    raise AssertionError('Task 1: averages should be a list')\n\nif len(averages) != 8:\n    raise AssertionError(f'Task 1: Should have 8 averages (one per student), got {len(averages)}')\n\nexpected = [88.75, 78.75, 91.5, 87.5, 68.75, 94.25, 87.5, 68.75]\n\nfor i, (actual, exp) in enumerate(zip(averages, expected)):\n    if abs(actual - exp) > 0.1:\n        raise AssertionError(f'Task 1: Average {i} should be {exp}, got {actual}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Task 2 - Honor roll filtering",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'honor_roll' not in exec_namespace:\n    raise AssertionError('Task 2: honor_roll list not found')\n\nhonor_roll = exec_namespace['honor_roll']\n\nif not isinstance(honor_roll, list):\n    raise AssertionError('Task 2: honor_roll should be a list')\n\nexpected_students = ['Alice', 'Charlie', 'Diana', 'Frank', 'Grace']\n\nif len(honor_roll) != 5:\n    raise AssertionError(f'Task 2: Should have 5 students on honor roll, got {len(honor_roll)}')\n\nfor student in expected_students:\n    if student not in honor_roll:\n        raise AssertionError(f'Task 2: {student} should be on honor roll (average >= 85)')\n\nif 'Bob' in honor_roll or 'Eve' in honor_roll or 'Henry' in honor_roll:\n    raise AssertionError('Task 2: Students with averages below 85 should not be on honor roll')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Task 3 - Class rosters grouping",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'class_rosters' not in exec_namespace:\n    raise AssertionError('Task 3: class_rosters dictionary not found')\n\nclass_rosters = exec_namespace['class_rosters']\n\nif not isinstance(class_rosters, dict):\n    raise AssertionError('Task 3: class_rosters should be a dictionary')\n\nif 'Math' not in class_rosters or 'Science' not in class_rosters or 'English' not in class_rosters:\n    raise AssertionError('Task 3: class_rosters should have Math, Science, and English as keys')\n\nif set(class_rosters['Math']) != {'Alice', 'Bob', 'Charlie'}:\n    raise AssertionError(f\"Task 3: Math roster incorrect, got {class_rosters['Math']}\")\n\nif set(class_rosters['Science']) != {'Diana', 'Eve', 'Frank'}:\n    raise AssertionError(f\"Task 3: Science roster incorrect, got {class_rosters['Science']}\")\n\nif set(class_rosters['English']) != {'Grace', 'Henry'}:\n    raise AssertionError(f\"Task 3: English roster incorrect, got {class_rosters['English']}\")\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Task 4 - Performance categories",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'performance_report' not in exec_namespace:\n    raise AssertionError('Task 4: performance_report dictionary not found')\n\nperformance = exec_namespace['performance_report']\n\nif not isinstance(performance, dict):\n    raise AssertionError('Task 4: performance_report should be a dictionary')\n\nif len(performance) != 8:\n    raise AssertionError(f'Task 4: Should have 8 students in report, got {len(performance)}')\n\nexpected = {\n    'Alice': 'Good',\n    'Bob': 'Satisfactory',\n    'Charlie': 'Excellent',\n    'Diana': 'Good',\n    'Eve': 'Needs Improvement',\n    'Frank': 'Excellent',\n    'Grace': 'Good',\n    'Henry': 'Needs Improvement'\n}\n\nfor student, category in expected.items():\n    if student not in performance:\n        raise AssertionError(f'Task 4: Missing {student} in performance report')\n    if performance[student] != category:\n        raise AssertionError(f'Task 4: {student} should be {category}, got {performance[student]}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Task 5 - Flatten all scores",
+      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'all_scores' not in exec_namespace:\n    raise AssertionError('Task 5: all_scores list not found')\n\nall_scores = exec_namespace['all_scores']\n\nif not isinstance(all_scores, list):\n    raise AssertionError('Task 5: all_scores should be a list')\n\nif len(all_scores) != 32:\n    raise AssertionError(f'Task 5: Should have 32 total scores (8 students × 4 scores), got {len(all_scores)}')\n\n# Check some specific scores are present\nif 85 not in all_scores or 92 not in all_scores:\n    raise AssertionError('Task 5: all_scores should contain all individual scores from all students')\n\nif 68.75 in all_scores or 88.75 in all_scores:\n    raise AssertionError('Task 5: all_scores should contain individual scores, not averages')\n\nprint('TEST_PASSED')"
+    }
   ],
   "tags": [
-    "file-io",
-    "csv",
-    "json",
-    "data-pipeline",
-    "real-world-application",
+    "project",
     "comprehensions",
-    "set-comprehensions",
-    "generator-expressions"
+    "list-comprehension",
+    "conditional-comprehension",
+    "dictionary-comprehension",
+    "nested-comprehension"
   ],
-  "challengeGroup": "data-pipeline-project"
+  "challengeGroup": "module-9-project"
 }

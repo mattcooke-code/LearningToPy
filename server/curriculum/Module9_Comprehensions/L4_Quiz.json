@@ -1,0 +1,40 @@
+{
+  "lessonId": "M9L4",
+  "title": "Nested Comprehensions - Quiz",
+  "questions": [
+    {
+      "id": "m9l4_q1",
+      "type": "multiple-choice",
+      "question": "What will `[num for row in [[1,2],[3,4]] for num in row]` produce?",
+      "options": ["`[[1,2],[3,4]]`", "`[1,2,3,4]`", "`[1,2]`", "`[[1,2,3,4]]`"],
+      "correctAnswer": 1,
+      "explanation": "This is a nested list comprehension that flattens a 2D list. It iterates through each row, then through each number in that row, collecting all numbers into a single flat list: [1, 2, 3, 4]."
+    },
+    {
+      "id": "m9l4_q2",
+      "type": "multiple-choice",
+      "question": "What is the key difference between a list comprehension `[x**2 for x in range(10)]` and a generator expression `(x**2 for x in range(10))`?",
+      "options": [
+        "The list comprehension is faster",
+        "The generator expression creates all values immediately",
+        "The generator expression produces values on-demand",
+        "There is no difference; they're interchangeable"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Generator expressions use lazy evaluation - they produce values one at a time as you iterate through them, saving memory. List comprehensions create the entire list immediately in memory."
+    },
+    {
+      "id": "m9l4_q3",
+      "type": "multiple-choice",
+      "question": "When should you use a traditional loop instead of a comprehension?",
+      "options": [
+        "When you need to create a new list",
+        "When you need to filter items by a simple condition",
+        "When the logic is complex or you need side effects like printing",
+        "When you want the fastest possible execution"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Traditional loops are better for complex logic, when you need side effects (like printing during iteration), or when the comprehension would become too nested or hard to read. Comprehensions shine for simple transformations."
+    }
+  ]
+}

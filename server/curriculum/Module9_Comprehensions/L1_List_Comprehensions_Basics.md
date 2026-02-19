@@ -1,6 +1,6 @@
 # ⚡ List Comprehensions Basics
 
-_List Comprehensions_ provide a concise way to create lists in Python. They transform one list (or any iterable) into another list by applying an operation to each element.
+**_List Comprehensions_** provide a concise way to create lists in Python. They transform one list (or any iterable) into another list by applying an operation to each element.
 
 ## 1. Basic Syntax
 

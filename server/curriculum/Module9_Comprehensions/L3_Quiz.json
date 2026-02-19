@@ -1,0 +1,40 @@
+{
+  "lessonId": "M9L3",
+  "title": "Dictionary Comprehensions - Quiz",
+  "questions": [
+    {
+      "id": "m9l3_q1",
+      "type": "multiple-choice",
+      "question": "What will `{x: x**2 for x in range(3)}` produce?",
+      "options": [
+        "`{0: 0, 1: 1, 2: 4}`",
+        "`[0, 1, 4]`",
+        "`{0: 1, 1: 2, 2: 3}`",
+        "`{1: 1, 2: 4, 3: 9}`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The comprehension iterates through 0, 1, 2. For each number x, it creates a key-value pair where the key is x and the value is x² (0²=0, 1²=1, 2²=4)."
+    },
+    {
+      "id": "m9l3_q2",
+      "type": "multiple-choice",
+      "question": "Which method must you use when creating a dictionary comprehension from an existing dictionary?",
+      "options": ["`.keys()`", "`.values()`", "`.items()`", "`.pairs()`"],
+      "correctAnswer": 2,
+      "explanation": "You must use `.items()` to get both keys and values. Using `.keys()` gives only keys, and `.values()` gives only values - neither provides both for transformation."
+    },
+    {
+      "id": "m9l3_q3",
+      "type": "multiple-choice",
+      "question": "What happens if the same key appears multiple times in a dictionary comprehension?",
+      "options": [
+        "Python raises a KeyError",
+        "All values are stored in a list under that key",
+        "Only the last occurrence is kept (previous values are overwritten)",
+        "The dictionary is created but cannot be modified later"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Dictionary keys must be unique. If the same key appears multiple times, the last value encountered overwrites any previous ones. This is the same behavior as regular dictionary creation."
+    }
+  ]
+}
