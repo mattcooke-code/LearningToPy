@@ -1,0 +1,155 @@
+{
+  "questions": [
+    {
+      "id": "m11_review_q1",
+      "type": "multiple-choice",
+      "question": "Using the 'blueprint' analogy, if a Class is the blueprint for a house, what is the Object?",
+      "options": [
+        "The architect who designed the house",
+        "The actual house built on a specific street",
+        "The neighborhood containing multiple houses",
+        "The tools used to build the house"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In OOP, a class defines the structure (blueprint), while an object is a concrete instance (the actual house) created from that definition."
+    },
+    {
+      "id": "m11_review_q2",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of 'Instantiation' in Python?",
+      "options": [
+        "To define a new type of data using the 'class' keyword",
+        "To delete an unused object from the computer's memory",
+        "To create a specific, unique instance of a class",
+        "To share data between two different classes"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Instantiation is the process of calling a class (like `Dog()`) to create a new object. Each time you instantiate, you create a unique entity in memory."
+    },
+    {
+      "id": "m11_review_q3",
+      "type": "multiple-choice",
+      "question": "If you define a variable `species = 'Android'` directly inside a `Robot` class (outside of any methods), what kind of attribute is it?",
+      "options": [
+        "An Instance Attribute unique to each robot",
+        "A Local Variable only accessible inside a specific function",
+        "A Class Attribute shared by all instances of that class",
+        "A Global Variable accessible by every class in the file"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Variables defined at the top level of a class are Class Attributes. They are shared across all instances, meaning every robot created from that class will initially share that same value."
+    },
+    {
+      "id": "m11_review_q4",
+      "type": "multiple-choice",
+      "question": "When exactly is the `__init__` method executed?",
+      "options": [
+        "Only when you manually call it using `object.__init__()`.",
+        "Automatically, immediately after a new object is created.",
+        "Every time you change an attribute's value.",
+        "Only when the program finishes running."
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `__init__` method is a constructor; Python triggers it automatically the moment you instantiate a class to set up the new object."
+    },
+    {
+      "id": "m11_review_q5",
+      "type": "multiple-choice",
+      "question": "In the line `self.color = color`, what is the purpose of `self`?",
+      "options": [
+        "It is a keyword that makes the variable global.",
+        "It refers to the Class blueprint rather than the individual object.",
+        "It represents the specific instance of the object being created or modified.",
+        "It is a required name for the color of the object."
+      ],
+      "correctAnswer": 2,
+      "explanation": "`self` is a reference to the specific instance. It allows Python to keep track of which object's data it is currently updating."
+    },
+    {
+      "id": "m11_review_q6",
+      "type": "multiple-choice",
+      "question": "Which of the following correctly describes an 'Instance Attribute'?",
+      "options": [
+        "A variable shared by every single object of a class.",
+        "A variable that can only be used once in the entire program.",
+        "Data that is unique to a specific object, usually defined inside `__init__`.",
+        "A special method that starts with double underscores."
+      ],
+      "correctAnswer": 2,
+      "explanation": "Instance attributes are tied to a specific object via `self`. This is why one Car object can have the make 'Toyota' while another has 'Lada'."
+    },
+    {
+      "id": "m11_review_q7",
+      "type": "multiple-choice",
+      "question": "Why is it considered better practice to modify an object's data through a method rather than changing an attribute directly?",
+      "options": [
+        "Directly changing attributes is not possible in Python and will cause a SyntaxError.",
+        "Methods allow the class to validate data and ensure the object stays in a valid state.",
+        "Methods consume less memory than direct attribute assignment.",
+        "Using methods is the only way to make attributes visible to other classes."
+      ],
+      "correctAnswer": 1,
+      "explanation": "This is the core of encapsulation. By using methods as 'gatekeepers,' you can add logic (like checking if a value is negative) to prevent the object's data from becoming corrupted or invalid."
+    },
+    {
+      "id": "m11_review_q8",
+      "type": "multiple-choice",
+      "question": "What does a single underscore prefix (e.g., `_balance`) mean in Python?",
+      "options": [
+        "The variable is strictly private and impossible to access from outside.",
+        "The variable is a constant and its value cannot be changed.",
+        "It is a convention signaling that the attribute is protected.",
+        "It tells Python to delete the variable after the method finishes."
+      ],
+      "correctAnswer": 2,
+      "explanation": "In Python, the single underscore is a 'gentleman's agreement' among programmers. It doesn't technically block access, but it warns others that the data is internal."
+    },
+    {
+      "id": "m11_review_q9",
+      "type": "multiple-choice",
+      "question": "What is 'Name Mangling' in Python OOP?",
+      "options": [
+        "A bug that occurs when two objects have the same name.",
+        "When Python changes the name of a `__double_underscore` attribute.",
+        "A way to randomly generate variable names for security.",
+        "The process of converting a class name into lowercase."
+      ],
+      "correctAnswer": 1,
+      "explanation": "When you use two underscores, Python internally renames the attribute (e.g., `_ClassName__attribute`). This helps prevent name clashes, especially when using inheritance."
+    },
+    {
+      "id": "m11_review_q10",
+      "type": "multiple-choice",
+      "question": "What is the key difference between a class variable and an instance variable?",
+      "options": [
+        "Class variables are defined inside methods; instance variables are defined in the class body",
+        "Class variables are shared by all instances; each instance has its own copy of instance variables",
+        "Class variables can only be accessed outside the class; instance variables can only be accessed inside",
+        "Class variables are private; instance variables are public"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Class variables are shared across all instances of a class. If you change a class variable, all instances see the change. Instance variables are unique to each object."
+    },
+    {
+      "id": "m11_review_q11",
+      "type": "multiple-choice",
+      "question": "What decorator is used to define a static method in Python?",
+      "options": [
+        "`@classmethod`",
+        "`@staticmethod`",
+        "`@instancemethod`",
+        "`@abstractmethod`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `@staticmethod` decorator is used to define a method that belongs to the class namespace but doesn't receive any special first parameter (neither `self` nor `cls`)."
+    },
+    {
+      "id": "m11_review_q12",
+      "type": "multiple-choice",
+      "question": "What will this code output?\n\n```python\nclass Counter:\n    count = 0\n    \n    def __init__(self):\n        Counter.count += 1\n\na = Counter()\nb = Counter()\nc = Counter()\nprint(Counter.count)\n```",
+      "options": ["`0`", "`1`", "`2`", "`3`"],
+      "correctAnswer": 3,
+      "explanation": "The class variable `count` starts at 0. Each time a new instance is created, `__init__` increments `Counter.count` by 1. With three instances created, the final count is 3."
+    }
+  ]
+}

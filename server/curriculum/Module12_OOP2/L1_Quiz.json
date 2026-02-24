@@ -1,0 +1,45 @@
+{
+  "lessonId": "M12L1",
+  "title": "Introduction to Inheritance - Quiz",
+  "questions": [
+    {
+      "id": "m12l1_q1",
+      "type": "multiple-choice",
+      "question": "What type of relationship does inheritance represent between a child class and a parent class?",
+      "options": [
+        "A \"has-a\" relationship (e.g., a Car has-a Engine)",
+        "An \"is-a\" relationship (e.g., a Dog is-a Animal)",
+        "A \"uses-a\" relationship (e.g., a Programmer uses-a Computer)",
+        "A \"contains-a\" relationship (e.g., a Library contains-a Book)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Inheritance creates an \"is-a\" relationship. The child class is a more specific version of the parent class. A Dog is a specific type of Animal, so Dog inherits from Animal."
+    },
+    {
+      "id": "m12l1_q2",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax to create a class called `Poodle` that inherits from a class called `Dog`?",
+      "options": [
+        "`class Poodle extends Dog:`",
+        "`class Poodle(Dog):`",
+        "`class Poodle inherits Dog:`",
+        "`class Poodle < Dog:`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In Python, inheritance is specified by placing the parent class name in parentheses after the child class name: `class Child(Parent):`."
+    },
+    {
+      "id": "m12l1_q3",
+      "type": "multiple-choice",
+      "question": "Given the code below, what will happen when we call `my_cat.eat()`?\n\n```python\nclass Animal:\n    def eat(self):\n        print(\"Eating...\")\n\nclass Cat(Animal):\n    def meow(self):\n        print(\"Meow!\")\n\nmy_cat = Cat()\n```",
+      "options": [
+        "It will cause an error because Cat doesn't have an eat method",
+        "It will print \"Eating...\" because Cat inherits the eat method from Animal",
+        "It will print \"Meow!\" because that's Cat's only method",
+        "It will do nothing because eat wasn't defined in Cat"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Child classes inherit all methods from their parent class. Since Cat inherits from Animal, it automatically gets the `eat()` method, even though it's not explicitly defined in Cat."
+    }
+  ]
+}

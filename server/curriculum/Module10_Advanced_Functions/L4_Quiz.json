@@ -1,0 +1,40 @@
+{
+  "lessonId": "M10L4",
+  "title": "Functional Programming Tools - Quiz",
+  "questions": [
+    {
+      "id": "m10l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the key difference between `map()` and `filter()`?",
+      "options": [
+        "`map()` transforms every item; `filter()` selects a subset of items",
+        "`map()` works with numbers only; `filter()` works with any data type",
+        "`map()` returns a list; `filter()` returns a tuple",
+        "`map()` modifies the original data; `filter()` creates a copy"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`map()` applies a function to every item and always returns the same number of items. `filter()` tests each item with a condition and only keeps those that return True, potentially returning fewer items."
+    },
+    {
+      "id": "m10l4_q2",
+      "type": "multiple-choice",
+      "question": "What will `reduce(lambda x, y: x + y, [1, 2, 3, 4])` return?",
+      "options": ["`[1, 2, 3, 4]`", "`10`", "`[1+2+3+4]`", "`(1, 2, 3, 4)`"],
+      "correctAnswer": 1,
+      "explanation": "`reduce()` cumulatively applies the function, combining items into a single value. It calculates ((1+2)+3)+4 = 10. Unlike `map()` and `filter()`, `reduce()` returns a single value, not an iterator."
+    },
+    {
+      "id": "m10l4_q3",
+      "type": "multiple-choice",
+      "question": "Which statement about `functools.partial` is TRUE?",
+      "options": [
+        "It splits a function into multiple smaller functions",
+        "It pre-fills one or more arguments of a function",
+        "It runs a function multiple times in parallel",
+        "It creates a partial copy of the function's documentation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`partial` is like pre-filling a form. If you have a function that takes multiple arguments, `partial` lets you fix some of them in advance, creating a new callable that only needs the remaining arguments."
+    }
+  ]
+}

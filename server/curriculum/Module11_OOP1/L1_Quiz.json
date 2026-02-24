@@ -1,0 +1,45 @@
+{
+  "lessonId": "M11L1",
+  "title": "Classes, Objects, and Instantiation - Quiz",
+  "questions": [
+    {
+      "id": "m11l1_q1",
+      "type": "multiple-choice",
+      "question": "Using the 'blueprint' analogy, if a Class is the blueprint for a house, what is the Object?",
+      "options": [
+        "The architect who designed the house",
+        "The actual house built on a specific street",
+        "The neighborhood containing multiple houses",
+        "The tools used to build the house"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In OOP, a class defines the structure (blueprint), while an object is a concrete instance (the actual house) created from that definition."
+    },
+    {
+      "id": "m11l1_q2",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of 'Instantiation' in Python?",
+      "options": [
+        "To define a new type of data using the 'class' keyword",
+        "To delete an unused object from the computer's memory",
+        "To create a specific, unique instance of a class",
+        "To share data between two different classes"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Instantiation is the process of calling a class (like `Dog()`) to create a new object. Each time you instantiate, you create a unique entity in memory."
+    },
+    {
+      "id": "m11l1_q3",
+      "type": "multiple-choice",
+      "question": "If you define a variable `species = 'Android'` directly inside a `Robot` class (outside of any methods), what kind of attribute is it?",
+      "options": [
+        "An Instance Attribute unique to each robot",
+        "A Local Variable only accessible inside a specific function",
+        "A Class Attribute shared by all instances of that class",
+        "A Global Variable accessible by every class in the file"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Variables defined at the top level of a class are Class Attributes. They are shared across all instances, meaning every robot created from that class will initially share that same value."
+    }
+  ]
+}

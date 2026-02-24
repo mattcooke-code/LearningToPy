@@ -2,6 +2,15 @@
 
 Python provides several built-in functions that support functional programming paradigms. These tools allow you to work with data in a declarative way, focusing on _what_ to compute rather than _how_ to compute it.
 
+### Refresher
+
+- `map(function, data)`: Transforms everything. If you have 10 items in, you get 10 items out.
+- `filter(function, data)`: Selects some. If you have 10 items in, you might only get 3 out.
+
+:::note
+These tools are "lazy." They don't actually do the work until you ask for the result (like by using `list()` or a loop).
+:::
+
 ## 1. The `map()` Function
 
 `map()` applies a function to every item in an iterable and returns a map object (iterator).
@@ -15,21 +24,11 @@ map(function, iterable)
 ### Examples
 
 ```python
-# Square all numbers
-numbers = [1, 2, 3, 4, 5]
-squared = map(lambda x: x ** 2, numbers)
-print(list(squared))  # [1, 4, 9, 16, 25]
-
 # Convert strings to uppercase
-names = ['alice', 'bob', 'charlie']
+names = ['keisha', 'mutya', 'siobhan']
 upper_names = map(str.upper, names)
-print(list(upper_names))  # ['ALICE', 'BOB', 'CHARLIE']
+print(list(upper_names))  # ['KEISHA', 'MUTYA', 'SIOBHAN']
 
-# Multiple iterables
-a = [1, 2, 3]
-b = [10, 20, 30]
-sums = map(lambda x, y: x + y, a, b)
-print(list(sums))  # [11, 22, 33]
 ```
 
 ## 2. The `filter()` Function
@@ -42,287 +41,135 @@ print(list(sums))  # [11, 22, 33]
 filter(function, iterable)
 ```
 
-### Examples
+### Example
 
 ```python
-# Filter even numbers
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-evens = filter(lambda x: x % 2 == 0, numbers)
-print(list(evens))  # [2, 4, 6, 8, 10]
-
-# Filter non-empty strings
-words = ['hello', '', 'world', '', 'python']
-non_empty = filter(None, words)  # None removes falsy values
-print(list(non_empty))  # ['hello', 'world', 'python']
-
 # Filter by custom condition
-def is_long_word(word):
-    return len(word) > 5
+def is_current_sugababe(name):
+    return name in ['Keisha', 'Mutya', 'Siobhan']
 
-words = ['apple', 'banana', 'cherry', 'date', 'elderberry']
-long_words = filter(is_long_word, words)
-print(list(long_words))  # ['banana', 'cherry', 'elderberry']
+names = ['Keisha', 'Heidi', 'Mutya', 'Amelle', 'Siobhan', 'Jade']
+sugababes = filter(is_current_sugababe, names)
+print(list(sugababes))  # ['Keisha', 'Mutya', 'Siobhan']
 ```
 
 ## 3. The `reduce()` Function
 
-`reduce()` applies a function cumulatively to the items of an iterable, reducing it to a single value. Requires import from `functools`.
+Unlike the others, `reduce()` doesn't give you a new list; it squashes your list down into a single value. You must import it from `functools`.
 
 ### Basic Syntax
 
 ```python
 from functools import reduce
-reduce(function, iterable[, initializer])
-```
 
-### Examples
+numbers = [1, 2, 3, 4]
 
-```python
-from functools import reduce
-
-# Sum all numbers
-numbers = [1, 2, 3, 4, 5]
+# How reduce works: ((1 + 2) + 3) + 4
 total = reduce(lambda x, y: x + y, numbers)
-print(total)  # 15
-
-# Find maximum value
-max_value = reduce(lambda x, y: x if x > y else y, numbers)
-print(max_value)  # 5
-
-# Concatenate strings
-words = ['hello', ' ', 'world', '!']
-sentence = reduce(lambda x, y: x + y, words)
-print(sentence)  # 'hello world!'
-
-# With initial value
-product = reduce(lambda x, y: x * y, numbers, 1)
-print(product)  # 120
+print(total)  # 10
 ```
 
-## 4. Combining Functional Tools
+:::note
+Think of it as:
 
-### Pipeline Processing
+- `x` is the "Running Total."
+- `y` is the "Next Item" in the list.
+  :::
+
+### Example
 
 ```python
 from functools import reduce
 
-data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# All members who ever appeared in Sugababes
+all_members = ['Siobhan', 'Mutya', 'Keisha', 'Heidi', 'Amelle', 'Jade']
 
-# Process: filter even numbers → square them → sum results
-result = reduce(
-    lambda x, y: x + y,
-    map(
-        lambda x: x ** 2,
-        filter(lambda x: x % 2 == 0, data)
-    )
-)
-print(result)  # 220 (4 + 16 + 36 + 64 + 100)
+# Define which members are in the current lineup (MKS)
+current_members = ['Mutya', 'Keisha', 'Siobhan']
+
+# Reduce the list to only current members
+def sugababes_assemble(band, member):
+    if member in current_members:
+        band.append(member)
+    return band
+
+current_lineup = reduce(sugababes_assemble, all_members, [])
+print(f"Current Sugababes: {current_lineup}")  # ['Siobhan', 'Mutya', 'Keisha']
+
+
 ```
 
-### Data Transformation Pipeline
+## 4. Functional Tools
 
-```python
-# Process user data: filter active users → extract names → convert to uppercase
-users = [
-    {'name': 'alice', 'active': True},
-    {'name': 'bob', 'active': False},
-    {'name': 'charlie', 'active': True},
-    {'name': 'diana', 'active': True}
-]
+The `functools` module has two other "magic" tools that make your functions more flexible.
 
-active_names = list(
-    map(
-        lambda user: user['name'].upper(),
-        filter(lambda user: user['active'], users)
-    )
-)
-print(active_names)  # ['ALICE', 'CHARLIE', 'DIANA']
-```
+### `partial()`: The Pre-filled Form
 
-## 5. `functools` Module Utilities
-
-`partial()` - Partial Function Application
+Imagine you have a form that asks for "City" and "Country." If you know everyone is from "Havana, Cuba," you can pre-fill those parts so the user only has to type their name.
 
 ```python
 from functools import partial
 
-# Create a new function with pre-filled arguments
-def multiply(x, y):
-    return x * y
-
-double = partial(multiply, 2)
-triple = partial(multiply, 3)
-
-print(double(5))   # 10
-print(triple(5))   # 15
-
-# Useful for configuring functions
 def greet(greeting, name):
     return f"{greeting}, {name}!"
 
+# Pre-fill the 'greeting' part
 say_hello = partial(greet, "Hello")
-say_hi = partial(greet, "Hi")
 
-print(say_hello("Alice"))  # Hello, Alice!
-print(say_hi("Bob"))       # Hi, Bob!
+print(say_hello("Fidel")) # Only need to provide the name now!
 ```
 
-`lru_cache()` - Memoization Decorator
+### `lru_cache()`: The Memory Note
+
+This decorator tells your function: "If you've calculated this result before, write it down and don't do the calculation again." It's a massive speed boost for heavy calculations.
 
 ```python
 from functools import lru_cache
 
 @lru_cache(maxsize=128)
-def fibonacci(n):
-    if n < 2:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
-
-# Much faster due to caching
-print(fibonacci(50))  # 12586269025
+def expensive_math(n):
+    # Python remembers the result for 'n' after the first time
+    return n * n
 ```
 
-## 6. Generator Expressions vs Map/Filter
+## 5. Pipelines: Putting it all Together
 
-### Performance Comparison
+In the real world, we often "chain" these tools together to process data in a single flow.
 
-```python
-import time
-
-data = list(range(1000000))
-
-# Generator expression (memory efficient)
-start = time.time()
-result1 = sum(x * 2 for x in data if x % 2 == 0)
-time1 = time.time() - start
-
-# Map/filter combination
-start = time.time()
-result2 = sum(map(lambda x: x * 2, filter(lambda x: x % 2 == 0, data)))
-time2 = time.time() - start
-
-print(f"Generator: {time1:.4f}s, Map/Filter: {time2:.4f}s")
-# Both are efficient, but generators are often more readable
-```
-
-## 7. Real-World Applications
-
-### Data Processing Pipeline
+**The Task:** Take a list of numbers, keep only the evens, square them, and then find the total.
 
 ```python
 from functools import reduce
 
-# Process sales data: filter valid sales → calculate totals → aggregate
-sales_data = [
-    {'amount': 100, 'valid': True},
-    {'amount': 200, 'valid': False},
-    {'amount': 150, 'valid': True},
-    {'amount': 300, 'valid': True},
-    {'amount': 50, 'valid': False}
-]
+data = [1, 2, 3, 4, 5, 6]
 
-total_sales = reduce(
-    lambda total, sale: total + sale['amount'],
-    filter(lambda sale: sale['valid'], sales_data),
-    0  # initial value
-)
-print(f"Total valid sales: ${total_sales}")  # Total valid sales: $550
-```
+# 1. Filter (Keep evens) -> [2, 4, 6]
+# 2. Map (Square them) -> [4, 16, 36]
+# 3. Reduce (Sum them) -> 56
 
-### Text Processing
-
-```python
-text = "Functional programming is a programming paradigm that treats computation as the evaluation of mathematical functions"
-
-# Process: split → filter short words → count characters
-words = text.split()
-long_words = filter(lambda word: len(word) > 5, words)
-character_count = reduce(lambda count, word: count + len(word), long_words, 0)
-
-print(f"Character count in long words: {character_count}")
-```
-
-### Configuration Processing
-
-```python
-config_lines = [
-    "HOST=localhost",
-    "PORT=8080",
-    "DEBUG=True",
-    "# This is a comment",
-    "TIMEOUT=30"
-]
-
-# Process: filter non-comments → split key-value pairs → create dict
-config = dict(
-    map(
-        lambda line: tuple(line.split('=')),
-        filter(lambda line: not line.startswith('#'), config_lines)
-    )
-)
-print(config)
-# {'HOST': 'localhost', 'PORT': '8080', 'DEBUG': 'True', 'TIMEOUT': '30'}
-```
-
-## 8. Best Practices
-
-### When to Use Functional Tools:
-
-1. `map()` - When you need to transform every element the same way
-
-2. `filter()` - When you need to select elements based on a condition
-
-3. `reduce()` - When you need to aggregate elements into a single value
-
-4. Generator expressions - Often more readable than `map()`/`filter()`
-
-### Readability Comparison:
-
-```python
-# Functional style
 result = reduce(lambda x, y: x + y,
-               map(lambda x: x ** 2,
-                   filter(lambda x: x % 2 == 0, numbers)))
+            map(lambda x: x**2,
+                filter(lambda x: x % 2 == 0, data)))
 
-# Generator expression (often clearer)
-result = sum(x ** 2 for x in numbers if x % 2 == 0)
+print(result) # 56
 ```
 
-### Performance Tips:
+## 6. Comparison: Functional vs. Generators
 
-• Generator expressions are memory efficient for large datasets
+You might notice that a **Generator Expression** often looks cleaner than chaining `map` and `filter`.
 
-• `lru_cache` can dramatically speed up recursive functions
+- **Functional Style:** `map(lambda x: x*2, filter(lambda x: x > 5, data))`
+- **Generator Style:** `(x*2 for x in data if x > 5)`
 
-• `partial` is great for creating specialized functions
+### Which should you use?
 
-• Lazy evaluation (map/filter objects) saves memory
+Most Pythonistas prefer **Generators** for simple logic because they are easier to read. Use `map/filter/reduce` when you are working with pre-existing functions or complex data pipelines.
 
-## 9. Common Pitfalls
+:::summary
 
-### Map/Filter Return Iterators
-
-```python
-numbers = [1, 2, 3, 4]
-
-# ❌ This doesn't work as expected
-squared = map(lambda x: x ** 2, numbers)
-print(squared)  # <map object at 0x...>
-
-# ✅ Convert to list when needed
-squared = list(map(lambda x: x ** 2, numbers))
-print(squared)  # [1, 4, 9, 16]
-```
-
-### Reduce Requires Import
-
-```python
-# ❌ This will fail
-# total = reduce(lambda x, y: x + y, [1, 2, 3])
-
-# ✅ Import first
-from functools import reduce
-total = reduce(lambda x, y: x + y, [1, 2, 3])
-```
-
-Functional programming tools make your code more declarative and often more concise. Use them when they improve readability and maintainability!
+- `map`: Use it when you want to change every item (10 in, 10 out).
+- `filter`: Use it when you want to discard items (10 in, 5 out).
+- `reduce`: Use it when you want to combine items (10 in, 1 out).
+- `partial`: Use it to "pre-set" arguments in a function.
+- `lru_cache`: Use it to make slow functions lightning fast by "remembering" results.
+  :::

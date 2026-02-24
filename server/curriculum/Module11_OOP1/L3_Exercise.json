@@ -1,24 +1,45 @@
 {
-  "title": "Adding Behavior (Methods) to Objects",
-  "instructions": "Create a class `TemperatureConverter` with methods to convert between Celsius and Fahrenheit, demonstrating the use of instance methods.",
+  "title": "Instance Methods and Encapsulation",
+  "instructions": "Build a simple bank account class that demonstrates instance methods for transactions and encapsulation for data protection.",
   "steps": [
-    "Define a class named `TemperatureConverter`.",
-    "Implement the `__init__` method to accept and store an initial `temperature` instance attribute.",
-    "Define an instance method `to_fahrenheit()` that calculates and returns the temperature in Fahrenheit. (Formula: $F = C \\times 9/5 + 32$)",
-    "Define an instance method `to_celsius()` that calculates and returns the temperature in Celsius. (Formula: $C = (F - 32) \\times 5/9$)",
-    "Create an object `celsius_temp` with an initial temperature of 25 (Celsius).",
-    "Call `to_fahrenheit()` on `celsius_temp` and print the result."
+    "Define a class named `BankAccount` with an `__init__` method that takes `owner` and an optional `balance` parameter (default to 0). Inside `__init__`, create **protected** attributes `_owner` and `_balance`.",
+    "Implement a **getter method** called `get_balance(self)` that returns the current balance.",
+    "Implement a **getter method** called `get_owner(self)` that returns the owner's name.",
+    "Implement a `deposit(self, amount)` method that: (1) checks if `amount > 0`, (2) if valid, adds the amount to `_balance` and returns `True`, (3) if invalid, prints a message and returns `False`.",
+    "Implement a `withdraw(self, amount)` method that: (1) checks if `amount > 0` and `amount <= _balance`, (2) if valid, subtracts the amount from `_balance` and returns `True`, (3) if invalid, prints a message and returns `False`.",
+    "Create two instances: `savings` for 'Mickey' with an initial balance of 1000, and `checking` for 'Minnie' with an initial balance of 500. Then perform these operations: deposit 200 into savings, withdraw 300 from checking, and print the final balances for both accounts."
   ],
-  "starterCode": "class TemperatureConverter:\n    def __init__(self, temperature):\n        # Initialize attribute\n        self.temperature = temperature\n\n    # Implement to_fahrenheit(self)\n\n    # Implement to_celsius(self)\n\n\n# Create an object (25 degrees Celsius)\ncelsius_temp = TemperatureConverter(25)\n\n# Convert and print the result\nprint(f\"25 Celsius is {celsius_temp.to_fahrenheit()} Fahrenheit\")\n",
-  "solution": "class TemperatureConverter:\n    def __init__(self, temperature):\n        # Initialize attribute\n        self.temperature = temperature\n\n    def to_fahrenheit(self):\n        # Assumes self.temperature is Celsius\n        return (self.temperature * 9/5) + 32\n\n    def to_celsius(self):\n        # Assumes self.temperature is Fahrenheit\n        return (self.temperature - 32) * 5/9\n\n\n# Create an object (25 degrees Celsius)\ncelsius_temp = TemperatureConverter(25)\n\n# Convert and print the result\nprint(f\"25 Celsius is {celsius_temp.to_fahrenheit()} Fahrenheit\")\n",
+  "starterCode": "# Step 1: Define the BankAccount class with __init__\n\n\n\n# Step 2-5: Add getter methods, deposit, and withdraw\n\n\n\n# Step 6: Create instances and perform operations\nsavings = \nchecking = \n\n# Perform transactions\n\n\n# Print final balances\nprint(f\"Savings balance: ${savings.get_balance()}\")\nprint(f\"Checking balance: ${checking.get_balance()}\")",
+  "solution": "# Step 1: Define the BankAccount class with __init__\nclass BankAccount:\n    def __init__(self, owner, balance=0):\n        self._owner = owner\n        self._balance = balance\n    \n    # Step 2: Getter for balance\n    def get_balance(self):\n        return self._balance\n    \n    # Step 3: Getter for owner\n    def get_owner(self):\n        return self._owner\n    \n    # Step 4: Deposit method\n    def deposit(self, amount):\n        if amount > 0:\n            self._balance += amount\n            print(f\"Deposited ${amount} into {self._owner}'s account\")\n            return True\n        else:\n            print(\"Deposit amount must be positive\")\n            return False\n    \n    # Step 5: Withdraw method\n    def withdraw(self, amount):\n        if amount > 0 and amount <= self._balance:\n            self._balance -= amount\n            print(f\"Withdrew ${amount} from {self._owner}'s account\")\n            return True\n        elif amount <= 0:\n            print(\"Withdrawal amount must be positive\")\n            return False\n        else:\n            print(f\"Insufficient funds in {self._owner}'s account\")\n            return False\n\n# Step 6: Create instances and perform operations\nsavings = BankAccount(\"Mickey\", 1000)\nchecking = BankAccount(\"Minnie\", 500)\n\n# Perform transactions\nsavings.deposit(200)\nchecking.withdraw(300)\n\n# Print final balances\nprint(f\"Savings balance: ${savings.get_balance()}\")\nprint(f\"Checking balance: ${checking.get_balance()}\")",
   "fileSetup": {},
   "hints": [
-    "Both `to_fahrenheit` and `to_celsius` must accept `self` as their only mandatory parameter.",
-    "The Fahrenheit formula is: `(C * 9/5) + 32`.",
-    "Remember to use `self.temperature` inside the methods to access the object's data."
+    "**Step 1: Class with protected attributes**\n```python\nclass BankAccount:\n    def __init__(self, owner, balance=0):\n        self._owner = owner      # Protected attribute\n        self._balance = balance   # Protected attribute\n```\n\n**Step 2-3: Getter methods**\n```python\ndef get_balance(self):\n    return self._balance\n\ndef get_owner(self):\n    return self._owner\n```\n\n**Step 4: Deposit method**\n```python\ndef deposit(self, amount):\n    if amount > 0:\n        self._balance += amount\n        print(f\"Deposited ${amount}\")\n        return True\n    else:\n        print(\"Deposit amount must be positive\")\n        return False\n```\n\n**Step 5: Withdraw method**\n```python\ndef withdraw(self, amount):\n    if amount > 0 and amount <= self._balance:\n        self._balance -= amount\n        print(f\"Withdrew ${amount}\")\n        return True\n    elif amount <= 0:\n        print(\"Withdrawal amount must be positive\")\n        return False\n    else:\n        print(\"Insufficient funds\")\n        return False\n```\n\n**Step 6: Create instances and transactions**\n```python\nsavings = BankAccount(\"Mickey\", 1000)\nchecking = BankAccount(\"Minnie\", 500)\n\nsavings.deposit(200)\nchecking.withdraw(300)\n\nprint(f\"Savings balance: ${savings.get_balance()}\")\nprint(f\"Checking balance: ${checking.get_balance()}\")\n```\n\n**Important Concepts:**\n- Protected attributes start with `_` to signal they're internal\n- Getter methods provide controlled access to private data\n- Methods can validate inputs before changing object state\n- Each instance maintains its own separate balance"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["instance-method", "behavior", "encapsulation", "formula"],
+  "tests": [
+    {
+      "name": "Check BankAccount class exists with protected attributes",
+      "code": "import ast\n\n# Check if BankAccount class is defined\ntree = ast.parse(code)\n\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nif 'BankAccount' not in class_names:\n    raise AssertionError('Class BankAccount is not defined')\n\n# Find the __init__ method and check for protected attributes\nfor node in class_nodes:\n    if node.name == 'BankAccount':\n        for item in node.body:\n            if isinstance(item, ast.FunctionDef) and item.name == '__init__':\n                # Check that attributes are assigned with underscore prefix\n                # This is a simplified check\n                init_code = ast.unparse(item)\n                if 'self._owner' not in init_code and 'self._balance' not in init_code:\n                    raise AssertionError('__init__ should assign self._owner and self._balance')\n                break\n        break\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check getter methods exist",
+      "code": "import ast\n\n# Check for getter methods\ntree = ast.parse(code)\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ClassDef) and node.name == 'BankAccount':\n        method_names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]\n        \n        if 'get_balance' not in method_names:\n            raise AssertionError('get_balance method not found')\n        if 'get_owner' not in method_names:\n            raise AssertionError('get_owner method not found')\n        \n        break\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check deposit and withdraw methods exist",
+      "code": "import ast\n\n# Check for transaction methods\ntree = ast.parse(code)\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ClassDef) and node.name == 'BankAccount':\n        method_names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]\n        \n        if 'deposit' not in method_names:\n            raise AssertionError('deposit method not found')\n        if 'withdraw' not in method_names:\n            raise AssertionError('withdraw method not found')\n        \n        break\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check instances and transactions",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check for required variables\nrequired_vars = ['savings', 'checking']\nfor var in required_vars:\n    if var not in exec_globals:\n        raise AssertionError(f'Variable {var} not found')\n\n# Verify they're BankAccount instances\nif 'BankAccount' not in exec_globals:\n    raise AssertionError('BankAccount class not found')\n\nBankAccount = exec_globals['BankAccount']\n\nfor var in required_vars:\n    if not isinstance(exec_globals[var], BankAccount):\n        raise AssertionError(f'{var} should be an instance of BankAccount')\n\n# Check initial balances\nsavings = exec_globals['savings']\nchecking = exec_globals['checking']\n\n# Use getter methods if available, otherwise check attributes directly\nif hasattr(savings, 'get_balance'):\n    savings_balance = savings.get_balance()\nelse:\n    savings_balance = savings._balance if hasattr(savings, '_balance') else None\n\nif hasattr(checking, 'get_balance'):\n    checking_balance = checking.get_balance()\nelse:\n    checking_balance = checking._balance if hasattr(checking, '_balance') else None\n\n# After transactions: savings 1000+200=1200, checking 500-300=200\nif savings_balance != 1200:\n    raise AssertionError(f'Savings balance should be 1200 after deposit, got {savings_balance}')\n\nif checking_balance != 200:\n    raise AssertionError(f'Checking balance should be 200 after withdrawal, got {checking_balance}')\n\n# Check output\nlower_output = output.lower()\nif 'savings balance' not in lower_output or 'checking balance' not in lower_output:\n    raise AssertionError('Output should show final balances for both accounts')\n\nif '1200' not in output or '200' not in output:\n    raise AssertionError('Output should show correct final balances (1200 and 200)')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": [
+    "instance-methods",
+    "encapsulation",
+    "getters",
+    "bank-account",
+    "oop"
+  ],
   "challengeGroup": "oop-methods"
 }

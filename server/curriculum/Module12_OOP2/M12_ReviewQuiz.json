@@ -1,0 +1,160 @@
+{
+  "questions": [
+    {
+      "id": "m12_review_q1",
+      "type": "multiple-choice",
+      "question": "What type of relationship does inheritance represent between a child class and a parent class?",
+      "options": [
+        "A \"has-a\" relationship (e.g., a Car has-a Engine)",
+        "An \"is-a\" relationship (e.g., a Dog is-a Animal)",
+        "A \"uses-a\" relationship (e.g., a Programmer uses-a Computer)",
+        "A \"contains-a\" relationship (e.g., a Library contains-a Book)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Inheritance creates an \"is-a\" relationship. The child class is a more specific version of the parent class. A Dog is a specific type of Animal, so Dog inherits from Animal."
+    },
+    {
+      "id": "m12_review_q2",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax to create a class called `Poodle` that inherits from a class called `Dog`?",
+      "options": [
+        "`class Poodle extends Dog:`",
+        "`class Poodle(Dog):`",
+        "`class Poodle inherits Dog:`",
+        "`class Poodle < Dog:`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In Python, inheritance is specified by placing the parent class name in parentheses after the child class name: `class Child(Parent):`."
+    },
+    {
+      "id": "m12_review_q3",
+      "type": "multiple-choice",
+      "question": "Given the code below, what will happen when we call `my_cat.eat()`?\n\n```python\nclass Animal:\n    def eat(self):\n        print(\"Eating...\")\n\nclass Cat(Animal):\n    def meow(self):\n        print(\"Meow!\")\n\nmy_cat = Cat()\n```",
+      "options": [
+        "It will cause an error because Cat doesn't have an eat method",
+        "It will print \"Eating...\" because Cat inherits the eat method from Animal",
+        "It will print \"Meow!\" because that's Cat's only method",
+        "It will do nothing because eat wasn't defined in Cat"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Child classes inherit all methods from their parent class. Since Cat inherits from Animal, it automatically gets the `eat()` method, even though it's not explicitly defined in Cat."
+    },
+    {
+      "id": "m12_review_q4",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of calling `super().__init__()` in a child class constructor?",
+      "options": [
+        "To delete the parent class attributes",
+        "To ensure the parent class's constructor runs and initializes inherited attributes",
+        "To create a new instance of the parent class",
+        "To prevent the child class from accessing parent methods"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When a child class defines its own `__init__`, the parent's `__init__` is not automatically called. `super().__init__()` explicitly calls the parent constructor to initialize inherited attributes."
+    },
+    {
+      "id": "m12_review_q5",
+      "type": "multiple-choice",
+      "question": "Given the code below, what is the correct way to call the parent constructor?\n\n```python\nclass Vehicle:\n    def __init__(self, color):\n        self.color = color\n\nclass Car(Vehicle):\n    def __init__(self, color, model):\n        # What goes here?\n        self.model = model\n```",
+      "options": [
+        "`parent.__init__(color)`",
+        "`Vehicle.__init__(color)`",
+        "`super().__init__(color)`",
+        "`__init__(color)`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The correct syntax in Python 3 is `super().__init__(color)`. This calls the parent class's `__init__` method and passes the required arguments."
+    },
+    {
+      "id": "m12_review_q6",
+      "type": "multiple-choice",
+      "question": "What will happen if a child class defines its own `__init__` method but DOES NOT call `super().__init__()`?",
+      "options": [
+        "The parent class's `__init__` will still run automatically",
+        "The program will crash immediately with a syntax error",
+        "The parent class's `__init__` will NOT run, and inherited attributes may not be initialized",
+        "Python will create a default constructor automatically"
+      ],
+      "correctAnswer": 2,
+      "explanation": "When a child defines its own `__init__`, it overrides the parent's constructor. The parent's `__init__` is not called automatically, so any initialization code in the parent (like setting attributes) will not execute unless explicitly called with `super()`."
+    },
+    {
+      "id": "m12_review_q7",
+      "type": "multiple-choice",
+      "question": "What is method overriding in Python?",
+      "options": [
+        "Defining multiple methods with the same name but different parameters",
+        "Redefining a method in a child class that already exists in the parent class",
+        "Calling a method from the parent class using super()",
+        "Preventing a method from being accessed outside the class"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Method overriding occurs when a child class provides its own implementation of a method that is already defined in its parent class. The child's version 'overrides' the parent's version."
+    },
+    {
+      "id": "m12_review_q8",
+      "type": "multiple-choice",
+      "question": "What will this code output?\n\n```python\nclass Bird:\n    def sound(self):\n        return \"Chirp\"\n\nclass Parrot(Bird):\n    def sound(self):\n        return \"Hello!\"\n\nmy_pet = Parrot()\nprint(my_pet.sound())\n```",
+      "options": [
+        "`\"Chirp\"`",
+        "`\"Hello!\"`",
+        "`None`",
+        "It will raise an error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Parrot class overrides the sound() method from Bird. When called on a Parrot instance, the overridden version returns \"Hello!\"."
+    },
+    {
+      "id": "m12_review_q9",
+      "type": "multiple-choice",
+      "question": "Why does the following code demonstrate polymorphism?\n\n```python\ndef make_sound(animal):\n    print(animal.sound())\n\nmake_sound(Dog())\nmake_sound(Cat())\n```",
+      "options": [
+        "Because Dog and Cat are different classes",
+        "Because the function works with any object that has a sound() method, regardless of its class",
+        "Because the function only works with Animal objects",
+        "Because it uses the super() function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "This demonstrates polymorphism because the `make_sound()` function doesn't care what type of object it receives - it only cares that the object has a `sound()` method. Different objects can respond to the same method call in their own way."
+    },
+    {
+      "id": "m12_review_q10",
+      "type": "multiple-choice",
+      "question": "What happens if you try to instantiate an Abstract Base Class (ABC) directly?",
+      "options": [
+        "It creates an empty object",
+        "It raises a TypeError",
+        "It creates the object but with None values",
+        "It automatically creates a default child class"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Abstract Base Classes cannot be instantiated directly. Python raises a TypeError because they are designed only to be inherited from, not used directly."
+    },
+    {
+      "id": "m12_review_q11",
+      "type": "multiple-choice",
+      "question": "What happens if a child class inherits from an ABC but fails to implement one of its abstract methods?",
+      "options": [
+        "The child class will still work, but the method will raise an error when called",
+        "The child class will also become abstract and cannot be instantiated",
+        "Python will automatically provide a default implementation",
+        "The program will crash at import time"
+      ],
+      "correctAnswer": 1,
+      "explanation": "If a child class doesn't implement all abstract methods from its parent ABC, it also becomes an abstract class and cannot be instantiated. Python will raise a TypeError when you try to create an instance."
+    },
+    {
+      "id": "m12_review_q12",
+      "type": "multiple-choice",
+      "question": "Which module and decorator are needed to create abstract classes in Python?",
+      "options": [
+        "`from abc import abstract`, `@abstract`",
+        "`from abc import ABCMeta`, `@abstractmethod`",
+        "`from abc import ABC, abstractmethod`",
+        "`from interfaces import ABC`, `@must_implement`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "To create abstract classes in Python, you need to import `ABC` and `abstractmethod` from the `abc` module. Your class should inherit from `ABC`, and abstract methods should be decorated with `@abstractmethod`."
+    }
+  ]
+}

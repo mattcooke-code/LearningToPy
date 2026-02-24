@@ -1,0 +1,45 @@
+{
+  "lessonId": "M10L1",
+  "title": "Lambda Functions - Quiz",
+  "questions": [
+    {
+      "id": "m10l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax for a lambda function that multiplies two numbers?",
+      "options": [
+        "`lambda a, b: return a * b`",
+        "`lambda a, b -> a * b`",
+        "`lambda a, b: a * b`",
+        "`def lambda(a, b): return a * b`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The correct syntax is `lambda arguments: expression`. The result of the expression is automatically returned - no `return` keyword is allowed in a lambda."
+    },
+    {
+      "id": "m10l1_q2",
+      "type": "multiple-choice",
+      "question": "Which of the following CANNOT be used inside a lambda function?",
+      "options": [
+        "A ternary operator (x if condition else y)",
+        "A mathematical expression like `x + y`",
+        "A for loop",
+        "A function call like `len(x)`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Lambdas can only contain a single expression. For loops, while loops, and assignment statements are not allowed. Ternary operators and function calls are valid expressions."
+    },
+    {
+      "id": "m10l1_q3",
+      "type": "multiple-choice",
+      "question": "What will `sorted(['cat', 'elephant', 'dog'], key=lambda w: len(w))` return?",
+      "options": [
+        "`['elephant', 'dog', 'cat']`",
+        "`['cat', 'dog', 'elephant']`",
+        "`['elephant', 'cat', 'dog']`",
+        "`['dog', 'cat', 'elephant']`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The lambda function `lambda w: len(w)` returns the length of each word, so `sorted()` sorts by word length: 'cat' (3), 'dog' (3), 'elephant' (8). When lengths are equal, the original order is preserved."
+    }
+  ]
+}

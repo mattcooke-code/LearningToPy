@@ -1,0 +1,40 @@
+{
+  "lessonId": "M11L3",
+  "title": "Class Variables and Static Methods - Quiz",
+  "questions": [
+    {
+      "id": "m11l3_q1",
+      "type": "multiple-choice",
+      "question": "What is the key difference between a class variable and an instance variable?",
+      "options": [
+        "Class variables are defined inside methods; instance variables are defined in the class body",
+        "Class variables are shared by all instances; each instance has its own copy of instance variables",
+        "Class variables can only be accessed outside the class; instance variables can only be accessed inside",
+        "Class variables are private; instance variables are public"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Class variables are shared across all instances of a class. If you change a class variable, all instances see the change. Instance variables are unique to each object."
+    },
+    {
+      "id": "m11l3_q2",
+      "type": "multiple-choice",
+      "question": "What decorator is used to define a static method in Python?",
+      "options": [
+        "`@classmethod`",
+        "`@staticmethod`",
+        "`@instancemethod`",
+        "`@abstractmethod`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `@staticmethod` decorator is used to define a method that belongs to the class namespace but doesn't receive any special first parameter (neither `self` nor `cls`)."
+    },
+    {
+      "id": "m11l3_q3",
+      "type": "multiple-choice",
+      "question": "What will this code output?\n\n```python\nclass Counter:\n    count = 0\n    \n    def __init__(self):\n        Counter.count += 1\n\na = Counter()\nb = Counter()\nc = Counter()\nprint(Counter.count)\n```",
+      "options": ["`0`", "`1`", "`2`", "`3`"],
+      "correctAnswer": 3,
+      "explanation": "The class variable `count` starts at 0. Each time a new instance is created, `__init__` increments `Counter.count` by 1. With three instances created, the final count is 3."
+    }
+  ]
+}

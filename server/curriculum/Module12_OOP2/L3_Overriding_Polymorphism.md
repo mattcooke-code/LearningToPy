@@ -24,15 +24,17 @@ class Dog(Animal):
         print("Woof!")
 
 generic_animal = Animal()
-whiskers = Cat()
-buddy = Dog()
+garfield = Cat()
+potsworth = Dog()
 
 generic_animal.speak() # Output: The animal makes a generic sound.
-whiskers.speak()       # Output: Meow! (Child method used)
-buddy.speak()          # Output: Woof! (Child method used)
+garfield.speak()       # Output: Meow! (Child method used)
+potsworth.speak()          # Output: Woof! (Child method used)
 ```
 
-**Tip**: If you need to run the parent's logic and add custom logic, use `super()` inside the child's overridden method (as shown in _Lesson 12.2_).
+:::tip
+If you need to run the parent's logic and add custom logic, use `super()` inside the child's overridden method (as shown in _Lesson 12.2_).
+:::
 
 ## 2. Introduction to Polymorphism
 
@@ -42,7 +44,7 @@ Polymorphism allows you to write generic code that works with objects of differe
 
 ### Example of Polymorphism
 
-Consider the `Animal`, `Cat`, and `Dog` classes above, all of which have a `speak()` method.
+Consider the `Animal`, `Cat`, and `Dog` classes above; all of which have a `speak()` method.
 
 ```python
 # A list containing objects of different types
@@ -73,3 +75,14 @@ This demonstrates that the code handling the loop doesn't care if the object is 
 Polymorphism isn't limited to class inheritance. Python functions can also be polymorphic, meaning they can operate on data of different types.
 
 For example, the built-in `len()` function works on lists, strings, tuples, dictionaries, and sets, all of which implement the `__len__` magic method differently.
+
+:::summary
+
+- **Method Overriding** allows a child class to redefine a method inherited from its parent
+- Overridden methods are called based on the _actual object type_, not the variable type
+- **Polymorphism** means "many forms" - the same method call can behave differently on different objects
+- Polymorphism enables writing **generic code** that works with any object implementing the required methods
+- The `print_area()` function exercise below shows polymorphism: it works with any shape that has an `area()` method
+- Benefits of polymorphism: **_flexibility_**, **_reusability_**, and **_maintainability_**
+
+:::

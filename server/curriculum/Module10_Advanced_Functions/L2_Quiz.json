@@ -1,0 +1,38 @@
+{
+  "questions": [
+    {
+      "id": "m10l2_q1",
+      "type": "multiple-choice",
+      "question": "What type of object is `args` inside a function defined as `def func(*args):`?",
+      "options": ["A list", "A tuple", "A dictionary", "A set"],
+      "correctAnswer": 1,
+      "explanation": "`*args` packs extra positional arguments into a tuple. Tuples are used because they're immutable, preventing accidental modification of the input arguments."
+    },
+    {
+      "id": "m10l2_q2",
+      "type": "multiple-choice",
+      "question": "What will this code print?\n\n```python\ndef test(a, b, *args):\n    print(f\"{a} {b} {args}\")\n\ntest(1, 2, 3, 4, 5)\n```",
+      "options": [
+        "`1 2 (3, 4, 5)`",
+        "`1 2 [3, 4, 5]`",
+        "`1 2 3 4 5`",
+        "`(1, 2, 3, 4, 5)`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The first two arguments (1, 2) are assigned to a and b. The remaining positional arguments (3, 4, 5) are packed into `args` as a tuple, so the output is `1 2 (3, 4, 5)`."
+    },
+    {
+      "id": "m10l2_q3",
+      "type": "multiple-choice",
+      "question": "What is the correct way to call the `display` function with the given data?\n\n```python\ndef display(title, *items, **options):\n    print(title, items, options)\n\ndata = [\"apple\", \"banana\", \"cherry\"]\nsettings = {\"color\": \"red\", \"count\": 3}\n```",
+      "options": [
+        "`display(\"Fruits\", data, settings)`",
+        "`display(\"Fruits\", *data, **settings)`",
+        "`display(\"Fruits\", **data, *settings)`",
+        "`display(*data, \"Fruits\", **settings)`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Use `*data` to unpack the list as positional arguments (which will be collected into `*items`), and `**settings` to unpack the dictionary as keyword arguments (which will be collected into `**options`). The order must match: positional first, then `*args`, then `**kwargs`."
+    }
+  ]
+}

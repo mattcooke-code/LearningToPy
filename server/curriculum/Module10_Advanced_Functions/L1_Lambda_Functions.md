@@ -37,13 +37,16 @@ greet = lambda: "Hello, World!"
 print(greet())    # Output: Hello, World!
 ```
 
+:::note
+
 ### Key Restrictions
 
 1. **Single Expression**: A lambda body can only contain **one expression**. This is the most crucial limitation; it means you cannot use statements like `if/else` (except as a ternary operator), `for` loops, assignment (`=`), or `return`.
 
-2. **Automatic Return**: TThe result of the single expression is **automatically returned** (no `return` keyword is necessary or allowed).
+2. **Automatic Return**: The result of the single expression is **automatically returned** (no `return` keyword is necessary or allowed).
 
 3. **Anonymous**: They don't require a name but are often assigned to variables, though their primary purpose is as a "throwaway" function passed directly to another function.
+   :::
 
 ## 2. Practical Use Cases (Higher-Order Functions)
 
@@ -69,6 +72,10 @@ print(sorted_by_name_length)  # [('Ben', 95), ('Alex', 88), ('Chris', 72)]
 ### Data Transformation (`map` and `filter`)
 
 Lambdas are excellent for quick, simple transformations using functional tools like `map` (to apply a function to every item) and `filter` (to select items based on a condition).
+
+:::warning
+`map()` and `filter()` return **iterator objects**, not lists. To see the results or store them for later use, you need to convert them to lists using `list()`:
+:::
 
 ```python
 numbers = [1, 2, 3, 4, 5]
@@ -213,13 +220,11 @@ print(calculate('power', 2, 3))     # 8
 
 ### Limitations:
 
-• **Single expression only** - this means you cannot use `if/else` statements, `for/while` loops, or complex multi-line logic.
+- **Single expression only** - this means you cannot use `if/else` statements, `for/while` loops, or complex multi-line logic.
+- No **docstrings** or **type hints**, making complex lambdas hard to maintain.
+- Hard to debug, as they appear as `<lambda>` in tracebacks.
 
-• No **docstrings** or **type hints**, making complex lambdas hard to maintain.
-
-• Hard to debug, as they appear as `<lambda>` in tracebacks.
-
-### Best Practices:
+:::tip
 
 1. Keep them short - one line if possible
 
@@ -230,6 +235,7 @@ print(calculate('power', 2, 3))     # 8
 4. Use regular functions for complex logic
 
 5. Document with comments if the logic isn't obvious
+   :::
 
 ### Readability Comparison:
 
@@ -246,3 +252,18 @@ result = [x**2 if x % 2 == 0 else x**3 for x in positive_small]
 ## 9. Performance Considerations
 
 While lambdas are technically slightly slower to create at runtime than pre-defined functions, this difference is **negligible** for nearly all real-world applications. The primary consideration for using lambdas should always be **code clarity** and **conciseness**, not performance.
+
+:::summary
+
+- **Lambda functions** are anonymous, single-expression functions defined with `lambda arguments: expression`
+- They **automatically return** the result of the expression (no `return` keyword needed)
+- **Key restriction**: Only one expression allowed - no statements, loops, or assignments
+- **Primary use**: Short, throwaway functions passed to higher-order functions like `sorted()`, `map()`, and `filter()`
+- **Conditional logic** requires ternary operator: `value_if_true if condition else value_if_false`
+- **Advanced patterns**: Returning lambdas (closures), currying, and function pipelines
+- **Common applications**: Sorting with custom keys, event handlers, configuration-driven behavior
+- **Best practices**: Keep them short (one line), use meaningful variable names, prefer comprehensions for complex logic
+- **Lambdas vs regular functions**: Use lambdas for simple operations; use `def` for complex logic, reusability, or when documentation is needed
+- **Readability matters**: If a lambda makes code harder to understand, use a regular function instead
+
+:::

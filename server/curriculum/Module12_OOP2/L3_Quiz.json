@@ -1,0 +1,45 @@
+{
+  "lessonId": "M12L3",
+  "title": "Method Overriding and Polymorphism - Quiz",
+  "questions": [
+    {
+      "id": "m12l3_q1",
+      "type": "multiple-choice",
+      "question": "What is method overriding in Python?",
+      "options": [
+        "Defining multiple methods with the same name but different parameters",
+        "Redefining a method in a child class that already exists in the parent class",
+        "Calling a method from the parent class using super()",
+        "Preventing a method from being accessed outside the class"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Method overriding occurs when a child class provides its own implementation of a method that is already defined in its parent class. The child's version 'overrides' the parent's version."
+    },
+    {
+      "id": "m12l3_q2",
+      "type": "multiple-choice",
+      "question": "What will this code output?\n\n```python\nclass Bird:\n    def sound(self):\n        return \"Chirp\"\n\nclass Parrot(Bird):\n    def sound(self):\n        return \"Hello!\"\n\nmy_pet = Parrot()\nprint(my_pet.sound())\n```",
+      "options": [
+        "`\"Chirp\"`",
+        "`\"Hello!\"`",
+        "`None`",
+        "It will raise an error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Parrot class overrides the sound() method from Bird. When called on a Parrot instance, the overridden version returns \"Hello!\"."
+    },
+    {
+      "id": "m12l3_q3",
+      "type": "multiple-choice",
+      "question": "Why does the following code demonstrate polymorphism?\n\n```python\ndef make_sound(animal):\n    print(animal.sound())\n\nmake_sound(Dog())\nmake_sound(Cat())\n```",
+      "options": [
+        "Because Dog and Cat are different classes",
+        "Because the function works with any object that has a sound() method, regardless of its class",
+        "Because the function only works with Animal objects",
+        "Because it uses the super() function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "This demonstrates polymorphism because the `make_sound()` function doesn't care what type of object it receives - it only cares that the object has a `sound()` method. Different objects can respond to the same method call in their own way."
+    }
+  ]
+}

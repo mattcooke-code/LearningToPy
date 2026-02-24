@@ -8,7 +8,9 @@ In Python, the two fundamental concepts of OOP are **Classes** and Objects.
 
 A **Class** is like a blueprint or a template. It defines the characteristics (attributes) and behaviors (methods) that all objects created from it will have.
 
-• **Syntax**: Classes are defined using the `class` keyword, followed by the name (which, by convention, uses `PascalCase` or `CapWords`).
+:::note
+**Classes** are defined using the `class` keyword, followed by the name (which, by convention, uses `PascalCase` or `CapWords`).
+:::
 
 ```python
 class Dog: # A class definition often starts with a 'pass' or documentation
@@ -24,8 +26,8 @@ An **Object** (or instance) is a concrete item built from the class blueprint. Y
 
 | **Class** (Blueprint) | **Object** (Instance)                 |
 | --------------------- | ------------------------------------- |
-| `Dog`                 | A specific dog named 'Buddy'          |
-| `Car`                 | A red Tesla Model S                   |
+| `Dog`                 | A specific dog named 'Beethoven'      |
+| `Car`                 | A Knight Industries Two Thousand      |
 | `User`                | A specific user profile in a database |
 
 ### Instantiation
@@ -56,21 +58,31 @@ species = "Android"
 
     def greet(self):
         # A simple method (behavior) that all robots share
-        print("Hello! I am a Robot.")
+        print("Beep boop! Systems online.")
 
 # Instantiation
+r2d2 = Robot()
+wall_e = Robot()
 
-robot_a = Robot()
-robot_b = Robot()
+# They both share the class attribute
+print(r2d2.species) # Output: Android
+print(wall_e.species) # Output: Android
 
-# Accessing the shared class attribute
-
-print(robot_a.species) # Output: Android
-print(robot_b.species) # Output: Android
+# But they are distinct entities
+print(r2d2 is wall_e) # Output: False (They are separate objects!)
 
 # Calling the method
-
-robot_a.greet() # Output: Hello! I am a Robot.
+robot_a.greet() # Output: Beep boop! Systems online.
 ```
 
 The next lesson will introduce instance attributes which are unique to each object (like `name` or `serial_number`) and are defined using the special `__init__` method.
+
+:::summary
+
+- **OOP Defined:** Object-Oriented Programming is a way to organize code by modeling real-world entities (like "Cars" or "Users") as **_objects_** instead of just a list of functions.
+- **The Class (The Blueprint):** A `class` is the template. It defines what data an object will hold and what it can do. Conventionally, these are named using `PascalCase`.
+- **The Object (The Instance):** An object is the actual "thing" created from the class blueprint. Multiple unique objects can be created from a single class.
+- **Instantiation:** This is the act of creating an object (e.g., `my_dog = Dog()`). Each instance occupies a unique space in the computer's memory.
+- **Class Attributes:** Variables defined inside a class but outside any methods. These are **_shared_** by every object created from that class (e.g., all `Robot` instances sharing the species `"Android"`).
+- **Methods:** Functions defined inside a class that describe the "behaviors" or actions an object can perform (e.g., a `.greet()` method).
+  :::

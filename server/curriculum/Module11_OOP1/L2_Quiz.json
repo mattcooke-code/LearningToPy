@@ -1,0 +1,45 @@
+{
+  "lessonId": "M11L2",
+  "title": "The __init__ Constructor and Attributes - Quiz",
+  "questions": [
+    {
+      "id": "m11l2_q1",
+      "type": "multiple-choice",
+      "question": "When exactly is the `__init__` method executed?",
+      "options": [
+        "Only when you manually call it using `object.__init__()`.",
+        "Automatically, immediately after a new object is created.",
+        "Every time you change an attribute's value.",
+        "Only when the program finishes running."
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `__init__` method is a constructor; Python triggers it automatically the moment you instantiate a class to set up the new object."
+    },
+    {
+      "id": "m11l2_q2",
+      "type": "multiple-choice",
+      "question": "In the line `self.color = color`, what is the purpose of `self`?",
+      "options": [
+        "It is a keyword that makes the variable global.",
+        "It refers to the Class blueprint rather than the individual object.",
+        "It represents the specific instance of the object being created or modified.",
+        "It is a required name for the color of the object."
+      ],
+      "correctAnswer": 2,
+      "explanation": "`self` is a reference to the specific instance. It allows Python to keep track of which object's data it is currently updating."
+    },
+    {
+      "id": "m11l2_q3",
+      "type": "multiple-choice",
+      "question": "Which of the following correctly describes an 'Instance Attribute'?",
+      "options": [
+        "A variable shared by every single object of a class.",
+        "A variable that can only be used once in the entire program.",
+        "Data that is unique to a specific object, usually defined inside `__init__`.",
+        "A special method that starts with double underscores."
+      ],
+      "correctAnswer": 2,
+      "explanation": "Instance attributes are tied to a specific object via `self`. This is why one Car object can have the make 'Toyota' while another has 'Lada'."
+    }
+  ]
+}

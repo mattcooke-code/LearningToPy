@@ -1,0 +1,150 @@
+{
+  "questions": [
+    {
+      "id": "m10_review_q1",
+      "type": "multiple-choice",
+      "question": "What is the correct syntax for a lambda function that multiplies two numbers?",
+      "options": [
+        "`lambda a, b: return a * b`",
+        "`lambda a, b -> a * b`",
+        "`lambda a, b: a * b`",
+        "`def lambda(a, b): return a * b`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The correct syntax is `lambda arguments: expression`. The result of the expression is automatically returned - no `return` keyword is allowed in a lambda."
+    },
+    {
+      "id": "m10_review_q2",
+      "type": "multiple-choice",
+      "question": "Which of the following CANNOT be used inside a lambda function?",
+      "options": [
+        "A ternary operator (x if condition else y)",
+        "A mathematical expression like `x + y`",
+        "A for loop",
+        "A function call like `len(x)`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Lambdas can only contain a single expression. For loops, while loops, and assignment statements are not allowed. Ternary operators and function calls are valid expressions."
+    },
+    {
+      "id": "m10_review_q3",
+      "type": "multiple-choice",
+      "question": "What will `sorted(['cat', 'elephant', 'dog'], key=lambda w: len(w))` return?",
+      "options": [
+        "`['elephant', 'dog', 'cat']`",
+        "`['cat', 'dog', 'elephant']`",
+        "`['elephant', 'cat', 'dog']`",
+        "`['dog', 'cat', 'elephant']`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The lambda function `lambda w: len(w)` returns the length of each word, so `sorted()` sorts by word length: 'cat' (3), 'dog' (3), 'elephant' (8). When lengths are equal, the original order is preserved."
+    },
+    {
+      "id": "m10_review_q4",
+      "type": "multiple-choice",
+      "question": "What type of object is `args` inside a function defined as `def func(*args):`?",
+      "options": ["A list", "A tuple", "A dictionary", "A set"],
+      "correctAnswer": 1,
+      "explanation": "`*args` packs extra positional arguments into a tuple. Tuples are used because they're immutable, preventing accidental modification of the input arguments."
+    },
+    {
+      "id": "m10_review_q5",
+      "type": "multiple-choice",
+      "question": "What will this code print?\n\n```python\ndef test(a, b, *args):\n    print(f\"{a} {b} {args}\")\n\ntest(1, 2, 3, 4, 5)\n```",
+      "options": [
+        "`1 2 (3, 4, 5)`",
+        "`1 2 [3, 4, 5]`",
+        "`1 2 3 4 5`",
+        "`(1, 2, 3, 4, 5)`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The first two arguments (1, 2) are assigned to a and b. The remaining positional arguments (3, 4, 5) are packed into `args` as a tuple, so the output is `1 2 (3, 4, 5)`."
+    },
+    {
+      "id": "m10_review_q6",
+      "type": "multiple-choice",
+      "question": "What is the correct way to call the `display` function with the given data?\n\n```python\ndef display(title, *items, **options):\n    print(title, items, options)\n\ndata = [\"apple\", \"banana\", \"cherry\"]\nsettings = {\"color\": \"red\", \"count\": 3}\n```",
+      "options": [
+        "`display(\"Fruits\", data, settings)`",
+        "`display(\"Fruits\", *data, **settings)`",
+        "`display(\"Fruits\", **data, *settings)`",
+        "`display(*data, \"Fruits\", **settings)`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Use `*data` to unpack the list as positional arguments (which will be collected into `*items`), and `**settings` to unpack the dictionary as keyword arguments (which will be collected into `**options`). The order must match: positional first, then `*args`, then `**kwargs`."
+    },
+    {
+      "id": "m10_review_q7",
+      "type": "multiple-choice",
+      "question": "What does the `@decorator` syntax do?",
+      "options": [
+        "It's a special comment that Python ignores",
+        "It's shorthand for `function = decorator(function)`",
+        "It creates a new function called 'decorator'",
+        "It runs the function multiple times"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `@decorator` syntax is just syntactic sugar. When you write `@my_decorator` above a function definition, Python automatically replaces the original function with the result of calling `my_decorator` on that function."
+    },
+    {
+      "id": "m10_review_q8",
+      "type": "multiple-choice",
+      "question": "What is the purpose of `@wraps` from the `functools` module?",
+      "options": [
+        "It makes the decorator run faster",
+        "It preserves the original function's name and docstring",
+        "It wraps the function multiple times",
+        "It adds error handling to the decorator"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Without `@wraps`, the decorated function would have its metadata (name, docstring, etc.) replaced by the wrapper function's metadata. `@wraps` copies this information from the original function to the wrapper, preserving its identity."
+    },
+    {
+      "id": "m10_review_q9",
+      "type": "multiple-choice",
+      "question": "When stacking decorators like this:\n\n```python\n@top\n@middle\n@bottom\ndef my_func():\n    pass\n```\n\nIn what order are they applied?",
+      "options": [
+        "`top` → `middle` → `bottom` (top to bottom)",
+        "`bottom` → `middle` → `top` (bottom to top)",
+        "All decorators are applied simultaneously",
+        "Only the top decorator is applied"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Decorators are applied from the bottom up. First `@bottom` wraps `my_func`, then `@middle` wraps the result, and finally `@top` wraps that. When you call the function, they execute from top to bottom (like putting on a shirt, then sweater, then jacket)."
+    },
+    {
+      "id": "m10_review_q10",
+      "type": "multiple-choice",
+      "question": "What is the key difference between `map()` and `filter()`?",
+      "options": [
+        "`map()` transforms every item; `filter()` selects a subset of items",
+        "`map()` works with numbers only; `filter()` works with any data type",
+        "`map()` returns a list; `filter()` returns a tuple",
+        "`map()` modifies the original data; `filter()` creates a copy"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`map()` applies a function to every item and always returns the same number of items. `filter()` tests each item with a condition and only keeps those that return True, potentially returning fewer items."
+    },
+    {
+      "id": "m10_review_q11",
+      "type": "multiple-choice",
+      "question": "What will `reduce(lambda x, y: x + y, [1, 2, 3, 4])` return?",
+      "options": ["`[1, 2, 3, 4]`", "`10`", "`[1+2+3+4]`", "`(1, 2, 3, 4)`"],
+      "correctAnswer": 1,
+      "explanation": "`reduce()` cumulatively applies the function, combining items into a single value. It calculates ((1+2)+3)+4 = 10. Unlike `map()` and `filter()`, `reduce()` returns a single value, not an iterator."
+    },
+    {
+      "id": "m10_review_q12",
+      "type": "multiple-choice",
+      "question": "Which statement about `functools.partial` is TRUE?",
+      "options": [
+        "It splits a function into multiple smaller functions",
+        "It pre-fills one or more arguments of a function",
+        "It runs a function multiple times in parallel",
+        "It creates a partial copy of the function's documentation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`partial` is like pre-filling a form. If you have a function that takes multiple arguments, `partial` lets you fix some of them in advance, creating a new callable that only needs the remaining arguments."
+    }
+  ]
+}

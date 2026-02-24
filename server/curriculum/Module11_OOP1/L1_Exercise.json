@@ -8,7 +8,7 @@
     "Print the `wheels` attribute for the `truck` object."
   ],
   "starterCode": "# 1. Define the Vehicle class here:\n\n\n\n# 2. Create the three instances:\ncar1 = ...\ncar2 = ...\ntruck = ...\n\n# 3. Print the wheels attribute for truck:\n",
-  "solution": "class Vehicle:\n    # Class Attribute\n    wheels = 4\n\n# Create the three instances:\ncar1 = Vehicle()\ncar2 = Vehicle()\ntruck = Vehicle()\n\n# Print the wheels attribute for truck:\nprint(f\"Truck has {truck.wheels} wheels\")\n",
+  "solution": "class Vehicle:\n    # Class Attribute\n    wheels = 4\n\n# Create the three instances:\ncar1 = Vehicle()\ncar2 = Vehicle()\ntruck = Vehicle()\n\n# Print the wheels attribute for truck:\nprint(f\"Truck has {truck.wheels} wheels\")",
   "fileSetup": {},
   "hints": [
     "Remember that class names conventionally start with a capital letter (PascalCase).",
@@ -16,7 +16,24 @@
     "To instantiate a class, use the syntax: `object_name = ClassName()`."
   ],
   "validation": "tests",
-  "tests": [],
+  "tests": [
+    {
+      "name": "Check Vehicle class exists",
+      "code": "import ast\n\n# Check if Vehicle class is defined\ntree = ast.parse(code)\n\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nif 'Vehicle' not in class_names:\n    raise AssertionError('Class Vehicle is not defined')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check wheels class attribute",
+      "code": "import ast\n\n# Find Vehicle class and check for wheels attribute\ntree = ast.parse(code)\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ClassDef) and node.name == 'Vehicle':\n        # Look for assignment to 'wheels' inside the class\n        has_wheels = False\n        for item in node.body:\n            if isinstance(item, ast.Assign):\n                for target in item.targets:\n                    if isinstance(target, ast.Name) and target.id == 'wheels':\n                        # Check if value is 4\n                        if isinstance(item.value, ast.Constant) and item.value.value == 4:\n                            has_wheels = True\n                        break\n        \n        if not has_wheels:\n            raise AssertionError('Vehicle class should have a class attribute wheels = 4')\n        break\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check instances are created",
+      "code": "exec_globals = {}\n\ntry:\n    exec(code, exec_globals)\nexcept Exception as e:\n    raise AssertionError(f'Code execution failed: {e}')\n\n# Check for required variables\nrequired_vars = ['car1', 'car2', 'truck']\nfor var in required_vars:\n    if var not in exec_globals:\n        raise AssertionError(f'Variable {var} not found')\n\n# Check they are Vehicle instances\nif 'Vehicle' not in exec_globals:\n    raise AssertionError('Vehicle class not found in global scope')\n\nVehicle = exec_globals['Vehicle']\n\nfor var in required_vars:\n    if not isinstance(exec_globals[var], Vehicle):\n        raise AssertionError(f'{var} should be an instance of Vehicle')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check print output",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check that output contains wheels information\nif not output.strip():\n    raise AssertionError('No output was printed. Did you forget to print the wheels attribute?')\n\n# Check that output mentions truck and wheels\nlower_output = output.lower()\nif 'truck' not in lower_output:\n    raise AssertionError('Output should mention \"truck\"')\n\nif 'wheel' not in lower_output:\n    raise AssertionError('Output should mention wheels')\n\n# Check that 4 is in the output\nif '4' not in output:\n    raise AssertionError('Output should show that truck has 4 wheels')\n\nprint('TEST_PASSED')"
+    }
+  ],
   "tags": ["class", "object", "instantiation", "class-attribute"],
   "challengeGroup": "oop-basics"
 }

@@ -6,13 +6,17 @@ This lesson explores elements that belong to the class itself, rather than a spe
 
 A **Class Variable** (or class attribute) is a variable defined directly inside the class but outside of any method. It is shared by all instances of that class.
 
+:::note
+
 • **Purpose**: To store data that is common to all objects of that type, or to track overall state related to the class (e.g., a count of all objects created).
 
 • **Access**: It is accessed using the class name (`ClassName.variable`) or through an instance (`instance.variable`).
 
+:::
+
 ```python
 class Settings: # Class Attribute: Shared across all instances
-version = "1.0.1"
+    version = "1.0.1"
 
     # Class Attribute: Tracking the number of configurations
     config_count = 0
@@ -43,11 +47,14 @@ print(f"Total configurations: {Settings.config_count}") # Output: 2
 
 A **Static Method** is essentially a regular function that is logically grouped within a class. It does not operate on the instance or the class.
 
+:::note
+
 • **Decorator**: It must be marked with the `@staticmethod` decorator.
 
 • **Parameters**: It takes no special first argument (`self` or `cls`).
 
 • **Purpose**: It is used for utility or helper functions that belong to the class namespace but don't need to interact with any object data.
+:::
 
 ```python
 class Validator:
@@ -75,9 +82,21 @@ print(f"Is 'bad-email' valid? {v.is_valid_email('bad-email')}")
 # Output: False
 ```
 
-### Summary
+### Summary Table
 
 | Element        | Scope                     | How to Define                           | Key Use                                |
 | -------------- | ------------------------- | --------------------------------------- | -------------------------------------- |
 | Class Variable | Shared across all objects | Defined in class body (outside methods) | Shared constants, object counters      |
 | Static Method  | Class-bound function      | Defined with `@staticmethod`            | Utility functions, simple calculations |
+
+:::summary
+
+- **Class variables** are shared by all instances of a class and are defined directly in the class body (outside any methods)
+- Access class variables using `ClassName.variable_name` or through an instance (though class name access is clearer)
+- Class variables are perfect for _counters_, _constants_, or _configuration values_ that should be the same for every object
+- **Static methods** are utility functions that belong to a class but don't need access to instance or class data
+- Use the `@staticmethod` decorator to define static methods
+- Static methods take no special first parameter (`self` or `cls`) - they behave like regular functions but are namespaced within the class
+- Call static methods using `ClassName.method()` - they work on the class itself, not on individual objects
+
+:::

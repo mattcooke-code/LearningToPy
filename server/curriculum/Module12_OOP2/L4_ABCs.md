@@ -2,7 +2,7 @@
 
 So far, we have relied on the user to correctly implement required methods in a child class. **Abstract Base Classes (ABCs)** allow you to enforce this structure.
 
-An ABC is a blueprint for other classes. It cannot be instantiated itself, but it dictates which methods its child classes must implement.
+An ABC is a blueprint for other classes. It cannot be instantiated itself, but it dictates which methods its child classes must implement. If you try to instantiate an ABC directly, Python will raise a `TypeError`.
 
 ## 1. Defining an Abstract Class
 
@@ -42,26 +42,23 @@ If a child class inherits from an ABC, it must provide a concrete implementation
 
 ```python
 # Concrete subclass must implement perform_transaction
-
 class CreditCard(PaymentMethod):
-def perform_transaction(self, amount):
-print(f"CreditCard: Charging ${amount} via network.")
-return True # Successful transaction
+    def perform_transaction(self, amount):
+        print(f"CreditCard: Charging ${amount} via network.")
+        return True  # Successful transaction
 
-# Concrete subclass must implement perform_transaction
-
+# Another concrete subclass
 class BankTransfer(PaymentMethod):
-def perform_transaction(self, amount):
-print(f"BankTransfer: Initiating wire transfer for ${amount}.") # Additional logic, maybe security checks
-return True
+    def perform_transaction(self, amount):
+        print(f"BankTransfer: Initiating wire transfer for ${amount}.")
+        # Additional logic, maybe security checks
+        return True
 
 # Instantiation works because the abstract method is implemented
-
 card = CreditCard()
 transfer = BankTransfer()
 
 # Polymorphism in action: calling the common method
-
 card.process_payment(50.00)
 transfer.process_payment(1000.00)
 ```
@@ -75,3 +72,15 @@ ABCs are primarily used for:
 • **Standardization**: Ensuring code that interacts with the base class (like the `process_payment` method) can rely on the existence of key methods in the children.
 
 This brief look serves as an introduction to how Python enables stronger code contracts for advanced projects.
+
+:::summary
+
+- **Abstract Base Classes (ABCs)** define a blueprint that child classes must follow
+- Import `ABC` and `abstractmethod` from the `abc` module
+- Abstract classes _cannot be instantiated_ - they only exist to be inherited
+- Use the `@abstractmethod` decorator to mark methods that **must** be implemented by child classes
+- Child classes must implement **all** abstract methods or they also become abstract classes
+- ABCs enforce _contracts_ and ensure consistent interfaces across related classes
+- This is especially useful in large projects where multiple developers work on related classes
+
+:::

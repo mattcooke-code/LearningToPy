@@ -1,129 +1,92 @@
-// Module10_Advanced_Functions/L5_Project_Function_Toolkit.md
+# 📊 Module Project: Sales Analytics Toolkit
 
-# 🚀 Project: Advanced Function Toolkit Builder
-
-Apply all your advanced function skills to build a comprehensive toolkit of utility functions that demonstrate mastery of lambdas, decorators, \*args/\*\*kwargs, and functional programming patterns.
+Congratulations! You've mastered Python's advanced function concepts: **lambda functions**, **flexible arguments**, **decorators**, and **functional programming tools**. Now it's time to build a complete **Sales Analytics Toolkit** that showcases all these skills in a real-world business application.
 
 ## The Challenge
 
-You'll create a Python module `function_toolkit.py` that provides a collection of advanced utility functions. This toolkit will showcase your understanding of all advanced function concepts from this module.
+You work for a retail company that needs to analyze sales data across multiple regions and product categories. Your task is to build a flexible analytics toolkit that can answer various business questions by processing sales data efficiently.
 
-## Toolkit Requirements
-
-Your toolkit must include functions in these categories:
-
-### 1. **Decorator Utilities**
-
-- Timing decorator with customizable units
-- Cache decorator with size limit and expiration
-- Retry decorator with exponential backoff
-- Validation decorator for input type checking
-
-### 2. **Functional Programming Utilities**
-
-- Composable function pipelines
-- Currying utilities for multi-argument functions
-- Memoization with custom key functions
-- Function composition tools
-
-### 3. **Data Processing Utilities**
-
-- Flexible data transformation pipelines
-- Conditional data filtering with multiple criteria
-- Aggregation functions with various reduction operations
-- Batch processing for large datasets
-
-### 4. **Configuration & Validation Utilities**
-
-- Configuration builder with type validation
-- Function argument validation system
-- Dynamic function creation based on configuration
-- Method chaining builder pattern
-
-## Implementation Guidelines
-
-### Code Quality Requirements:
-
-- **Use appropriate decorators** for cross-cutting concerns
-- **Employ functional programming patterns** where applicable
-- **Support flexible arguments** with \*args and \*\*kwargs
-- **Include comprehensive error handling** and validation
-- **Write clear docstrings** and type hints
-- **Ensure functions are composable** and reusable
-
-### Advanced Features to Demonstrate:
-
-- Lambda functions in practical scenarios
-- Decorators with parameters
-- Higher-order functions that return other functions
-- Generator expressions for memory efficiency
-- Partial function application
-- Function composition and pipelining
-
-## Example Implementations
-
-### Decorator Utility Example
+## The Dataset
 
 ```python
-@timed(unit='ms')
-@retry(max_attempts=3, backoff=2)
-@validate_types(int, int)
-def api_call(user_id, resource_id):
-    # Simulate API call
-    return f"Data for user {user_id}, resource {resource_id}"
+# Sales data from Q1 2024
+# Each entry: (region, product_category, sales_amount, units_sold, profit_margin)
+sales_data = [
+    ('North', 'Electronics', 125000, 450, 0.35),
+    ('North', 'Clothing', 82000, 1200, 0.55),
+    ('North', 'Home Goods', 45000, 380, 0.42),
+    ('South', 'Electronics', 98000, 320, 0.35),
+    ('South', 'Clothing', 112000, 1650, 0.55),
+    ('South', 'Food', 67000, 8900, 0.22),
+    ('East', 'Electronics', 156000, 520, 0.35),
+    ('East', 'Clothing', 94000, 1380, 0.55),
+    ('East', 'Books', 28000, 1250, 0.48),
+    ('East', 'Home Goods', 62000, 510, 0.42),
+    ('West', 'Electronics', 210000, 680, 0.35),
+    ('West', 'Clothing', 145000, 2100, 0.55),
+    ('West', 'Food', 89000, 11200, 0.22),
+    ('West', 'Books', 35000, 1580, 0.48),
+    ('West', 'Home Goods', 78000, 640, 0.42)
+]
 ```
 
-### Functional Pipeline Example
+## Project Requirements
+
+Your toolkit must include the following components:
+
+### 1. Lambda Utilities (Using `lambda`)
+
+Create quick, reusable lambda functions for common extractions and calculations:
+
+- Extract region, category, sales amount, etc.
+- Calculate profit (sales_amount \* profit_margin)
+- Calculate average sale value (sales_amount / units_sold)
+
+### 2. Flexible Query Function (Using `*args` and `**kwargs`)
+
+Build a function that can query the sales data with flexible filtering and sorting options:
 
 ```python
-# Process data through a pipeline of transformations
-pipeline = compose(
-    filter(lambda x: x > 0),
-    map(lambda x: x * 2),
-    batch_processing(size=100)
-)
+def query_sales_data(*criteria, **options):
+    """
+    Query sales data with flexible criteria.
 
-result = pipeline(large_dataset)
+    Args:
+        *criteria: Functions that each return True/False for an entry
+        **options: Configuration options like 'sort_by', 'limit', 'reverse'
+
+    Returns:
+        Filtered and processed data based on criteria and options
+    """
+    pass
 ```
 
-### Configuration Builder Example
+### 3. Performance Monitor Decorator (Using `decorators`)
+
+Create a decorator that logs query performance metrics including execution time and result count:
 
 ```python
-# Build configured functions dynamically
-query_builder = (FunctionBuilder()
-    .where(status='active')
-    .select('name', 'email')
-    .limit(100)
-    .build()
-)
+@monitor_performance
+def query_sales_data(*criteria, **options):
+    # Your implementation here
+    pass
 ```
 
-### Success Metrics
+### 4. Reporting Functions (Using `map`, `filter`, `reduce`)
 
-Your toolkit will be evaluated on:
+Use functional programming tools to generate business insights:
 
-1. **Completeness** - All required utility categories implemented
+- Total sales by region
+- Average profit margin by category
+- Best-selling categories
+- Company-wide totals
 
-2. **Code Quality** - Clean, readable, and well-documented code
+## Business Questions to Answer
 
-3. **Advanced Usage** - Demonstration of all module concepts
+Your toolkit should be able to answer questions like:
 
-4. **Practicality** - Functions are useful and reusable
-
-5. **Error Handling** - Robust validation and error messages
-
-6. **Performance** - Efficient implementation where appropriate
-
-### Bonus Challenges
-
-1. Add unit tests for all utility functions
-
-2. Create documentation with usage examples
-
-3. Implement performance benchmarks
-
-4. Add type hints throughout the codebase
-
-5. Create a command-line interface for the toolkit
-
-This project will demonstrate your mastery of advanced Python function concepts and provide you with a valuable utility library for future projects!
+1. "Show me the top 3 Electronics sales by amount in any region"
+2. "What's the total profit from Clothing across all regions?"
+3. "Which categories have average sale value over $100?"
+4. "What's the average profit margin for categories with total sales over $100,000?"
+5. "Show me the performance metrics for any query I run"

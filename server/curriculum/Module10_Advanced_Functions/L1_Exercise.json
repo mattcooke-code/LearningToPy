@@ -1,224 +1,43 @@
 {
-  "title": "Lambda Functions: From Basics to Advanced",
-  "description": "Master lambda functions for concise operations, sorting, and functional programming patterns.",
-  "exercises": [
+  "title": "Lambda Functions Basics",
+  "instructions": "Practice creating and using lambda functions for simple operations, sorting with custom keys, and basic data transformations.",
+  "steps": [
+    "Create a lambda function that adds 10 to a number and assign it to `add_ten`",
+    "Use `sorted()` with a lambda to sort `names` by the **last letter** of each name",
+    "Use `map()` with a lambda to convert all temperatures in `celsius` to Fahrenheit (formula: `c * 9/5 + 32`). Store as a list",
+    "Use `filter()` with a lambda to keep only words from `words` that have more than 4 letters. Store as a list"
+  ],
+  "starterCode": "numbers = [5, 12, 3, 8, 1]\nnames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve']\ncelsius = [0, 20, 30, 37, 100]\nwords = ['cat', 'elephant', 'dog', 'butterfly', 'ant', 'giraffe']\n\n# Task 1: Lambda that adds 10 to a number\nadd_ten = \n\n# Task 2: Sort names by last letter\nsorted_names = \n\n# Task 3: Convert celsius to fahrenheit using map\nfahrenheit = \n\n# Task 4: Filter words longer than 4 letters\nlong_words = \n\n# Display results (don't modify)\nprint(f'add_ten(7): {add_ten(7)}')\nprint(f'Sorted by last letter: {sorted_names}')\nprint(f'Fahrenheit: {list(fahrenheit)}')\nprint(f'Words > 4 letters: {list(long_words)}')",
+  "solution": "numbers = [5, 12, 3, 8, 1]\nnames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve']\ncelsius = [0, 20, 30, 37, 100]\nwords = ['cat', 'elephant', 'dog', 'butterfly', 'ant', 'giraffe']\n\n# Task 1: Lambda that adds 10 to a number\nadd_ten = lambda x: x + 10\n\n# Task 2: Sort names by last letter\nsorted_names = sorted(names, key=lambda name: name[-1])\n\n# Task 3: Convert celsius to fahrenheit using map\nfahrenheit = map(lambda c: c * 9/5 + 32, celsius)\n\n# Task 4: Filter words longer than 4 letters\nlong_words = filter(lambda word: len(word) > 4, words)\n\n# Display results (don't modify)\nprint(f'add_ten(7): {add_ten(7)}')\nprint(f'Sorted by last letter: {sorted_names}')\nprint(f'Fahrenheit: {(fahrenheit)}')\nprint(f'Words > 4 letters: {(long_words)}')",
+  "validation": "tests",
+  "tests": [
     {
-      "id": 1,
-      "type": "code",
-      "question": "Create a lambda function that takes a number and returns its square. Assign it to a variable called `square`.",
-      "hints": [
-        "Use the ** operator for exponentiation",
-        "Remember lambda syntax: lambda arguments: expression",
-        "Assign the lambda to a variable to use it later"
-      ],
-      "solution": "square = lambda x: x ** 2",
-      "tests": [
-        {
-          "input": "square(5)",
-          "expected": 25
-        },
-        {
-          "input": "square(3)",
-          "expected": 9
-        },
-        {
-          "input": "square(10)",
-          "expected": 100
-        }
-      ]
+      "name": "Task 1: Lambda that adds 10",
+      "code": "import types\n\n# Check if add_ten exists and is a lambda\nif 'add_ten' not in locals():\n    raise AssertionError('Task 1: add_ten variable not found')\n\nif not isinstance(add_ten, types.LambdaType):\n    raise AssertionError('Task 1: add_ten should be a lambda function')\n\n# Test the function\nif add_ten(5) != 15:\n    raise AssertionError('Task 1: add_ten(5) should return 15')\nif add_ten(0) != 10:\n    raise AssertionError('Task 1: add_ten(0) should return 10')\n\nprint('TEST_PASSED')"
     },
     {
-      "id": 2,
-      "type": "code",
-      "question": "Create a lambda function that takes two numbers and returns their product. Assign it to a variable called `multiply`.",
-      "hints": [
-        "Lambda can take multiple parameters separated by commas",
-        "Use the * operator for multiplication",
-        "The expression should return the product directly"
-      ],
-      "solution": "multiply = lambda a, b: a * b",
-      "tests": [
-        {
-          "input": "multiply(4, 5)",
-          "expected": 20
-        },
-        {
-          "input": "multiply(3, 7)",
-          "expected": 21
-        },
-        {
-          "input": "multiply(0, 5)",
-          "expected": 0
-        }
-      ]
+      "name": "Task 2: Sort by last letter",
+      "code": "if 'sorted_names' not in locals():\n    raise AssertionError('Task 2: sorted_names variable not found')\n\nif not isinstance(sorted_names, list):\n    raise AssertionError('Task 2: sorted_names should be a list')\n\n# Check that it's sorted by last letter alphabetically\ncorrect_order = ['Bob', 'David', 'Alice', 'Charlie', 'Eve']  # b, d, e, e, e\n\nif sorted_names != correct_order:\n    raise AssertionError(f'Task 2: Expected {correct_order}, got {sorted_names}')\n\n# Alternative check: verify the last letters are in order\nlast_letters = [name[-1] for name in sorted_names]\ncorrect_last_letters = ['b', 'd', 'e', 'e', 'e']\n\nif last_letters != correct_last_letters:\n    raise AssertionError(f'Task 2: Last letters should be {correct_last_letters}, got {last_letters}')\n\n# Check if lambda was used\nimport ast\ntree = ast.parse(code)\nhas_lambda = any(isinstance(node, ast.Lambda) for node in ast.walk(tree))\nif not has_lambda:\n    raise AssertionError('Task 2: Use a lambda function for the key parameter')\n\nprint('TEST_PASSED')"
     },
     {
-      "id": 3,
-      "type": "code",
-      "question": "Use a lambda function with sorted() to sort this list of tuples by the second element: [(1, 5), (3, 2), (2, 8), (4, 1)]",
-      "hints": [
-        "The key parameter in sorted() should be a lambda function",
-        "Each tuple will be passed to the lambda function",
-        "Access the second element with index 1"
-      ],
-      "solution": "data = [(1, 5), (3, 2), (2, 8), (4, 1)]\nsorted_data = sorted(data, key=lambda x: x[1])",
-      "tests": [
-        {
-          "input": "sorted_data",
-          "expected": "[(4, 1), (3, 2), (1, 5), (2, 8)]"
-        }
-      ]
+      "name": "Task 3: Map with lambda",
+      "code": "if 'fahrenheit' not in locals():\n    raise AssertionError('Task 3: fahrenheit variable not found')\n\n# Check if it's a map object (lazy evaluation is fine)\nif not hasattr(fahrenheit, '__iter__'):\n    raise AssertionError('Task 3: fahrenheit should be an iterable (map object)')\n\n# Convert to list for testing\nf_list = list(fahrenheit)\nexpected = [32.0, 68.0, 86.0, 98.6, 212.0]\n\nif len(f_list) != len(expected):\n    raise AssertionError(f'Task 3: Expected {len(expected)} values, got {len(f_list)}')\n\nfor i, (actual, exp) in enumerate(zip(f_list, expected)):\n    if abs(actual - exp) > 0.1:\n        raise AssertionError(f'Task 3: Value {i} should be {exp}, got {actual}')\n\nprint('TEST_PASSED')"
     },
     {
-      "id": 4,
-      "type": "code",
-      "question": "Create a lambda function that takes a string and returns True if it starts with 'a' (case-insensitive), otherwise False.",
-      "hints": [
-        "Use the .lower() method to make it case-insensitive",
-        "Check the first character with [0]",
-        "Return a boolean value directly"
-      ],
-      "solution": "starts_with_a = lambda s: s.lower().startswith('a')",
-      "tests": [
-        {
-          "input": "starts_with_a('apple')",
-          "expected": true
-        },
-        {
-          "input": "starts_with_a('Apple')",
-          "expected": true
-        },
-        {
-          "input": "starts_with_a('banana')",
-          "expected": false
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "type": "code",
-      "question": "Use map() with a lambda function to convert a list of temperatures in Celsius [0, 20, 30, 40] to Fahrenheit. Formula: F = (C × 9/5) + 32",
-      "hints": [
-        "map() applies a function to each element of a list",
-        "The lambda should take one parameter (Celsius temperature)",
-        "Apply the conversion formula in the lambda"
-      ],
-      "solution": "celsius_temps = [0, 20, 30, 40]\nfahrenheit_temps = list(map(lambda c: (c * 9/5) + 32, celsius_temps))",
-      "tests": [
-        {
-          "input": "fahrenheit_temps",
-          "expected": "[32.0, 68.0, 86.0, 104.0]"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "type": "code",
-      "question": "Create a lambda function with conditional logic that returns 'even' if a number is even and 'odd' if it's odd.",
-      "hints": [
-        "Use ternary operator: value_if_true if condition else value_if_false",
-        "Check if number % 2 == 0 for even",
-        "The entire conditional should be one expression"
-      ],
-      "solution": "even_odd = lambda x: 'even' if x % 2 == 0 else 'odd'",
-      "tests": [
-        {
-          "input": "even_odd(4)",
-          "expected": "even"
-        },
-        {
-          "input": "even_odd(7)",
-          "expected": "odd"
-        },
-        {
-          "input": "even_odd(0)",
-          "expected": "even"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "type": "code",
-      "question": "Sort this list of dictionaries by the 'age' key in descending order: [{'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 30}, {'name': 'Charlie', 'age': 20}]",
-      "hints": [
-        "Use sorted() with key parameter and lambda",
-        "Access the 'age' key from each dictionary",
-        "Use reverse=True for descending order or negate the age value"
-      ],
-      "solution": "people = [{'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 30}, {'name': 'Charlie', 'age': 20}]\nsorted_people = sorted(people, key=lambda p: p['age'], reverse=True)",
-      "tests": [
-        {
-          "input": "sorted_people",
-          "expected": "[{'name': 'Bob', 'age': 30}, {'name': 'Alice', 'age': 25}, {'name': 'Charlie', 'age': 20}]"
-        }
-      ]
-    },
-    {
-      "id": 8,
-      "type": "code",
-      "question": "Write a function that returns a lambda function which multiplies by a given factor. Then use it to create a function that doubles numbers.",
-      "hints": [
-        "The outer function should take the factor as parameter",
-        "Return a lambda that takes a number and multiplies by factor",
-        "Assign the returned lambda to a variable"
-      ],
-      "solution": "def create_multiplier(factor):\n    return lambda x: x * factor\n\ndouble = create_multiplier(2)",
-      "tests": [
-        {
-          "input": "double(5)",
-          "expected": 10
-        },
-        {
-          "input": "double(10)",
-          "expected": 20
-        },
-        {
-          "input": "create_multiplier(3)(4)",
-          "expected": 12
-        }
-      ]
-    },
-    {
-      "id": 9,
-      "type": "code",
-      "question": "Use filter() with a lambda to get all numbers greater than 50 from this list: [25, 60, 45, 80, 30, 75]",
-      "hints": [
-        "filter() keeps elements where the function returns True",
-        "The lambda should return True for numbers > 50",
-        "Convert the filter object to a list"
-      ],
-      "solution": "numbers = [25, 60, 45, 80, 30, 75]\nfiltered = list(filter(lambda x: x > 50, numbers))",
-      "tests": [
-        {
-          "input": "filtered",
-          "expected": "[60, 80, 75]"
-        }
-      ]
-    },
-    {
-      "id": 10,
-      "type": "code",
-      "question": "Create a curried addition function using lambdas. It should take one argument and return a function that takes the second argument.",
-      "hints": [
-        "The first lambda takes parameter 'a'",
-        "It returns another lambda that takes parameter 'b'",
-        "The inner lambda returns a + b"
-      ],
-      "solution": "curried_add = lambda a: lambda b: a + b",
-      "tests": [
-        {
-          "input": "curried_add(5)(3)",
-          "expected": 8
-        },
-        {
-          "input": "add_five = curried_add(5); add_five(10)",
-          "expected": 15
-        },
-        {
-          "input": "curried_add(100)(25)",
-          "expected": 125
-        }
-      ]
+      "name": "Task 4: Filter with lambda",
+      "code": "if 'long_words' not in locals():\n    raise AssertionError('Task 4: long_words variable not found')\n\n# Check if it's a filter object\nif not hasattr(long_words, '__iter__'):\n    raise AssertionError('Task 4: long_words should be an iterable (filter object)')\n\n# Convert to list for testing\nw_list = list(long_words)\nexpected = ['elephant', 'butterfly', 'giraffe']\n\nif w_list != expected:\n    raise AssertionError(f'Task 4: Expected {expected}, got {w_list}')\n\nprint('TEST_PASSED')"
     }
-  ]
+  ],
+  "hints": [
+    "**Task 1: Lambda basics**\n```python\n# Syntax: lambda arguments: expression\n# Example: lambda x: x * 2 doubles a number\nadd_five = lambda x: x + 5  # Adds 5 to x\n```\n\n**Task 2: Sorting with lambda**\n```python\n# Syntax: sorted(iterable, key=lambda item: expression)\n# Example: Sort by first letter\nsorted_by_first = sorted(names, key=lambda name: name[0])\n\n# For last letter, use negative indexing\n```\n\n**Task 3: Map with lambda**\n```python\n# Syntax: map(lambda item: expression, iterable)\n# Example: Square each number\nsquares = list(map(lambda x: x**2, [1, 2, 3]))\n\n# Fahrenheit formula: c * 9/5 + 32\n```\n\n**Task 4: Filter with lambda**\n```python\n# Syntax: filter(lambda item: condition, iterable)\n# Example: Keep even numbers\nevens = list(filter(lambda x: x % 2 == 0, [1, 2, 3, 4])\n\n# Check length with len(word)) > 4\n```\n\n**Remember:**\n- Lambdas automatically return the expression result\n- Use `sorted()` for sorting, `map()` for transformations, `filter()` for selection\n- `map()` and `filter()` return iterator objects - that's fine!"
+  ],
+  "tags": [
+    "lambda",
+    "anonymous-functions",
+    "sorted",
+    "map",
+    "filter",
+    "intermediate"
+  ],
+  "challengeGroup": "lambda-basics"
 }

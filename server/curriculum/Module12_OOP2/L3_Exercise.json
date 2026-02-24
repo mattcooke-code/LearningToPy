@@ -2,26 +2,41 @@
   "title": "Overriding and Polymorphic Functions",
   "instructions": "Create a `Shape` hierarchy and demonstrate method overriding and polymorphism by calculating the area for different shapes.",
   "steps": [
-    "Define the parent class `Shape` with a method `area(self)` that prints: `Cannot calculate area for generic shape.`",
+    "Define the parent class `Shape` with a method `area(self)` that prints: `'Cannot calculate area for generic shape.'` and returns `0`.",
     "Define a child class `Circle` inheriting from `Shape`. Its `__init__` should store a `radius`.",
-    "Override the `area(self)` method in `Circle` to calculate and return the area (Formula: $\\pi r^2$). Use $3.14$ for $\\pi$.",
+    "Override the `area(self)` method in `Circle` to calculate and return the area (Formula: π × r²). Use `3.14` for π.",
     "Define a child class `Square` inheriting from `Shape`. Its `__init__` should store a `side_length`.",
-    "Override the `area(self)` method in `Square` to calculate and return the area (Formula: $s^2$).",
-    "Create instances: `s1 = Circle(5)` and `s2 = Square(4)`.",
-    "Create a list of shapes: `shapes = [s1, s2]`.",
+    "Override the `area(self)` method in `Square` to calculate and return the area (Formula: side²).",
+    "Create instances: `c1 = Circle(5)` and `s1 = Square(4)`.",
+    "Create a list of shapes: `shapes = [c1, s1]`.",
     "Write a function `print_area(shape)` that takes a shape object and prints its area.",
-    "Call `print_area` on both `s1` and `s2` to demonstrate polymorphism."
+    "Call `print_area` on both `c1` and `s1` to demonstrate polymorphism."
   ],
-  "starterCode": "class Shape:\n    def area(self):\n        # 1. Parent method implementation\n        print(\"Cannot calculate area for generic shape.\")\n\nclass Circle(Shape):\n    def __init__(self, radius):\n        self.radius = radius\n        \n    # 2. Override area() for Circle\n    \n\nclass Square(Shape):\n    def __init__(self, side_length):\n        self.side_length = side_length\n        \n    # 3. Override area() for Square\n    \n\ndef print_area(shape):\n    # This function uses polymorphism\n    print(f\"Area: {shape.area()}\")\n\n# Instances\ns1 = Circle(5)\ns2 = Square(4)\n\n# Demonstrate\nprint_area(s1)\nprint_area(s2)\n",
-  "solution": "class Shape:\n    def area(self):\n        # Parent method implementation\n        print(\"Cannot calculate area for generic shape.\")\n        return 0\n\nclass Circle(Shape):\n    def __init__(self, radius):\n        self.radius = radius\n        \n    def area(self):\n        PI = 3.14\n        return PI * (self.radius ** 2)\n\nclass Square(Shape):\n    def __init__(self, side_length):\n        self.side_length = side_length\n        \n    def area(self):\n        return self.side_length ** 2\n    \n\ndef print_area(shape):\n    # This function uses polymorphism\n    print(f\"Calculated Area: {shape.area()}\")\n\n# Instances\ns1 = Circle(5)\ns2 = Square(4)\n\n# Demonstrate\nprint_area(s1)\nprint_area(s2)\n",
+  "starterCode": "# Step 1: Define Shape parent class\n\n\n\n# Steps 2-3: Define Circle class inheriting from Shape\n\n\n\n# Steps 4-5: Define Square class inheriting from Shape\n\n\n\n# Step 6: Create instances\nc1 = Circle(5)\ns1 = Square(4)\n\n# Step 7: Create shapes list\nshapes = [c1, s1]\n\n# Step 8: Define print_area function\n\n\n\n# Step 9: Call print_area on both instances\n",
+  "solution": "# Step 1: Define Shape parent class\nclass Shape:\n    def area(self):\n        print(\"Cannot calculate area for generic shape.\")\n        return 0\n\n# Steps 2-3: Define Circle class inheriting from Shape\nclass Circle(Shape):\n    def __init__(self, radius):\n        self.radius = radius\n    \n    def area(self):\n        return 3.14 * (self.radius ** 2)\n\n# Steps 4-5: Define Square class inheriting from Shape\nclass Square(Shape):\n    def __init__(self, side_length):\n        self.side_length = side_length\n    \n    def area(self):\n        return self.side_length ** 2\n\n# Step 6: Create instances\nc1 = Circle(5)\ns1 = Square(4)\n\n# Step 7: Create shapes list\nshapes = [c1, s1]\n\n# Step 8: Define print_area function\ndef print_area(shape):\n    print(f\"Area: {shape.area()}\")\n\n# Step 9: Call print_area on both instances\nprint_area(c1)\nprint_area(s1)",
   "fileSetup": {},
   "hints": [
-    "In `Circle.area()`, use `return 3.14 * self.radius ** 2`.",
-    "The `print_area` function is the simplest form of polymorphism; it works on any object that has an `area()` method.",
-    "Remember to explicitly `return` the calculated area from the child methods."
+    "**Step 1: Parent class**\n```python\nclass Shape:\n    def area(self):\n        print(\"Cannot calculate area for generic shape.\")\n        return 0\n```\n\n**Step 3: Circle area calculation**\n```python\ndef area(self):\n    return 3.14 * (self.radius ** 2)\n```\n\n**Step 5: Square area calculation**\n```python\ndef area(self):\n    return self.side_length ** 2\n```\n\n**Step 8: Polymorphic function**\n```python\ndef print_area(shape):\n    print(f\"Area: {shape.area()}\")\n```\n\n**Step 9: Demonstration**\n```python\nprint_area(c1)  # Should print: Area: 78.5\nprint_area(s1)  # Should print: Area: 16\n```\n\n**Key Concepts:**\n- The `print_area` function is polymorphic - it works with any shape that has an `area()` method\n- Each shape class provides its own implementation of `area()`\n- The correct `area()` method is called based on the actual object type"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["overriding", "polymorphism", "inheritance", "method"],
+  "tests": [
+    {
+      "name": "Check Shape parent class",
+      "code": "import ast\n\n# Parse the code\nuser_code = code\ntree = ast.parse(user_code)\n\n# Check if Shape class is defined\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nif 'Shape' not in class_names:\n    raise AssertionError('Step 1: Shape class not defined')\n\n# Check Shape has area method\nfor node in class_nodes:\n    if node.name == 'Shape':\n        method_names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]\n        if 'area' not in method_names:\n            raise AssertionError('Shape class missing area method')\n        break\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check Circle and Square classes inherit from Shape",
+      "code": "import ast\n\n# Parse the code\nuser_code = code\ntree = ast.parse(user_code)\n\n# Get all classes\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nfor required_class in ['Circle', 'Square']:\n    if required_class not in class_names:\n        raise AssertionError(f'Step 2/4: {required_class} class not defined')\n\n# Check inheritance\nfor node in class_nodes:\n    if node.name in ['Circle', 'Square']:\n        # Check inheritance\n        if not node.bases:\n            raise AssertionError(f'{node.name} class should inherit from Shape')\n        \n        # Check that base class is named 'Shape'\n        base_names = []\n        for base in node.bases:\n            if isinstance(base, ast.Name):\n                base_names.append(base.id)\n        \n        if 'Shape' not in base_names:\n            raise AssertionError(f'{node.name} class should inherit from Shape')\n        \n        # Check for area method\n        method_names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]\n        if 'area' not in method_names:\n            raise AssertionError(f'{node.name} class missing overridden area method')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check area calculations",
+      "code": "exec_globals = {}\n\ntry:\n    exec(code, exec_globals)\nexcept Exception as e:\n    raise AssertionError(f'Code execution failed: {e}')\n\n# Check instances exist\nif 'c1' not in exec_globals:\n    raise AssertionError('Step 6: c1 variable (Circle instance) not found')\nif 's1' not in exec_globals:\n    raise AssertionError('Step 6: s1 variable (Square instance) not found')\n\nc1 = exec_globals['c1']\ns1 = exec_globals['s1']\n\n# Check area calculations\ncircle_area = c1.area()\nexpected_circle = 3.14 * 25  # 78.5\nif abs(circle_area - expected_circle) > 0.1:\n    raise AssertionError(f'Circle area should be {expected_circle}, got {circle_area}')\n\nsquare_area = s1.area()\nexpected_square = 16\nif square_area != expected_square:\n    raise AssertionError(f'Square area should be {expected_square}, got {square_area}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check shapes list and polymorphic function",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check shapes list exists\nif 'shapes' not in exec_globals:\n    raise AssertionError('Step 7: shapes list not found')\n\nshapes = exec_globals['shapes']\nif not isinstance(shapes, list):\n    raise AssertionError('shapes should be a list')\nif len(shapes) != 2:\n    raise AssertionError('shapes list should contain 2 items')\n\n# Check print_area function exists\nif 'print_area' not in exec_globals:\n    raise AssertionError('Step 8: print_area function not defined')\n\nprint_area = exec_globals['print_area']\nif not callable(print_area):\n    raise AssertionError('print_area should be a function')\n\n# Check output\noutput_lines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\nif len(output_lines) < 2:\n    raise AssertionError('Step 9: print_area should be called on both instances')\n\n# Check for expected area values\nfound_circle = False\nfound_square = False\nfor line in output_lines:\n    if '78.5' in line:\n        found_circle = True\n    if '16' in line:\n        found_square = True\n\nif not found_circle:\n    raise AssertionError('Output should show circle area (78.5)')\nif not found_square:\n    raise AssertionError('Output should show square area (16)')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["overriding", "polymorphism", "inheritance", "method", "area"],
   "challengeGroup": "oop-poly"
 }

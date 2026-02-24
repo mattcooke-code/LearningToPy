@@ -1,0 +1,45 @@
+{
+  "lessonId": "M12L4",
+  "title": "Abstract Base Classes - Quiz",
+  "questions": [
+    {
+      "id": "m12l4_q1",
+      "type": "multiple-choice",
+      "question": "What happens if you try to instantiate an Abstract Base Class (ABC) directly?",
+      "options": [
+        "It creates an empty object",
+        "It raises a TypeError",
+        "It creates the object but with None values",
+        "It automatically creates a default child class"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Abstract Base Classes cannot be instantiated directly. Python raises a TypeError because they are designed only to be inherited from, not used directly."
+    },
+    {
+      "id": "m12l4_q2",
+      "type": "multiple-choice",
+      "question": "What happens if a child class inherits from an ABC but fails to implement one of its abstract methods?",
+      "options": [
+        "The child class will still work, but the method will raise an error when called",
+        "The child class will also become abstract and cannot be instantiated",
+        "Python will automatically provide a default implementation",
+        "The program will crash at import time"
+      ],
+      "correctAnswer": 1,
+      "explanation": "If a child class doesn't implement all abstract methods from its parent ABC, it also becomes an abstract class and cannot be instantiated. Python will raise a TypeError when you try to create an instance."
+    },
+    {
+      "id": "m12l4_q3",
+      "type": "multiple-choice",
+      "question": "Which module and decorator are needed to create abstract classes in Python?",
+      "options": [
+        "`from abc import abstract`, `@abstract`",
+        "`from abc import ABCMeta`, `@abstractmethod`",
+        "`from abc import ABC, abstractmethod`",
+        "`from interfaces import ABC`, `@must_implement`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "To create abstract classes in Python, you need to import `ABC` and `abstractmethod` from the `abc` module. Your class should inherit from `ABC`, and abstract methods should be decorated with `@abstractmethod`."
+    }
+  ]
+}

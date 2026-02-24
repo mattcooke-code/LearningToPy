@@ -1,23 +1,45 @@
 {
-  "title": "Using Shared Data and Utility Methods",
-  "instructions": "Create a `DatabaseConnector` class to use both a class variable for a constant setting and a static method for data cleaning.",
+  "title": "Class Variables and Static Methods",
+  "instructions": "Practice working with class variables to track object creation and static methods for utility functions.",
   "steps": [
-    "Define a class named `DatabaseConnector`.",
-    "Define a **class attribute** called `DEFAULT_TIMEOUT` and set its value to `10` (seconds).",
-    "Implement a **static method** `sanitize_input(text)` that takes a string `text` and returns a lowercase version of the text with leading/trailing whitespace removed.",
-    "Print the value of `DEFAULT_TIMEOUT` directly from the class.",
-    "Call the static method `sanitize_input` on the class with the input `'    Hello World!   '`. Print the result."
+    "Define a class named `Employee`. Inside the class, create a class variable called `company` and set it to `'TechCorp'`.",
+    "Add another class variable called `employee_count` and initialize it to `0`.",
+    "Implement the `__init__` method that takes `name` and `salary` parameters. Inside `__init__`: (1) assign the parameters to instance attributes `self.name` and `self.salary`, (2) increment the class variable `employee_count` by 1.",
+    "Add a **static method** called `validate_salary` that takes a `salary` parameter and returns `True` if the salary is greater than 0, otherwise returns `False`. Decorate it with `@staticmethod`.",
+    "Add a **static method** called `company_policy` that returns the string `'Work hard, innovate!'`. Decorate it with `@staticmethod`.",
+    "Create three employee instances: `emp1` with name 'Alice' and salary 50000, `emp2` with name 'Bob' and salary 60000, and `emp3` with name 'Charlie' and salary 55000. Then print: the company name (using the class variable), the total employee count, and call both static methods to display the results."
   ],
-  "starterCode": "class DatabaseConnector:\n    # 1. Define the class attribute here\n    \n\n    # 2. Implement the static method here\n\n\n# 3. Print the class attribute\nprint(DatabaseConnector.DEFAULT_TIMEOUT)\n\n# 4. Call and print the static method\nprint(DatabaseConnector.sanitize_input('    Hello World!   '))\n",
-  "solution": "class DatabaseConnector:\n    # Class Attribute: Shared by all instances\n    DEFAULT_TIMEOUT = 10\n\n    @staticmethod\n    def sanitize_input(text):\n        # Returns lowercase string with whitespace removed\n        return text.strip().lower()\n\n\n# Print the class attribute\nprint(DatabaseConnector.DEFAULT_TIMEOUT)\n\n# Call and print the static method\nprint(DatabaseConnector.sanitize_input('    Hello World!   '))\n",
+  "starterCode": "# Step 1-2: Define Employee class with class variables\n\n\n\n# Step 3: Add __init__ method that increments employee_count\n\n\n\n# Step 4-5: Add static methods validate_salary and company_policy\n\n\n\n# Step 6: Create instances and display results\nemp1 = \nemp2 = \nemp3 = \n\nprint(f\"Company: {Employee.company}\")\nprint(f\"Total employees: {Employee.employee_count}\")\nprint(f\"Is 50000 valid? {Employee.validate_salary(50000)}\")\nprint(f\"Company policy: {Employee.company_policy()}\")",
+  "solution": "# Step 1-2: Define Employee class with class variables\nclass Employee:\n    company = 'TechCorp'\n    employee_count = 0\n    \n    # Step 3: Add __init__ method that increments employee_count\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n        Employee.employee_count += 1\n    \n    # Step 4: Static method validate_salary\n    @staticmethod\n    def validate_salary(salary):\n        return salary > 0\n    \n    # Step 5: Static method company_policy\n    @staticmethod\n    def company_policy():\n        return 'Work hard, innovate!'\n\n# Step 6: Create instances and display results\nemp1 = Employee('Alice', 50000)\nemp2 = Employee('Bob', 60000)\nemp3 = Employee('Charlie', 55000)\n\nprint(f\"Company: {Employee.company}\")\nprint(f\"Total employees: {Employee.employee_count}\")\nprint(f\"Is 50000 valid? {Employee.validate_salary(50000)}\")\nprint(f\"Company policy: {Employee.company_policy()}\")",
   "fileSetup": {},
   "hints": [
-    "The class attribute should be defined without `self` or `def`.",
-    "The static method must be decorated with `@staticmethod` and accept only the `text` parameter (no `self` or `cls`).",
-    "Use the `.strip()` and `.lower()` string methods to clean the input."
+    "**Step 1-2: Class variables**\n```python\nclass Employee:\n    company = 'TechCorp'\n    employee_count = 0\n```\n\n**Step 3: __init__ method**\n```python\ndef __init__(self, name, salary):\n    self.name = name\n    self.salary = salary\n    Employee.employee_count += 1  # Access class variable via class name\n```\n\n**Step 4: Static method validate_salary**\n```python\n@staticmethod\ndef validate_salary(salary):\n    return salary > 0  # No self parameter needed!\n```\n\n**Step 5: Static method company_policy**\n```python\n@staticmethod\ndef company_policy():\n    return 'Work hard, innovate!'\n```\n\n**Step 6: Create instances and display**\n```python\nemp1 = Employee('Alice', 50000)\nemp2 = Employee('Bob', 60000)\nemp3 = Employee('Charlie', 55000)\n\nprint(f\"Company: {Employee.company}\")\nprint(f\"Total employees: {Employee.employee_count}\")\nprint(f\"Is 50000 valid? {Employee.validate_salary(50000)}\")\nprint(f\"Company policy: {Employee.company_policy()}\")\n```\n\n**Important Concepts:**\n- Class variables are accessed with `ClassName.variable`\n- Class variables are **shared** by all instances\n- Static methods use the `@staticmethod` decorator\n- Static methods don't receive `self` or `cls` parameters\n- Use static methods for utility functions related to the class"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["class-variable", "static-method", "utility", "constants"],
+  "tests": [
+    {
+      "name": "Check Employee class and class variables",
+      "code": "import ast\n\n# Check if Employee class is defined\ntree = ast.parse(code)\n\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nif 'Employee' not in class_names:\n    raise AssertionError('Class Employee is not defined')\n\n# Check for class variables\nfor node in class_nodes:\n    if node.name == 'Employee':\n        # Look for assignments in class body\n        has_company = False\n        has_count = False\n        for item in node.body:\n            if isinstance(item, ast.Assign):\n                for target in item.targets:\n                    if isinstance(target, ast.Name):\n                        if target.id == 'company':\n                            has_company = True\n                        if target.id == 'employee_count':\n                            has_count = True\n        if not has_company:\n            raise AssertionError('Employee class missing company class variable')\n        if not has_count:\n            raise AssertionError('Employee class missing employee_count class variable')\n        break\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check __init__ method and employee_count increment",
+      "code": "exec_globals = {}\n\ntry:\n    exec(code, exec_globals)\nexcept Exception as e:\n    raise AssertionError(f'Code execution failed: {e}')\n\nif 'Employee' not in exec_globals:\n    raise AssertionError('Employee class not found')\n\nEmployee = exec_globals['Employee']\n\n# Check initial employee_count\nif Employee.employee_count != 3:\n    raise AssertionError(f'employee_count should be 3 after creating three instances, got {Employee.employee_count}')\n\n# Check that instances have correct attributes\nrequired_vars = ['emp1', 'emp2', 'emp3']\nfor var in required_vars:\n    if var not in exec_globals:\n        raise AssertionError(f'Variable {var} not found')\n    if not isinstance(exec_globals[var], Employee):\n        raise AssertionError(f'{var} should be an instance of Employee')\n\n# Check specific instance values\nemp1 = exec_globals['emp1']\nif emp1.name != 'Alice' or emp1.salary != 50000:\n    raise AssertionError('emp1 should have name=\"Alice\" and salary=50000')\n\nemp2 = exec_globals['emp2']\nif emp2.name != 'Bob' or emp2.salary != 60000:\n    raise AssertionError('emp2 should have name=\"Bob\" and salary=60000')\n\nemp3 = exec_globals['emp3']\nif emp3.name != 'Charlie' or emp3.salary != 55000:\n    raise AssertionError('emp3 should have name=\"Charlie\" and salary=55000')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check static methods",
+      "code": "exec_globals = {}\n\ntry:\n    exec(code, exec_globals)\nexcept Exception as e:\n    raise AssertionError(f'Code execution failed: {e}')\n\nif 'Employee' not in exec_globals:\n    raise AssertionError('Employee class not found')\n\nEmployee = exec_globals['Employee']\n\n# Check validate_salary method\nif not hasattr(Employee, 'validate_salary'):\n    raise AssertionError('validate_salary static method not found')\n\nif not callable(Employee.validate_salary):\n    raise AssertionError('validate_salary should be callable')\n\n# Test validate_salary functionality\nif not Employee.validate_salary(50000):\n    raise AssertionError('validate_salary(50000) should return True for positive salary')\n\nif Employee.validate_salary(-100):\n    raise AssertionError('validate_salary(-100) should return False for negative salary')\n\nif Employee.validate_salary(0):\n    raise AssertionError('validate_salary(0) should return False for zero salary')\n\n# Check company_policy method\nif not hasattr(Employee, 'company_policy'):\n    raise AssertionError('company_policy static method not found')\n\nif not callable(Employee.company_policy):\n    raise AssertionError('company_policy should be callable')\n\npolicy = Employee.company_policy()\nif not isinstance(policy, str):\n    raise AssertionError('company_policy should return a string')\n\nif len(policy.strip()) == 0:\n    raise AssertionError('company_policy should return a non-empty string')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check output",
+      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check output contains expected information\nlower_output = output.lower()\n\nif 'techcorp' not in lower_output:\n    raise AssertionError('Output should show company name \"TechCorp\"')\n\nif 'total employees: 3' not in output.lower() and 'employee_count: 3' not in output.lower():\n    raise AssertionError('Output should show total employee count of 3')\n\nif 'true' not in output.lower() or 'false' in output.lower():\n    # validate_salary(50000) should return True\n    if 'true' not in output.lower():\n        raise AssertionError('validate_salary(50000) should return True')\n\nif 'work hard' not in lower_output or 'innovate' not in lower_output:\n    raise AssertionError('Output should include the company policy message')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": [
+    "class-variables",
+    "static-methods",
+    "oop",
+    "counters",
+    "utility-functions"
+  ],
   "challengeGroup": "oop-class-static"
 }

@@ -1,0 +1,45 @@
+{
+  "lessonId": "M11L3",
+  "title": "Instance Methods and Encapsulation - Quiz",
+  "questions": [
+    {
+      "id": "m11l3_q1",
+      "type": "multiple-choice",
+      "question": "Why is it considered better practice to modify an object's data through a method rather than changing an attribute directly?",
+      "options": [
+        "Directly changing attributes is not possible in Python and will cause a SyntaxError.",
+        "Methods allow the class to validate data and ensure the object stays in a valid state.",
+        "Methods consume less memory than direct attribute assignment.",
+        "Using methods is the only way to make attributes visible to other classes."
+      ],
+      "correctAnswer": 1,
+      "explanation": "This is the core of encapsulation. By using methods as 'gatekeepers,' you can add logic (like checking if a value is negative) to prevent the object's data from becoming corrupted or invalid."
+    },
+    {
+      "id": "m11l3_q2",
+      "type": "multiple-choice",
+      "question": "What does a single underscore prefix (e.g., `_balance`) mean in Python?",
+      "options": [
+        "The variable is strictly private and impossible to access from outside.",
+        "The variable is a constant and its value cannot be changed.",
+        "It is a convention signaling that the attribute is protected.",
+        "It tells Python to delete the variable after the method finishes."
+      ],
+      "correctAnswer": 2,
+      "explanation": "In Python, the single underscore is a 'gentleman's agreement' among programmers. It doesn't technically block access, but it warns others that the data is internal."
+    },
+    {
+      "id": "m11l3_q3",
+      "type": "multiple-choice",
+      "question": "What is 'Name Mangling' in Python OOP?",
+      "options": [
+        "A bug that occurs when two objects have the same name.",
+        "When Python changes the name of a `__double_underscore` attribute.",
+        "A way to randomly generate variable names for security.",
+        "The process of converting a class name into lowercase."
+      ],
+      "correctAnswer": 1,
+      "explanation": "When you use two underscores, Python internally renames the attribute (e.g., `_ClassName__attribute`). This helps prevent name clashes, especially when using inheritance."
+    }
+  ]
+}

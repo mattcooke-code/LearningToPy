@@ -1,0 +1,45 @@
+{
+  "lessonId": "M12L2",
+  "title": "Calling Parent Methods with super() - Quiz",
+  "questions": [
+    {
+      "id": "m12l2_q1",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of calling `super().__init__()` in a child class constructor?",
+      "options": [
+        "To delete the parent class attributes",
+        "To ensure the parent class's constructor runs and initializes inherited attributes",
+        "To create a new instance of the parent class",
+        "To prevent the child class from accessing parent methods"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When a child class defines its own `__init__`, the parent's `__init__` is not automatically called. `super().__init__()` explicitly calls the parent constructor to initialize inherited attributes."
+    },
+    {
+      "id": "m12l2_q2",
+      "type": "multiple-choice",
+      "question": "Given the code below, what is the correct way to call the parent constructor?\n\n```python\nclass Vehicle:\n    def __init__(self, color):\n        self.color = color\n\nclass Car(Vehicle):\n    def __init__(self, color, model):\n        # What goes here?\n        self.model = model\n```",
+      "options": [
+        "`parent.__init__(color)`",
+        "`Vehicle.__init__(color)`",
+        "`super().__init__(color)`",
+        "`__init__(color)`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The correct syntax in Python 3 is `super().__init__(color)`. This calls the parent class's `__init__` method and passes the required arguments."
+    },
+    {
+      "id": "m12l2_q3",
+      "type": "multiple-choice",
+      "question": "What will happen if a child class defines its own `__init__` method but DOES NOT call `super().__init__()`?",
+      "options": [
+        "The parent class's `__init__` will still run automatically",
+        "The program will crash immediately with a syntax error",
+        "The parent class's `__init__` will NOT run, and inherited attributes may not be initialized",
+        "Python will create a default constructor automatically"
+      ],
+      "correctAnswer": 2,
+      "explanation": "When a child defines its own `__init__`, it overrides the parent's constructor. The parent's `__init__` is not called automatically, so any initialization code in the parent (like setting attributes) will not execute unless explicitly called with `super()`."
+    }
+  ]
+}

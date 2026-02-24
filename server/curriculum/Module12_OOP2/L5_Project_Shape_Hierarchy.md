@@ -8,39 +8,28 @@ Design a base `Shape` class and at least two derived classes (`Circle` and `Rect
 
 ### Class Requirements
 
-1. `Shape` (Parent Class)
+**1. `Shape` (Parent Class)**
 
-• **Constructor** (`__init__`): Takes a `name` parameter and stores it.
+- **Constructor** (`__init__`): Takes a `name` parameter and stores it.
+- **Methods**:
+  - `area(self)`: Should print a message indicating this method needs to be implemented by a child class.
+  - `perimeter(self)`: Should print a message indicating this method needs to be implemented by a child class.
 
-• **Methods**:
+**2. `Circle` (Child Class)**
 
-    ○ `area(self)`: Should print a message indicating this method needs to be implemented by a child class.
+- **Inheritance**: Inherits from `Shape`.
+- **Constructor** (`__init__`): Takes `name` and `radius`. _Must use_ `super().__init__` to set the `name`. Stores `radius`.
+- **Method Overriding**:
+  - `area()`: Calculates and returns the area (Formula: π × r², use 3.14 for π).
+  - `perimeter()`: Calculates and returns the perimeter (Formula: 2πr, use 3.14 for π).
 
-    ○ `perimeter(self)`: Should print a message indicating this method needs to be implemented by a child class.
+**3. `Rectangle` (Child Class)**
 
-2. `Circle` (Child Class)
-
-• **Inheritance**: Inherits from `Shape`.
-
-• **Constructor** (`__init__`): Takes `name` and `radius`. _Must use_ `super().__init__` to set the `name`. Stores `radius`.
-
-• **Method Overriding**:
-
-    ○ `area()`: Calculates and returns the area (Formula: $\pi r^2$, use $3.14$ for $\pi$).
-
-    ○ `perimeter()`: Calculates and returns the perimeter (Formula: $2\pi r$, use $3.14$ for $\pi$).
-
-3. `Rectangle` (Child Class)
-
-• **Inheritance**: Inherits from `Shape`.
-
-• **Constructor** (`__init__`): Takes `name`, `width`, and `height`. _Must use_ `super().__init__` to set the `name`. Stores `width` and `height`.
-
-• **Method Overriding**:
-
-    ○ `area()`: Calculates and returns the area (Formula: $w \times h$).
-
-    ○ `perimeter()`: Calculates and returns the perimeter (Formula: $2(w + h)$).
+- **Inheritance**: Inherits from `Shape`.
+- **Constructor** (`__init__`): Takes `name`, `width`, and `height`. _Must use_ `super().__init__` to set the `name`. Stores `width` and `height`.
+- **Method Overriding**:
+  - `area()`: Calculates and returns the area (Formula: w \* h).
+  - `perimeter()`: Calculates and returns the perimeter (Formula: 2(w + h)).
 
 ### Project Demonstration
 

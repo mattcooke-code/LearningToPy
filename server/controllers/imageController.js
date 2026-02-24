@@ -11,6 +11,7 @@ const moduleFolders = {
   M3: "Module3_ControlFlow",
   M4: "Module4_Iteration",
   M5: "Module5_DataStructures",
+  M12: "Module12_OOP2",
 };
 
 const mimeTypes = {
