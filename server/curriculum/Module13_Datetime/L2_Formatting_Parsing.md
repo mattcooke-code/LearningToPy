@@ -48,7 +48,9 @@ print(formatted_str_2)
 
 The `strptime()` method (string parse time) converts a string representation of a date/time into a `datetime` object.
 
-Crucially, the format string used in `strptime()` must **EXACTLY** match the structure of the input string.
+:::warning
+The format string used in `strptime()` must **EXACTLY** match the structure of the input string.
+:::
 
 **Syntax**: `datetime.strptime(date_string, format_string)`
 
@@ -76,4 +78,52 @@ print(f"Year Component: {dt_object.year}")
 # Output: Year Component: 2027
 ```
 
+### Date Formatting and The ISO Standard
+
+Different countries use different conventions for recording date formats.
+
+```python
+# US format: month/day/year
+us_date_string = "05/20/2024"
+us_format = "%m/%d/%Y"
+us_date = datetime.strptime(us_date_string, us_format)
+print(f"US date: {us_date}")  # 2024-05-20
+
+# UK format: day/month/year
+uk_date_string = "20/05/2024"
+uk_format = "%d/%m/%Y"
+uk_date = datetime.strptime(uk_date_string, uk_format)
+print(f"UK date: {uk_date}")   # 2024-05-20 (same date, different input)
+```
+
+For storing or exchanging dates, the **ISO 8601** format (`YYYY-MM-DD`) is the international standard. It's unambiguous, naturally sortable, and not tied to any region's conventions.
+
+```python
+from datetime import datetime
+
+# ISO format: year-month-day
+iso_date_string = "2024-05-20"
+iso_format = "%Y-%m-%d"
+iso_date = datetime.strptime(iso_date_string, iso_format)
+print(f"ISO date: {iso_date}")  # 2024-05-20
+
+# ISO format is also what Python uses when printing datetime objects
+today = datetime.now()
+print(today)  # 2026-02-24 14:30:45.123456 (ISO-style date)
+```
+
+:::note
 If the format string contains an extra space, is missing a comma, or uses the wrong directive (e.g., using `%B` for an abbreviated month), `strptime()` will raise a `ValueError`.
+:::
+
+:::summary
+
+- `strftime()` **formats** a `datetime` object into a string (datetime → string)
+- `strptime()` **parses** a string into a `datetime` object (string → datetime)
+- Format strings use directives like `%Y`, `%m`, `%d`, `%H`, `%M` to specify the date/time components
+- Common directives: `%Y` (year), `%m` (month), `%d` (day), `%H` (24-hour), `%I` (12-hour), `%p` (AM/PM), `%B` (full month name), `%A` (full weekday)
+- The format string in `strptime()` must **exactly match** the input string's structure
+- Mismatched formats raise a `ValueError`
+- These methods are essential for user interfaces, data storage, and reading external data sources
+
+:::

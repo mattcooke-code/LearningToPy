@@ -3,22 +3,33 @@
   "instructions": "Use `timedelta` to calculate the difference between two dates and determine a future deadline.",
   "steps": [
     "Import `datetime` and `timedelta` from the `datetime` module.",
-    "Define two datetime objects: `project_start = datetime(2024, 9, 10)` and `project_end = datetime(2025, 1, 15)`.",
-    "Calculate the duration of the project (`project_end - project_start`). Store the result in `duration` and print it.",
-    "Define a `timedelta` representing a 45-day extension: `extension = timedelta(days=45)`.",
+    "Define two datetime objects: `project_start = datetime(2024, 9, 10)` and `project_end = datetime(2025, 1, 15)` (completed).",
+    "Calculate the duration of the project using the start and end objects. Store the result in `duration` and print it.",
+    "Define a `timedelta` representing a 45-day extension. Store it in `extension`.",
     "Calculate the new deadline by adding the `extension` to the `project_end` date. Store it in `new_deadline`.",
     "Print the `new_deadline` (date only, using `.date()` attribute)."
   ],
-  "starterCode": "from datetime import datetime, timedelta\n\nproject_start = datetime(2024, 9, 10)\nproject_end = datetime(2025, 1, 15)\n\n# 1. Calculate duration and print\nduration = ...\nprint(duration)\n\n# 2. Define the extension timedelta\nextension = ...\n\n# 3. Calculate and print the new deadline\nnew_deadline = ...\nprint(new_deadline.date())\n",
-  "solution": "from datetime import datetime, timedelta\n\nproject_start = datetime(2024, 9, 10)\nproject_end = datetime(2025, 1, 15)\n\n# 1. Calculate duration and print\nduration = project_end - project_start\nprint(duration)\n\n# 2. Define the extension timedelta\nextension = timedelta(days=45)\n\n# 3. Calculate and print the new deadline\nnew_deadline = project_end + extension\nprint(new_deadline.date())\n",
+  "starterCode": "# Step 1: Import datetime and timedelta\n\n\n\nproject_start = datetime(2024, 9, 10)\nproject_end = datetime(2025, 1, 15)\n\n# Step 2: Calculate duration\n\n\n\n# Step 3: Define the extension timedelta\n\n\n\n# Step 4: Calculate and print the new deadline\n\n\n\nprint(new_deadline.date())\n",
+  "solution": "# Step 1: Import datetime and timedelta\nfrom datetime import datetime, timedelta\n\nproject_start = datetime(2024, 9, 10)\nproject_end = datetime(2025, 1, 15)\n\n# Step 2: Calculate duration\nduration = project_end - project_start\nprint(duration)\n\n# Step 3: Define the extension timedelta\nextension = timedelta(days=45)\n\n# Step 4: Calculate and print the new deadline\nnew_deadline = project_end + extension\nprint(new_deadline.date())\n",
   "fileSetup": {},
   "hints": [
-    "Subtracting two `datetime` objects (`project_end - project_start`) gives you the `timedelta` object.",
-    "To calculate the future date, use the addition operator: `project_end + extension`.",
-    "The problem asks you to print only the date part of the `new_deadline` object."
+    "**Step 1: Import**\n```python\nfrom datetime import datetime, timedelta\n```\n\n**Step 2: Calculate duration**\n```python\nduration = project_end - project_start\nprint(duration)  # Should show: 127 days, 0:00:00\n```\n\n**Step 3: Create timedelta**\n```python\nextension = timedelta(days=45)\n```\n\n**Step 4: Add and display**\n```python\nnew_deadline = project_end + extension\nprint(new_deadline.date())  # Use .date() to show only the date part\n```\n\n**Key Concepts:**\n- Subtracting dates gives a `timedelta` (duration)\n- Adding a `timedelta` to a date moves it forward\n- Use `.date()` to display only the date portion\n- The result should be March 1, 2025 (January 15 + 45 days)"
   ],
   "validation": "tests",
-  "tests": [],
+  "tests": [
+    {
+      "name": "Check imports",
+      "code": "import ast\n\n# Parse the code\nuser_code = code\ntree = ast.parse(user_code)\n\n# Check for correct import\nfound_datetime = False\nfound_timedelta = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ImportFrom) and node.module == 'datetime':\n        for name in node.names:\n            if name.name == 'datetime':\n                found_datetime = True\n            if name.name == 'timedelta':\n                found_timedelta = True\n\nif not found_datetime:\n    raise AssertionError('Step 1: Missing import: from datetime import datetime')\nif not found_timedelta:\n    raise AssertionError('Step 1: Missing import: from datetime import timedelta')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check duration calculation",
+      "code": "import sys\nfrom io import StringIO\nfrom datetime import datetime, timedelta\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check if duration exists\nif 'duration' not in exec_globals:\n    raise AssertionError('Step 2: duration variable not found')\n\nduration = exec_globals['duration']\n\n# Check type\nif not isinstance(duration, timedelta):\n    raise AssertionError('duration should be a timedelta object')\n\n# Check value (Sep 10, 2024 to Jan 15, 2025 = 127 days)\nexpected_days = 127\nif duration.days != expected_days:\n    raise AssertionError(f'Duration should be {expected_days} days, got {duration.days} days')\n\n# Check that it was printed\nif '127 days' not in output:\n    raise AssertionError('duration should be printed')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check extension and new deadline",
+      "code": "import sys\nfrom io import StringIO\nfrom datetime import datetime, timedelta\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check if extension exists\nif 'extension' not in exec_globals:\n    raise AssertionError('Step 3: extension variable not found')\n\nextension = exec_globals['extension']\n\n# Check type\nif not isinstance(extension, timedelta):\n    raise AssertionError('extension should be a timedelta object')\n\n# Check value\nif extension.days != 45:\n    raise AssertionError(f'extension should be 45 days, got {extension.days} days')\n\n# Check if new_deadline exists\nif 'new_deadline' not in exec_globals:\n    raise AssertionError('Step 4: new_deadline variable not found')\n\nnew_deadline = exec_globals['new_deadline']\n\n# Check type\nif not isinstance(new_deadline, datetime):\n    raise AssertionError('new_deadline should be a datetime object')\n\n# Check value (Jan 15, 2025 + 45 days = March 1, 2025)\nif new_deadline.year != 2025:\n    raise AssertionError(f'new_deadline year should be 2025, got {new_deadline.year}')\nif new_deadline.month != 3:\n    raise AssertionError(f'new_deadline month should be 3 (March), got {new_deadline.month}')\nif new_deadline.day != 1:\n    raise AssertionError(f'new_deadline day should be 1, got {new_deadline.day}')\n\n# Check that date was printed\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# Find the last line (should be the date)\nif len(lines) < 2:\n    raise AssertionError('Expected at least 2 lines of output')\n\nlast_line = lines[-1]\nif '2025-03-01' not in last_line:\n    raise AssertionError(f'Expected new deadline date to be printed as 2025-03-01, got {last_line}')\n\nprint('TEST_PASSED')"
+    }
+  ],
   "tags": ["timedelta", "arithmetic", "date-difference", "date-manipulation"],
   "challengeGroup": "datetime-timedelta"
 }

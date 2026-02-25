@@ -79,3 +79,15 @@ print(f"Date three days ago: {three_days_ago.date()}")
 ```
 
 This flexibility makes `timedelta` essential for scheduling tasks, calculating deadlines, or determining intervals in time series data.
+
+:::summary
+
+- **`timedelta`** represents a duration or span of time (days, hours, minutes, seconds)
+- Subtracting two `datetime` objects always returns a `timedelta` object
+- Create `timedelta` objects manually: `timedelta(days=5, hours=3, minutes=30)`
+- Add or subtract a `timedelta` from a `datetime` to calculate future or past dates
+- Access total seconds with `.total_seconds()` method
+- Common `timedelta` arguments: `days`, `hours`, `minutes`, `seconds`, `weeks`
+- `timedelta` is essential for scheduling, deadlines, and time series calculations
+
+:::

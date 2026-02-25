@@ -1,0 +1,45 @@
+{
+  "lessonId": "M13L1",
+  "title": "The datetime Module - Quiz",
+  "questions": [
+    {
+      "id": "m13l1_q1",
+      "type": "multiple-choice",
+      "question": "Which import statement is recommended to import just the `datetime` class from the `datetime` module?",
+      "options": [
+        "`import datetime`",
+        "`from datetime import datetime`",
+        "`import datetime as dt`",
+        "`from datetime import *`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`from datetime import datetime` imports only the `datetime` class from the module, making it cleaner to use (just `datetime.now()` instead of `datetime.datetime.now()`)."
+    },
+    {
+      "id": "m13l1_q2",
+      "type": "multiple-choice",
+      "question": "What will `datetime.now()` return?",
+      "options": [
+        "The current date only",
+        "The current time only",
+        "The current date and time",
+        "The current date as a string"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`datetime.now()` returns a `datetime` object containing both the current date and time, including microseconds."
+    },
+    {
+      "id": "m13l1_q3",
+      "type": "multiple-choice",
+      "question": "Given `dt = datetime(2026, 12, 25, 10, 30)`, what does `dt.weekday()` return?",
+      "options": [
+        "The day of the month (25)",
+        "The day of the week with Monday=0",
+        "The week number of the year",
+        "The hour (10)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `weekday()` method returns the day of the week as an integer where Monday is 0 and Sunday is 6. It doesn't return the date, hour, or week number."
+    }
+  ]
+}

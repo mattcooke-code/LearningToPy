@@ -1,3 +1,160 @@
 {
-  "questions": []
+  "questions": [
+    {
+      "id": "m13_review_q1",
+      "type": "multiple-choice",
+      "question": "Which import statement is recommended to import just the `datetime` class from the `datetime` module?",
+      "options": [
+        "`import datetime`",
+        "`from datetime import datetime`",
+        "`import datetime as dt`",
+        "`from datetime import *`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`from datetime import datetime` imports only the `datetime` class from the module, making it cleaner to use (just `datetime.now()` instead of `datetime.datetime.now()`)."
+    },
+    {
+      "id": "m13_review_q2",
+      "type": "multiple-choice",
+      "question": "What will `datetime.now()` return?",
+      "options": [
+        "The current date only",
+        "The current time only",
+        "The current date and time",
+        "The current date as a string"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`datetime.now()` returns a `datetime` object containing both the current date and time, including microseconds."
+    },
+    {
+      "id": "m13_review_q3",
+      "type": "multiple-choice",
+      "question": "Given `dt = datetime(2026, 12, 25, 10, 30)`, what does `dt.weekday()` return?",
+      "options": [
+        "The day of the month (25)",
+        "The day of the week with Monday=0",
+        "The week number of the year",
+        "The hour (10)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `weekday()` method returns the day of the week as an integer where Monday is 0 and Sunday is 6. It doesn't return the date, hour, or week number."
+    },
+    {
+      "id": "m13_review_q4",
+      "type": "multiple-choice",
+      "question": "What does the `strftime()` method do?",
+      "options": [
+        "Converts a string into a datetime object",
+        "Converts a datetime object into a formatted string",
+        "Returns the current time as a string",
+        "Calculates the difference between two dates"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`strftime()` (string format time) converts a datetime object into a string according to a specified format pattern."
+    },
+    {
+      "id": "m13_review_q5",
+      "type": "multiple-choice",
+      "question": "What would be the correct format string to parse the date string '25/12/2025'?",
+      "options": [
+        "`'%m/%d/%Y'`",
+        "`'%d/%m/%Y'`",
+        "`'%Y/%m/%d'`",
+        "`'%d-%m-%Y'`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Since the day (25) comes before the month (12) in '25/12/2025', the correct format is `'%d/%m/%Y'`. The forward slashes in the format string must match the separators in the input string."
+    },
+    {
+      "id": "m13_review_q6",
+      "type": "multiple-choice",
+      "question": "What will happen if you use the wrong format string with `strptime()`?",
+      "options": [
+        "It will return None",
+        "It will automatically correct the format",
+        "It will raise a ValueError",
+        "It will return a string instead of a datetime object"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`strptime()` is strict about format matching. If the format string doesn't exactly match the input string's structure, it raises a `ValueError`."
+    },
+    {
+      "id": "m13_review_q7",
+      "type": "multiple-choice",
+      "question": "What type of object is returned when you subtract one `datetime` from another?",
+      "options": [
+        "A string",
+        "Another datetime object",
+        "A timedelta object",
+        "A float representing seconds"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Subtracting two datetime objects always returns a `timedelta` object representing the duration between them."
+    },
+    {
+      "id": "m13_review_q8",
+      "type": "multiple-choice",
+      "question": "If `today = datetime(2025, 3, 15)` and `one_week = timedelta(weeks=1)`, what will `today + one_week` give you?",
+      "options": [
+        "`datetime(2025, 3, 8)`",
+        "`datetime(2025, 3, 22)`",
+        "`timedelta(weeks=1)`",
+        "`datetime(2025, 3, 15, 1, 0)`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Adding a timedelta to a datetime moves the date forward. One week after March 15 is March 22."
+    },
+    {
+      "id": "m13_review_q9",
+      "type": "multiple-choice",
+      "question": "What does the `.total_seconds()` method of a `timedelta` object return?",
+      "options": [
+        "The number of whole days converted to seconds",
+        "The total duration expressed in seconds (including fractional seconds)",
+        "The number of seconds remaining until midnight",
+        "The seconds component only (ignoring days and hours)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`.total_seconds()` converts the entire timedelta duration into a single floating-point number of seconds. For example, a timedelta of 1 day would return 86400.0."
+    },
+    {
+      "id": "m13_review_q10",
+      "type": "multiple-choice",
+      "question": "What is the difference between a naive and an aware datetime object?",
+      "options": [
+        "Naive objects can only store dates, aware objects can store times",
+        "Naive objects have no time zone information; aware objects include time zone data",
+        "Naive objects are for the past, aware objects are for the future",
+        "Naive objects use the Gregorian calendar, aware objects use other calendars"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A naive datetime has no time zone information attached. An aware datetime includes time zone data (`tzinfo`), making it unambiguous for global applications."
+    },
+    {
+      "id": "m13_review_q11",
+      "type": "multiple-choice",
+      "question": "If you have an aware datetime in `Europe/London` and want to convert it to `Asia/Tokyo`, which method should you use?",
+      "options": [
+        "`.replace(tzinfo=...)`",
+        "`.convert(tz=...)`",
+        "`.astimezone(...)`",
+        "`.totimezone(...)`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `.astimezone(target_tz)` method converts an aware datetime from its current time zone to another specified time zone."
+    },
+    {
+      "id": "m13_review_q12",
+      "type": "multiple-choice",
+      "question": "If it's 9:00 AM in London in July (BST, UTC+1), what time is it in Tokyo (UTC+9)?",
+      "options": [
+        "2:00 AM",
+        "5:00 PM (17:00)",
+        "8:00 PM (20:00)",
+        "9:00 PM (21:00)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "London in July is UTC+1 (BST). Tokyo is UTC+9. The difference is +8 hours. 9:00 AM + 8 hours = 5:00 PM (17:00) Tokyo time."
+    }
+  ]
 }

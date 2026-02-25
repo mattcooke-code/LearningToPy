@@ -1,0 +1,45 @@
+{
+  "lessonId": "M13L4",
+  "title": "Time Zones and Conversion - Quiz",
+  "questions": [
+    {
+      "id": "m13l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the difference between a naive and an aware datetime object?",
+      "options": [
+        "Naive objects can only store dates, aware objects can store times",
+        "Naive objects have no time zone information; aware objects include time zone data",
+        "Naive objects are for the past, aware objects are for the future",
+        "Naive objects use the Gregorian calendar, aware objects use other calendars"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A naive datetime has no time zone information attached. An aware datetime includes time zone data (`tzinfo`), making it unambiguous for global applications."
+    },
+    {
+      "id": "m13l4_q2",
+      "type": "multiple-choice",
+      "question": "If you have an aware datetime in `Europe/London` and want to convert it to `Asia/Tokyo`, which method should you use?",
+      "options": [
+        "`.replace(tzinfo=...)`",
+        "`.convert(tz=...)`",
+        "`.astimezone(...)`",
+        "`.totimezone(...)`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `.astimezone(target_tz)` method converts an aware datetime from its current time zone to another specified time zone."
+    },
+    {
+      "id": "m13l4_q3",
+      "type": "multiple-choice",
+      "question": "If it's 9:00 AM in London in July (BST, UTC+1), what time is it in Tokyo (UTC+9)?",
+      "options": [
+        "2:00 AM",
+        "5:00 PM (17:00)",
+        "8:00 PM (20:00)",
+        "9:00 PM (21:00)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "London in July is UTC+1 (BST). Tokyo is UTC+9. The difference is +8 hours. 9:00 AM + 8 hours = 5:00 PM (17:00) Tokyo time."
+    }
+  ]
+}

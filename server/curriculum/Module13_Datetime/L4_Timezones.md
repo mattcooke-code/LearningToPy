@@ -1,12 +1,13 @@
 # 🌎 Time Zones (`tzinfo`) and Conversion
 
-When working with dates and times, you must account for time zones to ensure accuracy, especially across geographical regions. A `datetime` object can be "naive" (no time zone information) or "aware" (includes time zone information).
+When working with dates and times, you must account for time zones to ensure accuracy, especially across geographical regions. A `datetime` object can be **naive** (no time zone information) or **aware** (includes time zone information).
 
 ## 1. Naive vs. Aware Datetimes
 
-• **Naive**: A `datetime` object created without an associated time zone. Python assumes it's in the local time zone, which can lead to errors when calculating differences across daylight saving time (DST) changes or different regions.
-
-• **Aware**: A `datetime` object that includes time zone information (`tzinfo`). This is required for accurate global time tracking.
+| Datetime | Description                                                                                                                                                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Naive    | A `datetime` object created without an associated time zone. Python assumes it's in the local time zone, which can lead to errors when calculating differences across daylight saving time (DST) changes or different regions. |
+| Aware    | A `datetime` object that includes time zone information (`tzinfo`). This is required for accurate global time tracking.                                                                                                        |
 
 ## 2. Using the `zoneinfo` Module (Python 3.9+)
 
@@ -76,3 +77,16 @@ print(f"UTC Time: {utc_dt}")
 
 # Output: 2025-12-01 10:00:00+00:00
 ```
+
+:::summary
+
+- **Naive** datetimes have no time zone information; **aware** datetimes include time zone data (`tzinfo`)
+- Use the `zoneinfo` module (Python 3.9+) with IANA time zone names like `'Europe/London'`, `'America/New_York'`, `'Asia/Tokyo'`
+- Create an aware datetime: `datetime(year, month, day, hour, minute, tzinfo=ZoneInfo('zone'))`
+- Or make an existing naive datetime aware with `.replace(tzinfo=ZoneInfo('zone'))`
+- Convert between time zones using `.astimezone(target_tz)`
+- **UTC** (Coordinated Universal Time) is the global standard for storing times
+- Time zone conversion automatically handles **Daylight Saving Time** (DST) where applicable
+- For accurate global applications, always work with aware datetimes
+
+:::

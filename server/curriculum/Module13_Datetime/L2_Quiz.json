@@ -1,0 +1,45 @@
+{
+  "lessonId": "M13L2",
+  "title": "Date Formatting and Parsing - Quiz",
+  "questions": [
+    {
+      "id": "m13l2_q1",
+      "type": "multiple-choice",
+      "question": "What does the `strftime()` method do?",
+      "options": [
+        "Converts a string into a datetime object",
+        "Converts a datetime object into a formatted string",
+        "Returns the current time as a string",
+        "Calculates the difference between two dates"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`strftime()` (string format time) converts a datetime object into a string according to a specified format pattern."
+    },
+    {
+      "id": "m13l2_q2",
+      "type": "multiple-choice",
+      "question": "What would be the correct format string to parse the date string '25/12/2025'?",
+      "options": [
+        "`'%m/%d/%Y'`",
+        "`'%d/%m/%Y'`",
+        "`'%Y/%m/%d'`",
+        "`'%d-%m-%Y'`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Since the day (25) comes before the month (12) in '25/12/2025', the correct format is `'%d/%m/%Y'`. The forward slashes in the format string must match the separators in the input string."
+    },
+    {
+      "id": "m13l2_q3",
+      "type": "multiple-choice",
+      "question": "What will happen if you use the wrong format string with `strptime()`?",
+      "options": [
+        "It will return None",
+        "It will automatically correct the format",
+        "It will raise a ValueError",
+        "It will return a string instead of a datetime object"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`strptime()` is strict about format matching. If the format string doesn't exactly match the input string's structure, it raises a `ValueError`."
+    }
+  ]
+}

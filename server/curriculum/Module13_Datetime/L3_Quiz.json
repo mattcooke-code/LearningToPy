@@ -1,0 +1,45 @@
+{
+  "lessonId": "M13L3",
+  "title": "Date Arithmetic with timedelta - Quiz",
+  "questions": [
+    {
+      "id": "m13l3_q1",
+      "type": "multiple-choice",
+      "question": "What type of object is returned when you subtract one `datetime` from another?",
+      "options": [
+        "A string",
+        "Another datetime object",
+        "A timedelta object",
+        "A float representing seconds"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Subtracting two datetime objects always returns a `timedelta` object representing the duration between them."
+    },
+    {
+      "id": "m13l3_q2",
+      "type": "multiple-choice",
+      "question": "If `today = datetime(2025, 3, 15)` and `one_week = timedelta(weeks=1)`, what will `today + one_week` give you?",
+      "options": [
+        "`datetime(2025, 3, 8)`",
+        "`datetime(2025, 3, 22)`",
+        "`timedelta(weeks=1)`",
+        "`datetime(2025, 3, 15, 1, 0)`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Adding a timedelta to a datetime moves the date forward. One week after March 15 is March 22."
+    },
+    {
+      "id": "m13l3_q3",
+      "type": "multiple-choice",
+      "question": "What does the `.total_seconds()` method of a `timedelta` object return?",
+      "options": [
+        "The number of whole days converted to seconds",
+        "The total duration expressed in seconds (including fractional seconds)",
+        "The number of seconds remaining until midnight",
+        "The seconds component only (ignoring days and hours)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`.total_seconds()` converts the entire timedelta duration into a single floating-point number of seconds. For example, a timedelta of 1 day would return 86400.0."
+    }
+  ]
+}

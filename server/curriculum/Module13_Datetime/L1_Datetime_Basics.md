@@ -4,13 +4,27 @@ Python's built-in `datetime` module is the standard library for working with dat
 
 ## 1. Importing the Module
 
-Unlike many parts of Python which are available globally, the `datetime` module must be explicitly imported.
+Unlike many parts of Python which are available globally, the `datetime` module must be explicitly imported. There are a few common ways to do this.
 
 ```python
+# Option 1: Import the whole module
 import datetime
-# OR
-from datetime import date, time, datetime # Recommended for clarity
+# Then use: datetime.datetime.now()
+
+# Option 2: Import just the datetime class (Recommended for our lessons)
+from datetime import datetime
+# Then use: datetime.now() directly
+
+# Option 3: Import multiple classes at once
+from datetime import date, time, datetime
+# Then use: date.today(), time(14,30), datetime.now()
 ```
+
+For the exercises in this module, we'll use **Option 2** `from datetime import datetime` because it keeps our code clean and matches the examples. The `datetime` class contains both date and time information, which is exactly what we need.
+
+:::note
+If you use `import datetime` (Option 1), you'll need to write `datetime.datetime.now()` - the extra `datetime.` tells Python to look inside the module. Option 2 saves you from typing that extra prefix every time.
+:::
 
 ## 2. The Core Objects
 
@@ -65,16 +79,36 @@ print(f"Datetime: {specific_moment}")
 
 ## 4. Accessing Components
 
-You can access individual components (year, month, hour, etc.) as attributes of the object.
+You can access individual components (year, month, hour, etc.) as attributes of the object. Python also provides methods to get the day of the week.
 
 ```python
 from datetime import datetime
 
 dt = datetime(2025, 10, 25, 15, 45)
 
-print(f"Year: {dt.year}") # 2025
-print(f"Month: {dt.month}") # 10
-print(f"Day of Week (Monday=0): {dt.weekday()}") # 5 (Saturday)
-print(f"Hour: {dt.hour}") # 15
-print(f"Minute: {dt.minute}") # 45
+print(f"Year: {dt.year}")        # 2025
+print(f"Month: {dt.month}")       # 10
+print(f"Day: {dt.day}")          # 25
+print(f"Hour: {dt.hour}")         # 15
+print(f"Minute: {dt.minute}")     # 45
+
+# Day of week methods
+print(f"Weekday (Monday=0, Sunday=6): {dt.weekday()}")     # 5 (Saturday)
+print(f"Weekday (Monday=1, Sunday=7): {dt.isoweekday()}")  # 6 (Saturday)
 ```
+
+:::note
+The `weekday()` method returns Monday as 0 and Sunday as 6, while `isoweekday()` follows the ISO standard with Monday as 1 and Sunday as 7.
+:::
+
+:::summary
+
+- The `datetime` module must be **explicitly imported** before use
+- Core classes: `date` (date only), `time` (time only), `datetime` (both), and `timedelta` (duration)
+- Use `datetime.now()` to get the **_current_** date and time
+- Create specific dates with `datetime(year, month, day, hour, minute)`
+- Access components using _dot notation_: `object.year`, `object.month`, `object.hour`, etc.
+- Use `weekday()` (Monday=0) or `isoweekday()` (Monday=1) to get day of week
+- Python handles date components as integers, making them easy to work with
+
+:::
