@@ -1,0 +1,145 @@
+{
+  "questions": [
+    {
+      "id": "m16_review_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of an HTTP status code?",
+      "options": [
+        "To encrypt the data being sent",
+        "To tell the client the outcome of their request",
+        "To specify which HTTP method to use",
+        "To determine the server's IP address"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Status codes are three-digit numbers sent by the server that indicate whether a request was successful (2xx), caused a client error (4xx), or resulted in a server error (5xx)."
+    },
+    {
+      "id": "m16_review_q2",
+      "type": "multiple-choice",
+      "question": "Which HTTP method is used to retrieve data from a server?",
+      "options": ["POST", "GET", "PUT", "DELETE"],
+      "correctAnswer": 1,
+      "explanation": "GET is used to request data from a specified resource. It should only retrieve data and have no other side effects."
+    },
+    {
+      "id": "m16_review_q3",
+      "type": "multiple-choice",
+      "question": "What does a status code in the 400 range (e.g., 404) indicate?",
+      "options": [
+        "Success - The request worked!",
+        "Redirection - The resource moved",
+        "Client Error - There was a problem with the request",
+        "Server Error - The server failed to process the request"
+      ],
+      "correctAnswer": 2,
+      "explanation": "400-range codes indicate client errors. 404 specifically means 'Not Found' - the requested resource doesn't exist on the server."
+    },
+    {
+      "id": "m16_review_q4",
+      "type": "multiple-choice",
+      "question": "When using the `requests` library, what is the best practice for sending query parameters to a server?",
+      "options": [
+        "Manually typing the query string into the URL variable",
+        "Using an f-string to inject variables after a '?' symbol",
+        "Passing a dictionary of key-value pairs to the `params` argument",
+        "Creating a separate text file containing the parameter list"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Using the `params` argument with a dictionary is the standard approach because it is cleaner, more readable, and handles URL encoding automatically."
+    },
+    {
+      "id": "m16_review_q5",
+      "type": "multiple-choice",
+      "question": "Which property of the response object should you check to see the final URL constructed by the `requests` library?",
+      "options": [
+        "response.text",
+        "response.url",
+        "response.status_code",
+        "response.links"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `.url` property is a powerful debugging tool that shows exactly how the library merged the base URL with your query parameters."
+    },
+    {
+      "id": "m16_review_q6",
+      "type": "multiple-choice",
+      "question": "Why is it important to use the `params` argument instead of manually building a URL string when dealing with special characters like spaces or '&'?",
+      "options": [
+        "It automatically performs URL encoding to ensure the URL is valid",
+        "It encrypts the parameters so they are hidden from the server",
+        "It compresses the URL to make the request travel faster",
+        "It bypasses the need for an internet connection during testing"
+      ],
+      "correctAnswer": 0,
+      "explanation": "URL encoding converts reserved characters into a safe format (like %20 for a space) so that the web server can interpret the request correctly."
+    },
+    {
+      "id": "m16_review_q7",
+      "type": "multiple-choice",
+      "question": "Which Python data type does a JSON 'Array' (`[]`) map to when using `.json()`?",
+      "options": ["Dictionary", "Tuple", "List", "String"],
+      "correctAnswer": 2,
+      "explanation": "JSON Arrays are ordered sequences of values, which map directly to Python Lists."
+    },
+    {
+      "id": "m16_review_q8",
+      "type": "multiple-choice",
+      "question": "Why is it risky to call `.json()` immediately after checking if the status code is `200`?",
+      "options": [
+        "The `.json()` method only works with `404` errors.",
+        "A `200` status only means the request finished; the body might still be empty or invalid JSON.",
+        "It will slow down the server response time.",
+        "Python automatically converts all responses to dictionaries anyway."
+      ],
+      "correctAnswer": 1,
+      "explanation": "A `200 OK` status confirms the server responded, but if the response body is malformed or empty, `.json()` will raise a `JSONDecodeError`."
+    },
+    {
+      "id": "m16_review_q9",
+      "type": "multiple-choice",
+      "question": "In the requests library, what is the syntactical difference between 'status_code' and 'json'?",
+      "options": [
+        "`status_code` is a method and requires parentheses `()`; `json` is an attribute.",
+        "Both are methods and require parentheses `()`.",
+        "`status_code` is an attribute; `json()` is a method and requires parentheses `()`.",
+        "There is no difference; both are used interchangeably."
+      ],
+      "correctAnswer": 2,
+      "explanation": "`status_code` is a property (attribute) stored on the object, while `.json()` is a function (method) that performs the work of parsing the string into Python objects."
+    },
+    {
+      "id": "m16_review_q10",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of a POST request in HTTP?",
+      "options": [
+        "To retrieve data from a server for processing",
+        "To send data to a server to create or update a resource",
+        "To delete a resource from a server",
+        "To establish a connection with a server"
+      ],
+      "correctAnswer": 1,
+      "explanation": "POST requests are used to send data to a server, typically to create a new resource (like submitting a form or creating a new database entry)."
+    },
+    {
+      "id": "m16_review_q11",
+      "type": "multiple-choice",
+      "question": "When using the `requests` library to send JSON data, which parameter should you use?",
+      "options": ["`data=`", "`params=`", "`json=`", "`headers=`"],
+      "correctAnswer": 2,
+      "explanation": "The `json=` parameter automatically converts your Python dictionary to a JSON string and sets the correct `Content-Type` header to `application/json`."
+    },
+    {
+      "id": "m16_review_q12",
+      "type": "multiple-choice",
+      "question": "You're writing code to create a new user account on a website using their API. Which status code would you expect to see if the account was successfully created?",
+      "options": [
+        "`200 OK` - The request succeeded",
+        "`201 Created` - A new resource was created",
+        "`204 No Content` - Success but no data returned",
+        "`404 Not Found` - The API endpoint doesn't exist"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When a POST request successfully creates a new resource (like a user account), the API typically returns a `201 Created` status code. This is more specific than `200 OK` and tells you exactly what happened: a new resource was created on the server."
+    }
+  ]
+}

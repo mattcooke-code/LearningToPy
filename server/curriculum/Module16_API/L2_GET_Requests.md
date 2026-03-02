@@ -4,69 +4,75 @@ The **GET** method is the simplest and most common way to retrieve data from a w
 
 ## 1. The Basic `requests.get()` Call
 
-The `requests` library makes fetching data straightforward. You pass the URL, and Python handles the low-level communication.
-
-### Simple GET Request
-
-To fetch the data, you use `requests.get(url)`. The key is accessing the response's content. For text or HTML, you use the `.text` attribute.
+The `requests` library handles the low-level communication for you. To fetch data, you use `requests.get(url)` and then access the response's content using the `.text` attribute for raw strings.
 
 ```python
 import requests
 
-# A simple public API endpoint
-api_url = "[https://jsonplaceholder.typicode.com/posts/1](https://jsonplaceholder.typicode.com/posts/1)"
+api_url = "https://jsonplaceholder.typicode.com/posts/1"
 
 # The GET request
 response = requests.get(api_url)
 
-# Check the status code (must be 200 for success)
+# Check the status code (200 = Success)
 if response.status_code == 200:
-    # Access the content as a raw string (usually JSON or HTML)
+    # Access content as a string
     data_string = response.text
     print(data_string)
 else:
-    print(f"Error fetching data: Status Code {response.status_code}")
+    print(f"Error: Status Code {response.status_code}")
 ```
 
-**Note**: For data returned in JSON format (which is the most common for APIs), you should use the cleaner `.json()` method, which we will cover in the next lesson.
+:::note
+For data returned in JSON format (which is the most common for APIs), you should use the `.json()` method, which we will cover in the next lesson.
+:::
 
 ## 2. Using Query Parameters
 
-Often, you don't want all the data from an API; you want to filter or customize the result. You achieve this by passing **Query Parameters** (sometimes called query strings).
-
-In a URL, query parameters appear after a question mark (`?`) and are separated by ampersands (`&`).
-
-### URL Example with Query Parameters:
-
-`https://api.example.com/users**?city=London&status=active**`
-
-While you _could_ manually construct this string, it's error-prone, especially with special characters. The `requests` library provides a much cleaner way using the optional `params` argument.
+**Query Parameters** allow you to filter or customize the results returned by an API. These appear in a URL after a question mark `?` and are separated by ampersands `&`.
 
 ### Using the `params` Argument (Recommended)
 
-You pass a Python Dictionary of key-value pairs to the `params` parameter in the `requests.get()` function. The library automatically builds and encodes the URL for you.
+While you _could_ manually type out a long URL string, the `requests` library provides a `params` argument that accepts a **Python Dictionary**.
+
+### Why use `params`?
+
+- **Automatic Encoding:** It converts special characters (like spaces or symbols) into a format the web understands (URL Encoding).
+- **Readability:** Dictionaries are easier to read and maintain than long, messy strings.
+- **Debugging:** You can use `response.url` to see exactly what URL the library built for you.
 
 ```python
 import requests
 
-base_url = "[https://jsonplaceholder.typicode.com/posts](https://jsonplaceholder.typicode.com/posts)"
+base_url = "https://jsonplaceholder.typicode.com/posts"
 
-# Define the query parameters as a Python dictionary
-# We want to find all posts belonging to 'userId' 5
-params = {
+# Define parameters as a dictionary
+query_params = {
     'userId': 5,
-    '_limit': 3 # A common parameter to limit the number of results
+    '_limit': 3
 }
 
-# The requests library automatically converts this dictionary into the correct query string in the URL
-response = requests.get(base_url, params=params)
+# The library builds the URL: .../posts?userId=5&_limit=3
+response = requests.get(base_url, params=query_params)
 
+# DEBUGGING TIP: Print the final URL to verify your parameters
 print(f"Request URL: {response.url}")
-# Output: Request URL: [https://jsonplaceholder.typicode.com/posts?userId=5&_limit=3](https://jsonplaceholder.typicode.com/posts?userId=5&_limit=3)
 
 if response.status_code == 200:
-    # This response.text will now contain only the data filtered for userId 5
     print("Successfully retrieved filtered data.")
 ```
 
-Using the `params` argument is the **best practice** for passing query strings in Python.
+:::warning
+Query parameters are visible in the browser's address bar and server logs. **Never** use them to send sensitive data like passwords or secret API keys. Use Headers or POST bodies for sensitive info.
+:::
+
+:::summary
+
+- **GET Purpose:** Used primarily to retrieve or "read" data from a server.
+- **Status Codes**: A `200` status code indicates the request was successful; 400-level codes indicate a client-side error.
+- **The `.text` Attribute:** Converts the server's response into a readable Python string.
+- **Query Parameters:** Key-value pairs used to filter API results, starting with `?` in the URL.
+- **The `params` Argument:** The best-practice method for sending query strings via a Python dictionary.
+- **URL Encoding:** The automatic process where `requests` ensures special characters in your parameters don't break the URL.
+- **Debugging:** Always check `response.url` if you aren't getting the data you expected.
+  :::

@@ -1,24 +1,41 @@
 {
-  "title": "Finding a Bug with a Breakpoint",
-  "instructions": "The provided function `process_items` has a bug that prevents it from correctly processing the fourth item in the list. Use the `pdb` commands listed below to simulate the debugging process and identify the line number of the bug.",
+  "title": "Debugging Common Python Errors",
+  "instructions": "Each task contains a buggy piece of code with a Python error message. Fix the code based on the error message provided. All necessary variables are defined within each task.",
   "steps": [
-    "Read the code and observe that `process_items([10, 20, 30, 40, 50])` outputs `50` when it should output `40` (the fourth element squared).",
-    "**Simulate Debugging:** Imagine you placed a `breakpoint()` inside the function loop.",
-    "Use the `p` (print) command to check the value of the variable `i` when the loop processes the fourth item (index 3). What is the value of `i`?",
-    "Use the `p` command to check the value of the variable `result` on the same line. What is the value of `result`?",
-    "Identify the line of code that causes the mistake (where the index is calculated incorrectly or the check fails). Enter the line number of the erroneous line as the final answer.",
-    "*(Note: Since `pdb` is terminal-only, you will identify the line based on analysis rather than interactive execution.)*"
+    "**Task 1: Fix the SyntaxError** - Error: `SyntaxError: expected ':'`",
+    "**Task 2: Fix the IndentationError** - Error: `IndentationError: expected an indented block after 'if' statement`",
+    "**Task 3: Fix the NameError** - Error: `NameError: name 'usernme' is not defined. Did you mean: 'username'?`",
+    "**Task 4: Fix the TypeError** - Error: `TypeError: can only concatenate str (not \"int\") to str`",
+    "**Task 5: Fix the ValueError** - Error: `ValueError: invalid literal for int() with base 10: 'abc'`",
+    "**Task 6: Fix the ZeroDivisionError** - Error: `ZeroDivisionError: division by zero`"
   ],
-  "starterCode": "def process_items(items):\n    result = 0\n    for i in range(len(items)):\n        # BUG LINE - Index is calculated incorrectly, causing the fourth item (index 3)\n        # to be processed as the last item (index 4) and skipping index 3 entirely.\n        if i == len(items) - 2: # Line 6: THIS LINE IS THE BUG\n            print(\"Skipping penultimate item...\")\n            continue\n        \n        # The fourth item should be processed here, but is skipped.\n        if i == 3:\n            result = items[i] * items[i]\n\n    return result\n\n# Test Case: The input list has 5 items. The fourth item is 40. \n# Expected output: 1600 (40 * 40)\n# Actual output: 0 (The logic is fundamentally broken, but the goal is to find the line that breaks the flow.)\n\nprint(process_items([10, 20, 30, 40, 50]))\n",
-  "solution": "def process_items(items):\n    result = 0\n    for i in range(len(items)):\n        # BUG LINE: This logic is designed to skip the second-to-last item (index 3).\n        if i == len(items) - 2: # Line 6\n            print(\"Skipping penultimate item...\")\n            continue\n        \n        # The fourth item should be processed here, but is skipped.\n        if i == 3:\n            result = items[i] * items[i]\n\n    return result\n\n# The bug is on Line 6: `if i == len(items) - 2:`.\n# For a list of length 5, len(items) - 2 is 3.\n# When i == 3 (the index of 40), it hits this line and `continue`s, skipping the calculation on lines 11-12.\n\n# Simulating the check for i=3:\n# p i -> 3\n# p result (before skip) -> 0\n\n# The line that incorrectly skips the calculation is Line 6.\n# The final expected answer is the line number of the bug.\nprint(6)\n",
+  "starterCode": "# Task 1: Fix the SyntaxError\nuser_logged_in = True\nif user_logged_in\n    print(\"Welcome!\")\n\n\n# Task 2: Fix the IndentationError\ntemperature = 35\nif temperature > 30:\nprint(\"It's hot outside!\")\n\n\n# Task 3: Fix the NameError\nusername = \"alice\"\nprint(usernme)\n\n\n# Task 4: Fix the TypeError\nage = 25\nmessage = \"I am \" + age + \" years old\"\n\n\n# Task 5: Fix the ValueError\nuser_input = \"abc\"\nnumber = int(user_input)\n\n\n# Task 6: Fix the ZeroDivisionError\na = 10\nb = 0\nresult = a / b\n",
+  "solution": "# Task 1: Fix the SyntaxError\nuser_logged_in = True\nif user_logged_in:\n    print(\"Welcome!\")\n\n\n# Task 2: Fix the IndentationError\ntemperature = 35\nif temperature > 30:\n    print(\"It's hot outside!\")\n\n\n# Task 3: Fix the NameError\nusername = \"alice\"\nprint(username)\n\n\n# Task 4: Fix the TypeError\nage = 25\nmessage = \"I am \" + str(age) + \" years old\"\n\n\n# Task 5: Fix the ValueError\nuser_input = \"abc\"\nif user_input.isdigit():\n    number = int(user_input)\nelse:\n    number = 0\n\n\n# Task 6: Fix the ZeroDivisionError\na = 10\nb = 0\nif b != 0:\n    result = a / b\nelse:\n    result = None\n",
   "fileSetup": {},
   "hints": [
-    "The problem occurs when the loop variable `i` is equal to 3 (the index of the value 40).",
-    "Examine the conditional statement just before the `continue` command. What value does `len(items) - 2` equal when `items` has 5 elements?",
-    "If `i` matches that value, the loop immediately skips to the next iteration, missing the calculation step."
+    "**Task 1:** Python expects a colon `:` after every `if` statement.",
+    "**Task 2:** Any code inside an `if` block must be indented (usually 4 spaces).",
+    "**Task 3:** Check the spelling of your variable names - they must match exactly.",
+    "**Task 4:** You can't directly add strings and integers. Convert the integer to a string with `str()`.",
+    "**Task 5:** Before converting to `int()`, check if the string contains only digits using `.isdigit()`.",
+    "**Task 6:** Always check that your divisor is not zero before performing division."
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["pdb", "debugging", "breakpoint", "tooling"],
-  "challengeGroup": "python-debugging"
+  "tests": [
+    {
+      "name": "Check all tasks run without errors",
+      "code": "import sys\nfrom io import StringIO\n\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nexcept Exception as e:\n    sys.stdout = old_stdout\n    raise AssertionError(f'Code still has an error: {type(e).__name__}: {e}')\nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": [
+    "debugging",
+    "errors",
+    "syntax-error",
+    "indentation",
+    "name-error",
+    "type-error",
+    "value-error",
+    "zero-division"
+  ],
+  "challengeGroup": "debugging-errors"
 }

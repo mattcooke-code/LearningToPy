@@ -1,0 +1,45 @@
+{
+  "lessonId": "M14L3",
+  "title": "Capturing Groups and Data Extraction - Quiz",
+  "questions": [
+    {
+      "id": "m14l3_q1",
+      "type": "multiple-choice",
+      "question": "In a regex match object, what does `match.group(0)` represent?",
+      "options": [
+        "The first capturing group",
+        "The entire matched string",
+        "The last capturing group",
+        "The number of groups found"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Group 0 always represents the entire matched string, regardless of how many capturing groups are defined. Groups 1, 2, etc., are the specific captured substrings."
+    },
+    {
+      "id": "m14l3_q2",
+      "type": "multiple-choice",
+      "question": "What will `re.findall(r'(\\d{2})-(\\d{2})', '12-34 56-78')` return?",
+      "options": [
+        "`['12-34', '56-78']`",
+        "`[('12', '34'), ('56', '78')]`",
+        "`['12', '34', '56', '78']`",
+        "`['12-34', '56-78']`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "With multiple capturing groups, `re.findall()` returns a list of tuples, each tuple containing the captured groups. Here, it returns `[('12', '34'), ('56', '78')]`."
+    },
+    {
+      "id": "m14l3_q3",
+      "type": "multiple-choice",
+      "question": "When would you use a non-capturing group `(?:...)` instead of a regular capturing group `(...)`?",
+      "options": [
+        "When you want the group to match faster",
+        "When you need to apply quantifiers or alternation to a group of characters but don't need to extract them",
+        "When you want the group to match multiple lines",
+        "When you need to apply quantifiers or alternation to a group of characters and need to extract them"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Non-capturing groups are used when you need to group parts of a pattern (for applying `|` or quantifiers) but don't need to extract that specific substring. They help keep the regex efficient and your group numbering clean."
+    }
+  ]
+}

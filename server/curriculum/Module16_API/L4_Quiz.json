@@ -1,0 +1,40 @@
+{
+  "lessonId": "M16L4",
+  "title": "Sending Data with POST Requests - Quiz",
+  "questions": [
+    {
+      "id": "m16l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of a POST request in HTTP?",
+      "options": [
+        "To retrieve data from a server for processing",
+        "To send data to a server to create or update a resource",
+        "To delete a resource from a server",
+        "To establish a connection with a server"
+      ],
+      "correctAnswer": 1,
+      "explanation": "POST requests are used to send data to a server, typically to create a new resource (like submitting a form or creating a new database entry)."
+    },
+    {
+      "id": "m16l4_q2",
+      "type": "multiple-choice",
+      "question": "When using the `requests` library to send JSON data, which parameter should you use?",
+      "options": ["`data=`", "`params=`", "`json=`", "`headers=`"],
+      "correctAnswer": 2,
+      "explanation": "The `json=` parameter automatically converts your Python dictionary to a JSON string and sets the correct `Content-Type` header to `application/json`."
+    },
+    {
+      "id": "m16l4_q3",
+      "type": "multiple-choice",
+      "question": "You're writing code to create a new user account on a website using their API. Which status code would you expect to see if the account was successfully created?",
+      "options": [
+        "`200 OK` - The request succeeded",
+        "`201 Created` - A new resource was created",
+        "`204 No Content` - Success but no data returned",
+        "`404 Not Found` - The API endpoint doesn't exist"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When a POST request successfully creates a new resource (like a user account), the API typically returns a `201 Created` status code. This is more specific than `200 OK` and tells you exactly what happened: a new resource was created on the server."
+    }
+  ]
+}

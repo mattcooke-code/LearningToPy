@@ -1,44 +1,89 @@
-# 🚀 Project: Simple API Client for Public Data
+# 🚀 Project: Building an API Client for User Tasks
 
-This project challenges you to build a small, functional command-line utility that uses the `requests` library to interact with a public API. This client will have two primary functions: fetching filtered data and submitting new data.
+This project challenges you to build a small utility that interacts with a fake API to fetch and submit data. You'll practice everything you've learned about GET requests, POST requests, JSON handling, and error checking.
 
-You will use the **JSONPlaceholder API** (`https://jsonplaceholder.typicode.com`)—a free fake API for testing and prototyping—to simulate real-world data fetching and submission.
+## Project Goal: The Task Reporter
 
-## Project Goal: The User Activity Reporter
+You will create a Python script that performs two key API interactions:
 
-You will create a Python script, `user_reporter.py`, that performs two key API interactions:
+| Task                                 | Description                                            |
+| ------------------------------------ | ------------------------------------------------------ |
+| **Task 1: Fetch User Tasks (GET)**   | Retrieve and display pending tasks for a specific user |
+| **Task 2: Submit a New Task (POST)** | Create a new completed task and handle the response    |
 
-1.  **Task 1: Fetch and Report User Tasks (GET):** Retrieve all pending tasks (`/todos`) for a specific user ID, and print a formatted summary of the unfinished tasks.
-2.  **Task 2: Simulate Task Completion (POST):** Simulate creating a new, completed task and confirm the server accepted it.
+## The API (Simulated)
 
-## Task 1: Fetching Unfinished To-Do Items
+We'll use the same pattern as our exercises - you'll write the code, but we'll validate the syntax rather than making actual API calls. The API endpoint is `https://jsonplaceholder.typicode.com/todos`.
 
-1.  **API Endpoint:** `/todos`
-2.  **User ID:** You should filter the results for `userId` 8.
-3.  **Completion Status:** You should filter the results for `completed` status `False`.
-4.  **Steps:**
-    - Define the base URL and a Python dictionary to hold the two query parameters (`userId` and `completed`).
-    - Make the **GET** request.
-    - Verify the status code is **200**.
-    - Convert the response using `.json()` into a list of dictionaries (`tasks`).
-    - Print a header, then iterate through the list and print the `title` of each pending task.
+### Task 1: Fetching Pending Tasks
 
-## Task 2: Submitting a New Completed Task
+You need to fetch all tasks for user ID 5 that are **not completed**. The API accepts query parameters to filter results.
 
-1.  **API Endpoint:** `/todos` (The same endpoint handles POST for creating new items).
-2.  **Payload:** Create a dictionary containing a new task submission (e.g., `userId: 8`, `title: 'Project Submission'`, `completed: True`).
-3.  **Steps:**
-    - Make a **POST** request, passing the task dictionary to the `json` argument.
-    - Verify the status code is **201 (Created)**.
-    - If successful, print a confirmation message and the `id` of the newly created task (which you extract from the server's JSON response).
+**API Details:**
 
----
+- Endpoint: `/todos`
+- Method: `GET`
+- Parameters: `userId=5` and `completed=false`
 
-### Key Concepts to Apply
+**Expected Response Structure:**
 
-- **HTTP Methods:** `requests.get()` and `requests.post()`
-- **Query Parameters:** Using the `params=` argument for filtering.
-- **JSON Handling:** Using `response.json()` and dictionary indexing.
-- **Control Flow:** Using `if/else` for status code checking and a `for` loop for iteration.
+```json
+[
+  {
+    "userId": 5,
+    "id": 201,
+    "title": "Learn Python APIs",
+    "completed": false
+  },
+  {
+    "userId": 5,
+    "id": 202,
+    "title": "Build a project",
+    "completed": false
+  }
+]
+```
 
-This project should be contained entirely within a single Python file.
+## Task 2: Submitting a New Task
+
+You'll submit a new completed task for user 5.
+
+**API Details:**
+
+- Endpoint: `/todos`
+- Method: `POST`
+- Payload: JSON object with `userId`, `title`, and `completed`
+
+**Example Payload:**
+
+```json
+{
+  "userId": 5,
+  "title": "Complete API Client Project",
+  "completed": true
+}
+```
+
+**Expected Response Structure:**
+
+```json
+{
+  "userId": 5,
+  "title": "Complete API Client Project",
+  "completed": true,
+  "id": 501
+}
+```
+
+## Your Tasks
+
+You'll write code that:
+
+1. Imports the required modules (`requests` and `JSONDecodeError`)
+2. Makes a **GET** request with query parameters to fetch pending tasks
+3. Handles the **JSON response** with proper error checking
+4. Prints each task title in a readable format
+5. Makes a **POST** request to submit a new task
+6. Handles the creation response and prints the new task ID
+
+All with proper `try/except` blocks and status code checking!

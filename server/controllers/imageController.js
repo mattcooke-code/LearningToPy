@@ -12,6 +12,8 @@ const moduleFolders = {
   M4: "Module4_Iteration",
   M5: "Module5_DataStructures",
   M12: "Module12_OOP2",
+  M15: "Module15_Tooling",
+  M16: "Module16_API",
 };
 
 const mimeTypes = {

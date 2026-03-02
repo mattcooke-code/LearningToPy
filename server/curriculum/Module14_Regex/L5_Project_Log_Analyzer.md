@@ -4,17 +4,18 @@ Log files are a primary source of data in software and system administration, bu
 
 ### Project Goal
 
-Your task is to analyze a sample server log file and extract key pieces of information:
+Your task is to analyze a sample server log file and extract key pieces of information from each entry:
 
 1. **IP Address**: The address of the client making the request.
-
 2. **Timestamp**: The date and time of the request.
+3. **HTTP Method**: The HTTP method used (GET, POST, PUT, DELETE, etc.).
+4. **Status Code**: The HTTP status code returned (200, 404, 500, etc.).
 
 ### Log Format
 
-The sample log file entries follow this general, rigid format:
+The sample log file entries follow this general format:
 
-`[IP_ADDRESS] - - [DD/Month/YYYY:HH:MM:SS] "GET /path HTTP/1.1" 200 ...`
+`[IP_ADDRESS] - - [DD/Month/YYYY:HH:MM:SS] "METHOD /path HTTP/1.1" STATUS_CODE ...`
 
 Example Line:
 
@@ -22,12 +23,24 @@ Example Line:
 
 ### Implementation Steps
 
-1. **Define the IP Pattern**: Create a regex pattern to match and capture the four groups of digits (0-255) separated by dots.
+**Step 1: Import the `re` module**
 
-2. **Define the Timestamp Pattern**: Create a regex pattern to match and capture the date/time string enclosed in square brackets.
+**Step 2: Define the log data** (provided in the starter code)
 
-3. **Combine and Extract**: Create a single, complex pattern to capture both the IP (Group 1) and the full Timestamp (Group 2).
+**Step 3: Create individual patterns for testing**
 
-4. **Process and Print**: Iterate through the provided log data and print the extracted IP and Timestamp for each line.
+- IP pattern: Four groups of 1-3 digits separated by dots
+- Timestamp pattern: Date in [DD/Mon/YYYY:HH:MM:SS] format
+- Method pattern: The HTTP verb (GET, POST, etc.)
+- Status pattern: Three-digit status code
 
-This project uses `re.findall()` on the entire text, which will return a list of tuples, where each tuple contains the IP and Timestamp extracted from one log line.
+**Step 4: Create a single combined pattern** with four capturing groups:
+
+- Group 1: IP Address
+- Group 2: Timestamp (content inside brackets)
+- Group 3: HTTP Method
+- Group 4: Status Code
+
+**Step 5: Use `re.findall()`** to extract all matches from the log data
+
+**Step 6: Process and display results** in a formatted table

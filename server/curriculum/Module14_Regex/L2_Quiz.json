@@ -1,0 +1,35 @@
+{
+  "lessonId": "M14L2",
+  "title": "Quantifiers, Character Sets, and Anchors - Quiz",
+  "questions": [
+    {
+      "id": "m14l2_q1",
+      "type": "multiple-choice",
+      "question": "What will `re.findall(r'[aeiou]', 'hello')` return?",
+      "options": ["`['e', 'o']`", "`'eo'`", "`['he', 'llo']`", "`['e']`"],
+      "correctAnswer": 0,
+      "explanation": "The character set `[aeiou]` matches any single vowel. `re.findall()` returns a list of all individual character matches: 'e' and 'o' are the vowels in 'hello'."
+    },
+    {
+      "id": "m14l2_q2",
+      "type": "multiple-choice",
+      "question": "Which pattern would match a 5-digit ZIP code like '12345' but NOT '1234' or '123456'?",
+      "options": ["`r'\\d{5,}'`", "`r'\\d{5}'`", "`r'\\d{4,6}'`", "`r'\\d*'`"],
+      "correctAnswer": 1,
+      "explanation": "`\\d{5}` matches exactly five digits. `\\d{5,}` would match five or more, and `\\d{4,6}` would match four to six digits, which would also match the invalid cases."
+    },
+    {
+      "id": "m14l2_q3",
+      "type": "multiple-choice",
+      "question": "What does the anchor `^` represent in a regex pattern?",
+      "options": [
+        "The end of the string",
+        "A word boundary",
+        "The start of the string",
+        "A digit"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `^` anchor matches the start of the string. For example, `r'^Hello'` will only match if the string begins with 'Hello'."
+    }
+  ]
+}

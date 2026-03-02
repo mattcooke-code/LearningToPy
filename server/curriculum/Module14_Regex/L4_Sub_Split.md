@@ -6,15 +6,18 @@ Regex isn't just for finding patterns; it's also excellent for transforming stri
 
 The `re.sub()` function performs a search-and-replace operation based on a regex pattern.
 
+:::note
+
 ## Syntax: `re.sub(pattern, replacement, string, count=0, flags=0)`
 
-• `pattern`: The regex to search for.
+:::
 
-• `replacement`: The string or function to replace the matched pattern with.
-
-• `string`: The text to process.
-
-• `count`: The maximum number of pattern occurrences to replace (0 means all).
+| Syntax        | Meaning                                                             |
+| ------------- | ------------------------------------------------------------------- |
+| `pattern`     | The regex to search for.                                            |
+| `replacement` | The string or function to replace the matched pattern with.         |
+| `string`      | The text to process.                                                |
+| `count`       | The maximum number of pattern occurrences to replace (0 means all). |
 
 ### A. Simple Substitution
 
@@ -68,7 +71,9 @@ print(new_date)
 
 The standard `str.split()` method only accepts a fixed delimiter (e.g., `","`). `re.split()` allows you to split a string using a regex pattern, meaning you can split based on multiple different delimiters or complex patterns.
 
+:::note
 **Syntax**: `re.split(pattern, string, maxsplit=0, flags=0)`
+:::
 
 ```python
 import re
@@ -86,3 +91,15 @@ print(fields)
 ```
 
 In the example above, standard splitting would require multiple steps, but `re.split()` handles both delimiters simultaneously, simplifying the code greatly.
+
+:::summary
+
+- **`re.sub()`** performs regex-based search and replace
+- Syntax: `re.sub(pattern, replacement, string, count=0, flags=0)`
+- Use `count` to limit the number of replacements (0 = all)
+- **Reference captured groups** in the replacement using `\1`, `\2`, etc.
+- **`re.split()`** splits a string using a regex pattern as the delimiter
+- Unlike `str.split()`, `re.split()` can handle multiple complex delimiters at once
+- Both functions are essential for data cleaning and text transformation
+
+:::

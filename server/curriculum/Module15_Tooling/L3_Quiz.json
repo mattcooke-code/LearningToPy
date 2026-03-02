@@ -1,0 +1,30 @@
+{
+  "lessonId": "M15L3",
+  "title": "Basic Debugging with pdb - Quiz",
+  "questions": [
+    {
+      "id": "m15l3_q1",
+      "type": "multiple-choice",
+      "question": "Which built-in function is the modern way to set a 'breakpoint' and pause your code for debugging?",
+      "options": ["`stop()`", "`pause()`", "`breakpoint()`", "`pdb.start()`"],
+      "correctAnswer": 2,
+      "explanation": "Since Python 3.7, `breakpoint()` is the official, built-in way to trigger the debugger without having to manually import the `pdb` module."
+    },
+    {
+      "id": "m15l3_q2",
+      "type": "multiple-choice",
+      "question": "While inside the pdb debugger, which command allows you to execute the current line and move to the very next line of code?",
+      "options": ["`n` (next)", "`f` (forward)", "`r` (run)", "`s` (skip)"],
+      "correctAnswer": 0,
+      "explanation": "The `n` command stands for 'next'. It executes the current line and pauses again at the next line in the same function."
+    },
+    {
+      "id": "m15l3_q3",
+      "type": "multiple-choice",
+      "question": "If you are done inspecting your code and want the program to finish running normally, which command should you use?",
+      "options": ["`exit`", "`q` (quit)", "`c` (continue)", "`done`"],
+      "correctAnswer": 2,
+      "explanation": "The `c` command stands for 'continue'. It tells Python to stop debugging and run the rest of the script until it finishes or hits another breakpoint."
+    }
+  ]
+}

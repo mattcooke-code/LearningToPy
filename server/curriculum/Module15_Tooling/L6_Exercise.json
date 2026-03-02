@@ -1,25 +1,30 @@
 {
-  "title": "Package Installation and API Usage",
-  "instructions": "Write the Python script that uses the (simulated) installed `requests` package to fetch and display the name of a random user from a public API.",
+  "title": "Module 15 Project: Debugging a Calculator Program",
+  "instructions": "You've been given a buggy calculator program. Using your debugging skills (and help from `pdb`), you'll fix each error one by one until the program runs correctly.",
   "steps": [
-    "Write a Python script. Assume the `requests` package has been installed via `pip` in the activated virtual environment.",
-    "Import `requests`.",
-    "Define the function `fetch_random_user()`.",
-    "Inside the function, perform a `GET` request to the URL: `https://randomuser.me/api/?results=1`.",
-    "Check if the status code is 200 (OK). If so, return the JSON content using `.json()`.",
-    "Call the function and extract the first name and last name from the dictionary structure (Hint: look at the structure: `['results'][0]['name']['first']`).",
-    "Print the user's full name (First Last)."
+    "**Task 1: Fix the SyntaxError** - When you run the program, `pdb` immediately stops with: `SyntaxError: expected ':'`. Find and fix the missing colon.",
+    "**Task 2: Fix the NameError** - After fixing the syntax, `pdb` shows: `NameError: name 'usernme' is not defined. Did you mean: 'username'?`. The variable name is misspelled - correct it.",
+    "**Task 3: Fix the ZeroDivisionError** - The calculator crashes when dividing by zero. `pdb` shows: `ZeroDivisionError: division by zero`. Add proper error handling to prevent this.",
+    "**Task 4: Fix the IndentationError** - The loop that prints results has an indentation problem. `pdb` points to: `IndentationError: expected an indented block after 'for' statement`. Fix the indentation so all numbers are processed.",
+    "**Task 5: Fix the Logic Error** - The calculator runs without crashing, but the results are wrong! Using `pdb` you discover that addition is actually subtracting. Find the line with the wrong operator and fix it."
   ],
-  "starterCode": "import requests\n\n# NOTE: Assume you ran 'pip install requests' in your project environment.\n\nAPI_URL = \"https://randomuser.me/api/?results=1\"\n\ndef fetch_random_user():\n    # 1. Make the GET request\n    response = requests.get(API_URL)\n    \n    # 2. Check for successful response\n    if response.status_code == 200:\n        return response.json()\n    else:\n        return None\n\n# --- Main Execution ---\nuser_data = fetch_random_user()\n\nif user_data:\n    # 3. Extract and print the user's full name\n    first_name = user_data['results'][0]['name']['first']\n    last_name = user_data['results'][0]['name']['last']\n    \n    # Print the full name\n    # ...\nelse:\n    print(\"Error fetching user data.\")\n",
-  "solution": "import requests\n\n# NOTE: Assume you ran 'pip install requests' in your project environment.\n\nAPI_URL = \"https://randomuser.me/api/?results=1\"\n\ndef fetch_random_user():\n    # 1. Make the GET request\n    # Exponential backoff is handled by the execution environment when fetching external APIs\n    response = requests.get(API_URL)\n    \n    # 2. Check for successful response\n    if response.status_code == 200:\n        return response.json()\n    else:\n        return None\n\n# --- Main Execution ---\nuser_data = fetch_random_user()\n\nif user_data:\n    # 3. Extract and print the user's full name\n    first_name = user_data['results'][0]['name']['first']\n    last_name = user_data['results'][0]['name']['last']\n    \n    print(f\"Random User Found: {first_name} {last_name}\")\nelse:\n    print(\"Error fetching user data.\")\n",
+  "starterCode": "# Buggy Calculator Program\n# Run this program and use pdb commands (n, p, c) to find each error\n\nusername = \"developer\"\nprint(f\"Welcome to the Buggy Calculator, {usernme}!\")\n\nnumbers = [10, 5, 8, 3]\nresults = []\n\nfor i in range(len(numbers))\n    # Perform calculations\n    a = numbers[i]\n    b = 2  # Fixed value for demonstration\n    \n    # Addition (but there's a logic error here!)\n    add_result = a - b\n    results.append(add_result)\n    \n    # Division\n    division_result = a / b\n    print(f\"Processing {a}: {a} / {b} = {division_result}\")\n\nprint(\"\\nFinal Results:\")\nfor res in results:\nprint(res)\nprint(\"Program complete!\")",
+  "solution": "# Fixed Calculator Program\n\nusername = \"developer\"\nprint(f\"Welcome to the Buggy Calculator, {username}!\")\n\nnumbers = [10, 5, 8, 3]\nresults = []\n\nfor i in range(len(numbers)):\n    # Perform calculations\n    a = numbers[i]\n    b = 2  # Fixed value for demonstration\n    \n    # Addition (fixed logic error)\n    add_result = a + b  # Changed from - to +\n    results.append(add_result)\n    \n    # Division with error handling\n    if b != 0:\n        division_result = a / b\n        print(f\"Processing {a}: {a} / {b} = {division_result}\")\n    else:\n        print(f\"Processing {a}: Cannot divide by zero!\")\n\nprint(\"\\nFinal Results:\")\nfor res in results:\n    print(res)\nprint(\"Program complete!\")",
   "fileSetup": {},
   "hints": [
-    "Use `requests.get(URL)` to make the request.",
-    "The response body is accessed using `.json()` after checking `response.status_code`.",
-    "The path to the name components is deep: `['results'][0]['name']['first']`."
+    "**Task 1:** Every `if`, `for`, `while`, and function definition needs a colon `:` at the end of the line. Look carefully at each line - one is missing its colon.",
+    "**Task 2:** Check the variable name in the print statement - does it match the variable defined above?",
+    "**Task 3:** Before dividing, check if `b` equals 0. If it does, print an error message instead of dividing.",
+    "**Task 4:** The `for res in results:` line needs its body indented. What should be inside the loop?",
+    "**Task 5:** Look at the line that calculates `add_result`. The variable name suggests it should be addition, but what operation is actually being performed? Fix it to correctly add `a` and `b`."
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["project", "requests", "api", "tooling", "packages"],
-  "challengeGroup": "python-tooling-project"
+  "tests": [
+    {
+      "name": "Check calculator runs without errors",
+      "code": "import sys\nfrom io import StringIO\n\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nexcept Exception as e:\n    sys.stdout = old_stdout\n    raise AssertionError(f'Program still has an error: {type(e).__name__}: {e}')\nfinally:\n    sys.stdout = old_stdout\n\n# Check welcome message\nif 'Welcome to the Buggy Calculator, developer!' not in output:\n    raise AssertionError('Welcome message incorrect - check Task 2')\n\n# Check calculations\nif 'Processing 10: 10 / 2 = 5.0' not in output:\n    raise AssertionError('Division results incorrect - check Task 3')\n\n# Check results list (should be [12, 7, 10, 5] for addition)\nif '12' not in output or '7' not in output or '10' not in output or '5' not in output:\n    raise AssertionError('Final results incorrect - check Task 5 (addition should be +, not -)')\n\n# Check that all numbers were printed (indentation fix)\nif 'Final Results:' in output and '12' in output and '7' in output and '10' in output and '5' in output:\n    pass  # Good\nelse:\n    raise AssertionError('Results not printed correctly - check Task 4 indentation')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["project", "debugging", "pdb", "error-handling", "calculator"],
+  "challengeGroup": "module-15-project"
 }

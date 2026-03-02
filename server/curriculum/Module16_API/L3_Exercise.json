@@ -1,24 +1,32 @@
 {
-  "title": "Parsing and Extracting Data from a JSON List",
-  "instructions": "Make a GET request to an endpoint that returns a list of JSON objects. Use the `.json()` method to convert the response into a Python list of dictionaries, and then loop through the results to print specific information.",
+  "title": "Handling JSON Data with Error Checking",
+  "instructions": "Practice making API requests, handling potential JSON errors, and extracting data from JSON responses.",
   "steps": [
-    "Import the `requests` module.",
-    "Define the API URL: `https://jsonplaceholder.typicode.com/users`.",
-    "Make a GET request to the URL. Store the response in `response`.",
-    "Use `response.json()` to convert the JSON response into a Python list of dictionaries. Store this list in `users_data`.",
-    "Use a `for` loop to iterate through the first three dictionaries in `users_data`.",
-    "Inside the loop, print the user's `name` and their `email` for the current user object."
+    "**Task 1: Import required modules** - Import `requests` and also import `JSONDecodeError` from `requests.exceptions`.",
+    "**Task 2: Make the GET request** - The `api_url` is provided. Use it to make a GET request and store the response in a variable called `response`.",
+    "**Task 3: Parse JSON with error handling** - Write a `try` block that attempts to parse the response as JSON using `response.json()` and store the result in `user_data`.",
+    "**Task 4: Handle successful response** - Inside the `try` block (after parsing), write an `if` statement that checks if `response.status_code == 200`. If true, extract the `name` and `email` from `user_data` and print them in the format: `'Name: John Crichton, Email: moya@peacekeeperwars.farscape'`.",
+    "**Task 5: Handle failed response** - Add an `else` clause to your `if` statement that prints `'Request failed with status code: {status_code}'`.",
+    "**Task 6: Handle JSON errors** - Add an `except` block that catches `JSONDecodeError` and prints `'Error: Invalid JSON response'`."
   ],
-  "starterCode": "import requests\n\napi_url = 'https://jsonplaceholder.typicode.com/users'\n\n# 1. Make the GET request\nresponse = requests.get(api_url)\n\n# 2. Convert the response to a Python list of dictionaries\nusers_data = ...\n\n# 3. Loop through the *first three* users and print their name and email\n# (We can use slicing [0:3] or a counter)\nfor user in users_data[0:3]:\n    # 4. Extract and print the data\n    name = ...\n    email = ...\n    print(f\"Name: {name}, Email: {email}\")\n",
-  "solution": "import requests\n\napi_url = 'https://jsonplaceholder.typicode.com/users'\n\n# 1. Make the GET request\nresponse = requests.get(api_url)\n\n# 2. Convert the response to a Python list of dictionaries\nusers_data = response.json()\n\n# 3. Loop through the *first three* users and print their name and email\nfor user in users_data[0:3]:\n    # 4. Extract and print the data\n    name = user['name']\n    email = user['email']\n    print(f\"Name: {name}, Email: {email}\")\n",
+  "starterCode": "# Task 1: Import requests and JSONDecodeError\n\n\n\napi_url = 'https://jsonplaceholder.typicode.com/users/1'\n\n# Task 2: Make the GET request\n\n\n\n# Tasks 3-6: Parse JSON with error handling and process response\n\n\n\n# The code below will print the status code for testing - DO NOT MODIFY\nprint(f\"Status code: {response.status_code}\")",
+  "solution": "# Task 1: Import requests and JSONDecodeError\nimport requests\nfrom requests.exceptions import JSONDecodeError\n\napi_url = 'https://jsonplaceholder.typicode.com/users/1'\n\n# Task 2: Make the GET request\nresponse = requests.get(api_url)\n\n# Tasks 3-6: Parse JSON with error handling and process response\ntry:\n    user_data = response.json()\n    \n    if response.status_code == 200:\n        name = user_data['name']\n        email = user_data['email']\n        print(f\"Name: {name}, Email: {email}\")\n    else:\n        print(f\"Request failed with status code: {response.status_code}\")\n        \nexcept JSONDecodeError:\n    print(\"Error: Invalid JSON response\")\n\n# The code below will print the status code for testing - DO NOT MODIFY\nprint(f\"Status code: {response.status_code}\")",
   "fileSetup": {},
   "hints": [
-    "The conversion is done simply by calling `response.json()`.",
-    "Since `users_data` is a list of dictionaries, use `users_data[0:3]` to get the first three items.",
-    "Access the values within the dictionary using square brackets, e.g., `user['name']`."
+    "**Task 1:** Imports should look like:\n```python\nimport requests\nfrom requests.exceptions import JSONDecodeError\n```\n\n**Task 2:** Use `requests.get(api_url)` to make the request.",
+    "**Task 3:** Put `user_data = response.json()` inside the `try` block.",
+    "**Task 4:** After parsing, check `if response.status_code == 200:`. Inside, extract `user_data['name']` and `user_data['email']`.",
+    "**Task 5:** Add an `else:` that prints the failure message with `response.status_code`.",
+    "**Task 6:** Add `except JSONDecodeError:` that prints the error message.",
+    "**The JSON structure for this endpoint:**\n```json\n{\n  \"id\": 1,\n  \"name\": \"Leanne Graham\",\n  \"email\": \"Sincere@april.biz\",\n  ...\n}\n```"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["json-parsing", "requests", "data-extraction", "list-of-dicts"],
-  "challengeGroup": "api-data-handling"
+  "tests": [
+    {
+      "name": "Check syntax only - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error in your code: {e}')\n\n# Check for required imports (syntax only)\nfound_requests = False\nfound_json_error = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'requests' for name in node.names):\n        found_requests = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'requests.exceptions':\n        for name in node.names:\n            if name.name == 'JSONDecodeError':\n                found_json_error = True\n\nif not found_requests:\n    raise AssertionError('Task 1: Missing import requests (check syntax)')\nif not found_json_error:\n    raise AssertionError('Task 1: Missing import JSONDecodeError from requests.exceptions (check syntax)')\n\n# Check for try block\nhas_try = any(isinstance(node, ast.Try) for node in ast.walk(tree))\nif not has_try:\n    raise AssertionError('Task 3: Missing try block')\n\n# Check for if/else inside try (simplified check)\nfound_if = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        found_if = True\n        break\n\nif not found_if:\n    raise AssertionError('Task 4-5: Missing if/else statement')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["json-parsing", "requests", "error-handling", "jsondecodeerror"],
+  "challengeGroup": "api-json-handling"
 }

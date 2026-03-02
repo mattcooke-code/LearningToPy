@@ -1,0 +1,40 @@
+{
+  "lessonId": "M16L3",
+  "title": "Handling JSON Data - Quiz",
+  "questions": [
+    {
+      "id": "m16l3_q1",
+      "type": "multiple-choice",
+      "question": "Which Python data type does a JSON 'Array' (`[]`) map to when using `.json()`?",
+      "options": ["Dictionary", "Tuple", "List", "String"],
+      "correctAnswer": 2,
+      "explanation": "JSON Arrays are ordered sequences of values, which map directly to Python Lists."
+    },
+    {
+      "id": "m16l3_q2",
+      "type": "multiple-choice",
+      "question": "Why is it risky to call `.json()` immediately after checking if the status code is `200`?",
+      "options": [
+        "The `.json()` method only works with `404` errors.",
+        "A `200` status only means the request finished; the body might still be empty or invalid JSON.",
+        "It will slow down the server response time.",
+        "Python automatically converts all responses to dictionaries anyway."
+      ],
+      "correctAnswer": 1,
+      "explanation": "A `200 OK` status confirms the server responded, but if the response body is malformed or empty, `.json()` will raise a `JSONDecodeError`."
+    },
+    {
+      "id": "m16l3_q3",
+      "type": "multiple-choice",
+      "question": "In the requests library, what is the syntactical difference between 'status_code' and 'json'?",
+      "options": [
+        "`status_code` is a method and requires parentheses `()`; `json` is an attribute.",
+        "Both are methods and require parentheses `()`.",
+        "`status_code` is an attribute; `json()` is a method and requires parentheses `()`.",
+        "There is no difference; both are used interchangeably."
+      ],
+      "correctAnswer": 2,
+      "explanation": "`status_code` is a property (attribute) stored on the object, while `.json()` is a function (method) that performs the work of parsing the string into Python objects."
+    }
+  ]
+}

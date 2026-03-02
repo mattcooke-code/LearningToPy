@@ -1,0 +1,45 @@
+{
+  "lessonId": "M15L4",
+  "title": "Organizing Python Projects - Quiz",
+  "questions": [
+    {
+      "id": "m15l4_q1",
+      "type": "multiple-choice",
+      "question": "What is the difference between a module and a package in Python?",
+      "options": [
+        "A module is a single `.py` file; a package is a directory with an `__init__.py` file",
+        "A module is for functions; a package is for classes",
+        "A module can be imported; a package cannot",
+        "There is no difference; they are interchangeable terms"
+      ],
+      "correctAnswer": 0,
+      "explanation": "A module is any `.py` file. A package is a directory that contains an `__init__.py` file and can contain multiple modules (`.py` files) and subpackages."
+    },
+    {
+      "id": "m15l4_q2",
+      "type": "multiple-choice",
+      "question": "What is the purpose of the `__init__.py` file in a package?",
+      "options": [
+        "It contains the main execution code for the package",
+        "It marks the directory as a Python package and can simplify imports",
+        "It is required to be empty, otherwise it causes errors",
+        "It stores configuration variables only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `__init__.py` file serves two main purposes: (1) it tells Python that the directory should be treated as a package, and (2) it can be used to simplify imports by 'hoisting' functions to the package level."
+    },
+    {
+      "id": "m15l4_q3",
+      "type": "multiple-choice",
+      "question": "Given a file structure of `utils/helpers.py` containing a function `format_date()`, which import statement is correct?",
+      "options": [
+        "`import format_date from utils.helpers`",
+        "`from utils.helpers import format_date`",
+        "`import utils/helpers.format_date`",
+        "`from helpers import format_date`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The correct syntax is `from utils.helpers import format_date`. This imports the specific function from the `helpers.py` module inside the `utils` package."
+    }
+  ]
+}

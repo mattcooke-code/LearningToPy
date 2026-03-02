@@ -1,0 +1,184 @@
+{
+  "questions": [
+    {
+      "id": "m15_review_q1",
+      "type": "multiple-choice",
+      "question": "Which command is used to create a new virtual environment named 'my_env' using the built-in venv module?",
+      "options": [
+        "`create venv my_env`",
+        "`python -m venv my_env`",
+        "`python venv create my_env`",
+        "`new-venv my_env`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The standard way to create an environment is using the `-m` (module) flag followed by `venv` and then your chosen folder name."
+    },
+    {
+      "id": "m15_review_q2",
+      "type": "multiple-choice",
+      "question": "After creating a virtual environment folder, what must you do before you can start installing isolated packages into it?",
+      "options": [
+        "Delete the folder and restart",
+        "Move the folder to the Desktop",
+        "Activate the environment using the specific command for your OS",
+        "Nothing, it is automatically active once created"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Creating the folder only sets up the files. You must 'activate' it so your terminal knows to use that specific Python interpreter instead of the system-wide one."
+    },
+    {
+      "id": "m15_review_q3",
+      "type": "multiple-choice",
+      "question": "How can you tell, just by looking at your terminal/command prompt, that a virtual environment is currently active?",
+      "options": [
+        "The terminal text will turn green",
+        "A new window will pop up",
+        "The name of the environment (e.g., '.venv') will appear in parentheses at the start of the prompt",
+        "Your computer will make a notification sound"
+      ],
+      "correctAnswer": 2,
+      "explanation": "When an environment is active, most terminals will prepend the name of the environment in parentheses, like `(.venv) C:\\Users...`, to signify you are in an isolated space."
+    },
+    {
+      "id": "m15_review_q4",
+      "type": "multiple-choice",
+      "question": "Which command correctly installs exactly version 2.1.4 of the 'pandas' library?",
+      "options": [
+        "`pip get pandas 2.1.4`",
+        "`pip install pandas=2.1.4`",
+        "`pip install pandas==2.1.4`",
+        "`python install pandas==2.1.4`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "In `pip`, we use the double equals sign `==` to specify a strict version. A single `=` is for variable assignment in Python code, not for CLI commands."
+    },
+    {
+      "id": "m15_review_q5",
+      "type": "multiple-choice",
+      "question": "You want to share your project with a friend. Which command generates a 'requirements.txt' file containing all your project's dependencies?",
+      "options": [
+        "`pip list > requirements.txt`",
+        "`pip freeze > requirements.txt`",
+        "`pip save requirements.txt`",
+        "`python -m venv requirements.txt`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`pip freeze` outputs the installed packages in the exact format required for a requirements file. The `>` symbol 'redirects' that output into a new text file."
+    },
+    {
+      "id": "m15_review_q6",
+      "type": "multiple-choice",
+      "question": "Your friend has sent you a project folder containing a 'requirements.txt' file. How do you install all the tools listed in that file at once?",
+      "options": [
+        "`pip install -r requirements.txt`",
+        "`pip load requirements.txt`",
+        "`python run requirements.txt`",
+        "`pip install requirements.txt`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The `-r` (requirements) flag tells `pip` to open the file and install every package listed inside it, one by one."
+    },
+    {
+      "id": "m15_review_q7",
+      "type": "multiple-choice",
+      "question": "Which built-in function is the modern way to set a 'breakpoint' and pause your code for debugging?",
+      "options": ["`stop()`", "`pause()`", "`breakpoint()`", "`pdb.start()`"],
+      "correctAnswer": 2,
+      "explanation": "Since Python 3.7, `breakpoint()` is the official, built-in way to trigger the debugger without having to manually import the `pdb` module."
+    },
+    {
+      "id": "m15_review_q8",
+      "type": "multiple-choice",
+      "question": "While inside the pdb debugger, which command allows you to execute the current line and move to the very next line of code?",
+      "options": ["`n` (next)", "`f` (forward)", "`r` (run)", "`s` (skip)"],
+      "correctAnswer": 0,
+      "explanation": "The `n` command stands for 'next'. It executes the current line and pauses again at the next line in the same function."
+    },
+    {
+      "id": "m15_review_q9",
+      "type": "multiple-choice",
+      "question": "If you are done inspecting your code and want the program to finish running normally, which command should you use?",
+      "options": ["`exit`", "`q` (quit)", "`c` (continue)", "`done`"],
+      "correctAnswer": 2,
+      "explanation": "The `c` command stands for 'continue'. It tells Python to stop debugging and run the rest of the script until it finishes or hits another breakpoint."
+    },
+    {
+      "id": "m15_review_q10",
+      "type": "multiple-choice",
+      "question": "What is the difference between a module and a package in Python?",
+      "options": [
+        "A module is a single `.py` file; a package is a directory with an `__init__.py` file",
+        "A module is for functions; a package is for classes",
+        "A module can be imported; a package cannot",
+        "There is no difference; they are interchangeable terms"
+      ],
+      "correctAnswer": 0,
+      "explanation": "A module is any `.py` file. A package is a directory that contains an `__init__.py` file and can contain multiple modules (`.py` files) and subpackages."
+    },
+    {
+      "id": "m15_review_q11",
+      "type": "multiple-choice",
+      "question": "What is the purpose of the `__init__.py` file in a package?",
+      "options": [
+        "It contains the main execution code for the package",
+        "It marks the directory as a Python package and can simplify imports",
+        "It is required to be empty, otherwise it causes errors",
+        "It stores configuration variables only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `__init__.py` file serves two main purposes: (1) it tells Python that the directory should be treated as a package, and (2) it can be used to simplify imports by 'hoisting' functions to the package level."
+    },
+    {
+      "id": "m15_review_q12",
+      "type": "multiple-choice",
+      "question": "Given a file structure of `utils/helpers.py` containing a function `format_date()`, which import statement is correct?",
+      "options": [
+        "`import format_date from utils.helpers`",
+        "`from utils.helpers import format_date`",
+        "`import utils/helpers.format_date`",
+        "`from helpers import format_date`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The correct syntax is `from utils.helpers import format_date`. This imports the specific function from the `helpers.py` module inside the `utils` package."
+    },
+    {
+      "id": "m15_review_q13",
+      "type": "multiple-choice",
+      "question": "Which file is the modern standard for storing a Python project's metadata and installation requirements?",
+      "options": [
+        "`main.py`",
+        "`__init__.py`",
+        "`pyproject.toml`",
+        "`requirements.txt`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`pyproject.toml` is the contemporary configuration file used to define how a project should be built and what its dependencies are."
+    },
+    {
+      "id": "m15_review_q14",
+      "type": "multiple-choice",
+      "question": "What does the `-e` flag do when running `pip install -e .`?",
+      "options": [
+        "It 'Encrypts' the code for security.",
+        "It installs the package in 'Editable' mode, linking the source code to the environment.",
+        "It 'Exits' the terminal after installation is complete.",
+        "It 'Erases' previous versions of Python."
+      ],
+      "correctAnswer": 1,
+      "explanation": "Editable mode allows you to modify your source code and have those changes take effect immediately without needing to re-install the package."
+    },
+    {
+      "id": "m15_review_q15",
+      "type": "multiple-choice",
+      "question": "In the 'Package within a Project' structure, where should your actual logic (.py files) be stored?",
+      "options": [
+        "Directly in the root folder alongside the README",
+        "Inside a dedicated subdirectory (the package folder) containing an `__init__.py`",
+        "Inside the `tests/` folder",
+        "Only in the `pyproject.toml` file"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The source code should be isolated in its own package directory to keep it separate from project-level files like documentation, licenses, and test suites."
+    }
+  ]
+}

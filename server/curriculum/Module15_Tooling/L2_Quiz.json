@@ -1,0 +1,45 @@
+{
+  "lessonId": "M15L2",
+  "title": "Package Management with pip - Quiz",
+  "questions": [
+    {
+      "id": "m15l2_q1",
+      "type": "multiple-choice",
+      "question": "Which command correctly installs exactly version 2.1.4 of the 'pandas' library?",
+      "options": [
+        "`pip get pandas 2.1.4`",
+        "`pip install pandas=2.1.4`",
+        "`pip install pandas==2.1.4`",
+        "`python install pandas==2.1.4`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "In `pip`, we use the double equals sign `==` to specify a strict version. A single `=` is for variable assignment in Python code, not for CLI commands."
+    },
+    {
+      "id": "m15l2_q2",
+      "type": "multiple-choice",
+      "question": "You want to share your project with a friend. Which command generates a 'requirements.txt' file containing all your project's dependencies?",
+      "options": [
+        "`pip list > requirements.txt`",
+        "`pip freeze > requirements.txt`",
+        "`pip save requirements.txt`",
+        "`python -m venv requirements.txt`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`pip freeze` outputs the installed packages in the exact format required for a requirements file. The `>` symbol 'redirects' that output into a new text file."
+    },
+    {
+      "id": "m15l2_q3",
+      "type": "multiple-choice",
+      "question": "Your friend has sent you a project folder containing a 'requirements.txt' file. How do you install all the tools listed in that file at once?",
+      "options": [
+        "`pip install -r requirements.txt`",
+        "`pip load requirements.txt`",
+        "`python run requirements.txt`",
+        "`pip install requirements.txt`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The `-r` (requirements) flag tells `pip` to open the file and install every package listed inside it, one by one."
+    }
+  ]
+}

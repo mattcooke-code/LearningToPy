@@ -1,0 +1,45 @@
+{
+  "lessonId": "M16L2",
+  "title": "GET Requests and Query Parameters - Quiz",
+  "questions": [
+    {
+      "id": "m16l2_q1",
+      "type": "multiple-choice",
+      "question": "When using the `requests` library, what is the best practice for sending query parameters to a server?",
+      "options": [
+        "Manually typing the query string into the URL variable",
+        "Using an f-string to inject variables after a '?' symbol",
+        "Passing a dictionary of key-value pairs to the `params` argument",
+        "Creating a separate text file containing the parameter list"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Using the `params` argument with a dictionary is the standard approach because it is cleaner, more readable, and handles URL encoding automatically."
+    },
+    {
+      "id": "m16l2_q2",
+      "type": "multiple-choice",
+      "question": "Which property of the response object should you check to see the final URL constructed by the `requests` library?",
+      "options": [
+        "response.text",
+        "response.url",
+        "response.status_code",
+        "response.links"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `.url` property is a powerful debugging tool that shows exactly how the library merged the base URL with your query parameters."
+    },
+    {
+      "id": "m16l2_q3",
+      "type": "multiple-choice",
+      "question": "Why is it important to use the `params` argument instead of manually building a URL string when dealing with special characters like spaces or '&'?",
+      "options": [
+        "It automatically performs URL encoding to ensure the URL is valid",
+        "It encrypts the parameters so they are hidden from the server",
+        "It compresses the URL to make the request travel faster",
+        "It bypasses the need for an internet connection during testing"
+      ],
+      "correctAnswer": 0,
+      "explanation": "URL encoding converts reserved characters into a safe format (like %20 for a space) so that the web server can interpret the request correctly."
+    }
+  ]
+}

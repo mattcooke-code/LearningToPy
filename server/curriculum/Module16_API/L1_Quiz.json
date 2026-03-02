@@ -1,0 +1,40 @@
+{
+  "lessonId": "M16L1",
+  "title": "HTTP Basics and Requests Library - Quiz",
+  "questions": [
+    {
+      "id": "m16l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of an HTTP status code?",
+      "options": [
+        "To encrypt the data being sent",
+        "To tell the client the outcome of their request",
+        "To specify which HTTP method to use",
+        "To determine the server's IP address"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Status codes are three-digit numbers sent by the server that indicate whether a request was successful (2xx), caused a client error (4xx), or resulted in a server error (5xx)."
+    },
+    {
+      "id": "m16l1_q2",
+      "type": "multiple-choice",
+      "question": "Which HTTP method is used to retrieve data from a server?",
+      "options": ["POST", "GET", "PUT", "DELETE"],
+      "correctAnswer": 1,
+      "explanation": "GET is used to request data from a specified resource. It should only retrieve data and have no other side effects."
+    },
+    {
+      "id": "m16l1_q3",
+      "type": "multiple-choice",
+      "question": "What does a status code in the 400 range (e.g., 404) indicate?",
+      "options": [
+        "Success - The request worked!",
+        "Redirection - The resource moved",
+        "Client Error - There was a problem with the request",
+        "Server Error - The server failed to process the request"
+      ],
+      "correctAnswer": 2,
+      "explanation": "400-range codes indicate client errors. 404 specifically means 'Not Found' - the requested resource doesn't exist on the server."
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "questions": [
+    {
+      "id": "m14_review_q1",
+      "type": "multiple-choice",
+      "question": "Why is it important to use raw strings (prefix `r`) for regex patterns in Python?",
+      "options": [
+        "To make the pattern case-insensitive",
+        "To prevent Python from interpreting backslashes as escape characters",
+        "To improve the performance of regex matching",
+        "To allow the use of Unicode characters in patterns"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Raw strings prevent Python from interpreting backslashes as escape sequences (like `\\n` for newline). This is crucial because regex patterns use many backslashes for special sequences like `\\d`."
+    },
+    {
+      "id": "m14_review_q2",
+      "type": "multiple-choice",
+      "question": "What is the difference between `re.search()` and `re.match()`?",
+      "options": [
+        "`re.search()` finds all matches; `re.match()` finds the first match",
+        "`re.search()` is case-sensitive; `re.match()` is case-insensitive",
+        "`re.search()` looks anywhere in the string; `re.match()` only looks at the beginning",
+        "There is no difference; they are interchangeable"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`re.search()` scans the entire string for a match anywhere. `re.match()` only checks if the pattern matches at the very beginning of the string."
+    },
+    {
+      "id": "m14_review_q3",
+      "type": "multiple-choice",
+      "question": "Which pattern would match a string containing exactly three digits in a row, like '123' or '456'?",
+      "options": [
+        "`r\"\\d\\d\\d\"`",
+        "`r\"\\d\\d\\d\\d\"`",
+        "`r\"\\d{3}\"`",
+        "Both `r\"\\d\\d\\d\"` and `r\"\\d{3}\"`"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Both `r\"\\d\\d\\d\"` and `r\"\\d{3}\"` match exactly three digits in a row. The `{3}` syntax is a quantifier that means 'exactly 3 times'. Both are valid, though `{3}` is more concise for longer repetitions."
+    },
+    {
+      "id": "m14_review_q4",
+      "type": "multiple-choice",
+      "question": "What will `re.findall(r'[aeiou]', 'hello')` return?",
+      "options": ["`['e', 'o']`", "`'eo'`", "`['he', 'llo']`", "`['e']`"],
+      "correctAnswer": 0,
+      "explanation": "The character set `[aeiou]` matches any single vowel. `re.findall()` returns a list of all individual character matches: 'e' and 'o' are the vowels in 'hello'."
+    },
+    {
+      "id": "m14_review_q5",
+      "type": "multiple-choice",
+      "question": "Which pattern would match a 5-digit ZIP code like '12345' but NOT '1234' or '123456'?",
+      "options": ["`r'\\d{5,}'`", "`r'\\d{5}'`", "`r'\\d{4,6}'`", "`r'\\d*'`"],
+      "correctAnswer": 1,
+      "explanation": "`\\d{5}` matches exactly five digits. `\\d{5,}` would match five or more, and `\\d{4,6}` would match four to six digits, which would also match the invalid cases."
+    },
+    {
+      "id": "m14_review_q6",
+      "type": "multiple-choice",
+      "question": "What does the anchor `^` represent in a regex pattern?",
+      "options": [
+        "The end of the string",
+        "A word boundary",
+        "The start of the string",
+        "A digit"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `^` anchor matches the start of the string. For example, `r'^Hello'` will only match if the string begins with 'Hello'."
+    },
+    {
+      "id": "m14_review_q7",
+      "type": "multiple-choice",
+      "question": "In a regex match object, what does `match.group(0)` represent?",
+      "options": [
+        "The first capturing group",
+        "The entire matched string",
+        "The last capturing group",
+        "The number of groups found"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Group 0 always represents the entire matched string, regardless of how many capturing groups are defined. Groups 1, 2, etc., are the specific captured substrings."
+    },
+    {
+      "id": "m14_review_q8",
+      "type": "multiple-choice",
+      "question": "What will `re.findall(r'(\\d{2})-(\\d{2})', '12-34 56-78')` return?",
+      "options": [
+        "`['12-34', '56-78']`",
+        "`[('12', '34'), ('56', '78')]`",
+        "`['12', '34', '56', '78']`",
+        "`['12-34', '56-78']`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "With multiple capturing groups, `re.findall()` returns a list of tuples, each tuple containing the captured groups. Here, it returns `[('12', '34'), ('56', '78')]`."
+    },
+    {
+      "id": "m14_review_q9",
+      "type": "multiple-choice",
+      "question": "When would you use a non-capturing group `(?:...)` instead of a regular capturing group `(...)`?",
+      "options": [
+        "When you want the group to match faster",
+        "When you need to apply quantifiers or alternation to a group of characters but don't need to extract them",
+        "When you want the group to match multiple lines",
+        "When you need to apply quantifiers or alternation to a group of characters and need to extract them"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Non-capturing groups are used when you need to group parts of a pattern (for applying `|` or quantifiers) but don't need to extract that specific substring. They help keep the regex efficient and your group numbering clean."
+    },
+    {
+      "id": "m14_review_q10",
+      "type": "multiple-choice",
+      "question": "What will `re.sub(r'\\d+', 'NUM', 'Order 123: item 456')` return?",
+      "options": [
+        "`'Order NUM: item NUM'`",
+        "`'Order 123: item 456'`",
+        "`'Order : item '`",
+        "`'Order NUM: item 456'`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The pattern `\\d+` matches one or more digits. By default, `re.sub()` replaces all matches, so both '123' and '456' are replaced with 'NUM', resulting in 'Order NUM: item NUM'."
+    },
+    {
+      "id": "m14_review_q11",
+      "type": "multiple-choice",
+      "question": "In a replacement string, how do you reference the third capturing group from the pattern?",
+      "options": ["`$3`", "`{3}`", "`\\3`", "`[3]`"],
+      "correctAnswer": 2,
+      "explanation": "In `re.sub()`, captured groups are referenced in the replacement string using backslash followed by the group number: `\\1`, `\\2`, `\\3`, etc."
+    },
+    {
+      "id": "m14_review_q12",
+      "type": "multiple-choice",
+      "question": "What will `re.split(r'[;,]', 'a,b;c,d')` return?",
+      "options": [
+        "`['a', 'b', 'c', 'd']`",
+        "`['a', 'b;c', 'd']`",
+        "`['a,b', 'c,d']`",
+        "`['a', 'b', 'c', 'd']`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The character set `[;,]` matches either a semicolon or a comma. `re.split()` splits the string at every occurrence of either delimiter, resulting in `['a', 'b', 'c', 'd']`."
+    }
+  ]
+}

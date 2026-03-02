@@ -1,26 +1,48 @@
 {
-  "title": "Search, Replace, and Split Operations",
-  "instructions": "Use `re.sub()` to reformat a phone number using capturing groups, and use `re.split()` to parse a CSV-like string.",
+  "title": "Text Transformation with re.sub() and re.split()",
+  "instructions": "Practice using `re.sub()` for search-and-replace operations and `re.split()` for parsing text with multiple delimiters.",
   "steps": [
-    "Import the `re` module.",
-    "**Part 1: Phone Number Reformatting.** Define the input string: `phone = '415-555-1234'`.",
-    "Create a regex pattern with three capturing groups for the area code, middle three digits, and last four digits.",
-    "Use `re.sub()` to reformat the phone number into the standard format: `(415) 555-1234`.",
-    "Print the reformatted number.",
-    "**Part 2: Complex Splitting.** Define the input string: `data = 'Name,Age|City|1'`.",
-    "Create a regex pattern for `re.split()` that matches either a comma (`,`) or a pipe (`|`).",
-    "Use `re.split()` to split `data` and print the resulting list."
+    "**Task 1: Import the `re` module** - Add the import statement at the top of your code.",
+    "**Task 2: Format phone numbers** - Given the string `phone_data = '415-555-1234, 212-555-6789, 310-555-9012'`, use `re.sub()` to reformat each phone number from `XXX-XXX-XXXX` to `(XXX) XXX-XXXX`. Store the result in `formatted_phones` and print it.",
+    "**Task 3: Clean up whitespace** - Given the string `messy_text = 'Hello   World\\t\\tPython\\nRegex   is\\tfun'`, use `re.sub()` to replace all sequences of whitespace (spaces, tabs, newlines) with a single space. Store the result in `cleaned_text` and print it.",
+    "**Task 4: Redact credit card numbers** - Given the string `log_data = 'User: John, Card: 1234-5678-9012-3456, Amount: $50'`, use `re.sub()` to replace the credit card number with `'XXXX-XXXX-XXXX-XXXX'`. Store the result in `redacted_log` and print it.",
+    "**Task 5: Split with multiple delimiters** - Given the string `data = 'apple,banana;cherry|date orange'`, use `re.split()` to split it on commas, semicolons, pipes, or spaces. Store the result in `split_data` and print it."
   ],
-  "starterCode": "import re\n\n# --- Part 1: Reformatting with re.sub() ---\nphone = '415-555-1234'\n\n# 1. Pattern: Three groups separated by dashes\npattern_phone = r\"(...)-(...)-(....)\" \n\n# 2. Replacement: Reference groups to format: (G1) G2-G3\nreplacement = r\"(\\\\1) \\\\2-\\\\3\" \n\nreformatted_phone = re.sub(pattern_phone, replacement, phone)\nprint(f\"Reformatted Phone: {reformatted_phone}\")\n\n# --- Part 2: Splitting with re.split() ---\ndata = 'Name,Age|City|1'\n\n# 3. Pattern: Matches either a comma or a pipe\npattern_split = ...\n\nsplit_data = re.split(pattern_split, data)\nprint(f\"Split Data: {split_data}\")\n",
-  "solution": "import re\n\n# --- Part 1: Reformatting with re.sub() ---\nphone = '415-555-1234'\n\n# 1. Pattern: Three groups separated by dashes\n# Note: Raw string usage r\"...\" simplifies backslash handling\npattern_phone = r\"(\\d{3})-(\\d{3})-(\\d{4})\"\n\n# 2. Replacement: Reference groups to format: (G1) G2-G3\n# Use \\1, \\2, \\3 to reference the captured groups\nreplacement = r\"(\\1) \\2-\\3\"\n\nreformatted_phone = re.sub(pattern_phone, replacement, phone)\nprint(f\"Reformatted Phone: {reformatted_phone}\")\n\n# --- Part 2: Splitting with re.split() ---\ndata = 'Name,Age|City|1'\n\n# 3. Pattern: Matches either a comma (,) OR a pipe (|)\n# Use the character set [,] or the OR operator | (though [,|] is also valid)\npattern_split = r\",|\"\n\nsplit_data = re.split(pattern_split, data)\nprint(f\"Split Data: {split_data}\")\n",
+  "starterCode": "# Task 1: Import the re module\n\n\n\n# Task 2: Format phone numbers\nphone_data = '415-555-1234, 212-555-6789, 310-555-9012'\n# Create pattern with three capturing groups\nphone_pattern = \nphone_replacement = \nformatted_phones = re.sub(phone_pattern, phone_replacement, phone_data)\nprint(f\"Formatted phones: {formatted_phones}\")\n\n\n# Task 3: Clean up whitespace\nmessy_text = 'Hello   World\\t\\tPython\\nRegex   is\\tfun'\nwhitespace_pattern = \ncleaned_text = re.sub(whitespace_pattern, ' ', messy_text)\nprint(f\"Cleaned text: {cleaned_text}\")\n\n\n# Task 4: Redact credit card numbers\nlog_data = 'User: John, Card: 1234-5678-9012-3456, Amount: $50'\ncard_pattern = \ncard_replacement = \nredacted_log = re.sub(card_pattern, card_replacement, log_data)\nprint(f\"Redacted log: {redacted_log}\")\n\n\n# Task 5: Split with multiple delimiters\ndata = 'apple,banana;cherry|date orange'\nsplit_pattern = \nsplit_data = re.split(split_pattern, data)\nprint(f\"Split data: {split_data}\")\n",
+  "solution": "# Task 1: Import the re module\nimport re\n\n# Task 2: Format phone numbers\nphone_data = '415-555-1234, 212-555-6789, 310-555-9012'\n# Pattern: three groups of digits separated by hyphens\nphone_pattern = r'(\\d{3})-(\\d{3})-(\\d{4})'\n# Replacement: (G1) G2-G3\nphone_replacement = r'(\\1) \\2-\\3'\nformatted_phones = re.sub(phone_pattern, phone_replacement, phone_data)\nprint(f\"Formatted phones: {formatted_phones}\")\n\n\n# Task 3: Clean up whitespace\nmessy_text = 'Hello   World\\t\\tPython\\nRegex   is\\tfun'\n# Pattern: one or more whitespace characters\nwhitespace_pattern = r'\\s+'\ncleaned_text = re.sub(whitespace_pattern, ' ', messy_text)\nprint(f\"Cleaned text: {cleaned_text}\")\n\n\n# Task 4: Redact credit card numbers\nlog_data = 'User: John, Card: 1234-5678-9012-3456, Amount: $50'\n# Pattern: four groups of four digits separated by hyphens\ncard_pattern = r'\\d{4}-\\d{4}-\\d{4}-\\d{4}'\n# Replacement: redacted version\ncard_replacement = 'XXXX-XXXX-XXXX-XXXX'\nredacted_log = re.sub(card_pattern, card_replacement, log_data)\nprint(f\"Redacted log: {redacted_log}\")\n\n\n# Task 5: Split with multiple delimiters\ndata = 'apple,banana;cherry|date orange'\n# Pattern: comma, semicolon, pipe, or space\nsplit_pattern = r'[,;| ]+'\nsplit_data = re.split(split_pattern, data)\nprint(f\"Split data: {split_data}\")\n",
   "fileSetup": {},
   "hints": [
-    "In `re.sub()`, the groups are referenced as `\\1`, `\\2`, etc., in the replacement string.",
-    "For the splitting pattern, you can use the OR operator (`|`) to match either a comma or a pipe: `r\",|\"`.",
-    "Remember that the hyphen in the phone number pattern must be outside the capturing groups."
+    "**Task 2: Phone number formatting**\n```python\n# Pattern: three groups of digits\nphone_pattern = r'(\\d{3})-(\\d{3})-(\\d{4})'\n# Replacement: (G1) G2-G3\nphone_replacement = r'(\\1) \\2-\\3'\n```\n\n**Task 3: Whitespace cleanup**\n```python\n# \\s matches any whitespace (space, tab, newline)\nwhitespace_pattern = r'\\s+'\n```\n\n**Task 4: Credit card redaction**\n```python\n# Match four groups of four digits with hyphens\ncard_pattern = r'\\d{4}-\\d{4}-\\d{4}-\\d{4}'\ncard_replacement = 'XXXX-XXXX-XXXX-XXXX'\n```\n\n**Task 5: Multiple delimiter splitting**\n```python\n# Character set matching comma, semicolon, pipe, or space\n# The + quantifier handles multiple consecutive delimiters\nsplit_pattern = r'[,;| ]+'\n```\n\n**Expected Output:**\n```\nFormatted phones: (415) 555-1234, (212) 555-6789, (310) 555-9012\nCleaned text: Hello World Python Regex is fun\nRedacted log: User: John, Card: XXXX-XXXX-XXXX-XXXX, Amount: $50\nSplit data: ['apple', 'banana', 'cherry', 'date', 'orange']\n```"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["re-sub", "re-split", "substitution", "group-referencing"],
+  "tests": [
+    {
+      "name": "Task 1: Check import",
+      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\nfound_import = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 're' for name in node.names):\n        found_import = True\n    if isinstance(node, ast.ImportFrom) and node.module == 're':\n        found_import = True\n\nif not found_import:\n    raise AssertionError('Task 1: Missing import re module')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Task 2: Format phone numbers",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'formatted_phones' not in exec_globals:\n    raise AssertionError('Task 2: formatted_phones variable not found')\n\nformatted = exec_globals['formatted_phones']\nexpected = '(415) 555-1234, (212) 555-6789, (310) 555-9012'\n\nif formatted != expected:\n    raise AssertionError(f'Task 2: Expected \"{expected}\", got \"{formatted}\"')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Task 3: Clean up whitespace",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'cleaned_text' not in exec_globals:\n    raise AssertionError('Task 3: cleaned_text variable not found')\n\ncleaned = exec_globals['cleaned_text']\nexpected = 'Hello World Python Regex is fun'\n\nif cleaned != expected:\n    raise AssertionError(f'Task 3: Expected \"{expected}\", got \"{cleaned}\"')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Task 4: Redact credit card numbers",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'redacted_log' not in exec_globals:\n    raise AssertionError('Task 4: redacted_log variable not found')\n\nredacted = exec_globals['redacted_log']\nexpected = 'User: John, Card: XXXX-XXXX-XXXX-XXXX, Amount: $50'\n\nif redacted != expected:\n    raise AssertionError(f'Task 4: Expected \"{expected}\", got \"{redacted}\"')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Task 5: Split with multiple delimiters",
+      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'split_data' not in exec_globals:\n    raise AssertionError('Task 5: split_data variable not found')\n\nsplit = exec_globals['split_data']\nexpected = ['apple', 'banana', 'cherry', 'date', 'orange']\n\nif split != expected:\n    raise AssertionError(f'Task 5: Expected {expected}, got {split}')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": [
+    "re-sub",
+    "re-split",
+    "substitution",
+    "group-referencing",
+    "text-transformation"
+  ],
   "challengeGroup": "regex-transformation"
 }

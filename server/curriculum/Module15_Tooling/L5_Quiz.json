@@ -1,0 +1,45 @@
+{
+  "lessonId": "M15L5",
+  "title": "Creating Your Own Packages - Quiz",
+  "questions": [
+    {
+      "id": "m15l5_q1",
+      "type": "multiple-choice",
+      "question": "Which file is the modern standard for storing a Python project's metadata and installation requirements?",
+      "options": [
+        "`main.py`",
+        "`__init__.py`",
+        "`pyproject.toml`",
+        "`requirements.txt`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`pyproject.toml` is the contemporary configuration file used to define how a project should be built and what its dependencies are."
+    },
+    {
+      "id": "m15l5_q2",
+      "type": "multiple-choice",
+      "question": "What does the `-e` flag do when running `pip install -e .`?",
+      "options": [
+        "It 'Encrypts' the code for security.",
+        "It installs the package in 'Editable' mode, linking the source code to the environment.",
+        "It 'Exits' the terminal after installation is complete.",
+        "It 'Erases' previous versions of Python."
+      ],
+      "correctAnswer": 1,
+      "explanation": "Editable mode allows you to modify your source code and have those changes take effect immediately without needing to re-install the package."
+    },
+    {
+      "id": "m15l5_q3",
+      "type": "multiple-choice",
+      "question": "In the 'Package within a Project' structure, where should your actual logic (.py files) be stored?",
+      "options": [
+        "Directly in the root folder alongside the README",
+        "Inside a dedicated subdirectory (the package folder) containing an `__init__.py`",
+        "Inside the `tests/` folder",
+        "Only in the `pyproject.toml` file"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The source code should be isolated in its own package directory to keep it separate from project-level files like documentation, licenses, and test suites."
+    }
+  ]
+}

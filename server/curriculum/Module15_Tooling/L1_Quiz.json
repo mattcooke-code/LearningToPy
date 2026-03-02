@@ -1,0 +1,45 @@
+{
+  "lessonId": "M15L1",
+  "title": "Virtual Environments: venv - Quiz",
+  "questions": [
+    {
+      "id": "m15l1_q1",
+      "type": "multiple-choice",
+      "question": "Which command is used to create a new virtual environment named 'my_env' using the built-in venv module?",
+      "options": [
+        "`create venv my_env`",
+        "`python -m venv my_env`",
+        "`python venv create my_env`",
+        "`new-venv my_env`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The standard way to create an environment is using the `-m` (module) flag followed by `venv` and then your chosen folder name."
+    },
+    {
+      "id": "m15l1_q2",
+      "type": "multiple-choice",
+      "question": "After creating a virtual environment folder, what must you do before you can start installing isolated packages into it?",
+      "options": [
+        "Delete the folder and restart",
+        "Move the folder to the Desktop",
+        "Activate the environment using the specific command for your OS",
+        "Nothing, it is automatically active once created"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Creating the folder only sets up the files. You must 'activate' it so your terminal knows to use that specific Python interpreter instead of the system-wide one."
+    },
+    {
+      "id": "m15l1_q3",
+      "type": "multiple-choice",
+      "question": "How can you tell, just by looking at your terminal/command prompt, that a virtual environment is currently active?",
+      "options": [
+        "The terminal text will turn green",
+        "A new window will pop up",
+        "The name of the environment (e.g., '.venv') will appear in parentheses at the start of the prompt",
+        "Your computer will make a notification sound"
+      ],
+      "correctAnswer": 2,
+      "explanation": "When an environment is active, most terminals will prepend the name of the environment in parentheses, like `(.venv) C:\\Users...`, to signify you are in an isolated space."
+    }
+  ]
+}

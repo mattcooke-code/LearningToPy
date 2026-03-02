@@ -74,3 +74,16 @@ match = re.search(pattern_good, text)
 
 # This is less commonly needed than capturing groups, but good practice for pattern clarity.
 ```
+
+:::summary
+
+- **Capturing groups** `()` isolate specific parts of a matched pattern for extraction
+- Groups are numbered from 1; **group 0** is always the entire match
+- Access groups with `.group(1)`, `.group(2)`, etc., or `.groups()` for all as a tuple
+- With `re.findall()`:
+  - **One group** → returns list of strings
+  - **Multiple groups** → returns list of tuples
+- **Non-capturing groups** `(?:...)` group patterns without extracting them
+- Capturing groups are essential for parsing structured data like logs, dates, and contact information
+
+:::

@@ -106,6 +106,9 @@ class CurriculumUpdater {
       // Prepare lesson data
       const lessonData = {
         title: lessonConfig.title,
+        slug:
+          lessonConfig.slug ||
+          lessonConfig.title.toLowerCase().replace(/\s+/g, "-"),
         content: readContent(config.folder, lessonConfig.file),
         contentType: lessonConfig.type,
         quiz: loadLessonAsset(

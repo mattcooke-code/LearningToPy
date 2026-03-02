@@ -1,0 +1,40 @@
+{
+  "lessonId": "M14L4",
+  "title": "Substitution and Splitting - Quiz",
+  "questions": [
+    {
+      "id": "m14l4_q1",
+      "type": "multiple-choice",
+      "question": "What will `re.sub(r'\\d+', 'NUM', 'Order 123: item 456')` return?",
+      "options": [
+        "`'Order NUM: item NUM'`",
+        "`'Order 123: item 456'`",
+        "`'Order : item '`",
+        "`'Order NUM: item 456'`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The pattern `\\d+` matches one or more digits. By default, `re.sub()` replaces all matches, so both '123' and '456' are replaced with 'NUM', resulting in 'Order NUM: item NUM'."
+    },
+    {
+      "id": "m14l4_q2",
+      "type": "multiple-choice",
+      "question": "In a replacement string, how do you reference the third capturing group from the pattern?",
+      "options": ["`$3`", "`{3}`", "`\\3`", "`[3]`"],
+      "correctAnswer": 2,
+      "explanation": "In `re.sub()`, captured groups are referenced in the replacement string using backslash followed by the group number: `\\1`, `\\2`, `\\3`, etc."
+    },
+    {
+      "id": "m14l4_q3",
+      "type": "multiple-choice",
+      "question": "What will `re.split(r'[;,]', 'a,b;c,d')` return?",
+      "options": [
+        "`['a', 'b', 'c', 'd']`",
+        "`['a', 'b;c', 'd']`",
+        "`['a,b', 'c,d']`",
+        "`['a', 'b', 'c', 'd']`"
+      ],
+      "correctAnswer": 0,
+      "explanation": "The character set `[;,]` matches either a semicolon or a comma. `re.split()` splits the string at every occurrence of either delimiter, resulting in `['a', 'b', 'c', 'd']`."
+    }
+  ]
+}

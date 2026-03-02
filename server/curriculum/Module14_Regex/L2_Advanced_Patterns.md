@@ -32,12 +32,13 @@ print(matches) # Output: ['1', '22', '333', '44444']
 
 A character set, defined by square brackets (`[]`), matches any single character inside the brackets. This is much more precise than using the wildcard `.`
 
-| Set        | Meaning                                              | Example       | Matches                      |
-| ---------- | ---------------------------------------------------- | ------------- | ---------------------------- |
-| `[aeiou]`  | Matches any single vowel.                            | `r"[aeiou]t"` | "at", "it", "ot"             |
-| `[0-5]`    | Matches any digit from 0 through 5.                  | `r"[0-5]"`    | "0", "1", "2", "3", "4", "5" |
-| `[a-zA-Z]` | Matches any single lowercase or uppercase letter.    |               |                              |
-| `[^abc]`   | Matches any single character that is NOT a, b, or c. | `r"[^0-9]"`   | Any non-digit character      |
+| Set         | Meaning                                              | Example       | Matches                      |
+| ----------- | ---------------------------------------------------- | ------------- | ---------------------------- |
+| `[aeiou]`   | Matches any single vowel.                            | `r"[aeiou]t"` | "at", "it", "ot"             |
+| `[0-5]`     | Matches any digit from 0 through 5.                  | `r"[0-5]"`    | "0", "1", "2", "3", "4", "5" |
+| `[a-zA-Z]`  | Matches any single lowercase or uppercase letter.    |               |                              |
+| `[^abc]`    | Matches any single character that is NOT a, b, or c. |               |                              |
+| `r"[^0-9]"` | Any non-digit character                              |               |                              |
 
 ```python
 # Match a hexadecimal digit (0-9 or A-F/a-f)
@@ -45,7 +46,7 @@ A character set, defined by square brackets (`[]`), matches any single character
 pattern = r"[0-9a-fA-F]"
 text = "Hex: A3f"
 matches = re.findall(pattern, text)
-print(matches) # Output: ['A', '3', 'f']
+print(matches) # Output: ['e', 'A', '3', 'f']
 ```
 
 ## 3. Anchors
@@ -72,3 +73,16 @@ print(f"Match 1: {match1.group()}") # Output: S
 match2 = re.search(r"T$", text2)
 print(f"Match 2: {match2}") # Output: None
 ```
+
+:::summary
+
+- **Quantifiers** control repetition: `*` (0+), `+` (1+), `?` (0-1), `{N}` (exactly N), `{N,}` (N or more), `{N,M}` (between N and M)
+- **Character sets** `[...]` match any single character inside the brackets
+- Ranges can be specified with hyphens: `[0-9]`, `[a-z]`, `[A-Z]`
+- `[^...]` negates the set, matching any character **not** in the brackets
+- **Anchors** match positions, not characters: `^` (start), `$` (end), `\b` (word boundary)
+- Use `re.findall()` to get all matches as a list
+- Use `re.search()` to find the first match
+- Use `re.match()` to check for a match at the beginning of the string
+
+:::

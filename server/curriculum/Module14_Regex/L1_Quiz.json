@@ -1,0 +1,45 @@
+{
+  "lessonId": "M14L1",
+  "title": "Introduction to Regex - Quiz",
+  "questions": [
+    {
+      "id": "m14l1_q1",
+      "type": "multiple-choice",
+      "question": "Why is it important to use raw strings (prefix `r`) for regex patterns in Python?",
+      "options": [
+        "To make the pattern case-insensitive",
+        "To prevent Python from interpreting backslashes as escape characters",
+        "To improve the performance of regex matching",
+        "To allow the use of Unicode characters in patterns"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Raw strings prevent Python from interpreting backslashes as escape sequences (like `\\n` for newline). This is crucial because regex patterns use many backslashes for special sequences like `\\d`."
+    },
+    {
+      "id": "m14l1_q2",
+      "type": "multiple-choice",
+      "question": "What is the difference between `re.search()` and `re.match()`?",
+      "options": [
+        "`re.search()` finds all matches; `re.match()` finds the first match",
+        "`re.search()` is case-sensitive; `re.match()` is case-insensitive",
+        "`re.search()` looks anywhere in the string; `re.match()` only looks at the beginning",
+        "There is no difference; they are interchangeable"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`re.search()` scans the entire string for a match anywhere. `re.match()` only checks if the pattern matches at the very beginning of the string."
+    },
+    {
+      "id": "m14l1_q3",
+      "type": "multiple-choice",
+      "question": "Which pattern would match a string containing exactly three digits in a row, like '123' or '456'?",
+      "options": [
+        "`r\"\\d\\d\\d\"`",
+        "`r\"\\d\\d\\d\\d\"`",
+        "`r\"\\d{3}\"`",
+        "Both `r\"\\d\\d\\d\"` and `r\"\\d{3}\"`"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Both `r\"\\d\\d\\d\"` and `r\"\\d{3}\"` match exactly three digits in a row. The `{3}` syntax is a quantifier that means 'exactly 3 times'. Both are valid, though `{3}` is more concise for longer repetitions."
+    }
+  ]
+}

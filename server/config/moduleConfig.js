@@ -70,7 +70,7 @@ const MODULE_CONFIGS = {
         file: "L1_Welcome.md",
         quiz: "L1_Quiz.json",
         title: "Welcome to Python",
-        type: "theory",
+        type: "exercise",
         ex: "L1_Exercise.json",
       },
       {
@@ -696,16 +696,14 @@ const MODULE_CONFIGS = {
         file: "L1_Virtual_Environments.md",
         quiz: "L1_Quiz.json",
         title: "Virtual Environments: venv",
-        type: "guided-setup",
-        ex: "L1_Exercise.json",
+        type: "theory",
       },
 
       {
         file: "L2_Pip_Requirements.md",
         quiz: "L2_Quiz.json",
         title: "Package Management with pip",
-        type: "exercise",
-        ex: "L2_Exercise.json",
+        type: "theory",
       },
 
       {
@@ -732,8 +730,7 @@ const MODULE_CONFIGS = {
         title: "Creating and Importing Packages",
         description:
           "Build your own installable Python packages with setup.py.",
-        type: "exercise",
-        ex: "L5_Exercise.json",
+        type: "theory",
       },
 
       {

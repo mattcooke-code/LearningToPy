@@ -42,7 +42,9 @@ print("Pattern not found.")
 
 In Python, the backslash (`\`) is used to escape characters in regular strings (e.g., `\n` for newline). Since regex heavily uses backslashes for its own special sequences (e.g., `\d` for digit), you must use **raw strings** (prefix the string with `r`) to prevent Python from interpreting the backslashes prematurely.
 
+:::tip
 **Always use raw strings for regex patterns**: `pattern = r"Your\Regex\Here"`
+:::
 
 ## 3. Special Characters
 
@@ -55,6 +57,7 @@ Regex introduces special characters that don't match literally but define a clas
 | `\w`      | Matches any word character (alphanumeric + underscore). | `r"\_.\w"` matches "\_A" or "\_1"    |
 | `\s`      | Matches any whitespace character (space, tab, newline). | `r"Hello\sWorld"`                    |
 
+:::note
 The capitalized versions match the inverse:
 
 • `\D`: Matches any non-digit.
@@ -62,17 +65,19 @@ The capitalized versions match the inverse:
 • `\W`: Matches any non-word character.
 
 • `\S`: Matches any non-whitespace character.
+:::
 
 ## 4. `re.search()` vs. `re.match()`
 
 Both functions look for a match, but their starting points are different:
 
-• `re.search(pattern, text)`: Scans through the entire `text` string looking for the first location where the `pattern` produces a match.
-
-• `re.match(pattern, text)`: Only attempts to match the `pattern` at the **beginning** of the `text` string.
+| Function                   | Description                                                                                                 |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `re.search(pattern, text)` | Scans through the entire `text` string looking for the first location where the `pattern` produces a match. |
+| `re.match(pattern, text)`  | Only attempts to match the `pattern` at the **beginning** of the `text` string.                             |
 
 ```python
-text = "The code is ID55"
+text = "The code is ID555"
 pattern = r"\d\d\d" # Pattern: three digits
 
 # Search finds the match starting at index 12
@@ -85,3 +90,17 @@ print(f"Search Result: {search_result.group()}") # Output: 555
 match_result = re.match(pattern, text)
 print(f"Match Result: {match_result}") # Output: None
 ```
+
+:::summary
+
+- **Regular expressions** (regex) are patterns for searching and manipulating text
+- Import the `re` module to use regex in Python
+- **Always use raw strings** (`r"pattern"`) for regex to avoid escaping issues
+- `re.search()` scans the **entire string** for a match anywhere
+- `re.match()` only checks for a match at the **beginning** of the string
+- Special characters: `\d` (digit), `\w` (word char), `\s` (whitespace), `.` (any char)
+- Capitalized versions (`\D`, `\W`, `\S`) match the **opposite**
+- A successful match returns a **Match object** with methods like `.group()`, `.start()`, `.end()`
+- If no match is found, the function returns `None`
+
+:::
