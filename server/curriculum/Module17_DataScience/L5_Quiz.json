@@ -1,0 +1,45 @@
+{
+  "lessonId": "M17L5",
+  "title": "Data Selection and Filtering - Quiz",
+  "questions": [
+    {
+      "id": "m17l5_q1",
+      "type": "multiple-choice",
+      "question": "What is the correct way to select the 'Name' and 'Age' columns from a DataFrame `df`?",
+      "options": [
+        "`df['Name', 'Age']`",
+        "`df[['Name', 'Age']]`",
+        "`df.select(['Name', 'Age'])`",
+        "`df['Name']['Age']`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "To select multiple columns, you must pass a list of column names inside double brackets: `df[['Name', 'Age']]`. This returns a new DataFrame with only those columns."
+    },
+    {
+      "id": "m17l5_q2",
+      "type": "multiple-choice",
+      "question": "What will the following code return?\n\n```python\nmask = df['Score'] > 80\nresult = df[mask]\n```",
+      "options": [
+        "All rows where Score is greater than 80",
+        "A boolean Series indicating which rows have Score > 80",
+        "The Score column only",
+        "An error because mask isn't defined"
+      ],
+      "correctAnswer": 0,
+      "explanation": "First, `df['Score'] > 80` creates a boolean mask (True/False for each row). Then `df[mask]` uses that mask to select only the rows where the mask is True - giving us all rows with Score > 80."
+    },
+    {
+      "id": "m17l5_q3",
+      "type": "multiple-choice",
+      "question": "Which operators must you use when combining multiple boolean conditions in Pandas?",
+      "options": [
+        "`and` and `or`",
+        "`&&` and `||`",
+        "`&` and `|`",
+        "`AND` and `OR`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "In Pandas, you must use `&` for AND and `|` for OR. Each condition must be wrapped in parentheses: `df[(df['col1'] > 5) & (df['col2'] == 'X')]`. The Python keywords `and`/`or` don't work element-wise with arrays."
+    }
+  ]
+}

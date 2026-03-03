@@ -2,22 +2,31 @@
   "title": "NumPy Array Creation and Inspection",
   "instructions": "Create a one-dimensional NumPy array from a list of floating-point numbers and inspect its key attributes.",
   "steps": [
-    "Import the `numpy` library as `np`.",
-    "Define a Python list of temperatures: `temperatures = [22.5, 24.1, 19.8, 25.0]`.",
-    "Convert the `temperatures` list into a NumPy array and store it in a variable called `temp_array`.",
-    "Print the `temp_array`.",
-    "Print the data type of the array using the `.dtype` attribute.",
-    "Print the shape of the array using the `.shape` attribute."
+    "**Task 1: Import NumPy** - Import the `numpy` library with the standard alias `np`.",
+    "**Task 2: Review the data** - A Python list of temperatures has been defined for you. You'll convert this to a NumPy array.",
+    "**Task 3: Create the array** - Use `np.array()` to convert the `temperatures` list into a NumPy array. Store the result in a variable called `temp_array`.",
+    "**Task 4: Print the array** - Print the array you just created.",
+    "**Task 5: Print the data type** - Print the data type of the array using the `.dtype` attribute.",
+    "**Task 6: Print the shape** - Print the shape of the array using the `.shape` attribute."
   ],
-  "starterCode": "import numpy as np\n\ntemperatures = [22.5, 24.1, 19.8, 25.0]\n\n# 1. Create the NumPy array\ntemp_array = ...\n\n# 2. Print the array\nprint(temp_array)\n\n# 3. Print the array's data type\nprint(temp_array....)\n\n# 4. Print the array's shape\nprint(temp_array....)\n",
-  "solution": "import numpy as np\n\ntemperatures = [22.5, 24.1, 19.8, 25.0]\n\n# 1. Create the NumPy array\ntemp_array = np.array(temperatures)\n\n# 2. Print the array\nprint(temp_array)\n\n# 3. Print the array's data type\nprint(temp_array.dtype)\n\n# 4. Print the array's shape\nprint(temp_array.shape)\n",
+  "starterCode": "# Task 1: Import numpy as np\n\n\n\ntemperatures = [22.5, 24.1, 19.8, 25.0]\n\n# Task 2: Create the NumPy array\ntemp_array = \n\n# Task 3: Print the array\n\n\n# Task 4: Print the array's data type\n\n\n# Task 5: Print the array's shape\n",
+  "solution": "# Task 1: Import numpy as np\nimport numpy as np\n\ntemperatures = [22.5, 24.1, 19.8, 25.0]\n\n# Task 2: Create the NumPy array\ntemp_array = np.array(temperatures)\n\n# Task 3: Print the array\nprint(temp_array)\n\n# Task 4: Print the array's data type\nprint(temp_array.dtype)\n\n# Task 5: Print the array's shape\nprint(temp_array.shape)",
   "fileSetup": {},
   "hints": [
-    "The NumPy conversion function is `np.array()`.",
-    "To access the properties, use dot notation: `array_name.attribute`."
+    "**Task 1:** The standard import is `import numpy as np`",
+    "**Task 2:** Use `np.array(temperatures)` to convert the list",
+    "**Task 3:** Just `print(temp_array)` - the array prints nicely formatted",
+    "**Task 4:** Access the data type with `temp_array.dtype`",
+    "**Task 5:** Access the shape with `temp_array.shape` - for a 1D array, this will be `(4,)`",
+    "**Expected output format:**\n```\n[22.5 24.1 19.8 25. ]\nfloat64\n(4,)\n```"
   ],
   "validation": "tests",
-  "tests": [],
+  "tests": [
+    {
+      "name": "Check syntax only - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error in your code: {e}')\n\n# Check for numpy import\nfound_numpy = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'numpy' for name in node.names):\n        found_numpy = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'numpy':\n        found_numpy = True\n\nif not found_numpy:\n    raise AssertionError('Task 1: Missing import numpy (check syntax)')\n\n# Check for np.array() call\nfound_array = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute):\n            if isinstance(node.func.value, ast.Name) and node.func.value.id == 'np' and node.func.attr == 'array':\n                found_array = True\n\nif not found_array:\n    raise AssertionError('Task 2: Missing np.array() call')\n\n# Check for print statements (at least 3)\nprint_calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and \n               isinstance(node.func, ast.Name) and node.func.id == 'print']\n\nif len(print_calls) < 3:\n    raise AssertionError('Tasks 3-5: Expected at least 3 print statements')\n\n# Check for dtype attribute access\nfound_dtype = False\nfound_shape = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Attribute):\n        if node.attr == 'dtype':\n            found_dtype = True\n        if node.attr == 'shape':\n            found_shape = True\n\nif not found_dtype:\n    raise AssertionError('Task 4: Missing .dtype attribute access')\nif not found_shape:\n    raise AssertionError('Task 5: Missing .shape attribute access')\n\nprint('TEST_PASSED')"
+    }
+  ],
   "tags": ["numpy", "array", "dtype", "shape"],
   "challengeGroup": "data-science-intro"
 }

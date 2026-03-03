@@ -2,22 +2,31 @@
   "title": "Performing Vectorized Arithmetic and Aggregation",
   "instructions": "Given an array of stock prices, apply a $5 bonus (addition) to each price and then calculate the new average price.",
   "steps": [
-    "Import the `numpy` module as `np`.",
-    "Define a 1D NumPy array: `stock_prices = np.array([105.5, 98.2, 112.7, 101.9])`.",
-    "Create a new array, `bonus_prices`, by adding 5 to every element in `stock_prices` (vectorized addition).",
-    "Print the `bonus_prices` array.",
-    "Calculate the mean (average) of the `bonus_prices` array and store it in `avg_bonus_price`.",
-    "Print the `avg_bonus_price`, formatted to two decimal places."
+    "**Task 1: Import NumPy** - Import the `numpy` library with the standard alias `np`.",
+    "**Task 2: Review the data** - A NumPy array called `stock_prices` has been created for you with the values `[105.5, 98.2, 112.7, 101.9]`.",
+    "**Task 3: Apply the bonus** - Use vectorized addition to add 5 to every element in `stock_prices`. Store the result in a new array called `bonus_prices`.",
+    "**Task 4: Print the new array** - Print the `bonus_prices` array.",
+    "**Task 5: Calculate the mean** - Calculate the mean (average) of the `bonus_prices` array and store it in a variable called `avg_bonus_price`.",
+    "**Task 6: Print the result** - Print the average formatted to two decimal places using an f-string: `f\"New Average Price: {avg_bonus_price:.2f}\"`."
   ],
-  "starterCode": "import numpy as np\n\nstock_prices = np.array([105.5, 98.2, 112.7, 101.9])\n\n# 1. Apply a $5 bonus to all prices\nbonus_prices = ...\n\n# 2. Print the new array\nprint(bonus_prices)\n\n# 3. Calculate the mean of the new array\navg_bonus_price = ...\n\n# 4. Print the result\nprint(f\"New Average Price: {avg_bonus_price:.2f}\")\n",
-  "solution": "import numpy as np\n\nstock_prices = np.array([105.5, 98.2, 112.7, 101.9])\n\n# 1. Apply a $5 bonus to all prices\nbonus_prices = stock_prices + 5\n\n# 2. Print the new array\nprint(bonus_prices)\n\n# 3. Calculate the mean of the new array\navg_bonus_price = bonus_prices.mean()\n\n# 4. Print the result\nprint(f\"New Average Price: {avg_bonus_price:.2f}\")\n",
+  "starterCode": "# Task 1: Import numpy as np\n\n\n\nstock_prices = np.array([105.5, 98.2, 112.7, 101.9])\n\n# Task 2: Apply the $5 bonus\nbonus_prices = \n\n# Task 3: Print the new array\n\n\n# Task 4: Calculate the mean\navg_bonus_price = \n\n# Task 5: Print the result\nprint(f\"New Average Price: {avg_bonus_price:.2f}\")",
+  "solution": "# Task 1: Import numpy as np\nimport numpy as np\n\nstock_prices = np.array([105.5, 98.2, 112.7, 101.9])\n\n# Task 2: Apply the $5 bonus\nbonus_prices = stock_prices + 5\n\n# Task 3: Print the new array\nprint(bonus_prices)\n\n# Task 4: Calculate the mean\navg_bonus_price = bonus_prices.mean()\n\n# Task 5: Print the result\nprint(f\"New Average Price: {avg_bonus_price:.2f}\")",
   "fileSetup": {},
   "hints": [
-    "Vectorized addition is as simple as `array + number`.",
-    "Use the `.mean()` method or `np.mean()` function for the average calculation."
+    "**Task 1:** The standard import is `import numpy as np`",
+    "**Task 2:** Vectorized addition is simply `stock_prices + 5` - NumPy handles the broadcasting automatically",
+    "**Task 3:** Just `print(bonus_prices)` - it will show nicely formatted output",
+    "**Task 4:** Use the `.mean()` method: `bonus_prices.mean()`",
+    "**Task 5:** The f-string is already provided - just replace `{avg_bonus_price:.2f}` with your variable",
+    "**Expected output format:**\n```\n[110.5 103.2 117.7 106.9]\nNew Average Price: 109.58\n```"
   ],
   "validation": "tests",
-  "tests": [],
+  "tests": [
+    {
+      "name": "Check syntax only - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error in your code: {e}')\n\n# Check for numpy import\nfound_numpy = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'numpy' for name in node.names):\n        found_numpy = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'numpy':\n        found_numpy = True\n\nif not found_numpy:\n    raise AssertionError('Task 1: Missing import numpy (check syntax)')\n\n# Check for vectorized addition (array + number)\nfound_addition = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):\n        found_addition = True\n        break\n\nif not found_addition:\n    raise AssertionError('Task 2: Missing vectorized addition (stock_prices + 5)')\n\n# Check for .mean() method call\nfound_mean = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute) and node.func.attr == 'mean':\n            found_mean = True\n            break\n\nif not found_mean:\n    raise AssertionError('Task 4: Missing .mean() method call')\n\n# Check for print statements (at least 2)\nprint_calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and \n               isinstance(node.func, ast.Name) and node.func.id == 'print']\n\nif len(print_calls) < 2:\n    raise AssertionError('Tasks 3 & 5: Expected at least 2 print statements')\n\nprint('TEST_PASSED')"
+    }
+  ],
   "tags": ["numpy", "vectorization", "aggregation", "mean"],
   "challengeGroup": "data-science-intro"
 }

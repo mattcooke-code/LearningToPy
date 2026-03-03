@@ -1,0 +1,40 @@
+{
+  "lessonId": "M17L3",
+  "title": "Introduction to Pandas Series - Quiz",
+  "questions": [
+    {
+      "id": "m17l3_q1",
+      "type": "multiple-choice",
+      "question": "What is the main difference between a Pandas Series and a NumPy array?",
+      "options": [
+        "Series can only store numbers; NumPy arrays can store any type",
+        "Series has labeled indexing; NumPy arrays use only positional indexing",
+        "Series is faster than NumPy arrays",
+        "NumPy arrays are two-dimensional; Series are one-dimensional"
+      ],
+      "correctAnswer": 1,
+      "explanation": "While both are one-dimensional and built on similar technology, Series adds labeled indexing (custom row labels) on top of NumPy's positional indexing, making data more meaningful and easier to work with."
+    },
+    {
+      "id": "m17l3_q2",
+      "type": "multiple-choice",
+      "question": "Given `s = pd.Series({'a': 10, 'b': 20, 'c': 30})`, what will `s['b']` return?",
+      "options": ["`10`", "`20`", "`'b'`", "`b`"],
+      "correctAnswer": 1,
+      "explanation": "In a Series created from a dictionary, the keys become index labels. Accessing `s['b']` returns the value associated with that label, which is 20."
+    },
+    {
+      "id": "m17l3_q3",
+      "type": "multiple-choice",
+      "question": "How does label-based slicing in Pandas differ from regular Python slicing?",
+      "options": [
+        "It's the same - the end index is excluded",
+        "It's inclusive of the end label",
+        "It only works with numerical indices",
+        "It returns a NumPy array instead of a Series"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Unlike standard Python slicing (which excludes the end), Pandas label-based slicing is **inclusive** of the end label. For example, `population['California':'Texas']` includes both California and Texas in the result."
+    }
+  ]
+}

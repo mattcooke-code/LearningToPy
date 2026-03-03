@@ -25,11 +25,13 @@ is_greater_than_25 = arr1 > 25
 print(f"Condition: {is_greater_than_25}") # Output: [False False True]
 ```
 
+:::note
 The process of applying a single value (like `2` in the example above) to every element of an array is called **broadcasting**.
+:::
 
 ## 2. Universal Functions (ufuncs)
 
-NumPy provides many built-in functions, often called ufuncs, for fast mathematical operations. These include `np.sqrt()`, `np.log()`, `np.exp()`, and more.
+NumPy provides many built-in functions, often called **ufuncs**, for fast mathematical operations. These include `np.sqrt()`, `np.log()`, `np.exp()`, and more.
 
 ```python
 data = np.array([4, 9, 16])
@@ -55,3 +57,38 @@ print(f"Total Score: {scores.sum()}")
 print(f"Average Score: {scores.mean():.2f}")
 print(f"Highest Score: {np.max(scores)}")
 ```
+
+:::tip
+Best Pactice: Using the method approach (e.g `arr.sum()`) is generally considered more "Pythonic" and readable.
+:::
+
+### Aggregating by Row or Column
+
+By default, these functions squash the entire array into one number. However, you can use the `axis` parameter for 2D arrays:
+
+- `axis=0`: Operations happen **down the columns**.
+- `axis=1`: Operations happen **across the rows**.
+
+```python
+matrix = np.array([[1, 2], [3, 4]])
+print(matrix.sum(axis=0)) # Output: [4, 6] (Column sums)
+```
+
+:::summary
+
+- **Vectorization** allows operations on entire arrays without explicit loops
+- **Element-wise arithmetic**: `+`, `-`, `*`, `/` apply to each element automatically
+- **Broadcasting** applies a scalar value to every element of an array
+- **Boolean operations** are also vectorized, returning arrays of True/False
+- **Universal functions (ufuncs)** like `np.sqrt()`, `np.log()`, `np.exp()` apply mathematical functions element-wise
+- **Aggregation functions** summarize array data:
+  - `.sum()` - total of all elements
+  - `.mean()` - average value
+  - `.min()` / `.max()` - minimum/maximum
+  - `.std()` - standard deviation
+- **Axis parameter** controls aggregation direction in 2D arrays:
+  - `axis=0` - down the columns (row-wise operation)
+  - `axis=1` - across the rows (column-wise operation)
+- Use method syntax (`arr.sum()`) for cleaner code
+
+:::

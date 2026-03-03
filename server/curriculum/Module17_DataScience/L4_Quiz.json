@@ -1,0 +1,45 @@
+{
+  "lessonId": "M17L4",
+  "title": "Working with Pandas DataFrames - Quiz",
+  "questions": [
+    {
+      "id": "m17l4_q1",
+      "type": "multiple-choice",
+      "question": "What is a Pandas DataFrame?",
+      "options": [
+        "A one-dimensional labeled array",
+        "A two-dimensional labeled data structure with columns of potentially different types",
+        "A Python dictionary with special methods",
+        "A NumPy array with row labels"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A DataFrame is a 2D labeled data structure. Think of it as a spreadsheet or SQL table - it has rows and columns, and each column can have a different data type."
+    },
+    {
+      "id": "m17l4_q2",
+      "type": "multiple-choice",
+      "question": "Given a DataFrame `df` with columns 'Name' and 'Age', which of these will correctly select the 'Age' column?",
+      "options": [
+        "`df[1]`",
+        "`df.Age`",
+        "`df.get('Age')`",
+        "Both `df.Age` and `df['Age']` are valid"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Both `df.Age` (dot notation) and `df['Age']` (bracket notation) work for column selection. Dot notation is cleaner but only works for column names without spaces."
+    },
+    {
+      "id": "m17l4_q3",
+      "type": "multiple-choice",
+      "question": "What information does the `.info()` method provide about a DataFrame?",
+      "options": [
+        "Only the first 5 rows",
+        "The dimensions (rows, columns) and memory usage",
+        "The data type of each column, number of non-null values, and memory usage",
+        "The sum of all numerical columns"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`.info()` is your data exploration Swiss Army knife. It shows the data type of each column, how many non-null values exist, and the memory usage - crucial for understanding your dataset before analysis."
+    }
+  ]
+}

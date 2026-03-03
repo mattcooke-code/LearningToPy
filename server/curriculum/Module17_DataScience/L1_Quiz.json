@@ -1,0 +1,40 @@
+{
+  "lessonId": "M17L1",
+  "title": "NumPy Arrays - Quiz",
+  "questions": [
+    {
+      "id": "m17l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the main performance advantage of NumPy arrays over Python lists?",
+      "options": [
+        "NumPy arrays can store more elements",
+        "NumPy arrays are homogeneous and operations are implemented in C",
+        "NumPy arrays automatically compress data",
+        "NumPy arrays are written in pure Python but optimized"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NumPy arrays are homogeneous (all elements same type) and their core operations are implemented in C, making them significantly faster than Python lists, especially for large datasets."
+    },
+    {
+      "id": "m17l1_q2",
+      "type": "multiple-choice",
+      "question": "Given the code `arr = np.array([[1, 2, 3], [4, 5, 6]])`, what will `arr.shape` return?",
+      "options": ["`(6,)`", "`(2, 3)`", "`(3, 2)`", "`[2, 3]`"],
+      "correctAnswer": 1,
+      "explanation": "The array has 2 rows and 3 columns, so `.shape` returns the tuple `(2, 3)`. The `.shape` attribute always returns a tuple representing the size in each dimension."
+    },
+    {
+      "id": "m17l1_q3",
+      "type": "multiple-choice",
+      "question": "What does the `.dtype` attribute of a NumPy array tell you?",
+      "options": [
+        "The number of dimensions in the array",
+        "The total number of elements in the array",
+        "The data type of the elements in the array",
+        "The shape of the array as a tuple"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `.dtype` attribute returns the data type of the array's elements (e.g., `int64`, `float64`). This homogeneity is key to NumPy's performance advantage."
+    }
+  ]
+}

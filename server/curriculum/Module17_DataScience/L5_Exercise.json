@@ -1,23 +1,37 @@
 {
-  "title": "Project: Data Selection and Filtering",
-  "instructions": "Create a DataFrame of employee data. Select two columns and then filter the rows based on combined logical conditions.",
+  "title": "Data Selection and Filtering with Pandas",
+  "instructions": "Practice selecting columns and filtering rows using boolean conditions, .loc, .iloc, and .isin() in a DataFrame.",
   "steps": [
-    "Import `pandas` as `pd`.",
-    "Define the following data as a dictionary: `employees = {'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'], 'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'], 'Salary': [65000, 72000, 68000, 75000, 55000]}`.",
-    "Create a DataFrame `emp_df` from `employees`.",
-    "Select ONLY the 'Name' and 'Salary' columns and store the result in `salary_info_df`.",
-    "Create a new DataFrame, `high_earners_sales`, that contains employees who are in the 'Sales' department AND have a 'Salary' greater than 66000 (i.e., not Jenna).",
-    "Print the `high_earners_sales` DataFrame."
+    "**Task 1: Import Pandas** - Import the `pandas` library with the standard alias `pd`.",
+    "**Task 2: Understand the data structure** - A dictionary called `employees` has been created. The **keys** (`'Name'`, `'Department'`, `'Salary'`) will become **column names** in the DataFrame. Each key maps to a list of values that will become the rows in that column.",
+    "**Task 3: Create the DataFrame** - Use `pd.DataFrame()` to convert the `employees` dictionary into a Pandas DataFrame. Store it in `emp_df`.",
+    "**Task 4: Select columns with double brackets** - Create a new DataFrame called `salary_info_df` that contains only the 'Name' and 'Salary' columns from `emp_df`. Remember to use **double square brackets**.",
+    "**Task 5: Use `.iloc` for positional selection** - Select the **second row** (the employee at position 1, which is Mike) and **both** the 'Name' and 'Salary' columns using `.iloc`. Store the result in `second_employee`.",
+    "**Task 6: Use `.loc` for label-based selection** - Select the row with index **2** (the third employee, Lily) and only the 'Salary' column using `.loc`. Store the result in `third_salary`.",
+    "**Task 7: Apply boolean filtering with `&`** - Create a filtered DataFrame called `high_earners_sales` that contains employees who are in the 'Sales' department AND have a salary greater than 66000.",
+    "**Task 8: Use `.isin()` for multiple value matching** - Create a filtered DataFrame called `it_or_hr` that contains employees whose department is either 'IT' or 'HR'. Use the `.isin()` method.",
+    "**Task 9: Print all results** - Print each of the DataFrames/Series you created: `salary_info_df`, `second_employee`, `third_salary`, `high_earners_sales`, and `it_or_hr`."
   ],
-  "starterCode": "import pandas as pd\n\nemployees = {\n    'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'],\n    'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'],\n    'Salary': [65000, 72000, 68000, 75000, 55000]\n}\n\n# 1. Create the DataFrame\nemp_df = pd.DataFrame(employees)\n\n# 2. Select ONLY the 'Name' and 'Salary' columns\nsalary_info_df = ...\n\n# 3. Filter for 'Sales' AND Salary > 66000\nhigh_earners_sales = ...\n\n# 4. Print the final result\nprint(high_earners_sales)\n",
-  "solution": "import pandas as pd\n\nemployees = {\n    'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'],\n    'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'],\n    'Salary': [65000, 72000, 68000, 75000, 55000]\n}\n\n# 1. Create the DataFrame\nemp_df = pd.DataFrame(employees)\n\n# 2. Select ONLY the 'Name' and 'Salary' columns\nsalary_info_df = emp_df[['Name', 'Salary']]\n\n# 3. Filter for 'Sales' AND Salary > 66000\n# (Condition 1: Department is 'Sales') & (Condition 2: Salary > 66000)\nhigh_earners_sales = emp_df[(emp_df['Department'] == 'Sales') & (emp_df['Salary'] > 66000)]\n\n# 4. Print the final result\nprint(high_earners_sales)\n",
+  "starterCode": "# Task 1: Import pandas as pd\n\n\n\n# Data dictionary - keys become column names, values become the data in each column\nemployees = {\n    'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'],\n    'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'],\n    'Salary': [65000, 72000, 68000, 75000, 55000]\n}\n\n# Task 2: Create the DataFrame (keys become column names)\nemp_df = \n\n# Task 3: Select 'Name' and 'Salary' columns using double brackets\nsalary_info_df = \n\n# Task 4: Select second row (Mike) using .iloc\nsecond_employee = \n\n# Task 5: Select third employee's salary (Lily) using .loc\nthird_salary = \n\n# Task 6: Filter for 'Sales' AND Salary > 66000\nhigh_earners_sales = \n\n# Task 7: Filter for 'IT' or 'HR' using .isin()\nit_or_hr = \n\n# Task 8: Print all results\nprint(\"Salary Info (Name and Salary columns):\")\nprint(salary_info_df)\nprint(\"\\nSecond Employee (Mike):\")\nprint(second_employee)\nprint(\"\\nThird Employee Salary (Lily):\")\nprint(third_salary)\nprint(\"\\nHigh Earners in Sales:\")\nprint(high_earners_sales)\nprint(\"\\nIT or HR Employees:\")\nprint(it_or_hr)",
+  "solution": "# Task 1: Import pandas as pd\nimport pandas as pd\n\n# Data dictionary - keys become column names, values become the data in each column\nemployees = {\n    'Name': ['Jenna', 'Mike', 'Lily', 'Tom', 'Sara'],\n    'Department': ['Sales', 'IT', 'Sales', 'IT', 'HR'],\n    'Salary': [65000, 72000, 68000, 75000, 55000]\n}\n\n# Task 2: Create the DataFrame (keys become column names)\nemp_df = pd.DataFrame(employees)\n\n# Task 3: Select 'Name' and 'Salary' columns using double brackets\nsalary_info_df = emp_df[['Name', 'Salary']]\n\n# Task 4: Select second row (Mike) using .iloc\nsecond_employee = emp_df.iloc[1, :]\n\n# Task 5: Select third employee's salary (Lily) using .loc\nthird_salary = emp_df.loc[2, 'Salary']\n\n# Task 6: Filter for 'Sales' AND Salary > 66000\nhigh_earners_sales = emp_df[(emp_df['Department'] == 'Sales') & (emp_df['Salary'] > 66000)]\n\n# Task 7: Filter for 'IT' or 'HR' using .isin()\nit_or_hr = emp_df[emp_df['Department'].isin(['IT', 'HR'])]\n\n# Task 8: Print all results\nprint(\"Salary Info (Name and Salary columns):\")\nprint(salary_info_df)\nprint(\"\\nSecond Employee (Mike):\")\nprint(second_employee)\nprint(\"\\nThird Employee Salary (Lily):\")\nprint(third_salary)\nprint(\"\\nHigh Earners in Sales:\")\nprint(high_earners_sales)\nprint(\"\\nIT or HR Employees:\")\nprint(it_or_hr)",
   "fileSetup": {},
   "hints": [
-    "Remember to use double square brackets `[[]]` when selecting multiple columns.",
-    "When combining boolean conditions, each condition must be in parentheses, and you must use `&` for AND (not `and`)."
+    "**Task 1:** The standard import is `import pandas as pd`",
+    "**Task 2:** Use `pd.DataFrame(employees)` - the dictionary keys become column names, and the lists become the data in each column",
+    "**Task 3:** To select multiple columns, use double brackets: `emp_df[['Name', 'Salary']]` (square brackets, not parentheses!)",
+    "**Task 4:** `.iloc[row, col]` - `emp_df.iloc[1, :]` selects the second row (index 1) and all columns (`:`)",
+    "**Task 5:** `.loc[row_label, col_label]` - `emp_df.loc[2, 'Salary']` selects the row with index 2 (Lily) and the 'Salary' column",
+    "**Task 6:** Boolean filtering requires parentheses and `&`:\n```python\nemp_df[(emp_df['Department'] == 'Sales') & (emp_df['Salary'] > 66000)]\n```",
+    "**Task 7:** `.isin()` takes a list: `emp_df[emp_df['Department'].isin(['IT', 'HR'])]`",
+    "**Remember:** The DataFrame will look like this when printed:\n```\n   Name Department  Salary\n0  Jenna      Sales   65000\n1   Mike         IT   72000\n2   Lily      Sales   68000\n3    Tom         IT   75000\n4   Sara         HR   55000\n```"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["pandas", "dataframe", "filtering", "boolean-masking", "project"],
-  "challengeGroup": "data-science-intro"
+  "tests": [
+    {
+      "name": "Check syntax and structure - no execution",
+      "code": "import ast\n\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error: {e}')\n\n# Check for pandas import\nfound_pandas = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'pandas' for name in node.names):\n        found_pandas = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'pandas':\n        found_pandas = True\n\nif not found_pandas:\n    raise AssertionError('Task 1: Missing import pandas')\n\n# Check for pd.DataFrame()\nfound_df = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):\n        if isinstance(node.func.value, ast.Name) and node.func.value.id == 'pd' and node.func.attr == 'DataFrame':\n            found_df = True\n\nif not found_df:\n    raise AssertionError('Task 2: Missing pd.DataFrame() call')\n\n# Check for double bracket column selection - look for pattern emp_df[[...]]\ncode_str = user_code.replace(' ', '').replace('\\n', '')\nimport re\nif not re.search(r'emp_df\\[\\[[^\\]]+\\]\\]', code_str):\n    raise AssertionError('Task 3: Use double brackets [[]] to select multiple columns - correct syntax is emp_df[[\"Name\",\"Salary\"]]')\n\n# Check for .iloc usage\nfound_iloc = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Attribute) and node.attr == 'iloc':\n        found_iloc = True\n\nif not found_iloc:\n    raise AssertionError('Task 4: Missing .iloc usage')\n\n# Check for .loc usage\nfound_loc = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Attribute) and node.attr == 'loc':\n        found_loc = True\n\nif not found_loc:\n    raise AssertionError('Task 5: Missing .loc usage')\n\n# Check for boolean filtering with &\nfound_filter = False\nif '&' in user_code and 'Department' in user_code and 'Salary' in user_code:\n    found_filter = True\n\nif not found_filter:\n    raise AssertionError('Task 6: Missing boolean filter with & operator')\n\n# Check for .isin() usage\nfound_isin = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'isin':\n        found_isin = True\n\nif not found_isin:\n    raise AssertionError('Task 7: Missing .isin() usage')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["pandas", "filtering", "boolean-masking", "loc", "iloc", "isin"],
+  "challengeGroup": "data-selection-filtering"
 }

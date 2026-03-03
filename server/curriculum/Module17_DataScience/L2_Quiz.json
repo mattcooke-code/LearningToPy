@@ -1,0 +1,40 @@
+{
+  "lessonId": "M17L2",
+  "title": "Vectorized Operations and Aggregation - Quiz",
+  "questions": [
+    {
+      "id": "m17l2_q1",
+      "type": "multiple-choice",
+      "question": "What will the following code output?\n\n```python\narr = np.array([10, 20, 30])\nresult = arr > 15\nprint(result)\n```",
+      "options": [
+        "`[10, 20, 30]`",
+        "`[False, True, True]`",
+        "`[True, True, True]`",
+        "`[0, 1, 1]`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Boolean comparisons in NumPy are vectorized, so `arr > 15` compares each element individually: 10 > 15? False, 20 > 15? True, 30 > 15? True. The result is an array of Boolean values."
+    },
+    {
+      "id": "m17l2_q2",
+      "type": "multiple-choice",
+      "question": "Given `matrix = np.array([[5, 10], [15, 20]])`, what does `matrix.sum(axis=0)` return?",
+      "options": ["`[20, 30]`", "`[15, 30]`", "`[15, 25]`", "`[25, 30]`"],
+      "correctAnswer": 0,
+      "explanation": "`axis=0` sums down the columns: first column (5 + 15 = 20), second column (10 + 20 = 30). The result is a 1D array `[20, 30]`."
+    },
+    {
+      "id": "m17l2_q3",
+      "type": "multiple-choice",
+      "question": "What is broadcasting in NumPy?",
+      "options": [
+        "Sending array data to another Python process",
+        "Applying a scalar value to every element of an array",
+        "Converting a list to a NumPy array",
+        "Displaying an array in the console"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Broadcasting is the process where NumPy applies a scalar operation (like multiplying by 2) to every element of an array automatically, without needing an explicit loop."
+    }
+  ]
+}

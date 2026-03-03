@@ -1,0 +1,184 @@
+{
+  "questions": [
+    {
+      "id": "m17_review_q1",
+      "type": "multiple-choice",
+      "question": "What is the main performance advantage of NumPy arrays over Python lists?",
+      "options": [
+        "NumPy arrays can store more elements",
+        "NumPy arrays are homogeneous and operations are implemented in C",
+        "NumPy arrays automatically compress data",
+        "NumPy arrays are written in pure Python but optimized"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NumPy arrays are homogeneous (all elements same type) and their core operations are implemented in C, making them significantly faster than Python lists, especially for large datasets."
+    },
+    {
+      "id": "m17_review_q2",
+      "type": "multiple-choice",
+      "question": "Given the code `arr = np.array([[1, 2, 3], [4, 5, 6]])`, what will `arr.shape` return?",
+      "options": ["`(6,)`", "`(2, 3)`", "`(3, 2)`", "`[2, 3]`"],
+      "correctAnswer": 1,
+      "explanation": "The array has 2 rows and 3 columns, so `.shape` returns the tuple `(2, 3)`. The `.shape` attribute always returns a tuple representing the size in each dimension."
+    },
+    {
+      "id": "m17_review_q3",
+      "type": "multiple-choice",
+      "question": "What does the `.dtype` attribute of a NumPy array tell you?",
+      "options": [
+        "The number of dimensions in the array",
+        "The total number of elements in the array",
+        "The data type of the elements in the array",
+        "The shape of the array as a tuple"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The `.dtype` attribute returns the data type of the array's elements (e.g., `int64`, `float64`). This homogeneity is key to NumPy's performance advantage."
+    },
+    {
+      "id": "m17_review_q4",
+      "type": "multiple-choice",
+      "question": "What will the following code output?\n\n```python\narr = np.array([10, 20, 30])\nresult = arr > 15\nprint(result)\n```",
+      "options": [
+        "`[10, 20, 30]`",
+        "`[False, True, True]`",
+        "`[True, True, True]`",
+        "`[0, 1, 1]`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Boolean comparisons in NumPy are vectorized, so `arr > 15` compares each element individually: 10 > 15? False, 20 > 15? True, 30 > 15? True. The result is an array of Boolean values."
+    },
+    {
+      "id": "m17_review_q5",
+      "type": "multiple-choice",
+      "question": "Given `matrix = np.array([[5, 10], [15, 20]])`, what does `matrix.sum(axis=0)` return?",
+      "options": ["`[20, 30]`", "`[15, 30]`", "`[15, 25]`", "`[25, 30]`"],
+      "correctAnswer": 0,
+      "explanation": "`axis=0` sums down the columns: first column (5 + 15 = 20), second column (10 + 20 = 30). The result is a 1D array `[20, 30]`."
+    },
+    {
+      "id": "m17_review_q6",
+      "type": "multiple-choice",
+      "question": "What is broadcasting in NumPy?",
+      "options": [
+        "Sending array data to another Python process",
+        "Applying a scalar value to every element of an array",
+        "Converting a list to a NumPy array",
+        "Displaying an array in the console"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Broadcasting is the process where NumPy applies a scalar operation (like multiplying by 2) to every element of an array automatically, without needing an explicit loop."
+    },
+    {
+      "id": "m17_review_q7",
+      "type": "multiple-choice",
+      "question": "What is the main difference between a Pandas Series and a NumPy array?",
+      "options": [
+        "Series can only store numbers; NumPy arrays can store any type",
+        "Series has labeled indexing; NumPy arrays use only positional indexing",
+        "Series is faster than NumPy arrays",
+        "NumPy arrays are two-dimensional; Series are one-dimensional"
+      ],
+      "correctAnswer": 1,
+      "explanation": "While both are one-dimensional and built on similar technology, Series adds labeled indexing (custom row labels) on top of NumPy's positional indexing, making data more meaningful and easier to work with."
+    },
+    {
+      "id": "m17_review_q8",
+      "type": "multiple-choice",
+      "question": "Given `s = pd.Series({'a': 10, 'b': 20, 'c': 30})`, what will `s['b']` return?",
+      "options": ["`10`", "`20`", "`'b'`", "`b`"],
+      "correctAnswer": 1,
+      "explanation": "In a Series created from a dictionary, the keys become index labels. Accessing `s['b']` returns the value associated with that label, which is 20."
+    },
+    {
+      "id": "m17_review_q9",
+      "type": "multiple-choice",
+      "question": "How does label-based slicing in Pandas differ from regular Python slicing?",
+      "options": [
+        "It's the same - the end index is excluded",
+        "It's inclusive of the end label",
+        "It only works with numerical indices",
+        "It returns a NumPy array instead of a Series"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Unlike standard Python slicing (which excludes the end), Pandas label-based slicing is **inclusive** of the end label. For example, `population['California':'Texas']` includes both California and Texas in the result."
+    },
+    {
+      "id": "m17_review_q10",
+      "type": "multiple-choice",
+      "question": "What is a Pandas DataFrame?",
+      "options": [
+        "A one-dimensional labeled array",
+        "A two-dimensional labeled data structure with columns of potentially different types",
+        "A Python dictionary with special methods",
+        "A NumPy array with row labels"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A DataFrame is a 2D labeled data structure. Think of it as a spreadsheet or SQL table - it has rows and columns, and each column can have a different data type."
+    },
+    {
+      "id": "m17_review_q11",
+      "type": "multiple-choice",
+      "question": "Given a DataFrame `df` with columns 'Name' and 'Age', which of these will correctly select the 'Age' column?",
+      "options": [
+        "`df[1]`",
+        "`df.Age`",
+        "`df.get('Age')`",
+        "Both `df.Age` and `df['Age']` are valid"
+      ],
+      "correctAnswer": 3,
+      "explanation": "Both `df.Age` (dot notation) and `df['Age']` (bracket notation) work for column selection. Dot notation is cleaner but only works for column names without spaces."
+    },
+    {
+      "id": "m17_review_q12",
+      "type": "multiple-choice",
+      "question": "What information does the `.info()` method provide about a DataFrame?",
+      "options": [
+        "Only the first 5 rows",
+        "The dimensions (rows, columns) and memory usage",
+        "The data type of each column, number of non-null values, and memory usage",
+        "The sum of all numerical columns"
+      ],
+      "correctAnswer": 2,
+      "explanation": "`.info()` is your data exploration Swiss Army knife. It shows the data type of each column, how many non-null values exist, and the memory usage - crucial for understanding your dataset before analysis."
+    },
+    {
+      "id": "m17_review_q13",
+      "type": "multiple-choice",
+      "question": "What is the correct way to select the 'Name' and 'Age' columns from a DataFrame `df`?",
+      "options": [
+        "`df['Name', 'Age']`",
+        "`df[['Name', 'Age']]`",
+        "`df.select(['Name', 'Age'])`",
+        "`df['Name']['Age']`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "To select multiple columns, you must pass a list of column names inside double brackets: `df[['Name', 'Age']]`. This returns a new DataFrame with only those columns."
+    },
+    {
+      "id": "m17_review_q14",
+      "type": "multiple-choice",
+      "question": "What will the following code return?\n\n```python\nmask = df['Score'] > 80\nresult = df[mask]\n```",
+      "options": [
+        "All rows where Score is greater than 80",
+        "A boolean Series indicating which rows have Score > 80",
+        "The Score column only",
+        "An error because mask isn't defined"
+      ],
+      "correctAnswer": 0,
+      "explanation": "First, `df['Score'] > 80` creates a boolean mask (True/False for each row). Then `df[mask]` uses that mask to select only the rows where the mask is True - giving us all rows with Score > 80."
+    },
+    {
+      "id": "m17_review_q15",
+      "type": "multiple-choice",
+      "question": "Which operators must you use when combining multiple boolean conditions in Pandas?",
+      "options": [
+        "`and` and `or`",
+        "`&&` and `||`",
+        "`&` and `|`",
+        "`AND` and `OR`"
+      ],
+      "correctAnswer": 2,
+      "explanation": "In Pandas, you must use `&` for AND and `|` for OR. Each condition must be wrapped in parentheses: `df[(df['col1'] > 5) & (df['col2'] == 'X')]`. The Python keywords `and`/`or` don't work element-wise with arrays."
+    }
+  ]
+}
