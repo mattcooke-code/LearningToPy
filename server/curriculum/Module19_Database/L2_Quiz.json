@@ -1,0 +1,45 @@
+{
+  "lessonId": "M19L2",
+  "title": "Creating Tables and Inserting Data - Quiz",
+  "questions": [
+    {
+      "id": "m19l2_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of `INTEGER PRIMARY KEY` in a table definition?",
+      "options": [
+        "It ensures the column contains only whole numbers",
+        "It creates a unique identifier for each row that SQLite auto-increments",
+        "It makes the column required (NOT NULL)",
+        "It allows the column to store text as well as numbers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When you define a column as `INTEGER PRIMARY KEY`, SQLite automatically assigns a unique, incrementing number to each new row. This is ideal for creating unique IDs without having to manage the numbering yourself."
+    },
+    {
+      "id": "m19l2_q2",
+      "type": "multiple-choice",
+      "question": "What happens if you forget to call `conn.commit()` after inserting data?",
+      "options": [
+        "The data will be lost when the connection closes",
+        "The data is still saved automatically after a few seconds",
+        "Python raises an immediate error",
+        "The data is saved but with a warning"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Database changes are staged in memory until `commit()` is called. Without an explicit commit, all changes made since the last commit will be lost when the connection closes."
+    },
+    {
+      "id": "m19l2_q3",
+      "type": "multiple-choice",
+      "question": "What is the advantage of using `executemany()` over calling `execute()` multiple times?",
+      "options": [
+        "It automatically commits the changes",
+        "It creates the table if it doesn't exist",
+        "It allows inserting into multiple tables at once",
+        "It's more efficient for inserting multiple rows"
+      ],
+      "correctAnswer": 3,
+      "explanation": "`executemany()` is optimized for inserting multiple rows in a single operation. It's both more efficient and, when used with `?` placeholders, protects against SQL injection attacks."
+    }
+  ]
+}

@@ -1,23 +1,32 @@
 {
   "title": "Creating a Table and Inserting Records",
-  "instructions": "Connect to a database, create a simple `products` table, and insert two product records. Remember to commit the changes.",
+  "instructions": "Connect to a database, create a simple `products` table, and insert product records using both single insert and batch insert methods.",
   "steps": [
-    "Import `sqlite3` and connect to `inventory.db` using the `with` statement.",
-    "Create a table called `products` with columns: `id INTEGER PRIMARY KEY`, `name TEXT NOT NULL`, and `price REAL`.",
-    "Insert two products: ('Keyboard', 75.00) and ('Mouse', 25.50).",
-    "Call `conn.commit()` to save the changes.",
-    "Print a message confirming the insertion."
+    "**Task 1: Import and connect** - Import `sqlite3` and connect to `'inventory.db'` using a `with` statement. Assign the connection to `conn` and create a cursor called `cursor`.",
+    "**Task 2: Create the table** - Write and execute a `CREATE TABLE IF NOT EXISTS` statement to create a table called `products` with columns: `id INTEGER PRIMARY KEY`, `name TEXT NOT NULL`, and `price REAL`.",
+    "**Task 3: Insert a single product** - Insert one product: `('Keyboard', 75.00)` using `cursor.execute()`. Remember to use `?` placeholders in your SQL.",
+    "**Task 4: Insert multiple products** - Create a list of tuples called `more_products` containing `('Mouse', 25.50)`, `('Monitor', 300.00)`, and `('Headphones', 150.00)`. Use `cursor.executemany()` to insert all three at once.",
+    "**Task 5: Commit and confirm** - Commit the changes with `conn.commit()` and print the message `'Products table created and data inserted successfully.'`."
   ],
-  "starterCode": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # 1. SQL for creating the table\n    create_table_sql = \"\"\"\n    CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY,\n        name TEXT NOT NULL,\n        price REAL\n    );\n    \"\"\"\n    cursor.execute(create_table_sql)\n\n    # 2. SQL for inserting one product\n    insert_product_sql = ...\n    cursor.execute(insert_product_sql)\n    \n    # 3. Insert the second product\n    # You can reuse the SQL for the second item or use executemany\n    \n    # 4. Commit the changes\n    conn.commit()\n\n    print(\"Products table created and data inserted.\")\n",
-  "solution": "import sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n\n    # 1. SQL for creating the table\n    create_table_sql = \"\"\"\n    CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY,\n        name TEXT NOT NULL,\n        price REAL\n    );\n    \"\"\"\n    cursor.execute(create_table_sql)\n\n    # 2. Use executemany for insertion\n    products_to_insert = [\n        ('Keyboard', 75.00),\n        ('Mouse', 25.50)\n    ]\n\n    insert_many_sql = \"\"\"\n    INSERT INTO products (name, price)\n    VALUES (?, ?);\n    \"\"\"\n    \n    cursor.executemany(insert_many_sql, products_to_insert)\n\n    # 3. Commit the changes\n    conn.commit()\n\n    print(\"Products table created and data inserted.\")\n",
+  "starterCode": "# Task 1: Import sqlite3 and connect using with statement\n\n\n\n# Task 2: Create the products table\n\n\n\n# Task 3: Insert a single product (Keyboard)\n\n\n\n# Task 4: Insert multiple products using executemany\nmore_products = [('Mouse', 25.50), ('Monitor', 300.00), ('Headphones', 150.00)]\n\n\n# Task 5: Commit changes and print confirmation\n\n",
+  "solution": "# Task 1: Import sqlite3 and connect using with statement\nimport sqlite3\n\nwith sqlite3.connect('inventory.db') as conn:\n    cursor = conn.cursor()\n    \n    # Task 2: Create the products table\n    create_table_sql = \"\"\"\n    CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY,\n        name TEXT NOT NULL,\n        price REAL\n    );\n    \"\"\"\n    cursor.execute(create_table_sql)\n    \n    # Task 3: Insert a single product (Keyboard)\n    insert_single_sql = \"INSERT INTO products (name, price) VALUES (?, ?);\"\n    cursor.execute(insert_single_sql, ('Keyboard', 75.00))\n    \n    # Task 4: Insert multiple products using executemany\n    more_products = [('Mouse', 25.50), ('Monitor', 300.00), ('Headphones', 150.00)]\n    insert_many_sql = \"INSERT INTO products (name, price) VALUES (?, ?);\"\n    cursor.executemany(insert_many_sql, more_products)\n    \n    # Task 5: Commit changes and print confirmation\n    conn.commit()\n    print(\"Products table created and data inserted successfully.\")",
   "fileSetup": {},
   "hints": [
-    "Remember to include `IF NOT EXISTS` in your `CREATE TABLE` command.",
-    "The simplest way to insert both is to use `cursor.executemany()` with `VALUES (?, ?)`.",
-    "A call to `conn.commit()` is mandatory for persistence."
+    "**Task 1:** Use `with sqlite3.connect('inventory.db') as conn:` and then `cursor = conn.cursor()`",
+    "**Task 2:** Table creation SQL should include `IF NOT EXISTS` and define all three columns. Use triple quotes for multi-line SQL.",
+    "**Task 3:** Use `?` placeholders in your SQL: `INSERT INTO products (name, price) VALUES (?, ?)`",
+    "**Task 3 (execute):** Pass the SQL and a tuple of values: `cursor.execute(sql, ('Keyboard', 75.00))`",
+    "**Task 4:** The list `more_products` is already provided. Use `cursor.executemany()` with the same SQL structure.",
+    "**Task 5:** Don't forget `conn.commit()` before printing - without it, your data won't be saved!",
+    "**Expected SQL structure:**\n```sql\nCREATE TABLE IF NOT EXISTS products (\n    id INTEGER PRIMARY KEY,\n    name TEXT NOT NULL,\n    price REAL\n);\n```"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["sqlite3", "create-table", "insert", "commit"],
+  "tests": [
+    {
+      "name": "Check syntax only - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error: {e}')\n\n# Check for sqlite3 import\nfound_sqlite = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'sqlite3' for name in node.names):\n        found_sqlite = True\n\nif not found_sqlite:\n    raise AssertionError('Task 1: Missing import sqlite3')\n\n# Check for with statement\nfound_with = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.With):\n        found_with = True\n\nif not found_with:\n    raise AssertionError('Task 1: Missing with statement')\n\n# Check for CREATE TABLE statement\nfound_create = False\ncode_str = user_code.upper()\nif 'CREATE TABLE' in code_str and 'PRODUCTS' in code_str and 'PRIMARY KEY' in code_str:\n    found_create = True\n\nif not found_create:\n    raise AssertionError('Task 2: Missing CREATE TABLE statement with PRIMARY KEY')\n\n# Check for .execute() call (single insert)\nfound_execute = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'execute':\n        found_execute = True\n\nif not found_execute:\n    raise AssertionError('Task 3: Missing .execute() call for single insert')\n\n# Check for .executemany() call\nfound_executemany = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'executemany':\n        found_executemany = True\n\nif not found_executemany:\n    raise AssertionError('Task 4: Missing .executemany() call')\n\n# Check for commit() call\nfound_commit = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'commit':\n        found_commit = True\n\nif not found_commit:\n    raise AssertionError('Task 5: Missing .commit() call')\n\n# Check for print statement\nfound_print = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':\n        found_print = True\n\nif not found_print:\n    raise AssertionError('Task 5: Missing print statement')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["sqlite3", "create-table", "insert", "executemany", "commit"],
   "challengeGroup": "database-interaction"
 }

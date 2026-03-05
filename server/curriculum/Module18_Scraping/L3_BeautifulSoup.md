@@ -1,16 +1,16 @@
 # 🥣 Parsing HTML with `BeautifulSoup`
 
-The raw HTML string obtained from `requests` is difficult to work with. The **`BeautifulSoup`** library (often imported as `bs4`) takes that string and turns it into a Python object that can be easily searched and navigated using methods.
+The raw HTML string obtained from `requests` is difficult to work with. The **`BeautifulSoup`** library (often imported as `bs4`) acts like a translator. It takes that giant string and builds a Python object that mimics the **DOM Tree** we learned about in Lesson 1.
 
 ## 1. Initializing the Parser
 
-You pass the raw HTML content and a parser name (like `'html.parser'`) to the `BeautifulSoup` constructor to create the object.
+To start, we "feed" the HTML string into `BeautifulSoup` and specify a parser (the engine that reads the code).
 
 ```python
 from bs4 import BeautifulSoup
 import requests
 
-url = "[http://quotes.toscrape.com/](http://quotes.toscrape.com/)"
+url = "http://quotes.toscrape.com"
 response = requests.get(url)
 html_content = response.text
 
@@ -27,10 +27,10 @@ print(f"Title Text: {page_title.text}") # .text extracts only the content inside
 
 The simplest way to find content is by using the tag name directly on the `soup` object.
 
-| Method                 | Purpose                           | Returns                         |
-| ---------------------- | --------------------------------- | ------------------------------- |
-| `soup.find('tag')`     | Finds the first matching element. | A single `Tag` object.          |
-| `soup.find_all('tag')` | Finds all matching elements.      | A Python List of `Tag` objects. |
+| Method                 | Purpose                             | Returns                         |
+| ---------------------- | ----------------------------------- | ------------------------------- |
+| `soup.find('tag')`     | Finds the _first_ matching element. | A single `Tag` object.          |
+| `soup.find_all('tag')` | Finds _all_ matching elements.      | A Python List of `Tag` objects. |
 
 ```python
 # Find the first <h1> tag
@@ -42,24 +42,48 @@ all_divs = soup.find_all('div')
 print(f"Total Divs Found: {len(all_divs)}")
 ```
 
-## 3. Extracting Text and Attributes
-
-Once you have a `Tag` object:
-
-• Use the `.text` property to get the clean string content inside the tag.
-
-• Treat the tag like a dictionary to access its attributes.
+:::warning
+Common Beginner Error: You cannot use `.text` on the result of `find_all()` because it is a list, not a single element. You must loop through the list to get the text of each item!
+:::
 
 ```python
-# Example: finding the first <a> tag (link)
-first_link = soup.find('a')
+# Finding all quotes on a page
+quotes = soup.find_all('span', class_='text')
 
-# Extract the text
-link_text = first_link.text
-
-# Extract the attribute (href)
-link_url = first_link['href'] # Accessing 'href' like a dictionary key
-
-print(f"\nLink Text: {link_text}")
-print(f"Link URL: {link_url}")
+for quote in quotes:
+    print(quote.text)
 ```
+
+## 3. Extracting Text and Attributes
+
+Remember those **Classes** and **IDs**? This is where they become essential. If you only search for `<div>`, you might get 100 results. If you search for a `div` with a specific `class`, you get exactly what you need.
+
+```python
+# Finding an element by tag AND attribute
+product = soup.find('div', class_='product-card')
+
+# Accessing attributes like a Dictionary
+# If the tag is <a href="http://example.com">...</a>
+link = soup.find('a')
+url = link['href']
+```
+
+:::tip
+
+**The `class_` Underscore**
+
+In Python, `class` is a reserved keyword (used to create classes). Because of this, BeautifulSoup uses `class_` (with an underscore) when you are searching for a CSS class.
+
+❌ **Wrong:** `soup.find('div', class='header')`
+
+✅ **Right:** `soup.find('div', class_='header')`
+:::
+
+:::summary
+
+- `BeautifulSoup(html, 'html.parser')` converts a raw string into a searchable Python object.
+- `.text` strips away the HTML tags and gives you only the human-readable words.
+- `find()` is for unique items; `find_all()` is for lists (like product names or headlines).
+- **Attributes** (like `href` or `src`) are accessed using square brackets `['key']`, just like a Python dictionary.
+- Use the `class_` parameter to filter elements by their CSS class without breaking Python's syntax.
+  :::

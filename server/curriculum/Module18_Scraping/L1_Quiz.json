@@ -1,0 +1,58 @@
+{
+  "lessonId": "M18L1",
+  "title": "HTML Structure and the DOM - Quiz",
+  "questions": [
+    {
+      "id": "m18l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of web scraping?",
+      "options": [
+        "To create new websites from scratch",
+        "To automatically extract specific data from websites",
+        "To design the visual layout of web pages",
+        "To execute JavaScript code in a browser"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Web scraping is the automated process of extracting specific data from websites, like product prices, news headlines, or contact information, without manual copying and pasting."
+    },
+    {
+      "id": "m18l1_q2",
+      "type": "multiple-choice",
+      "question": "In HTML, what is the difference between a tag and an attribute?",
+      "options": [
+        "Tags define elements (like `<a>`); attributes provide extra information about the element (like `href`)",
+        "Tags are always visible; attributes are hidden",
+        "Attributes define elements; tags provide extra information",
+        "There is no difference; they are the same thing"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Tags (like `<a>`, `<div>`, `<h1>`) define the elements themselves. Attributes (like `href`, `class`, `id`) are added to tags to provide additional information or functionality."
+    },
+    {
+      "id": "m18l1_q3",
+      "type": "multiple-choice",
+      "question": "Why are `class` and `id` attributes important for web scraping?",
+      "options": [
+        "They make the website load faster",
+        "They act like 'GPS coordinates' to help locate specific elements on a page",
+        "They are required for all HTML tags to work",
+        "They automatically download the content"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Classes and IDs are unique identifiers that help you pinpoint exact elements in a page. While many elements might share the same tag name (like 50 `<div>` tags), a specific `id` is usually unique, making it much easier to target the exact data you want."
+    },
+    {
+      "id": "m18l1_q4",
+      "type": "multiple-choice",
+      "question": "In the DOM tree, what relationship do two elements have if they share the same parent?",
+      "options": [
+        "Parent and child",
+        "Siblings",
+        "Root and branch",
+        "Ancestor and descendant"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Elements that share the same parent are called siblings. For example, if an `<h1>` and a `<p>` tag are both directly inside the same `<div>`, they are sibling elements."
+    }
+  ]
+}

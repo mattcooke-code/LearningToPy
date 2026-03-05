@@ -1,0 +1,45 @@
+{
+  "lessonId": "M19L3",
+  "title": "Retrieving Data with SELECT and Cursors - Quiz",
+  "questions": [
+    {
+      "id": "m19l3_q1",
+      "type": "multiple-choice",
+      "question": "What is the difference between `fetchone()` and `fetchall()`?",
+      "options": [
+        "`fetchone()` returns a single tuple; `fetchall()` returns a list of tuples",
+        "`fetchone()` returns a list of tuples; `fetchall()` returns a single tuple",
+        "They are identical and can be used interchangeably",
+        "`fetchone()` is for SELECT; `fetchall()` is for INSERT"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`fetchone()` retrieves the next single row as a tuple (or None if no rows remain). `fetchall()` retrieves all remaining rows at once as a list of tuples."
+    },
+    {
+      "id": "m19l3_q2",
+      "type": "multiple-choice",
+      "question": "Why might you iterate directly over the cursor (`for row in cursor:`) instead of using `fetchall()`?",
+      "options": [
+        "It's faster for small datasets",
+        "It's more memory-efficient for large datasets",
+        "It automatically commits the transaction",
+        "It works with all SQL databases, not just SQLite"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Iterating directly over the cursor processes one row at a time, which is crucial for large datasets. `fetchall()` loads all results into memory at once, which could cause memory issues with millions of rows."
+    },
+    {
+      "id": "m19l3_q3",
+      "type": "multiple-choice",
+      "question": "What will `cursor.fetchone()` return if no matching rows are found in the database?",
+      "options": [
+        "An empty list `[]`",
+        "A tuple with a single `None` value",
+        "`None`",
+        "It raises an exception"
+      ],
+      "correctAnswer": 2,
+      "explanation": "When no results are found, `fetchone()` returns `None`. This is important to check for in your code to avoid `AttributeError` when trying to access tuple elements."
+    }
+  ]
+}

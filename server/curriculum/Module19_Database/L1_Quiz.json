@@ -1,0 +1,45 @@
+{
+  "lessonId": "M19L1",
+  "title": "Database Basics and Connecting with sqlite3 - Quiz",
+  "questions": [
+    {
+      "id": "m19l1_q1",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of a relational database (RDBMS) compared to simple file I/O?",
+      "options": [
+        "Databases are faster for writing single lines of text",
+        "Databases provide persistent, structured data storage with relationships between tables",
+        "Databases require less code to use than regular files",
+        "Databases automatically back up to the cloud"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Unlike simple file I/O where you just read/write text, relational databases store structured data in tables with defined relationships. Data persists beyond program execution and can be queried efficiently."
+    },
+    {
+      "id": "m19l1_q2",
+      "type": "multiple-choice",
+      "question": "In SQLite, what is the difference between a `Connection` object and a `Cursor` object?",
+      "options": [
+        "There is no difference; they can be used interchangeably",
+        "The Connection manages the link to the database file; the Cursor executes SQL commands and fetches results",
+        "The Connection is for reading data; the Cursor is for writing data",
+        "The Connection executes SQL commands and fetches results; the Cursor manages the link to the database file"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Connection object represents the link to the actual database file. The Cursor is a workspace used to execute SQL statements and retrieve results. Think of Connection as the cable, and Cursor as the keyboard."
+    },
+    {
+      "id": "m19l1_q3",
+      "type": "multiple-choice",
+      "question": "What is the benefit of using a `with` statement when connecting to an SQLite database?",
+      "options": [
+        "It makes the database run faster",
+        "It automatically commits changes and helps manage the connection",
+        "It prevents SQL injection attacks",
+        "It allows multiple programs to access the database simultaneously"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `with` statement in sqlite3 automatically commits transactions if the block succeeds, or rolls them back if an error occurs. It also helps ensure proper cleanup of resources, though explicitly closing the connection is still recommended."
+    }
+  ]
+}

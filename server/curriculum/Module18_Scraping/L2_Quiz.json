@@ -1,0 +1,45 @@
+{
+  "lessonId": "M18L2",
+  "title": "Fetching HTML Content with requests - Quiz",
+  "questions": [
+    {
+      "id": "m18l2_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of setting a 'User-Agent' header in a web scraping request?",
+      "options": [
+        "To encrypt the data being sent",
+        "To make the script identify itself as a regular web browser",
+        "To automatically parse the HTML response",
+        "To increase the download speed"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The User-Agent header tells the server what kind of client is making the request. By setting it to mimic a standard browser (like Chrome or Firefox), you can avoid being blocked by websites that try to prevent automated scripts."
+    },
+    {
+      "id": "m18l2_q2",
+      "type": "multiple-choice",
+      "question": "What is the difference between `response.text` and `response.content` in the requests library?",
+      "options": [
+        "`.text` returns a string; `.content` returns bytes",
+        "`.text` returns bytes; `.content` returns a string",
+        "They are identical and can be used interchangeably",
+        "`.text` is for HTML; `.content` is for CSS"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`.text` returns the response content as a string (used for HTML and text). `.content` returns the content as raw bytes (used for downloading binary files like images, PDFs, etc.)."
+    },
+    {
+      "id": "m18l2_q3",
+      "type": "multiple-choice",
+      "question": "What does `response.raise_for_status()` do?",
+      "options": [
+        "It prints the status code to the console",
+        "It automatically raises an exception if the request returned an error status (4xx or 5xx)",
+        "It raises the request priority in the network queue",
+        "It converts the response to JSON format"
+      ],
+      "correctAnswer": 1,
+      "explanation": "`raise_for_status()` is a convenient method that checks if the request was successful. If the status code indicates an error (like 404 or 500), it automatically raises an exception, preventing your code from trying to process a failed response."
+    }
+  ]
+}

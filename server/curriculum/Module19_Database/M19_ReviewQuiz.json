@@ -1,0 +1,160 @@
+{
+  "questions": [
+    {
+      "id": "m19_review_q1",
+      "type": "multiple-choice",
+      "question": "What is the primary purpose of a relational database (RDBMS) compared to simple file I/O?",
+      "options": [
+        "Databases are faster for writing single lines of text",
+        "Databases provide persistent, structured data storage with relationships between tables",
+        "Databases require less code to use than regular files",
+        "Databases automatically back up to the cloud"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Unlike simple file I/O where you just read/write text, relational databases store structured data in tables with defined relationships. Data persists beyond program execution and can be queried efficiently."
+    },
+    {
+      "id": "m19_review_q2",
+      "type": "multiple-choice",
+      "question": "In SQLite, what is the difference between a `Connection` object and a `Cursor` object?",
+      "options": [
+        "There is no difference; they can be used interchangeably",
+        "The Connection manages the link to the database file; the Cursor executes SQL commands and fetches results",
+        "The Connection is for reading data; the Cursor is for writing data",
+        "The Connection executes SQL commands and fetches results; the Cursor manages the link to the database file"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Connection object represents the link to the actual database file. The Cursor is a workspace used to execute SQL statements and retrieve results. Think of Connection as the cable, and Cursor as the keyboard."
+    },
+    {
+      "id": "m19_review_q3",
+      "type": "multiple-choice",
+      "question": "What is the benefit of using a `with` statement when connecting to an SQLite database?",
+      "options": [
+        "It makes the database run faster",
+        "It automatically commits changes and helps manage the connection",
+        "It prevents SQL injection attacks",
+        "It allows multiple programs to access the database simultaneously"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The `with` statement in sqlite3 automatically commits transactions if the block succeeds, or rolls them back if an error occurs. It also helps ensure proper cleanup of resources, though explicitly closing the connection is still recommended."
+    },
+    {
+      "id": "m19_review_q4",
+      "type": "multiple-choice",
+      "question": "What is the purpose of `INTEGER PRIMARY KEY` in a table definition?",
+      "options": [
+        "It ensures the column contains only whole numbers",
+        "It creates a unique identifier for each row that SQLite auto-increments",
+        "It makes the column required (NOT NULL)",
+        "It allows the column to store text as well as numbers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When you define a column as `INTEGER PRIMARY KEY`, SQLite automatically assigns a unique, incrementing number to each new row. This is ideal for creating unique IDs without having to manage the numbering yourself."
+    },
+    {
+      "id": "m19_review_q5",
+      "type": "multiple-choice",
+      "question": "What happens if you forget to call `conn.commit()` after inserting data?",
+      "options": [
+        "The data will be lost when the connection closes",
+        "The data is still saved automatically after a few seconds",
+        "Python raises an immediate error",
+        "The data is saved but with a warning"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Database changes are staged in memory until `commit()` is called. Without an explicit commit, all changes made since the last commit will be lost when the connection closes."
+    },
+    {
+      "id": "m19_review_q6",
+      "type": "multiple-choice",
+      "question": "What is the advantage of using `executemany()` over calling `execute()` multiple times?",
+      "options": [
+        "It automatically commits the changes",
+        "It creates the table if it doesn't exist",
+        "It allows inserting into multiple tables at once",
+        "It's more efficient for inserting multiple rows"
+      ],
+      "correctAnswer": 3,
+      "explanation": "`executemany()` is optimized for inserting multiple rows in a single operation. It's both more efficient and, when used with `?` placeholders, protects against SQL injection attacks."
+    },
+    {
+      "id": "m19_review_q7",
+      "type": "multiple-choice",
+      "question": "What is the difference between `fetchone()` and `fetchall()`?",
+      "options": [
+        "`fetchone()` returns a single tuple; `fetchall()` returns a list of tuples",
+        "`fetchone()` returns a list of tuples; `fetchall()` returns a single tuple",
+        "They are identical and can be used interchangeably",
+        "`fetchone()` is for SELECT; `fetchall()` is for INSERT"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`fetchone()` retrieves the next single row as a tuple (or None if no rows remain). `fetchall()` retrieves all remaining rows at once as a list of tuples."
+    },
+    {
+      "id": "m19_review_q8",
+      "type": "multiple-choice",
+      "question": "Why might you iterate directly over the cursor (`for row in cursor:`) instead of using `fetchall()`?",
+      "options": [
+        "It's faster for small datasets",
+        "It's more memory-efficient for large datasets",
+        "It automatically commits the transaction",
+        "It works with all SQL databases, not just SQLite"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Iterating directly over the cursor processes one row at a time, which is crucial for large datasets. `fetchall()` loads all results into memory at once, which could cause memory issues with millions of rows."
+    },
+    {
+      "id": "m19_review_q9",
+      "type": "multiple-choice",
+      "question": "What will `cursor.fetchone()` return if no matching rows are found in the database?",
+      "options": [
+        "An empty list `[]`",
+        "A tuple with a single `None` value",
+        "`None`",
+        "It raises an exception"
+      ],
+      "correctAnswer": 2,
+      "explanation": "When no results are found, `fetchone()` returns `None`. This is important to check for in your code to avoid `AttributeError` when trying to access tuple elements."
+    },
+    {
+      "id": "m19_review_q10",
+      "type": "multiple-choice",
+      "question": "What does the acronym CRUD stand for?",
+      "options": [
+        "Create, Run, Update, Delete",
+        "Create, Read, Update, Delete",
+        "Copy, Read, Upload, Download",
+        "Connect, Retrieve, Upload, Disconnect"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CRUD represents the four basic operations of persistent storage: Create (INSERT), Read (SELECT), Update (UPDATE), and Delete (DELETE)."
+    },
+    {
+      "id": "m19_review_q11",
+      "type": "multiple-choice",
+      "question": "Why should you use `?` placeholders instead of f-strings for SQL queries?",
+      "options": [
+        "They make the code run faster",
+        "They allow you to insert multiple rows at once",
+        "They prevent SQL injection attacks",
+        "They automatically commit the transaction"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Using `?` placeholders with parameterized queries ensures that user input is treated as data, not executable SQL code. This prevents malicious users from injecting SQL commands that could damage your database."
+    },
+    {
+      "id": "m19_review_q12",
+      "type": "multiple-choice",
+      "question": "What is the potential danger of forgetting the `WHERE` clause in an `UPDATE` or `DELETE` statement?",
+      "options": [
+        "The query will fail with a syntax error",
+        "The operation will apply to ALL rows in the table",
+        "The database will automatically roll back the changes",
+        "Nothing happens; WHERE is optional for these commands"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Without a WHERE clause, UPDATE and DELETE affect every row in the table. This could accidentally change or delete all your data with no built-in undo!"
+    }
+  ]
+}

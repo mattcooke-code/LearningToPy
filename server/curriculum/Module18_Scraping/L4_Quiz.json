@@ -1,0 +1,58 @@
+{
+  "lessonId": "M18L4",
+  "title": "Locating Data with Class and ID - Quiz",
+  "questions": [
+    {
+      "id": "m18l4_q1",
+      "type": "multiple-choice",
+      "question": "Why is searching by `id` often more reliable than searching by tag name?",
+      "options": [
+        "`id` attributes are always visible in the HTML",
+        "`id` is designed to be unique to a single element on a page",
+        "`id` is faster to search programmatically",
+        "`id` works with all HTML tags"
+      ],
+      "correctAnswer": 1,
+      "explanation": "An `id` attribute is meant to be unique within a webpage. While a page might have 50 `<div>` tags, it should only have one element with a specific `id`, making it perfect for pinpointing exactly one piece of data."
+    },
+    {
+      "id": "m18l4_q2",
+      "type": "multiple-choice",
+      "question": "Why does BeautifulSoup use `class_` (with an underscore) instead of `class` when searching by CSS class?",
+      "options": [
+        "It's a typo that became standard",
+        "`class` is a reserved keyword in Python, so it can't be used as a parameter name",
+        "The underscore makes the search case-insensitive",
+        "It only works with classes that have underscores in their names"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In Python, `class` is a reserved keyword used to define classes. BeautifulSoup uses `class_` (with an underscore) to avoid conflicting with this keyword when you want to search by CSS class."
+    },
+    {
+      "id": "m18l4_q3",
+      "type": "multiple-choice",
+      "question": "What is the benefit of chaining `find()` calls (e.g., finding a container first, then searching within it)?",
+      "options": [
+        "It makes the code run faster",
+        "It narrows the search scope, preventing matches from outside the relevant section",
+        "It automatically converts results to strings",
+        "It's the only way to find elements by class"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Chaining allows you to first locate a specific container element (like a product listing div), and then search only within that container. This prevents your scraper from accidentally picking up similar elements from other parts of the page (like navigation menus or footers)."
+    },
+    {
+      "id": "m18l4_q4",
+      "type": "multiple-choice",
+      "question": "What would be the most precise way to find all anchor tags (`<a>`) that have the class `'nav-link'`?",
+      "options": [
+        "`soup.find_all('a', class='nav-link')`",
+        "`soup.find_all('a', class_='nav-link')`",
+        "`soup.find_all(class_='nav-link')`",
+        "`soup.find_all('a').find_all(class_='nav-link')`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The most precise method is to specify both the tag name and the class: `soup.find_all('a', class_='nav-link')`. This ensures you only get anchor tags with that specific class, ignoring any other elements that might use the same class name."
+    }
+  ]
+}

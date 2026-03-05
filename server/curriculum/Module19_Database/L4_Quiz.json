@@ -1,0 +1,45 @@
+{
+  "lessonId": "M19L4",
+  "title": "CRUD Operations and Security - Quiz",
+  "questions": [
+    {
+      "id": "m19l4_q1",
+      "type": "multiple-choice",
+      "question": "What does the acronym CRUD stand for?",
+      "options": [
+        "Create, Run, Update, Delete",
+        "Create, Read, Update, Delete",
+        "Copy, Read, Upload, Download",
+        "Connect, Retrieve, Upload, Disconnect"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CRUD represents the four basic operations of persistent storage: Create (INSERT), Read (SELECT), Update (UPDATE), and Delete (DELETE)."
+    },
+    {
+      "id": "m19l4_q2",
+      "type": "multiple-choice",
+      "question": "Why should you use `?` placeholders instead of f-strings for SQL queries?",
+      "options": [
+        "They make the code run faster",
+        "They allow you to insert multiple rows at once",
+        "They prevent SQL injection attacks",
+        "They automatically commit the transaction"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Using `?` placeholders with parameterized queries ensures that user input is treated as data, not executable SQL code. This prevents malicious users from injecting SQL commands that could damage your database."
+    },
+    {
+      "id": "m19l4_q3",
+      "type": "multiple-choice",
+      "question": "What is the potential danger of forgetting the `WHERE` clause in an `UPDATE` or `DELETE` statement?",
+      "options": [
+        "The query will fail with a syntax error",
+        "The operation will apply to ALL rows in the table",
+        "The database will automatically roll back the changes",
+        "Nothing happens; WHERE is optional for these commands"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Without a WHERE clause, UPDATE and DELETE affect every row in the table. This could accidentally change or delete all your data with no built-in undo!"
+    }
+  ]
+}

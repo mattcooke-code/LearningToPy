@@ -1,0 +1,58 @@
+{
+  "lessonId": "M18L3",
+  "title": "Parsing HTML with BeautifulSoup - Quiz",
+  "questions": [
+    {
+      "id": "m18l3_q1",
+      "type": "multiple-choice",
+      "question": "What is the purpose of BeautifulSoup in web scraping?",
+      "options": [
+        "To download HTML files from the internet",
+        "To convert raw HTML strings into a searchable Python object",
+        "To render JavaScript on web pages",
+        "To automatically fill out web forms"
+      ],
+      "correctAnswer": 1,
+      "explanation": "BeautifulSoup takes the messy HTML string obtained from requests and builds a structured Python object that mimics the DOM tree, making it easy to navigate and search for specific elements."
+    },
+    {
+      "id": "m18l3_q2",
+      "type": "multiple-choice",
+      "question": "What is the difference between `soup.find('div')` and `soup.find_all('div')`?",
+      "options": [
+        "`find()` returns the first matching element; `find_all()` returns a list of all matching elements",
+        "`find()` works with tags; `find_all()` works with attributes",
+        "They are identical and can be used interchangeably",
+        "`find()` returns a string; `find_all()` returns a BeautifulSoup object"
+      ],
+      "correctAnswer": 0,
+      "explanation": "`find()` returns the first matching element (a single Tag object). `find_all()` returns a list of all matching Tag objects, which you typically loop through to access each element."
+    },
+    {
+      "id": "m18l3_q3",
+      "type": "multiple-choice",
+      "question": "Why does BeautifulSoup use `class_` (with an underscore) instead of `class` when searching by CSS class?",
+      "options": [
+        "It's a typo in the library",
+        "`class` is a reserved keyword in Python, so it cannot be used as a parameter name",
+        "The underscore makes the search faster",
+        "It only works with classes that have underscores in their names"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In Python, `class` is a reserved keyword used to define classes. BeautifulSoup uses `class_` (with an underscore) to avoid conflicting with this keyword when you want to search by CSS class."
+    },
+    {
+      "id": "m18l3_q4",
+      "type": "multiple-choice",
+      "question": "What would be the correct way to access the `href` attribute from a BeautifulSoup Tag object `link`?",
+      "options": [
+        "`link.get_attribute('href')`",
+        "`link['href']`",
+        "`link.href`",
+        "`link.attr('href')`"
+      ],
+      "correctAnswer": 1,
+      "explanation": "BeautifulSoup Tag objects behave like dictionaries. You can access attributes using square brackets: `tag['attribute_name']`."
+    }
+  ]
+}

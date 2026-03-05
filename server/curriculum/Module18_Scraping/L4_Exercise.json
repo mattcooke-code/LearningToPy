@@ -1,23 +1,33 @@
 {
   "title": "Targeted Extraction using `id` and `class_`",
-  "instructions": "From a mock product listing, extract the main title using its `id`, and then find all product names using their `class`.",
+  "instructions": "Practice using BeautifulSoup to extract data by targeting specific `id` and `class` attributes from an HTML document.",
   "steps": [
-    "Import `BeautifulSoup`.",
-    "Define the provided HTML document.",
-    "Initialize the `BeautifulSoup` object.",
-    "Use the `id` argument in `soup.find()` to extract the text from the element with `id=\"main-title\"` and print it.",
-    "Use the `class_` argument in `soup.find_all()` to find all elements with `class=\"product-name\"`. Store them in `product_names`.",
-    "Loop through `product_names` and print the text content of each."
+    "**Task 1: Import BeautifulSoup** - Import the `BeautifulSoup` class from the `bs4` module.",
+    "**Task 2: Review the HTML** - A sample HTML document called `html_doc` has been created for you. It contains elements with `id` and `class` attributes.",
+    "**Task 3: Initialize the parser** - Create a BeautifulSoup object called `soup` by passing `html_doc` and the parser `'html.parser'` to `BeautifulSoup()`.",
+    "**Task 4: Find by ID** - Use the `id` parameter in `soup.find()` to locate the element with `id='main-title'`. Store the result in `main_title`. Then print its text content using `.text`. The print statement is partially provided - complete it with the correct variable and attribute.",
+    "**Task 5: Find by class** - Use `soup.find_all()` with the `class_` parameter to find **all** elements with `class='product-name'`. Store the result in `product_names`.",
+    "**Task 6: Loop through results** - Write a `for` loop that iterates through `product_names` and prints the `.text` of each element."
   ],
-  "starterCode": "from bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<div id=\"header\">\n    <h1 id=\"main-title\">Daily Deals on Electronics</h1>\n</div>\n<div class=\"product-listing\">\n    <p class=\"product-name\">Laptop X</p>\n    <p class=\"product-name\">Mouse Pro</p>\n    <p class=\"product-name\">Monitor 4K</p>\n</div>\n\"\"\"\n\n# 1. Initialize BeautifulSoup\nsoup = ...\n\n# 2. Find and print the main title\nmain_title = soup.find(id=...)\nprint(f\"Main Title: {main_title....}\")\n\n# 3. Find all product names by class\nproduct_names = soup.find_all(class_=...)\n\n# 4. Print all product names\nfor name in product_names:\n    print(name....)\n",
-  "solution": "from bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<div id=\"header\">\n    <h1 id=\"main-title\">Daily Deals on Electronics</h1>\n</div>\n<div class=\"product-listing\">\n    <p class=\"product-name\">Laptop X</p>\n    <p class=\"product-name\">Mouse Pro</p>\n    <p class=\"product-name\">Monitor 4K</p>\n</div>\n\"\"\"\n\n# 1. Initialize BeautifulSoup\nsoup = BeautifulSoup(html_doc, 'html.parser')\n\n# 2. Find and print the main title\nmain_title = soup.find(id='main-title')\nprint(f\"Main Title: {main_title.text}\")\n\n# 3. Find all product names by class\nproduct_names = soup.find_all(class_='product-name')\n\n# 4. Print all product names\nfor name in product_names:\n    print(name.text)\n",
+  "starterCode": "# Task 1: Import BeautifulSoup\n\n\n\nhtml_doc = \"\"\"\n<div id=\"header\">\n    <h1 id=\"main-title\">Daily Deals on Electronics</h1>\n</div>\n<div class=\"product-listing\">\n    <p class=\"product-name\">Laptop X</p>\n    <p class=\"product-name\">Mouse Pro</p>\n    <p class=\"product-name\">Monitor 4K</p>\n</div>\n\"\"\"\n\n# Task 3: Initialize BeautifulSoup\nsoup = \n\n# Task 4: Find and print the main title by ID\nmain_title = soup.find()\nprint(f\"Main Title: {___}\")  # Complete with variable and .text\n\n# Task 5: Find all product names by class\nproduct_names = soup.find_all()\n\n# Task 6: Loop through and print all product names\nfor name in product_names:\n    print(___)  # Complete with .text\n",
+  "solution": "# Task 1: Import BeautifulSoup\nfrom bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<div id=\"header\">\n    <h1 id=\"main-title\">Daily Deals on Electronics</h1>\n</div>\n<div class=\"product-listing\">\n    <p class=\"product-name\">Laptop X</p>\n    <p class=\"product-name\">Mouse Pro</p>\n    <p class=\"product-name\">Monitor 4K</p>\n</div>\n\"\"\"\n\n# Task 2: Initialize BeautifulSoup\nsoup = BeautifulSoup(html_doc, 'html.parser')\n\n# Task 3: Find and print the main title by ID\nmain_title = soup.find(id='main-title')\nprint(f\"Main Title: {main_title.text}\")\n\n# Task 4: Find all product names by class\nproduct_names = soup.find_all(class_='product-name')\n\n# Task 5: Loop through and print all product names\nfor name in product_names:\n    print(name.text)\n",
   "fileSetup": {},
   "hints": [
-    "To search by `id`, use the `id='value'` keyword argument in `find()`.",
-    "To search by `class`, use the `class_='value'` keyword argument in `find_all()`."
+    "**Task 1:** The import is `from bs4 import BeautifulSoup`",
+    "**Task 2:** Use `BeautifulSoup(html_doc, 'html.parser')`",
+    "**Task 3:** For finding by ID, use `soup.find(id='main-title')`",
+    "**Task 3 (print):** You need `main_title.text` inside the f-string",
+    "**Task 4:** For finding by class, use `soup.find_all(class_='product-name')` - notice the underscore!",
+    "**Task 5:** Inside the loop, use `name.text` to get just the text content",
+    "**Expected output:**\n```\nMain Title: Daily Deals on Electronics\nLaptop X\nMouse Pro\nMonitor 4K\n```"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["beautifulsoup", "id", "class_", "find"],
+  "tests": [
+    {
+      "name": "Check syntax only - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error: {e}')\n\n# Check for BeautifulSoup import\nfound_bs = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ImportFrom) and node.module == 'bs4':\n        for name in node.names:\n            if name.name == 'BeautifulSoup':\n                found_bs = True\n\nif not found_bs:\n    raise AssertionError('Task 1: Missing from bs4 import BeautifulSoup')\n\n# Check for BeautifulSoup() call with two arguments\nfound_soup = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'BeautifulSoup':\n        if len(node.args) >= 2:\n            found_soup = True\n\nif not found_soup:\n    raise AssertionError('Task 2: Missing BeautifulSoup() call with html_doc and parser')\n\n# Check for find(id=...) call\nfound_find_id = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'find':\n        # Check for keyword argument named 'id'\n        for kw in node.keywords:\n            if kw.arg == 'id':\n                found_find_id = True\n\nif not found_find_id:\n    raise AssertionError('Task 3: Missing soup.find() with id parameter')\n\n# Check for .text attribute access\nfound_text = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Attribute) and node.attr == 'text':\n        found_text = True\n\nif not found_text:\n    raise AssertionError('Task 3-5: Missing .text attribute access')\n\n# Check for find_all(class_=...) call\nfound_find_all_class = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'find_all':\n        # Check for keyword argument named 'class_'\n        for kw in node.keywords:\n            if kw.arg == 'class_':\n                found_find_all_class = True\n\nif not found_find_all_class:\n    raise AssertionError('Task 4: Missing soup.find_all() with class_ parameter')\n\n# Check for for loop\nfound_for_loop = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.For):\n        found_for_loop = True\n\nif not found_for_loop:\n    raise AssertionError('Task 5: Missing for loop to iterate through product_names')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["beautifulsoup", "id", "class_", "find", "find_all"],
   "challengeGroup": "web-scraping"
 }

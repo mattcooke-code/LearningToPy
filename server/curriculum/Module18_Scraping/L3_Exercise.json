@@ -1,24 +1,30 @@
 {
   "title": "Parsing HTML and Finding All Links",
-  "instructions": "Use `BeautifulSoup` to find all anchor tags (`<a>`) in the provided mock HTML content and print the URL from each one.",
+  "instructions": "Practice using BeautifulSoup to parse HTML and extract all hyperlinks from a page.",
   "steps": [
-    "Import `BeautifulSoup`.",
-    "Define the mock HTML content as a string.",
-    "Initialize the `BeautifulSoup` object, `soup`.",
-    "Use `soup.find_all('a')` to find all link tags. Store the result in `all_links`.",
-    "Use a `for` loop to iterate through `all_links`.",
-    "Inside the loop, print the `href` attribute of each link tag."
+    "**Task 1: Import BeautifulSoup** - Import the `BeautifulSoup` class from the `bs4` module.",
+    "**Task 2: Review the HTML** - A sample HTML document called `html_doc` has been created for you. It contains several anchor tags (`<a>`) with `href` attributes.",
+    "**Task 3: Initialize the parser** - Create a BeautifulSoup object called `soup` by passing `html_doc` and the parser `'html.parser'` to `BeautifulSoup()`.",
+    "**Task 4: Find all links** - Use `soup.find_all('a')` to find **all** anchor tags in the document. Store the result in a variable called `all_links`.",
+    "**Task 5: Extract and print the URLs** - Loop through `all_links` and print the `href` attribute of each link using `link['href']` syntax."
   ],
-  "starterCode": "from bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<html>\n<body>\n    <p>Data links:</p>\n    <a href=\"/link1\">First Link</a>\n    <a href=\"/link2\">Second Link</a>\n    <a href=\"/link3\">Third Link</a>\n</body>\n</html>\n\"\"\"\n\n# 1. Initialize BeautifulSoup\nsoup = ...\n\n# 2. Find all 'a' tags\nall_links = ...\n\n# 3. Loop through links and print the 'href' attribute\nfor link in all_links:\n    print(link[...])\n",
-  "solution": "from bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<html>\n<body>\n    <p>Data links:</p>\n    <a href=\"/link1\">First Link</a>\n    <a href=\"/link2\">Second Link</a>\n    <a href=\"/link3\">Third Link</a>\n</body>\n</html>\n\"\"\"\n\n# 1. Initialize BeautifulSoup\nsoup = BeautifulSoup(html_doc, 'html.parser')\n\n# 2. Find all 'a' tags\nall_links = soup.find_all('a')\n\n# 3. Loop through links and print the 'href' attribute\nfor link in all_links:\n    print(link['href'])\n",
+  "starterCode": "# Task 1: Import BeautifulSoup\n\n\n\nhtml_doc = \"\"\"\n<html>\n<body>\n    <p>Data links:</p>\n    <a href=\"/link1\">First Link</a>\n    <a href=\"/link2\">Second Link</a>\n    <a href=\"/link3\">Third Link</a>\n</body>\n</html>\n\"\"\"\n\n# Task 2: Initialize BeautifulSoup\nsoup = \n\n# Task 3: Find all 'a' tags\nall_links = \n\n# Task 4: Loop through links and print the 'href' attribute\nfor link in all_links:\n    print(link)",
+  "solution": "# Task 1: Import BeautifulSoup\nfrom bs4 import BeautifulSoup\n\nhtml_doc = \"\"\"\n<html>\n<body>\n    <p>Data links:</p>\n    <a href=\"/link1\">First Link</a>\n    <a href=\"/link2\">Second Link</a>\n    <a href=\"/link3\">Third Link</a>\n</body>\n</html>\n\"\"\"\n\n# Task 2: Initialize BeautifulSoup\nsoup = BeautifulSoup(html_doc, 'html.parser')\n\n# Task 3: Find all 'a' tags\nall_links = soup.find_all('a')\n\n# Task 4: Loop through links and print the 'href' attribute\nfor link in all_links:\n    print(link['href'])",
   "fileSetup": {},
   "hints": [
-    "Use `BeautifulSoup(html_doc, 'html.parser')`.",
-    "The method to find all occurrences of a tag is `find_all()`.",
-    "Accessing an attribute uses dictionary-style indexing: `tag['attribute_name']`."
+    "**Task 1:** The import is `from bs4 import BeautifulSoup`",
+    "**Task 2:** Use `BeautifulSoup(html_doc, 'html.parser')` - the parser tells BeautifulSoup how to read the HTML",
+    "**Task 3:** To find **all** matching tags, use `.find_all('a')` with the exact tag name `'a'`",
+    "**Task 4:** Access attributes using dictionary syntax: `link['href']` - this is the correct way to get the URL",
+    "**Expected output:**\n```\n/link1\n/link2\n/link3\n```"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["beautifulsoup", "find_all", "tag", "attributes"],
+  "tests": [
+    {
+      "name": "Check syntax and structure - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error: {e}')\n\n# Check for BeautifulSoup import\nfound_bs = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ImportFrom) and node.module == 'bs4':\n        for name in node.names:\n            if name.name == 'BeautifulSoup':\n                found_bs = True\n\nif not found_bs:\n    raise AssertionError('Task 1: Missing from bs4 import BeautifulSoup')\n\n# Check for BeautifulSoup() call with two arguments\nfound_soup = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'BeautifulSoup':\n        if len(node.args) >= 2:\n            # Check first arg is html_doc, second is 'html.parser'\n            first_arg = ast.unparse(node.args[0])\n            second_arg = ast.unparse(node.args[1])\n            if 'html_doc' in first_arg and 'html.parser' in second_arg:\n                found_soup = True\n\nif not found_soup:\n    raise AssertionError('Task 2: Missing BeautifulSoup(html_doc, \\'html.parser\\') call')\n\n# Check for .find_all('a') call - specifically looking for tag 'a'\nfound_find_all = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'find_all':\n        # Check first argument is 'a'\n        if node.args:\n            first_arg = ast.unparse(node.args[0])\n            if \"'a'\" in first_arg or '\"a\"' in first_arg:\n                found_find_all = True\n\nif not found_find_all:\n    raise AssertionError('Task 3: Missing soup.find_all(\\'a\\') call with the correct tag')\n\n# Check for for loop\nfound_loop = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.For):\n        found_loop = True\n\nif not found_loop:\n    raise AssertionError('Task 4: Missing for loop to iterate through links')\n\n# Check for href attribute access with correct syntax link['href']\nfound_href = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Subscript):\n        # Check if it's a subscript access like something['href']\n        if isinstance(node.slice, ast.Constant) and node.slice.value == 'href':\n            found_href = True\n        elif isinstance(node.slice, ast.Str) and node.slice.s == 'href':  # For older Python\n            found_href = True\n\nif not found_href:\n    raise AssertionError('Task 4: Missing attribute access with [\\'href\\']')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["beautifulsoup", "find_all", "tag", "attributes", "href"],
   "challengeGroup": "web-scraping"
 }

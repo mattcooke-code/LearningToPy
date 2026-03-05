@@ -1,23 +1,74 @@
 {
-  "title": "Phase 3 Final Project: Command Line Utility",
-  "instructions": "This is the final, comprehensive project for Phase 3. The goal is to build a functional command line utility. For the assessment environment, the task is to write the core function to demonstrate the use of `argparse` and at least one other required library (e.g., `sqlite3`).",
+  "title": "Module 20: Final Capstone Project",
+  "instructions": "Build a complete Python project that demonstrates all the skills you've learned throughout the course. Choose a project that excites you and meets all 8 required elements.",
   "steps": [
-    "Import necessary libraries: `argparse` and `sqlite3`.",
-    "Define a function `setup_database()` that connects to a test database and creates a simple table.",
-    "Define a main function `main()` that sets up the `ArgumentParser`.",
-    "The parser should have one mandatory command-line argument: `--setup-db` which, when called, executes `setup_database()`.",
-    "Run the `main()` function, and print a success message if the setup is successful.",
-    "Note: In a real environment, you would use multiple files and integrate the other modules. This simplified exercise validates the `argparse` and basic function setup."
+    "**Requirement 1: Function with Return** - Define at least one function that takes parameters and returns a value",
+    "**Requirement 2: Data Structure** - Use lists, dictionaries, or custom objects to store and organize data",
+    "**Requirement 3: Data Manipulation** - Modify your data structures (add, remove, update, filter, or sort)",
+    "**Requirement 4: Conditional Logic** - Use if/elif/else statements to make decisions in your code",
+    "**Requirement 5: Iteration** - Use for or while loops to process data",
+    "**Requirement 6: Error Handling** - Include try/except blocks to handle potential errors gracefully",
+    "**Requirement 7: Object-Oriented Programming** - Create at least one class with inheritance (a base class and a child class)",
+    "**Requirement 8: External Interaction** - Include code that would interact with external resources (API, database, files) - syntax validation only"
   ],
-  "starterCode": "import argparse\nimport sqlite3\n\nDB_NAME = 'final_project.db'\n\ndef setup_database():\n    # 1. Connect to DB and create table\n    try:\n        with sqlite3.connect(DB_NAME) as conn:\n            cursor = conn.cursor()\n            cursor.execute(\"CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, module TEXT, status TEXT)\")\n            conn.commit()\n        return True\n    except Exception as e:\n        print(f\"Database setup failed: {e}\")\n        return False\n\ndef main():\n    parser = argparse.ArgumentParser(description='A comprehensive Python CLI utility.')\n    \n    # 2. Add the --setup-db argument\n    parser.add_argument('...') \n    \n    args = parser.parse_args()\n\n    # 3. Check and execute argument\n    if args.setup_db:\n        if setup_database():\n            print(f\"Database '{DB_NAME}' initialized successfully.\")\n\n# 4. Run the main function\nif __name__ == '__main__':\n    main()\n",
-  "solution": "import argparse\nimport sqlite3\n\nDB_NAME = 'final_project.db'\n\ndef setup_database():\n    # 1. Connect to DB and create table\n    try:\n        with sqlite3.connect(DB_NAME) as conn:\n            cursor = conn.cursor()\n            # Using a simple table that could store project reports\n            cursor.execute(\"CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, module TEXT, status TEXT)\")\n            conn.commit()\n        return True\n    except Exception as e:\n        print(f\"Database setup failed: {e}\")\n        return False\n\ndef main():\n    parser = argparse.ArgumentParser(description='A comprehensive Python CLI utility.')\n    \n    # 2. Add the --setup-db argument (uses action='store_true' for a flag)\n    parser.add_argument('--setup-db', action='store_true', help='Initialize the SQLite database for the project.') \n    \n    args = parser.parse_args()\n\n    # 3. Check and execute argument\n    if args.setup_db:\n        if setup_database():\n            print(f\"Database '{DB_NAME}' initialized successfully.\")\n\n# 4. Run the main function\nif __name__ == '__main__':\n    main()\n",
-  "fileSetup": {},
+  "starterCode": "# Module 20: Final Capstone Project\n# Build your own Python project!\n\n# Requirements:\n# 1. Function with return value\n# 2. Data structures (lists, dicts, or objects)\n# 3. Data manipulation (add/remove/update/sort/filter)\n# 4. Conditional logic (if/elif/else)\n# 5. Iteration (for/while loops)\n# 6. Error handling (try/except)\n# 7. OOP with inheritance (base class + child class)\n# 8. External interaction (API/file/database - syntax only)\n\n# Start building your project below:\n",
+  "solution": "# Example: Music Library Manager\nimport requests\nimport json\n\n# Requirement 7: OOP with Inheritance\nclass SongCollection:\n    def __init__(self, name):\n        self.name = name\n        self.songs = []\n    \n    def add_song(self, song):\n        self.songs.append(song)\n    \n    def get_count(self):\n        return len(self.songs)\n\nclass Playlist(SongCollection):\n    def __init__(self, name, creator):\n        super().__init__(name)\n        self.creator = creator\n    \n    # Requirement 1: Function with return\n    def calculate_average_rating(self):\n        if not self.songs:\n            return 0\n        total = sum(song['rating'] for song in self.songs)\n        return total / len(self.songs)\n\n# Requirement 2: Data Structure\nmy_playlist = Playlist('Favorites', 'User')\n\n# Requirement 3: Data Manipulation\nmy_playlist.add_song({'title': 'Song 1', 'artist': 'Artist A', 'rating': 5})\nmy_playlist.add_song({'title': 'Song 2', 'artist': 'Artist B', 'rating': 4})\n\n# Requirement 5: Iteration\nfor song in my_playlist.songs:\n    # Requirement 4: Conditional Logic\n    if song['rating'] >= 4:\n        print(f\"Recommended: {song['title']}\")\n\n# Requirement 6: Error Handling\ntry:\n    with open('playlist.json', 'w') as f:\n        json.dump(my_playlist.songs, f)\nexcept IOError as e:\n    print(f\"Error saving playlist: {e}\")\n\n# Requirement 8: External Interaction\ntry:\n    response = requests.get('https://api.example.com/songs')\n    if response.status_code == 200:\n        print('API connected')\nexcept Exception as e:\n    print(f\"API error: {e}\")",
   "hints": [
-    "To create a simple boolean flag that is True if passed, use `action='store_true'` for the argument.",
-    "The arguments are accessed via dot notation: `args.argument_name`."
+    "**Requirement 1:** Define a function using def that takes at least one parameter and includes a return statement",
+    "**Requirement 2:** Create lists [], dictionaries {}, or class instances to organize your data",
+    "**Requirement 3:** Use methods like .append(), .remove(), .sort(), list comprehensions, or dictionary updates",
+    "**Requirement 4:** Include if/elif/else blocks to handle different conditions in your program",
+    "**Requirement 5:** Use for loops to iterate over collections or while loops for repeated operations",
+    "**Requirement 6:** Wrap risky operations in try/except blocks (file operations, API calls, conversions)",
+    "**Requirement 7:** Create a base class, then a child class that inherits from it using class Child(Parent):",
+    "**Requirement 8:** Include import requests, file operations (open()), or database code - it doesn't need to run, just show correct syntax",
+    "**Project Tip:** Start with your class structure, then add functions, then add data manipulation",
+    "**Project Tip:** Choose a project you care about - it will be easier to stay motivated!"
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["argparse", "sqlite3", "cli", "project", "final"],
-  "challengeGroup": "final-project"
+  "tests": [
+    {
+      "name": "Requirement 1: Function with Return Value",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_function = False\nhas_return = False\nhas_parameters = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.FunctionDef):\n        # Check if function has parameters (excluding self)\n        params = [arg.arg for arg in node.args.args if arg.arg != 'self']\n        if len(params) > 0:\n            has_parameters = True\n        \n        # Check if function has return statement\n        for inner in ast.walk(node):\n            if isinstance(inner, ast.Return) and inner.value is not None:\n                has_return = True\n                if has_parameters:\n                    found_function = True\n                    break\n\nif not found_function:\n    if not has_parameters:\n        raise AssertionError('Requirement 1: Need at least one function with parameters (other than just self)')\n    if not has_return:\n        raise AssertionError('Requirement 1: Function must return a value (not just return with no value)')\n    raise AssertionError('Requirement 1: Need a function that takes parameters AND returns a value')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 2: Data Structures",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nhas_list = False\nhas_dict = False\nhas_object = False\n\nfor node in ast.walk(tree):\n    # Check for list literals\n    if isinstance(node, ast.List):\n        has_list = True\n    \n    # Check for dict literals\n    if isinstance(node, ast.Dict):\n        has_dict = True\n    \n    # Check for class instantiation (creating objects)\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            # Check if calling a class (capitalized name suggests class)\n            if node.func.id[0].isupper():\n                has_object = True\n\nif not (has_list or has_dict or has_object):\n    raise AssertionError('Requirement 2: Need to use data structures - lists [], dictionaries {}, or class objects')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 3: Data Manipulation",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nmanipulation_methods = ['append', 'remove', 'pop', 'insert', 'extend', 'clear', 'update', 'sort', 'reverse', 'add']\nfound_manipulation = False\nhas_comprehension = False\n\nfor node in ast.walk(tree):\n    # Check for method calls that modify data\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute):\n            if node.func.attr in manipulation_methods:\n                found_manipulation = True\n    \n    # Check for list/dict comprehensions\n    if isinstance(node, (ast.ListComp, ast.DictComp)):\n        has_comprehension = True\n    \n    # Check for assignment to list/dict elements\n    if isinstance(node, ast.Assign):\n        for target in node.targets:\n            if isinstance(target, ast.Subscript):\n                found_manipulation = True\n\nif not (found_manipulation or has_comprehension):\n    raise AssertionError('Requirement 3: Need to manipulate data - use .append(), .remove(), .sort(), list comprehensions, or modify dictionary values')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 4: Conditional Logic",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nhas_if = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.If):\n        has_if = True\n        break\n\nif not has_if:\n    raise AssertionError('Requirement 4: Need conditional logic - use if/elif/else statements to make decisions')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 5: Iteration",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nhas_for = False\nhas_while = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.For):\n        has_for = True\n    if isinstance(node, ast.While):\n        has_while = True\n\nif not (has_for or has_while):\n    raise AssertionError('Requirement 5: Need iteration - use for loops or while loops to process data')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 6: Error Handling",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nhas_try = False\nhas_except = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Try):\n        has_try = True\n        if node.handlers:  # Check if it has except clauses\n            has_except = True\n\nif not has_try:\n    raise AssertionError('Requirement 6: Need error handling - use try/except blocks to handle potential errors')\nif not has_except:\n    raise AssertionError('Requirement 6: try block needs at least one except clause')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 7: OOP with Inheritance",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nclasses = []\nfor node in tree.body:\n    if isinstance(node, ast.ClassDef):\n        classes.append({\n            'name': node.name,\n            'bases': [base.id for base in node.bases if isinstance(base, ast.Name)]\n        })\n\nif len(classes) < 2:\n    raise AssertionError('Requirement 7: Need at least 2 classes - a base class and a child class that inherits from it')\n\n# Check if any class inherits from another\nhas_inheritance = False\nfor cls in classes:\n    # Check if this class inherits from any other class in the code\n    for base in cls['bases']:\n        if any(c['name'] == base for c in classes):\n            has_inheritance = True\n            break\n\nif not has_inheritance:\n    raise AssertionError('Requirement 7: Need inheritance - one class should inherit from another using class Child(Parent):')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Requirement 8: External Interaction (Syntax)",
+      "code": "import ast\n\ntree = ast.parse(code)\n\nhas_import = False\nhas_file_operation = False\nhas_api_call = False\nhas_database = False\n\nfor node in ast.walk(tree):\n    # Check for relevant imports\n    if isinstance(node, ast.Import):\n        for alias in node.names:\n            if alias.name in ['requests', 'urllib', 'sqlite3', 'psycopg2', 'pymongo', 'json', 'csv']:\n                has_import = True\n    \n    if isinstance(node, ast.ImportFrom):\n        if node.module in ['requests', 'urllib', 'sqlite3', 'psycopg2', 'pymongo']:\n            has_import = True\n    \n    # Check for file operations\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            if node.func.id == 'open':\n                has_file_operation = True\n        \n        # Check for API-related method calls\n        if isinstance(node.func, ast.Attribute):\n            if node.func.attr in ['get', 'post', 'put', 'delete', 'request']:\n                has_api_call = True\n            if node.func.attr in ['execute', 'commit', 'cursor', 'connect']:\n                has_database = True\n\nif not (has_import and (has_file_operation or has_api_call or has_database)):\n    if not has_import:\n        raise AssertionError('Requirement 8: Need to import a library for external interaction (requests, sqlite3, json, csv, etc.)')\n    raise AssertionError('Requirement 8: Need external interaction code - API call (requests.get), file operation (open), or database query')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": [
+    "capstone",
+    "project",
+    "final",
+    "oop",
+    "functions",
+    "data-structures",
+    "error-handling",
+    "api"
+  ],
+  "challengeGroup": "final-capstone"
 }

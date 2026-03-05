@@ -845,8 +845,7 @@ const MODULE_CONFIGS = {
         file: "L1_Introduction to HTML.md",
         quiz: "L1_Quiz.json",
         title: "HTML Structure and the DOM",
-        type: "exercise",
-        ex: "L1_Exercise.json",
+        type: "theory",
       },
       {
         file: "L2_Requests.md",
@@ -870,7 +869,7 @@ const MODULE_CONFIGS = {
         ex: "L4_Exercise.json",
       },
       {
-        file: "L5_Project_Basic Web Scraping.md",
+        file: "L5_Project_Web_Scraping.md",
         title: "Project: Data Extraction and Storage",
         type: "project",
         ex: "L5_Exercise.json",
@@ -906,22 +905,29 @@ const MODULE_CONFIGS = {
         ex: "L3_Exercise.json",
       },
       {
-        file: "L4_Project_CRUD.md",
-        title: "Project: Parameterized Queries and Updates",
-        type: "project",
+        file: "L4_CRUD.md",
+        quiz: "L4_Quiz.json",
+        title: "The Data Lifecycle: CRUD and Security",
+        type: "exercise",
         ex: "L4_Exercise.json",
+      },
+      {
+        file: "L5_Project_InventoryManagement.md",
+        title: "Project: Building an Inventory Management System",
+        type: "project",
+        ex: "L5_Exercise.json",
       },
     ],
   },
 
   M20: {
     folder: "Module20_Project",
-    title: "Final Project: Command Line Tool",
-    description: "Build a fully functional, portfolio-ready CLI application.",
+    title: "Final Capstone Project",
+    description: "Build a fully functional project of your choice.",
     lessons: [
       {
         file: "L1_Final_Project.md",
-        title: "Phase 3 Final Project: Command Line Utility",
+        title: "Final Capstone Project",
         type: "project",
         ex: "L1_Final_Project.json",
       },

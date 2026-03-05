@@ -1,22 +1,31 @@
 {
   "title": "Establishing an SQLite Connection",
-  "instructions": "Use the `sqlite3` module and the `with` statement to connect to a new temporary database file named `test_db.sqlite` and print a success message.",
+  "instructions": "Practice connecting to an SQLite database and creating a cursor using proper context management.",
   "steps": [
-    "Import the `sqlite3` module.",
-    "Use a `with` statement to connect to the database file `test_db.sqlite`.",
-    "Inside the `with` block, assign the connection object to `conn`.",
-    "Create a cursor object using `conn.cursor()` and assign it to `cursor`.",
-    "Print the success message."
+    "**Task 1: Import the module** - Import the `sqlite3` module.",
+    "**Task 2: Connect to the database** - Use a `with` statement to connect to a database file named `'test_db.sqlite'`. Assign the connection object to a variable called `conn`.",
+    "**Task 3: Create a cursor** - Inside the `with` block, create a cursor object using `conn.cursor()` and assign it to a variable called `cursor`.",
+    "**Task 4: Print confirmation** - Inside the `with` block, print the message `'Successfully connected and created cursor.'`.",
+    "**Task 5: Close the connection** - After the `with` block, explicitly close the connection using `conn.close()`."
   ],
-  "starterCode": "import sqlite3\n\n# Use the context manager to connect\nwith sqlite3.connect('test_db.sqlite') as conn:\n    # 1. Create the cursor\n    cursor = ...\n    \n    # 2. Print success message\n    print(\"Successfully connected and created cursor.\")\n\n# The connection closes automatically here\n",
-  "solution": "import sqlite3\n\n# Use the context manager to connect\nwith sqlite3.connect('test_db.sqlite') as conn:\n    # 1. Create the cursor\n    cursor = conn.cursor()\n    \n    # 2. Print success message\n    print(\"Successfully connected and created cursor.\")\n\n# The connection closes automatically here\n",
+  "starterCode": "# Task 1: Import the sqlite3 module\n\n\n\n# Task 2-4: Connect with context manager, create cursor, print message\n\n\n\n# Task 5: Close the connection\n\n",
+  "solution": "# Task 1: Import the sqlite3 module\nimport sqlite3\n\n# Task 2-4: Connect with context manager, create cursor, print message\nwith sqlite3.connect('test_db.sqlite') as conn:\n    cursor = conn.cursor()\n    print('Successfully connected and created cursor.')\n\n# Task 5: Close the connection\nconn.close()",
   "fileSetup": {},
   "hints": [
-    "The connection function is `sqlite3.connect()`.",
-    "The cursor is created by calling `.cursor()` on the connection object."
+    "**Task 1:** The import is `import sqlite3`",
+    "**Task 2:** Use `with sqlite3.connect('test_db.sqlite') as conn:`",
+    "**Task 3:** Create cursor with `cursor = conn.cursor()`",
+    "**Task 4:** Print exactly: `'Successfully connected and created cursor.'`",
+    "**Task 5:** Close the connection after the with block with `conn.close()`",
+    "**Note:** The `with` statement automatically handles transactions, but we still explicitly close the connection as a best practice."
   ],
   "validation": "tests",
-  "tests": [],
-  "tags": ["sqlite3", "connection", "cursor", "database"],
+  "tests": [
+    {
+      "name": "Check syntax only - no execution",
+      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error: {e}')\n\n# Check for sqlite3 import\nfound_sqlite = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'sqlite3' for name in node.names):\n        found_sqlite = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'sqlite3':\n        found_sqlite = True\n\nif not found_sqlite:\n    raise AssertionError('Task 1: Missing import sqlite3')\n\n# Check for with statement (context manager)\nfound_with = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.With):\n        found_with = True\n\nif not found_with:\n    raise AssertionError('Task 2: Missing with statement for database connection')\n\n# Check for sqlite3.connect() call\nfound_connect = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):\n        if isinstance(node.func.value, ast.Name) and node.func.value.id == 'sqlite3' and node.func.attr == 'connect':\n            found_connect = True\n\nif not found_connect:\n    raise AssertionError('Task 2: Missing sqlite3.connect() call')\n\n# Check for cursor creation (.cursor() call)\nfound_cursor = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'cursor':\n        found_cursor = True\n\nif not found_cursor:\n    raise AssertionError('Task 3: Missing .cursor() method call')\n\n# Check for print statement with expected message\nfound_print = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':\n        found_print = True\n        # Check for the message in args (simplified)\n        if node.args:\n            msg = ast.unparse(node.args[0])\n            if 'Successfully connected' in msg or 'success' in msg.lower():\n                pass\n\nif not found_print:\n    raise AssertionError('Task 4: Missing print statement')\n\n# Check for conn.close() call\nfound_close = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'close':\n        found_close = True\n\nif not found_close:\n    raise AssertionError('Task 5: Missing conn.close() call')\n\nprint('TEST_PASSED')"
+    }
+  ],
+  "tags": ["sqlite3", "connection", "cursor", "database", "context-manager"],
   "challengeGroup": "database-interaction"
 }
