@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
-import { useThemeStyles } from "../hooks";
+import { useStreakNotifications, useThemeStyles } from "../hooks";
 import {
   ProgressGauge,
   BackToTopButton,
@@ -69,6 +69,12 @@ const Dashboard = () => {
     },
     badges: [],
   };
+
+  useStreakNotifications(
+    progressData.streak,
+    progressData.streakStatus,
+    progressData.weeklyProgress,
+  );
 
   const recentBadges = (progressData.badges || [])
     .slice()

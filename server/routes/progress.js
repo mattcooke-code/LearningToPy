@@ -12,7 +12,7 @@ router.get("/achievements", protect, progressController.getAchievements);
 router.get(
   "/leaderboard/around-me",
   protect,
-  progressController.getSurroundingLeaderboard
+  progressController.getSurroundingLeaderboard,
 );
 
 router.get("/leaderboard/top", protect, progressController.getTopLeaderboard);
@@ -20,8 +20,20 @@ router.get("/leaderboard/top", protect, progressController.getTopLeaderboard);
 router.get(
   "/leaderboard/module/:moduleId",
   protect,
-  progressController.getModuleLeaderboard
+  progressController.getModuleLeaderboard,
 );
+
+router.post(
+  "/lessons/:lessonId/complete",
+  protect,
+  progressController.completeLesson,
+);
+router.post(
+  "/modules/:moduleId/complete",
+  protect,
+  progressController.completeModule,
+);
+router.post("/streak", protect, progressController.checkStreak);
 
 // === EXPORT ===
 module.exports = router;

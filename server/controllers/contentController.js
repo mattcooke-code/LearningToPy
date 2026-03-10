@@ -44,6 +44,7 @@ const {
 } = require("../utils/gamification");
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
+const { trackCompletion } = require("../utils/streakManager");
 
 // ====== CONTROLLER FUNCTIONS ======
 
@@ -335,6 +336,39 @@ const submitLesson = catchAsync(async (req, res, next) => {
       });
     }
 
+    // Auto-Complete lessons without a moduleQuiz
+    const parentModule = await Module.findById(lesson.moduleId);
+    const hasModuleQuiz = parentModule?.moduleQuiz?.questions?.length > 0;
+
+    if (!hasModuleQuiz) {
+      const moduleLessons = await Lesson.find({
+        moduleId: lesson.moduleId,
+        isPublished: true,
+      });
+    }
+
+    const allLessonsDone = isModuleFinished(
+      user.completedLessons,
+      moduleLessons,
+    );
+
+    const moduleIdString = lesson.moduleId.toString();
+
+    if (allLessonsDone && !user.completedModules.includes(moduleIdString)) {
+      user.completedModules.push(moduleIdString);
+      user.xp += parentModule.xpReward || 100;
+
+      if (!Array.isArray(user.moduleCompletionHistory)) {
+        user.moduleCompletionHistory = [];
+      }
+      user.moduleCompletionHistory.push({
+        moduleId: parentModule._id,
+        completedAt: new Date(),
+      });
+    }
+
+    await trackCompletion(user);
+
     await user.save();
 
     const progressData = formatProgressResponse(
@@ -463,7 +497,6 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
       user.completedModules.push(moduleIdString);
       xpIncrease = module.xpReward || 100;
       user.xp += xpIncrease;
-      user.lastActive = new Date();
       moduleCompletedNow = true;
 
       // Add to history
@@ -495,6 +528,8 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
         });
       }
     }
+
+    await trackCompletion(user);
   }
 
   await user.save();

@@ -49,6 +49,21 @@ const UserSchema = new mongoose.Schema(
       default: 0,
       min: [0, "Streak cannot be negative"],
     },
+    streakStatus: {
+      type: String,
+      enum: ["active", "warning", "at_risk", "resetting"],
+      default: "active",
+    },
+    // Streak only - different to lastActive
+    lastActiveDate: { type: Date, default: null },
+    lastCompletionDate: { type: Date, default: null },
+    weeklyProgress: {
+      weekStartDate: { type: Date, default: null },
+      daysActive: { type: Number, default: 0, min: 0 },
+      completionsThisWeek: { type: Number, default: 0, min: 0 },
+      warningIssued: { type: Boolean, default: false },
+      warningDay: { type: Number, default: 5 },
+    },
     badges: {
       type: [String],
       default: [],
@@ -174,6 +189,10 @@ UserSchema.index({ isAdmin: 1 });
 UserSchema.index({ isBlocked: 1 });
 UserSchema.index({ lastActive: -1 });
 UserSchema.index({ createdAt: -1 });
+UserSchema.index({ streakStatus: 1 });
+UserSchema.index({ lastActiveDate: -1 });
+UserSchema.index({ lastCompletionDate: -1 });
+UserSchema.index({ "weeklyProgress.weekStartDate": -1 });
 
 // Pre-save
 UserSchema.pre("save", function (next) {

@@ -470,8 +470,8 @@ const MODULE_CONFIGS = {
         ex: "L4_Exercise.json",
       },
       {
-        file: "L5_Project_Data_Transformation.md",
-        title: "Project: Data Transformation Pipeline",
+        file: "L5_Project_Student_Analytics.md",
+        title: " Project: Student Grade Analytics System",
         type: "project",
         ex: "L5_Exercise.json",
       },
@@ -734,10 +734,10 @@ const MODULE_CONFIGS = {
       },
 
       {
-        file: "L6_Project_Package_Setup.md",
-        title: "Project: Professional CLI Tool",
+        file: "L6_Project_Debug_Calculator.md",
+        title: "Project:  Debugging a Calculator Program",
         description:
-          "Build a production-ready, multi-file CLI tool and package it for installation.",
+          "Review and debug the code for a faulty calculator program.",
         type: "project",
         ex: "L6_Exercise.json",
       },

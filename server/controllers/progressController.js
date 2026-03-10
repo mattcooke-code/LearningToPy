@@ -6,10 +6,18 @@ const Module = require("../models/Module");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-// Import from NEW utility structure
 const { formatProgressResponse } = require("../utils/analytics");
-const { getCurriculumProgressStats } = require("../utils/learningEngine");
+const {
+  getCurriculumProgressStats,
+  processLessonCompletion,
+  processModuleCompletion,
+} = require("../utils/learningEngine");
 const { evaluateBadges, getBadgeProgress } = require("../utils/gamification");
+const {
+  trackLessonView,
+  trackCompletion,
+  getStreakInfo,
+} = require("../utils/streakManager");
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions");
@@ -31,7 +39,6 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
 
 const getAchievements = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-
   const user = await User.findById(userId)
     .select(
       "username completedLessons completedModules badges streak createdAt moduleCompletionHistory lessonCompletionHistory stats",
@@ -42,7 +49,6 @@ const getAchievements = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
-  // Check for newly unlocked badges
   const { newlyUnlocked } = await evaluateBadges(user);
 
   if (newlyUnlocked.length > 0) {
@@ -52,14 +58,12 @@ const getAchievements = catchAsync(async (req, res, next) => {
     user.badges = [...new Set([...(user.badges || []), ...newlyUnlocked])];
   }
 
-  // Get badge progress
   const badgeProgress = await getBadgeProgress(user);
 
   const earned = [];
   const inProgress = [];
   const locked = [];
 
-  // Create a map for quick lookup
   const progressMap = new Map(
     badgeProgress.map((progressItem) => [
       progressItem.id,
@@ -69,7 +73,6 @@ const getAchievements = catchAsync(async (req, res, next) => {
 
   const earnedSet = new Set(user.badges || []);
 
-  // Organize badges into categories
   BADGE_DEFINITIONS_CORE.forEach((badge) => {
     const baseDetails = {
       id: badge.id,
@@ -115,13 +118,11 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const range = 2;
 
-  // First, verify the current user exists
   const currentUser = await User.findById(userId);
   if (!currentUser) {
     return next(new AppError("User not found", 404));
   }
 
-  // Get all users who allow leaderboard display
   const allUsers = await User.find({
     "privacySettings.showOnLeaderboards": true,
   })
@@ -129,7 +130,6 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
     .sort({ xp: -1 })
     .lean();
 
-  // Apply anonymity based on user settings
   const usersWithPrivacy = allUsers.map((user) => ({
     ...user,
     displayName: user.privacySettings?.showUsernameOnLeaderboards
@@ -138,17 +138,14 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
     isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
   }));
 
-  // Find current user's position
   const currentUserIndex = usersWithPrivacy.findIndex(
     (user) => user._id.toString() === userId,
   );
 
   if (currentUserIndex === -1) {
-    // User might have privacySettings.showOnLeaderboards = false
     return next(new AppError("User not found on leaderboard", 404));
   }
 
-  // Calculate range of users to show
   const startIndex = Math.max(0, currentUserIndex - range);
   const endIndex = Math.min(
     usersWithPrivacy.length - 1,
@@ -160,7 +157,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
     .map((user, index) => ({
       _id: user._id,
       rank: startIndex + index + 1,
-      username: user.displayName, // Use displayName instead of username
+      username: user.displayName,
       xp: user.xp,
       isCurrent: user._id.toString() === userId,
       isAnonymous: user.isAnonymous,
@@ -202,7 +199,6 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
 
-  // 1. Fetch users who completed this module + privacy settings
   const moduleUsers = await User.find({
     completedModules: moduleId,
     "privacySettings.showOnLeaderboards": true,
@@ -212,7 +208,6 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
     .limit(50)
     .lean();
 
-  // 2. Map for anonymity and the current user flag
   const formattedUsers = moduleUsers.map((user, index) => ({
     _id: user._id,
     rank: index + 1,
@@ -224,8 +219,6 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
     isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
   }));
 
-  // 3. Find the current user's actual rank (even if they aren't in the top 50)
-  // Note: For a true rank, you'd count users with more XP than current user
   const currentUser = await User.findById(userId).select("xp");
   const rank =
     (await User.countDocuments({
@@ -241,10 +234,85 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   });
 });
 
+const completeLesson = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+  const submissionData = req.body;
+
+  const user = await User.findById(req.userId);
+  const lesson = await Lesson.findById(lessonId);
+
+  if (!user || !lesson) {
+    return next(new AppError("User or lesson not found", 404));
+  }
+
+  const result = await processLessonCompletion(user, lesson, submissionData);
+
+  const streakResult = await trackCompletion(user);
+
+  await user.save();
+
+  sendJsonResponse(res, 200, "Lesson completed successfully", {
+    xpGained: result.xpIncrease,
+    newStreak: streakResult?.streak ?? user.streak,
+    streakStatus: streakResult?.streakStatus,
+    nextLessonId: result.nextLessonId,
+    newlyCompleted: result.newlyCompleted,
+  });
+});
+
+const completeModule = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+  const { quizScore, answers } = req.body;
+
+  const user = await User.findById(req.userId);
+  const module = await Module.findById(moduleId);
+
+  if (!user || !module) {
+    return next(new AppError("User or module not found", 404));
+  }
+
+  const result = await processModuleCompletion(user, module, quizScore);
+
+  if (answers && quizScore !== undefined) {
+    user.quizAttempts.push({
+      moduleId: module._id,
+      attemptedAt: new Date(),
+      score: quizScore,
+      passed: quizScore >= 70,
+      answers,
+    });
+  }
+
+  const streakResult = await trackCompletion(user);
+
+  await user.save();
+
+  sendJsonResponse(res, 200, "Module completed successfully", {
+    xpGained: result.xpIncrease,
+    newStreak: streakResult?.streak ?? user.streak,
+    streakStatus: streakResult?.streakStatus,
+    nextModuleId: result.nextModuleId,
+    newlyCompleted: result.newlyCompleted,
+  });
+});
+
+const checkStreak = catchAsync(async (req, res, next) => {
+  const streakInfo = await getStreakInfo(req.userId);
+
+  if (!streakInfo) {
+    return next(new AppError("User not found", 404));
+  }
+
+  sendJsonResponse(res, 200, "Streak info retrieved", streakInfo);
+});
+
 module.exports = {
   getCurrentProgress,
   getAchievements,
   getSurroundingLeaderboard,
   getTopLeaderboard,
   getModuleLeaderboard,
+  completeLesson,
+  completeModule,
+  checkStreak,
 };

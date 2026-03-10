@@ -156,7 +156,7 @@ export const NotificationProvider = ({ children }) => {
         cancelText,
       });
     },
-    []
+    [],
   );
 
   const closeConfirm = useCallback(() => {
@@ -169,7 +169,7 @@ export const NotificationProvider = ({ children }) => {
       showConfirm,
       closeConfirm,
     }),
-    [showToast, showConfirm, closeConfirm]
+    [showToast, showConfirm, closeConfirm],
   );
 
   return (

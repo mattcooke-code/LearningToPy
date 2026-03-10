@@ -7,12 +7,7 @@ const {
   getLessonCompletionCountByTag,
   hasCompletedChallengeGroup,
 } = require("./analytics");
-const {
-  toStringId,
-  isSameDay,
-  getDateKey,
-  checkDate,
-} = require("./generalUtils");
+const { toStringId, isSameDay, getDateKey } = require("./generalUtils");
 const {
   MODULE_SLUGS,
   getModuleIdBySlug,
@@ -39,27 +34,6 @@ const calculateLevelProgress = (xp) => {
     progressCompleted,
     xpNeededForNextLevel: XP_PER_LEVEL - xpInCurrentLevel,
   };
-};
-
-// --- STREAK HELPERS ---
-
-/**
- * Determines how to update the user streak based on last activity
- */
-const calculateStreakUpdate = (lastActiveDate) => {
-  if (!lastActiveDate) return { streakAction: "$set", value: 1 };
-
-  const today = checkDate(new Date());
-  const lastActive = checkDate(lastActiveDate);
-  const diffDays = Math.round((today - lastActive) / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 1) {
-    return { streakAction: "$inc", value: 1 }; // Continued streak
-  } else if (diffDays === 0) {
-    return { streakAction: "$set", value: null }; // Already active today, no change
-  } else {
-    return { streakAction: "$set", value: 1 }; // Streak broken, reset to 1
-  }
 };
 
 // --- BADGE EVALUATION HELPERS ---
@@ -462,6 +436,6 @@ module.exports = {
   evaluateBadges,
   getBadgeProgress,
   calculateLevelProgress,
-  calculateStreakUpdate,
+
   XP_PER_LEVEL,
 };

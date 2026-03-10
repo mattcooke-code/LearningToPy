@@ -5,8 +5,8 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
 const { sendJsonResponse } = require("../utils/responseHelpers");
+const { trackLessonView } = require("../utils/streakManager");
 
-// Signup Function
 const register = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -36,7 +36,7 @@ const register = catchAsync(async (req, res, next) => {
       isAdmin: newUser.isAdmin,
     },
     authUtils.getAccessTokenSecret(),
-    authUtils.ACCESS_TOKEN_LIFESPAN
+    authUtils.ACCESS_TOKEN_LIFESPAN,
   );
 
   const { tokenLifespan, cookieMaxAge } =
@@ -49,7 +49,7 @@ const register = catchAsync(async (req, res, next) => {
       rememberMe: false,
     },
     authUtils.getRefreshTokenSecret(),
-    tokenLifespan
+    tokenLifespan,
   );
 
   res.cookie("refreshToken", refreshToken, {
@@ -63,37 +63,39 @@ const register = catchAsync(async (req, res, next) => {
       id: newUser._id,
       username: newUser.username,
       isAdmin: newUser.isAdmin,
+      streak: newUser.streak,
     },
   });
 });
 
-// Login Function
 const login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
 
   const user = await User.findOne({ email }).select("+password");
   if (!user || user.isBlocked) {
     return next(
-      new AppError("Invalid credentials or account is blocked.", 401)
+      new AppError("Invalid credentials or account is blocked.", 401),
     );
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return next(
-      new AppError("Invalid credentials or account is blocked.", 401)
+      new AppError("Invalid credentials or account is blocked.", 401),
     );
   }
+
+  const streakResult = await trackLessonView(user);
+  await user.save();
 
   const accessToken = authUtils.generateToken(
     { id: user._id, username: user.username, isAdmin: user.isAdmin },
     authUtils.getAccessTokenSecret(),
-    authUtils.ACCESS_TOKEN_LIFESPAN
+    authUtils.ACCESS_TOKEN_LIFESPAN,
   );
 
-  const { tokenLifespan, cookieMaxAge } = authUtils.getRefreshTokenSettings(
-    !!rememberMe
-  );
+  const { tokenLifespan, cookieMaxAge } =
+    authUtils.getRefreshTokenSettings(!!rememberMe);
 
   const refreshToken = authUtils.generateToken(
     {
@@ -102,7 +104,7 @@ const login = catchAsync(async (req, res, next) => {
       rememberMe: !!rememberMe,
     },
     authUtils.getRefreshTokenSecret(),
-    tokenLifespan
+    tokenLifespan,
   );
 
   res.cookie("refreshToken", refreshToken, {
@@ -112,13 +114,20 @@ const login = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Login successful", {
     accessToken,
-    user: { id: user._id, username: user.username, isAdmin: user.isAdmin },
+    user: {
+      id: user._id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+      streak: user.streak,
+      lastActive: user.lastActiveDate,
+    },
+    streak: streakResult,
   });
 });
 
 const getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId || req.user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken",
   );
 
   if (!user) {
@@ -142,7 +151,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
   try {
     decoded = authUtils.verifyToken(
       refreshTokenCookie,
-      authUtils.getRefreshTokenSecret()
+      authUtils.getRefreshTokenSecret(),
     );
   } catch (error) {
     authUtils.clearRefreshTokenCookie(res);
@@ -159,9 +168,12 @@ const refreshToken = catchAsync(async (req, res, next) => {
   if (decoded.refreshTokenVersion !== user.refreshTokenVersion) {
     authUtils.clearRefreshTokenCookie(res);
     return next(
-      new AppError("Refresh token revoked. Please log in again.", 403)
+      new AppError("Refresh token revoked. Please log in again.", 403),
     );
   }
+
+  const streakResult = await trackLessonView(user);
+  await user.save();
 
   const newAccessToken = authUtils.generateToken(
     {
@@ -170,7 +182,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
       isAdmin: user.isAdmin,
     },
     authUtils.getAccessTokenSecret(),
-    authUtils.ACCESS_TOKEN_LIFESPAN
+    authUtils.ACCESS_TOKEN_LIFESPAN,
   );
 
   const isRememberMeToken = decoded.rememberMe;
@@ -184,7 +196,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
       rememberMe: isRememberMeToken,
     },
     authUtils.getRefreshTokenSecret(),
-    tokenLifespan
+    tokenLifespan,
   );
 
   res.cookie("refreshToken", newRefreshToken, {
@@ -194,7 +206,14 @@ const refreshToken = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Token refreshed successfully.", {
     accessToken: newAccessToken,
-    user: { id: user._id, username: user.username, isAdmin: user.isAdmin },
+    user: {
+      id: user._id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+      streak: user.streak,
+      lastActive: user.lastActiveDate,
+    },
+    streak: streakResult,
   });
 });
 
@@ -235,7 +254,7 @@ const updatePrivacySettings = catchAsync(async (req, res, next) => {
           showUsernameOnLeaderboards,
       },
     },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   ).select("username privacySettings");
 
   if (!user) {
@@ -247,7 +266,6 @@ const updatePrivacySettings = catchAsync(async (req, res, next) => {
   });
 });
 
-// EXPORT
 module.exports = {
   register,
   login,

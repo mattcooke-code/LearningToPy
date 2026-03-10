@@ -2,7 +2,6 @@
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
 const { findNextLesson, findNextModule } = require("./navigation");
-const { calculateStreakUpdate } = require("./gamification");
 const { normalizeTags } = require("./generalUtils");
 const { hasQuiz, hasExercise, isQuizCompleted } = require("./quizHelpers");
 
@@ -10,7 +9,6 @@ const { hasQuiz, hasExercise, isQuizCompleted } = require("./quizHelpers");
  * --- VALIDATION LOGIC ---
  */
 const validateCodeSubmission = (userCode, exercise) => {
-  // Basic validation
   if (!userCode || userCode.trim() === "") {
     return {
       isCorrect: false,
@@ -52,7 +50,6 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
       user.stats.optimalSolutionCount++;
     }
 
-    // Tag-based stats
     if (tags.includes("functions")) {
       ensureStat("functionChallengeCount");
       user.stats.functionChallengeCount++;
@@ -98,7 +95,7 @@ const ensureNotAlreadyCompleted = (completedArray, itemId) => {
 };
 
 /**
- * Main Orchestrator for Lesson Completion
+ * Main Orchestrator for Lesson Completion.
  */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
   const lessonId = lesson._id.toString();
@@ -117,25 +114,9 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   const xpIncrease = lesson.xpReward || 50;
   user.xp += xpIncrease;
 
-  // Streak
-  const streakUpdate = calculateStreakUpdate(user.lastActive);
-  if (streakUpdate.streakAction === "$inc") {
-    user.streak += streakUpdate.value;
-  } else if (
-    streakUpdate.streakAction === "$set" &&
-    streakUpdate.value !== null
-  ) {
-    user.streak = streakUpdate.value;
-  }
-
-  user.lastActive = new Date();
-
   // Create History & Update Stats
-  const record = createLessonCompletionRecord(
-    lesson,
-    submissionBody,
-    user.lastActive,
-  );
+  const now = new Date();
+  const record = createLessonCompletionRecord(lesson, submissionBody, now);
   user.lessonCompletionHistory.push(record);
   updateUserStats(user, record, submissionBody);
 
@@ -146,6 +127,9 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   };
 };
 
+/**
+ * Main Orchestrator for Module Completion.
+ */
 const processModuleCompletion = async (user, module, quizScore) => {
   const moduleId = module._id.toString();
 
@@ -163,20 +147,6 @@ const processModuleCompletion = async (user, module, quizScore) => {
   const xpIncrease = module.xpReward || 100;
   user.xp += xpIncrease;
 
-  // Update Streak
-  const streakUpdate = calculateStreakUpdate(user.lastActive);
-  if (streakUpdate.streakAction === "$inc") {
-    user.streak += streakUpdate.value;
-  } else if (
-    streakUpdate.streakAction === "$set" &&
-    streakUpdate.value !== null
-  ) {
-    user.streak = streakUpdate.value;
-  }
-
-  user.lastActive = new Date();
-
-  // Add to history
   if (!Array.isArray(user.moduleCompletionHistory)) {
     user.moduleCompletionHistory = [];
   }
@@ -184,8 +154,6 @@ const processModuleCompletion = async (user, module, quizScore) => {
     moduleId: module._id,
     completedAt: new Date(),
   });
-
-  user.lastActive = new Date();
 
   return {
     xpIncrease,
@@ -206,25 +174,20 @@ const isLessonFullyCompleted = (
   const lessonHasQuiz = hasQuiz(lesson);
   const lessonHasExercise = hasExercise(lesson);
 
-  // If frontend explicity marks as complete
   if (forceComplete) return true;
 
-  // Theory lesson without quiz/exercise
   if (lesson.contentType === "theory" && !lessonHasQuiz && !lessonHasExercise) {
     return true;
   }
 
-  // Exercise-only lesson
   if (lessonHasExercise && !lessonHasQuiz && isCorrect) {
     return true;
   }
 
-  // Quiz-only lesson
   if (!lessonHasExercise && lessonHasQuiz) {
     return isQuizCompleted(quizProgress, lesson);
   }
 
-  // Lesson with both exercise AND quiz
   if (lessonHasExercise && lessonHasQuiz) {
     return isCorrect && isQuizCompleted(quizProgress, lesson);
   }
@@ -239,7 +202,6 @@ const isLessonFullyCompleted = (
  * @returns {Object} { totalCurriculumLessons, completedCurriculumCount }
  */
 const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
-  // 1. Identify which modules count as "curriculum"
   const curriculumModules = await Module.find({
     order: { $gt: 0 },
     isPublished: true,
@@ -247,13 +209,11 @@ const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
 
   const curriculumModuleIds = curriculumModules.map((m) => m._id);
 
-  // 2. Denominator: Total lessons in those modules
   const totalCurriculumLessons = await Lesson.countDocuments({
     isPublished: true,
     moduleId: { $in: curriculumModuleIds },
   });
 
-  // 3. Numerator: User's completions within those modules
   const completedCurriculumCount = await Lesson.countDocuments({
     _id: { $in: user.completedLessons },
     isPublished: true,

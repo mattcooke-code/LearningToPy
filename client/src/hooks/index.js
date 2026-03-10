@@ -4,5 +4,6 @@ export { useContentFilter } from "./useContentFilter";
 export { useCourseThemeUpdater } from "./useCourseThemeUpdater";
 export { useFileDownload } from "./useFileDownload";
 export { useSettingsManager } from "./useSettingsManager";
+export { useStreakNotifications } from "./useStreakNotifications";
 export { useThemeColor } from "./useThemeColor";
 export { useThemeStyles } from "./useThemeStyles";

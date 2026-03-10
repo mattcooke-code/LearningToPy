@@ -86,6 +86,8 @@ const formatProgressResponse = (
     xp: user.xp,
     level: currentLevel,
     streak: user.streak || 0,
+    streakStatus: user.streakStatus || "active",
+    weeklyProgress: user.weeklyProgress || null,
     stats: {
       lessonsCompleted: uniqueLessons.length, // Total completed (including tutorials)
       modulesCompleted: uniqueModules.length,
