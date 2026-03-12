@@ -12,7 +12,11 @@ const {
   processLessonCompletion,
   processModuleCompletion,
 } = require("../utils/learningEngine");
-const { evaluateBadges, getBadgeProgress } = require("../utils/gamification");
+const {
+  evaluateBadges,
+  getBadgeProgress,
+  checkLeaderboardBadges,
+} = require("../utils/gamification");
 const {
   trackLessonView,
   trackCompletion,
@@ -21,6 +25,8 @@ const {
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions");
+
+// --- CONTROLLER FUNCTIONS ---
 
 const getCurrentProgress = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
@@ -41,7 +47,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const user = await User.findById(userId)
     .select(
-      "username completedLessons completedModules badges streak createdAt moduleCompletionHistory lessonCompletionHistory stats",
+      "username completedLessons completedModules badges streak createdAt moduleCompletionHistory lessonCompletionHistory quizAttempts privacySettings stats",
     )
     .lean({ virtuals: true });
 
@@ -79,6 +85,9 @@ const getAchievements = catchAsync(async (req, res, next) => {
       name: badge.name,
       description: badge.description,
       category: badge.category,
+      tier: badge.tier ?? null,
+      module: badge.module ?? null,
+      phase: badge.phase ?? null,
     };
 
     if (earnedSet.has(badge.id)) {
@@ -247,9 +256,13 @@ const completeLesson = catchAsync(async (req, res, next) => {
 
   const result = await processLessonCompletion(user, lesson, submissionData);
 
+  // Pass the already-fetched user document
   const streakResult = await trackCompletion(user);
 
   await user.save();
+
+  // Trigger leaderboard badge check after XP is persisted
+  await checkLeaderboardBadges(user, User);
 
   sendJsonResponse(res, 200, "Lesson completed successfully", {
     xpGained: result.xpIncrease,
@@ -283,9 +296,13 @@ const completeModule = catchAsync(async (req, res, next) => {
     });
   }
 
+  // Pass the already-fetched user document — avoids a second DB read
   const streakResult = await trackCompletion(user);
 
   await user.save();
+
+  // Trigger leaderboard badge check after XP is persisted
+  await checkLeaderboardBadges(user, User);
 
   sendJsonResponse(res, 200, "Module completed successfully", {
     xpGained: result.xpIncrease,
@@ -296,6 +313,7 @@ const completeModule = catchAsync(async (req, res, next) => {
   });
 });
 
+// UPDATED: replaced calculateStreakUpdate logic with getStreakInfo
 const checkStreak = catchAsync(async (req, res, next) => {
   const streakInfo = await getStreakInfo(req.userId);
 

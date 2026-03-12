@@ -3,7 +3,7 @@ import { XP } from "../../../shared/constants/progress";
 /** Calculate progress percentage for lessons within a specific module */
 export const calculateModuleLessonProgress = (lessons = []) => {
   const completedLessons = lessons.filter(
-    (lesson) => lesson.isCompleted
+    (lesson) => lesson.isCompleted,
   ).length;
   const totalLessons = lessons.length;
   let moduleLessonProgress = 0;
@@ -18,21 +18,10 @@ export const calculateModuleLessonProgress = (lessons = []) => {
 /** Calculate percentage of modules completed */
 export const calculateModulesCompletionProgress = (
   completedModules,
-  totalModules
+  totalModules,
 ) => {
   if (totalModules === 0) return 0;
   return Math.round((completedModules / totalModules) * 100);
-};
-
-/** Calculate average progress across all modules (average of module lesson progress) */
-export const calculateAverageModuleProgress = (modules = []) => {
-  if (modules.length === 0) return 0;
-
-  const totalProgress = modules.reduce(
-    (sum, module) => sum + (module.moduleLessonProgress || 0),
-    0
-  );
-  return Math.round(totalProgress / modules.length);
 };
 
 /** Calculate XP progress towards next level */

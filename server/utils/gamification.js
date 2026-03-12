@@ -1,27 +1,24 @@
 // gamification.js
+
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions");
 const { XP } = require("../../shared/constants/progress");
-const {
-  getLessonCompletionCountByTag,
-  hasCompletedChallengeGroup,
-} = require("./analytics");
-const { toStringId, isSameDay, getDateKey } = require("./generalUtils");
-const {
-  MODULE_SLUGS,
-  getModuleIdBySlug,
-  getOrderedModuleIds,
-} = require("./navigation");
+const { toStringId } = require("./generalUtils");
+const Module = require("../models/Module");
+const Lesson = require("../models/Lesson");
 
 // --- CONSTANTS ---
 const XP_PER_LEVEL = XP.PER_LEVEL;
-const DAILY_DOZEN_STREAK = 12;
+const TOTAL_CURRICULUM_MODULES = 20; // M1–M20, excluding M0
 
-// --- XP & LEVELING HELPERS ---
+// --- XP & LEVELING ---
 
 /**
- * Calculates level and progress based on total XP
+ * Calculates level and progress based on total XP.
+ * NOTE: Level is now also derivable from completedModules.length on the
+ * frontend. This function is retained for XP-based display in the
+ * SegmentedLevelProgressBar and leaderboard contexts.
  */
 const calculateLevelProgress = (xp) => {
   const currentLevel = Math.floor(xp / XP_PER_LEVEL) + 1;
@@ -36,368 +33,315 @@ const calculateLevelProgress = (xp) => {
   };
 };
 
+// --- DB HELPERS ---
+
+/**
+ * Cache of order → moduleId to avoid repeated DB queries
+ * within a single badge evaluation run.
+ */
+const buildModuleOrderCache = async () => {
+  const modules = await Module.find({ isPublished: true })
+    .select("_id order")
+    .lean();
+  const cache = new Map();
+  modules.forEach((m) => cache.set(m.order, toStringId(m._id)));
+  return cache;
+};
+
+/**
+ * Returns the total published lesson count for a given moduleId.
+ * Used for clean sweep badge checks.
+ */
+const getTotalLessonsInModule = async (moduleId) => {
+  return Lesson.countDocuments({ moduleId, isPublished: true });
+};
+
 // --- BADGE EVALUATION HELPERS ---
 
-const createBadgeHelpers = (user) => {
+const createBadgeHelpers = async (user) => {
   const completedModuleSet = new Set(
     (user.completedModules || []).map((id) => toStringId(id)).filter(Boolean),
   );
-  const safeStats = user.stats || {};
-  const moduleHistory = user.moduleCompletionHistory || [];
-  const lessonHistory = user.lessonCompletionHistory || [];
+  const completedLessonSet = new Set(
+    (user.completedLessons || []).map((id) => toStringId(id)).filter(Boolean),
+  );
+
+  // Single DB call — cache order → moduleId for the entire evaluation run
+  const moduleOrderCache = await buildModuleOrderCache();
+
+  const hasCompletedModuleByOrder = (order) => {
+    const moduleId = moduleOrderCache.get(order);
+    return moduleId ? completedModuleSet.has(moduleId) : false;
+  };
+
+  /**
+   * Clean sweep: all published lessons in a module completed.
+   * Requires one DB count query per check — results are not cached
+   * since this is called selectively, not for every module.
+   */
+  const hasSweptModule = async (order) => {
+    const moduleId = moduleOrderCache.get(order);
+    if (!moduleId) return false;
+
+    const totalLessons = await getTotalLessonsInModule(moduleId);
+    if (totalLessons === 0) return false;
+
+    const completedInModule = (
+      await Lesson.find({ moduleId, isPublished: true }).select("_id").lean()
+    ).filter((l) => completedLessonSet.has(toStringId(l._id))).length;
+
+    return completedInModule >= totalLessons;
+  };
+
+  const completedCurriculumModuleCount = () =>
+    [...completedModuleSet].filter((id) => {
+      // Only count modules with order > 0 (exclude M0)
+      for (const [order, moduleId] of moduleOrderCache.entries()) {
+        if (moduleId === id && order > 0) return true;
+      }
+      return false;
+    }).length;
 
   return {
-    hasCompletedModuleBySlug: async (slug) => {
-      const moduleId = await getModuleIdBySlug(slug);
-      return moduleId ? completedModuleSet.has(moduleId) : false;
-    },
-    countCompletedModuleIds: (moduleIds) =>
-      moduleIds.reduce(
-        (count, id) => count + (completedModuleSet.has(id) ? 1 : 0),
-        0,
-      ),
-
-    getQuizScore: async (slug, isFirstTryRequired = false) => {
-      const moduleId = await getModuleIdBySlug(slug);
-      if (!moduleId || !safeStats.moduleQuizScores) return 0;
-      const scores = safeStats.moduleQuizScores[moduleId];
-      return scores ? (isFirstTryRequired ? scores.first : scores.latest) : 0;
-    },
-    getPhaseQuizScore: (phaseSlug) => {
-      const score = safeStats.phaseQuizScores
-        ? safeStats.phaseQuizScores[phaseSlug]
-        : null;
-      return typeof score === "number" ? score : 0;
-    },
-
-    getModuleCompletionCountsPerDay: () => {
-      const counts = new Map();
-      moduleHistory.forEach((entry) => {
-        const dateKey = getDateKey(entry.completedAt);
-        if (dateKey) counts.set(dateKey, (counts.get(dateKey) || 0) + 1);
-      });
-      return counts;
-    },
-    getLessonCompletionCountByTag: (tag) =>
-      getLessonCompletionCountByTag(lessonHistory, tag),
-    hasCompletedChallengeGroup: (groupId) =>
-      hasCompletedChallengeGroup(lessonHistory, groupId),
-    stats: safeStats,
-    lessonHistory,
+    hasCompletedModuleByOrder,
+    hasSweptModule,
+    completedCurriculumModuleCount,
+    completedModuleSet,
+    completedLessonSet,
+    moduleOrderCache,
   };
 };
 
 // --- BADGE LOGIC MAP ---
-// --- Constants for logic ---
-const CONSTANTS = {
-  TOTAL_MODULES: 20,
-  INTERMEDIATE_COUNT: 15,
-  FUNDAMENTAL_COUNT: 5,
-  FUNCTION_TARGET: 10,
-  FIRST_TRY_TARGET: 5,
-  FILE_TARGET: 5,
-  OPTIMAL_TARGET: 20,
-  TURBO_TARGET: 3,
-  DAILY_DOZEN: 12,
-  API_UNIQUE: 2,
-  DECORATOR_TARGET: 5,
-  DATETIME_TARGET: 5,
-};
-
-const BADGE_LOGIC_MAP = {
-  "python-starter": {
-    check: (h) => h.hasCompletedModuleBySlug(MODULE_SLUGS.PYTHON_FUNDAMENTALS),
-    progress: async (h) =>
-      (await h.hasCompletedModuleBySlug(MODULE_SLUGS.PYTHON_FUNDAMENTALS))
-        ? 100
-        : 0,
-  },
-  fundamentalist: {
-    check: async (h) => {
-      const ids = await getOrderedModuleIds(CONSTANTS.FUNDAMENTAL_COUNT);
-      return ids.length > 0 && h.countCompletedModuleIds(ids) === ids.length;
-    },
-    progress: async (h) => {
-      const ids = await getOrderedModuleIds(CONSTANTS.FUNDAMENTAL_COUNT);
-      return ids.length === 0
-        ? 0
-        : Math.round((h.countCompletedModuleIds(ids) / ids.length) * 100);
-    },
-  },
-  "logic-leaper": {
-    check: async (h) =>
-      (await h.getQuizScore(MODULE_SLUGS.CONTROL_FLOW_CONDITIONAL, true)) >= 80,
-    progress: async (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((await h.getQuizScore(MODULE_SLUGS.CONTROL_FLOW_CONDITIONAL, true)) /
-            80) *
-            100,
-        ),
-      ),
-  },
-  "loop-commander": {
-    check: async (h) =>
-      (await h.hasCompletedModuleBySlug(MODULE_SLUGS.ITERATION)) &&
-      (await h.getQuizScore(MODULE_SLUGS.ITERATION)) >= 100,
-    progress: async (h) =>
-      (await h.hasCompletedModuleBySlug(MODULE_SLUGS.ITERATION))
-        ? Math.min(
-            100,
-            Math.round(await h.getQuizScore(MODULE_SLUGS.ITERATION)),
-          )
-        : 0,
-  },
-  "function-flinger": {
-    check: async (h) =>
-      (await h.hasCompletedModuleBySlug(MODULE_SLUGS.FUNCTIONS)) &&
-      h.stats.functionChallengeCount >= CONSTANTS.FUNCTION_TARGET,
-    progress: async (h) => {
-      if (!(await h.hasCompletedModuleBySlug(MODULE_SLUGS.FUNCTIONS))) return 0;
-      return Math.min(
-        100,
-        Math.round(
-          ((h.stats.functionChallengeCount || 0) / CONSTANTS.FUNCTION_TARGET) *
-            100,
-        ),
-      );
-    },
-  },
-  "data-alchemist": {
-    check: (h) => (h.stats.phaseQuizScores?.["phase-1"] || 0) >= 90,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(((h.stats.phaseQuizScores?.["phase-1"] || 0) / 90) * 100),
-      ),
-  },
-  "full-stack-pythonista": {
-    check: async (h) => {
-      const ids = await getOrderedModuleIds(CONSTANTS.INTERMEDIATE_COUNT);
-      return (
-        h.countCompletedModuleIds(ids) === ids.length &&
-        (h.stats.phaseQuizScores?.["phase-2"] || 0) >= 75
-      );
-    },
-    progress: async (h) => {
-      const ids = await getOrderedModuleIds(CONSTANTS.INTERMEDIATE_COUNT);
-      const modProgress = h.countCompletedModuleIds(ids) / ids.length;
-      if (modProgress < 1) return Math.round(modProgress * 75);
-      return Math.min(
-        100,
-        Math.round(
-          75 + ((h.stats.phaseQuizScores?.["phase-2"] || 0) / 75) * 25,
-        ),
-      );
-    },
-  },
-  "python-master": {
-    check: async (h) => {
-      const ids = await getOrderedModuleIds(CONSTANTS.TOTAL_MODULES);
-      return h.countCompletedModuleIds(ids) === ids.length;
-    },
-    progress: async (h) => {
-      const ids = await getOrderedModuleIds(CONSTANTS.TOTAL_MODULES);
-      return Math.round((h.countCompletedModuleIds(ids) / ids.length) * 100);
-    },
-  },
-  "file-handler": {
-    check: (h) => (h.stats.fileChallengeCount || 0) >= CONSTANTS.FILE_TARGET,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((h.stats.fileChallengeCount || 0) / CONSTANTS.FILE_TARGET) * 100,
-        ),
-      ),
-  },
-  "code-blacksmith": {
-    check: (h) =>
-      (h.stats.decoratorUsageCount || 0) >= CONSTANTS.DECORATOR_TARGET,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((h.stats.decoratorUsageCount || 0) / CONSTANTS.DECORATOR_TARGET) *
-            100,
-        ),
-      ),
-  },
-  architect: {
-    check: async (h) => (await h.getQuizScore(MODULE_SLUGS.OOP_I, true)) >= 80,
-    progress: async (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((await h.getQuizScore(MODULE_SLUGS.OOP_I, true)) / 80) * 100,
-        ),
-      ),
-  },
-  "master-builder": {
-    check: async (h) => (await h.getQuizScore(MODULE_SLUGS.OOP_II, true)) >= 85,
-    progress: async (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((await h.getQuizScore(MODULE_SLUGS.OOP_II, true)) / 85) * 100,
-        ),
-      ),
-  },
-  "time-traveler": {
-    check: (h) =>
-      (h.stats.datetimeChallengeCount || 0) >= CONSTANTS.DATETIME_TARGET,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((h.stats.datetimeChallengeCount || 0) / CONSTANTS.DATETIME_TARGET) *
-            100,
-        ),
-      ),
-  },
-  "regex-ruler": {
-    check: async (h) =>
-      (await h.hasCompletedModuleBySlug(MODULE_SLUGS.REGEX_MASTERY)) &&
-      (await h.getQuizScore(MODULE_SLUGS.REGEX_MASTERY)) >= 100,
-    progress: async (h) =>
-      (await h.hasCompletedModuleBySlug(MODULE_SLUGS.REGEX_MASTERY))
-        ? Math.min(100, await h.getQuizScore(MODULE_SLUGS.REGEX_MASTERY))
-        : 0,
-  },
-  "web-slinger": {
-    check: (h) => (h.stats.apiCountUnique || 0) >= CONSTANTS.API_UNIQUE,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((h.stats.apiCountUnique || 0) / CONSTANTS.API_UNIQUE) * 100,
-        ),
-      ),
-  },
-  "data-dynamo": {
-    check: (h) => h.stats.pandasOperationRun === true,
-    progress: (h) => (h.stats.pandasOperationRun ? 100 : 0),
-  },
-  "lightning-coder": {
-    check: (h) => (h.stats.fastChallengeCount || 0) > 0,
-    progress: () => 0,
-  },
-  "one-shot-wonder": {
-    check: (h) =>
-      (h.stats.firstTryChallengeCount || 0) >= CONSTANTS.FIRST_TRY_TARGET,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((h.stats.firstTryChallengeCount || 0) / CONSTANTS.FIRST_TRY_TARGET) *
-            100,
-        ),
-      ),
-  },
-  "turbo-learner": {
-    check: (h) =>
-      Array.from(h.getModuleCompletionCountsPerDay().values()).some(
-        (v) => v >= CONSTANTS.TURBO_TARGET,
-      ),
-    progress: (h) => {
-      const max = Math.max(
-        0,
-        ...Array.from(h.getModuleCompletionCountsPerDay().values()),
-      );
-      return Math.min(100, Math.round((max / CONSTANTS.TURBO_TARGET) * 100));
-    },
-  },
-  "optimal-prime": {
-    check: (h) =>
-      (h.stats.optimalSolutionCount || 0) >= CONSTANTS.OPTIMAL_TARGET,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(
-          ((h.stats.optimalSolutionCount || 0) / CONSTANTS.OPTIMAL_TARGET) *
-            100,
-        ),
-      ),
-  },
-  "infinity-war": {
-    check: (h) => h.stats.controlledInfiniteLoopSolved === true,
-    progress: (h) => (h.stats.controlledInfiniteLoopSolved ? 100 : 0),
-  },
-  "first-day": {
-    check: (h, u) =>
-      u.createdAt &&
-      h.lessonHistory.some((entry) =>
-        isSameDay(entry.completedAt, u.createdAt),
-      ),
-    progress: (h, u) =>
-      u.createdAt &&
-      h.lessonHistory.some((entry) => isSameDay(entry.completedAt, u.createdAt))
-        ? 100
-        : 0,
-  },
-  "week-warrior": {
-    check: (h, u) => (u.streak || 0) >= 7,
-    progress: (h, u) => Math.min(100, Math.round(((u.streak || 0) / 7) * 100)),
-  },
-  "monthly-momentum": {
-    check: (h, u) => (u.streak || 0) >= 30,
-    progress: (h, u) => Math.min(100, Math.round(((u.streak || 0) / 30) * 100)),
-  },
-  "dedicated-debugger": {
-    check: (h, u) => (u.streak || 0) >= 100,
-    progress: (h, u) =>
-      Math.min(100, Math.round(((u.streak || 0) / 100) * 100)),
-  },
-  "daily-dozen": {
-    check: (h, u) => (u.streak || 0) >= CONSTANTS.DAILY_DOZEN,
-    progress: (h, u) =>
-      Math.min(
-        100,
-        Math.round(((u.streak || 0) / CONSTANTS.DAILY_DOZEN) * 100),
-      ),
-  },
-  "bug-hunter": {
-    check: (h) => (h.stats.bugReportsVerified || 0) >= 3,
-    progress: (h) =>
-      Math.min(100, Math.round(((h.stats.bugReportsVerified || 0) / 3) * 100)),
-  },
-  "helpful-hero": {
-    check: (h) => (h.stats.helpfulVotesReceived || 0) >= 10,
-    progress: (h) =>
-      Math.min(
-        100,
-        Math.round(((h.stats.helpfulVotesReceived || 0) / 10) * 100),
-      ),
-  },
-  inviter: {
-    check: (h) => (h.stats.referralsCompleted || 0) >= 1,
-    progress: (h) => ((h.stats.referralsCompleted || 0) > 0 ? 100 : 0),
-  },
-  "beta-tester": {
-    check: (h) => (h.stats.betaModulesCompleted || 0) >= 1,
-    progress: (h) => ((h.stats.betaModulesCompleted || 0) > 0 ? 100 : 0),
-  },
-};
 
 /**
- * Main function to check for newly unlocked badges
+ * Each entry maps a badge id to:
+ *   check(h, user)    → boolean — has the badge been earned?
+ *   progress(h, user) → number  — 0–100 percentage towards earning it
+ *
+ * Convention:
+ *   Module badges:      check if module N is in completedModules
+ *   Clean sweep badges: check if all lessons in module N are completed
+ *   Phase badges:       check if last module in phase is completed (same
+ *                       event that fires the module badge — awarded together)
+ *   Milestone badges:   check against completedModules count or course state
+ *   Engagement badges:  check lessonCompletionHistory / quizAttempts
+ *   Leaderboard badges: evaluated separately at point of XP gain, not here
+ */
+const BADGE_LOGIC_MAP = {
+  // ─── M0 ───────────────────────────────────────────────────────
+  "orientation-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(0),
+    progress: (h) => (h.hasCompletedModuleByOrder(0) ? 100 : 0),
+  },
+  // ─── PHASE 1 MODULE BADGES (M1–M9) ───────────────────────────
+  "module-1-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(1),
+    progress: (h) => (h.hasCompletedModuleByOrder(1) ? 100 : 0),
+  },
+  "module-2-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(2),
+    progress: (h) => (h.hasCompletedModuleByOrder(2) ? 100 : 0),
+  },
+  "module-3-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(3),
+    progress: (h) => (h.hasCompletedModuleByOrder(3) ? 100 : 0),
+  },
+  "module-4-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(4),
+    progress: (h) => (h.hasCompletedModuleByOrder(4) ? 100 : 0),
+  },
+  "module-5-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(5),
+    progress: (h) => (h.hasCompletedModuleByOrder(5) ? 100 : 0),
+  },
+  "module-6-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(6),
+    progress: (h) => (h.hasCompletedModuleByOrder(6) ? 100 : 0),
+  },
+  "module-7-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(7),
+    progress: (h) => (h.hasCompletedModuleByOrder(7) ? 100 : 0),
+  },
+  "module-8-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(8),
+    progress: (h) => (h.hasCompletedModuleByOrder(8) ? 100 : 0),
+  },
+  "module-9-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(9),
+    progress: (h) => (h.hasCompletedModuleByOrder(9) ? 100 : 0),
+  },
+
+  // ─── PHASE 1 COMPLETION ───────────────────────────────────────
+  "phase-1-complete": {
+    // Fires alongside module-9-complete
+    check: (h) => h.hasCompletedModuleByOrder(9),
+    progress: (h) => {
+      // Show progress through Phase 1 as modules completed out of 9
+      let count = 0;
+      for (let i = 1; i <= 9; i++) {
+        if (h.hasCompletedModuleByOrder(i)) count++;
+      }
+      return Math.round((count / 9) * 100);
+    },
+  },
+
+  // ─── PHASE 2 MODULE BADGES (M10–M15) ─────────────────────────
+  "module-10-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(10),
+    progress: (h) => (h.hasCompletedModuleByOrder(10) ? 100 : 0),
+  },
+  "module-11-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(11),
+    progress: (h) => (h.hasCompletedModuleByOrder(11) ? 100 : 0),
+  },
+  "module-12-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(12),
+    progress: (h) => (h.hasCompletedModuleByOrder(12) ? 100 : 0),
+  },
+  "module-13-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(13),
+    progress: (h) => (h.hasCompletedModuleByOrder(13) ? 100 : 0),
+  },
+  "module-14-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(14),
+    progress: (h) => (h.hasCompletedModuleByOrder(14) ? 100 : 0),
+  },
+  "module-15-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(15),
+    progress: (h) => (h.hasCompletedModuleByOrder(15) ? 100 : 0),
+  },
+
+  // ─── PHASE 2 COMPLETION ───────────────────────────────────────
+  "phase-2-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(15),
+    progress: (h) => {
+      let count = 0;
+      for (let i = 10; i <= 15; i++) {
+        if (h.hasCompletedModuleByOrder(i)) count++;
+      }
+      return Math.round((count / 6) * 100);
+    },
+  },
+
+  // ─── PHASE 3 MODULE BADGES (M16–M20) ─────────────────────────
+  "module-16-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(16),
+    progress: (h) => (h.hasCompletedModuleByOrder(16) ? 100 : 0),
+  },
+  "module-17-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(17),
+    progress: (h) => (h.hasCompletedModuleByOrder(17) ? 100 : 0),
+  },
+  "module-18-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(18),
+    progress: (h) => (h.hasCompletedModuleByOrder(18) ? 100 : 0),
+  },
+  "module-19-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(19),
+    progress: (h) => (h.hasCompletedModuleByOrder(19) ? 100 : 0),
+  },
+  "module-20-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(20),
+    progress: (h) => (h.hasCompletedModuleByOrder(20) ? 100 : 0),
+  },
+
+  // ─── PHASE 3 COMPLETION ───────────────────────────────────────
+  "phase-3-complete": {
+    check: (h) => h.hasCompletedModuleByOrder(20),
+    progress: (h) => {
+      let count = 0;
+      for (let i = 16; i <= 20; i++) {
+        if (h.hasCompletedModuleByOrder(i)) count++;
+      }
+      return Math.round((count / 5) * 100);
+    },
+  },
+
+  // ─── MILESTONE BADGES ─────────────────────────────────────────
+  "halfway-there": {
+    check: (h) =>
+      h.completedCurriculumModuleCount() >= TOTAL_CURRICULUM_MODULES / 2,
+    progress: (h) =>
+      Math.min(
+        100,
+        Math.round(
+          (h.completedCurriculumModuleCount() /
+            (TOTAL_CURRICULUM_MODULES / 2)) *
+            100,
+        ),
+      ),
+  },
+  "course-complete": {
+    check: (h) =>
+      h.completedCurriculumModuleCount() >= TOTAL_CURRICULUM_MODULES,
+    progress: (h) =>
+      Math.min(
+        100,
+        Math.round(
+          (h.completedCurriculumModuleCount() / TOTAL_CURRICULUM_MODULES) * 100,
+        ),
+      ),
+  },
+
+  // ─── ENGAGEMENT BADGES ────────────────────────────────────────
+  "first-quiz": {
+    // Awarded when user has at least one entry in quizAttempts
+    check: (h, user) => (user.quizAttempts || []).length > 0,
+    progress: (h, user) => ((user.quizAttempts || []).length > 0 ? 100 : 0),
+  },
+  "first-challenge": {
+    // Awarded when lessonCompletionHistory contains at least one exercise/project
+    check: (h, user) =>
+      (user.lessonCompletionHistory || []).some(
+        (entry) =>
+          entry.contentType === "exercise" || entry.contentType === "project",
+      ),
+    progress: (h, user) =>
+      (user.lessonCompletionHistory || []).some(
+        (entry) =>
+          entry.contentType === "exercise" || entry.contentType === "project",
+      )
+        ? 100
+        : 0,
+  },
+
+  // ─── LEADERBOARD BADGES ───────────────────────────────────────
+  // These are NOT evaluated by evaluateBadges() — they are awarded
+  // directly by the leaderboard controller at the point of XP gain.
+  // The entries here exist only so getBadgeProgress() can return
+  // a display state for them (always 0 until awarded).
+  "reached-the-summit": {
+    check: () => false,
+    progress: () => 0,
+  },
+  "top-ten": {
+    check: () => false,
+    progress: () => 0,
+  },
+};
+
+// --- PUBLIC API ---
+
+/**
+ * Evaluate all badges and return newly unlocked ones.
+ * Call this after any state-changing event (lesson/module completion).
  */
 const evaluateBadges = async (user, context = {}) => {
-  const helpers = createBadgeHelpers(user);
+  const helpers = await createBadgeHelpers(user);
   const newlyUnlocked = [];
   const unlockedDetails = [];
 
-  for (const coreBadge of BADGE_DEFINITIONS_CORE) {
-    if (user.badges?.includes(coreBadge.id)) continue;
+  for (const badge of BADGE_DEFINITIONS_CORE) {
+    if (user.badges?.includes(badge.id)) continue;
 
-    const logic = BADGE_LOGIC_MAP[coreBadge.id];
+    const logic = BADGE_LOGIC_MAP[badge.id];
     if (!logic) continue;
 
     const qualifies = await logic.check(helpers, user, context);
     if (qualifies) {
-      newlyUnlocked.push(coreBadge.id);
-      unlockedDetails.push({ ...coreBadge });
+      newlyUnlocked.push(badge.id);
+      unlockedDetails.push({ ...badge });
     }
   }
 
@@ -405,26 +349,27 @@ const evaluateBadges = async (user, context = {}) => {
 };
 
 /**
- * Get progress for all badges (percentage completion)
- * @param {Object} user - User document
- * @returns {Promise<Array>} Array of badge progress objects
+ * Return progress percentage (0–100) for every badge.
+ * Used by the achievements page to show in-progress and locked badges.
  */
 const getBadgeProgress = async (user) => {
-  const helpers = createBadgeHelpers(user);
+  const helpers = await createBadgeHelpers(user);
   const results = [];
 
-  for (const coreBadge of BADGE_DEFINITIONS_CORE) {
-    const logic = BADGE_LOGIC_MAP[coreBadge.id];
+  for (const badge of BADGE_DEFINITIONS_CORE) {
+    const logic = BADGE_LOGIC_MAP[badge.id];
     if (!logic) continue;
 
-    // Use the progress function from BADGE_LOGIC_MAP
     const progressValue = await logic.progress(helpers, user);
 
     results.push({
-      id: coreBadge.id,
-      name: coreBadge.name,
-      description: coreBadge.description,
-      category: coreBadge.category,
+      id: badge.id,
+      name: badge.name,
+      description: badge.description,
+      category: badge.category,
+      tier: badge.tier,
+      module: badge.module,
+      phase: badge.phase,
       progressPercentage: progressValue ?? 0,
     });
   }
@@ -432,10 +377,82 @@ const getBadgeProgress = async (user) => {
   return results;
 };
 
+// --- LEADERBOARD BADGE TRIGGER ---
+
+/**
+ * Checks whether a user's current XP has crossed the top-10 or top-1
+ * threshold and awards the relevant leaderboard badge if so.
+ *
+ * Only runs if:
+ *   - The user has showOnLeaderboards: true
+ *   - At least one leaderboard badge has not yet been earned
+ *
+ * Two lightweight DB queries at most — skipped entirely once both
+ * badges are awarded.
+ */
+const checkLeaderboardBadges = async (user, User) => {
+  const hasSummit = user.badges?.includes("reached-the-summit");
+  const hasTopTen = user.badges?.includes("top-ten");
+
+  // Both already awarded — nothing to do
+  if (hasSummit && hasTopTen) return;
+
+  // User has opted out of leaderboard display — ineligible
+  if (!user.privacySettings?.showOnLeaderboards) return;
+
+  if (!hasTopTen) {
+    // Get the XP of the current 10th place user
+    const tenthPlace = await User.findOne({
+      "privacySettings.showOnLeaderboards": true,
+      _id: { $ne: user._id },
+    })
+      .sort({ xp: -1 })
+      .skip(9)
+      .select("xp")
+      .lean();
+
+    // Award if user is in top 10, or fewer than 10 users exist on leaderboard
+    if (!tenthPlace || user.xp >= tenthPlace.xp) {
+      await awardLeaderboardBadge(user, "top-ten");
+    }
+  }
+
+  if (!hasSummit) {
+    // Get the XP of the current 1st place user (excluding self)
+    const firstPlace = await User.findOne({
+      "privacySettings.showOnLeaderboards": true,
+      _id: { $ne: user._id },
+    })
+      .sort({ xp: -1 })
+      .select("xp")
+      .lean();
+
+    // Award if no other users exist, or user has more XP than current leader
+    if (!firstPlace || user.xp >= firstPlace.xp) {
+      await awardLeaderboardBadge(user, "reached-the-summit");
+    }
+  }
+};
+
+/**
+ * Award a leaderboard badge directly — bypasses evaluateBadges()
+ * since rank is not stored on the user document.
+ * Call this from the leaderboard controller after an XP update.
+ */
+const awardLeaderboardBadge = async (user, badgeId) => {
+  if (!["reached-the-summit", "top-ten"].includes(badgeId)) return false;
+  if (user.badges?.includes(badgeId)) return false;
+
+  user.badges = [...(user.badges || []), badgeId];
+  await user.save();
+  return true;
+};
+
 module.exports = {
   evaluateBadges,
   getBadgeProgress,
+  awardLeaderboardBadge,
   calculateLevelProgress,
-
+  checkLeaderboardBadges,
   XP_PER_LEVEL,
 };

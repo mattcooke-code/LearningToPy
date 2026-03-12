@@ -5,7 +5,6 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const {
-  // Import from new utility files
   validateCodeSubmission,
   processLessonCompletion,
   isLessonFullyCompleted,
@@ -25,22 +24,17 @@ const {
   getModuleLessonCompletion,
 } = require("../utils/moduleProgress");
 
-const {
-  // Import navigation functions
-  findNextLesson,
-  findNextModule,
-} = require("../utils/navigation");
+const { findNextLesson, findNextModule } = require("../utils/navigation");
 
 const {
-  // Import analytics functions
   calculateProgress,
   isModuleFinished,
   formatProgressResponse,
 } = require("../utils/analytics");
 
 const {
-  // Import gamification functions
   evaluateBadges,
+  checkLeaderboardBadges,
 } = require("../utils/gamification");
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
@@ -214,7 +208,6 @@ const getLessonContent = catchAsync(async (req, res, next) => {
   );
   const isCompleted = user.completedLessons.includes(lessonId);
 
-  // Get quiz progress for this lesson
   const quizProgress = user.lessonQuizProgress?.find(
     (qp) => qp.lessonId.toString() === lessonId,
   );
@@ -336,7 +329,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
       });
     }
 
-    // Auto-Complete lessons without a moduleQuiz
+    // Auto-complete quiz-less modules when all lessons are done
     const parentModule = await Module.findById(lesson.moduleId);
     const hasModuleQuiz = parentModule?.moduleQuiz?.questions?.length > 0;
 
@@ -345,31 +338,33 @@ const submitLesson = catchAsync(async (req, res, next) => {
         moduleId: lesson.moduleId,
         isPublished: true,
       });
-    }
 
-    const allLessonsDone = isModuleFinished(
-      user.completedLessons,
-      moduleLessons,
-    );
+      const allLessonsDone = isModuleFinished(
+        user.completedLessons,
+        moduleLessons,
+      );
 
-    const moduleIdString = lesson.moduleId.toString();
+      const moduleIdString = lesson.moduleId.toString();
 
-    if (allLessonsDone && !user.completedModules.includes(moduleIdString)) {
-      user.completedModules.push(moduleIdString);
-      user.xp += parentModule.xpReward || 100;
+      if (allLessonsDone && !user.completedModules.includes(moduleIdString)) {
+        user.completedModules.push(moduleIdString);
+        user.xp += parentModule.xpReward || 100;
 
-      if (!Array.isArray(user.moduleCompletionHistory)) {
-        user.moduleCompletionHistory = [];
+        if (!Array.isArray(user.moduleCompletionHistory)) {
+          user.moduleCompletionHistory = [];
+        }
+        user.moduleCompletionHistory.push({
+          moduleId: parentModule._id,
+          completedAt: new Date(),
+        });
       }
-      user.moduleCompletionHistory.push({
-        moduleId: parentModule._id,
-        completedAt: new Date(),
-      });
     }
 
     await trackCompletion(user);
-
     await user.save();
+
+    // Trigger leaderboard badge check after XP is persisted
+    await checkLeaderboardBadges(user, User);
 
     const progressData = formatProgressResponse(
       user.toObject(),
@@ -389,7 +384,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     });
   }
 
-  // 4. Partial Success (Correct answer but quiz/exercise not fully done)
+  // 4. Partial Success (correct answer but lesson not yet fully done)
   await user.save();
   return sendJsonResponse(
     res,
@@ -490,7 +485,6 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   let badgesUnlockedDetails = [];
 
   if (passed) {
-    // Mark module as completed
     const moduleIdString = module._id.toString();
 
     if (!user.completedModules.includes(moduleIdString)) {
@@ -499,7 +493,6 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
       user.xp += xpIncrease;
       moduleCompletedNow = true;
 
-      // Add to history
       if (!Array.isArray(user.moduleCompletionHistory)) {
         user.moduleCompletionHistory = [];
       }
@@ -509,7 +502,6 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
         quizScore: score,
       });
 
-      // Find next module
       nextModuleId = await findNextModule(module);
 
       // Evaluate badges
@@ -521,7 +513,6 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
       badgesUnlockedDetails = unlockedDetails || [];
 
-      // Add badges to user
       if (newlyUnlocked?.length > 0) {
         newlyUnlocked.forEach((id) => {
           if (!user.badges.includes(id)) user.badges.push(id);
@@ -534,9 +525,19 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  // Get total lessons for progress calculation
-  const totalLessons = await Lesson.countDocuments({ isPublished: true });
-  const progressData = formatProgressResponse(user.toObject(), totalLessons);
+  // Trigger leaderboard badge check after XP is persisted
+  if (passed) await checkLeaderboardBadges(user, User);
+
+  // FIX: use getCurriculumProgressStats instead of raw countDocuments
+  // to ensure M0 is excluded and the denominator is consistent
+  const { totalCurriculumLessons, completedCurriculumCount } =
+    await getCurriculumProgressStats(user, { Lesson, Module });
+
+  const progressData = formatProgressResponse(
+    user.toObject(),
+    totalCurriculumLessons,
+    completedCurriculumCount,
+  );
 
   return sendJsonResponse(
     res,

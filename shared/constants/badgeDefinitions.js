@@ -1,241 +1,381 @@
 // /shared/badgeDefinitions.js
 
+/**
+ * BADGE SYSTEM OVERVIEW
+ * ─────────────────────────────────────────────────────────────
+ * MODULE BADGES (21)      One per module: M0–M20
+ * PHASE BADGES (3)        Awarded at M9, M15, M20 (alongside module badge)
+ * MILESTONE BADGES (2)    50% course completion, full course completion
+ * ENGAGEMENT BADGES (2)   First quiz completion, first coding challenge
+ * CLEAN SWEEP BADGES (21) All lessons completed in a module: M0–M20
+ * LEADERBOARD BADGES (2)  Reach #1, reach top 10
+ * ─────────────────────────────────────────────────────────────
+ * TOTAL: ~51 badges
+ *
+ * TIERS
+ * null     — M0, engagement, leaderboard, milestone badges
+ * bronze   — Phase 1 module badges (M1–M9) + Phase 1 clean sweeps
+ * silver   — Phase 2 module badges (M10–M15) + Phase 2 clean sweeps
+ * gold     — Phase 3 module badges (M16–M20) + Phase 3 clean sweeps
+ * platinum — Phase completion badges + course completion badge
+ *
+ * PHASES
+ * 1 — M1–M9   (Fundamentals)
+ * 2 — M10–M15 (Intermediate)
+ * 3 — M16–M20 (Advanced)
+ * null — M0, cross-module badges
+ */
+
 export const BADGE_DEFINITIONS_CORE = [
-  // --- CURRICULUM BADGES (Organized by Alignment) ---
+  // ─── M0: TUTORIAL ───────────────────────────────────────────
   {
-    id: "python-starter",
-    name: "Python Starter",
-    description: "Completed the very first introductory lesson.",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1, Module 1",
-  },
-  {
-    id: "fundamentalist",
-    name: "Fundamentalist",
+    id: "orientation-complete",
+    name: "Orientated",
     description:
-      "Mastered the basics of variables, data types, and operators (first 5 core modules).",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1",
+      "Completed the interactive tutorial (M0). Optional but recommended — you now know where everything lives.",
+    category: "module",
+    module: 0,
+    phase: null,
+    tier: null,
+    image: "/badges/other/M0_Orientated.png",
+  },
+  // ─── PHASE 1: FUNDAMENTALS (M1–M9) ──────────────────────────
+
+  {
+    id: "module-1-complete",
+    name: "Python Starter",
+    description:
+      "Completed M1: Python Fundamentals. Variables, data types, and your first working programs.",
+    category: "module",
+    module: 1,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M1_Python_Starter.png",
   },
   {
-    id: "logic-leaper",
+    id: "module-2-complete",
+    name: "Data Collector",
+    description:
+      "Completed M2: Data Structures — Lists & Tuples. You can now store, slice, and manage ordered data.",
+    category: "module",
+    module: 2,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M2_Data_Collector.png",
+  },
+  {
+    id: "module-3-complete",
     name: "Logic Leaper",
     description:
-      "Demonstrated proficiency with conditional statements (80%+ on first quiz attempt).",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1, Module 3",
+      "Completed M3: Control Flow — Conditionals. Your code can now make decisions.",
+    category: "module",
+    module: 3,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M3_Logic_Leaper.png",
   },
   {
-    id: "loop-commander",
+    id: "module-4-complete",
     name: "Loop Commander",
     description:
-      "Conquered all lessons and challenges on loops (100% on End-of-Module Quiz).",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1, Module 4",
+      "Completed M4: Iteration. For loops, while loops, and flow control — all conquered.",
+    category: "module",
+    module: 4,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M4_Loop_Commander.png",
   },
   {
-    id: "function-flinger",
+    id: "module-5-complete",
+    name: "Key Master",
+    description:
+      "Completed M5: Data Structures — Dictionaries & Sets. You can now work with unordered, keyed data.",
+    category: "module",
+    module: 5,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M5_Key_Master.png",
+  },
+  {
+    id: "module-6-complete",
     name: "Function Flinger",
     description:
-      "Successfully defined and used functions with parameters (Functions module + 10 challenges).",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1, Module 6",
+      "Completed M6: Functions. Reusable, scoped, parameterised — your code just levelled up.",
+    category: "module",
+    module: 6,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M6_Function_Flinger.png",
   },
   {
-    id: "data-alchemist",
-    name: "Data Alchemist",
-    description:
-      "Mastered Python's fundamental data structures (90%+ on Phase 1 Quiz).",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1, Module 2 & 5",
-  },
-  {
-    id: "full-stack-pythonista",
-    name: "Full Stack Pythonista",
-    description:
-      "Completed the entire foundational and intermediate curriculum (Modules 1-15 + 75% on Phase 2 Quiz).",
-    category: "curriculum",
-    curriculum_alignment: "Phase 1 & 2",
-  },
-  {
-    id: "python-master",
-    name: "Python Master",
-    description:
-      "Completed the entire comprehensive Python curriculum, including all Advanced and Project modules.",
-    category: "curriculum",
-    curriculum_alignment: "All Phases & Final Project",
-  },
-
-  // --- INTERMEDIATE & ADVANCED BADGES ---
-  {
-    id: "file-handler",
+    id: "module-7-complete",
     name: "File Handler",
     description:
-      "Solved five challenges involving reading and writing files (CSV, TXT, etc.).",
-    category: "intermediate",
-    curriculum_alignment: "Phase 1, Module 7",
+      "Completed M7: File I/O Basics. Reading, writing, and processing files like a pro.",
+    category: "module",
+    module: 7,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M7_File_Handler.png",
   },
   {
-    id: "code-blacksmith",
+    id: "module-8-complete",
+    name: "Exception Handler",
+    description:
+      "Completed M8: Error Handling. Your programs no longer crash — they recover.",
+    category: "module",
+    module: 8,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M8_Exception_Handler.png",
+  },
+  {
+    id: "module-9-complete",
+    name: "Comprehension Champion",
+    description:
+      "Completed M9: List/Dict Comprehensions. Elegant, Pythonic one-liners are now your native tongue.",
+    category: "module",
+    module: 9,
+    phase: 1,
+    tier: "bronze",
+    image: "/badges/bronze/M9_Comprehension_Champion.png",
+  },
+  {
+    id: "phase-1-complete",
+    name: "Fundamentalist",
+    description:
+      "Completed Phase 1 — all nine foundational Python modules. You have the building blocks. Now let's build something.",
+    category: "phase",
+    module: 9,
+    phase: 1,
+    tier: "platinum",
+    image: "/badges/other/Phase_1.png",
+  },
+
+  // ─── PHASE 2: INTERMEDIATE (M10–M15) ────────────────────────
+
+  {
+    id: "module-10-complete",
     name: "Code Blacksmith",
     description:
-      "Demonstrated advanced functional programming skills (used 5 different decorators).",
-    category: "intermediate",
-    curriculum_alignment: "Phase 2, Module 10",
+      "Completed M10: Advanced Functions. Lambdas, decorators, *args, **kwargs — forged and ready.",
+    category: "module",
+    module: 10,
+    phase: 2,
+    tier: "silver",
+    image: "/badges/silver/M10_Code_Blacksmith.png",
   },
   {
-    id: "architect",
+    id: "module-11-complete",
     name: "Architect",
     description:
-      "Successfully grasped the core concepts of OOP I (80%+ on first quiz attempt).",
-    category: "intermediate",
-    curriculum_alignment: "Phase 2, Module 11",
+      "Completed M11: OOP I. Classes, objects, encapsulation — you are now thinking in blueprints.",
+    category: "module",
+    module: 11,
+    phase: 2,
+    tier: "silver",
+    image: "/badges/silver/M11_Architect.png",
   },
   {
-    id: "master-builder",
+    id: "module-12-complete",
     name: "Master Builder",
-    description: "Mastered advanced OOP concepts (85%+ on first quiz attempt).",
-    category: "advanced",
-    curriculum_alignment: "Phase 2, Module 12",
+    description:
+      "Completed M12: OOP II — Inheritance & Polymorphism. Your class hierarchies are solid.",
+    category: "module",
+    module: 12,
+    phase: 2,
+    tier: "silver",
+    image: "/badges/silver/M12_Master_Builder.png",
   },
   {
-    id: "time-traveler",
+    id: "module-13-complete",
     name: "Time Traveler",
     description:
-      "Proficiently manipulated date and time data (completed 5 datetime challenges).",
-    category: "intermediate",
-    curriculum_alignment: "Phase 2, Module 13",
+      "Completed M13: Working with Dates & Time. Timezones, timedeltas, and datetime objects — all tamed.",
+    category: "module",
+    module: 13,
+    phase: 2,
+    tier: "silver",
+    image: "/badges/silver/M13_Time_Traveller.png",
   },
   {
-    id: "regex-ruler",
+    id: "module-14-complete",
     name: "Regex Ruler",
     description:
-      "Used regular expressions effectively (completed module and 100% on quiz).",
-    category: "advanced",
-    curriculum_alignment: "Phase 2, Module 14",
+      "Completed M14: Regular Expressions. Pattern matching, capturing groups, substitution — mastered.",
+    category: "module",
+    module: 14,
+    phase: 2,
+    tier: "silver",
+    image: "/badges/silver/M14_Regex_Ruler.png",
   },
   {
-    id: "web-slinger",
+    id: "module-15-complete",
+    name: "The Professional",
+    description:
+      "Completed M15: Professional Python Development. Virtual environments, pip, debugging, packaging — you work like a real developer now.",
+    category: "module",
+    module: 15,
+    phase: 2,
+    tier: "silver",
+    image: "/badges/silver/M15_Tool_Maker.png",
+  },
+  {
+    id: "phase-2-complete",
+    name: "Pythonista",
+    description:
+      "Completed Phase 2 — six intermediate modules covering advanced functions, OOP, and professional tooling. You are no longer a beginner.",
+    category: "phase",
+    module: 15,
+    phase: 2,
+    tier: "platinum",
+    image: "/badges/other/Phase_2.png",
+  },
+
+  // ─── PHASE 3: ADVANCED APPLICATIONS (M16–M20) ───────────────
+
+  {
+    id: "module-16-complete",
     name: "Web Slinger",
     description:
-      "Successfully retrieved and handled data from external APIs (from 2 unique APIs).",
-    category: "advanced",
-    curriculum_alignment: "Phase 3, Module 16",
+      "Completed M16: HTTP Requests & APIs. You can now talk to the internet.",
+    category: "module",
+    module: 16,
+    phase: 3,
+    tier: "gold",
+    image: "/badges/gold/M16_Web_Slinger.png",
   },
   {
-    id: "data-dynamo",
+    id: "module-17-complete",
     name: "Data Dynamo",
     description:
-      "Took the first steps into the world of Data Science (ran a Pandas operation).",
-    category: "advanced",
-    curriculum_alignment: "Phase 3, Module 17",
+      "Completed M17: Introduction to Data Science. NumPy arrays, Pandas DataFrames — your data obeys you now.",
+    category: "module",
+    module: 17,
+    phase: 3,
+    tier: "gold",
+    image: "/badges/gold/M17_Data_Dynamo.png",
+  },
+  {
+    id: "module-18-complete",
+    name: "Web Crawler",
+    description:
+      "Completed M18: Web Scraping Basics. HTML, BeautifulSoup, and ethical extraction — the web is your data source.",
+    category: "module",
+    module: 18,
+    phase: 3,
+    tier: "gold",
+    image: "/badges/gold/M18_Web_Crawler.png",
+  },
+  {
+    id: "module-19-complete",
+    name: "Database Whisperer",
+    description:
+      "Completed M19: Database Interaction. CRUD operations, parameterised queries, SQLite — your data now persists.",
+    category: "module",
+    module: 19,
+    phase: 3,
+    tier: "gold",
+    image: "/badges/gold/M19_Database_Whisperer.png",
+  },
+  {
+    id: "module-20-complete",
+    name: "Python Master",
+    description:
+      "Completed M20: Final Capstone Project. You built something real. This is what it was all for.",
+    category: "module",
+    module: 20,
+    phase: 3,
+    tier: "gold",
+    image: "/badges/platinum/M20_Python_Master.png",
+  },
+  {
+    id: "phase-3-complete",
+    name: "The Graduate",
+    description:
+      "Completed Phase 3 — five advanced modules covering APIs, data science, web scraping, databases, and a capstone project. You did it.",
+    category: "phase",
+    module: 20,
+    phase: 3,
+    tier: "platinum",
+    image: "/badges/other/Phase_3.png",
   },
 
-  // --- PERFORMANCE BADGES ---
+  // ─── MILESTONE BADGES ────────────────────────────────────────
+
   {
-    id: "lightning-coder",
-    name: "Lightning Coder",
-    description: "Solved a challenge in under 30 seconds.",
-    category: "performance",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "one-shot-wonder",
-    name: "One-Shot Wonder",
-    description: "Solved five medium/hard challenges on the first attempt.",
-    category: "performance",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "turbo-learner",
-    name: "Turbo Learner",
-    description: "Completed three learning modules in a single day.",
-    category: "performance",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "optimal-prime",
-    name: "Optimal Prime",
+    id: "halfway-there",
+    name: "Halfway There",
     description:
-      "Submitted 20 solutions that beat the community average for code efficiency/time complexity.",
-    category: "performance",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "infinity-war",
-    name: "Infinite Looper",
-    description:
-      "Skillfully implemented a controlled infinite loop for a continuous process.",
-    category: "performance",
-    curriculum_alignment: "General",
+      "Reached 50% course completion. The summit is just as far away as where you started — keep going.",
+    category: "milestone",
+    module: null,
+    phase: null,
+    tier: null,
+    image: "/badges/other/Halfway_There.png",
   },
 
-  // --- HABIT BADGES ---
   {
-    id: "first-day",
-    name: "First Day",
-    description: "Completed a challenge on the day of signup.",
-    category: "habit",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "daily-dozen",
-    name: "Daily Dozen",
-    description: "Maintained a learning streak for 12 consecutive days.",
-    category: "habit",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "week-warrior",
-    name: "Week Warrior",
-    description: "Maintained a learning streak for 7 consecutive days.",
-    category: "habit",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "monthly-momentum",
-    name: "Monthly Momentum",
-    description: "Maintained a learning streak for 30 consecutive days.",
-    category: "habit",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "dedicated-debugger",
-    name: "Dedicated Debugger",
-    description: "Maintained a learning streak for 100 consecutive days.",
-    category: "habit",
-    curriculum_alignment: "General",
+    id: "course-complete",
+    name: "Full Stack Pythonista",
+    description:
+      "Completed the entire Python curriculum — all 20 modules, all three phases. You are a Python developer.",
+    category: "milestone",
+    module: null,
+    phase: null,
+    tier: "platinum",
+    image: "/badges/other/Full_Stack_Pythonista.png",
   },
 
-  // --- COMMUNITY BADGES ---
+  // ─── ENGAGEMENT BADGES ───────────────────────────────────────
+
   {
-    id: "bug-hunter",
-    name: "Bug Hunter",
-    description: "Reported three verified bugs or typos in the platform.",
-    category: "community",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "helpful-hero",
-    name: "Helpful Hero",
-    description: "Provided explanations that earned 10 helpful upvotes.",
-    category: "community",
-    curriculum_alignment: "General",
-  },
-  {
-    id: "inviter",
-    name: "Inviter",
+    id: "first-quiz",
+    name: "Quiz Taker",
     description:
-      "Successfully referred a friend who completed their first module.",
-    category: "community",
-    curriculum_alignment: "General",
+      "Completed your first module quiz. Theory into practice — that's how it works.",
+    category: "engagement",
+    module: null,
+    phase: null,
+    tier: null,
+    image: "/badges/other/Quiz_Taker.png",
   },
+
   {
-    id: "beta-tester",
-    name: "Beta Tester",
+    id: "first-challenge",
+    name: "Code Writer",
     description:
-      "Participated in testing a new feature or module before release.",
-    category: "community",
-    curriculum_alignment: "General",
+      "Completed your first coding challenge. You didn't just read about Python — you wrote it.",
+    category: "engagement",
+    module: null,
+    phase: null,
+    tier: null,
+    image: "/badges/other/Code_Cracker.png",
+  },
+
+  // ─── LEADERBOARD BADGES ──────────────────────────────────────
+
+  {
+    id: "reached-the-summit",
+    name: "Reached the Summit",
+    description:
+      "Topped the leaderboard. At the time of earning this badge, no one had more XP than you.",
+    category: "leaderboard",
+    module: null,
+    phase: null,
+    tier: null,
+    image: "/badges/other/",
+  },
+
+  {
+    id: "top-ten",
+    name: "Top Ten",
+    description:
+      "Reached the top 10 on the leaderboard. An achievement earned, not given — and it stays yours.",
+    category: "leaderboard",
+    module: null,
+    phase: null,
+    tier: null,
+    image: "/badges/other/",
   },
 ];

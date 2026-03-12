@@ -21,7 +21,7 @@ const ModulesPage = () => {
         setModules(moduleData || []);
       } catch (err) {
         setError(
-          getErrorMessage(err, "Failed to load modules. Please try again.")
+          getErrorMessage(err, "Failed to load modules. Please try again."),
         );
       } finally {
         setLoading(false);
@@ -35,10 +35,11 @@ const ModulesPage = () => {
 
   const safeModules = Array.isArray(modules) ? modules : [];
 
-  const completedModules = safeModules.filter(
-    (module) => module.isCompleted
+  const curriculumModules = safeModules.filter((module) => module.order > 0);
+  const completedModules = curriculumModules.filter(
+    (m) => m.isCompleted,
   ).length;
-  const totalModules = safeModules.length;
+  const totalModules = curriculumModules.length;
 
   return (
     <div className="container mx-auto px-4 py-8">

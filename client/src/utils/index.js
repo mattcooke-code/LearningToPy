@@ -29,7 +29,6 @@ export { PLATFORM_DEFAULTS } from "./platformDefaults";
 export {
   calculateModuleLessonProgress,
   calculateModulesCompletionProgress,
-  calculateAverageModuleProgress,
   calculateLevelProgress,
 } from "./progressCalculations";
 export {

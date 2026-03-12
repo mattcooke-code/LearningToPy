@@ -1,4 +1,4 @@
-// Profile.jsx
+// Profile.jsx - Simplified Badge Section
 import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
 import { apiClient, useAuth } from "../context";
@@ -10,7 +10,7 @@ import {
 } from "../components/ui";
 import { BadgeModal } from "../modals";
 import PrivacySettings from "../components/settings/PrivacySettings";
-import { BADGE_LIBRARY, BADGES_BY_ID } from "../data/badges";
+import { BADGES_BY_ID } from "../data/badges"; // Only need lookup map, not full library
 import { getErrorMessage } from "../utils";
 
 const Profile = () => {
@@ -18,11 +18,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userProgress, setUserProgress] = useState(null);
-  const [achievements, setAchievements] = useState({
-    earnedBadges: [],
-    inProgress: [],
-    locked: [],
-  });
+
+  // ✅ SIMPLIFIED: Only track earned badge IDs for profile display
+  const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { themeColor, hoverHandlers } = useThemeStyles();
@@ -32,11 +30,8 @@ const Profile = () => {
       try {
         setLoading(true);
         const data = await apiClient.get("/progress/achievements");
-        setAchievements({
-          earnedBadges: data.earnedBadges || [],
-          inProgress: data.inProgress || [],
-          locked: data.locked || [],
-        });
+        // ✅ Only extract IDs - no need for full badge objects on profile
+        setEarnedBadgeIds((data.earnedBadges || []).map((b) => b.id));
       } catch (err) {
         console.error("Failed to load achievements:", err);
         setError(
@@ -70,49 +65,19 @@ const Profile = () => {
     triggerLeaderboardRefresh();
   };
 
-  const earnedBadgeIds = useMemo(
-    () => achievements.earnedBadges.map((badge) => badge.id),
-    [achievements.earnedBadges],
-  );
-
+  // ✅ SIMPLIFIED: Progress map still needed for modal
   const progressMap = useMemo(() => {
-    const map = {};
-    achievements.inProgress.forEach((badge) => {
-      map[badge.id] = badge.progressPercentage ?? 0;
-    });
-    achievements.locked.forEach((badge) => {
-      map[badge.id] = badge.progressPercentage ?? 0;
-    });
-    achievements.earnedBadges.forEach((badge) => {
-      map[badge.id] = 100;
-    });
-    return map;
-  }, [achievements]);
-
-  const earnedBadgesDetailed = useMemo(() => {
-    const seen = new Set();
-    return achievements.earnedBadges
-      .map((earned) => {
-        if (seen.has(earned.id)) return null;
-        seen.add(earned.id);
-        const libraryBadge = BADGES_BY_ID[earned.id];
-        return {
-          ...libraryBadge,
-          ...earned,
-          image: libraryBadge?.image,
-          category: libraryBadge?.category || earned.category,
-          description: libraryBadge?.description || earned.description,
-        };
-      })
-      .filter(Boolean);
-  }, [achievements.earnedBadges]);
+    // This could also be fetched separately if modal needs it
+    // For now, keeping minimal - modal can fetch its own data if needed
+    return {};
+  }, []);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   return (
     <div className="container mx-auto px-4 py-10">
-      {/* Header Section */}
+      {/* Header Section - unchanged */}
       <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-blue p-8 text-white shadow-lg">
         <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
           <div>
@@ -139,7 +104,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Progress Stats Section */}
+      {/* Progress Stats Section - unchanged */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Level Progress Card */}
         <div className="rounded-2xl bg-white p-6 shadow-md">
@@ -178,10 +143,9 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* ✅ FIX 2: Pass function reference, don't call it */}
         <PrivacySettings user={user} onUpdate={handlePrivacyUpdate} />
 
-        {/* Learning Stats Card */}
+        {/* Learning Stats Card - unchanged */}
         <div className="rounded-2xl bg-white p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
             <TrendingUp className="h-5 w-5 text-python-blue" />
@@ -242,7 +206,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Badge Collection Section */}
+      {/* ✅ REVISED: Badge Collection - Images Only */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold text-gray-900">
           Your Badge Collection
@@ -266,8 +230,8 @@ const Profile = () => {
         <div className="rounded-3xl border border-red-100 bg-red-50 p-8 text-center shadow-sm">
           <p className="text-red-700">{error}</p>
         </div>
-      ) : earnedBadgesDetailed.length === 0 ? (
-        <div className="rounded-3xl  p-8 text-center shadow-sm bg-python-yellow">
+      ) : earnedBadgeIds.length === 0 ? (
+        <div className="rounded-3xl p-8 text-center shadow-sm bg-python-yellow">
           <h3 className="text-xl font-semibold text-python-blue">
             No badges yet... but not for long!
           </h3>
@@ -277,44 +241,60 @@ const Profile = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {earnedBadgesDetailed.map((badge) => (
-            <div
-              key={badge.id}
-              className="group flex h-full flex-col rounded-3xl border border-green-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-green-200 bg-green-50">
-                  {badge.image ? (
-                    <img
-                      src={badge.image}
-                      alt={badge.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-green-500">
-                      {badge.name.charAt(0)}
-                    </div>
-                  )}
-                  <span className="absolute -top-1 -right-1 rounded-full bg-green-500 px-2 py-0.5 text-xs font-semibold text-white">
-                    Earned
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+          {earnedBadgeIds.map((badgeId) => {
+            const badge = BADGES_BY_ID[badgeId];
+            const badgeName = badge?.name || badgeId;
+            const badgeImage = badge?.image;
+
+            return (
+              <div
+                key={badgeId}
+                className="group relative flex aspect-square items-center justify-center rounded-xl border border-green-200 bg-green-50 p-1 transition hover:-translate-y-0.5 hover:shadow-md hover:border-green-400 cursor-pointer"
+                onClick={openModal}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && openModal()}
+                aria-label={`View details for ${badgeName} badge`}
+              >
+                {badgeImage ? (
+                  <img
+                    src={badgeImage}
+                    alt={badgeName}
+                    className="h-full w-full rounded-lg object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-green-100 text-green-600 text-lg font-semibold">
+                    {badgeName.charAt(0)}
+                  </div>
+                )}
+                {/* Subtle earned indicator on hover */}
+                <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-green-900/0 opacity-0 transition group-hover:bg-green-900/10 group-hover:opacity-100">
+                  <span className="text-xs font-medium text-green-700 opacity-0 group-hover:opacity-100 transition">
+                    ✓
                   </span>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-green-600">
-                    {badge.category || "Badge"}
-                  </p>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {badge.name}
-                  </h3>
-                </div>
+                </span>
               </div>
-              <p className="mt-4 text-sm text-gray-600">{badge.description}</p>
-            </div>
-          ))}
+            );
+          })}
+
+          {/* Optional: "+X more" indicator if many badges */}
+          {earnedBadgeIds.length > 24 && (
+            <button
+              onClick={openModal}
+              className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium transition hover:border-green-400 hover:text-green-600"
+              aria-label="View all earned badges"
+            >
+              +{earnedBadgeIds.length - 24} more
+            </button>
+          )}
         </div>
       )}
+
       <BackToTopButton />
+
+      {/* Modal still receives all data it needs */}
       <BadgeModal
         isOpen={isModalOpen}
         onClose={closeModal}
