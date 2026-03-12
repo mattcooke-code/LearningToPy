@@ -51,22 +51,30 @@ const calculateModuleLessonProgress = (
  * @param {number} totalCourseLessons - Total curriculum lessons
  * @param {number} completedCurriculumCount - User's completed curriculum lessons (optional, will calculate if not provided)
  */
+// analytics.js - UPDATED formatProgressResponse
 const formatProgressResponse = (
   user,
   totalCourseLessons,
   completedCurriculumCount = null,
+  currentModuleData = null, // NEW: { order, title, lessonCount, lessonsCompleted }
 ) => {
   const XP_PER_LEVEL = XP.PER_LEVEL;
-  const currentLevel = Math.floor(user.xp / XP_PER_LEVEL) + 1;
-  const xpInCurrentLevel = user.xp % XP_PER_LEVEL;
-  const xpNeededForNextLevel = XP_PER_LEVEL - xpInCurrentLevel;
 
-  // Ensure we are counting unique IDs to avoid duplication bugs
-  const uniqueLessons = [
-    ...new Set((user.completedLessons || []).map((id) => id?.toString())),
-  ].filter(Boolean);
+  // Level = modules completed (M1–M20, exclude M0)
   const uniqueModules = [
     ...new Set((user.completedModules || []).map((id) => id?.toString())),
+  ].filter(Boolean);
+
+  const curriculumModulesCompleted = uniqueModules.filter((moduleId) => {
+    // Will be calculated backend-side with module order cache
+    return true; // Simplified - backend will filter by order > 0
+  }).length;
+
+  const currentLevel = Math.min(20, curriculumModulesCompleted);
+
+  // Course progress
+  const uniqueLessons = [
+    ...new Set((user.completedLessons || []).map((id) => id?.toString())),
   ].filter(Boolean);
 
   const curriculumCompletedCount =
@@ -85,21 +93,24 @@ const formatProgressResponse = (
     username: user.username,
     xp: user.xp,
     level: currentLevel,
+    maxLevel: 20,
     streak: user.streak || 0,
     streakStatus: user.streakStatus || "active",
     weeklyProgress: user.weeklyProgress || null,
     stats: {
-      lessonsCompleted: uniqueLessons.length, // Total completed (including tutorials)
-      modulesCompleted: uniqueModules.length,
+      lessonsCompleted: uniqueLessons.length,
+      modulesCompleted: currentLevel,
       totalLearningTime: user.totalLearningTime || 0,
       daysActive,
     },
     courseProgressPercentage,
     progress: {
       coursePercentage: courseProgressPercentage,
-      levelPercentage: Math.round((xpInCurrentLevel / XP_PER_LEVEL) * 100),
-      xpToNextLevel: xpNeededForNextLevel,
+      levelPercentage: (currentLevel / 20) * 100,
+      xpToNextLevel: XP_PER_LEVEL - (user.xp % XP_PER_LEVEL),
     },
+    // NEW: Current module progress for SegmentedLevelProgressBar
+    currentModule: currentModuleData,
     badges: user.badges || [],
   };
 };
@@ -169,6 +180,15 @@ const calculateDaysActive = (user) => {
   }
 
   return uniqueDays.size;
+};
+
+const calculateLevelFromModules = (completedModules, moduleOrderCache) => {
+  const curriculumModulesCompleted = completedModules.filter((moduleId) => {
+    const order = moduleOrderCache.get(moduleId.toString());
+    return order !== undefined && order >= 1;
+  }).length;
+
+  return Math.min(20, curriculumModulesCompleted);
 };
 
 module.exports = {

@@ -1,122 +1,122 @@
+// SegmentedLevelProgressBar.jsx - UPDATED for Course Complete State
 import { useTheme } from "../../context";
-import { calculateLevelProgress } from "../../utils";
 
 const SegmentedLevelProgressBar = ({
-  currentXP,
-  segmentCount = 10,
+  currentLevel = 1, // Modules completed (1–20)
+  currentModule = null, // { order, title, lessonCount, lessonsCompleted }
+  lessonsCompleted = 0, // Lessons completed in current module
+  totalLessons = 0, // Total lessons in current module
   showLabels = true,
 }) => {
   const { getModuleThemeColor } = useTheme();
 
-  // Calculate level progress
-  const {
-    progressCompleted,
-    currentLevel,
-    xpInCurrentLevel,
-    xpNeededForNextLevel,
-  } = calculateLevelProgress(currentXP);
+  // 🎉 COURSE COMPLETE: Level 20 = all segments filled
+  const isCourseComplete = currentLevel >= 20;
 
-  const segmentWidth = 100 / segmentCount;
-  const filledSegments = Math.floor(progressCompleted / segmentWidth);
-  const partialFill = (progressCompleted % segmentWidth) / segmentWidth;
+  // Determine segment count (default to 6 if no module data)
+  const segmentCount = isCourseComplete
+    ? 20
+    : totalLessons > 0
+      ? totalLessons
+      : 6;
+  const progressPercentage = isCourseComplete
+    ? 100
+    : totalLessons > 0
+      ? (lessonsCompleted / totalLessons) * 100
+      : 0;
 
-  // Generate colors for segments (similar to ProgressGauge gradient)
-  const getSegmentColor = (segmentIndex) => {
-    // Color progression: Red → Orange → Yellow → Green
-    const segmentProgress = ((segmentIndex + 1) / segmentCount) * 100;
-
-    if (segmentProgress <= 25) return "#ef4444"; // Red
-    if (segmentProgress <= 45) return "#f97316"; // Orange
-    if (segmentProgress <= 65) return "#FFD700"; // Yellow
-    if (segmentProgress <= 85) return "#84cc16"; // Lime
-    return "#22c55e"; // Green
+  // Color based on phase (matches badge tiers)
+  const getPhaseColor = (moduleOrder) => {
+    if (!moduleOrder) return "#22c55e"; // Default green
+    if (moduleOrder <= 9) return "#cd7f32"; // Bronze (Phase 1)
+    if (moduleOrder <= 15) return "#c0c0c0"; // Silver (Phase 2)
+    return "#ffd700"; // Gold (Phase 3)
   };
+
+  const themeColor = isCourseComplete
+    ? "#800080" // Gold for course complete
+    : currentModule
+      ? getPhaseColor(currentModule.order)
+      : getModuleThemeColor(currentLevel);
 
   return (
     <div className="w-full">
       {showLabels && (
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-semibold text-gray-700">
-              Level {currentLevel}
-            </span>
-            <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">
-              {xpInCurrentLevel}/100 XP
-            </span>
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <p className="text-sm font-medium text-gray-600">Course Level</p>
+            <p className="text-2xl font-bold" style={{ color: themeColor }}>
+              {isCourseComplete ? "🎉 Level 20" : `Level ${currentLevel}`}
+            </p>
           </div>
           <div className="text-right">
-            <span className="text-sm font-bold text-gray-900">
-              {progressCompleted}%
-            </span>
-            <span className="ml-2 text-xs text-gray-500">Complete</span>
+            {isCourseComplete ? (
+              <p className="text-sm text-green-600 font-medium">
+                ✨ Course Complete!
+              </p>
+            ) : currentModule ? (
+              <>
+                <p className="text-sm text-gray-500">
+                  Module {currentModule.order}: {currentModule.title}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {lessonsCompleted}/{totalLessons} lessons
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500">Getting started...</p>
+            )}
           </div>
         </div>
       )}
 
       {/* Segmented Progress Bar */}
-      <div className="flex h-6 w-full space-x-1 rounded-full bg-gray-200 p-1">
+      <div className="flex h-4 w-full space-x-0.5 rounded-full bg-gray-200 p-0.5">
         {Array.from({ length: segmentCount }).map((_, index) => {
-          const isFilled = index < filledSegments;
-          const isPartiallyFilled = index === filledSegments;
-          const segmentColor = getSegmentColor(index);
+          // Course complete = ALL segments filled (gold)
+          const isCompleted = isCourseComplete
+            ? true
+            : index < lessonsCompleted;
+          const isCurrent = !isCourseComplete && index === lessonsCompleted;
 
           return (
             <div
               key={index}
-              className="relative flex-1 overflow-hidden rounded-full transition-all duration-300"
+              className={`relative flex-1 overflow-hidden rounded-sm transition-all duration-300 ${
+                isCurrent ? "ring-2 ring-offset-1" : ""
+              }`}
               style={{
-                backgroundColor: isFilled ? segmentColor : "transparent",
-                border: `2px solid ${isFilled ? segmentColor : "#e5e7eb"}`,
+                backgroundColor: isCompleted ? themeColor : "transparent",
+                borderColor: isCompleted ? themeColor : "#e5e7eb",
+                borderWidth: "1px",
+                ringColor: isCurrent ? themeColor : "transparent",
+                opacity: isCompleted ? 1 : 0.5,
               }}
-            >
-              {/* Partial fill for current segment */}
-              {isPartiallyFilled && (
-                <div
-                  className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${partialFill * 100}%`,
-                    backgroundColor: segmentColor,
-                  }}
-                />
-              )}
-
-              {/* Segment number (optional) */}
-              {showLabels && (
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
-                  {index + 1}
-                </span>
-              )}
-            </div>
+              title={
+                isCourseComplete
+                  ? `Module ${index + 1} ✓`
+                  : `Lesson ${index + 1}`
+              }
+            />
           );
         })}
       </div>
 
-      {/* XP Details */}
+      {/* Phase Indicator */}
       {showLabels && (
-        <div className="mt-3 flex justify-between text-xs">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <div className="h-3 w-3 rounded-full bg-red-500" />
-              <span className="text-gray-600">Beginner (0-25%)</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="h-3 w-3 rounded-full bg-yellow-500" />
-              <span className="text-gray-600">Intermediate (26-65%)</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="h-3 w-3 rounded-full bg-green-500" />
-              <span className="text-gray-600">Advanced (66-100%)</span>
-            </div>
-          </div>
-
-          <div className="text-right">
-            <p className="font-medium text-gray-700">
-              {xpNeededForNextLevel} XP to next level
-            </p>
-            <p className="text-sm text-gray-500">
-              {xpInCurrentLevel} XP earned this level
-            </p>
-          </div>
+        <div className="mt-2 flex justify-between text-xs text-gray-500">
+          <span>
+            {isCourseComplete
+              ? "🏆 All Phases Complete"
+              : currentModule
+                ? currentModule.order <= 9
+                  ? "🥉 Phase 1: Fundamentals"
+                  : currentModule.order <= 15
+                    ? "🥈 Phase 2: Intermediate"
+                    : "🥇 Phase 3: Advanced"
+                : "Get started to begin your journey"}
+          </span>
+          <span>{Math.round(progressPercentage)}% complete</span>
         </div>
       )}
     </div>

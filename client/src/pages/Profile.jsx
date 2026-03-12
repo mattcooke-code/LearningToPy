@@ -122,8 +122,12 @@ const Profile = () => {
               </p>
             </div>
             <SegmentedLevelProgressBar
-              currentXP={userProgress?.xp || user?.xp || 0}
-              segmentCount={10}
+              currentLevel={userProgress?.level || 1}
+              currentModule={userProgress?.currentModule}
+              lessonsCompleted={
+                userProgress?.currentModule?.lessonsCompleted || 0
+              }
+              totalLessons={userProgress?.currentModule?.lessonCount || 0}
               showLabels={true}
             />
             <div className="flex justify-between text-sm text-gray-600">

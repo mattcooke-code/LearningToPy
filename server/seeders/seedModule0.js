@@ -28,7 +28,7 @@ const seedModule0 = async (Lesson, Module, readContent, parseJSONContent) => {
       "Run Python code in the terminal",
     ],
     icon: "🎮",
-    xpReward: 50,
+
     moduleQuiz: prepareQuizData(m0ReviewQuiz, true),
   });
 
@@ -42,8 +42,6 @@ const seedModule0 = async (Lesson, Module, readContent, parseJSONContent) => {
       moduleId: module0._id,
       contentType: lesson.type,
       isPublished: true,
-      // XP rewards for tutorial lessons
-      xpReward: lesson.type === "exercise" ? 25 : 5,
     };
 
     if (lesson.quiz) {

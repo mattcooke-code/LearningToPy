@@ -175,8 +175,13 @@ const Dashboard = () => {
           {/* Note: You'll need to import and use SegmentedLevelProgress here */}
           {
             <SegmentedLevelProgressBar
-              currentXP={progressData.xp}
-              showDetails={false}
+              currentLevel={progressData.level}
+              currentModule={progressData.currentModule}
+              lessonsCompleted={
+                progressData.currentModule?.lessonsCompleted || 0
+              }
+              totalLessons={progressData.currentModule?.lessonCount || 0}
+              showLabels={true}
             />
           }
           <div className="text-center text-sm text-gray-500 mt-2">

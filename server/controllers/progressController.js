@@ -28,9 +28,66 @@ const {
 
 // --- CONTROLLER FUNCTIONS ---
 
+// progressController.js - UPDATED getCurrentProgress
 const getCurrentProgress = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new AppError("User not found.", 404));
+
+  // Get all published modules with order
+  const modules = await Module.find({ isPublished: true })
+    .select("_id order title")
+    .sort("order")
+    .lean();
+
+  // Build order cache for level calculation
+  const moduleOrderCache = new Map(
+    modules.map((m) => [m._id.toString(), m.order]),
+  );
+
+  // Calculate level from completed modules (exclude M0)
+  const completedModules = (user.completedModules || []).filter((moduleId) => {
+    const order = moduleOrderCache.get(moduleId);
+    return order !== undefined && order > 0;
+  });
+  const currentLevel = Math.min(20, completedModules.length);
+
+  // Find current module (first incomplete module after M0)
+  let currentModuleData = null;
+  let lessonsCompleted = 0;
+  let totalLessons = 0;
+
+  for (const module of modules) {
+    if (module.order === 0) continue; // Skip M0
+
+    const isCompleted = completedModules.includes(module._id.toString());
+    if (!isCompleted) {
+      // Found current module - get lesson progress
+      const lessons = await Lesson.find({
+        moduleId: module._id,
+        isPublished: true,
+      })
+        .select("_id")
+        .lean();
+
+      totalLessons = lessons.length;
+      lessonsCompleted = lessons.filter((lesson) =>
+        user.completedLessons?.includes(lesson._id.toString()),
+      ).length;
+
+      currentModuleData = {
+        order: module.order,
+        title: module.title,
+        lessonCount: totalLessons,
+        lessonsCompleted,
+      };
+      break;
+    }
+  }
+
+  // If all modules complete
+  if (!currentModuleData && currentLevel >= 20) {
+    currentModuleData = null; // Signals course complete
+  }
 
   const { totalCurriculumLessons, completedCurriculumCount } =
     await getCurriculumProgressStats(user, { Lesson, Module });
@@ -39,7 +96,9 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
     user,
     totalCurriculumLessons,
     completedCurriculumCount,
+    currentModuleData, // PASS to formatter
   );
+
   sendJsonResponse(res, 200, "Progress fetched", progressData);
 });
 

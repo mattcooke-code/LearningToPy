@@ -3,7 +3,14 @@ const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
 const { findNextLesson, findNextModule } = require("./navigation");
 const { normalizeTags } = require("./generalUtils");
-const { hasQuiz, hasExercise, isQuizCompleted } = require("./quizHelpers");
+const {
+  XP,
+  THRESHOLDS,
+  calculateLessonQuizXP,
+  calculateExerciseXP,
+  getPhaseBonus,
+} = require("../../shared/constants/progress");
+const { getQuizResultsForXP, hasExercise } = require("./quizHelpers");
 
 /**
  * --- VALIDATION LOGIC ---
@@ -100,65 +107,269 @@ const ensureNotAlreadyCompleted = (completedArray, itemId) => {
 const processLessonCompletion = async (user, lesson, submissionBody) => {
   const lessonId = lesson._id.toString();
 
-  const alreadyCompleted = ensureNotAlreadyCompleted(
-    user.completedLessons,
-    lessonId,
-  );
-  if (alreadyCompleted) {
-    alreadyCompleted.nextLessonId = await findNextLesson(lesson);
-    return alreadyCompleted;
+  // Prevent duplicate completion
+  if (user.completedLessons.includes(lessonId)) {
+    return {
+      xpIncrease: 0,
+      newlyCompleted: false,
+      nextLessonId: await findNextLesson(lesson),
+    };
   }
 
-  // Mark Completion & XP
-  user.completedLessons.push(lessonId);
-  const xpIncrease = lesson.xpReward || 50;
-  user.xp += xpIncrease;
+  // Module Definitions: Special Cases
+  const module = await Module.findById(lesson.moduleId)
+    .select("order phase")
+    .lean();
+  const moduleOrder = module?.order;
+  const isM0 = moduleOrder === 0;
+  const isProjectLesson = lesson.contentType === "project";
+  const isFinalModule = moduleOrder === 20 && isProjectLesson;
 
-  // Create History & Update Stats
+  let totalXP = 0;
+  const xpLog = [];
+
+  // 1. Exercise XP
+  if (hasExercise(lesson) && !isM0) {
+    const submissions =
+      submissionBody.submissionHistory ||
+      (submissionBody.attemptNumber ? [submissionBody] : []);
+    const submissionCount = Math.max(1, submissions.length);
+    const firstTryPass =
+      submissionCount === 1 &&
+      (submissionBody.testsPassed || submissionBody.isCorrect);
+
+    const exerciseXP = calculateExerciseXP(submissionCount, firstTryPass);
+    totalXP += exerciseXP;
+
+    xpLog.push({
+      amount: exerciseXP,
+      source: "exercise",
+      meta: { lessonId, submissions: submissionCount, firstTryPass },
+    });
+  }
+
+  // 2. Lesson Quiz XP
+  if (hasQuiz(lesson) && !isM0) {
+    const quizProgress = user.lessonQuizProgress?.find(
+      (qp) => qp.lessonId.toString() === lessonId,
+    );
+
+    if (quizProgress) {
+      const results = getQuizResultsForXP(quizProgress, lesson);
+
+      for (const result of results) {
+        if (result.correct) {
+          const quizXP = calculateLessonQuizXP(result.attempts);
+          totalXP += quizXP;
+
+          xpLog.push({
+            amount: quizXP,
+            source: "lesson_quiz",
+            meta: {
+              lessonId,
+              questionIndex: result.questionIndex,
+              attempts: result.attempts,
+            },
+          });
+        }
+      }
+
+      // Passing Bonus
+      const correctCount = results.filter((r) => r.correct).length;
+      const score = (correctCount / results.length) * 100;
+      if (score >= THRESHOLDS.QUIZ.PASSING_SCORE) {
+        totalXP += XP.LESSON_QUIZ.PASSING_BONUS;
+        xpLog.push({
+          amount: XP.LESSON_QUIZ.PASSING_BONUS,
+          source: "lesson_quiz",
+          meta: { lessonId, score, passingBonus: true },
+        });
+      }
+    }
+  }
+
+  // 3. Base Lesson Completion
+  totalXP += XP.LESSON.COMPLETION;
+  xpLog.push({
+    amount: XP.LESSON.COMPLETION,
+    source: "lesson_completion",
+    meta: { lessonId },
+  });
+
+  // 4. Project Lesson Bonus
+  if (isProjectLesson) {
+    totalXP += XP.LESSON.PROJECT_BONUS;
+    xpLog.push({
+      amount: XP.LESSON.PROJECT_BONUS,
+      source: "bonus",
+      meta: { lessonId, reason: "project_lesson" },
+    });
+  }
+
+  // 5. Final Project Override
+  if (isFinalModule) {
+    totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
+    xpLog.push({
+      amount: XP.SPECIAL.M20_PROJECT_BONUS,
+      source: "bonus",
+      meta: { lessonId, reason: "capstone_project" },
+    });
+  }
+
+  // 6. Add Module Specific XP (moduleConfig.js)
+  if (submissionBody.moduleConfigReward && !isM0) {
+    totalXP += submissionBody.moduleConfigReward;
+    xpLog.push({
+      amount: submissionBody.moduleConfigReward,
+      source: "bonus",
+      meta: { lessonId, reason: "module_config_reward" },
+    });
+  }
+
+  // Award and Log XP
+  user.xp = (user.xp || 0) + totalXP;
+  user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
+
+  if (Array.isArray(user.xpHistory)) {
+    user.xpHistory.push(
+      ...xpLog.map((log) => ({ ...log, awardedAt: new Date() })),
+    );
+  }
+
+  // Mark lesson as completed
+  user.completedLessons.push(lessonId);
+
+  // Create history & update stats
   const now = new Date();
   const record = createLessonCompletionRecord(lesson, submissionBody, now);
   user.lessonCompletionHistory.push(record);
   updateUserStats(user, record, submissionBody);
 
   return {
-    xpIncrease,
+    xpIncrease: totalXP,
     newlyCompleted: true,
     nextLessonId: await findNextLesson(lesson),
+    xpBreakdown: xpLog,
   };
 };
 
 /**
  * Main Orchestrator for Module Completion.
  */
-const processModuleCompletion = async (user, module, quizScore) => {
+const processModuleCompletion = async (
+  user,
+  module,
+  quizScore,
+  quizResults = [],
+) => {
   const moduleId = module._id.toString();
 
-  const alreadyCompleted = ensureNotAlreadyCompleted(
-    user.completedModules,
-    moduleId,
-  );
-  if (alreadyCompleted) {
-    alreadyCompleted.nextModuleId = await findNextModule(module);
-    return alreadyCompleted;
+  // Prevent Duplicate Completion
+  if (user.completedModules.includes(moduleId)) {
+    return {
+      xpIncrease: 0,
+      newlyCompleted: false,
+      nextModuleId: await findNextModule(module),
+    };
   }
 
-  // Mark completion
-  user.completedModules.push(moduleId);
-  const xpIncrease = module.xpReward || 100;
-  user.xp += xpIncrease;
+  const isM0 = module.order === 0;
+  const isM20 = module.order === 20;
+
+  let totalXP = 0;
+  const xpLog = [];
+
+  // Module Quiz XP
+  if (!M0 && Array.isArray(quizResults) && quizResults.length > 0) {
+    const correctCount = quizResults.filter((r) => r.isCorrect).length;
+
+    // XP per correct answer
+    const quizXP = correctCount * XP.MODULE_QUIZ.CORRECT_ANSWER;
+    totalXP += quizXP;
+    xpLog.push({
+      amount: quizXP,
+      source: "module_quiz",
+      meta: { moduleId, correct: correctCount, total: quizResults.length },
+    });
+
+    // Completion Bonus
+    totalXP += XP.MODULE_QUIZ.COMPLETION_BONUS;
+    xpLog.push({
+      amount: XP.MODULE_QUIZ.COMPLETION_BONUS,
+      source: "module_quiz",
+      meta: { moduleId, completionBonus: true },
+    });
+
+    // Perfect Score Bonus
+    if (correctCount === quizResults.length) {
+      totalXP += XP.MODULE_QUIZ.PERFECT_SCORE_BONUS;
+      xpLog.push({
+        amount: XP.MODULE_QUIZ.PERFECT_SCORE_BONUS,
+        source: "module_quiz",
+        meta: { moduleId, perfectScore: true },
+      });
+    }
+  }
+
+  // Module Completion Bonus
+  const completionBonus =
+    XP.MODULE.COMPLETION_BONUS + getPhaseBonus(module.phase);
+  totalXP += completionBonus;
+  xpLog.push({
+    amount: completionBonus,
+    source: "module_completion",
+    meta: { moduleId, phase: module.phase },
+  });
+
+  // Final Module Capstone Bonus
+  if (isM20) {
+    totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
+    xpLog.push({
+      amount: XP.SPECIAL.M20_PROJECT_BONUS,
+      source: "bonus",
+      meta: { moduleId, reason: "capstone_completion" },
+    });
+  }
+
+  // Tutorial Module - Small XP
+  if (isM0) {
+    totalXP += XP.SPECIAL.M0_COMPLETION;
+    xpLog.push({
+      amount: XP.SPECIAL.M0_COMPLETION,
+      source: "module_completion",
+      meta: { moduleId, reason: "tutorial_completion" },
+    });
+  }
+
+  // Add Module Specific XP (moduleConfig.js)
+  if (module.xpReward && !isM0) {
+    totalXP += module.xpReward;
+    xpLog.push({
+      amount: module.xpReward,
+      source: "bonus",
+      meta: { moduleId, reason: "module_config_reward" },
+    });
+  }
+
+  // Award XP and log history
+  user.xp = (user.xp || 0) + totalXP;
+  user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
 
   if (!Array.isArray(user.moduleCompletionHistory)) {
     user.moduleCompletionHistory = [];
   }
+
   user.moduleCompletionHistory.push({
     moduleId: module._id,
     completedAt: new Date(),
+    quizScore,
   });
 
   return {
-    xpIncrease,
+    xpIncrease: totalXP,
     newlyCompleted: true,
     nextModuleId: await findNextModule(module),
+    xpBreakdown: xpLog,
   };
 };
 

@@ -10,6 +10,7 @@ const ModulesPage = () => {
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userProgress, setUserProgress] = useState(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -27,7 +28,18 @@ const ModulesPage = () => {
         setLoading(false);
       }
     };
+
+    const fetchProgress = async () => {
+      try {
+        const progressData = await apiClient.get("/progress/current");
+        setUserProgress(progressData);
+      } catch (err) {
+        console.error("Failed to fetch progress:", err);
+      }
+    };
+
     fetchModules();
+    fetchProgress(); // ✅ Add this call
   }, [authLoading]);
 
   if (loading) return <LoadingState message="Loading your learning path..." />;
@@ -41,6 +53,8 @@ const ModulesPage = () => {
   ).length;
   const totalModules = curriculumModules.length;
 
+  const displayXP = userProgress?.xp ?? user?.xp ?? 0;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <ModulesHeader
@@ -53,7 +67,7 @@ const ModulesPage = () => {
       <ModulesStats
         totalModules={totalModules}
         completedModules={completedModules}
-        userXP={user?.xp}
+        userXP={displayXP}
       />
 
       <BackToTopButton />

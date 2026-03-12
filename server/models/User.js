@@ -118,9 +118,34 @@ const UserSchema = new mongoose.Schema(
     lessonQuizProgress: [
       {
         lessonId: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
+        questionAttempts: [
+          {
+            questionIndex: { type: Number, required: true },
+            attempts: { type: Number, default: 1, min: 1 },
+            correct: { type: Boolean, default: false },
+          },
+        ],
         correctAnswers: [{ type: Number }],
         completed: { type: Boolean, default: false },
         lastAttempt: { type: Date, default: Date.now },
+      },
+    ],
+    xpHistory: [
+      {
+        amount: { type: Number, required: true, min: 0 },
+        source: {
+          type: String,
+          enum: [
+            "lesson_completion",
+            "lesson_quiz",
+            "exercise",
+            "module_quiz",
+            "module_completion",
+            "bonus",
+          ],
+        },
+        meta: mongoose.Schema.Types.Mixed, // { lessonId, moduleId, attempts, etc. }
+        awardedAt: { type: Date, default: Date.now },
       },
     ],
     stats: {
