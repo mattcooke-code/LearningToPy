@@ -7,7 +7,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { apiClient } from "../../context";
+import { apiClient, useNotification } from "../../context";
 import { MarkdownRenderer } from "../ui";
 import {
   areAllQuestionsAnswered,
@@ -30,8 +30,9 @@ const QuizComponent = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverFeedback, setServerFeedback] = useState({});
   const [quizCompleted, setQuizCompleted] = useState(false);
-  // Track attempts per question
   const [attempts, setAttempts] = useState({});
+
+  const { showToast } = useNotification();
 
   // Check if lesson quiz is complete whenever results change
   useEffect(() => {
@@ -66,6 +67,7 @@ const QuizComponent = ({
       const data = await apiClient.post(`/content/lessons/${lessonId}/submit`, {
         answer: selected,
         questionIndex: index,
+        attemptNumber: (attempts[questionId] || 0) + 1,
       });
 
       // Update attempts counter
@@ -84,6 +86,10 @@ const QuizComponent = ({
           completed: data.isCorrect,
         },
       }));
+
+      if (data.isCorrect && data.xpEarned > 0) {
+        showToast(`+${data.xpEarned} XP earned! 🎯`, "success");
+      }
 
       // Store server feedback
       setServerFeedback((prev) => ({

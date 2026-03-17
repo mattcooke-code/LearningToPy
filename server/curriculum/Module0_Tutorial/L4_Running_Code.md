@@ -55,23 +55,6 @@ Running this will show:
 2. Read the bottom line: That's usually where the "Type" of error is (e.g., `NameError`).
 3. Check the line number: Python tells you exactly where it got stuck.
 
-## Practice Run
-
-Copy this code into your editor and click **Run** (not Submit yet!):
-
-```python
-# Simple greeting program
-name = "Code Explorer"
-print(f"Hello, {name}!")
-
-# Simple calculation
-apples = 5
-oranges = 3
-print(f"Total fruit: {apples + oranges}")
-```
-
-Once you see the results in the terminal, you're ready to move on!
-
 :::tip
 
 - **Keyboard Shortcut:** Press `Ctrl + Enter` (or `Cmd + Enter` on Mac) to "Run" instantly. Make sure you do this from the _TERMINAL_ not the _EDITOR_.

@@ -14,7 +14,7 @@ On every lesson, you'll see a Download button. This allows you to take the lesso
 
 - **Power Tools:** Local IDEs offer advanced features like real-time error detection, automatic code formatting, and deep-dive debugging tools that help you find "invisible" bugs.
 
-- **Project Building:** Once you start making multi-file apps, a local editor is essential.
+- **Project Building:** Once we start importing external libraries or working with web data (Scraping/APIs), you may want to move to a local IDE to see the full results.
 
 ## 🛠️ The Setup (Two Steps)
 
@@ -37,4 +37,10 @@ We recommend these two industry standards. They are free, powerful, and used by 
 :::note
 
 You don't need these to finish this course! Our browser editor has everything you need to become a Python pro and earn your certificates. These tools are simply your "next step" for when you're ready to build your own standalone applications outside of this platform.
+:::
+
+:::tip
+Later in this course, we will explore **APIs**, **Web Scraping**, and the **Command Line**. While you can pass those lessons by writing the correct syntax here, our browser editor cannot "talk" to the live internet or run complex system commands.
+
+To actually see your scraper grab data or your API send a message, you’ll need to run that code locally on your computer using the tools above!
 :::

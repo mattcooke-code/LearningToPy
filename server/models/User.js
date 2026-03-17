@@ -28,6 +28,8 @@ const UserSchema = new mongoose.Schema(
       select: false, // Exclude password from queries by default
     },
     // --- AUTHENTICATION FIELD CHANGE START ---
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     refreshTokenVersion: {
       type: Number,
       default: 0,

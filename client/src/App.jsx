@@ -7,6 +7,7 @@ import {
   ProtectedRoute,
 } from "./components/layout";
 import Dashboard from "./pages/Dashboard";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Home from "./pages/Home";
 import LessonPage from "./pages/LessonPage";
 import Login from "./pages/Login";
@@ -15,6 +16,7 @@ import ModulesPage from "./pages/ModulesPage";
 import ModuleQuizPage from "./pages/ModuleQuizPage";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 // Import Admin Pages
 import AdminDashboard from "./pages/AdminDashboard";
@@ -41,6 +43,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
           {/* PROTECTED */}
           <Route
             path="/dashboard"

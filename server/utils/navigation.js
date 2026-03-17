@@ -106,6 +106,19 @@ const findNextModule = async (module) => {
 };
 
 /**
+ * Get the next module ID for a given module order
+ * This is used to determine what module should be unlocked after completing the current one
+ */
+const getNextModuleId = async (currentOrder) => {
+  const nextModule = await Module.findOne({
+    order: currentOrder + 1,
+    isPublished: true,
+  }).select("_id");
+
+  return nextModule?._id || null;
+};
+
+/**
  * Clear caches when content is updated via admin panel
  */
 const clearNavigationCaches = () => {

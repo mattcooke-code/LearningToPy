@@ -8,14 +8,16 @@ Welcome to your Python playground! The code editor is where you'll write, edit, 
 
 ### Key Components:
 
-1. **Theme Toggle:** Switch between light and dark mode
-2. **Exercise Instructions:** Find out what coding tasks need to be carried out for you to pass the exercise
-3. **Editing Area:** Where you type your Python code
-4. **Code:** Example code. Note the formatting, line numbers at the side and the different colors of code (_syntax highlighting_)
-5. **Terminal Toggle:** Show or hide the Python terminal (more on this next lesson)
-6. **Submit Code Button:** To submit code for testing. This is how you pass an exercise
-7. **Exercise Hints:** If you get stuck on an exercise you can click the _Show Hints_ button to see helpful hints
-8. **Download Exercise:** If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson
+|       |                           |                                                                                                                      |
+| ----- | ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **1** | **Theme Toggle**          | Switch between light and dark mode                                                                                   |
+| **2** | **Exercise Instructions** | Find out what coding tasks need to be carried out for you to pass the exercise                                       |
+| **3** | **Editing Area**          | Where you type your Python code                                                                                      |
+| **4** | **Code**                  | Example code. Note the formatting, line numbers at the side and the different colors of code (_syntax highlighting_) |
+| **5** | **Terminal Toggle**       | Show or hide the Python terminal (more on this next lesson)                                                          |
+| **6** | **Submit Code Button**    | To submit code for testing. This is how you pass an exercise                                                         |
+| **7** | **Exercise Hints**        | If you get stuck on an exercise you can click the _Show Hints_ button to see helpful hints                           |
+| **8** | **Download Exercise**     | If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson             |
 
 :::note
 
@@ -65,7 +67,7 @@ Use code folding to hide functions you've already finished so you can focus on t
 
 ## Writing Your First Code
 
-Try typing this in the editor (we'll practice running and submitting code later on):
+During this course, you can type code directly in the editor. When provided with in-lesson code examples like the one below, you can click the **COPY** button at the top right of the snippet and paste it into the editor.
 
 ```python
 # This is a comment - it doesn't run
@@ -81,7 +83,7 @@ print("Age:", age)
 ```
 
 :::tip
-_Use the **COPY** button at the top right to save time. **However:** we recommend you get used to typing the code yourself_
+Use **COPY** when you need to save time, type code when you don't. You should get used to typing syntax in a code editor to reinforce your learning.
 :::
 
 ## Next Up: Running Your Code

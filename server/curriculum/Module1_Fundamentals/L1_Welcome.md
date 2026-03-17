@@ -20,9 +20,11 @@ print("Hello, Python!")
 
 Let's understand each part:
 
-- **print** - This is the function name. It tells Python we want to display something.
-- **()** - Parentheses hold the information we want to print. Functions in Python always use parentheses.
-- **"Hello, Python!"** - This is a **string** (text). We put strings inside quotation marks so Python knows it is text, not code.
+|                        |                                                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| **`print`**            | This is the function name. It tells Python we want to display something.                                 |
+| **`()`**               | Parentheses hold the information we want to print. Functions in Python always use parentheses.           |
+| **`"Hello, Python!"`** | This is a **string** (text). We put strings inside quotation marks so Python knows it is text, not code. |
 
 When you run this code, you'll see this output:
 
@@ -60,7 +62,7 @@ Every language has rules—and Python's rules for structure are simple but stric
 
 **Comments** are lines of code that Python ignores. They are used by programmers to leave notes, explain complex logic, or temporarily disable code.
 
-- **How to use them:** Start the line with a hash mark (`#`).
+_How to use them:_ Start the line with a hash mark (`#`).
 
 ```python
 # This is a comment, Python skips this line.

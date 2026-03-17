@@ -34,13 +34,13 @@ Each Phase contains several _Modules_. A Module focuses on one specific topic (e
 
 Inside each module are 5-6 lessons. These are your bite-sized learning units:
 
-| Component                             | Description                                                                                                                                                                       |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 📚 **Theory**                         | Learn concepts through interactive explanations and live code examples                                                                                                            |
-| 💻 **Exercise**                       | Put theory into practice with coding challenges. You'll use the **Run** button to test and the **Submit** button to verify your solution                                          |
-| ❓ **Lesson Quiz**                    | Confirm your mastery with a quick check for understanding after each exercise                                                                                                     |
-| 🏆 **Project**                        | Larger, "Boss Level" challenges at the end of modules that combine everything you've learned into one working program                                                             |
-| 🎓 **The Grand Finale** _(Module 20)_ | The entire final module is dedicated to your **Capstone Project** - a fully functional Command Line Tool that integrates APIs, Databases, and Logic into one professional utility |
+| Component                             | Description                                                                                                                                                                                                                             |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 📚 **Theory**                         | Learn concepts through interactive explanations and live code examples                                                                                                                                                                  |
+| 💻 **Exercise**                       | Put theory into practice with coding challenges. You'll use the **Run** button to test and the **Submit** button to verify your solution                                                                                                |
+| ❓ **Lesson Quiz**                    | Confirm your mastery with a quick check for understanding after each exercise                                                                                                                                                           |
+| 🏆 **Project**                        | Larger, "Boss Level" challenges at the end of modules that combine everything you've learned into one working program                                                                                                                   |
+| 🎓 **The Grand Finale** _(Module 20)_ | The entire final module is dedicated to your **Capstone Project** - a project of your own choosing. It will use concepts that you have learned as part of this course and will showcase your abilities and newly acquired Python skills |
 
 ## Understanding Your Progress Indicators
 
@@ -107,18 +107,18 @@ Enable _Review Mode_ on any completed lesson to practice without affecting your 
 
 **Additional Rewards:**
 
-| Reward Type         | Description                                                       | How to Track                                         |
-| ------------------- | ----------------------------------------------------------------- | ---------------------------------------------------- |
-| **Streaks 🔥**      | Consecutive days of learning (complete at least one lesson daily) | Visible on your Profile dashboard                    |
-| **Skill Badges 🏅** | Special achievements for milestones                               | Unlocked automatically and displayed in your Profile |
+| Reward Type         | Description                         | How to Track                                         |
+| ------------------- | ----------------------------------- | ---------------------------------------------------- |
+| **Streaks 🔥**      | Consecutive days of learning        | Visible on your Profile dashboard                    |
+| **Skill Badges 🏅** | Special achievements for milestones | Unlocked automatically and displayed in your Profile |
 
 **Example Badges:**
 
-| Badge           | How to Earn                                        |
-| --------------- | -------------------------------------------------- |
-| Quick Learner   | Finish 5 lessons in 24 hours                       |
-| Weekend Warrior | Keep the grind going on Saturday and Sunday        |
-| Bug Hunter      | Solve an exercise on your first try after an error |
+| Badge         | How to Earn                                      |
+| ------------- | ------------------------------------------------ |
+| Code Cracker  | Completed your first coding challenge            |
+| Top Ten       | Made it into the Top Ten on the leaderboard (XP) |
+| Halfway There | Made it through 50% of the course                |
 
 ## How It All Connects
 

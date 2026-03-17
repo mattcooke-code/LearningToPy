@@ -1,7 +1,11 @@
 // learningEngine.js
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
-const { findNextLesson, findNextModule } = require("./navigation");
+const {
+  findNextLesson,
+  findNextModule,
+  getNextModuleId,
+} = require("./navigation");
 const { normalizeTags } = require("./generalUtils");
 const {
   XP,
@@ -10,7 +14,12 @@ const {
   calculateExerciseXP,
   getPhaseBonus,
 } = require("../../shared/constants/progress");
-const { getQuizResultsForXP, hasExercise } = require("./quizHelpers");
+const {
+  getQuizResultsForXP,
+  hasExercise,
+  hasQuiz,
+  isQuizCompleted,
+} = require("./quizHelpers");
 
 /**
  * --- VALIDATION LOGIC ---
@@ -280,7 +289,7 @@ const processModuleCompletion = async (
   const xpLog = [];
 
   // Module Quiz XP
-  if (!M0 && Array.isArray(quizResults) && quizResults.length > 0) {
+  if (!isM0 && Array.isArray(quizResults) && quizResults.length > 0) {
     const correctCount = quizResults.filter((r) => r.isCorrect).length;
 
     // XP per correct answer
@@ -364,6 +373,11 @@ const processModuleCompletion = async (
     completedAt: new Date(),
     quizScore,
   });
+
+  // CRITICAL: Add module to completedModules array
+  if (!user.completedModules.includes(moduleId)) {
+    user.completedModules.push(moduleId);
+  }
 
   return {
     xpIncrease: totalXP,

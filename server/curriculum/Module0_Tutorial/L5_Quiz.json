@@ -40,19 +40,6 @@
       ],
       "correctAnswer": 1,
       "explanation": "Review Mode allows you to go back and strengthen your skills on topics you've already passed without worrying about your official progress score."
-    },
-    {
-      "id": "m0l5_q4",
-      "type": "multiple-choice",
-      "question": "How do you maintain a 'Streak'?",
-      "options": [
-        "By finishing the entire course in one day",
-        "By completing at least one lesson every day",
-        "By never making a mistake in an exercise",
-        "By downloading every lesson"
-      ],
-      "correctAnswer": 1,
-      "explanation": "Consistency is key! Completing at least one lesson every 24 hours keeps your streak alive and earns you special badges."
     }
   ]
 }

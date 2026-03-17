@@ -11,6 +11,12 @@ router.post("/login", authController.login);
 
 router.post("/refresh-token", authController.refreshToken);
 
+router.post("/forgot-password", authController.forgotPassword);
+
+router.get("/validate-reset-token/:token", authController.validateResetToken);
+
+router.post("/reset-password", authController.resetPassword);
+
 // === AUTHENTICATED ROUTES ===
 router.post("/logout", protect, authController.logout);
 
@@ -19,7 +25,7 @@ router.get("/user", protect, authController.getUser);
 router.patch(
   "/privacy-settings",
   protect,
-  authController.updatePrivacySettings
+  authController.updatePrivacySettings,
 );
 
 // In auth.js routes - add debug route

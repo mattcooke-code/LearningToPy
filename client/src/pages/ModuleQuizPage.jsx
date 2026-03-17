@@ -1,4 +1,4 @@
-// ModuleQuizPage.jsx - UPDATED
+// ModuleQuizPage.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth, useNotification, useTheme } from "../context";
@@ -7,7 +7,7 @@ import {
   ErrorState,
   BackToTopButton,
   MarkdownRenderer,
-} from "../components/ui"; // ADD MarkdownRenderer
+} from "../components/ui";
 import { getErrorMessage } from "../utils";
 import {
   Trophy,
@@ -15,6 +15,8 @@ import {
   XCircle,
   ArrowRight,
   ArrowLeft,
+  Eye,
+  RotateCcw,
 } from "lucide-react";
 
 const ModuleQuizPage = () => {
@@ -37,10 +39,13 @@ const ModuleQuizPage = () => {
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [shuffledOptions, setShuffledOptions] = useState({});
 
+  // ✅ NEW: Review mode state
+  const [reviewMode, setReviewMode] = useState(false);
+  const [selectedReviewQuestion, setSelectedReviewQuestion] = useState(null);
+
   // Fetch module data
   const fetchModule = useCallback(async () => {
     if (!moduleId) return;
-
     try {
       setLoading(true);
       setError(null);
@@ -51,10 +56,6 @@ const ModuleQuizPage = () => {
       if (!moduleData.allLessonsComplete) {
         setError("Complete all lessons before taking the module quiz");
         return;
-      }
-
-      if (moduleData.quizCompleted) {
-        // Could fetch previous attempt results here if you store them
       }
     } catch (err) {
       console.error("Failed to fetch module:", err);
@@ -68,7 +69,7 @@ const ModuleQuizPage = () => {
     fetchModule();
   }, [fetchModule]);
 
-  // Function to shuffle array (Fisher-Yates algorithm)
+  // Shuffle helper (Fisher-Yates)
   const shuffleArray = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -78,20 +79,19 @@ const ModuleQuizPage = () => {
     return shuffled;
   };
 
+  // Initialize shuffled questions/options
   useEffect(() => {
     if (module?.moduleQuiz?.questions) {
-      // Shuffle Questions
       const shuffledQs = shuffleArray([...module.moduleQuiz.questions]);
       setShuffledQuestions(shuffledQs);
       setCurrentQuestionIndex(0);
 
-      // Shuffle Answer Options - Keeping track of correct answer
+      // Shuffle answer options while tracking correct answer index
       const optionsMap = {};
       shuffledQs.forEach((question) => {
         if (question.options && Array.isArray(question.options)) {
           const indices = question.options.map((_, i) => i);
           const shuffledIndices = shuffleArray(indices);
-
           optionsMap[question._id] = {
             shuffledIndices,
             originalOptions: question.options,
@@ -103,37 +103,30 @@ const ModuleQuizPage = () => {
     }
   }, [module]);
 
+  // Handle answer selection
   const handleAnswerSelect = (questionId, displayIndex) => {
     const optionsMapping = shuffledOptions[questionId];
     let actualIndex;
-
-    if (optionsMapping && optionsMapping.shuffledIndices) {
+    if (optionsMapping?.shuffledIndices) {
       actualIndex = optionsMapping.shuffledIndices[displayIndex];
     } else {
       actualIndex = displayIndex;
     }
 
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionId]: actualIndex,
-    }));
+    // Allow changing answer selection
+    setUserAnswers((prev) => ({ ...prev, [questionId]: actualIndex }));
   };
 
+  // Handle next question
   const handleNext = () => {
     if (currentQuestionIndex < shuffledQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
-  };
-
+  // No previous functionality - students cannot go back
+  // Submit quiz to backend
   const handleSubmitQuiz = async () => {
-    if (!shuffledQuestions.length) return;
-
     const unansweredCount =
       shuffledQuestions.length - Object.keys(userAnswers).length;
     if (unansweredCount > 0) {
@@ -146,13 +139,11 @@ const ModuleQuizPage = () => {
 
     setIsSubmitting(true);
     try {
+      // Convert answers to numeric format expected by backend
       const numericAnswers = {};
       Object.entries(userAnswers).forEach(([questionId, answer]) => {
-        if (typeof answer === "string") {
-          numericAnswers[questionId] = answer.charCodeAt(0) - 65;
-        } else {
-          numericAnswers[questionId] = answer;
-        }
+        numericAnswers[questionId] =
+          typeof answer === "string" ? answer.charCodeAt(0) - 65 : answer;
       });
 
       const result = await apiClient.post(
@@ -171,7 +162,6 @@ const ModuleQuizPage = () => {
           `🎊 Module completed! +${result.xpEarned} XP earned!`,
           "success",
         );
-
         if (result.progress?.courseProgressPercentage !== undefined) {
           updateThemeFromCourseProgress(
             result.progress.courseProgressPercentage,
@@ -179,7 +169,7 @@ const ModuleQuizPage = () => {
         }
       } else {
         showToast(
-          `Quiz score: ${result.score}%. Need ${result.passingScore}% to pass.`,
+          `Quiz score: ${result.score}%. Review your answers and try again.`,
           "error",
         );
       }
@@ -194,22 +184,42 @@ const ModuleQuizPage = () => {
     }
   };
 
+  // Handle retake (resets all state)
   const handleRetakeQuiz = () => {
     setUserAnswers({});
     setCurrentQuestionIndex(0);
     setQuizSubmitted(false);
     setQuizResults(null);
+    setReviewMode(false);
+    setSelectedReviewQuestion(null);
   };
 
+  // Handle continue to next module or modules page
   const handleContinue = () => {
     if (quizResults?.nextModuleId) {
+      // Navigate to the next module's lessons page
       navigate(`/modules/${quizResults.nextModuleId}/lessons`);
     } else {
-      navigate("/modules");
+      // If no next module (e.g., completed all modules), go to modules page
+      // Force a refresh of the modules page to show updated lock status
+      navigate("/modules", { replace: true });
+      // Trigger a page reload to ensure modules are re-fetched with updated status
+      window.location.reload();
     }
   };
 
-  if (loading) return <LoadingState />;
+  // ✅ NEW: Open review modal for a specific question
+  const openReviewQuestion = (questionResult) => {
+    setSelectedReviewQuestion(questionResult);
+  };
+
+  // ✅ NEW: Close review modal
+  const closeReviewQuestion = () => {
+    setSelectedReviewQuestion(null);
+  };
+
+  // Loading/Error states
+  if (loading) return <LoadingState message="Loading quiz..." />;
   if (error)
     return <ErrorState error={error} onBack={() => navigate("/modules")} />;
   if (!module || !module.moduleQuiz) {
@@ -221,52 +231,51 @@ const ModuleQuizPage = () => {
     );
   }
 
-  const currentQuestion =
-    shuffledQuestions[currentQuestionIndex] || shuffledQuestions[0];
+  const currentQuestion = shuffledQuestions[currentQuestionIndex];
   const totalQuestions = shuffledQuestions.length;
   const progress =
     totalQuestions > 0
       ? ((currentQuestionIndex + 1) / totalQuestions) * 100
       : 0;
 
-  // Results View
+  // ============ RESULTS VIEW ============
   if (quizSubmitted && quizResults) {
+    const incorrectQuestions =
+      quizResults.results?.filter((r) => !r.isCorrect) || [];
+    const correctQuestions =
+      quizResults.results?.filter((r) => r.isCorrect) || [];
+
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          {/* Results Header */}
-          <div className="text-center mb-8">
-            {quizResults.passed ? (
-              <>
-                <Trophy className="w-20 h-20 text-yellow-500 mx-auto mb-4" />
-                <h1 className="text-3xl font-bold text-green-600 mb-2">
-                  Congratulations! 🎉
-                </h1>
-                <p className="text-xl text-gray-700">
-                  You've completed {module.title}!
-                </p>
-              </>
-            ) : (
-              <>
-                <XCircle className="w-20 h-20 text-red-500 mx-auto mb-4" />
-                <h1 className="text-3xl font-bold text-red-600 mb-2">
-                  Keep Trying!
-                </h1>
-                <p className="text-xl text-gray-700">
-                  You can retake the quiz after reviewing the material
-                </p>
-              </>
-            )}
-          </div>
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+          {quizResults.passed ? (
+            <>
+              <Trophy className="mx-auto h-16 w-16 text-yellow-500 mb-4" />
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                Congratulations! 🎉
+              </h2>
+              <p className="text-lg text-gray-600 mb-6">
+                You've completed {module.title}!
+              </p>
+            </>
+          ) : (
+            <>
+              <XCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                Keep Trying!
+              </h2>
+              <p className="text-lg text-gray-600 mb-6">
+                Review your answers below, then try again.
+              </p>
+            </>
+          )}
 
           {/* Score Display */}
           <div className="bg-gray-50 rounded-lg p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold">Your Score:</span>
               <span
-                className={`text-3xl font-bold ${
-                  quizResults.passed ? "text-green-600" : "text-red-600"
-                }`}
+                className={`text-3xl font-bold ${quizResults.passed ? "text-green-600" : "text-red-600"}`}
               >
                 {quizResults.score}%
               </span>
@@ -285,6 +294,47 @@ const ModuleQuizPage = () => {
               <p className="text-blue-700 font-semibold">
                 🌟 +{quizResults.xpEarned} XP earned!
               </p>
+            </div>
+          )}
+
+          {/* ✅ Enhanced Review Section - Only show if there are incorrect answers */}
+          {!quizResults.passed && incorrectQuestions.length > 0 && (
+            <div className="mb-6">
+              <button
+                onClick={() => setReviewMode(!reviewMode)}
+                className="flex items-center space-x-2 mx-auto text-python-blue hover:underline font-medium"
+              >
+                <Eye size={18} />
+                <span>
+                  {reviewMode ? "Hide" : "Review"} Incorrect Answers (
+                  {incorrectQuestions.length})
+                </span>
+              </button>
+
+              {reviewMode && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Click a question to review:
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {quizResults.results?.map((result, idx) => {
+                      if (!result.isCorrect) {
+                        return (
+                          <button
+                            key={result.questionId}
+                            onClick={() => openReviewQuestion(result)}
+                            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition text-sm"
+                          >
+                            <XCircle size={14} />
+                            <span>Question {idx + 1}</span>
+                          </button>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -313,149 +363,228 @@ const ModuleQuizPage = () => {
                 style={{ backgroundColor: themeColor }}
                 className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
+                <RotateCcw size={20} />
                 <span>Retake Quiz</span>
-                <ArrowRight size={20} />
               </button>
             )}
           </div>
         </div>
+
+        {/* ✅ Enhanced Review Modal - Shows question details */}
+        {selectedReviewQuestion && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={closeReviewQuestion}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Question Review
+                </h3>
+                <button
+                  onClick={closeReviewQuestion}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Question */}
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-2">
+                    Question:
+                  </p>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <MarkdownRenderer
+                      content={selectedReviewQuestion.question}
+                      moduleId={moduleId}
+                    />
+                  </div>
+                </div>
+
+                {/* User's Answer */}
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-2">
+                    Your Answer:
+                  </p>
+                  <div
+                    className={`p-4 rounded-lg border-2 ${
+                      selectedReviewQuestion.isCorrect
+                        ? "bg-green-50 border-green-200 text-green-800"
+                        : "bg-red-50 border-red-200 text-red-800"
+                    }`}
+                  >
+                    {selectedReviewQuestion.options?.[
+                      selectedReviewQuestion.userAnswer
+                    ] ||
+                      `Option ${String.fromCharCode(65 + selectedReviewQuestion.userAnswer)}`}
+                  </div>
+                </div>
+
+                {/* Correct Answer */}
+                {!selectedReviewQuestion.isCorrect && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Correct Answer:
+                    </p>
+                    <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg text-green-800">
+                      {selectedReviewQuestion.options?.[
+                        selectedReviewQuestion.correctAnswer
+                      ] ||
+                        `Option ${String.fromCharCode(65 + selectedReviewQuestion.correctAnswer)}`}
+                    </div>
+                  </div>
+                )}
+
+                {/* Explanation */}
+                {selectedReviewQuestion.explanation && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Explanation:
+                    </p>
+                    <div className="p-4 bg-blue-50 rounded-lg text-blue-800">
+                      <MarkdownRenderer
+                        content={selectedReviewQuestion.explanation}
+                        moduleId={moduleId}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={closeReviewQuestion}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <BackToTopButton />
       </div>
     );
   }
 
-  // Quiz View
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              {module.title} - Final Quiz
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Test your knowledge of this module
-            </p>
-          </div>
-          <Trophy className="w-12 h-12 text-yellow-500" />
-        </div>
+  // ============ QUIZ VIEW ============
+  if (!currentQuestion || shuffledQuestions.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <LoadingState message="Loading quiz questions..." />
+        <BackToTopButton />
+      </div>
+    );
+  }
 
-        {/* Progress Bar */}
-        <div className="mb-2">
-          <div className="flex justify-between text-sm text-gray-600 mb-1">
-            <span>
-              Question {currentQuestionIndex + 1} of {totalQuestions}
-            </span>
-            <span>{Math.round(progress)}% Complete</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              style={{
-                width: `${progress}%`,
-                backgroundColor: themeColor,
-              }}
-              className="h-2 rounded-full transition-all duration-300"
-            />
-          </div>
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-3xl">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          {module.title} - Final Quiz
+        </h1>
+        <p className="text-gray-600">Test your knowledge of this module</p>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="mb-2">
+        <div className="flex justify-between text-sm text-gray-600 mb-1">
+          <span>
+            Question {currentQuestionIndex + 1} of {totalQuestions}
+          </span>
+          <span>{Math.round(progress)}% Complete</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            style={{ width: `${progress}%`, backgroundColor: themeColor }}
+            className="h-2 rounded-full transition-all duration-300"
+          />
         </div>
       </div>
 
-      {shuffledQuestions.length > 0 ? (
-        // Question Card - UPDATED: Using MarkdownRenderer
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            {/* REPLACE plain text with MarkdownRenderer */}
-            <MarkdownRenderer
-              content={currentQuestion.question}
-              moduleId={moduleId}
-            />
-          </h2>
+      {/* Question Card */}
+      <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+          <MarkdownRenderer
+            content={currentQuestion.question}
+            moduleId={moduleId}
+          />
+        </h2>
 
-          {/* Answer Options */}
-          <div className="space-y-3">
-            {(() => {
-              const questionId = currentQuestion._id;
-              const optionsMapping = shuffledOptions[questionId];
+        {/* Answer Options */}
+        <div className="space-y-3">
+          {(() => {
+            const questionId = currentQuestion._id;
+            const optionsMapping = shuffledOptions[questionId];
+            const optionsToDisplay = optionsMapping?.shuffledIndices
+              ? optionsMapping.shuffledIndices.map(
+                  (idx) => currentQuestion.options[idx],
+                )
+              : currentQuestion.options;
 
-              const optionsToDisplay = optionsMapping
-                ? optionsMapping.shuffledIndices.map(
-                    (idx) => currentQuestion.options[idx],
-                  )
-                : currentQuestion.options;
+            return optionsToDisplay.map((option, displayIndex) => {
+              const optionKey = String.fromCharCode(65 + displayIndex);
+              const isSelected = userAnswers[questionId] !== undefined;
 
-              return optionsToDisplay.map((option, displayIndex) => {
-                const optionKey = String.fromCharCode(65 + displayIndex);
+              let isThisOptionSelected = false;
+              if (optionsMapping?.shuffledIndices) {
+                const selectedOriginalIndex = userAnswers[questionId];
+                const displayIndexOfSelected =
+                  optionsMapping.shuffledIndices.indexOf(selectedOriginalIndex);
+                isThisOptionSelected = displayIndexOfSelected === displayIndex;
+              } else {
+                isThisOptionSelected = userAnswers[questionId] === displayIndex;
+              }
 
-                const optionsMapping = shuffledOptions[questionId];
-                let isSelected = false;
-
-                if (optionsMapping && optionsMapping.shuffledIndices) {
-                  const selectedOriginalIndex = userAnswers[questionId];
-                  const displayIndexOfSelected =
-                    optionsMapping.shuffledIndices.indexOf(
-                      selectedOriginalIndex,
-                    );
-                  isSelected = displayIndexOfSelected === displayIndex;
-                } else {
-                  isSelected = userAnswers[questionId] === displayIndex;
-                }
-
-                return (
-                  <button
-                    key={displayIndex}
-                    onClick={() => handleAnswerSelect(questionId, displayIndex)}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                      isSelected
+              return (
+                <button
+                  key={displayIndex}
+                  onClick={() => handleAnswerSelect(questionId, displayIndex)}
+                  disabled={isSelected}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                    isSelected
+                      ? isThisOptionSelected
                         ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-start">
-                      <span className="font-semibold text-gray-700 mr-3 min-w-5">
-                        {optionKey}.
-                      </span>
-                      {/* UPDATED: Render option with MarkdownRenderer too */}
-                      <div className="flex-1">
-                        <MarkdownRenderer
-                          content={option}
-                          moduleId={moduleId}
-                        />
-                      </div>
-                      {isSelected && (
-                        <CheckCircle
-                          className="ml-auto text-blue-500"
-                          size={20}
-                        />
-                      )}
+                        : "border-gray-200 bg-gray-50 opacity-50"
+                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-start">
+                    <span className="font-semibold text-gray-700 mr-3 min-w-5">
+                      {optionKey}.
+                    </span>
+                    <div className="flex-1">
+                      <MarkdownRenderer content={option} moduleId={moduleId} />
                     </div>
-                  </button>
-                );
-              });
-            })()}
-          </div>
+                    {isSelected && isThisOptionSelected && (
+                      <CheckCircle
+                        className="ml-auto text-blue-500"
+                        size={20}
+                      />
+                    )}
+                  </div>
+                </button>
+              );
+            });
+          })()}
         </div>
-      ) : (
-        <div className="text-center p-8">
-          <p className="text-gray-500">Loading questions...</p>
-        </div>
-      )}
+      </div>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center">
-        <button
-          onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ArrowLeft size={20} />
-          <span>Previous</span>
-        </button>
-
+      <div className="flex justify-end">
         {currentQuestionIndex === totalQuestions - 1 ? (
           <button
             onClick={handleSubmitQuiz}
-            disabled={isSubmitting}
+            disabled={
+              isSubmitting || Object.keys(userAnswers).length < totalQuestions
+            }
             style={{ backgroundColor: themeColor }}
             className="flex items-center space-x-2 text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
           >
@@ -480,27 +609,34 @@ const ModuleQuizPage = () => {
         )}
       </div>
 
-      {/* Question Grid */}
-      <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+      {/* Question Grid Navigation */}
+      <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">
           Question Progress
         </h3>
         <div className="grid grid-cols-10 gap-2">
           {shuffledQuestions.map((q, idx) => {
-            const isAnswered = userAnswers[q._id];
+            const isAnswered = userAnswers[q._id] !== undefined;
             const isCurrent = idx === currentQuestionIndex;
+            const isCorrect = quizResults?.results?.find(
+              (r) => r.questionId === q._id,
+            )?.isCorrect;
 
             return (
               <button
                 key={q._id}
                 onClick={() => setCurrentQuestionIndex(idx)}
+                disabled={!isAnswered && !quizSubmitted}
                 className={`w-10 h-10 rounded-lg font-semibold transition ${
-                  isCurrent ? "ring-2 ring-blue-500" : ""
+                  isCurrent ? "ring-2 ring-blue-500 ring-offset-2" : ""
                 } ${
                   isAnswered
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-500"
+                    ? isCorrect
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                 }`}
+                title={`Question ${idx + 1}`}
               >
                 {idx + 1}
               </button>

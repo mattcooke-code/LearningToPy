@@ -9,8 +9,7 @@ import {
 } from "lucide-react";
 import { CodeThemeToggle, Spinner } from "../ui";
 import { CodeBlock, CodeEditor, TerminalComponent } from "../lesson";
-import { useTheme } from "../../context";
-import { usePython, apiClient } from "../../context";
+import { useTheme, usePython, apiClient, useNotification } from "../../context"; // ← Added useNotification
 import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
 import { validateWithPyodide, getErrorMessage } from "../../utils";
@@ -37,8 +36,8 @@ const ExerciseComponent = ({
   const { isCodeDark } = useTheme();
   const { runCode, isReady } = usePython();
   const { downloadPythonFile } = useFileDownload();
+  const { showToast } = useNotification(); // ← Initialize toast
 
-  // ExerciseComponent.jsx - Simplified handleSubmit
   const handleSubmit = async () => {
     console.log("🔍 handleSubmit called");
     console.log("runCode from hook:", runCode);
@@ -64,6 +63,7 @@ const ExerciseComponent = ({
 
     try {
       console.log("🔍 Calling validateWithPyodide with runCode:", !!runCode);
+
       // Pyodide Validation
       const validationResult = await validateWithPyodide(
         userCode,
@@ -97,23 +97,30 @@ const ExerciseComponent = ({
           wasOptimalSolution: validationResult.isOptimal || false,
           isCorrect: validationResult.success,
           testsPassed: validationResult.testsPassed,
-          totalTests: validationResult.totalTests,
+          submissionHistory: [
+            { attemptNumber, code: userCode, timestamp: Date.now() },
+          ],
         },
       );
 
       const result = response.data || response;
 
+      if (result.isCorrect && result.xpEarned > 0) {
+        showToast(`💻 +${result.xpEarned} XP earned!`, "success");
+      }
+
       setTestResults({
         success: true,
         message: result.feedback || "🎉 All tests passed!",
         output: "Tests passed on server",
-        xpEarned: result.xpEarned || 25,
+        xpEarned: result.xpEarned || 0,
       });
 
       if (onCodeSubmit) {
         onCodeSubmit(userCode, result);
       }
 
+      // Reset attempt tracking on success
       setAttemptNumber(1);
       setStartTime(Date.now());
     } catch (err) {
@@ -156,53 +163,53 @@ const ExerciseComponent = ({
           : "bg-yellow-50 border-yellow-200"
       }`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Code2
-            className={isCodeDark ? "text-blue-400" : "text-yellow-600"}
-            size={24}
-          />
-          <h3
-            className={`text-lg font-semibold ${
-              isCodeDark ? "text-white" : "text-yellow-800"
-            }`}
-          >
-            Try It Yourself {isReviewMode && "(Review)"}
-          </h3>
-        </div>
-
-        {/* Skills/Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {exercise.tags?.map((tag) => (
-            <span
-              key={tag}
-              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                isCodeDark
-                  ? "bg-blue-900/40 text-blue-300 border border-blue-800"
-                  : "bg-yellow-100 text-yellow-700 border border-yellow-200"
-              }`}
-            >
-              {tag.replace("-", " ")}
-            </span>
-          ))}
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <CodeThemeToggle />
-          {isReviewMode && (
-            <span
-              className={`px-2 py-1 rounded text-sm ${
-                isCodeDark
-                  ? "bg-gray-700 text-gray-300"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
-            >
-              Review Mode
-            </span>
-          )}
-        </div>
+      {/* Header */}
+      <div className="flex items-center space-x-3 mb-4">
+        <Code2
+          className={isCodeDark ? "text-blue-400" : "text-yellow-600"}
+          size={24}
+        />
+        <h3
+          className={`text-lg font-semibold ${
+            isCodeDark ? "text-white" : "text-yellow-800"
+          }`}
+        >
+          Try It Yourself {isReviewMode && "(Review)"}
+        </h3>
       </div>
 
+      {/* Skills/Tags */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {exercise.tags?.map((tag) => (
+          <span
+            key={tag}
+            className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+              isCodeDark
+                ? "bg-blue-900/40 text-blue-300 border border-blue-800"
+                : "bg-yellow-100 text-yellow-700 border border-yellow-200"
+            }`}
+          >
+            {tag.replace("-", " ")}
+          </span>
+        ))}
+      </div>
+
+      <div className="flex items-center space-x-3">
+        <CodeThemeToggle />
+        {isReviewMode && (
+          <span
+            className={`px-2 py-1 rounded text-sm ${
+              isCodeDark
+                ? "bg-gray-700 text-gray-300"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
+            Review Mode
+          </span>
+        )}
+      </div>
+
+      {/* Instructions */}
       <div className={`mb-4 ${isCodeDark ? "text-gray-300" : "text-gray-800"}`}>
         <MarkdownRenderer content={exercise.instructions} isDark={isCodeDark} />
       </div>
@@ -297,6 +304,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Code Editor */}
       <div className="mb-4">
         <label
           className={`font-semibold ${
@@ -305,7 +313,6 @@ const ExerciseComponent = ({
         >
           Code Editor:
         </label>
-
         <CodeEditor
           value={userCode}
           onChange={setUserCode}
@@ -369,7 +376,7 @@ const ExerciseComponent = ({
               </p>
 
               {/* XP Earned */}
-              {testResults.xpEarned && (
+              {testResults.xpEarned > 0 && (
                 <div className="mt-2">
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
@@ -409,6 +416,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Expected Output Hint */}
       {exercise.expectedOutput && !testResults?.success && (
         <div
           className={`mb-4 p-3 rounded-lg border-l-4 ${
@@ -418,12 +426,16 @@ const ExerciseComponent = ({
           }`}
         >
           <p
-            className={`text-xs font-bold mb-1 ${isCodeDark ? "text-blue-400" : "text-blue-700"}`}
+            className={`text-xs font-bold mb-1 ${
+              isCodeDark ? "text-blue-400" : "text-blue-700"
+            }`}
           >
             TARGET OUTPUT:
           </p>
           <pre
-            className={`text-xs font-mono whitespace-pre-wrap ${isCodeDark ? "text-gray-400" : "text-gray-600"}`}
+            className={`text-xs font-mono whitespace-pre-wrap ${
+              isCodeDark ? "text-gray-400" : "text-gray-600"
+            }`}
           >
             {exercise.expectedOutput}
           </pre>
@@ -463,6 +475,7 @@ const ExerciseComponent = ({
         )}
       </div>
 
+      {/* Solution (Review Mode) */}
       {isReviewMode && showSolution && solution && (
         <div
           className={`mt-4 p-4 rounded border-2 ${
@@ -482,6 +495,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Action Buttons */}
       <div className="flex flex-wrap gap-4 mt-4">
         <button
           onClick={handleSubmit}
@@ -537,6 +551,7 @@ const ExerciseComponent = ({
         </button>
       </div>
 
+      {/* Hints */}
       {showHints && exercise.hints && (
         <div
           className={`mt-4 p-4 rounded-lg border ${
@@ -553,12 +568,16 @@ const ExerciseComponent = ({
             Hints:
           </h4>
           <div
-            className={`space-y-2 text-sm ${isCodeDark ? "text-white" : "text-gray-700"}`}
+            className={`space-y-2 text-sm ${
+              isCodeDark ? "text-white" : "text-gray-700"
+            }`}
           >
             {exercise.hints.map((hint, index) => (
               <div key={index} className="flex items-start">
                 <span
-                  className={`mr-2 mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full ${isCodeDark ? "bg-blue-400" : "bg-gray-400"}`}
+                  className={`mr-2 mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full ${
+                    isCodeDark ? "bg-blue-400" : "bg-gray-400"
+                  }`}
                 />
                 <MarkdownRenderer content={hint} isDark={isCodeDark} />
               </div>
@@ -567,6 +586,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Review Mode Notice */}
       {isReviewMode && (
         <div
           className={`mt-4 p-3 rounded ${
@@ -586,6 +606,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Python Loading Notice */}
       {!isReady && (
         <div
           className={`mt-4 p-3 rounded ${

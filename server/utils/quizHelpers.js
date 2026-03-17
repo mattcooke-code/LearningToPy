@@ -1,4 +1,8 @@
 // quizHelpers.js
+const {
+  XP,
+  calculateLessonQuizXP,
+} = require("../../shared/constants/progress");
 
 const hasQuiz = (lesson) => {
   return lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
@@ -45,13 +49,13 @@ const updateQuizProgress = (quizProgress, questionIndex, isCorrect) => {
   );
 
   if (!attempt) {
-    attempt = { questionIndex, attempts: 0, correct: false };
+    attempt = { questionIndex, attempts: 1, correct: isCorrect };
     quizProgress.questionAttempts.push(attempt);
-  }
-
-  attempt.attempts += 1;
-  if (isCorrect && !attempt.correct) {
-    attempt.correct = true;
+  } else {
+    attempt.attempts = (attempt.attempts || 1) + 1;
+    if (isCorrect && !attempt.correct) {
+      attempt.correct = true;
+    }
   }
 
   quizProgress.lastAttempt = new Date();
@@ -64,6 +68,16 @@ const getQuestionAttempts = (quizProgress, questionIndex) => {
     (qa) => qa.questionIndex === questionIndex,
   );
   return attempt?.attempts || 1;
+};
+
+/**
+ *  Calculate XP for a single correct quiz answer based on attempt count
+ * @param {number} attempts - Number of attempts for this question
+ * @returns {number} - XP to award
+ */
+
+const calculateQuizAnswerXP = (attempts) => {
+  return calculateLessonQuizXP(attempts);
 };
 
 //  Get all correct answers with attempt counts (for XP calculation)
@@ -89,5 +103,6 @@ module.exports = {
   isQuizCompleted,
   updateQuizProgress,
   getQuestionAttempts,
+  calculateQuizAnswerXP,
   getQuizResultsForXP,
 };

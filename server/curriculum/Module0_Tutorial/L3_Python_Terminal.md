@@ -8,14 +8,16 @@ The terminal is where your code comes to life! It's an interactive Python enviro
 
 ### Terminal Sections:
 
-1. **Terminal Toggle:** Show or hide the terminal window.
-2. **Terminal Input:** Type individual lines of Python code here to test them instantly.
-3. **Run Button:** Executes the code in the input box. The button turns green as soon as you start typing!
-4. **Terminal Output:** This area displays the results of your code or any error messages.
-5. **Clear Terminal:** Wipes the output area clean so you can start fresh. `Ctrl L` achieves the same result.
-6. **Copy:** Quickly copy all the text currently in the terminal to your clipboard.
-7. **Download:** Save your terminal history as a text file for future reference.
-8. **Quick Examples:** Not sure what to type? Click a preset example like "Hello World" or "Loop" to see Python in action immediately.
+|       |                     |                                                                                                                 |
+| ----- | ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **1** | **Terminal Toggle** | Show or hide the terminal window.                                                                               |
+| **2** | **Terminal Input**  | Type individual lines of Python code here to test them instantly.                                               |
+| **3** | **Run Button**      | Executes the code in the input box. The button turns green as soon as you start typing!                         |
+| **4** | **Terminal Output** | This area displays the results of your code or any error messages.                                              |
+| **5** | **Clear Terminal**  | Wipes the output area clean so you can start fresh. `Ctrl L` achieves the same result.                          |
+| **6** | **Copy**            | Quickly copy all the text currently in the terminal to your clipboard.                                          |
+| **7** | **Download**        | Save your terminal history as a text file for future reference.                                                 |
+| **8** | **Quick Examples**  | Not sure what to type? Click a preset example like "Hello World" or "Loop" to see Python in action immediately. |
 
 ## Interactive Python Mode
 
@@ -80,13 +82,6 @@ The terminal is your best friend for fixing errors:
 | Primary Use | Writing full programs     | Running and testing code       |
 | Storage     | Saves your code for later | Immediate, temporary results   |
 | Structure   | Many lines and functions  | Usually line-by-line execution |
-
-:::note
-
-Feel free to spend some time getting used to the terminal. Click some of the buttons. Try running some of the **Quick Examples**.
-
-_Remember: you can always click the **Clear Terminal** button._
-:::
 
 ## Next Up: Running Code
 

@@ -31,7 +31,7 @@ const Login = () => {
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Log In</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Start your Python journey today
+            Continue your Python journey
           </p>
         </div>
 
@@ -118,6 +118,16 @@ const Login = () => {
                 className="font-medium text-python-blue hover:text-python-dark transition-colors"
               >
                 Register here
+              </Link>
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              <Link
+                to="/forgot-password"
+                className="font-medium text-python-blue hover:text-python-dark transition-colors"
+              >
+                Forgot your password?{" "}
               </Link>
             </p>
           </div>

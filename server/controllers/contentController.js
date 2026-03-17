@@ -17,6 +17,8 @@ const {
   hasExercise,
   getOrCreateQuizProgress,
   updateQuizProgress,
+  getQuestionAttempts,
+  calculateQuizAnswerXP,
 } = require("../utils/quizHelpers");
 
 const {
@@ -36,6 +38,7 @@ const {
 const {
   evaluateBadges,
   checkLeaderboardBadges,
+  calculateExerciseSubmissionXP,
 } = require("../utils/gamification");
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
@@ -79,6 +82,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
         lessons,
       );
 
+      // Check if module is locked based on prerequisites
       const { isLocked } = checkPrerequisites(module, user.completedModules);
 
       return {
@@ -271,13 +275,14 @@ const submitLesson = catchAsync(async (req, res, next) => {
   let feedback = validationResult?.feedback || "Great job!";
   const quizProgress = getOrCreateQuizProgress(user, lessonId, lesson);
 
-  // 2. Validation Logic
-  let isCorrectValue = isCorrect;
+  let isCorrectValue = false;
 
+  // 2. Validation Logic
   if (hasExercise(lesson) && code !== undefined) {
     if (!code || code.trim() === "") {
       return next(new AppError("No code submitted", 400));
     }
+    isCorrectValue = isCorrect;
     feedback = validationResult?.feedback || "Code submitted successfully";
   } else if (hasQuiz(lesson) && answer !== undefined) {
     const currentQuestion = lesson.quiz[questionIndex];
@@ -285,16 +290,20 @@ const submitLesson = catchAsync(async (req, res, next) => {
       return next(new AppError("Invalid question index", 400));
 
     isCorrectValue = answer === currentQuestion.correctAnswer;
-    feedback = isCorrectValue
-      ? `Correct! ${currentQuestion.explanation || ""}`
-      : `Try again! ${currentQuestion.explanation || ""}`;
 
     if (isCorrectValue) {
+      feedback = `Correct! ${currentQuestion.explanation || ""}`;
       updateQuizProgress(quizProgress, questionIndex, isCorrectValue);
+    } else {
+      feedback = `Try again! ${currentQuestion.explanation || ""}`;
+      updateQuizProgress(quizProgress, questionIndex, false);
     }
-  } else if (lesson.contentType === "theory") {
+  } else if (
+    (code === undefined && answer === undefined) ||
+    lesson.contentType === "theory"
+  ) {
     isCorrectValue = true;
-    feedback = "Theory completed!";
+    feedback = "Status checked/Theory completed!";
     if (quizProgress) quizProgress.completed = true;
   }
 
@@ -362,6 +371,27 @@ const submitLesson = catchAsync(async (req, res, next) => {
   }
 
   // 4. Partial Success (answer correct but lesson not fully done)
+  let partialXPEarned = 0;
+
+  if (hasExercise(lesson) && code !== undefined && isCorrectValue) {
+    const submissions =
+      req.body.submissionHistory || (req.body.attemptNumber ? [req.body] : []);
+    const submissionCount = Math.max(1, submissions.length);
+    const firstTryPass =
+      submissionCount === 1 && (req.body.testsPassed || req.body.isCorrect);
+    partialXPEarned = calculateExerciseSubmissionXP(
+      submissionCount,
+      firstTryPass,
+    );
+
+    user.xp = (user.xp || 0) + partialXPEarned;
+  } else if (hasQuiz(lesson) && answer !== undefined && isCorrectValue) {
+    const attempts = getQuestionAttempts(quizProgress, questionIndex);
+    partialXPEarned = calculateQuizAnswerXP(attempts);
+
+    user.xp = (user.xp || 0) + partialXPEarned;
+  }
+
   await user.save();
   return sendJsonResponse(
     res,
@@ -371,6 +401,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
       isCorrect: isCorrectValue,
       feedback,
       completed: false,
+      xpEarned: partialXPEarned,
     },
   );
 });
@@ -449,13 +480,14 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   let moduleCompletedNow = false;
   let nextModuleId = null;
   let badgesUnlockedDetails = [];
+  let completionResult = null;
 
   if (passed) {
-    const completionResult = await processModuleCompletion(
+    completionResult = await processModuleCompletion(
       user,
       module,
       score,
-      results, // Pass results for per-answer XP calculation
+      results,
     );
 
     xpIncrease = completionResult.xpIncrease;
@@ -506,9 +538,7 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
       totalQuestions,
       results,
       xpEarned: xpIncrease,
-      xpBreakdown: moduleCompletedNow
-        ? completionResult?.xpBreakdown
-        : undefined,
+      xpBreakdown: completionResult?.xpBreakdown,
       moduleCompleted: moduleCompletedNow,
       progress: progressData,
       badgesUnlocked: badgesUnlockedDetails,

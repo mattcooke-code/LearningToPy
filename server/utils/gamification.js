@@ -448,11 +448,30 @@ const awardLeaderboardBadge = async (user, badgeId) => {
   return true;
 };
 
+/**
+ * Calculate XP for a coding exercise submission
+ * @param {number} submissionCount - Total submissions for this exercise
+ * @param {boolean} isFirstTryPass - Whether tests passed on first submission
+ * @returns {number} - XP to awarf
+ */
+const calculateExerciseSubmissionXP = (submissionCount, isFirstTryPass) => {
+  let xp = Math.min(
+    submissionCount * XP.EXERCISE.SUBMISSION_BASE,
+    XP.EXERCISE.MAX_SUBMISSION_XP,
+  );
+
+  if (isFirstTryPass) {
+    xp += XP.EXERCISE.FIRST_TRY_BONUS;
+  }
+  return xp;
+};
+
 module.exports = {
   evaluateBadges,
   getBadgeProgress,
   awardLeaderboardBadge,
   calculateLevelProgress,
   checkLeaderboardBadges,
+  calculateExerciseSubmissionXP,
   XP_PER_LEVEL,
 };

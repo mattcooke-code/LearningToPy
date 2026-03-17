@@ -1,9 +1,12 @@
 // authController.js
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const config = require("../config/envConfig");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
+const { sendEmail, createPasswordResetEmail } = require("../utils/mailer");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackLessonView } = require("../utils/streakManager");
 
@@ -231,6 +234,85 @@ const logout = catchAsync(async (req, res, next) => {
   return sendJsonResponse(res, 200, "Logged out successfully.");
 });
 
+const forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  const genericMessage =
+    "If an account with that email exists, a password reset link has been sent.";
+
+  if (!user) {
+    if (config.isDevelopment()) {
+      console.log(`Password reset attempted for non-existent email: ${email}`);
+    }
+    return sendJsonResponse(res, 200, genericMessage);
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetTokenExpires = Date.now() + 3600000; // 1hr
+
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpires = resetTokenExpires;
+  await user.save();
+
+  const resetUrl = `${config.getFrontendUrl()}/reset-password/${resetToken}`;
+
+  const emailContent = createPasswordResetEmail(resetUrl);
+
+  const emailResult = await sendEmail(
+    user.email,
+    emailContent.subject,
+    emailContent.html,
+  );
+
+  // In development, include preview info in response (optional)
+  if (config.isDevelopment() && emailResult.previewUrl) {
+    return sendJsonResponse(res, 200, genericMessage, {
+      previewUrl: emailResult.previewUrl,
+      resetToken: resetToken, // Only in development!
+    });
+  }
+
+  sendJsonResponse(res, 200, genericMessage);
+});
+
+const validateResetToken = catchAsync(async (req, res, next) => {
+  const { token } = req.params;
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(
+      new AppError("Password reset token is invalid or has expired.", 400),
+    );
+  }
+  sendJsonResponse(res, 200, "Token is valid.", { success: true });
+});
+
+const resetPassword = catchAsync(async (req, res, next) => {
+  const { token, newPassword } = req.body;
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(
+      new AppError("Password reset token is invalid or has expired.", 400),
+    );
+  }
+
+  user.password = await bcrypt.hash(newPassword, 12);
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
+  await user.save();
+
+  sendJsonResponse(res, 200, "Your password has been updated successfully.");
+});
+
 const updatePrivacySettings = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const { showOnLeaderboards, showAsAnonymous, showUsernameOnLeaderboards } =
@@ -272,5 +354,8 @@ module.exports = {
   getUser,
   refreshToken,
   logout,
+  forgotPassword,
+  validateResetToken,
+  resetPassword,
   updatePrivacySettings,
 };
