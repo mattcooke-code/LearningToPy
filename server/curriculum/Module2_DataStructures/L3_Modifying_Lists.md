@@ -70,6 +70,14 @@ If you're adding multiple items, `extend()` is more efficient than repeatedly ca
 ⚡ **The Plus Operator (+)**: You can also use the `+` operator to combine two lists, but this creates a new list entirely, rather than modifying the original list in place. Use append/insert/extend when you want to change the existing list.
 :::
 
+| Action                 | Method / Syntax        | Effect                                                     | Modifies Original? |
+| ---------------------- | ---------------------- | ---------------------------------------------------------- | ------------------ |
+| **Update Item**        | `list[i] = new_item`   | Replaces the element at a specific position.               | ✅ Yes             |
+| **Add to End**         | `.append(new_item)`    | Adds a single item to the very end of the list.            | ✅ Yes             |
+| **Insert at Position** | `.insert(i, new_item)` | Adds an item at a specific index; shifts others right.     | ✅ Yes             |
+| **Merge Lists**        | `list1.extend(list2)`  | Appends all items from another list/collection to the end. | ✅ Yes             |
+| **Combine Lists**      | `list1 + list2`        | Joins two lists to create a brand new list.                | ❌ No              |
+
 :::summary
 
 - Lists are **mutable** - you can change their contents

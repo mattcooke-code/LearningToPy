@@ -12,8 +12,10 @@ The basic syntax for slicing uses the colon (`:`) separator inside the square br
 
 ### `list[start:stop]`
 
-- **`start`**: The index where the slice **begins**. This element is **included** in the new list. If omitted, it defaults to `0`.
-- **`stop`**: The index where the slice **ends**. This element is **NOT included** in the new list (it stops _before_ this index). If omitted, it defaults to the **end of the list**.
+|         |                                      |                                                                                                                                     |
+| ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `start` | The index where the slice **begins** | This element is **included** in the new list. If omitted, it defaults to `0`.                                                       |
+| `stop`  | The index where the slice **ends**   | This element is **NOT included** in the new list (it stops _before_ this index). If omitted, it defaults to the **end of the list** |
 
 ```python
 letters = ["A", "B", "C", "D", "E", "F"]
