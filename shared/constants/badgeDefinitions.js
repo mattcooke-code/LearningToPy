@@ -26,7 +26,7 @@
  * null — M0, cross-module badges
  */
 
-export const BADGE_DEFINITIONS_CORE = [
+const BADGE_DEFINITIONS_CORE = [
   // ─── M0: TUTORIAL ───────────────────────────────────────────
   {
     id: "orientation-complete",
@@ -379,3 +379,12 @@ export const BADGE_DEFINITIONS_CORE = [
     image: "/badges/other/",
   },
 ];
+
+// --- UNIVERSAL EXPORT ---
+if (typeof module !== "undefined" && module.exports) {
+  // Server-side (Node.js)
+  module.exports = { BADGE_DEFINITIONS_CORE };
+}
+
+// Client-side (Vite/React)
+export { BADGE_DEFINITIONS_CORE };

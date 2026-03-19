@@ -1,6 +1,6 @@
 // /shared/progress.js
 
-export const THRESHOLDS = Object.freeze({
+const THRESHOLDS = Object.freeze({
   // Completion thresholds
   LESSON_PASS: 100,
   MODULE_PASS: 100,
@@ -12,7 +12,7 @@ export const THRESHOLDS = Object.freeze({
   }),
 });
 
-export const XP = Object.freeze({
+const XP = Object.freeze({
   // Core progression
   PER_LEVEL: 100,
 
@@ -64,7 +64,7 @@ export const XP = Object.freeze({
 });
 
 // Helper: Calculate XP for a lesson quiz answer based on attempts
-export const calculateLessonQuizXP = (attempts) => {
+const calculateLessonQuizXP = (attempts) => {
   if (attempts <= 1) return XP.LESSON_QUIZ.CORRECT.FIRST_ATTEMPT;
   if (attempts === 2) return XP.LESSON_QUIZ.CORRECT.SECOND_ATTEMPT;
   if (attempts === 3) return XP.LESSON_QUIZ.CORRECT.THIRD_ATTEMPT;
@@ -72,7 +72,7 @@ export const calculateLessonQuizXP = (attempts) => {
 };
 
 // Helper: Calculate XP for a coding exercise
-export const calculateExerciseXP = (submissionCount, isFirstTryPass) => {
+const calculateExerciseXP = (submissionCount, isFirstTryPass) => {
   let xp = Math.min(
     submissionCount * XP.EXERCISE.SUBMISSION_BASE,
     XP.EXERCISE.MAX_SUBMISSION_XP,
@@ -84,14 +84,29 @@ export const calculateExerciseXP = (submissionCount, isFirstTryPass) => {
 };
 
 // Helper: Get module phase bonus
-export const getPhaseBonus = (phase) => {
+const getPhaseBonus = (phase) => {
   if (phase === 1) return XP.MODULE.PHASE_1_BONUS;
   if (phase === 2) return XP.MODULE.PHASE_2_BONUS;
   if (phase === 3) return XP.MODULE.PHASE_3_BONUS;
   return 0;
 };
 
-export default {
+// --- UNIVERSAL EXPORT ---
+// This part makes it work for BOTH Node.js (CommonJS) and React (ESM)
+if (typeof module !== "undefined" && module.exports) {
+  // For Node.js (Server)
+  module.exports = {
+    THRESHOLDS,
+    XP,
+    calculateLessonQuizXP,
+    calculateExerciseXP,
+    getPhaseBonus,
+  };
+}
+
+// For Vite/React (Frontend)
+// We add these explicit exports so the "Named Export" error goes away
+export {
   THRESHOLDS,
   XP,
   calculateLessonQuizXP,

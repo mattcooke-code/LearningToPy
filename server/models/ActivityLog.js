@@ -52,7 +52,7 @@ const activityLogSchema = new mongoose.Schema(
       completedAt: Date,
     },
     ipAddress: String,
-    timestamp: { type: Date, default: Date.now, index: true },
+    timestamp: { type: Date, default: Date.now },
   },
   { timestamps: true },
 );
