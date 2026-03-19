@@ -18,6 +18,7 @@ const errorHandler = require("./middleware/errorHandler");
 
 // Routes
 const adminRoutes = require("./routes/admin");
+const analyticsRoutes = require("./routes/analytics");
 const authRoutes = require("./routes/auth");
 const progressRoutes = require("./routes/progress");
 const contentRoutes = require("./routes/content");
@@ -31,7 +32,7 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 
 // Database
@@ -49,6 +50,7 @@ connectDB();
 
 // Routes
 app.use("/api/admin", adminRoutes);
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/content", contentRoutes);

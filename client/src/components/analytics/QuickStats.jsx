@@ -1,4 +1,4 @@
-// components/analytics/QuickStats.jsx
+// /components/analytics/QuickStats.jsx
 export const QuickStats = ({ platformMetrics }) => {
   if (!platformMetrics) return null;
 
@@ -6,25 +6,25 @@ export const QuickStats = ({ platformMetrics }) => {
     {
       value: platformMetrics.monthlyActiveUsers?.toLocaleString() || "0",
       label: "Monthly Active Users",
-      change: "↑ 15% from last month",
+      change: "↑ from last month",
       gradient: "from-blue-500 to-blue-600",
     },
     {
       value: platformMetrics.totalLessonsCompleted?.toLocaleString() || "0",
       label: "Total Lessons Completed",
-      change: "↑ 8% from last month",
+      change: "↑ from last month",
       gradient: "from-green-500 to-green-600",
     },
     {
-      value: `${(platformMetrics.totalXP / 1000000).toFixed(1) || "0"}M`,
+      value: platformMetrics.totalXP?.toLocaleString() || "0",
       label: "Total XP Earned",
-      change: "↑ 12% from last month",
+      change: "↑ from last month",
       gradient: "from-purple-500 to-purple-600",
     },
     {
-      value: `${platformMetrics.avgSessionDuration || "0"}m`,
-      label: "Average Session Duration",
-      change: "↑ 2m from last month",
+      value: `${platformMetrics.avgSessionDuration || 0}m`,
+      label: "Average Session",
+      change: "↑ from last month",
       gradient: "from-orange-500 to-orange-600",
     },
   ];

@@ -12,16 +12,31 @@ import {
 import { CustomTooltip } from "./CustomTooltip";
 
 export const ActivityChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-400">
+        No activity data available for this period
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height="100%" debounce={50}>
-      <LineChart data={data || []}>
+      <LineChart
+        data={data}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      >
         <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
         <XAxis
           dataKey="date"
           stroke="#9CA3AF"
           tick={{ fill: "#9CA3AF", fontSize: 12 }}
         />
-        <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: 12 }} />
+        <YAxis
+          stroke="#9CA3AF"
+          tick={{ fill: "#9CA3AF", fontSize: 12 }}
+          width={40}
+        />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
         <Line

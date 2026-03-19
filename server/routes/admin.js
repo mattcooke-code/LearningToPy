@@ -49,5 +49,10 @@ router.patch("/settings", adminController.updateSettings);
 
 // Analytics
 router.get("/analytics", analyticsController.getPlatformAnalytics);
+router.get(
+  "/analytics/content/:contentId",
+  analyticsController.getContentAnalytics,
+);
+router.get("/analytics/users/:userId", analyticsController.getUserAnalytics);
 
 module.exports = router;

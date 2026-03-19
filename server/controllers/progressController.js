@@ -302,6 +302,20 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   });
 });
 
+const startLesson = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+
+  const lesson = await Lesson.findById(lessonId);
+  if (!lesson) {
+    return next(new AppError("Lesson not found", 404));
+  }
+
+  sendJsonResponse(res, 200, "Lesson started", {
+    lessonId,
+    timestamp: new Date(),
+  });
+});
+
 const completeLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const submissionData = req.body;
@@ -389,6 +403,7 @@ module.exports = {
   getSurroundingLeaderboard,
   getTopLeaderboard,
   getModuleLeaderboard,
+  startLesson,
   completeLesson,
   completeModule,
   checkStreak,

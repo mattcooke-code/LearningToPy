@@ -1,4 +1,4 @@
-// AuthContext.jsx
+// AuthContext.jsx (updated with analytics headers)
 import {
   createContext,
   useContext,
@@ -11,8 +11,48 @@ import axios from "axios";
 import { useNotification } from "../context/NotificationContext";
 import { jwtDecode } from "jwt-decode";
 import { getErrorMessage } from "../utils";
+import { v4 as uuidv4 } from "uuid"; // Make sure to install: npm install uuid
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
+// --- ANALYTICS HELPER FUNCTIONS ---
+const getDeviceInfo = () => {
+  const ua = navigator.userAgent;
+  const platform = navigator.platform;
+
+  // Detect platform
+  let platformName = "unknown";
+  if (platform.includes("Win")) platformName = "Windows";
+  else if (platform.includes("Mac")) platformName = "macOS";
+  else if (platform.includes("Linux")) platformName = "Linux";
+  else if (/Android/.test(ua)) platformName = "Android";
+  else if (/iPhone|iPad|iPod/.test(ua)) platformName = "iOS";
+
+  // Detect if mobile
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
+
+  // Get screen size
+  const screenSize = `${window.screen.width}x${window.screen.height}`;
+
+  return {
+    userAgent: ua,
+    platform: platformName,
+    isMobile,
+    screenSize,
+    language: navigator.language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  };
+};
+
+// Get or create session ID
+const getSessionId = () => {
+  let sessionId = localStorage.getItem("sessionId");
+  if (!sessionId) {
+    sessionId = uuidv4();
+    localStorage.setItem("sessionId", sessionId);
+  }
+  return sessionId;
+};
 
 // --- AXIOS INSTANCES ---
 export const apiClient = axios.create({
@@ -33,6 +73,33 @@ export const adminApiClient = axios.create({
   withCredentials: true,
 });
 
+// --- ANALYTICS REQUEST INTERCEPTOR ---
+const setupAnalyticsHeaders = (instance) => {
+  instance.interceptors.request.use((config) => {
+    // Skip analytics headers for certain endpoints if needed
+    const skipAnalytics = config.skipAnalytics === true;
+
+    if (!skipAnalytics && typeof window !== "undefined") {
+      // Add session ID
+      config.headers["x-session-id"] = getSessionId();
+
+      // Add device info (stringified to avoid complex objects in headers)
+      const deviceInfo = getDeviceInfo();
+      config.headers["x-device-info"] = JSON.stringify(deviceInfo);
+
+      // Add page path for page views
+      if (window.location) {
+        config.headers["x-page-path"] = window.location.pathname;
+      }
+    }
+
+    return config;
+  });
+};
+
+// Apply analytics headers to all clients
+[apiClient, authApiClient, adminApiClient].forEach(setupAnalyticsHeaders);
+
 /**
  * Shared Helper: Unwraps the backend "envelope" (response.data.data)
  * so the application only sees the actual payload.
@@ -41,7 +108,7 @@ const unwrapResponse = (response) => {
   return response.data?.data !== undefined ? response.data.data : response.data;
 };
 
-// Apply unwrapper to  interceptors
+// Apply unwrapper to interceptors
 [apiClient, adminApiClient, authApiClient].forEach((instance) => {
   instance.interceptors.response.use(
     (response) => unwrapResponse(response),
@@ -150,6 +217,38 @@ const setupInterceptors = (
   };
 };
 
+// --- SESSION END TRACKER ---
+
+const setupSessionEndTracking = () => {
+  if (typeof window === "undefined") return;
+
+  const startTime = Date.now();
+  const sessionId = getSessionId();
+
+  const handleBeforeUnload = () => {
+    const duration = Math.round((Date.now() - startTime) / 1000);
+
+    // Get device info one more time
+    const deviceInfo = getDeviceInfo();
+
+    const data = JSON.stringify({
+      sessionId,
+      duration,
+      actionType: "SESSION_END",
+      deviceInfo, // Include device info in body as backup
+    });
+
+    // Use sendBeacon for reliable last request
+    navigator.sendBeacon(`${BACKEND_URL}/api/analytics/session-end`, data);
+  };
+
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  };
+};
+
 // --- AUTHCONTEXT DEFINITION ---
 const AuthContext = createContext(null);
 
@@ -243,6 +342,7 @@ export const AuthProvider = ({ children }) => {
         delete authApiClient.defaults.headers.common["Authorization"];
         localStorage.removeItem("accessToken");
         sessionStorage.removeItem("accessToken");
+        localStorage.removeItem("sessionId");
         setAuthData(null, null);
         showToast(message || "You have been logged out", "info");
         setLoading(false);
@@ -400,6 +500,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, [setAuthData, user, refreshAuthToken]);
 
+  // Setup session end tracking when user is authenticated
+  useEffect(() => {
+    if (user) {
+      const cleanup = setupSessionEndTracking();
+      return cleanup;
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
@@ -428,6 +536,8 @@ export const AuthProvider = ({ children }) => {
     leaderboardVersion,
     triggerLeaderboardRefresh: () => setLeaderboardVersion((v) => v + 1),
     isUserAdmin,
+    // Expose analytics helpers if needed elsewhere
+    sessionId: typeof window !== "undefined" ? getSessionId() : null,
   };
 
   return (

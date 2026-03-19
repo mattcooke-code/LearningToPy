@@ -5,7 +5,6 @@ export { default as AdminSettingsPanel } from "./AdminSettingsPanel";
 export { default as AdminSidebar } from "./AdminSidebar";
 export { default as AdminStatsCard } from "./AdminStatsCard";
 export { default as AdminTabPreview } from "./AdminTabPreview";
-export { default as AnalyticsChart } from "./AnalyticsChart";
 export { default as ContentManagementTable } from "./ContentManagementTable";
 export { default as FlaggedContentList } from "./FlaggedContentList";
 export { default as SaveStatusIndicator } from "./SaveStatusIndicator";

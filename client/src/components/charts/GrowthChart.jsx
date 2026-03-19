@@ -1,12 +1,11 @@
-// GrowthChart.jsx
+// /components/charts/GrowthChart.jsx
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { CustomTooltip } from "./CustomTooltip";
@@ -14,29 +13,32 @@ import { CustomTooltip } from "./CustomTooltip";
 export const GrowthChart = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height="100%" debounce={50}>
-      <BarChart data={data || []}>
+      <AreaChart data={data || []}>
         <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
         <XAxis
-          dataKey="month"
+          dataKey="_id"
           stroke="#9CA3AF"
           tick={{ fill: "#9CA3AF", fontSize: 12 }}
         />
         <YAxis stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: 12 }} />
         <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        <Bar
+        <Area
+          type="monotone"
           dataKey="newUsers"
           name="New Users"
+          stroke="#3B82F6"
           fill="#3B82F6"
-          radius={[4, 4, 0, 0]}
+          fillOpacity={0.3}
         />
-        <Bar
-          dataKey="activeUsers"
-          name="Active Users"
+        <Area
+          type="monotone"
+          dataKey="cumulativeUsers"
+          name="Total Users"
+          stroke="#10B981"
           fill="#10B981"
-          radius={[4, 4, 0, 0]}
+          fillOpacity={0.3}
         />
-      </BarChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 };

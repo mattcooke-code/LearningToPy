@@ -51,14 +51,6 @@ export const ANALYTICS_CHARTS = [
   { id: "segments", label: "Segments", icon: Target, color: "pink" },
 ];
 
-export const DATE_RANGES = [
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "90d", label: "Last 90 days" },
-  { value: "1y", label: "Last year" },
-  { value: "all", label: "All time" },
-];
-
 export const CHART_COLORS = {
   primary: ["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EF4444"],
   blue: "#3B82F6",
@@ -67,3 +59,18 @@ export const CHART_COLORS = {
   orange: "#F59E0B",
   pink: "#EC4899",
 };
+
+export const ANALYTICS_TIME_RANGES = [
+  { value: "24hr", label: "Last 24 Hours" },
+  { value: "7d", label: "Last 7 Days" },
+  { value: "30d", label: "Last 30 Days" },
+  { value: "90d", label: "Last 90 Days" },
+  { value: "1y", label: "Last Year" },
+  { value: "all", label: "All Time" },
+];
+
+export const ANALYTICS_GROUP_BY = [
+  { value: "day", label: "Daily" },
+  { value: "week", label: "Weekly" },
+  { value: "month", label: "Monthly" },
+];

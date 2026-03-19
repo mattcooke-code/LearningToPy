@@ -1,4 +1,4 @@
-// MetricsGrid.jsx
+// /components/analytics/MetricsGrid.jsx
 import { Users, TrendingUp, Target, BookOpen } from "lucide-react";
 
 export const MetricsGrid = ({ platformMetrics }) => {
@@ -9,7 +9,7 @@ export const MetricsGrid = ({ platformMetrics }) => {
       icon: Users,
       label: "Daily Active",
       value: platformMetrics.dailyActiveUsers?.toLocaleString() || "0",
-      change: "+12%",
+      change: "+12%", // You could calculate this dynamically
       color: "blue",
     },
     {
@@ -22,7 +22,7 @@ export const MetricsGrid = ({ platformMetrics }) => {
     {
       icon: Target,
       label: "Total XP",
-      value: `${(platformMetrics.totalXP / 1000000).toFixed(1) || 0}M`,
+      value: platformMetrics.totalXP?.toLocaleString() || "0",
       change: "+5%",
       color: "yellow",
     },
@@ -45,8 +45,12 @@ export const MetricsGrid = ({ platformMetrics }) => {
             className="bg-white dark:bg-gray-800 rounded-lg shadow p-4"
           >
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <div
+                className={`p-2 rounded-lg bg-${metric.color}-100 dark:bg-${metric.color}-900/20`}
+              >
+                <Icon
+                  className={`h-5 w-5 text-${metric.color}-600 dark:text-${metric.color}-400`}
+                />
               </div>
               <span className="text-xs font-medium text-green-600 dark:text-green-400">
                 {metric.change}

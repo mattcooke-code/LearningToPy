@@ -1,3 +1,4 @@
+// DevicesChart.jsx
 import {
   PieChart,
   Pie,
@@ -10,9 +11,17 @@ import { CustomTooltip } from "./CustomTooltip";
 import { CHART_COLORS } from "../../constants/adminConstants";
 
 export const DevicesChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-400">
+        No device data available yet
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height="100%" debounce={50}>
-      <PieChart>
+      <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
         <Pie
           data={data || []}
           cx="50%"
@@ -21,9 +30,11 @@ export const DevicesChart = ({ data }) => {
           outerRadius={80}
           dataKey="percentage"
           nameKey="device"
-          label={({ name, percentage }) => `${name}: ${percentage}%`}
+          label={({ device, percentage }) =>
+            `${device}: ${percentage.toFixed(1)}%`
+          }
         >
-          {(data || []).map((entry, index) => (
+          {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
               fill={CHART_COLORS.primary[index % CHART_COLORS.primary.length]}
