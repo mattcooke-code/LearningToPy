@@ -1,4 +1,3 @@
-// SegmentedLevelProgressBar.jsx - UPDATED for Course Complete State
 import { useTheme } from "../../context";
 
 const SegmentedLevelProgressBar = ({
@@ -10,113 +9,112 @@ const SegmentedLevelProgressBar = ({
 }) => {
   const { getModuleThemeColor } = useTheme();
 
-  // 🎉 COURSE COMPLETE: Level 20 = all segments filled
+  // --- LOGIC FROM NEW VERSION ---
   const isCourseComplete = currentLevel >= 20;
 
-  // Determine segment count (default to 6 if no module data)
+  // If course complete, show 20 blocks. Otherwise, one block per lesson.
   const segmentCount = isCourseComplete
     ? 20
     : totalLessons > 0
       ? totalLessons
       : 6;
+
   const progressPercentage = isCourseComplete
     ? 100
     : totalLessons > 0
       ? (lessonsCompleted / totalLessons) * 100
       : 0;
 
-  // Color based on phase (matches badge tiers)
-  const getPhaseColor = (moduleOrder) => {
-    if (!moduleOrder) return "#22c55e"; // Default green
-    if (moduleOrder <= 9) return "#cd7f32"; // Bronze (Phase 1)
-    if (moduleOrder <= 15) return "#c0c0c0"; // Silver (Phase 2)
-    return "#ffd700"; // Gold (Phase 3)
-  };
+  // --- STYLE FROM OLD VERSION ---
+  // Restoring the vibrant color progression
+  const getSegmentColor = (index) => {
+    if (isCourseComplete) return "#800080"; // Purple/Gold for total completion
 
-  const themeColor = isCourseComplete
-    ? "#800080" // Gold for course complete
-    : currentModule
-      ? getPhaseColor(currentModule.order)
-      : getModuleThemeColor(currentLevel);
+    const segmentProgress = ((index + 1) / segmentCount) * 100;
+    if (segmentProgress <= 25) return "#ef4444"; // Red
+    if (segmentProgress <= 45) return "#f97316"; // Orange
+    if (segmentProgress <= 65) return "#FFD700"; // Yellow
+    if (segmentProgress <= 85) return "#84cc16"; // Lime
+    return "#22c55e"; // Green
+  };
 
   return (
     <div className="w-full">
       {showLabels && (
-        <div className="flex justify-between items-center mb-2">
-          <div>
-            <p className="text-sm font-medium text-gray-600">Course Level</p>
-            <p className="text-2xl font-bold" style={{ color: themeColor }}>
-              {isCourseComplete ? "🎉 Level 20" : `Level ${currentLevel}`}
-            </p>
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-700">
+              {isCourseComplete
+                ? "🎉 Course Complete"
+                : `Level ${currentLevel}`}
+            </span>
+            {!isCourseComplete && currentModule && (
+              <span className="text-xs text-gray-500">
+                Module {currentModule.order}: {currentModule.title}
+              </span>
+            )}
           </div>
           <div className="text-right">
-            {isCourseComplete ? (
-              <p className="text-sm text-green-600 font-medium">
-                ✨ Course Complete!
-              </p>
-            ) : currentModule ? (
-              <>
-                <p className="text-sm text-gray-500">
-                  Module {currentModule.order}: {currentModule.title}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {lessonsCompleted}/{totalLessons} lessons
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-gray-500">Getting started...</p>
-            )}
+            <span className="text-sm font-bold text-gray-900">
+              {Math.round(progressPercentage)}%
+            </span>
+            <span className="ml-1 text-xs text-gray-500">Complete</span>
           </div>
         </div>
       )}
 
-      {/* Segmented Progress Bar */}
-      <div className="flex h-4 w-full space-x-0.5 rounded-full bg-gray-200 p-0.5">
+      {/* Segmented Progress Bar - Restored to Old Styling */}
+      <div className="flex h-6 w-full space-x-1 rounded-full bg-gray-200 p-1">
         {Array.from({ length: segmentCount }).map((_, index) => {
-          // Course complete = ALL segments filled (gold)
-          const isCompleted = isCourseComplete
-            ? true
-            : index < lessonsCompleted;
-          const isCurrent = !isCourseComplete && index === lessonsCompleted;
+          const isFilled = isCourseComplete || index < lessonsCompleted;
+          const segmentColor = getSegmentColor(index);
 
           return (
             <div
               key={index}
-              className={`relative flex-1 overflow-hidden rounded-sm transition-all duration-300 ${
-                isCurrent ? "ring-2 ring-offset-1" : ""
-              }`}
+              className="relative flex-1 overflow-hidden rounded-full transition-all duration-300"
               style={{
-                backgroundColor: isCompleted ? themeColor : "transparent",
-                borderColor: isCompleted ? themeColor : "#e5e7eb",
-                borderWidth: "1px",
-                ringColor: isCurrent ? themeColor : "transparent",
-                opacity: isCompleted ? 1 : 0.5,
+                backgroundColor: isFilled ? segmentColor : "transparent",
+                border: `2px solid ${isFilled ? segmentColor : "#e5e7eb"}`,
               }}
               title={
                 isCourseComplete
                   ? `Module ${index + 1} ✓`
                   : `Lesson ${index + 1}`
               }
-            />
+            >
+              {/* Optional: Segment Number (Old style had this) */}
+              {showLabels && segmentCount <= 12 && (
+                <span
+                  className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold ${isFilled ? "text-white" : "text-gray-400"}`}
+                >
+                  {index + 1}
+                </span>
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* Phase Indicator */}
+      {/* Footer Labels - Merged Context */}
       {showLabels && (
-        <div className="mt-2 flex justify-between text-xs text-gray-500">
-          <span>
+        <div className="mt-3 flex justify-between text-xs">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <div className="h-2 w-2 rounded-full bg-red-500" />
+              <span className="text-gray-500">Start</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <span className="text-gray-500">Finish</span>
+            </div>
+          </div>
+
+          <div className="text-right font-medium text-gray-600">
             {isCourseComplete
-              ? "🏆 All Phases Complete"
-              : currentModule
-                ? currentModule.order <= 9
-                  ? "🥉 Phase 1: Fundamentals"
-                  : currentModule.order <= 15
-                    ? "🥈 Phase 2: Intermediate"
-                    : "🥇 Phase 3: Advanced"
-                : "Get started to begin your journey"}
-          </span>
-          <span>{Math.round(progressPercentage)}% complete</span>
+              ? "🏆 20/20 Modules Mastered"
+              : `${lessonsCompleted} / ${totalLessons} Lessons`}
+          </div>
         </div>
       )}
     </div>
