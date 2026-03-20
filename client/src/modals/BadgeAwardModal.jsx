@@ -111,6 +111,22 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
       }
       size="4xl"
     >
+      {user && (
+        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center text-xl">
+              {user.username?.charAt(0)?.toUpperCase() || "U"}
+            </div>
+          </div>
+          <h4 className="font-semibold text-gray-900 dark:text-white">
+            {user.username}
+          </h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {user.email} • Level {user.level} • {user.xp} XP
+          </p>
+        </div>
+      )}
+
       {/* Search and Stats */}
       <div className="mb-6">
         <div className="relative mb-4">

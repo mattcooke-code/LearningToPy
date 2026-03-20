@@ -22,8 +22,20 @@ const parseDeviceInfo = (headers) => {
 // ✅ Truncate the last octet of an IPv4 address, or the last group of an IPv6
 const anonymiseIp = (ip) => {
   if (!ip) return null;
-  if (ip.includes(".")) return ip.replace(/\.\d+$/, ".0"); // IPv4
-  if (ip.includes(":")) return ip.replace(/:[^:]+$/, ":0000"); // IPv6
+  // Remove IPv6 prefix if present (e.g., "::ffff:192.168.1.1")
+  let cleanIp = ip;
+  if (ip.includes("::ffff:")) {
+    cleanIp = ip.split("::ffff:")[1];
+  }
+
+  if (cleanIp.includes(".")) {
+    // IPv4 - replace last octet with .0
+    return cleanIp.replace(/\.\d+$/, ".0");
+  }
+  if (cleanIp.includes(":")) {
+    // IPv6 - replace last group with :0000
+    return cleanIp.replace(/:[^:]+$/, ":0000");
+  }
   return null;
 };
 

@@ -8,6 +8,36 @@ const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
+const { anonymiseIp } = require("../utils/parseDeviceInfo");
+
+// ======= HELPER FUNCTION =======
+const createAdminLog = async (
+  adminId,
+  action,
+  targetType,
+  targetId,
+  changes,
+  reason,
+  req,
+) => {
+  try {
+    // Anonymise IP address for data protection compliance
+    const anonymizedIp = anonymiseIp(req.ip || req.connection.remoteAddress);
+
+    await AdminLog.create({
+      adminId,
+      action,
+      targetType,
+      targetId,
+      changes,
+      reason: reason || "",
+      ipAddress: anonymizedIp,
+      userAgent: req.headers["user-agent"],
+    });
+  } catch (logError) {
+    console.error("Failed to create admin log:", logError);
+  }
+};
 
 const toggleAdminStatus = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
@@ -431,17 +461,16 @@ const awardBadges = catchAsync(async (req, res, next) => {
   if (newBadges.length > 0) {
     user.badges = [...new Set([...user.badges, ...newBadges])];
 
-    try {
-      await AdminLog.create({
-        adminId: req.userId,
-        action: "AWARD_BADGES",
-        targetType: "user",
-        targetId: user._id,
-        changes: { added: newBadges, reason },
-      });
-    } catch (logError) {
-      console.error("Failed to create admin log:", logError);
-    }
+    await createAdminLog(
+      req.userId,
+      "AWARD_BADGES",
+      "user",
+      user._id,
+      { added: newBadges, reason },
+      reason,
+      req,
+    );
+
     await user.save();
   }
 
@@ -459,22 +488,32 @@ const removeBadges = catchAsync(async (req, res, next) => {
 
   if (!user) return next(new AppError("User not found", 404));
 
-  user.badges = user.badges.filter((id) => !badgeIds.includes(id));
+  const removedBadges = badgeIds.filter((id) => user.badges.includes(id));
 
-  await AdminLog.create({
-    adminId: req.userId,
-    action: "REMOVE_BADGES",
-    targetType: "user",
-    targetId: user._id,
-    changes: { removed: badgeIds, reason },
-  });
+  if (removedBadges.length > 0) {
+    user.badges = user.badges.filter((id) => !badgeIds.includes(id));
 
-  await user.save();
+    await createAdminLog(
+      req.userId,
+      "REMOVE_BADGES",
+      "user",
+      user._id,
+      { removed: removedBadges, reason },
+      reason,
+      req,
+    );
 
-  sendJsonResponse(res, 200, `Successfully removed ${badgeIds.length} badges`, {
-    removed: badgeIds,
-    remaining: user.badges.length,
-  });
+    await user.save();
+  }
+  sendJsonResponse(
+    res,
+    200,
+    `Successfully removed ${removedBadges.length} badges`,
+    {
+      removed: removedBadges,
+      remaining: user.badges.length,
+    },
+  );
 });
 
 const overrideUserProgress = catchAsync(async (req, res, next) => {
