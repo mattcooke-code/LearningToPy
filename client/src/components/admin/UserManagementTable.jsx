@@ -1,11 +1,12 @@
-// UserManagmentTable.jsx
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNotification, adminApiClient } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
 import {
   XPAdjustmentModal,
   ProgressOverrideModal,
   UserDetailModal,
+  BadgeAwardModal,
 } from "../../modals";
 import {
   ChevronDown,
@@ -18,26 +19,41 @@ import {
   CheckCircle,
   UserX,
   UserCheck,
+  Award,
+  ShieldCheck as ShieldCheckIcon,
 } from "lucide-react";
 import { LoadingState, Pagination } from "../ui";
 import UserTableFilters from "./UserTableFilters";
 
-const UserManagementTable = ({ searchQuery = "" }) => {
+// Props: searchQuery, onGrantBadge (if you want to lift state up)
+const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
   const { showToast } = useNotification();
-  const intialFilters = {
+  const initialFilters = {
     isBlocked: "",
     isAdmin: "",
     levelMin: "",
     levelMax: "",
   };
 
-  // 1. Table & Fetching State
+  // Table & Fetching State
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("descend");
-  const [filters, setFilters] = useState(intialFilters);
+  const [filters, setFilters] = useState(initialFilters);
 
-  // 2. Data Fetching Hook
+  // Modal States
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showXPModal, setShowXPModal] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+
+  // Dropdown Portal State
+  const [activeDropdownUser, setActiveDropdownUser] = useState(null);
+  const buttonRefs = useRef({});
+  const dropdownRef = useRef(null);
+
+  // Data Fetching
   const queryParams = useMemo(
     () => ({
       page,
@@ -46,7 +62,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
       query: searchQuery,
       ...filters,
     }),
-    [page, sortField, sortOrder, searchQuery, filters]
+    [page, sortField, sortOrder, searchQuery, filters],
   );
 
   const {
@@ -55,56 +71,74 @@ const UserManagementTable = ({ searchQuery = "" }) => {
     refetch: refresh,
   } = useAdminData(
     () => adminApiClient.get("/users/search", { params: queryParams }),
-    [queryParams]
+    [queryParams],
   );
 
   const users = data?.users || [];
   const totalPages = data?.pagination?.totalPages || 1;
 
-  // 3. Mutation Hooks
+  // Mutations
   const { mutate: updateStatus } = useAdminMutation(
     (vars) => adminApiClient.patch(`/users/${vars.id}/status`, vars.body),
-    { successResource: "User status" }
+    { successResource: "User status" },
   );
 
   const { mutate: updateAdmin } = useAdminMutation(
     (vars) => adminApiClient.patch(`/users/${vars.id}/admin-status`, vars.body),
-    { successResource: "Admin permissions" }
+    { successResource: "Admin permissions" },
   );
 
-  // 4. Modal & UI State
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showXPModal, setShowXPModal] = useState(false);
-  const [showProgressModal, setShowProgressModal] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [actionMenu, setActionMenu] = useState(null);
+  // Click outside handler for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        const isClickOnButton = Object.values(buttonRefs.current).some(
+          (btn) => btn && btn.contains(event.target),
+        );
+        if (!isClickOnButton) {
+          setActiveDropdownUser(null);
+        }
+      }
+    };
 
-  // --- Handlers ---
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
+  // Handlers
   const handleToggleAdmin = async (user) => {
-    const reason = prompt(
-      `Reason for ${
-        user.isAdmin ? "removing" : "granting"
-      } admin privileges for ${user.username}:`
-    );
-    if (!reason) return;
+    // Replace prompt with a modal later, but for now use a simple confirm
+    const confirmMsg = `Are you sure you want to ${user.isAdmin ? "remove" : "grant"} admin privileges for ${user.username}?`;
+    if (!window.confirm(confirmMsg)) return;
 
     await updateAdmin({
       id: user._id,
-      body: { makeAdmin: !user.isAdmin, reason },
+      body: { makeAdmin: !user.isAdmin },
     });
-    setActionMenu(null);
+    setActiveDropdownUser(null);
     refresh();
   };
 
   const handleStatusChange = async (userId, action) => {
-    const reason = prompt(`Reason for ${action} (optional):`);
+    const confirmMsg = `Are you sure you want to ${action} this user?`;
+    if (!window.confirm(confirmMsg)) return;
+
     await updateStatus({
       id: userId,
-      body: { action, reason: reason || undefined },
+      body: { action },
     });
-    setActionMenu(null);
+    setActiveDropdownUser(null);
     refresh();
+  };
+
+  const handleXPAdjust = async (userId, xpAmount, reason) => {
+    try {
+      await adminApiClient.patch(`/users/${userId}/xp`, { xpAmount, reason });
+      showToast(`XP adjusted by ${xpAmount}`, "success");
+      refresh();
+    } catch (err) {
+      showToast("Failed to adjust XP", "error");
+    }
   };
 
   const handleSort = (field) => {
@@ -114,12 +148,30 @@ const UserManagementTable = ({ searchQuery = "" }) => {
       setSortField(field);
       setSortOrder("descend");
     }
-    setPage(1); // Reset to page 1 on sort
+    setPage(1);
   };
 
   const handleReset = () => {
     setFilters(initialFilters);
     setPage(1);
+  };
+
+  // Helper to get button position for portal
+  const getDropdownPosition = () => {
+    const button = buttonRefs.current[activeDropdownUser];
+    if (!button) return { top: 0, left: 0 };
+
+    const rect = button.getBoundingClientRect();
+    const dropdownWidth = 220; // Approximate width
+    const left = Math.min(
+      rect.left - dropdownWidth + rect.width,
+      window.innerWidth - dropdownWidth - 10,
+    );
+
+    return {
+      top: rect.bottom + window.scrollY + 5,
+      left: Math.max(10, left),
+    };
   };
 
   if (loading && users.length === 0) {
@@ -137,173 +189,225 @@ const UserManagementTable = ({ searchQuery = "" }) => {
 
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800/50">
-            <tr>
-              {[
-                "username",
-                "email",
-                "level",
-                "xp",
-                "status",
-                "createdAt",
-                "actions",
-              ].map((col) => (
-                <th
-                  key={col}
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  <button
-                    onClick={() =>
-                      col !== "actions" && col !== "status" && handleSort(col)
-                    }
-                    className="flex items-center space-x-1 hover:text-blue-600 transition-colors"
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800/50">
+              <tr>
+                {[
+                  "username",
+                  "email",
+                  "level",
+                  "xp",
+                  "status",
+                  "createdAt",
+                  "actions",
+                ].map((col) => (
+                  <th
+                    key={col}
+                    className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
                   >
-                    <span>{col}</span>
-                    {sortField === col &&
-                      (sortOrder === "ascend" ? (
-                        <ChevronUp className="h-3 w-3" />
-                      ) : (
-                        <ChevronDown className="h-3 w-3" />
-                      ))}
-                  </button>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-            {users.map((user) => (
-              <tr
-                key={user._id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors relative"
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-3">
-                      {user.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {user.username}
-                      </div>
-                      {user.isAdmin && (
-                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold uppercase">
-                          ADMIN
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 text-sm font-mono dark:text-gray-300">
-                  Lvl {user.level}
-                </td>
-                <td className="px-6 py-4 text-sm dark:text-gray-300">
-                  {user.xp?.toLocaleString()}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                      user.isBlocked
-                        ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                        : "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                    }`}
-                  >
-                    {user.isBlocked ? (
-                      <XCircle className="w-3 h-3 mr-1" />
+                    {col !== "actions" && col !== "status" ? (
+                      <button
+                        onClick={() => handleSort(col)}
+                        className="flex items-center space-x-1 hover:text-blue-600 transition-colors"
+                      >
+                        <span>{col}</span>
+                        {sortField === col &&
+                          (sortOrder === "ascend" ? (
+                            <ChevronUp className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          ))}
+                      </button>
                     ) : (
-                      <CheckCircle className="w-3 h-3 mr-1" />
+                      <span>{col}</span>
                     )}
-                    {user.isBlocked ? "Blocked" : "Active"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="relative inline-block text-left">
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+              {users.map((user) => (
+                <tr
+                  key={user._id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-3">
+                        {user.username?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {user.username}
+                        </div>
+                        {user.isAdmin && (
+                          <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold uppercase">
+                            ADMIN
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-mono dark:text-gray-300">
+                    Lvl {user.level}
+                  </td>
+                  <td className="px-6 py-4 text-sm dark:text-gray-300">
+                    {user.xp?.toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                        user.isBlocked
+                          ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                          : "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                      }`}
+                    >
+                      {user.isBlocked ? (
+                        <XCircle className="w-3 h-3 mr-1" />
+                      ) : (
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                      )}
+                      {user.isBlocked ? "Blocked" : "Active"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-right">
                     <button
-                      onClick={() =>
-                        setActionMenu(actionMenu === user._id ? null : user._id)
-                      }
+                      ref={(el) => (buttonRefs.current[user._id] = el)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveDropdownUser(
+                          activeDropdownUser === user._id ? null : user._id,
+                        );
+                      }}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500 dark:text-gray-400"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>
-
-                    {actionMenu === user._id && (
-                      <>
-                        {/* Invisible backdrop to close menu */}
-                        <div
-                          className="fixed inset-0 z-[60]"
-                          onClick={() => setActionMenu(null)}
-                        />
-
-                        {/* Action Menu Popover */}
-                        <div className="absolute right-full top-0 mr-2 z-[70] w-48 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-lg py-2 text-left animate-in fade-in zoom-in duration-100">
-                          <button
-                            className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setShowDetailModal(true);
-                              setActionMenu(null);
-                            }}
-                          >
-                            <Eye className="w-4 h-4 mr-2 text-blue-500" /> View
-                            Profile
-                          </button>
-
-                          <button
-                            className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
-                            onClick={() => handleToggleAdmin(user)}
-                          >
-                            {user.isAdmin ? (
-                              <ShieldOff className="w-4 h-4 mr-2 text-orange-500" />
-                            ) : (
-                              <Shield className="w-4 h-4 mr-2 text-purple-500" />
-                            )}
-                            {user.isAdmin ? "Remove Admin" : "Make Admin"}
-                          </button>
-
-                          <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
-
-                          <button
-                            className={`w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                              user.isBlocked
-                                ? "text-green-600 dark:text-green-400"
-                                : "text-red-600 dark:text-red-400"
-                            }`}
-                            onClick={() =>
-                              handleStatusChange(
-                                user._id,
-                                user.isBlocked ? "unblock" : "block"
-                              )
-                            }
-                          >
-                            {user.isBlocked ? (
-                              <UserCheck className="w-4 h-4 mr-2" />
-                            ) : (
-                              <UserX className="w-4 h-4 mr-2" />
-                            )}
-                            {user.isBlocked ? "Unblock User" : "Block User"}
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
       <Pagination page={page} total={totalPages} onPageChange={setPage} />
 
-      {/* Modals - NO portal wrapping needed, the modals handle it internally */}
+      {/* Portal Dropdown */}
+      {activeDropdownUser &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            className="fixed z-[1000] w-56 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-lg py-2 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: getDropdownPosition().top,
+              left: getDropdownPosition().left,
+            }}
+          >
+            {(() => {
+              const user = users.find((u) => u._id === activeDropdownUser);
+              if (!user) return null;
+
+              return (
+                <>
+                  <button
+                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setShowDetailModal(true);
+                      setActiveDropdownUser(null);
+                    }}
+                  >
+                    <Eye className="w-4 h-4 mr-2 text-blue-500" /> View Profile
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
+                    onClick={() => {
+                      handleToggleAdmin(user);
+                    }}
+                  >
+                    {user.isAdmin ? (
+                      <ShieldOff className="w-4 h-4 mr-2 text-orange-500" />
+                    ) : (
+                      <Shield className="w-4 h-4 mr-2 text-purple-500" />
+                    )}
+                    {user.isAdmin ? "Remove Admin" : "Make Admin"}
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setShowXPModal(true);
+                      setActiveDropdownUser(null);
+                    }}
+                  >
+                    <Award className="w-4 h-4 mr-2 text-yellow-500" /> Adjust XP
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setShowProgressModal(true);
+                      setActiveDropdownUser(null);
+                    }}
+                  >
+                    <ShieldCheckIcon className="w-4 h-4 mr-2 text-green-500" />{" "}
+                    Override Progress
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setShowBadgeModal(true);
+                      setActiveDropdownUser(null);
+                    }}
+                  >
+                    <Award className="w-4 h-4 mr-2 text-yellow-500" /> Grant
+                    Badge
+                  </button>
+
+                  <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+
+                  <button
+                    className={`w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                      user.isBlocked
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}
+                    onClick={() => {
+                      handleStatusChange(
+                        user._id,
+                        user.isBlocked ? "unblock" : "block",
+                      );
+                    }}
+                  >
+                    {user.isBlocked ? (
+                      <UserCheck className="w-4 h-4 mr-2" />
+                    ) : (
+                      <UserX className="w-4 h-4 mr-2" />
+                    )}
+                    {user.isBlocked ? "Unblock User" : "Block User"}
+                  </button>
+                </>
+              );
+            })()}
+          </div>,
+          document.body,
+        )}
+
+      {/* Modals */}
       {showXPModal && selectedUser && (
         <XPAdjustmentModal
           user={selectedUser}
@@ -328,6 +432,18 @@ const UserManagementTable = ({ searchQuery = "" }) => {
         <UserDetailModal
           user={selectedUser}
           onClose={() => setShowDetailModal(false)}
+        />
+      )}
+
+      {showBadgeModal && selectedUser && (
+        <BadgeAwardModal
+          isOpen={showBadgeModal}
+          user={selectedUser}
+          onClose={() => setShowBadgeModal(false)}
+          onSave={() => {
+            showToast("Badges updated successfully", "success");
+            refresh();
+          }}
         />
       )}
     </div>

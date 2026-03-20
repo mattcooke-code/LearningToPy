@@ -33,8 +33,9 @@ router.patch("/content/modules/:moduleId", adminController.updateModule);
 //router.patch("/content/:type/:id/publish", adminController.togglePublish);
 
 // Badge management
-//router.post("/badges/grant", adminController.grantBadge);
-//router.delete("/badges/revoke/:badgeId", adminController.revokeBadge);
+router.get("/users/:userId/badges", adminController.getUserBadges);
+router.post("/users/:userId/badges/award", adminController.awardBadges);
+router.post("/users/:userId/badges/remove", adminController.removeBadges);
 
 // Flagged content
 router.get("/flagged", adminController.getFlaggedContent);

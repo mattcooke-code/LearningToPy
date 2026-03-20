@@ -1,5 +1,6 @@
 //adminController.js
 const ActivityLog = require("../models/ActivityLog");
+const AdminLog = require("../models/AdminLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
@@ -43,14 +44,14 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
     res,
     200,
     `User ${makeAdmin ? "made" : "removed from"} admin`,
-    { user }
+    { user },
   );
 });
 
 const getAdmins = catchAsync(async (req, res, next) => {
   const admins = (
     await User.find({ isAdmin: true }).select(
-      "username email level xp lastActive createdAt"
+      "username email level xp lastActive createdAt",
     )
   ).sort({ createdAt: -1 });
 
@@ -143,7 +144,7 @@ const searchUsers = catchAsync(async (req, res, next) => {
   const [users, total] = await Promise.all([
     User.find(searchFilter)
       .select(
-        "username email level xp streak badgeCount lastActive isBlocked isAdmin createdAt"
+        "username email level xp streak badgeCount lastActive isBlocked isAdmin createdAt",
       )
       .sort(sortOption)
       .skip(skip)
@@ -186,7 +187,7 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
 
   // Get fresh user to see updated level
   const updatedUser = await User.findById(userId).select(
-    "username level xp streak badgeCount"
+    "username level xp streak badgeCount",
   );
 
   await ActivityLog.create({
@@ -246,7 +247,7 @@ const getFlagStats = catchAsync(async (req, res, next) => {
       acc[item._id.toLowerCase()] = item.count;
       return acc;
     },
-    { pending: 0, resolved: 0, escalated: 0, warning_sent: 0, dismissed: 0 }
+    { pending: 0, resolved: 0, escalated: 0, warning_sent: 0, dismissed: 0 },
   );
 
   sendJsonResponse(res, 200, "Flag statistics retrieved.", {
@@ -292,7 +293,10 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
       break;
     default:
       return next(
-        new AppError("Invalid action. Use 'block', 'unblock', or 'delete'", 400)
+        new AppError(
+          "Invalid action. Use 'block', 'unblock', or 'delete'",
+          400,
+        ),
       );
   }
 
@@ -407,6 +411,72 @@ const getUserActivity = catchAsync(async (req, res, next) => {
   });
 });
 
+const getUserBadges = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.userId).select("badges");
+  if (!user) return next(new AppError("User not found", 404));
+
+  sendJsonResponse(res, 200, "User badges retrieved", {
+    badges: user.badges || [],
+  });
+});
+
+const awardBadges = catchAsync(async (req, res, next) => {
+  const { badgeIds, reason } = req.body;
+  const user = await User.findById(req.params.userId);
+
+  if (!user) return next(new AppError("User not found", 404));
+
+  const newBadges = badgeIds.filter((id) => !user.badges.includes(id));
+
+  if (newBadges.length > 0) {
+    user.badges = [...new Set([...user.badges, ...newBadges])];
+
+    try {
+      await AdminLog.create({
+        adminId: req.userId,
+        action: "AWARD_BADGES",
+        targetType: "user",
+        targetId: user._id,
+        changes: { added: newBadges, reason },
+      });
+    } catch (logError) {
+      console.error("Failed to create admin log:", logError);
+    }
+    await user.save();
+  }
+
+  sendJsonResponse(
+    res,
+    200,
+    `Successfully awarded ${newBadges.length} badges`,
+    { awarded: newBadges, total: user.badges.length },
+  );
+});
+
+const removeBadges = catchAsync(async (req, res, next) => {
+  const { badgeIds, reason } = req.body;
+  const user = await User.findById(req.params.userId);
+
+  if (!user) return next(new AppError("User not found", 404));
+
+  user.badges = user.badges.filter((id) => !badgeIds.includes(id));
+
+  await AdminLog.create({
+    adminId: req.userId,
+    action: "REMOVE_BADGES",
+    targetType: "user",
+    targetId: user._id,
+    changes: { removed: badgeIds, reason },
+  });
+
+  await user.save();
+
+  sendJsonResponse(res, 200, `Successfully removed ${badgeIds.length} badges`, {
+    removed: badgeIds,
+    remaining: user.badges.length,
+  });
+});
+
 const overrideUserProgress = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { moduleId, lessonId, completed, reason } = req.body;
@@ -432,7 +502,7 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
       }
     } else {
       user.completedLessons = user.completedLessons.filter(
-        (id) => id.toString() !== lessonId
+        (id) => id.toString() !== lessonId,
       );
     }
 
@@ -451,7 +521,7 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
       }
     } else {
       user.completedModules = user.completedModules.filter(
-        (id) => id.toString() !== moduleId
+        (id) => id.toString() !== moduleId,
       );
     }
 
@@ -524,7 +594,7 @@ const resolveFlag = catchAsync(async (req, res, next) => {
   const validStatuses = ["RESOLVED", "WARNING_SENT", "ESCALATED", "DISMISSED"];
   if (!validStatuses.includes(status)) {
     return next(
-      new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400)
+      new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400),
     );
   }
 
@@ -756,6 +826,9 @@ module.exports = {
   updateUserStatus,
   getUserDetails,
   getUserActivity,
+  getUserBadges,
+  awardBadges,
+  removeBadges,
   overrideUserProgress,
   getActivityLogs,
   resolveFlag,

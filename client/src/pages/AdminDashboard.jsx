@@ -1,49 +1,80 @@
-// AdminDashboard.jsx
-import { useMemo } from "react";
+// /client/src/pages/AdminDashboard.jsx (updated with unwrapped responses)
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { adminApiClient } from "../context";
+import { adminApiClient, useNotification } from "../context";
 import {
   AdminPage,
   AdminStatsCard,
   FlaggedContentList,
 } from "../components/admin";
-import { RefreshButton } from "../components/ui";
+import { BaseModal, RefreshButton } from "../components/ui";
 import { useAdminData } from "../hooks";
 import { calculateAdminDashboardStats } from "../utils/statsManagement";
+import { BadgeAwardModal } from "../modals";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { showToast } = useNotification();
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [selectedUserForBadge, setSelectedUserForBadge] = useState(null);
+  const [showUserSelector, setShowUserSelector] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
 
   const fetchDashboardData = async () => {
-    // Raw responses - let the hook do the work
-    return await Promise.all([
+    const [stats, users] = await Promise.all([
       adminApiClient.get("/stats"),
       adminApiClient.get("/users/search?limit=5"),
     ]);
+    return [stats, users];
   };
 
   const { data, loading, error, refetch } = useAdminData(
     fetchDashboardData,
     [],
-    { autoRetry: true, maxRetries: 3 }
+    { autoRetry: true, maxRetries: 3 },
   );
 
-  const [statsData, usersData] = data || [{}, {}];
+  const [statsData, usersData] = data || [{ users: 0 }, { users: [] }];
 
   const stats = useMemo(
     () => calculateAdminDashboardStats(statsData),
-    [statsData]
+    [statsData],
   );
-
   const recentUsers = usersData?.users || [];
+  const pendingFlagsCount = statsData?.pendingFlags || 0;
 
-  if (loading || error || !data) {
+  const handleGrantBadge = async () => {
+    // Fetch all (or first 50) users
+    try {
+      const users = await adminApiClient.get("/users/search?limit=50");
+      setAllUsers(users.users || []);
+      setShowUserSelector(true);
+    } catch (err) {
+      showToast("Failed to load users", "error");
+    }
+  };
+
+  const handleViewReports = () => {
+    navigate("/admin/flagged");
+  };
+
+  if (loading) {
     return (
       <AdminPage
         title="Admin Dashboard"
         description="Monitor and manage your learning platform"
-        headerAction={<RefreshButton onClick={refetch} />}
-      ></AdminPage>
+        headerAction={<RefreshButton onClick={refetch} loading={loading} />}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl"
+            />
+          ))}
+        </div>
+      </AdminPage>
     );
   }
 
@@ -51,7 +82,7 @@ const AdminDashboard = () => {
     <AdminPage
       title="Admin Dashboard"
       description="Monitor and manage your learning platform"
-      headerAction={<RefreshButton onClick={refetch} />}
+      headerAction={<RefreshButton onClick={refetch} loading={loading} />}
     >
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -86,7 +117,10 @@ const AdminDashboard = () => {
           value={stats.flaggedContent}
           icon="🚩"
           color="red"
-          trend={{ value: "+3", positive: false }}
+          trend={{
+            value: pendingFlagsCount > 0 ? `+${pendingFlagsCount}` : "0",
+            positive: false,
+          }}
           linkTo="/admin/flagged"
         />
       </div>
@@ -128,12 +162,24 @@ const AdminDashboard = () => {
                       </p>
                     </div>
                   </div>
-                  <Link
-                    to={`/admin/users/${user._id}`}
-                    className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
-                  >
-                    View
-                  </Link>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => {
+                        setSelectedUserForBadge(user);
+                        setShowBadgeModal(true);
+                      }}
+                      className="px-3 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-full transition-colors"
+                      title="Grant Badge"
+                    >
+                      🏆
+                    </button>
+                    <Link
+                      to={`/admin/users/${user._id}`}
+                      className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                    >
+                      View
+                    </Link>
+                  </div>
                 </div>
               ))
             ) : (
@@ -152,24 +198,46 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => navigate("/admin/users")}
-              className="p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors text-center"
+              className="p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors text-center group"
             >
-              <div className="text-2xl mb-2">👤</div>
+              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                👤
+              </div>
               <h3 className="font-semibold text-sm">Manage Users</h3>
             </button>
+
             <button
               onClick={() => navigate("/admin/content?action=create")}
-              className="p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors text-center"
+              className="p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors text-center group"
             >
-              <div className="text-2xl mb-2">📝</div>
+              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                📝
+              </div>
               <h3 className="font-semibold text-sm">Create Content</h3>
             </button>
-            <button className="p-4 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors text-center">
-              <div className="text-2xl mb-2">🎁</div>
+
+            <button
+              onClick={handleGrantBadge}
+              className="p-4 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-lg transition-colors text-center group"
+            >
+              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                🎁
+              </div>
               <h3 className="font-semibold text-sm">Grant Badge</h3>
             </button>
-            <button className="p-4 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-lg transition-colors text-center">
-              <div className="text-2xl mb-2">📊</div>
+
+            <button
+              onClick={handleViewReports}
+              className="p-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors text-center group relative"
+            >
+              {pendingFlagsCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {pendingFlagsCount}
+                </span>
+              )}
+              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                📊
+              </div>
               <h3 className="font-semibold text-sm">View Reports</h3>
             </button>
           </div>
@@ -178,6 +246,82 @@ const AdminDashboard = () => {
 
       {/* Flagged Content */}
       <FlaggedContentList limit={3} />
+
+      {showUserSelector && (
+        <BaseModal
+          isOpen={showUserSelector}
+          onClose={() => setShowUserSelector(false)}
+          title="Select User to Award Badge"
+          size="lg"
+        >
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Search users by name or email..."
+              value={userSearchQuery}
+              onChange={(e) => setUserSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-yellow-500 outline-none"
+            />
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {allUsers
+                .filter(
+                  (user) =>
+                    user.username
+                      .toLowerCase()
+                      .includes(userSearchQuery.toLowerCase()) ||
+                    user.email
+                      .toLowerCase()
+                      .includes(userSearchQuery.toLowerCase()),
+                )
+                .map((user) => (
+                  <button
+                    key={user._id}
+                    onClick={() => {
+                      setSelectedUserForBadge(user);
+                      setShowUserSelector(false);
+                      setShowBadgeModal(true);
+                      setUserSearchQuery("");
+                    }}
+                    className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {user.username}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {user.email}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      Level {user.level} • {user.xp} XP
+                    </div>
+                  </button>
+                ))}
+              {allUsers.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No users found
+                </div>
+              )}
+            </div>
+          </div>
+        </BaseModal>
+      )}
+
+      {/* Badge Award Modal */}
+      {showBadgeModal && selectedUserForBadge && (
+        <BadgeAwardModal
+          isOpen={showBadgeModal}
+          user={selectedUserForBadge}
+          onClose={() => {
+            setShowBadgeModal(false);
+            setSelectedUserForBadge(null);
+          }}
+          onSave={() => {
+            refetch();
+            showToast("Badges updated successfully", "success");
+          }}
+        />
+      )}
     </AdminPage>
   );
 };
