@@ -9,6 +9,7 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { anonymiseIp } = require("../utils/parseDeviceInfo");
+const mongoose = require("mongoose");
 
 // ======= HELPER FUNCTION =======
 const createAdminLog = async (
@@ -57,18 +58,15 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
   user.isAdmin = makeAdmin;
   await user.save();
 
-  await ActivityLog.create({
+  await createAdminLog(
+    req.userId,
+    makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
+    "USER",
     userId,
-    adminId: req.userId,
-    actionType: makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
-    targetId: userId,
-    targetType: "USER",
-    oldValue: { isAdmin: oldStatus },
-    newValue: { isAdmin: user.isAdmin },
-    reason:
-      reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
-    ipAddress: req.ip,
-  });
+    { old: { isAdmin: oldStatus }, new: { isAdmin: user.isAdmin } },
+    reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
+    req,
+  );
 
   sendJsonResponse(
     res,
@@ -220,18 +218,18 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
     "username level xp streak badgeCount",
   );
 
-  await ActivityLog.create({
+  await createAdminLog(
+    req.userId,
+    "XP_ADJUSTMENT",
+    "USER",
     userId,
-    adminId: req.userId,
-    actionType: "XP_ADJUSTMENT",
-    targetId: userId,
-    targetType: "USER",
-    oldValue: { xp: oldXp, level: oldLevel },
-    newValue: { xp: updatedUser.xp, level: updatedUser.level },
-    reason:
-      reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
-    ipAddress: req.ip,
-  });
+    {
+      old: { xp: oldXp, level: oldLevel },
+      new: { xp: updatedUser.xp, level: updatedUser.level },
+    },
+    reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
+    req,
+  );
 
   sendJsonResponse(res, 200, "XP adjusted successfully", {
     user: updatedUser,
@@ -334,17 +332,18 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
     await user.save();
   }
 
-  await ActivityLog.create({
-    userId,
-    adminId: req.userId,
+  await createAdminLog(
+    req.userId,
     actionType,
-    targetId: userId,
-    targetType: "USER",
-    oldValue: { isBlocked: oldStatus },
-    newValue: action === "delete" ? null : { isBlocked: user.isBlocked },
-    reason: reason || `${action} action performed by admin`,
-    ipAddress: req.ip,
-  });
+    "USER",
+    userId,
+    {
+      old: { isBlocked: oldStatus },
+      new: action === "delete" ? null : { isBlocked: user.isBlocked },
+    },
+    reason || `${action} action performed by admin`,
+    req,
+  );
 
   sendJsonResponse(res, 200, `User ${action}ed successfully`, {
     user: action === "delete" ? null : user,
@@ -430,8 +429,8 @@ const getUserActivity = catchAsync(async (req, res, next) => {
     .sort((a, b) => b.completedAt - a.completedAt)
     .slice(0, parseInt(limit));
 
-  // User's Admin Activity Logs
-  const adminActions = await ActivityLog.find({ userId })
+  // User's Admin Activity Logs (Note: Changed this to AdminLog for consistency)
+  const adminActions = await AdminLog.find({ targetId: userId })
     .sort({ createdAt: -1 })
     .limit(parseInt(limit));
 
@@ -464,7 +463,7 @@ const awardBadges = catchAsync(async (req, res, next) => {
     await createAdminLog(
       req.userId,
       "AWARD_BADGES",
-      "user",
+      "USER",
       user._id,
       { added: newBadges, reason },
       reason,
@@ -496,7 +495,7 @@ const removeBadges = catchAsync(async (req, res, next) => {
     await createAdminLog(
       req.userId,
       "REMOVE_BADGES",
-      "user",
+      "USER",
       user._id,
       { removed: removedBadges, reason },
       reason,
@@ -575,19 +574,16 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  await ActivityLog.create({
-    userId,
-    adminId: req.userId,
+  await createAdminLog(
+    req.userId,
     actionType,
-    targetId: lessonId || moduleId,
-    targetType: lessonId ? "LESSON" : "MODULE",
-    oldValue,
-    newValue,
-    reason:
-      reason ||
+    lessonId ? "LESSON" : "MODULE",
+    lessonId || moduleId,
+    { old: oldValue, new: newValue },
+    reason ||
       `Progress override by admin: ${completed ? "complete" : "incomplete"}`,
-    ipAddress: req.ip,
-  });
+    req,
+  );
 
   sendJsonResponse(res, 200, "Progress updated successfully", {
     user: {
@@ -602,17 +598,16 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const filter = {};
-  if (actionType) filter.actionType = actionType;
+  if (actionType) filter.action = actionType; // Swapped actionType to action for AdminLog
   if (targetType) filter.targetType = targetType;
 
   const [logs, total] = await Promise.all([
-    ActivityLog.find(filter)
-      .populate("userId", "username email")
+    AdminLog.find(filter)
       .populate("adminId", "username email")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit)),
-    ActivityLog.countDocuments(filter),
+    AdminLog.countDocuments(filter),
   ]);
 
   sendJsonResponse(res, 200, "Activity logs retrieved", {
@@ -650,17 +645,15 @@ const resolveFlag = catchAsync(async (req, res, next) => {
 
   await flag.save();
 
-  await ActivityLog.create({
-    userId: flag.reporterId,
-    adminId: req.userId,
-    actionType: "FLAG_RESOLVED",
-    targetId: flagId,
-    targetType: "FLAG",
-    oldValue: { status: oldStatus },
-    newValue: { status: flag.status },
-    reason: notes || `Flag marked as ${status}`,
-    ipAddress: req.ip,
-  });
+  await createAdminLog(
+    req.userId,
+    "FLAG_RESOLVED",
+    "FLAG",
+    flagId,
+    { old: { status: oldStatus }, new: { status: flag.status } },
+    notes || `Flag marked as ${status}`,
+    req,
+  );
 
   sendJsonResponse(res, 200, "Flag resolved successfully", { flag });
 });
@@ -710,15 +703,15 @@ const updateSettings = catchAsync(async (req, res, next) => {
     return next(new AppError("Module XP bonus cannot be negative", 400));
   }
 
-  await ActivityLog.create({
-    adminId: req.userId,
-    actionType: "SETTINGS_UPDATED",
-    targetType: "SETTINGS",
-    oldValue: {},
-    newValue: changes,
-    reason: "Settings updated via admin panel.",
-    ipAddress: req.ip,
-  });
+  await createAdminLog(
+    req.userId,
+    "SETTINGS_UPDATED",
+    "SETTINGS",
+    null,
+    { new: changes },
+    "Settings updated via admin panel.",
+    req,
+  );
 
   sendJsonResponse(res, 200, "Settings updated successfully.", {
     changes,
@@ -727,17 +720,23 @@ const updateSettings = catchAsync(async (req, res, next) => {
 });
 
 const getAllLessons = catchAsync(async (req, res, next) => {
-  const { limit = 1000, page = 1, status, difficulty } = req.query;
+  const { limit = 1000, page = 1, status, difficulty, moduleId } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const filter = {};
   if (status === "published") filter.isPublished = true;
   if (status === "draft") filter.isPublished = false;
   if (difficulty && difficulty !== "all") filter.difficulty = difficulty;
+  if (moduleId && moduleId !== "" && moduleId !== "all") {
+    filter.moduleId = moduleId;
+  }
+
+  console.log("Lesson filter:", filter); // Debug log
 
   const [lessons, total] = await Promise.all([
     Lesson.find(filter)
-      .sort({ order: 1, createdAt: -1 })
+      .populate("moduleId", "title order")
+      .sort({ order: 1, moduleId: 1 })
       .skip(skip)
       .limit(parseInt(limit)),
     Lesson.countDocuments(filter),
@@ -794,16 +793,15 @@ const updateLesson = catchAsync(async (req, res, next) => {
     return next(new AppError("Lesson not found", 404));
   }
 
-  // Log the update
-  await ActivityLog.create({
-    adminId: req.userId,
-    actionType: "LESSON_UPDATED",
-    targetId: lessonId,
-    targetType: "LESSON",
-    newValue: updateData,
-    reason: "Updated via admin panel",
-    ipAddress: req.ip,
-  });
+  await createAdminLog(
+    req.userId,
+    "LESSON_UPDATED",
+    "LESSON",
+    lessonId,
+    { new: updateData },
+    "Updated via admin panel",
+    req,
+  );
 
   sendJsonResponse(res, 200, "Lesson updated", { lesson });
 });
@@ -821,16 +819,15 @@ const updateModule = catchAsync(async (req, res, next) => {
     return next(new AppError("Module not found", 404));
   }
 
-  // Log the update
-  await ActivityLog.create({
-    adminId: req.userId,
-    actionType: "MODULE_UPDATED",
-    targetId: moduleId,
-    targetType: "MODULE",
-    newValue: updateData,
-    reason: "Updated via admin panel",
-    ipAddress: req.ip,
-  });
+  await createAdminLog(
+    req.userId,
+    "MODULE_UPDATED",
+    "MODULE",
+    moduleId,
+    { new: updateData },
+    "Updated via admin panel",
+    req,
+  );
 
   sendJsonResponse(res, 200, "Module updated", { module });
 });
@@ -852,6 +849,312 @@ const getContentStats = catchAsync(async (req, res, next) => {
     publishedModules,
     draftModules: totalModules - publishedModules,
   });
+});
+
+const publishLesson = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+  const { publish } = req.body;
+
+  const lesson = await Lesson.findById(lessonId);
+  if (!lesson) {
+    return next(new AppError("Lesson not found", 404));
+  }
+
+  lesson.isPublished = publish;
+  await lesson.save();
+
+  await createAdminLog(
+    req.userId,
+    publish ? "LESSON_PUBLISHED" : "LESSON_UNPUBLISHED",
+    "LESSON",
+    lessonId,
+    { old: { isPublished: !publish }, new: { isPublished: publish } },
+    `Lesson ${publish ? "published" : "unpublished"} via admin panel`,
+    req,
+  );
+
+  sendJsonResponse(
+    res,
+    200,
+    `Lesson ${publish ? "published" : "unpublished"}`,
+    { lesson },
+  );
+});
+
+const publishModule = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+  const { publish } = req.body;
+
+  const module = await Module.findById(moduleId);
+  if (!module) {
+    return next(new AppError("Module not found", 404));
+  }
+
+  module.isPublished = publish;
+  await module.save();
+
+  await createAdminLog(
+    req.userId,
+    publish ? "MODULE_PUBLISHED" : "MODULE_UNPUBLISHED",
+    "MODULE",
+    moduleId,
+    { old: { isPublished: !publish }, new: { isPublished: publish } },
+    `Module ${publish ? "published" : "unpublished"} via admin panel`,
+    req,
+  );
+
+  sendJsonResponse(
+    res,
+    200,
+    `Module ${publish ? "published" : "unpublished"}`,
+    { module },
+  );
+});
+
+const createLesson = catchAsync(async (req, res, next) => {
+  const lessonData = req.body;
+
+  if (!lessonData.order) {
+    const lastLesson = await Lesson.findOne({
+      moduleId: lessonData.moduleId,
+    }).sort({ order: -1 });
+    lessonData.order = (lastLesson?.order || 0) + 1;
+  }
+
+  const lesson = await Lesson.create(lessonData);
+
+  await createAdminLog(
+    req.userId,
+    "LESSON_CREATED",
+    "LESSON",
+    lesson._id,
+    { new: { title: lesson.title, moduleId: lesson.moduleId } },
+    "Lesson created via admin panel",
+    req,
+  );
+
+  sendJsonResponse(res, 201, "Lesson created", { lesson });
+});
+
+const createModule = catchAsync(async (req, res, next) => {
+  const moduleData = req.body;
+
+  if (
+    !moduleData.order ||
+    moduleData.order === 0 ||
+    moduleData.order === null
+  ) {
+    delete moduleData.order;
+  }
+
+  if (!moduleData.moduleNumber || moduleData.moduleNumber === "") {
+    delete moduleData.moduleNumber;
+  }
+
+  const module = await Module.create(moduleData);
+
+  await createAdminLog(
+    req.userId,
+    "MODULE_CREATED",
+    "MODULE",
+    module._id,
+    {
+      title: module.title,
+      moduleNumber: module.moduleNumber,
+      order: module.order,
+    },
+    "Module created via admin panel",
+    req,
+  );
+
+  sendJsonResponse(res, 201, "Module created", { module });
+});
+
+const deleteLesson = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+
+  const lesson = await Lesson.findById(lessonId);
+  if (!lesson) {
+    return next(new AppError("Lesson not found", 404));
+  }
+
+  await Lesson.findByIdAndDelete(lessonId);
+
+  await createAdminLog(
+    req.userId,
+    "LESSON_DELETED",
+    "LESSON",
+    lessonId,
+    { old: { title: lesson.title } },
+    "Lesson deleted via admin panel",
+    req,
+  );
+
+  sendJsonResponse(res, 200, "Lesson deleted", { lessonId });
+});
+
+const deleteModule = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+
+  const module = await Module.findById(moduleId);
+  if (!module) {
+    return next(new AppError("Module not found", 404));
+  }
+
+  const lessonCount = await Lesson.countDocuments({ moduleId });
+  if (lessonCount > 0) {
+    return next(
+      new AppError(
+        `Cannot delete module with ${lessonCount} lessons. Delete or reassign lessons first.`,
+        400,
+      ),
+    );
+  }
+
+  await Module.findByIdAndDelete(moduleId);
+
+  await createAdminLog(
+    req.userId,
+    "MODULE_DELETED",
+    "MODULE",
+    moduleId,
+    { old: { title: module.title } },
+    "Module deleted via admin panel",
+    req,
+  );
+
+  sendJsonResponse(res, 200, "Module deleted", { moduleId });
+});
+
+const duplicateLesson = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(lessonId)) {
+    return next(new AppError("Invalid lesson ID", 400));
+  }
+
+  const originalLesson = await Lesson.findById(lessonId);
+  if (!originalLesson) {
+    return next(new AppError("Lesson not found", 404));
+  }
+
+  const duplicatedLesson = await Lesson.create({
+    ...originalLesson.toObject(),
+    _id: undefined,
+    title: `${originalLesson.title} (Copy)`,
+    isPublished: false,
+    createdAt: undefined,
+    updatedAt: undefined,
+  });
+
+  await createAdminLog(
+    req.userId,
+    "LESSON_DUPLICATED",
+    "LESSON",
+    duplicatedLesson._id,
+    { new: { title: duplicatedLesson.title, sourceLesson: lessonId } },
+    "Lesson duplicated via admin panel",
+    req,
+  );
+
+  sendJsonResponse(res, 201, "Lesson duplicated", { lesson: duplicatedLesson });
+});
+
+const duplicateModule = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(moduleId)) {
+    return next(new AppError("Invalid module ID", 400));
+  }
+
+  const originalModule = await Module.findById(moduleId);
+  if (!originalModule) {
+    return next(new AppError("Module not found", 404));
+  }
+
+  const lessons = await Lesson.find({ moduleId });
+
+  const duplicatedModule = await Module.create({
+    ...originalModule.toObject(),
+    _id: undefined,
+    title: `${originalModule.title} (Copy)`,
+    moduleNumber: undefined,
+    order: undefined,
+    isPublished: false,
+    createdAt: undefined,
+    updatedAt: undefined,
+  });
+
+  const duplicatedLessons = [];
+  for (const lesson of lessons) {
+    const duplicatedLesson = await Lesson.create({
+      ...lesson.toObject(),
+      _id: undefined,
+      moduleId: duplicatedModule._id,
+      title: `${lesson.title} (Copy)`,
+      isPublished: false,
+      createdAt: undefined,
+      updatedAt: undefined,
+    });
+    duplicatedLessons.push(duplicatedLesson);
+  }
+
+  await createAdminLog(
+    req.userId,
+    "MODULE_DUPLICATED",
+    "MODULE",
+    duplicatedModule._id,
+    {
+      new: {
+        title: duplicatedModule.title,
+        sourceModule: moduleId,
+        lessonCount: lessons.length,
+        newModuleNumber: duplicatedModule.newModuleNumber,
+        newOrder: duplicatedModule.order,
+      },
+    },
+    "Module duplicated via admin panel",
+    req,
+  );
+
+  sendJsonResponse(res, 201, "Module duplicated", {
+    module: duplicatedModule,
+    lessons: duplicatedLessons,
+  });
+});
+
+const updateLessonOrder = catchAsync(async (req, res, next) => {
+  const { lessonId } = req.params;
+  const { order } = req.body;
+
+  const lesson = await Lesson.findByIdAndUpdate(
+    lessonId,
+    { order },
+    { new: true },
+  );
+
+  if (!lesson) {
+    return next(new AppError("Lesson not found", 404));
+  }
+
+  sendJsonResponse(res, 200, "Lesson order updated", { lesson });
+});
+
+const updateModuleOrder = catchAsync(async (req, res, next) => {
+  const { moduleId } = req.params;
+  const { order } = req.body;
+
+  const module = await Module.findByIdAndUpdate(
+    moduleId,
+    { order },
+    { new: true },
+  );
+
+  if (!module) {
+    return next(new AppError("Module not found", 404));
+  }
+
+  sendJsonResponse(res, 200, "Module order updated", { module });
 });
 
 module.exports = {
@@ -878,4 +1181,14 @@ module.exports = {
   updateLesson,
   updateModule,
   getContentStats,
+  publishLesson,
+  publishModule,
+  createLesson,
+  createModule,
+  deleteLesson,
+  deleteModule,
+  duplicateLesson,
+  duplicateModule,
+  updateLessonOrder,
+  updateModuleOrder,
 };

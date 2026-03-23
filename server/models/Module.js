@@ -1,4 +1,3 @@
-// server/models/Module.js
 const mongoose = require("mongoose");
 
 const ModuleSchema = new mongoose.Schema(
@@ -13,8 +12,8 @@ const ModuleSchema = new mongoose.Schema(
       required: [true, "Module description is required"],
     },
     shortDescription: { type: String, maxLength: 150 },
-    order: { type: Number, required: true, min: 0 },
-    moduleNumber: { type: String, required: true, unique: true },
+    order: { type: Number, min: 0 },
+    moduleNumber: { type: String, unique: true },
     difficulty: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
@@ -96,6 +95,55 @@ ModuleSchema.pre("save", async function (next) {
 
   this.slug = candidate;
   next();
+});
+
+// --- Auto-generate order and moduleNumber for new modules ---
+ModuleSchema.pre("save", async function (next) {
+  // Only run for new modules
+  if (!this.isNew) {
+    return next();
+  }
+
+  // Skip auto-generation if both order and moduleNumber are already set
+  if (this.order !== undefined && this.order !== null && this.moduleNumber) {
+    return next();
+  }
+
+  try {
+    const ModuleModel = this.constructor;
+
+    // Find the highest order number (excluding tutorial module with order 0)
+    const lastModule = await ModuleModel.findOne({ order: { $gt: 0 } })
+      .sort({ order: -1 })
+      .select("order");
+
+    // Determine the new order
+    let newOrder;
+    if (this.order !== undefined && this.order !== null) {
+      // If order is explicitly set, use it
+      newOrder = this.order;
+    } else {
+      // Auto-generate: start from 1 if no modules, otherwise last order + 1
+      newOrder = (lastModule?.order || 0) + 1;
+    }
+
+    // Set the order
+    this.order = newOrder;
+
+    // Auto-generate moduleNumber if not provided
+    if (!this.moduleNumber) {
+      // Tutorial module (order 0) gets M0
+      if (newOrder === 0) {
+        this.moduleNumber = "M0";
+      } else {
+        this.moduleNumber = `M${newOrder}`;
+      }
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = mongoose.model("Module", ModuleSchema);

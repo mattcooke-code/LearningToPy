@@ -24,11 +24,13 @@ import {
  */
 export const DEFAULT_MODULE_FORM_DATA = {
   title: "",
+  shortDescription: "",
   description: "",
   icon: "book", // key from ICON_MAP
   color: "blue", // default theme color
   isPublished: false,
-  order: 0,
+  order: null,
+  moduleNumber: "",
   tags: [],
   lessons: [], // array of lesson IDs (strings)
   prerequisites: [], // array of module IDs
@@ -47,11 +49,13 @@ export const mapModuleToFormData = (module = {}) => {
   return {
     ...DEFAULT_MODULE_FORM_DATA,
     title: module.title || "",
+    shortDescription: module.shortDescription || "",
     description: module.description || "",
     icon: module.icon || "book",
     color: module.color || "blue",
     isPublished: Boolean(module.isPublished),
-    order: module.order || 0,
+    order: module.order !== undefined ? module.order : null,
+    moduleNumber: module.moduleNumber || module.order?.toString() || "",
     tags: Array.isArray(module.tags) ? [...module.tags] : [],
     lessons: Array.isArray(module.lessons)
       ? module.lessons.map((l) => l._id || l)
@@ -73,13 +77,13 @@ export const mapModuleToFormData = (module = {}) => {
  * @returns {Object} API-ready payload
  */
 export const normalizeModuleForAPI = (formData) => {
-  return {
+  const payload = {
     title: formData.title.trim(),
+    shortDescription: formData.shortDescription?.trim() || "",
     description: formData.description.trim(),
     icon: formData.icon,
     color: formData.color,
     isPublished: formData.isPublished,
-    order: formData.order,
     tags: formData.tags,
     lessons: formData.lessons, // array of lesson IDs
     prerequisites: formData.prerequisites, // array of module IDs
@@ -88,4 +92,18 @@ export const normalizeModuleForAPI = (formData) => {
     badgeId: formData.badgeId || undefined,
     xpReward: formData.xpReward,
   };
+
+  if (
+    formData.order !== null &&
+    formData.order !== undefined &&
+    formData.order > 0
+  ) {
+    payload.order = formData.order;
+  }
+
+  if (formData.moduleNumber && formData.moduleNumber.trim()) {
+    payload.moduleNumber = formData.moduleNumber.trim();
+  }
+
+  return payload;
 };

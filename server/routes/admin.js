@@ -28,9 +28,41 @@ router.patch("/users/:userId/progress", adminController.overrideUserProgress);
 // Content management
 router.get("/content/lessons", adminController.getAllLessons);
 router.get("/content/modules", adminController.getAllModules);
+router.get("/content/stats", adminController.getContentStats);
+
+// Lesson routes
+router.post("/content/lessons", adminController.createLesson);
 router.patch("/content/lessons/:lessonId", adminController.updateLesson);
+router.patch(
+  "/content/lessons/:lessonId/publish",
+  adminController.publishLesson,
+);
+router.patch(
+  "/content/lessons/:lessonId/order",
+  adminController.updateLessonOrder,
+);
+router.post(
+  "/content/lessons/:lessonId/duplicate",
+  adminController.duplicateLesson,
+);
+router.delete("/content/lessons/:lessonId/", adminController.deleteLesson);
+
+// Module routes
+router.post("/content/modules", adminController.createModule);
 router.patch("/content/modules/:moduleId", adminController.updateModule);
-//router.patch("/content/:type/:id/publish", adminController.togglePublish);
+router.patch(
+  "/content/modules/:moduleId/publish",
+  adminController.publishModule,
+);
+router.patch(
+  "/content/modules/:moduleId/order",
+  adminController.updateModuleOrder,
+);
+router.post(
+  "/content/modules/:moduleId/duplicate",
+  adminController.duplicateModule,
+);
+router.delete("/content/modules/:moduleId", adminController.deleteModule);
 
 // Badge management
 router.get("/users/:userId/badges", adminController.getUserBadges);

@@ -14,6 +14,9 @@ import {
   Search,
   Plus,
   Minus,
+  BookOpen,
+  Shield,
+  Zap,
 } from "lucide-react";
 
 // Utilities
@@ -44,9 +47,19 @@ const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
   // 1. Initialize form and fetch lesson library once
   useEffect(() => {
     if (isOpen) {
-      setFormData(
-        module ? mapModuleToFormData(module) : { ...DEFAULT_MODULE_FORM_DATA }
-      );
+      if (module) {
+        setFormData(mapModuleToFormData(module));
+      } else {
+        setFormData({
+          ...DEFAULT_MODULE_FORM_DATA,
+          order: null,
+          moduleNumber: "",
+          isPublished: false,
+          lessons: [],
+          tags: [],
+          prerequisites: [],
+        });
+      }
       fetchLessons();
     }
   }, [isOpen, module]);
@@ -107,7 +120,7 @@ const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
       .filter(
         (lesson) =>
           lesson.title?.toLowerCase().includes(searchLower) ||
-          lesson.description?.toLowerCase().includes(searchLower)
+          lesson.description?.toLowerCase().includes(searchLower),
       );
   }, [allLessons, formData.lessons, lessonSearch]);
 
@@ -229,8 +242,8 @@ const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
           form="module-form"
           disabled={
             saving ||
-            !formData.title.trim() ||
-            !formData.shortDescription.trim()
+            !formData.title?.trim() ||
+            !formData.shortDescription?.trim()
           }
           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
@@ -451,13 +464,43 @@ const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
                   <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
                     type="number"
-                    value={formData.order}
+                    value={formData.order === null ? "" : formData.order}
                     onChange={(e) =>
-                      handleChange("order", parseInt(e.target.value) || 0)
+                      handleChange("order", val === "" ? null : parseInt(val))
                     }
+                    placeholder={!isEditing ? "Auto-assigned" : ""}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                    disabled={!isEditing}
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {isEditing
+                    ? "Determines module order in the curriculum"
+                    : "Will be automatically assigned the next available number"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Module Number
+                </label>
+                <div className="relative">
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={formData.moduleNumber || ""}
+                    onChange={(e) =>
+                      handleChange("moduleNumber", e.target.value)
+                    }
+                    placeholder={!isEditing ? "Auto-generated from order" : ""}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                    disabled={!isEditing}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {isEditing
+                    ? "Module identifier (e.g., M1, M2, M3"
+                    : "Will be automatically generated (e.g., M21"}
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">

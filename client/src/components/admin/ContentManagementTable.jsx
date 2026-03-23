@@ -1,9 +1,9 @@
-// ContentManagementTable.jsx
 import { useState, useEffect, useMemo } from "react";
 import { adminApiClient, useNotification } from "../../context";
 import { LessonEditorModal, ModuleEditorModal } from "../../modals";
 import { useContentFilter } from "../../hooks";
 import { useConfirmActions, calculateContentStats } from "../../utils";
+import { BackToTopButton } from "../ui";
 import {
   Search,
   Eye,
@@ -25,17 +25,22 @@ import {
   Hash,
   Calendar,
   Zap,
+  Layers,
 } from "lucide-react";
 
 const ContentManagementTable = () => {
   const [content, setContent] = useState([]);
+  const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'grid'
+  const [groupByModule, setGroupByModule] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [bulkAction, setBulkAction] = useState("");
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [showModuleModal, setShowModuleModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
 
   const confirm = useConfirmActions();
   const { showToast } = useNotification();
@@ -64,31 +69,77 @@ const ContentManagementTable = () => {
 
   useEffect(() => {
     fetchContent();
-  }, []);
+  }, [filters.status, filters.difficulty, filters.moduleId, filters.type]);
 
+  useEffect(() => {
+    setSelectedItems([]);
+  }, [filters.status, filters.difficulty, filters.moduleId, filters.type]);
+
+  // Update the fetchContent function
   const fetchContent = async () => {
     try {
       setLoading(true);
+
+      // Build query params
+      const lessonParams = {
+        limit: 1000,
+      };
+
+      if (filters.type === "lesson" || filters.type === "all") {
+        if (filters.status && filters.status !== "all") {
+          lessonParams.status = filters.status;
+        }
+        if (filters.difficulty && filters.difficulty !== "all") {
+          lessonParams.difficulty = filters.difficulty;
+        }
+        if (filters.moduleId && filters.moduleId !== "") {
+          lessonParams.moduleId = filters.moduleId;
+        }
+      }
+
+      const moduleParams = {
+        limit: 1000,
+      };
+
+      if (filters.type === "module" || filters.type === "all") {
+        if (filters.status && filters.status !== "all") {
+          moduleParams.status = filters.status;
+        }
+      }
+
       const [lessonsRes, modulesRes] = await Promise.all([
-        adminApiClient.get("/content/lessons?limit=1000"),
-        adminApiClient.get("/content/modules?limit=1000"),
+        adminApiClient.get("/content/lessons", { params: lessonParams }),
+        adminApiClient.get("/content/modules", { params: moduleParams }),
       ]);
 
-      const lessons = (lessonsRes?.lessons || lessonRes || []).map(
-        (lesson) => ({
-          ...lesson,
-          type: "lesson",
-        })
-      );
+      const lessons = (lessonsRes?.lessons || []).map((lesson) => ({
+        ...lesson,
+        type: "lesson",
+        moduleTitle: lesson.moduleId?.title || "Unknown",
+        moduleOrder: lesson.moduleId?.order || 0,
+      }));
 
-      const modules = (modulesRes?.modules || modulesRes || []).map(
-        (module) => ({
-          ...module,
-          type: "module",
-        })
-      );
+      const modulesData = (modulesRes?.modules || []).map((module) => ({
+        ...module,
+        type: "module",
+      }));
 
-      setContent([...lessons, ...modules]);
+      setModules(modulesData);
+
+      // Combine and sort
+      let combined = [...lessons, ...modulesData];
+
+      // Apply search filter client-side for better performance
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        combined = combined.filter(
+          (item) =>
+            item.title.toLowerCase().includes(searchLower) ||
+            item._id.toLowerCase().includes(searchLower),
+        );
+      }
+
+      setContent(combined);
     } catch (error) {
       showToast("Failed to load content", "error");
       console.error("Content fetch error:", error);
@@ -107,22 +158,34 @@ const ContentManagementTable = () => {
         `${itemType} ${
           currentlyPublished ? "unpublished" : "published"
         } successfully`,
-        "success"
+        "success",
       );
 
-      // Update local state
       setContent((prev) =>
         prev.map((item) =>
           item._id === itemId
             ? { ...item, isPublished: !currentlyPublished }
-            : item
-        )
+            : item,
+        ),
       );
     } catch (error) {
       showToast(
         `Failed to ${currentlyPublished ? "unpublish" : "publish"} ${itemType}`,
-        "error"
+        "error",
       );
+    }
+  };
+
+  const handleEdit = (item) => {
+    console.log("handleEdit called", item.type, item._id);
+    setEditingItem(item);
+    setModalKey((k) => k + 1);
+    if (item.type === "lesson") {
+      setShowLessonModal(true);
+      setShowModuleModal(false);
+    } else {
+      setShowModuleModal(true);
+      setShowLessonModal(false);
     }
   };
 
@@ -133,6 +196,15 @@ const ContentManagementTable = () => {
     try {
       await adminApiClient.delete(`/content/${itemType}s/${itemId}`);
       setContent((prev) => prev.filter((item) => item._id !== itemId));
+
+      // If it's a module, also update modules state
+      if (itemType === "module") {
+        setModules((prev) => prev.filter((m) => m._id !== itemId));
+      }
+
+      // If the deleted item was selected, remove it from selectedItems
+      setSelectedItems((prev) => prev.filter((item) => item._id !== itemId));
+
       showToast(`${itemType} deleted successfully`, "success");
     } catch (error) {
       showToast(`Failed to delete ${itemType}`, "error");
@@ -144,13 +216,12 @@ const ContentManagementTable = () => {
 
     const confirmed = await confirm.confirmAction(
       "Confirm Bulk Action",
-      `Are you sure you want to ${bulkAction} ${selectedItems.length} items? This cannot be undone.`
+      `Are you sure you want to ${bulkAction} ${selectedItems.length} items? This cannot be undone.`,
     );
 
     if (!confirmed) return;
 
     try {
-      // Process all requests
       await Promise.all(
         selectedItems.map((item) => {
           if (bulkAction === "delete") {
@@ -160,13 +231,12 @@ const ContentManagementTable = () => {
             `/content/${item.type}s/${item._id}/publish`,
             {
               publish: bulkAction === "publish",
-            }
+            },
           );
-        })
+        }),
       );
 
       showToast(`Bulk ${bulkAction} completed successfully`, "success");
-
       fetchContent();
       setSelectedItems([]);
       setBulkAction("");
@@ -177,12 +247,22 @@ const ContentManagementTable = () => {
 
   const duplicateItem = async (item) => {
     try {
-      const newItem = await adminApiClient.post(
-        `/content/${item.type}s/${item._id}/duplicate`
+      const response = await adminApiClient.post(
+        `/content/${item.type}s/${item._id}/duplicate`,
       );
 
+      const duplicatedItem = response[item.type];
+
+      if (!duplicatedItem || !duplicatedItem._id) {
+        throw new Error("Invalid response from server");
+      }
+
       showToast(`${item.type} duplicated successfully`, "success");
-      setContent((prev) => [...prev, { ...newItem, type: item.type }]);
+      setContent((prev) => [...prev, { ...duplicatedItem, type: item.type }]);
+
+      if (item.type === "module") {
+        setModules((prev) => [...prev, duplicatedItem]);
+      }
     } catch (error) {
       showToast("Failed to duplicate item", "error");
     }
@@ -216,6 +296,176 @@ const ContentManagementTable = () => {
 
   const getTypeIcon = (type) => {
     return type === "lesson" ? FileText : BookOpen;
+  };
+
+  // Get module title by ID
+  const getModuleTitle = (moduleId) => {
+    const module = modules.find((m) => m._id === moduleId);
+    return module
+      ? `M${module.order || "?"} ${module.title}`
+      : "Unknown Module";
+  };
+
+  // Group content by module for lessons view
+  const getGroupedContent = useMemo(() => {
+    if (!groupByModule) return null;
+
+    const lessonsOnly = filteredContent.filter(
+      (item) => item.type === "lesson",
+    );
+    const grouped = {};
+
+    lessonsOnly.forEach((lesson) => {
+      const moduleId = lesson.moduleId;
+      if (!grouped[moduleId]) {
+        const module = modules.find((m) => m._id === moduleId);
+        grouped[moduleId] = {
+          module: module,
+          lessons: [],
+        };
+      }
+      grouped[moduleId].lessons.push(lesson);
+    });
+
+    // Sort modules by order
+    return Object.entries(grouped).sort((a, b) => {
+      const orderA = a[1].module?.order || 0;
+      const orderB = b[1].module?.order || 0;
+      return orderA - orderB;
+    });
+  }, [groupByModule, filteredContent, modules]);
+
+  const renderGroupedView = () => {
+    if (!getGroupedContent) return null;
+
+    return (
+      <div className="space-y-6">
+        {getGroupedContent.map(([moduleId, { module, lessons }]) => (
+          <div
+            key={moduleId}
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
+                    {module ? (
+                      <>
+                        <span className="text-sm font-mono text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mr-2">
+                          M{module.order || "—"}
+                        </span>
+                        {module.title}
+                      </>
+                    ) : (
+                      "Unknown Module"
+                    )}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {lessons.length}{" "}
+                    {lessons.length === 1 ? "lesson" : "lessons"}
+                  </p>
+                </div>
+                {module && (
+                  <button
+                    onClick={() => {
+                      handleEdit(module);
+                    }}
+                    className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    Edit Module
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {lessons
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map((lesson) => (
+                  <div
+                    key={lesson._id}
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 flex-1">
+                        <span className="text-sm font-mono text-gray-400 w-12">
+                          #{lesson.order || "—"}
+                        </span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {lesson.title}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs ${
+                                lesson.isPublished
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+                                  : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400"
+                              }`}
+                            >
+                              {lesson.isPublished ? "Published" : "Draft"}
+                            </span>
+                            {lesson.difficulty && (
+                              <span className="text-xs text-gray-500">
+                                {getDifficultyBadge(lesson.difficulty)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            ID: {lesson._id?.slice(-8)} • XP:{" "}
+                            {lesson.xpReward || 0}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() =>
+                            togglePublish(
+                              lesson._id,
+                              "lesson",
+                              lesson.isPublished,
+                            )
+                          }
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                          title={lesson.isPublished ? "Unpublish" : "Publish"}
+                        >
+                          {lesson.isPublished ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleEdit(lesson);
+                          }}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4 text-blue-500" />
+                        </button>
+                        <button
+                          onClick={() => duplicateItem(lesson)}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                          title="Duplicate"
+                        >
+                          <Copy className="h-4 w-4 text-green-500" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(lesson._id, "lesson")}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const renderTableView = () => (
@@ -273,7 +523,7 @@ const ContentManagementTable = () => {
           {filteredContent.map((item) => {
             const TypeIcon = getTypeIcon(item.type);
             const isSelected = selectedItems.some(
-              (selected) => selected._id === item._id
+              (selected) => selected._id === item._id,
             );
 
             return (
@@ -293,8 +543,8 @@ const ContentManagementTable = () => {
                       } else {
                         setSelectedItems(
                           selectedItems.filter(
-                            (selected) => selected._id !== item._id
-                          )
+                            (selected) => selected._id !== item._id,
+                          ),
                         );
                       }
                     }}
@@ -320,10 +570,19 @@ const ContentManagementTable = () => {
                     </div>
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-2">
+                          {item.type === "lesson" ? "📖" : "📦"} #
+                          {item.order || "—"}
+                        </span>
                         {item.title}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         ID: {item._id?.slice(-8)}
+                        {item.type === "lesson" && item.moduleId && (
+                          <span className="ml-2">
+                            • {getModuleTitle(item.moduleId)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -375,7 +634,9 @@ const ContentManagementTable = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center space-x-2">
-                    <span className="font-mono text-sm">{item.order || 0}</span>
+                    <span className="font-mono text-sm">
+                      #{item.order || 0}
+                    </span>
                     <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                       <MoveVertical className="h-4 w-4 text-gray-500" />
                     </button>
@@ -388,10 +649,7 @@ const ContentManagementTable = () => {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => {
-                        setEditingItem(item);
-                        item.type === "lesson"
-                          ? setShowLessonModal(true)
-                          : setShowModuleModal(true);
+                        handleEdit(item);
                       }}
                       className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
                       title="Edit"
@@ -427,7 +685,7 @@ const ContentManagementTable = () => {
       {filteredContent.map((item) => {
         const TypeIcon = getTypeIcon(item.type);
         const isSelected = selectedItems.some(
-          (selected) => selected._id === item._id
+          (selected) => selected._id === item._id,
         );
 
         return (
@@ -467,8 +725,8 @@ const ContentManagementTable = () => {
                       } else {
                         setSelectedItems(
                           selectedItems.filter(
-                            (selected) => selected._id !== item._id
-                          )
+                            (selected) => selected._id !== item._id,
+                          ),
                         );
                       }
                     }}
@@ -495,12 +753,23 @@ const ContentManagementTable = () => {
 
               {/* Content */}
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-2">
+                  {item.type === "lesson" ? "📖" : "📦"} #{item.order || "—"}
+                </span>
                 {item.title}
               </h3>
 
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
                 {item.description || "No description"}
               </p>
+
+              {/* Module info for lessons */}
+              {item.type === "lesson" && item.moduleId && (
+                <div className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+                  <BookOpen className="h-3 w-3 inline mr-1" />
+                  {getModuleTitle(item.moduleId)}
+                </div>
+              )}
 
               {/* Tags */}
               {item.tags && item.tags.length > 0 && (
@@ -549,10 +818,7 @@ const ContentManagementTable = () => {
               <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => {
-                    setEditingItem(item);
-                    item.type === "lesson"
-                      ? setShowLessonModal(true)
-                      : setShowModuleModal(true);
+                    handleEdit(item);
                   }}
                   className="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                 >
@@ -630,9 +896,12 @@ const ContentManagementTable = () => {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Modules
               </p>
-              <p className="text-xs text-green-600 dark:text-green-400">
-                {stats.publishedModules} published
-              </p>
+              <div className="text-xs text-gray-500 mt-1">
+                {modules
+                  .sort((a, b) => (a.order || 0) - (b.order || 0))
+                  .map((m) => `M${m.order}`)
+                  .join(", ")}
+              </div>
             </div>
           </div>
         </div>
@@ -738,6 +1007,25 @@ const ContentManagementTable = () => {
                 <option value="intermediate">Intermediate</option>
                 <option value="advanced">Advanced</option>
               </select>
+
+              {filters.type !== "module" && (
+                <select
+                  value={filters.moduleId || ""}
+                  onChange={(e) =>
+                    setFilters({ ...filters, moduleId: e.target.value })
+                  }
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                >
+                  <option value="">All Modules</option>
+                  {modules
+                    .sort((a, b) => (a.order || 0) - (b.order || 0))
+                    .map((module) => (
+                      <option key={module._id} value={module._id}>
+                        M{module.order || "—"} {module.title}
+                      </option>
+                    ))}
+                </select>
+              )}
             </div>
           </div>
 
@@ -746,21 +1034,47 @@ const ContentManagementTable = () => {
             {/* View Toggle */}
             <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
               <button
-                onClick={() => setViewMode("table")}
+                onClick={() => {
+                  setViewMode("table");
+                  setGroupByModule(false);
+                }}
                 className={`p-2 rounded ${
-                  viewMode === "table" ? "bg-white dark:bg-gray-800 shadow" : ""
+                  viewMode === "table" && !groupByModule
+                    ? "bg-white dark:bg-gray-800 shadow"
+                    : ""
                 }`}
+                title="Table View"
               >
                 <List className="h-4 w-4" />
               </button>
               <button
-                onClick={() => setViewMode("grid")}
+                onClick={() => {
+                  setViewMode("grid");
+                  setGroupByModule(false);
+                }}
                 className={`p-2 rounded ${
-                  viewMode === "grid" ? "bg-white dark:bg-gray-800 shadow" : ""
+                  viewMode === "grid" && !groupByModule
+                    ? "bg-white dark:bg-gray-800 shadow"
+                    : ""
                 }`}
+                title="Grid View"
               >
                 <Grid className="h-4 w-4" />
               </button>
+              {filters.type !== "module" && (
+                <button
+                  onClick={() => {
+                    setGroupByModule(true);
+                    setViewMode(null);
+                  }}
+                  className={`p-2 rounded ${
+                    groupByModule ? "bg-white dark:bg-gray-800 shadow" : ""
+                  }`}
+                  title="Group by Module"
+                >
+                  <Layers className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             {/* Bulk Actions */}
@@ -791,32 +1105,45 @@ const ContentManagementTable = () => {
 
             {/* Add New */}
             <div className="relative">
-              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center">
+              <button
+                onClick={() => setShowAddMenu(!showAddMenu)}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 hidden group-hover:block">
-                <button
-                  onClick={() => {
-                    setEditingItem(null);
-                    setShowLessonModal(true);
-                  }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <FileText className="h-4 w-4 mr-3" />
-                  New Lesson
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingItem(null);
-                    setShowModuleModal(true);
-                  }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <BookOpen className="h-4 w-4 mr-3" />
-                  New Module
-                </button>
-              </div>
+              {showAddMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowAddMenu(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                    <button
+                      onClick={() => {
+                        setEditingItem(null);
+                        setShowLessonModal(true);
+                        setShowAddMenu(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg"
+                    >
+                      <FileText className="h-4 w-4 mr-3" />
+                      New Lesson
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingItem(null);
+                        setShowModuleModal(true);
+                        setShowAddMenu(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg"
+                    >
+                      <BookOpen className="h-4 w-4 mr-3" />
+                      New Module
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -848,10 +1175,15 @@ const ContentManagementTable = () => {
             <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               Showing {filteredContent.length} of {content.length} items
               {filters.search && ` for "${filters.search}"`}
+              {groupByModule && " • Grouped by module"}
             </div>
 
             {/* Content View */}
-            {viewMode === "table" ? renderTableView() : renderGridView()}
+            {groupByModule
+              ? renderGroupedView()
+              : viewMode === "table"
+                ? renderTableView()
+                : renderGridView()}
           </>
         )}
       </div>
@@ -859,7 +1191,10 @@ const ContentManagementTable = () => {
       {/* Modals */}
       {showLessonModal && (
         <LessonEditorModal
+          isOpen={showLessonModal}
+          key={modalKey}
           lesson={editingItem}
+          modules={modules}
           onClose={() => {
             setShowLessonModal(false);
             setEditingItem(null);
@@ -872,6 +1207,8 @@ const ContentManagementTable = () => {
 
       {showModuleModal && (
         <ModuleEditorModal
+          isOpen={showModuleModal}
+          key={modalKey}
           module={editingItem}
           onClose={() => {
             setShowModuleModal(false);
@@ -882,6 +1219,9 @@ const ContentManagementTable = () => {
           }}
         />
       )}
+
+      {/* Back to Top Button */}
+      <BackToTopButton />
     </div>
   );
 };

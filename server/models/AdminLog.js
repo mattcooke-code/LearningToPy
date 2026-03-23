@@ -12,24 +12,59 @@ const adminLogSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
+        // User management
+        "USER_MADE_ADMIN",
+        "USER_REMOVED_ADMIN",
+        "XP_ADJUSTMENT",
+        "USER_BLOCKED",
+        "USER_UNBLOCKED",
+        "USER_DELETED",
+
+        // Badge management
         "AWARD_BADGES",
         "REMOVE_BADGES",
-        "ADJUST_XP",
-        "OVERRIDE_PROGRESS",
-        "TOGGLE_ADMIN",
-        "BLOCK_USER",
-        "UNBLOCK_USER",
-        "UPDATE_SETTINGS",
+
+        // Progress overrides
+        "LESSON_COMPLETED_OVERRIDE",
+        "LESSON_INCOMPLETE_OVERRIDE",
+        "MODULE_COMPLETED_OVERRIDE",
+        "MODULE_INCOMPLETE_OVERRIDE",
+
+        // Flags
+        "FLAG_RESOLVED",
+
+        // Settings
+        "SETTINGS_UPDATED",
+
+        // Lesson management
+        "LESSON_CREATED",
+        "LESSON_UPDATED",
+        "LESSON_DELETED",
+        "LESSON_PUBLISHED",
+        "LESSON_UNPUBLISHED",
+        "LESSON_DUPLICATED",
+
+        // Module management
+        "MODULE_CREATED",
+        "MODULE_UPDATED",
+        "MODULE_DELETED",
+        "MODULE_PUBLISHED",
+        "MODULE_UNPUBLISHED",
+        "MODULE_DUPLICATED",
       ],
     },
     targetType: {
       type: String,
-      enum: ["user", "lesson", "module", "badge", "flag"],
+      // ✅ Uppercase to match controller usage, with SETTINGS added for
+      // updateSettings which has no associated document targetId
+      enum: ["USER", "LESSON", "MODULE", "BADGE", "FLAG", "SETTINGS"],
       required: true,
     },
     targetId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // ✅ No longer required — SETTINGS actions have no document targetId
+      required: false,
+      default: null,
       refPath: "targetType",
     },
     changes: {
@@ -53,12 +88,12 @@ const adminLogSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Index for efficient queries
 adminLogSchema.index({ adminId: 1, timestamp: -1 });
 adminLogSchema.index({ targetType: 1, targetId: 1 });
 adminLogSchema.index({ action: 1, timestamp: -1 });
 
-// Automatically expire logs after 1 year (365 days) for GDPR compliance
+// ✅ TTL kept at 1 year for admin audit logs (longer than activity logs
+// which expire after 90 days, since audit trails have compliance value)
 adminLogSchema.index(
   { timestamp: 1 },
   { expireAfterSeconds: 365 * 24 * 60 * 60 },

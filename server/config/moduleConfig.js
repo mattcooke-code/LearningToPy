@@ -1221,9 +1221,9 @@ const MODULE_HELPERS = {
         "Build database-driven applications",
       ],
       M20: [
-        "Design and structure a complete CLI application",
-        "Parse command-line arguments with argparse",
-        "Integrate APIs, data processing, and database storage",
+        "Design and structure any project application",
+        "Choose from a selection or devise your own project",
+        "Use Class, Inheritance, Data Structure, Data Manipulation, Functions, and External Interaction",
         "Write clean, maintainable production code",
         "Create a portfolio-ready final project",
       ],

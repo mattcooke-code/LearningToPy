@@ -150,7 +150,7 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
   const handleDelete = async () => {
     if (
       !window.confirm(
-        "Are you sure you want to delete this lesson? This action cannot be undone."
+        "Are you sure you want to delete this lesson? This action cannot be undone.",
       )
     )
       return;
@@ -335,7 +335,7 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
               onChange={(e) => {
                 const selected = Array.from(
                   e.target.selectedOptions,
-                  (opt) => opt.value
+                  (opt) => opt.value,
                 );
                 handleChange("prerequisiteLessonIds", selected);
               }}
@@ -345,8 +345,8 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                 .filter((l) => l._id !== lesson?._id)
                 .map((l) => (
                   <option key={l._id} value={l._id}>
-                    {l.title} {l.title} {l.isPublished ? "" : " (Draft)"} (Order{" "}
-                    {l.order})
+                    {l.title} {l.isPublished ? "" : " (Draft)"} (Order {l.order}
+                    )
                   </option>
                 ))}
             </select>
