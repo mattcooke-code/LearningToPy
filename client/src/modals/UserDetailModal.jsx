@@ -1,4 +1,3 @@
-// UserDetailModal.jsx
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { adminApiClient, useNotification } from "../context";
 import { BaseModal, Spinner } from "../components/ui";
@@ -19,12 +18,22 @@ import {
   Settings,
   PieChart,
   Check,
+  HelpCircle,
   X as XIcon,
 } from "lucide-react";
 
 // Utils & Constants
-import { normalizeUserData, calculateUserDashboardStats } from "../utils";
 import { STAT_COLOR_MAP } from "../constants/uiColors";
+
+// Define STAT_COLOR_MAP if not imported
+const DEFAULT_STAT_COLORS = {
+  blue: { bg: "bg-blue-100", text: "text-blue-600" },
+  green: { bg: "bg-green-100", text: "text-green-600" },
+  purple: { bg: "bg-purple-100", text: "text-purple-600" },
+  yellow: { bg: "bg-yellow-100", text: "text-yellow-600" },
+  red: { bg: "bg-red-100", text: "text-red-600" },
+  gray: { bg: "bg-gray-100", text: "text-gray-600" },
+};
 
 const UserDetailModal = ({ isOpen, onClose, user }) => {
   const [userDetails, setUserDetails] = useState(null);
@@ -39,31 +48,24 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
     try {
       setLoading(true);
 
-      const [detailsRes, activityRes] = await Promise.allSettled([
-        adminApiClient.get(`/users/${user._id}`),
-        adminApiClient.get(`/users/${user._id}/activity?limit=20`),
-      ]);
+      // Fetch user details from the correct endpoint
+      const userData = await adminApiClient.get(`/users/${user._id}`);
 
-      // Handle User Details
-      if (detailsRes.status === "fulfilled") {
-        setUserDetails(normalizeUserData(detailsRes.value, user));
-      } else {
-        // Fallback to basic user object if full fetch fails
-        setUserDetails(normalizeUserData(null, user));
-        showToast("Using cached profile data", "warning");
-      }
+      // Fetch user activity
+      const activityData = await adminApiClient.get(
+        `/users/${user._id}/activity?limit=20`,
+      );
 
-      // Handle Activity (Optional)
-      if (activityRes.status === "fulfilled") {
-        const payload = activityRes.value;
-        setActivityLogs(
-          payload?.userActivity ||
-            payload?.activity ||
-            (Array.isArray(payload) ? payload : [])
-        );
-      }
+      setUserDetails(userData);
+      setActivityLogs(
+        activityData?.userActivity || activityData?.activity || [],
+      );
     } catch (error) {
-      showToast("Critical error loading user data", "error");
+      console.error("Error fetching user details:", error);
+      showToast("Failed to load user details", "error");
+
+      // Fallback to the passed user object
+      setUserDetails(user);
     } finally {
       setLoading(false);
     }
@@ -73,10 +75,49 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
     if (isOpen) fetchUserDetails();
   }, [isOpen, fetchUserDetails]);
 
-  const stats = useMemo(
-    () => calculateUserDashboardStats(userDetails),
-    [userDetails]
-  );
+  // Calculate user stats from the fetched data
+  const stats = useMemo(() => {
+    if (!userDetails) return [];
+
+    return [
+      {
+        label: "Level",
+        value: userDetails.level || 1,
+        icon: Trophy,
+        color: "yellow",
+      },
+      {
+        label: "XP",
+        value: userDetails.xp?.toLocaleString() || 0,
+        icon: Zap,
+        color: "blue",
+      },
+      {
+        label: "Streak",
+        value: userDetails.streak || 0,
+        icon: TrendingUp,
+        color: "green",
+      },
+      {
+        label: "Badges",
+        value: userDetails.badges?.length || 0,
+        icon: Award,
+        color: "purple",
+      },
+      {
+        label: "Lessons",
+        value: userDetails.completedLessons?.length || 0,
+        icon: BookOpen,
+        color: "blue",
+      },
+      {
+        label: "Modules",
+        value: userDetails.completedModules?.length || 0,
+        icon: Target,
+        color: "green",
+      },
+    ];
+  }, [userDetails]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -96,8 +137,12 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
       XP_EARNED: TrendingUp,
       BADGE_EARNED: Award,
       LOGIN: UserIcon,
+      LESSON_START: BookOpen,
+      LESSON_COMPLETE: Check,
+      QUIZ_ATTEMPT: HelpCircle,
     };
-    return icons[actionType] || ClockIcon;
+    const Icon = icons[actionType] || ClockIcon;
+    return Icon;
   };
 
   // UI Helper for Tabs
@@ -120,18 +165,20 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
       <BaseModal
         isOpen={isOpen}
         onClose={onClose}
-        title={`Loading ${user.username}...`}
+        title={`Loading ${user?.username || "User"}...`}
         size="4xl"
       >
         <div className="flex flex-col justify-center items-center h-96 space-y-4">
           <Spinner size="lg" color="python-blue" />
           <p className="text-gray-500 animate-pulse font-medium">
-            Syncing learning history...
+            Fetching user data...
           </p>
         </div>
       </BaseModal>
     );
   }
+
+  const currentUser = userDetails || user;
 
   return (
     <BaseModal
@@ -140,7 +187,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
       title={
         <div className="flex items-center space-x-2">
           <UserIcon className="h-5 w-5 text-gray-400" />
-          <span>User Management Profile</span>
+          <span>User Profile</span>
         </div>
       }
       size="5xl"
@@ -153,28 +200,28 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
 
         <div className="relative flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 text-center md:text-left">
           <div className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white text-3xl font-black">
-            {user.username?.charAt(0).toUpperCase()}
+            {currentUser.username?.charAt(0).toUpperCase()}
           </div>
 
           <div className="flex-1">
             <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3">
               <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                {user.username}
+                {currentUser.username}
               </h3>
               <div className="flex space-x-2 justify-center md:justify-start">
-                {user.isAdmin && (
+                {currentUser.isAdmin && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 uppercase">
                     <Shield className="h-3 w-3 mr-1" /> Admin
                   </span>
                 )}
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                    user.isBlocked
+                    currentUser.isBlocked
                       ? "bg-red-100 text-red-700"
                       : "bg-green-100 text-green-700"
                   }`}
                 >
-                  {user.isBlocked ? "Blocked" : "Active Account"}
+                  {currentUser.isBlocked ? "Blocked" : "Active"}
                 </span>
               </div>
             </div>
@@ -182,12 +229,18 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
             <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-6">
               <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
                 <Mail className="h-4 w-4 mr-2 text-blue-500" />
-                {user.email}
+                {currentUser.email}
               </div>
               <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
                 <Calendar className="h-4 w-4 mr-2 text-green-500" />
-                Member since {new Date(user.createdAt).getFullYear()}
+                Joined {formatDate(currentUser.createdAt)}
               </div>
+              {currentUser.lastActive && (
+                <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <Activity className="h-4 w-4 mr-2 text-orange-500" />
+                  Last active {formatDate(currentUser.lastActive)}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -197,22 +250,22 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
       <div className="flex space-x-6 border-b border-gray-100 dark:border-gray-800 mb-8 px-2">
         <TabButton id="overview" label="Overview" icon={Activity} />
         <TabButton id="activity" label="Activity Log" icon={ClockIcon} />
-        <TabButton id="stats" label="In-Depth Stats" icon={BarChart3} />
-        <TabButton id="settings" label="Preferences" icon={Settings} />
+        <TabButton id="stats" label="Stats" icon={BarChart3} />
+        <TabButton id="settings" label="Privacy" icon={Settings} />
       </div>
 
       {/* Tab Content Area */}
       <div className="min-h-[400px]">
         {activeTab === "overview" && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            {/* High Impact Stats */}
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {stats.map((stat) => {
                 const Icon = stat.icon;
-                const colors = STAT_COLOR_MAP[stat.color] || {
-                  bg: "bg-gray-100",
-                  text: "text-gray-600",
-                };
+                const colors =
+                  STAT_COLOR_MAP?.[stat.color] ||
+                  DEFAULT_STAT_COLORS[stat.color] ||
+                  DEFAULT_STAT_COLORS.gray;
                 return (
                   <div
                     key={stat.label}
@@ -237,31 +290,31 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
             {/* Badge Showcase */}
             <div className="bg-gray-50/50 dark:bg-gray-900/20 p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800">
               <h4 className="text-sm font-black text-gray-400 uppercase tracking-tighter mb-4 flex items-center">
-                <Award className="h-4 w-4 mr-2 text-yellow-500" /> Collection of
-                Achievement
+                <Award className="h-4 w-4 mr-2 text-yellow-500" /> Earned Badges
               </h4>
-              {userDetails.badges?.length > 0 ? (
+              {currentUser.badges?.length > 0 ? (
                 <div className="flex flex-wrap gap-3">
-                  {userDetails.badges.map((badge, i) => (
+                  {currentUser.badges.map((badge, i) => (
                     <div
                       key={i}
                       className="flex items-center space-x-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-yellow-200 dark:border-yellow-900/50 rounded-lg shadow-sm"
                     >
                       <span className="text-lg">🏆</span>
                       <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                        {badge}
+                        {typeof badge === "string" ? badge : badge.name}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
                 <p className="text-sm text-gray-400 italic">
-                  This user hasn't claimed any badges yet.
+                  No badges earned yet.
                 </p>
               )}
             </div>
           </div>
         )}
+
         {activeTab === "activity" && (
           <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
             {activityLogs.length > 0 ? (
@@ -280,8 +333,11 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                         {activity.actionType?.replace(/_/g, " ")}
                       </p>
                       <p className="text-[11px] text-gray-400 font-medium">
-                        {activity.contentType || "System Event"} •{" "}
-                        {formatDate(activity.completedAt || activity.createdAt)}
+                        {formatDate(
+                          activity.completedAt ||
+                            activity.createdAt ||
+                            activity.timestamp,
+                        )}
                       </p>
                     </div>
                     {activity.xpEarned && (
@@ -296,7 +352,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
               <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/20 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
                 <Activity className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500 font-medium">
-                  No activity history found for this user.
+                  No activity history found.
                 </p>
               </div>
             )}
@@ -309,27 +365,41 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
             <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
               <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center">
                 <BarChart3 className="h-4 w-4 mr-2 text-indigo-500" />
-                Learning Metrics
+                Learning Progress
               </h4>
               <div className="space-y-4">
-                {Object.entries(userDetails.stats || {}).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2"
-                  >
-                    <span className="text-xs font-bold text-gray-500 capitalize">
-                      {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                    </span>
-                    <span className="text-sm font-black text-gray-900 dark:text-white">
-                      {value || 0}
-                    </span>
-                  </div>
-                ))}
-                {Object.keys(userDetails.stats || {}).length === 0 && (
-                  <p className="text-xs text-gray-400 italic py-4 text-center">
-                    No granular stats recorded yet.
-                  </p>
-                )}
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    Completed Lessons
+                  </span>
+                  <span className="text-sm font-black text-gray-900 dark:text-white">
+                    {currentUser.completedLessons?.length || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    Completed Modules
+                  </span>
+                  <span className="text-sm font-black text-gray-900 dark:text-white">
+                    {currentUser.completedModules?.length || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    Current Streak
+                  </span>
+                  <span className="text-sm font-black text-gray-900 dark:text-white">
+                    {currentUser.streak || 0} days
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    Total XP
+                  </span>
+                  <span className="text-sm font-black text-gray-900 dark:text-white">
+                    {currentUser.xp?.toLocaleString() || 0}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -337,47 +407,43 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
             <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-sm">
               <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center">
                 <Shield className="h-4 w-4 mr-2 text-blue-500" />
-                System Metadata
+                Account Info
               </h4>
               <div className="space-y-4">
-                {[
-                  { label: "Internal ID", value: user._id, mono: true },
-                  {
-                    label: "Last Active",
-                    value: userDetails.lastActiveDate
-                      ? formatDate(userDetails.lastActiveDate)
-                      : "Never",
-                  },
-                  {
-                    label: "Total Time",
-                    value: `${Math.floor(
-                      (userDetails.totalLearningTime || 0) / 60
-                    )} Hours`,
-                  },
-                  {
-                    label: "Status",
-                    value: user.isBlocked ? "Restricted" : "Active",
-                    color: user.isBlocked ? "text-red-500" : "text-green-500",
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2"
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    User ID
+                  </span>
+                  <span className="text-[11px] font-mono text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 rounded">
+                    {currentUser._id}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    Account Created
+                  </span>
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-200">
+                    {formatDate(currentUser.createdAt)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-700/50 pb-2">
+                  <span className="text-xs font-bold text-gray-500">
+                    Last Active
+                  </span>
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-200">
+                    {formatDate(currentUser.lastActive)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold text-gray-500">
+                    Status
+                  </span>
+                  <span
+                    className={`text-xs font-bold ${currentUser.isBlocked ? "text-red-500" : "text-green-500"}`}
                   >
-                    <span className="text-xs font-bold text-gray-500">
-                      {item.label}
-                    </span>
-                    <span
-                      className={`text-[11px] font-bold ${
-                        item.mono
-                          ? "font-mono text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1 rounded"
-                          : item.color || "text-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      {item.value}
-                    </span>
-                  </div>
-                ))}
+                    {currentUser.isBlocked ? "Blocked" : "Active"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -388,16 +454,16 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
             <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden">
               <div className="p-6 border-b border-gray-50 dark:border-gray-700">
                 <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest">
-                  Privacy & Preferences
+                  Privacy Settings
                 </h4>
                 <p className="text-xs text-gray-500 mt-1">
-                  Review how this user's profile appears to the community.
+                  How this user appears to others.
                 </p>
               </div>
               <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
-                {Object.entries(userDetails.privacySettings || {}).length >
-                0 ? (
-                  Object.entries(userDetails.privacySettings || {}).map(
+                {currentUser.privacySettings &&
+                Object.keys(currentUser.privacySettings).length > 0 ? (
+                  Object.entries(currentUser.privacySettings).map(
                     ([key, value]) => (
                       <div
                         key={key}
@@ -408,8 +474,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                             {key.replace(/([A-Z])/g, " $1").toLowerCase()}
                           </span>
                           <p className="text-xs text-gray-500">
-                            Enable visibility for this metric in public
-                            leaderboards
+                            Display on leaderboards and public profiles
                           </p>
                         </div>
                         <div
@@ -429,13 +494,13 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                           </span>
                         </div>
                       </div>
-                    )
+                    ),
                   )
                 ) : (
                   <div className="p-10 text-center">
                     <Settings className="h-8 w-8 text-gray-200 mx-auto mb-2" />
                     <p className="text-sm text-gray-400">
-                      No privacy settings configured for this account.
+                      No privacy settings configured.
                     </p>
                   </div>
                 )}
@@ -445,19 +510,14 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
         )}
       </div>
 
-      {/* Footer Actions */}
-      <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
-        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-          Refreshed: {new Date().toLocaleTimeString()}
-        </p>
-        <div className="flex space-x-3">
-          <button
-            onClick={onClose}
-            className="px-8 py-2.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-black rounded-xl text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-gray-200 dark:shadow-none"
-          >
-            Close Session
-          </button>
-        </div>
+      {/* Footer */}
+      <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+        <button
+          onClick={onClose}
+          className="px-8 py-2.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-black rounded-xl text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg"
+        >
+          Close
+        </button>
       </div>
     </BaseModal>
   );

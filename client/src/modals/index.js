@@ -1,8 +1,10 @@
 export { default as BadgeModal } from "./BadgeModal";
 export { default as BadgeAwardModal } from "./BadgeAwardModal";
+export { default as FlaggedLessonPreviewModal } from "./FlaggedLessonPreviewModal";
 export { default as FlagResolutionModal } from "./FlagResolutionModal";
 export { default as LeaderboardModal } from "./LeaderboardModal";
 export { default as LessonEditorModal } from "./LessonEditorModal";
+export { default as LessonPreviewModal } from "./LessonPreviewModal";
 export { default as ModuleEditorModal } from "./ModuleEditorModal";
 export { default as ProgressOverrideModal } from "./ProgressOverrideModal";
 export { default as UserDetailModal } from "./UserDetailModal";

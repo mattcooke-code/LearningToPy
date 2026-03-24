@@ -1,185 +1,241 @@
-// FlagResolutionModal.jsx
 import { useState } from "react";
 import { BaseModal } from "../components/ui";
 import {
-  CheckCircle,
+  Flag,
   AlertTriangle,
-  Shield,
-  X,
-  MessageSquare,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Send,
   User,
-  FileText,
+  BookOpen,
 } from "lucide-react";
 
-const FlagResolutionModal = ({ flag, isOpen, onClose, onResolve }) => {
-  const [resolution, setResolution] = useState({
-    status: "RESOLVED",
-    notes: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const FlagResolutionModal = ({
+  flag,
+  onClose,
+  onResolve,
+  onViewUser,
+  onViewLesson,
+}) => {
+  const [status, setStatus] = useState(flag.status);
+  const [adminResponse, setAdminResponse] = useState(flag.adminResponse || "");
+  const [submitting, setSubmitting] = useState(false);
 
-  const getTargetIcon = () => {
-    const icons = {
-      COMMENT: MessageSquare,
-      EXERCISE_SUBMISSION: FileText,
-      USER_PROFILE: User,
-      LESSON_CONTENT: FileText,
-    };
-    return icons[flag.targetType] || AlertTriangle;
-  };
+  const handleSubmit = async () => {
+    if (!status) return;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!resolution.notes.trim()) return;
-
-    setIsSubmitting(true);
+    setSubmitting(true);
     try {
-      await onResolve(flag._id, resolution);
+      await onResolve(flag._id, {
+        status,
+        adminResponse,
+      });
+      onClose();
+    } catch (error) {
+      console.error("Failed to resolve flag:", error);
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
-  const TargetIcon = getTargetIcon();
+  const statusOptions = [
+    {
+      value: "IN_REVIEW",
+      label: "Mark as In Review",
+      icon: Eye,
+      color: "blue",
+      description: "You're currently reviewing this issue.",
+      action: "Student will be notified that you're looking into it.",
+    },
+    {
+      value: "FIXED",
+      label: "Mark as Fixed",
+      icon: CheckCircle,
+      color: "green",
+      description: "The issue has been resolved.",
+      action: "Student will be notified and will receive 25 XP as a thank you!",
+    },
+    {
+      value: "REJECTED",
+      label: "Reject",
+      icon: XCircle,
+      color: "gray",
+      description: "No issue found or not applicable.",
+      action: "Student will be notified with an explanation.",
+    },
+  ];
+
+  const getIssueTypeIcon = (type) => {
+    const icons = {
+      CONTENT_ERROR: "📝",
+      CODE_ERROR: "💻",
+      QUIZ_ERROR: "❓",
+      BROKEN_FUNCTIONALITY: "🔧",
+      XP_ADJUSTMENT: "⭐",
+      OTHER: "📌",
+    };
+    return icons[type] || "📋";
+  };
 
   return (
     <BaseModal
-      isOpen={isOpen}
+      isOpen={true}
       onClose={onClose}
-      title="Resolve Flag Report"
-      size="2xl"
-      showCloseButton={true}
+      title="Review Issue Report"
+      size="lg"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Header Summary (Sub-header) */}
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-            <TargetIcon className="h-5 w-5 text-red-600 dark:text-red-400" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Reported by {flag.reporterId?.username || "System"} •{" "}
-              {flag.targetType?.replace(/_/g, " ")}
-            </p>
+      <div className="space-y-6">
+        {/* Flag Details */}
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-start space-x-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-xl">
+              {getIssueTypeIcon(flag.issueType)}
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h4 className="font-semibold text-gray-900 dark:text-white">
+                  {flag.title}
+                </h4>
+                <span className="text-xs font-mono bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded">
+                  {flag.issueType?.replace(/_/g, " ")}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                {flag.description}
+              </p>
+              {flag.suggestedFix && (
+                <div className="mt-3 p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                  <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-1">
+                    Suggested Fix:
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-300">
+                    {flag.suggestedFix}
+                  </p>
+                </div>
+              )}
+              <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                <span>
+                  Reported by: {flag.reporterId?.username || "Student"}
+                </span>
+                <span>
+                  Date: {new Date(flag.createdAt).toLocaleDateString()}
+                </span>
+                <span>Type: {flag.targetType}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Flag Details Section */}
-        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Flagged Content
-          </h4>
-          <p className="font-medium text-gray-900 dark:text-white mb-1">
-            Reason: {flag.reason}
-          </p>
-          {flag.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 italic">
-              "{flag.description}"
-            </p>
-          )}
-        </div>
-
-        {/* Resolution Status Selection */}
+        {/* Resolution Options */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Select Resolution
+          <label className="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">
+            Resolution Status
           </label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {[
-              {
-                value: "RESOLVED",
-                label: "Resolve",
-                icon: CheckCircle,
-                color: "green",
-              },
-              {
-                value: "WARNING_SENT",
-                label: "Warn",
-                icon: AlertTriangle,
-                color: "yellow",
-              },
-              {
-                value: "ESCALATED",
-                label: "Escalate",
-                icon: Shield,
-                color: "red",
-              },
-              { value: "DISMISSED", label: "Dismiss", icon: X, color: "gray" },
-            ].map((option) => {
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {statusOptions.map((option) => {
               const Icon = option.icon;
-              const isSelected = resolution.status === option.value;
+              const isSelected = status === option.value;
+
               return (
-                <label
+                <button
                   key={option.value}
-                  className={`flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer transition-all ${
+                  onClick={() => setStatus(option.value)}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
                     isSelected
-                      ? `bg-${option.color}-50 border-${option.color}-500 dark:bg-${option.color}-900/20`
-                      : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      ? `border-${option.color}-500 bg-${option.color}-50 dark:bg-${option.color}-900/20`
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
                   }`}
                 >
-                  <input
-                    type="radio"
-                    name="status"
-                    value={option.value}
-                    checked={isSelected}
-                    onChange={(e) =>
-                      setResolution({ ...resolution, status: e.target.value })
-                    }
-                    className="sr-only"
-                  />
-                  <Icon
-                    className={`h-5 w-5 mb-1 ${
-                      isSelected ? `text-${option.color}-600` : "text-gray-400"
-                    }`}
-                  />
-                  <span
-                    className={`text-xs font-semibold ${
-                      isSelected ? `text-${option.color}-700` : "text-gray-500"
-                    }`}
-                  >
-                    {option.label}
-                  </span>
-                </label>
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`p-2 rounded-lg bg-${option.color}-100 dark:bg-${option.color}-900/30`}
+                    >
+                      <Icon className={`h-5 w-5 text-${option.color}-600`} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        {option.label}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        {option.description}
+                      </p>
+                      {isSelected && (
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                          {option.action}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Notes Area */}
+        {/* Admin Response */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Resolution Notes *
+          <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            Admin Response (will be shared with student)
           </label>
           <textarea
-            value={resolution.notes}
-            onChange={(e) =>
-              setResolution({ ...resolution, notes: e.target.value })
-            }
-            rows="3"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm"
-            placeholder="Why are you taking this action?"
-            required
+            value={adminResponse}
+            onChange={(e) => setAdminResponse(e.target.value)}
+            rows={4}
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+            placeholder="Explain what action was taken, or provide additional information to the student..."
           />
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+        {/* Footer with Action Buttons */}
+        <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          {/* View User Profile Button */}
+          {flag.reporterId?._id && (
+            <button
+              onClick={() => onViewUser(flag.reporterId)}
+              className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 flex items-center"
+            >
+              <User className="h-4 w-4 mr-2" />
+              View User Profile
+            </button>
+          )}
+
+          {/* View Lesson Button */}
+          {flag.targetType === "LESSON" && flag.targetId && (
+            <button
+              onClick={() => onViewLesson(flag.targetId, flag.semanticId)}
+              className="px-4 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 flex items-center"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              View Lesson
+            </button>
+          )}
+
           <button
-            type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
-            type="submit"
-            disabled={isSubmitting || !resolution.notes.trim()}
-            className="px-6 py-2 text-sm font-bold text-white bg-python-blue rounded-lg hover:bg-python-dark disabled:opacity-50 transition-colors"
+            onClick={handleSubmit}
+            disabled={submitting || !status}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
           >
-            {isSubmitting ? "Processing..." : "Confirm Resolution"}
+            {submitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Submit Resolution
+              </>
+            )}
           </button>
         </div>
-      </form>
+      </div>
     </BaseModal>
   );
 };

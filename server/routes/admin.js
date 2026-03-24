@@ -12,18 +12,16 @@ router.use(adminOnly);
 // Admin user management
 router.patch("/users/:userId/admin-status", adminController.toggleAdminStatus);
 router.get("/admins", adminController.getAdmins);
-
-// Dashboard Stats
-router.get("/stats", adminController.getAdminStats);
-router.get("/stats/flags", adminController.getFlagStats);
-
-// User Management
 router.get("/users/search", adminController.searchUsers);
 router.get("/users/:userId", adminController.getUserDetails);
 router.patch("/users/:userId/xp", adminController.adjustUserXp);
 router.patch("/users/:userId/status", adminController.updateUserStatus);
 router.get("/users/:userId/activity", adminController.getUserActivity);
 router.patch("/users/:userId/progress", adminController.overrideUserProgress);
+
+// Dashboard Stats
+router.get("/stats", adminController.getAdminStats);
+router.get("/stats/flags", adminController.getFlagStats);
 
 // Content management
 router.get("/content/lessons", adminController.getAllLessons);

@@ -28,6 +28,8 @@ router.patch(
   authController.updatePrivacySettings,
 );
 
+router.post("/flags", protect, authController.createFlag);
+
 // In auth.js routes - add debug route
 router.get("/debug/token", protect, (req, res) => {
   const authHeader = req.headers["authorization"];

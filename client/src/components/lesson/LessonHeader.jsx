@@ -5,9 +5,16 @@ import {
   Star,
   BookOpen,
   RefreshCw,
+  Flag,
 } from "lucide-react";
 
-const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, navigate }) => {
+const LessonHeader = ({
+  lesson,
+  isReviewMode,
+  toggleReviewMode,
+  navigate,
+  onReport,
+}) => {
   return (
     <div className="mb-6">
       <button
@@ -48,6 +55,17 @@ const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, navigate }) => {
                 <span className="capitalize">{lesson.contentType}</span>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            {/* Report Button */}
+            <button
+              onClick={onReport}
+              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              title="Report this lesson"
+            >
+              <Flag className="h-5 w-5" />
+            </button>
           </div>
 
           <div className="flex flex-col items-end space-y-2">

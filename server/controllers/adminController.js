@@ -238,24 +238,82 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
 });
 
 const getFlaggedContent = catchAsync(async (req, res, next) => {
-  const { status, page = 1, limit = 20 } = req.query;
-
-  const filter = status ? { status } : {};
+  const { status, issueType, search, page = 1, limit = 20 } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  const filter = {};
+  if (status && status !== "ALL") {
+    filter.status = status;
+  }
+
+  if (issueType && issueType !== "") {
+    filter.issueType = issueType;
+  }
+
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+      { suggestedFix: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  console.log("Flag filter:", filter); // Debug log
 
   const [flaggedContent, total] = await Promise.all([
     FlaggedContent.find(filter)
-      .populate("reporterId", "username")
-      .populate("targetUserId", "username")
-      .populate("resolvedBy", "username")
+      .populate("reporterId", "username email")
+      .populate("resolvedBy", "username email")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit)),
+      .limit(parseInt(limit))
+      .lean(),
     FlaggedContent.countDocuments(filter),
   ]);
 
+  console.log(
+    `Found ${flaggedContent.length} flagged items out of ${total} total`,
+  ); // Debug log
+
+  // Apply semantic IDs for lessons
+  const enrichedContent = await Promise.all(
+    flaggedContent.map(async (flag) => {
+      const enrichedFlag = { ...flag };
+
+      if (flag.targetType === "LESSON" && flag.targetId) {
+        try {
+          const lesson = await Lesson.findById(flag.targetId)
+            .populate("moduleId", "order")
+            .lean();
+
+          if (lesson && lesson.moduleId) {
+            const moduleOrder = lesson.moduleId.order;
+            const lessonOrder = lesson.order || 0;
+            enrichedFlag.semanticId = `M${moduleOrder}L${lessonOrder}`;
+            enrichedFlag.lessonTitle = lesson.title;
+            enrichedFlag.moduleTitle = lesson.moduleId.title;
+            enrichedFlag.contentPreview = lesson.description?.substring(0, 200);
+          } else {
+            enrichedFlag.semanticId = `Lesson ${flag.targetId.slice(-6)}`;
+          }
+        } catch (err) {
+          console.error(`Error enriching flag ${flag._id}:`, err);
+          enrichedFlag.semanticId = `Lesson ${flag.targetId.slice(-6)}`;
+        }
+      } else if (flag.targetType === "USER_PROFILE") {
+        const user = await User.findById(flag.targetId)
+          .select("username email")
+          .lean();
+        enrichedFlag.semanticId = `User: ${user?.username || "Unknown"}`;
+        enrichedFlag.contentPreview = `Email: ${user?.email || "N/A"}`;
+      }
+
+      return enrichedFlag;
+    }),
+  );
+
   sendJsonResponse(res, 200, "Flagged content retrieved", {
-    flaggedContent,
+    flaggedContent: enrichedContent,
     pagination: {
       page: parseInt(page),
       limit: parseInt(limit),
@@ -270,17 +328,22 @@ const getFlagStats = catchAsync(async (req, res, next) => {
     { $group: { _id: "$status", count: { $sum: 1 } } },
   ]);
 
-  const flagStats = stats.reduce(
-    (acc, item) => {
-      acc[item._id.toLowerCase()] = item.count;
-      return acc;
-    },
-    { pending: 0, resolved: 0, escalated: 0, warning_sent: 0, dismissed: 0 },
-  );
+  const result = {
+    pending: 0,
+    in_review: 0,
+    fixed: 0,
+    rejected: 0,
+    xp_adjusted: 0,
+  };
 
-  sendJsonResponse(res, 200, "Flag statistics retrieved.", {
-    stats: flagStats,
+  stats.forEach((stat) => {
+    const key = stat._id.toLowerCase();
+    if (result.hasOwnProperty(key)) {
+      result[key] = stat.count;
+    }
   });
+
+  sendJsonResponse(res, 200, "Flag statistics retrieved", result);
 });
 
 const updateUserStatus = catchAsync(async (req, res, next) => {
@@ -623,9 +686,9 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
 
 const resolveFlag = catchAsync(async (req, res, next) => {
   const { flagId } = req.params;
-  const { status, notes } = req.body;
+  const { status, adminResponse } = req.body;
 
-  const validStatuses = ["RESOLVED", "WARNING_SENT", "ESCALATED", "DISMISSED"];
+  const validStatuses = ["IN_REVIEW", "FIXED", "REJECTED"];
   if (!validStatuses.includes(status)) {
     return next(
       new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400),
@@ -639,23 +702,72 @@ const resolveFlag = catchAsync(async (req, res, next) => {
 
   const oldStatus = flag.status;
   flag.status = status;
-  flag.adminNotes = notes;
+  flag.adminResponse = adminResponse;
   flag.resolvedBy = req.userId;
   flag.resolvedAt = new Date();
 
+  let compensationMessage = "";
+  let xpCompensation = 0;
+
+  // Handle XP compensation if needed
+  if (status === "FIXED") {
+    xpCompensation = 25;
+    flag.xpCompensation = xpCompensation;
+
+    // Award XP to the reporter
+    const user = await User.findById(flag.reporterId);
+    if (user) {
+      const oldXp = user.xp;
+      user.xp += xpCompensation;
+      await user.save();
+
+      compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
+
+      // Log the XP adjustment
+      await createAdminLog(
+        req.userId,
+        "XP_ADJUSTMENT",
+        "USER",
+        user._id,
+        {
+          old: oldXp,
+          new: user.xp,
+          reason: `Flag compensation for: ${flag.title}`,
+        },
+        `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
+        req,
+      );
+    }
+  }
+
   await flag.save();
 
+  // Log the admin action
   await createAdminLog(
     req.userId,
     "FLAG_RESOLVED",
     "FLAG",
     flagId,
-    { old: { status: oldStatus }, new: { status: flag.status } },
-    notes || `Flag marked as ${status}`,
+    {
+      oldStatus,
+      newStatus: status,
+      xpCompensation,
+      targetType: flag.targetType,
+      targetId: flag.targetId,
+    },
+    `Flag resolved with status: ${status}. ${adminResponse || ""}`,
     req,
   );
 
-  sendJsonResponse(res, 200, "Flag resolved successfully", { flag });
+  sendJsonResponse(
+    res,
+    200,
+    `Flag resolved successfully.${compensationMessage}`,
+    {
+      flag,
+      message: `The reporter has been notified${compensationMessage}`,
+    },
+  );
 });
 
 const getSettings = catchAsync(async (req, res, next) => {

@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const config = require("../config/envConfig");
 const User = require("../models/User");
+const Lesson = require("../models/Lesson");
+const FlaggedContent = require("../models/FlaggedContent");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
@@ -348,6 +350,86 @@ const updatePrivacySettings = catchAsync(async (req, res, next) => {
   });
 });
 
+const createFlag = catchAsync(async (req, res, next) => {
+  const { targetType, targetId, issueType, title, description, suggestedFix } =
+    req.body;
+
+  const validTargetTypes = ["LESSON", "EXERCISE", "QUIZ"];
+  const validIssueTypes = [
+    "CONTENT_ERROR",
+    "CODE_ERROR",
+    "QUIZ_ERROR",
+    "BROKEN_FUNCTIONALITY",
+    "XP_ADJUSTMENT",
+    "OTHER",
+  ];
+
+  if (!validTargetTypes.includes(targetType)) {
+    return next(new AppError("Invalid target type", 400));
+  }
+
+  if (!validIssueTypes.includes(issueType)) {
+    return next(new AppError("Invalid issue type", 400));
+  }
+
+  if (!title || !description) {
+    return next(new AppError("Title and description are required", 400));
+  }
+
+  let targetExists = false;
+  if (targetType === "LESSON") {
+    const lesson = await Lesson.findById(targetId);
+    targetExists = !!lesson;
+  } else if (targetType === "EXERCISE") {
+    const lesson = await Lesson.findOne({ "exercise.id": targetId });
+    targetExists = !!lesson;
+  } else if (targetType === "QUIZ") {
+    const lesson = await Lesson.findOne({ "quiz.id": targetId });
+    targetExists = !!lesson;
+  }
+
+  if (!targetExists) {
+    return next(new AppError("Target not found", 404));
+  }
+
+  const existingFlag = await FlaggedContent.findOne({
+    targetType,
+    targetId,
+    reporterId: req.userId,
+    issueType,
+    status: { $in: ["PENDING", "IN_REVIEW"] },
+  });
+
+  if (existingFlag) {
+    return next(
+      new AppError(
+        `You have already reported a ${issueType.replace(/_/g, " ").toLowerCase()} issue for this content. It is being reviewed.`,
+        400,
+      ),
+    );
+  }
+
+  const flag = await FlaggedContent.create({
+    targetType,
+    targetId,
+    reporterId: req.userId,
+    issueType,
+    title,
+    description,
+    suggestedFix,
+    status: "PENDING",
+  });
+
+  console.log(`📝 New flag created: ${title} by user ${req.userId}`);
+
+  sendJsonResponse(
+    res,
+    201,
+    "Thank you for reporting! We will review this issue.",
+    { flag },
+  );
+});
+
 module.exports = {
   register,
   login,
@@ -358,4 +440,5 @@ module.exports = {
   validateResetToken,
   resetPassword,
   updatePrivacySettings,
+  createFlag,
 };
