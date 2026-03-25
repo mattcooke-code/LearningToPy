@@ -1,5 +1,6 @@
 // analytics.js
 const { XP } = require("../../shared/constants/progress");
+const { calculateLevelFromModules } = require("./levelUtils");
 
 /**
  * --- PERCENTAGE CALCULATORS ---
@@ -50,27 +51,27 @@ const calculateModuleLessonProgress = (
  * @param {Object} user - User object with completion data
  * @param {number} totalCourseLessons - Total curriculum lessons
  * @param {number} completedCurriculumCount - User's completed curriculum lessons (optional, will calculate if not provided)
+ * @param {Object} currentModuleData - Current module data { order, title, lessonCount, lessonsCompleted }
+ * @param {Map} moduleOrderCache - Map of module ID to order number for level calculation
  */
-// analytics.js - UPDATED formatProgressResponse
 const formatProgressResponse = (
   user,
   totalCourseLessons,
   completedCurriculumCount = null,
-  currentModuleData = null, // NEW: { order, title, lessonCount, lessonsCompleted }
+  currentModuleData = null,
+  moduleOrderCache = null,
 ) => {
-  const XP_PER_LEVEL = XP.PER_LEVEL;
-
-  // Level = modules completed (M1–M20, exclude M0)
-  const uniqueModules = [
-    ...new Set((user.completedModules || []).map((id) => id?.toString())),
-  ].filter(Boolean);
-
-  const curriculumModulesCompleted = uniqueModules.filter((moduleId) => {
-    // Will be calculated backend-side with module order cache
-    return true; // Simplified - backend will filter by order > 0
-  }).length;
-
-  const currentLevel = Math.min(20, curriculumModulesCompleted);
+  // Calculate level based on completed modules (exclude M0)
+  let currentLevel = 1;
+  if (moduleOrderCache && user.completedModules) {
+    currentLevel = calculateLevelFromModules(
+      user.completedModules,
+      moduleOrderCache,
+    );
+  } else if (user.level) {
+    // Fallback to stored level if no cache provided
+    currentLevel = user.level;
+  }
 
   // Course progress
   const uniqueLessons = [
@@ -99,7 +100,7 @@ const formatProgressResponse = (
     weeklyProgress: user.weeklyProgress || null,
     stats: {
       lessonsCompleted: uniqueLessons.length,
-      modulesCompleted: currentLevel,
+      modulesCompleted: currentLevel, // Level = modules completed (M1-M20)
       totalLearningTime: user.totalLearningTime || 0,
       daysActive,
     },
@@ -107,9 +108,9 @@ const formatProgressResponse = (
     progress: {
       coursePercentage: courseProgressPercentage,
       levelPercentage: (currentLevel / 20) * 100,
-      xpToNextLevel: XP_PER_LEVEL - (user.xp % XP_PER_LEVEL),
+      // Removed xpToNextLevel since level is now based on modules
     },
-    // NEW: Current module progress for SegmentedLevelProgressBar
+    // Current module progress for SegmentedLevelProgressBar
     currentModule: currentModuleData,
     badges: user.badges || [],
   };
@@ -156,7 +157,6 @@ const hasCompletedChallengeGroup = (lessonHistory, groupId) => {
  * @param {Object} user - User document with completion histories
  * @returns {number} - Number of unique days user has been active
  */
-
 const calculateDaysActive = (user) => {
   const uniqueDays = new Set();
 
@@ -182,20 +182,12 @@ const calculateDaysActive = (user) => {
   return uniqueDays.size;
 };
 
-const calculateLevelFromModules = (completedModules, moduleOrderCache) => {
-  const curriculumModulesCompleted = completedModules.filter((moduleId) => {
-    const order = moduleOrderCache.get(moduleId.toString());
-    return order !== undefined && order >= 1;
-  }).length;
-
-  return Math.min(20, curriculumModulesCompleted);
-};
-
 module.exports = {
   calculateProgress,
   calculateModuleLessonProgress,
   isModuleFinished,
   formatProgressResponse,
+  calculateLevelFromModules,
   getLessonCompletionCountByTag,
   hasCompletedChallengeGroup,
   calculateDaysActive,

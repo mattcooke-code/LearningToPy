@@ -1,4 +1,3 @@
-// Dashboard.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
@@ -12,6 +11,7 @@ import {
 } from "../components/ui";
 import { LeaderboardModal } from "../modals";
 import { BADGES_BY_ID } from "../data/badges";
+import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [nextModule, setNextModule] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -32,6 +33,19 @@ const Dashboard = () => {
         const progressData = await apiClient.get("/progress/current");
         setUserProgress(progressData);
         updateThemeFromCourseProgress(progressData.courseProgressPercentage);
+
+        // Set next module based on current module
+        if (progressData.currentModule) {
+          // If there's a current module, the next module would be the next one
+          const nextOrder = progressData.currentModule.order + 1;
+          setNextModule({
+            order: nextOrder,
+            title: `Module ${nextOrder}`, // You could fetch the actual title here if needed
+          });
+        } else if (progressData.level >= 20) {
+          // Course complete
+          setNextModule(null);
+        }
       } catch (err) {
         console.error("Failed to fetch progress:", err);
       }
@@ -62,13 +76,16 @@ const Dashboard = () => {
     level: user?.level || 1,
     streak: user?.streak || 0,
     courseProgressPercentage: 0,
-    progress: { xpToNextLevel: 100 },
+    progress: {},
     stats: {
       lessonsCompleted: 0,
       modulesCompleted: 0,
     },
     badges: [],
+    currentModule: null,
   };
+
+  const isCourseComplete = progressData.level >= 20;
 
   useStreakNotifications(
     progressData.streak,
@@ -172,20 +189,17 @@ const Dashboard = () => {
           <p className="text-4xl font-bold text-python-blue text-center mb-4">
             {progressData.level}
           </p>
-          {/* Note: You'll need to import and use SegmentedLevelProgress here */}
-          {
-            <SegmentedLevelProgressBar
-              currentLevel={progressData.level}
-              currentModule={progressData.currentModule}
-              lessonsCompleted={
-                progressData.currentModule?.lessonsCompleted || 0
-              }
-              totalLessons={progressData.currentModule?.lessonCount || 0}
-              showLabels={true}
-            />
-          }
+          <SegmentedLevelProgressBar
+            currentLevel={progressData.level}
+            currentModule={progressData.currentModule}
+            lessonsCompleted={progressData.currentModule?.lessonsCompleted || 0}
+            totalLessons={progressData.currentModule?.lessonCount || 0}
+            showLabels={true}
+          />
           <div className="text-center text-sm text-gray-500 mt-2">
-            {progressData.xp % 100}/100 XP this level
+            {progressData.currentModule?.lessonsCompleted || 0} /{" "}
+            {progressData.currentModule?.lessonCount || 0} lessons in current
+            module
           </div>
         </div>
 
@@ -206,19 +220,107 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Continue Learning */}
+      {/* Continue Learning Section with Next Module Preview */}
       <div className="bg-white rounded-lg shadow-md p-8 text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Ready to continue learning?
-        </h2>
-        <Link
-          to="/modules"
-          style={{ backgroundColor: themeColor }}
-          {...hoverHandlers}
-          className="text-white px-8 py-3 rounded-lg font-semibold  transition inline-block"
-        >
-          Continue Learning
-        </Link>
+        {isCourseComplete ? (
+          <>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              🎉 Congratulations, Python Master! 🎉
+            </h2>
+            <p className="text-gray-600 mb-6">
+              You've completed all 20 modules! Your Python journey is complete,
+              but there's always more to learn. Check out advanced topics or
+              help others on their journey.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                to="/modules"
+                style={{ backgroundColor: themeColor }}
+                {...hoverHandlers}
+                className="text-white px-6 py-3 rounded-lg font-semibold transition inline-flex items-center"
+              >
+                <BookOpen className="h-5 w-5 mr-2" />
+                Review Modules
+              </Link>
+              <Link
+                to="/terminal"
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition inline-flex items-center"
+              >
+                Practice in Terminal
+              </Link>
+            </div>
+          </>
+        ) : progressData.currentModule ? (
+          <>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Continue Learning
+            </h2>
+            <p className="text-gray-600 mb-2">
+              You're currently working on{" "}
+              <strong className="text-python-blue">
+                Module {progressData.currentModule.order}:{" "}
+                {progressData.currentModule.title}
+              </strong>
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              {progressData.currentModule.lessonsCompleted} of{" "}
+              {progressData.currentModule.lessonCount} lessons completed
+            </p>
+
+            {/* Next Module Preview */}
+            {!progressData.currentModule.isComplete && (
+              <div className="mt-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 max-w-md mx-auto">
+                <p className="text-sm text-gray-500 mb-2">
+                  After this module, you'll unlock:
+                </p>
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                      <span className="text-purple-600 font-bold">
+                        {progressData.currentModule.order + 1}
+                      </span>
+                    </div>
+                    <span className="font-medium text-gray-800">
+                      Module {progressData.currentModule.order + 1}
+                    </span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm text-gray-600">
+                    More advanced Python concepts
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <Link
+              to={`/modules/${progressData.currentModule.order}`}
+              style={{ backgroundColor: themeColor }}
+              {...hoverHandlers}
+              className="text-white px-8 py-3 rounded-lg font-semibold transition inline-flex items-center"
+            >
+              Continue Module {progressData.currentModule.order}
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </>
+        ) : (
+          <>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Ready to start learning?
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Begin your Python journey with Module 1: Python Fundamentals
+            </p>
+            <Link
+              to="/modules/1"
+              style={{ backgroundColor: themeColor }}
+              {...hoverHandlers}
+              className="text-white px-8 py-3 rounded-lg font-semibold transition inline-flex items-center"
+            >
+              Start Learning
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Enhanced sections with real data */}
@@ -271,7 +373,7 @@ const Dashboard = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Progress Overview
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
               <p className="text-gray-700">Lessons Completed</p>
               <p className="text-lg font-semibold text-python-blue">
@@ -281,15 +383,44 @@ const Dashboard = () => {
             <div>
               <p className="text-gray-700">Modules Completed</p>
               <p className="text-lg font-semibold text-python-blue">
-                {progressData.stats?.modulesCompleted || 0}
+                {progressData.stats?.modulesCompleted || 0} / 20
               </p>
             </div>
-            <div>
-              <p className="text-gray-700">Next Level In</p>
-              <p className="text-lg font-semibold text-python-yellow">
-                {progressData.progress?.xpToNextLevel || 0} XP
-              </p>
-            </div>
+            {!isCourseComplete && progressData.currentModule && (
+              <div className="pt-2 border-t border-gray-100">
+                <p className="text-gray-700 mb-1">Now On:</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">
+                      Module {progressData.currentModule.order}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {progressData.currentModule.title}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-green-600">
+                      {progressData.currentModule.lessonsCompleted} /{" "}
+                      {progressData.currentModule.lessonCount} lessons
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Complete to level up!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            {isCourseComplete && (
+              <div className="pt-2 border-t border-gray-100">
+                <div className="flex items-center space-x-2 text-green-600">
+                  <CheckCircle className="h-5 w-5" />
+                  <p className="font-semibold">Course Complete!</p>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  You've mastered all 20 modules. Great job!
+                </p>
+              </div>
+            )}
           </div>
           <BackToTopButton />
         </div>

@@ -223,9 +223,6 @@ UserSchema.index({ "weeklyProgress.weekStartDate": -1 });
 
 // Pre-save
 UserSchema.pre("save", function (next) {
-  if (this.isModified("xp")) {
-    this.level = Math.floor(this.xp / 100) + 1;
-  }
   const progressFields = [
     "xp",
     "completedLessons",

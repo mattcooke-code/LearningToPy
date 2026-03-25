@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Clock,
   Code,
+  Eye,
   FileText,
   Flag,
   HelpCircle,

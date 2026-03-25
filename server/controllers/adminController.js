@@ -1,5 +1,4 @@
 //adminController.js
-const ActivityLog = require("../models/ActivityLog");
 const AdminLog = require("../models/AdminLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
@@ -7,6 +6,11 @@ const Module = require("../models/Module");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
+const {
+  addLevelToUsers,
+  getUserWithLevel,
+  getModuleOrderMap,
+} = require("../utils/levelUtils");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { anonymiseIp } = require("../utils/parseDeviceInfo");
 const mongoose = require("mongoose");
@@ -142,17 +146,6 @@ const searchUsers = catchAsync(async (req, res, next) => {
     searchFilter.isAdmin = isAdmin === "true";
   }
 
-  // Level range filters
-  if (levelMin || levelMax) {
-    searchFilter.level = {};
-    if (levelMin) {
-      searchFilter.level.$gte = parseInt(levelMin);
-    }
-    if (levelMax) {
-      searchFilter.level.$lte = parseInt(levelMax);
-    }
-  }
-
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   // Parse sort parameter
@@ -169,19 +162,32 @@ const searchUsers = catchAsync(async (req, res, next) => {
     sortOption = { createdAt: -1 };
   }
 
-  const [users, total] = await Promise.all([
-    User.find(searchFilter)
-      .select(
-        "username email level xp streak badgeCount lastActive isBlocked isAdmin createdAt",
-      )
-      .sort(sortOption)
-      .skip(skip)
-      .limit(parseInt(limit)),
-    User.countDocuments(searchFilter),
-  ]);
+  const users = await User.find(searchFilter)
+    .select(
+      "username email xp streak badgeCount lastActive isBlocked isAdmin createdAt completedModules",
+    )
+    .sort(sortOption)
+    .skip(skip)
+    .limit(parseInt(limit))
+    .lean();
+
+  const moduleOrderMap = await getModuleOrderMap();
+
+  const usersWithLevel = await addLevelToUsers(users, moduleOrderMap);
+
+  // Apply level filters after calculation
+  let filteredUsers = usersWithLevel;
+  if (levelMin) {
+    filteredUsers = filteredUsers.filter((u) => u.level >= parseInt(levelMin));
+  }
+  if (levelMax) {
+    filteredUsers = filteredUsers.filter((u) => u.level <= parseInt(levelMax));
+  }
+
+  const total = await User.countDocuments(searchFilter);
 
   sendJsonResponse(res, 200, "Users retrieved", {
-    users,
+    users: filteredUsers,
     pagination: {
       page: parseInt(page),
       limit: parseInt(limit),
@@ -209,14 +215,19 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
   const oldLevel = user.level;
 
   user.xp += parseInt(xpChange);
-  // Level will be auto-calculated in pre-save hook
-
   await user.save();
 
+  const userWithLevel = await getUserWithLevel(user);
+
   // Get fresh user to see updated level
-  const updatedUser = await User.findById(userId).select(
-    "username level xp streak badgeCount",
-  );
+  const updatedUser = {
+    _id: user._id,
+    username: user.username,
+    level: userWithLevel.level,
+    xp: user.xp,
+    streak: user.streak,
+    badgeCount: user.badges?.length || 0,
+  };
 
   await createAdminLog(
     req.userId,
@@ -426,6 +437,15 @@ const getUserDetails = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found", 404));
   }
 
+  const userWithLevel = await getUserWithLevel(user);
+
+  // Calculate completion rate
+  const totalLessons = await Lesson.countDocuments({ isPublished: true });
+  const completionRate =
+    totalLessons > 0
+      ? Math.round(((user.completedLessons?.length || 0) / totalLessons) * 100)
+      : 0;
+
   const stats = {
     totalLearningTime: user.totalLearningTime || 0,
     totalSessionTime: user.totalSessionTime || 0, // in minutes
@@ -434,37 +454,14 @@ const getUserDetails = catchAsync(async (req, res, next) => {
     completedLessonsCount: user.completedLessons?.length || 0,
     completedModulesCount: user.completedModules?.length || 0,
     streak: user.streak || 0,
+    completionRate,
   };
 
-  // Calculate completion rate if possible
-  let completionRate = 0;
-  if (user.completedLessons?.length > 0) {
-    // You might want to get total lessons from your database
-    // For now, we'll calculate a simple percentage
-    completionRate = Math.min(100, (user.completedLessons.length / 20) * 100);
-  }
-
-  // Calculate average learning time per session
-  const avgSessionTime =
-    user.loginCount > 0
-      ? (user.totalSessionTime / user.loginCount).toFixed(1)
-      : 0;
-
   const userData = {
-    ...user.toObject(),
-    stats: {
-      ...stats,
-      completionRate,
-      avgSessionTime,
-      accuracyRate: user.stats?.dataStructuresExamScore
-        ? (user.stats.dataStructuresExamScore +
-            (user.stats.oopExamScore || 0)) /
-          2
-        : 0,
-    },
-    // Add calculated fields for frontend
+    ...userWithLevel,
+    stats,
     totalXP: user.xp || 0,
-    currentLevel: user.level || 1,
+    currentLevel: userWithLevel.level,
     isAdmin: user.isAdmin || false,
     isBlocked: user.isBlocked || false,
     lastActiveDate: user.lastActive || user.createdAt,
