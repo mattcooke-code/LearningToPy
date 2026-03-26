@@ -1,4 +1,5 @@
 export { default as AdminGuard } from "./AdminGuard";
+export { default as AppLayout } from "./AppLayout";
 export { default as Footer } from "./Footer";
 export { default as Navbar } from "./Navbar";
 export { default as ProtectedRoute } from "./ProtectedRoute";

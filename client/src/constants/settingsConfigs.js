@@ -32,10 +32,23 @@ export const SETTINGS_CONFIGS = {
   ],
   theme: [
     {
+      key: "uiTheme",
+      label: "Site Theme",
+      type: "select",
+      options: {
+        items: [
+          { value: "light", label: "Light Mode" },
+          { value: "dark", label: "Dark Mode" },
+          { value: "system", label: "Follow System Preference" },
+        ],
+      },
+      description: "Choose your preferred site appearance",
+    },
+    {
       key: "themeColor",
-      label: "Primary Theme Color",
+      label: "Accent Color",
       type: "color",
-      description: "Main brand color used throughout the platform",
+      description: "Primary accent color for buttons and highlights",
     },
     {
       key: "codeTheme",
@@ -45,23 +58,9 @@ export const SETTINGS_CONFIGS = {
         items: [
           { value: "dark", label: "Dark Theme" },
           { value: "light", label: "Light Theme" },
-          { value: "system", label: "System Default" },
         ],
       },
-      description: "Default theme for code editors",
-    },
-    {
-      key: "defaultTheme",
-      label: "Default UI Theme",
-      type: "select",
-      options: {
-        items: [
-          { value: "dark", label: "Dark Mode" },
-          { value: "light", label: "Light Mode" },
-          { value: "system", label: "System Preference" },
-        ],
-      },
-      description: "Default theme for new users",
+      description: "Theme for the Python code editor",
     },
   ],
   gamification: [

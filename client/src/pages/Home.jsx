@@ -31,8 +31,8 @@ const Home = () => {
     : "Start Learning for Free";
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      <header className="relative overflow-hidden bg-white">
+    <div className="bg-slate-300 dark:bg-gray-700 min-h-screen">
+      <header className="relative overflow-hidden bg-slate-200 dark:bg-gray-800">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-24 -right-24 w-72 h-72 bg-python-blue opacity-10 blur-3xl rounded-full" />
           <div className="absolute top-1/3 -left-24 w-80 h-80 bg-python-yellow opacity-20 blur-3xl rounded-full" />
@@ -41,15 +41,18 @@ const Home = () => {
         <div className="container mx-auto px-4 py-20 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 dark:bg-blue-700 dark:text-blue-50 rounded-full text-sm font-medium mb-6">
                 <Zap size={16} />
                 <span>Learn Python the smart, gamified way</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-python-yellow mb-6 leading-tight">
                 Master Python,{" "}
-                <span className="text-python-blue">level up</span> your career
+                <span className="text-python-blue dark:text-gray-200">
+                  level up
+                </span>{" "}
+                your career
               </h1>
-              <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+              <p className="text-lg text-slate-600 dark:text-gray-300 mb-8 leading-relaxed">
                 Interactive lessons, competitive leaderboards, and real rewards.
                 Learn by doing, stay motivated with XP and badges, and
                 accelerate your path to becoming a Python pro.
@@ -57,13 +60,13 @@ const Home = () => {
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   to={ctaLink}
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-blue text-python-yellow hover:bg-python-yellow hover:text-python-blue shadow-lg transition-transform hover:-translate-y-0.5 hover:shadow-xl"
+                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-blue text-python-yellow hover:bg-python-dark hover:text-python-light shadow-lg transition-transform hover:-translate-y-0.5 hover:shadow-xl"
                 >
                   {ctaLabel}
                 </Link>
                 <Link
                   to="/modules"
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-yellow text-python-blue hover:bg-python-blue hover:text-python-yellow hover:-translate-y-0.5 hover:shadow-xl transition"
+                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-yellow text-python-blue hover:bg-python-light hover:text-python-dark hover:-translate-y-0.5 hover:shadow-xl transition"
                 >
                   Explore Curriculum
                 </Link>
@@ -71,11 +74,15 @@ const Home = () => {
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-3xl shadow-2xl p-8 border border-slate-100">
+              <div className="bg-white dark:bg-gray-600 rounded-3xl shadow-2xl p-8 border border-slate-100 dark:border-slate-900">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <p className="text-sm text-slate-500">Current Streak</p>
-                    <p className="text-3xl font-bold text-slate-900">7 days</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-200 ">
+                      Current Streak
+                    </p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-950">
+                      7 days
+                    </p>
                   </div>
                   <div className="bg-green-100 text-green-600 px-4 py-2 rounded-full flex items-center space-x-2 font-semibold">
                     <Trophy size={18} />
@@ -91,14 +98,16 @@ const Home = () => {
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="bg-slate-100 rounded-2xl p-4 text-center border border-slate-200"
+                      className="bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-center border border-slate-200 dark:border-slate-500"
                     >
                       <item.icon
                         size={20}
-                        className="text-python-blue mx-auto mb-2"
+                        className="text-python-blue dark:text-python-yellow mx-auto mb-2"
                       />
-                      <p className="text-sm text-slate-600">{item.title}</p>
-                      <p className="text-xl font-semibold text-slate-900">
+                      <p className="text-sm text-slate-600 dark:text-slate-200">
+                        {item.title}
+                      </p>
+                      <p className="text-xl font-semibold text-slate-900 dark:text-slate-200">
                         {item.value}
                       </p>
                     </div>
@@ -152,10 +161,10 @@ const Home = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
               Gamified learning that keeps you engaged
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
               Every lesson is a challenge. Every challenge earns rewards. Track
               your progress, compete with peers, and celebrate achievements as
               you level up your Python skills.
@@ -191,13 +200,16 @@ const Home = () => {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 hover:shadow-md transition"
+                className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6 border border-slate-100 dark:border-slate-500 hover:shadow-md transition"
               >
-                <feature.icon size={28} className="text-python-blue mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                <feature.icon
+                  size={28}
+                  className="text-python-blue dark:text-python-yellow mb-4"
+                />
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -207,14 +219,14 @@ const Home = () => {
       </section>
 
       {/* Learning Methodology */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-blue-200 dark:bg-slate-900">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
                 Learn by doing with hands-on challenges
               </h2>
-              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+              <p className="text-lg text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
                 Our interactive platform is designed to help you absorb concepts
                 faster through practice. Build real skills with coding
                 exercises, receive instant insights, and follow curated paths
@@ -242,14 +254,17 @@ const Home = () => {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start space-x-4">
-                    <div className="shrink-0 h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                      <item.icon size={20} className="text-python-blue" />
+                    <div className="shrink-0 h-10 w-10 rounded-full bg-blue-50 dark:bg-python-yellow flex items-center justify-center">
+                      <item.icon
+                        size={20}
+                        className="text-python-blue dark:text-python-dark"
+                      />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-900">
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-200">
                         {item.title}
                       </h3>
-                      <p className="text-slate-600 leading-relaxed">
+                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                         {item.description}
                       </p>
                     </div>
@@ -258,7 +273,7 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-slate-900 dark:bg-slate-700 text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 opacity-20 pointer-events-none">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-python-yellow blur-3xl rounded-full" />
                 <div className="absolute bottom-0 left-0 w-56 h-56 bg-python-blue blur-3xl rounded-full" />
@@ -271,7 +286,7 @@ const Home = () => {
                 <div className="bg-slate-800/70 rounded-2xl p-6 border border-slate-700 mb-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center font-semibold">
+                      <div className="h-10 w-10 rounded-full bg-slate-700 dark:bg-python-blue dark:text-python-yellow flex items-center justify-center font-semibold">
                         PY
                       </div>
                       <div>
@@ -323,7 +338,7 @@ const Home = () => {
       </section>
 
       {/* Problem / Solution */}
-      <section className="py-20 bg-slate-900 text-white">
+      <section className="py-20 bg-slate-900 dark:bg-slate-700 text-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -360,7 +375,7 @@ const Home = () => {
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className="bg-slate-800/60 rounded-2xl p-5 border border-slate-700"
+                    className="bg-slate-900/60 rounded-2xl p-5 border border-slate-700"
                   >
                     <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                     <p className="text-sm text-slate-300 leading-relaxed">
@@ -371,11 +386,11 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl">
+            <div className="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-200 rounded-3xl p-8 shadow-2xl">
               <h3 className="text-2xl font-bold mb-4">
                 Here’s our winning formula
               </h3>
-              <p className="text-slate-600 leading-relaxed mb-6">
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                 We combine battle-tested learning science with compelling game
                 mechanics to keep you growing week after week.
               </p>
@@ -401,14 +416,17 @@ const Home = () => {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start space-x-4">
-                    <div className="shrink-0 h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
-                      <item.icon size={22} className="text-python-blue" />
+                    <div className="shrink-0 h-12 w-12 rounded-full bg-blue-50 dark:bg-python-light flex items-center justify-center">
+                      <item.icon
+                        size={22}
+                        className="text-python-blue dark:text-python-dark "
+                      />
                     </div>
                     <div>
                       <h4 className="text-lg font-semibold mb-1">
                         {item.title}
                       </h4>
-                      <p className="text-sm text-slate-600 leading-relaxed">
+                      <p className="text-sm text-slate-600 dark:text-slate-300  leading-relaxed">
                         {item.description}
                       </p>
                     </div>
@@ -424,10 +442,10 @@ const Home = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
               How it works
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
               Three simple steps stand between you and your next career
               milestone. Dive in and start transforming your learning journey
               today.
@@ -457,15 +475,15 @@ const Home = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 hover:shadow-md transition relative overflow-hidden"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 border border-slate-100 dark:border-slate-600 hover:shadow-md transition relative overflow-hidden"
               >
-                <div className="absolute top-6 right-6 text-4xl font-bold text-slate-100">
+                <div className="absolute top-6 right-6 text-4xl font-bold text-slate-900 dark:text-slate-100">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-3">
                   {item.title}
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   {item.description}
                 </p>
                 <div className="mt-6">
@@ -474,10 +492,10 @@ const Home = () => {
                       index === 0
                         ? "/modules"
                         : isAuthenticated
-                        ? "/dashboard"
-                        : "/register"
+                          ? "/dashboard"
+                          : "/register"
                     }
-                    className="text-python-blue font-semibold hover:underline inline-flex items-center space-x-2"
+                    className="text-python-blue dark:text-python-yellow font-semibold hover:underline inline-flex items-center space-x-2"
                   >
                     <span>Learn more</span>
                     <svg
@@ -504,13 +522,13 @@ const Home = () => {
       </section>
 
       {/* Technology / Curriculum Highlights */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
               Curriculum designed for real-world impact
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
               Follow a proven roadmap covering core computer science concepts
               and modern Python applications. Build projects that make your
               portfolio stand out.
@@ -550,7 +568,7 @@ const Home = () => {
           <div className="mt-12 text-center">
             <Link
               to={ctaLink}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-python-blue bg-python-yellow shadow-lg transition hover:bg-python-blue hover:text-python-yellow hover:-translate-y-0.5 hover:shadow-xl"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-bold text-python-blue bg-python-yellow shadow-lg transition hover:bg-python-blue hover:text-python-yellow hover:-translate-y-0.5 hover:shadow-xl"
             >
               {ctaLabel}
             </Link>

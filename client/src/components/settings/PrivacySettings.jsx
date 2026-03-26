@@ -84,14 +84,14 @@ const PrivacySettings = ({ user, onUpdate }) => {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
       <div className="mb-6 flex items-center space-x-3">
-        <Shield className="h-6 w-6 text-python-blue" />
+        <Shield className="h-6 w-6 text-python-blue dark:text-python-blue" />
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Privacy Settings
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-100">
             Control how you appear to other learners
           </p>
         </div>
@@ -109,10 +109,10 @@ const PrivacySettings = ({ user, onUpdate }) => {
                 )}
               </div>
               <div>
-                <h4 className="font-medium text-gray-900">
+                <h4 className="font-medium text-gray-900 dark:text-white">
                   Show on Leaderboards
                 </h4>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-100">
                   Appear in global and module rankings
                 </p>
               </div>
@@ -141,14 +141,14 @@ const PrivacySettings = ({ user, onUpdate }) => {
               !settings.showOnLeaderboards ? "opacity-50" : ""
             }`}
           >
-            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-600 p-4">
               <div className="flex items-center space-x-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
                   <User className="h-4 w-4 text-gray-600" />
                 </div>
                 <div>
                   <h5 className="font-medium text-gray-900">Show Username</h5>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-100">
                     Display your username publicly
                   </p>
                 </div>
@@ -178,12 +178,12 @@ const PrivacySettings = ({ user, onUpdate }) => {
 
             {/* Preview */}
             <div className="rounded-lg border border-gray-200 p-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">
+              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100">
                 Preview on leaderboard:
               </p>
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3">
+              <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-600 px-4 py-3">
                 <div className="flex items-center space-x-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-sm font-semibold">
                     #25
                   </span>
                   <span className="font-medium">
@@ -218,7 +218,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
 
         {/* Save Button */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-6 ">
-          <p className="text-sm text-gray-500 px-1">
+          <p className="text-sm text-gray-500 px-1 dark:text-gray-100">
             Changes apply to all leaderboards immediately
           </p>
 

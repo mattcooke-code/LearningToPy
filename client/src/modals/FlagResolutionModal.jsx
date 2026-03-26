@@ -85,7 +85,7 @@ const FlagResolutionModal = ({
       title="Review Issue Report"
       size="lg"
     >
-      <div className="space-y-6">
+      <div className="space-y-6 ">
         {/* Flag Details */}
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-start space-x-3">
@@ -193,7 +193,7 @@ const FlagResolutionModal = ({
           {flag.reporterId?._id && (
             <button
               onClick={() => onViewUser(flag.reporterId)}
-              className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 flex items-center"
+              className="px-4 py-2 text-sm font-medium text-amber-900 dark:text-amber-400 bg-amber-400 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg hover:bg-amber-300 dark:hover:bg-amber-900/40 flex items-center"
             >
               <User className="h-4 w-4 mr-2" />
               View User Profile
@@ -204,7 +204,7 @@ const FlagResolutionModal = ({
           {flag.targetType === "LESSON" && flag.targetId && (
             <button
               onClick={() => onViewLesson(flag.targetId, flag.semanticId)}
-              className="px-4 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 flex items-center"
+              className="px-4 py-2 text-sm font-medium text-purple-100 dark:text-purple-100 bg-purple-500 dark:bg-purple-800 border border-purple-200 dark:border-purple-400 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-900/40 flex items-center"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               View Lesson
@@ -213,14 +213,14 @@ const FlagResolutionModal = ({
 
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-gray-100 dark:text-gray-950 bg-gray-900 dark:bg-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-600 dark:hover:bg-gray-950 dark:hover:text-gray-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting || !status}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-950 dark:bg-blue-400 dark:text-blue-950 dark:hover:bg-blue-700 dark:hover:text-blue-200 disabled:opacity-50 flex items-center"
           >
             {submitting ? (
               <>

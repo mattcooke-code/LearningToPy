@@ -1,4 +1,3 @@
-// Profile.jsx - Simplified Badge Section
 import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
 import { apiClient, useAuth } from "../context";
@@ -10,7 +9,7 @@ import {
 } from "../components/ui";
 import { BadgeModal } from "../modals";
 import PrivacySettings from "../components/settings/PrivacySettings";
-import { BADGES_BY_ID } from "../data/badges"; // Only need lookup map, not full library
+import { BADGES_BY_ID } from "../data/badges";
 import { getErrorMessage } from "../utils";
 
 const Profile = () => {
@@ -18,8 +17,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userProgress, setUserProgress] = useState(null);
-
-  // ✅ SIMPLIFIED: Only track earned badge IDs for profile display
   const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -30,7 +27,6 @@ const Profile = () => {
       try {
         setLoading(true);
         const data = await apiClient.get("/progress/achievements");
-        // ✅ Only extract IDs - no need for full badge objects on profile
         setEarnedBadgeIds((data.earnedBadges || []).map((b) => b.id));
       } catch (err) {
         console.error("Failed to load achievements:", err);
@@ -65,29 +61,24 @@ const Profile = () => {
     triggerLeaderboardRefresh();
   };
 
-  // ✅ SIMPLIFIED: Progress map still needed for modal
-  const progressMap = useMemo(() => {
-    // This could also be fetched separately if modal needs it
-    // For now, keeping minimal - modal can fetch its own data if needed
-    return {};
-  }, []);
+  const progressMap = useMemo(() => ({}), []);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      {/* Header Section - unchanged */}
-      <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-blue p-8 text-white shadow-lg">
+    <div className="container mx-auto px-4 py-10 bg-gray-200 dark:bg-gray-700">
+      {/* Header Section */}
+      <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-dark p-8 text-white shadow-lg dark:bg-python-blue ">
         <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
           <div>
-            <p className="text-sm uppercase tracking-[0.4em] text-white">
+            <p className="text-sm uppercase tracking-[0.4em] text-white/80">
               Profile
             </p>
             <h1 className="mt-3 text-4xl font-bold lg:text-5xl text-python-yellow">
               Welcome back, {user?.username}
             </h1>
-            <p className="mt-3 max-w-2xl text-white">
+            <p className="mt-3 max-w-2xl text-white/90">
               Track your learning milestones, celebrate your achievements, and
               see every badge you&apos;ve unlocked along the way.
             </p>
@@ -104,20 +95,22 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Progress Stats Section - unchanged */}
+      {/* Progress Stats Section */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Level Progress Card */}
-        <div className="rounded-2xl bg-white p-6 shadow-md">
+        <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
-            <Target className="h-5 w-5 " style={{ color: themeColor }} />
-            <h3 className="text-lg font-semibold text-gray-800">
+            <Target className="h-5 w-5" style={{ color: themeColor }} />
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
               Level Progress
             </h3>
           </div>
           <div className="space-y-4">
             <div className="text-center">
-              <p className="text-sm text-gray-500">Current Level</p>
-              <p className="text-5xl font-bold " style={{ color: themeColor }}>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Current Level
+              </p>
+              <p className="text-5xl font-bold" style={{ color: themeColor }}>
                 {userProgress?.level || user?.level || 1}
               </p>
             </div>
@@ -130,16 +123,16 @@ const Profile = () => {
               totalLessons={userProgress?.currentModule?.lessonCount || 0}
               showLabels={true}
             />
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
               <div className="text-center">
                 <p className="font-medium">Total XP</p>
-                <p className="text-lg font-bold text-python-yellow">
+                <p className="text-lg font-bold text-python-yellow dark:text-python-yellow">
                   {userProgress?.xp || user?.xp || 0}
                 </p>
               </div>
               <div className="text-center">
                 <p className="font-medium">Current Streak</p>
-                <p className="text-lg font-bold text-green-500">
+                <p className="text-lg font-bold text-green-500 dark:text-green-400">
                   {user?.streak || 0} days
                 </p>
               </div>
@@ -149,11 +142,11 @@ const Profile = () => {
 
         <PrivacySettings user={user} onUpdate={handlePrivacyUpdate} />
 
-        {/* Learning Stats Card - unchanged */}
-        <div className="rounded-2xl bg-white p-6 shadow-md">
+        {/* Learning Stats Card */}
+        <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-python-blue" />
-            <h3 className="text-lg font-semibold text-gray-800">
+            <TrendingUp className="h-5 w-5 text-python-blue dark:text-python-blue" />
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
               Learning Stats
             </h3>
           </div>
@@ -165,7 +158,7 @@ const Profile = () => {
                   userProgress?.stats?.daysActive ||
                   user?.stats?.daysActive ||
                   "0",
-                color: "text-blue-600",
+                color: "text-blue-600 dark:text-blue-400",
                 icon: "📅",
               },
               {
@@ -173,7 +166,7 @@ const Profile = () => {
                 value: user?.stats?.averageScore
                   ? `${user.stats.averageScore}%`
                   : "N/A",
-                color: "text-green-600",
+                color: "text-green-600 dark:text-green-400",
                 icon: "🎯",
               },
               {
@@ -181,23 +174,23 @@ const Profile = () => {
                 value: user?.stats?.completionRate
                   ? `${user.stats.completionRate}%`
                   : "N/A",
-                color: "text-purple-600",
+                color: "text-purple-600 dark:text-purple-400",
                 icon: "✅",
               },
               {
                 label: "Fast Completions",
                 value: user?.stats?.fastCompletions || "0",
-                color: "text-yellow-600",
+                color: "text-yellow-600 dark:text-yellow-400",
                 icon: "⚡",
               },
             ].map((stat, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+                className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-700/50 p-3"
               >
                 <div className="flex items-center space-x-3">
                   <span className="text-xl">{stat.icon}</span>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
                     {stat.label}
                   </span>
                 </div>
@@ -210,9 +203,9 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* ✅ REVISED: Badge Collection - Images Only */}
+      {/* Badge Collection */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
           Your Badge Collection
         </h2>
         <button
@@ -227,19 +220,19 @@ const Profile = () => {
       </div>
 
       {loading ? (
-        <div className="rounded-3xl bg-white p-10 shadow-sm">
+        <div className="rounded-3xl bg-white dark:bg-gray-800 p-10 shadow-sm">
           <Spinner />
         </div>
       ) : error ? (
-        <div className="rounded-3xl border border-red-100 bg-red-50 p-8 text-center shadow-sm">
-          <p className="text-red-700">{error}</p>
+        <div className="rounded-3xl border border-red-100 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-8 text-center shadow-sm">
+          <p className="text-red-700 dark:text-red-400">{error}</p>
         </div>
       ) : earnedBadgeIds.length === 0 ? (
-        <div className="rounded-3xl p-8 text-center shadow-sm bg-python-yellow">
-          <h3 className="text-xl font-semibold text-python-blue">
+        <div className="rounded-3xl p-8 text-center shadow-sm bg-python-yellow dark:bg-yellow-900/30">
+          <h3 className="text-xl font-semibold text-python-blue dark:text-yellow-300">
             No badges yet... but not for long!
           </h3>
-          <p className="mt-2 text-python-blue">
+          <p className="mt-2 text-python-blue dark:text-yellow-300/80">
             Complete lessons, keep your streak alive, and explore new modules to
             start earning badges.
           </p>
@@ -254,7 +247,7 @@ const Profile = () => {
             return (
               <div
                 key={badgeId}
-                className="group relative flex aspect-square items-center justify-center rounded-xl border border-green-200 bg-green-50 p-1 transition hover:-translate-y-0.5 hover:shadow-md hover:border-green-400 cursor-pointer"
+                className="group relative flex aspect-square items-center justify-center rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-1 transition hover:-translate-y-0.5 hover:shadow-md hover:border-green-400 dark:hover:border-green-600 cursor-pointer"
                 onClick={openModal}
                 role="button"
                 tabIndex={0}
@@ -269,13 +262,12 @@ const Profile = () => {
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-green-100 text-green-600 text-lg font-semibold">
+                  <div className="flex h-full w-full items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-lg font-semibold">
                     {badgeName.charAt(0)}
                   </div>
                 )}
-                {/* Subtle earned indicator on hover */}
-                <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-green-900/0 opacity-0 transition group-hover:bg-green-900/10 group-hover:opacity-100">
-                  <span className="text-xs font-medium text-green-700 opacity-0 group-hover:opacity-100 transition">
+                <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-green-900/0 opacity-0 transition group-hover:bg-green-900/10 dark:group-hover:bg-green-500/10 group-hover:opacity-100">
+                  <span className="text-xs font-medium text-green-700 dark:text-green-400 opacity-0 group-hover:opacity-100 transition">
                     ✓
                   </span>
                 </span>
@@ -283,11 +275,10 @@ const Profile = () => {
             );
           })}
 
-          {/* Optional: "+X more" indicator if many badges */}
           {earnedBadgeIds.length > 24 && (
             <button
               onClick={openModal}
-              className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 text-sm font-medium transition hover:border-green-400 hover:text-green-600"
+              className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm font-medium transition hover:border-green-400 dark:hover:border-green-600 hover:text-green-600 dark:hover:text-green-400"
               aria-label="View all earned badges"
             >
               +{earnedBadgeIds.length - 24} more
@@ -298,7 +289,6 @@ const Profile = () => {
 
       <BackToTopButton />
 
-      {/* Modal still receives all data it needs */}
       <BadgeModal
         isOpen={isModalOpen}
         onClose={closeModal}

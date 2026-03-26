@@ -74,20 +74,27 @@ export const processModuleQuizResults = (serverResults) => {
  * Determine button styling for quiz options
  */
 export const getOptionButtonClass = (isSelected, showResults, isCorrect) => {
+  // If results are shown
   if (showResults) {
-    if (isSelected) {
-      return isCorrect
-        ? "bg-green-100 border-green-500"
-        : "bg-red-100 border-red-500";
+    if (isCorrect) {
+      // Correct answer styling
+      return "border-green-500 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
+    } else if (isSelected) {
+      // Wrong selected answer styling
+      return "border-red-500 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
+    } else {
+      // Wrong unselected answer styling
+      return "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700";
     }
-    return "opacity-50";
   }
 
+  // Before submission - normal state
   if (isSelected) {
-    return "border-blue-500 bg-blue-50 ring-2 ring-blue-200";
+    return "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300";
   }
 
-  return "border-gray-200";
+  // Default unselected state
+  return "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700";
 };
 
 /**

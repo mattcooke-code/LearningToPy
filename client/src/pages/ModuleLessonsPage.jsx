@@ -35,7 +35,7 @@ const ModuleLessonsPage = () => {
       try {
         setLoading(true);
         const data = await apiClient.get(
-          `/content/modules/${moduleId}/lessons`
+          `/content/modules/${moduleId}/lessons`,
         );
         setModuleData(data.module);
         setLessons(data.lessons);
@@ -43,8 +43,8 @@ const ModuleLessonsPage = () => {
         setError(
           getErrorMessage(
             err,
-            "Failed to load module content. Please try again."
-          )
+            "Failed to load module content. Please try again.",
+          ),
         );
       } finally {
         setLoading(false);
@@ -80,7 +80,7 @@ const ModuleLessonsPage = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-gray-200 dark:bg-gray-900 ">
       <ModuleHeader
         moduleData={moduleData}
         completedLessons={completedLessons}
@@ -90,8 +90,8 @@ const ModuleLessonsPage = () => {
         onBack={() => navigate("/modules")}
       />
 
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+      <div className="max-w-4xl mx-auto bg-gray-200 dark:bg-gray-700 rounded-lg">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 px-3 py-3 ">
           Lessons in this Module
         </h2>
 

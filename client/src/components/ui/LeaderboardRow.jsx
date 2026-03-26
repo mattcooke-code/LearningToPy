@@ -11,18 +11,18 @@ const LeaderboardRow = ({ rank, user, isCurrent }) => {
     <div
       className={`flex items-center justify-between p-3 rounded-lg transition ${
         isCurrent
-          ? "bg-blue-50 border border-blue-200"
-          : "bg-gray-50 hover:bg-gray-100"
+          ? "bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800"
+          : "bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50"
       }`}
     >
       <div className="flex items-center space-x-3">
         <div
           className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${
             isCurrent
-              ? "bg-blue-500 text-white"
+              ? "bg-blue-500 dark:bg-blue-600 text-white"
               : rank <= 3
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-gray-200 text-gray-700"
+                ? "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
           }`}
         >
           {getRankDisplay(rank)}
@@ -30,7 +30,9 @@ const LeaderboardRow = ({ rank, user, isCurrent }) => {
         <div>
           <span
             className={`font-medium ${
-              isCurrent ? "text-blue-700" : "text-gray-700"
+              isCurrent
+                ? "text-blue-700 dark:text-blue-400"
+                : "text-gray-700 dark:text-gray-200"
             }`}
           >
             {user.isAnonymous
@@ -38,11 +40,13 @@ const LeaderboardRow = ({ rank, user, isCurrent }) => {
               : user.username}
           </span>
           {user.isAnonymous && (
-            <span className="ml-2 text-xs text-gray-500">(Anonymous)</span>
+            <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+              (Anonymous)
+            </span>
           )}
         </div>
       </div>
-      <span className="text-python-yellow font-semibold">
+      <span className="text-python-yellow dark:text-python-light font-bold">
         {user.xp.toLocaleString()} XP
       </span>
     </div>

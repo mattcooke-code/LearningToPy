@@ -15,7 +15,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
   return (
     <div
       className={`
-      bg-white rounded-lg shadow-md border-2 p-4 transition-all duration-300
+      bg-white dark:bg-gray-700 rounded-lg shadow-md border-2 p-4 transition-all duration-300
       ${
         isLocked
           ? "border-gray-200 opacity-60"
@@ -29,10 +29,10 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
           <div
             className={`p-2 rounded-full ${
               lesson.isCompleted
-                ? "bg-green-100 text-green-600"
+                ? "bg-green-100 dark:bg-green-600 text-green-600 dark:text-green-100"
                 : isLocked
-                ? "bg-gray-100 text-gray-400"
-                : "bg-blue-100"
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-blue-100"
             }`}
             style={
               !lesson.isCompleted && !isLocked
@@ -54,15 +54,15 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
 
           {/* Lesson Content */}
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-800">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">
               {lesson.order}. {lesson.title}
             </h3>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+            <p className="text-sm text-gray-600 dark:text-gray-300  mt-1 line-clamp-2">
               {lesson.shortDescription}
             </p>
 
             {/* Lesson Metadata */}
-            <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+            <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-300">
               <div className="flex items-center space-x-1">
                 <Clock size={12} />
                 <span>{lesson.duration} min</span>
@@ -71,7 +71,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
                 <Star size={12} />
                 <span>{lesson.xpReward} XP</span>
               </div>
-              <span className="capitalize px-2 py-1 bg-gray-100 rounded-full">
+              <span className="capitalize px-2 py-1 bg-python-dark text-python-light dark:bg-python-blue dark:text-python-yellow rounded-full">
                 {lesson.contentType}
               </span>
             </div>

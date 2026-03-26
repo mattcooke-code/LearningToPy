@@ -247,7 +247,7 @@ const ModuleQuizPage = () => {
 
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
           {quizResults.passed ? (
             <>
               <Trophy className="mx-auto h-16 w-16 text-yellow-500 mb-4" />

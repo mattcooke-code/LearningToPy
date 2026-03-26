@@ -38,17 +38,17 @@ const QuickActions = ({
   // State 2: Ready for the Final Quiz
   if (allLessonsDone && !quizCompleted) {
     return (
-      <div className="mt-8 bg-indigo-50 border-2 border-indigo-100 rounded-xl p-6 shadow-sm">
+      <div className="mt-8 bg-indigo-50 dark:bg-gray-700 border-2 border-indigo-100 dark:border-slate-500 rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row items-center md:justify-between gap-6">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-indigo-600 rounded-lg text-white shadow-lg">
               <Award size={30} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-200">
                 Final Challenge Unlocked
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Complete the {lessons.length}-question review to finish the
                 module.
               </p>
@@ -64,7 +64,7 @@ const QuickActions = ({
             </Link>
             <button
               onClick={onBackToModules}
-              className="text-gray-600 px-4 py-2 hover:underline font-medium"
+              className="text-gray-600 dark:text-python-light px-4 py-2 hover:underline font-medium"
             >
               Maybe Later
             </button>
@@ -76,8 +76,8 @@ const QuickActions = ({
 
   // State 3: Standard "Continue" (Current behavior)
   return (
-    <div className="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-100">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+    <div className="mt-8 bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-100 dark:border-gray-500">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-300">
         Ready to continue?
       </h3>
       <div className="flex flex-wrap gap-4">

@@ -574,8 +574,8 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
 
   // ===== MODAL FOOTER =====
   const modalFooter = (
-    <div className="flex justify-between items-center w-full">
-      <div className="text-sm text-gray-500 dark:text-gray-400">
+    <div className="flex justify-between items-center w-full ">
+      <div className="text-sm text-gray-500 dark:text-gray-400 ">
         {isEditing && lesson?.updatedAt
           ? `Last updated: ${new Date(lesson.updatedAt).toLocaleDateString()}`
           : "New lesson"}

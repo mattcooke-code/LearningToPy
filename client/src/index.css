@@ -1,27 +1,21 @@
-/* Remove the old @tailwind directives */
-/* DO NOT use: @tailwind base; @tailwind components; @tailwind utilities; */
-
-/* Instead, use this for Tailwind v4: */
+/* Import Tailwind v4 */
 @import "tailwindcss";
 
-/* Your custom theme - now using CSS custom properties */
+/* Custom theme configuration */
 @theme {
   --color-python-blue: #3776ab;
   --color-python-yellow: #ffd43b;
-  --color-python-dark: #306998;
+  --color-python-dark: #1e415e;
   --color-python-light: #ffe873;
 
-  /* Add dark mode colors */
-  --color-background-dark: #111827;
-  --color-surface-dark: #1f2937;
-  --color-text-dark: #f3f4f6;
-
-  /* Add font families if needed */
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Segoe UI", Roboto;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }
 
-/* Custom styles (keep these) */
+/* Enable dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom styles */
 .clip-half-circle {
   clip-path: ellipse(50% 100% at 50% 100%);
 }
@@ -32,6 +26,24 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Base background */
+html,
+body,
+#root {
+  background-color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.dark html,
+.dark body,
+.dark #root {
+  background-color: #111827;
+}
+
+.dark body {
+  color: #f3f4f6;
 }
 
 /* Scrollbar styles */
@@ -52,16 +64,10 @@ html {
   background-color: #306998;
 }
 
-/* Dark mode scrollbar */
 .dark ::-webkit-scrollbar-track {
   background-color: rgb(31 41 55);
 }
 
 .dark ::-webkit-scrollbar-thumb {
   background-color: #306998;
-}
-
-/* Optional: Add dark mode styles */
-.dark {
-  color-scheme: dark;
 }

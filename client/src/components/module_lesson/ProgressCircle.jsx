@@ -44,7 +44,7 @@ const ProgressCircle = ({
           </span>
         </div>
       </div>
-      <p className="text-sm text-gray-500 mt-2">
+      <p className="text-sm text-gray-500 dark:text-gray-300 mt-2">
         {completedLessons}/{totalLessons} lessons
       </p>
     </div>

@@ -19,29 +19,29 @@ const LessonHeader = ({
     <div className="mb-6">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition mb-4"
+        className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-python-yellow  transition mb-4"
       >
         <ArrowLeft size={20} />
         <span>Back to Lessons</span>
       </button>
 
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 mb-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-4 mb-4">
               {lesson.isCompleted && (
                 <CheckCircle className="text-green-500" size={24} />
               )}
-              <h1 className="text-3xl font-bold text-gray-800">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
                 {lesson.title}
               </h1>
             </div>
 
-            <p className="text-gray-600 text-lg mb-4">
+            <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
               {lesson.shortDescription}
             </p>
 
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
+            <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center space-x-1">
                 <Clock size={16} />
                 <span>{lesson.duration} min</span>
@@ -61,7 +61,7 @@ const LessonHeader = ({
             {/* Report Button */}
             <button
               onClick={onReport}
-              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               title="Report this lesson"
             >
               <Flag className="h-5 w-5" />

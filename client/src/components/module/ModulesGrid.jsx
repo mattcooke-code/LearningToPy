@@ -7,7 +7,7 @@ const ModulesGrid = ({ modules = [] }) => {
   if (safeModules.length === 0) {
     return (
       <div className="text-center py-12">
-        <BookOpen size={64} className="text-gray-300 mx-auto mb-4" />
+        <BookOpen size={64} className="text-gray-300  mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-600 mb-2">
           No modules available yet
         </h3>

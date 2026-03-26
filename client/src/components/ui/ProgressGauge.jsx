@@ -10,8 +10,8 @@ const ProgressGauge = ({ progress = 0, size = 200 }) => {
   const rotation = 135 - (safeProgress * 270) / 100;
 
   return (
-    <div className="relative bg-white rounded-xl shadow-2xl p-6 font-sans">
-      <h2 className="text-center text-xl font-semibold mb-4 text-gray-800">
+    <div className="relative bg-white rounded-xl shadow-2xl p-6 font-sans dark:bg-gray-600">
+      <h2 className="text-center text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
         Progress Status
       </h2>
 

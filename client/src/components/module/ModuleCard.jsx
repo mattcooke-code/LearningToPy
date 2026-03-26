@@ -20,7 +20,7 @@ const ModuleCard = ({ module, isLocked }) => {
   return (
     <div
       className={`
-      relative bg-white rounded-xl shadow-lg border-2 p-6 transition-all duration-300
+      relative bg-white rounded-xl shadow-lg border-2 p-6 transition-all duration-300 dark:bg-gray-700
       ${
         isLocked
           ? "border-gray-300 opacity-60"
@@ -51,18 +51,18 @@ const ModuleCard = ({ module, isLocked }) => {
       </div>
 
       {/* Module Title */}
-      <h3 className="text-xl font-bold text-gray-800 text-center mb-2">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2">
         {module.title}
       </h3>
 
       {/* Short Description */}
-      <p className="text-gray-600 text-sm text-center mb-4 line-clamp-2">
+      <p className="text-gray-600 dark:text-gray-300 text-sm text-center mb-4 line-clamp-2">
         {module.shortDescription}
       </p>
 
       {/* Progress Bar */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
           <span>Progress</span>
           <span style={{ color: moduleAccentColor, fontWeight: "600" }}>
             {moduleLessonProgress}%
@@ -80,7 +80,7 @@ const ModuleCard = ({ module, isLocked }) => {
       </div>
 
       {/* Module Stats */}
-      <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+      <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
         <div className="flex items-center space-x-1">
           <Clock size={14} />
           <span>{module.estimatedHours}h</span>

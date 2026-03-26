@@ -43,28 +43,30 @@ const SegmentedLevelProgressBar = ({
       {showLabels && (
         <div className="mb-3 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-gray-700">
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               {isCourseComplete
                 ? "🎉 Course Complete"
                 : `Level ${currentLevel}`}
             </span>
             {!isCourseComplete && currentModule && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-200">
                 Module {currentModule.order}: {currentModule.title}
               </span>
             )}
           </div>
           <div className="text-right">
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
               {Math.round(progressPercentage)}%
             </span>
-            <span className="ml-1 text-xs text-gray-500">Complete</span>
+            <span className="ml-1 text-xs text-gray-500 dark:text-gray-300">
+              Complete
+            </span>
           </div>
         </div>
       )}
 
       {/* Segmented Progress Bar - Restored to Old Styling */}
-      <div className="flex h-6 w-full space-x-1 rounded-full bg-gray-200 p-1">
+      <div className="flex h-6 w-full space-x-1 rounded-full bg-gray-200 dark:bg-gray-700 p-1">
         {Array.from({ length: segmentCount }).map((_, index) => {
           const isFilled = isCourseComplete || index < lessonsCompleted;
           const segmentColor = getSegmentColor(index);
@@ -102,15 +104,15 @@ const SegmentedLevelProgressBar = ({
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
               <div className="h-2 w-2 rounded-full bg-red-500" />
-              <span className="text-gray-500">Start</span>
+              <span className="text-gray-500 dark:text-gray-300">Start</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="h-2 w-2 rounded-full bg-green-500" />
-              <span className="text-gray-500">Finish</span>
+              <span className="text-gray-500 dark:text-gray-300">Finish</span>
             </div>
           </div>
 
-          <div className="text-right font-medium text-gray-600">
+          <div className="text-right font-medium text-gray-600 dark:text-gray-300">
             {isCourseComplete
               ? "🏆 20/20 Modules Mastered"
               : `${lessonsCompleted} / ${totalLessons} Lessons`}

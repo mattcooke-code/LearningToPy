@@ -1,4 +1,3 @@
-// ThemeContext.jsx
 import {
   createContext,
   useContext,
@@ -18,6 +17,13 @@ export const useTheme = () => {
   return context;
 };
 
+// UI Theme modes
+const UI_THEMES = {
+  LIGHT: "light",
+  DARK: "dark",
+  SYSTEM: "system",
+};
+
 // Code theme constants
 const CODE_THEMES = {
   DARK: "dark",
@@ -25,17 +31,71 @@ const CODE_THEMES = {
 };
 
 export const ThemeProvider = ({ children }) => {
-  // Initialize from localStorage if available
+  // Initialize UI theme from localStorage or system preference
+  const [uiTheme, setUiTheme] = useState(() => {
+    const saved = localStorage.getItem("uiTheme");
+    if (saved && Object.values(UI_THEMES).includes(saved)) {
+      return saved;
+    }
+    return UI_THEMES.SYSTEM;
+  });
+
+  // Initialize theme color from localStorage
   const [themeColor, setThemeColor] = useState(() => {
     const saved = localStorage.getItem("themeColor");
     return saved || THEME_COLORS.DEFAULT;
   });
 
-  // Initialize code theme from localStorage or default to dark
+  // Initialize code theme from localStorage
   const [codeTheme, setCodeTheme] = useState(() => {
     const saved = localStorage.getItem("codeTheme");
     return saved || CODE_THEMES.DARK;
   });
+
+  // Track if dark mode is active (considering system preference)
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check system preference
+  const checkSystemPreference = useCallback(() => {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }, []);
+
+  // Apply theme to document
+  const applyTheme = useCallback(
+    (theme) => {
+      const root = document.documentElement;
+      const shouldBeDark =
+        theme === UI_THEMES.DARK ||
+        (theme === UI_THEMES.SYSTEM && checkSystemPreference());
+
+      if (shouldBeDark) {
+        root.classList.add("dark");
+        setIsDarkMode(true);
+      } else {
+        root.classList.remove("dark");
+        setIsDarkMode(false);
+      }
+    },
+    [checkSystemPreference],
+  );
+
+  // Update theme when uiTheme changes
+  useEffect(() => {
+    applyTheme(uiTheme);
+    localStorage.setItem("uiTheme", uiTheme);
+  }, [uiTheme, applyTheme]);
+
+  // Listen to system preference changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      if (uiTheme === UI_THEMES.SYSTEM) {
+        applyTheme(UI_THEMES.SYSTEM);
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [uiTheme, applyTheme]);
 
   // Persist theme color to localStorage
   useEffect(() => {
@@ -48,44 +108,51 @@ export const ThemeProvider = ({ children }) => {
   }, [codeTheme]);
 
   /**
-   * Update global theme color based on overall progress (dashboard-wide usage)
+   * Update global theme color based on overall progress
    */
   const updateThemeFromCourseProgress = useCallback(
     (courseProgressPercentage) => {
       setThemeColor(resolveCourseThemeColor(courseProgressPercentage));
     },
-    [resolveCourseThemeColor]
+    [],
   );
 
   /**
-   * Get an accent color for module/lesson level progress visuals
-   * without mutating the global theme.
+   * Get an accent color for module/lesson level progress
    */
   const getModuleThemeColor = useCallback((moduleLessonProgress) => {
-    if (moduleLessonProgress <= 25) {
-      return THEME_COLORS.RED;
-    }
-    if (moduleLessonProgress <= 40) {
-      return THEME_COLORS.ORANGE;
-    }
-    if (moduleLessonProgress <= 55) {
-      return THEME_COLORS.AMBER;
-    }
-    if (moduleLessonProgress <= 70) {
-      return THEME_COLORS.YELLOW;
-    }
-    if (moduleLessonProgress <= 85) {
-      return THEME_COLORS.LIME;
-    }
+    if (moduleLessonProgress <= 25) return THEME_COLORS.RED;
+    if (moduleLessonProgress <= 40) return THEME_COLORS.ORANGE;
+    if (moduleLessonProgress <= 55) return THEME_COLORS.AMBER;
+    if (moduleLessonProgress <= 70) return THEME_COLORS.YELLOW;
+    if (moduleLessonProgress <= 85) return THEME_COLORS.LIME;
     return THEME_COLORS.GREEN;
   }, []);
 
   /**
-   * Toggle code theme between dark and light
+   * Set UI theme (light/dark/system)
+   */
+  const setUiThemeExplicit = useCallback((theme) => {
+    if (Object.values(UI_THEMES).includes(theme)) {
+      setUiTheme(theme);
+    }
+  }, []);
+
+  /**
+   * Toggle between light and dark (ignores system)
+   */
+  const toggleDarkMode = useCallback(() => {
+    setUiTheme((prev) =>
+      prev === UI_THEMES.DARK ? UI_THEMES.LIGHT : UI_THEMES.DARK,
+    );
+  }, []);
+
+  /**
+   * Toggle code theme
    */
   const toggleCodeTheme = useCallback(() => {
     setCodeTheme((prev) =>
-      prev === CODE_THEMES.DARK ? CODE_THEMES.LIGHT : CODE_THEMES.DARK
+      prev === CODE_THEMES.DARK ? CODE_THEMES.LIGHT : CODE_THEMES.DARK,
     );
   }, []);
 
@@ -99,14 +166,15 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   /**
-   * Reset theme to default Python blue
-   * Called on logout via window.resetTheme
+   * Reset theme to defaults
    */
   const resetTheme = useCallback(() => {
     setThemeColor(THEME_COLORS.DEFAULT);
-    setCodeTheme(CODE_THEMES.DARK); // Reset code theme to dark
+    setCodeTheme(CODE_THEMES.DARK);
+    setUiTheme(UI_THEMES.SYSTEM);
     localStorage.removeItem("themeColor");
     localStorage.removeItem("codeTheme");
+    localStorage.removeItem("uiTheme");
   }, []);
 
   // Expose resetTheme globally for logout
@@ -130,12 +198,19 @@ export const ThemeProvider = ({ children }) => {
     setDefaultTheme,
     THEME_COLORS,
 
+    // UI Theme (dark/light mode)
+    uiTheme,
+    isDarkMode,
+    setUiTheme: setUiThemeExplicit,
+    toggleDarkMode,
+    UI_THEMES,
+
     // Code theme
     codeTheme,
     toggleCodeTheme,
     setCodeTheme: setCodeThemeExplicit,
     isCodeDark: codeTheme === CODE_THEMES.DARK,
-    CODE_THEMES, // Export constants for components to use
+    CODE_THEMES,
   };
 
   return (

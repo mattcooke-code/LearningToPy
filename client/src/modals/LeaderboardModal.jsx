@@ -17,7 +17,7 @@ const LeaderboardModal = ({
   const [topUsers, setTopUsers] = useState([]);
   const [currentUserRank, setCurrentUserRank] = useState(initialUserRank);
   const [surroundingUsers, setSurroundingUsers] = useState(
-    initialSurroundingUsers
+    initialSurroundingUsers,
   );
   const [loading, setLoading] = useState(false);
 
@@ -34,14 +34,14 @@ const LeaderboardModal = ({
 
         if (isModule && moduleId) {
           const data = await apiClient.get(
-            `/progress/leaderboard/module/${moduleId}`
+            `/progress/leaderboard/module/${moduleId}`,
           );
           setTopUsers(data.users || []);
           setCurrentUserRank(data.currentUserRank || null);
           setSurroundingUsers([]);
         } else {
           const response = await apiClient.get(
-            "/progress/leaderboard/top?limit=10"
+            "/progress/leaderboard/top?limit=10",
           );
           setTopUsers(Array.isArray(data) ? data : data.users || []);
           setSurroundingUsers(initialSurroundingUsers);
@@ -97,7 +97,9 @@ const LeaderboardModal = ({
                   />
                 ))
               ) : (
-                <p className="text-gray-500 italic">No data available.</p>
+                <p className="text-gray-500 dark:text-gray-300 italic">
+                  No data available.
+                </p>
               )}
             </div>
           </div>
@@ -107,7 +109,9 @@ const LeaderboardModal = ({
             <div>
               <h3 className="mb-3 text-lg font-semibold border-t pt-4 dark:border-gray-700">
                 Your Ranking:{" "}
-                <span className="text-blue-600">#{currentUserRank || "—"}</span>
+                <span className="text-python-blue dark:text-python-yellow">
+                  #{currentUserRank || "—"}
+                </span>
               </h3>
               <div className="space-y-2">
                 {surroundingUsers.map((user) => (
@@ -124,7 +128,7 @@ const LeaderboardModal = ({
 
           {/* Module: Your Rank Footer (Fixed Logic) */}
           {isModule && currentUserRank && !isUserInTopList && (
-            <div className="text-center text-sm text-gray-600 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="text-center text-sm text-gray-600 pt-4 border-t border-gray-100 dark:border-gray-700 dark:text-gray-200">
               Your rank in this module: <strong>#{currentUserRank}</strong>
             </div>
           )}

@@ -1,9 +1,11 @@
-// components/ui/MarkdownRenderer.jsx
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CodeBlock } from "../lesson";
+import { useTheme } from "../../context";
 
-const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
+const MarkdownRenderer = ({ content, moduleId = "M0" }) => {
+  const { isDarkMode } = useTheme();
+
   // Custom component for containers
   const CustomContainer = ({ type, children }) => {
     const containerStyles = {
@@ -78,23 +80,19 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     };
 
     const style = containerStyles[type] || containerStyles.summary;
-    const colors = isDark ? style.dark : style.light;
+    const colors = isDarkMode ? style.dark : style.light;
 
     return (
       <div className={`my-6 p-4 rounded-r-lg ${colors.bg} ${colors.border}`}>
         <div className="flex items-start">
-          <span className="mr-2 text-xl">{colors.emoji}</span>{" "}
-          {/* Emoji for all containers */}
+          <span className="mr-2 text-xl">{colors.emoji}</span>
           <div className="flex-1">
             <strong
               className={`block mb-3 text-lg font-semibold ${colors.title}`}
             >
               {style.title}
             </strong>
-            {/* FIXED: Only render children once, with ContainerContent */}
-            <ContainerContent type={type} isDark={isDark}>
-              {children}
-            </ContainerContent>
+            <ContainerContent type={type}>{children}</ContainerContent>
           </div>
         </div>
       </div>
@@ -102,7 +100,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
   };
 
   // New component to render content with dynamic colors
-  const ContainerContent = ({ type, isDark, children }) => {
+  const ContainerContent = ({ type, children }) => {
     // Define text colors for each container type
     const textColors = {
       summary: {
@@ -118,13 +116,13 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
         dark: "text-red-200",
       },
       note: {
-        light: "text-green-800",
-        dark: "text-green-200",
+        light: "text-emerald-800",
+        dark: "text-emerald-200",
       },
     };
 
     const color = textColors[type] || textColors.summary;
-    const textColor = isDark ? color.dark : color.light;
+    const textColor = isDarkMode ? color.dark : color.light;
 
     // Create dynamic components based on container type
     const dynamicComponents = {
@@ -161,7 +159,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
 
         if (isInline) {
           return (
-            <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700 border-gray-300 shadow-sm">
+            <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200 dark:bg-gray-900 text-red-700 dark:text-green-500 border-gray-300 dark:border-gray-600 shadow-sm">
               {children}
             </code>
           );
@@ -182,7 +180,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
       a: ({ href, children }) => (
         <a
           href={href}
-          className={`font-medium underline ${isDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
+          className={`font-medium underline ${isDarkMode ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -222,7 +220,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
 
         const content = containerLines.join("\n");
 
-        // Create a custom container element
         result.push({
           type: "container",
           containerType: type,
@@ -247,25 +244,25 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
 
   const parsedContent = parseContent(content);
 
-  // Regular markdown components (same as before)
+  // Regular markdown components with dark mode support
   const markdownComponents = {
     h1: ({ children }) => (
       <h1
-        className={`text-2xl font-bold mb-4 mt-6 ${isDark ? "text-white" : "text-gray-800"}`}
+        className={`text-2xl font-bold mb-4 mt-6 ${isDarkMode ? "text-white" : "text-gray-800"}`}
       >
         {children}
       </h1>
     ),
     h2: ({ children }) => (
       <h2
-        className={`text-xl font-semibold mb-3 mt-6 ${isDark ? "text-gray-100" : "text-gray-800"}`}
+        className={`text-xl font-semibold mb-3 mt-6 ${isDarkMode ? "text-gray-100" : "text-gray-800"}`}
       >
         {children}
       </h2>
     ),
     h3: ({ children }) => (
       <h3
-        className={`text-lg font-semibold mb-2 mt-4 ${isDark ? "text-gray-200" : "text-gray-800"}`}
+        className={`text-lg font-semibold mb-2 mt-4 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
       >
         {children}
       </h3>
@@ -280,7 +277,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
       }
       return (
         <p
-          className={`mb-4 leading-relaxed last:mb-0 ${isDark ? "text-gray-300" : "text-gray-700"}`}
+          className={`mb-4 leading-relaxed last:mb-0 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
         >
           {children}
         </p>
@@ -290,8 +287,8 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
       <a
         href={href}
         className={`font-medium underline decoration-2 underline-offset-4 transition-colors ${
-          isDark
-            ? "text-blue-400 hover:text-blue-300 decoration-blue-800"
+          isDarkMode
+            ? "text-blue-400 hover:text-blue-300 decoration-blue-800 "
             : "text-blue-600 hover:text-blue-800 decoration-blue-200"
         }`}
         target="_blank"
@@ -302,14 +299,14 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     ),
     ul: ({ children }) => (
       <ul
-        className={`list-disc ml-6 mb-4 space-y-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}
+        className={`list-disc ml-6 mb-4 space-y-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
       >
         {children}
       </ul>
     ),
     ol: ({ children }) => (
       <ol
-        className={`list-decimal ml-6 mb-4 space-y-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}
+        className={`list-decimal ml-6 mb-4 space-y-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
       >
         {children}
       </ol>
@@ -321,7 +318,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
 
       if (isInline) {
         return (
-          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700 border-gray-300 shadow-sm">
+          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200  text-red-700 dark:bg-gray-900 dark:text-green-500 border-gray-300 dark:border-gray-600 shadow-sm">
             {children}
           </code>
         );
@@ -335,13 +332,15 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     },
     strong: ({ children }) => (
       <strong
-        className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+        className={`font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}
       >
         {children}
       </strong>
     ),
     em: ({ children }) => (
-      <em className={`italic ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+      <em
+        className={`italic ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}
+      >
         {children}
       </em>
     ),
@@ -357,13 +356,13 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
             src={imageSrc}
             alt={alt || "Lesson image"}
             className={`rounded-xl border shadow-lg max-w-full h-auto mx-auto ${
-              isDark ? "border-gray-700" : "border-gray-300"
+              isDarkMode ? "border-gray-700" : "border-gray-300"
             }`}
             loading="lazy"
           />
           {alt && (
             <p
-              className={`text-sm mt-2 italic ${isDark ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm mt-2 italic ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
               {alt}
             </p>
@@ -373,14 +372,14 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     },
     hr: () => (
       <hr
-        className={`my-8 border-t ${isDark ? "border-gray-700" : "border-gray-300"}`}
+        className={`my-8 border-t ${isDarkMode ? "border-gray-700" : "border-gray-300"}`}
       />
     ),
     table: ({ children }) => (
       <div className="overflow-x-auto my-8">
         <table
           className={`min-w-full divide-y border rounded-lg shadow-sm ${
-            isDark
+            isDarkMode
               ? "divide-gray-700 border-gray-700"
               : "divide-gray-200 border-gray-300"
           }`}
@@ -392,7 +391,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     th: ({ children }) => (
       <th
         className={`px-6 py-4 text-left text-sm font-semibold uppercase border-b ${
-          isDark
+          isDarkMode
             ? "text-gray-200 bg-gray-900/50 border-gray-700"
             : "text-gray-900 bg-gray-100 border-gray-300"
         }`}
@@ -403,7 +402,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     td: ({ children }) => (
       <td
         className={`px-6 py-4 text-sm border-b ${
-          isDark
+          isDarkMode
             ? "text-gray-300 border-gray-700 bg-gray-800/30"
             : "text-gray-700 border-gray-300"
         }`}
@@ -414,108 +413,13 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark = false }) => {
     blockquote: ({ children }) => (
       <blockquote
         className={`border-l-4 pl-4 italic my-4 ${
-          isDark
+          isDarkMode
             ? "border-blue-800 text-gray-400"
             : "border-blue-500 text-gray-600"
         }`}
       >
         {children}
       </blockquote>
-    ),
-  };
-
-  // Components for content INSIDE containers
-  const containerMarkdownComponents = {
-    h1: ({ children }) => (
-      <h2
-        className={`text-xl font-semibold mb-3 mt-2 ${isDark ? "text-blue-100" : "text-blue-900"}`}
-      >
-        {children}
-      </h2>
-    ),
-    h2: ({ children }) => (
-      <h3
-        className={`text-lg font-semibold mb-2 mt-2 ${isDark ? "text-blue-100" : "text-blue-900"}`}
-      >
-        {children}
-      </h3>
-    ),
-    h3: ({ children }) => (
-      <h4
-        className={`font-semibold mb-1 mt-2 ${isDark ? "text-blue-100" : "text-blue-900"}`}
-      >
-        {children}
-      </h4>
-    ),
-    p: ({ children }) => (
-      <p
-        className={`mb-2 leading-relaxed ${isDark ? "text-blue-100" : "text-blue-800"}`}
-      >
-        {children}
-      </p>
-    ),
-    ul: ({ children }) => (
-      <ul
-        className={`list-disc ml-6 mb-3 space-y-1 ${isDark ? "text-blue-100" : "text-blue-800"}`}
-      >
-        {children}
-      </ul>
-    ),
-    ol: ({ children }) => (
-      <ol
-        className={`list-decimal ml-6 mb-3 space-y-1 ${isDark ? "text-blue-100" : "text-blue-800"}`}
-      >
-        {children}
-      </ol>
-    ),
-    li: ({ children }) => <li className="pl-2 mb-1">{children}</li>,
-
-    // Code - matches your regular styling
-    code: ({ children, className, inline }) => {
-      const match = /language-(\w+)/.exec(className || "");
-      const isInline = inline || !className || !match;
-
-      if (isInline) {
-        return (
-          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700 border-gray-300 shadow-sm">
-            {children}
-          </code>
-        );
-      }
-
-      return (
-        <CodeBlock
-          code={String(children).replace(/\n$/, "")}
-          language={match[1]}
-        />
-      );
-    },
-
-    // Strong/bold - blue inside containers
-    strong: ({ children }) => (
-      <strong
-        className={`font-bold ${isDark ? "text-blue-100" : "text-blue-800"}`}
-      >
-        {children}
-      </strong>
-    ),
-
-    // Italics - blue inside containers ONLY
-    em: ({ children }) => (
-      <em className={`italic ${isDark ? "text-blue-100" : "text-blue-800"}`}>
-        {children}
-      </em>
-    ),
-
-    a: ({ href, children }) => (
-      <a
-        href={href}
-        className={`font-medium underline ${isDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {children}
-      </a>
     ),
   };
 

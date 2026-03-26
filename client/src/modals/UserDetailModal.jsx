@@ -210,7 +210,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
               </h3>
               <div className="flex space-x-2 justify-center md:justify-start">
                 {currentUser.isAdmin && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 uppercase">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 uppercase">
                     <Shield className="h-3 w-3 mr-1" /> Admin
                   </span>
                 )}
@@ -228,15 +228,15 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
 
             <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-6">
               <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
-                <Mail className="h-4 w-4 mr-2 text-blue-500" />
+                <Mail className="h-4 w-4 mr-2 text-python-blue dark:text-python-yellow" />
                 {currentUser.email}
               </div>
-              <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+              <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-200">
                 <Calendar className="h-4 w-4 mr-2 text-green-500" />
                 Joined {formatDate(currentUser.createdAt)}
               </div>
               {currentUser.lastActive && (
-                <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+                <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-200">
                   <Activity className="h-4 w-4 mr-2 text-orange-500" />
                   Last active {formatDate(currentUser.lastActive)}
                 </div>
@@ -269,7 +269,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                 return (
                   <div
                     key={stat.label}
-                    className="group bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl hover:border-blue-300 transition-all text-center"
+                    className="group bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl hover:border-blue-300 dark:hover:border-python-light transition-all text-center"
                   >
                     <div
                       className={`mx-auto w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
@@ -326,7 +326,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                     className="flex items-center p-4 bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-md transition-all"
                   >
                     <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mr-4">
-                      <ActionIcon className="h-5 w-5 text-blue-500" />
+                      <ActionIcon className="h-5 w-5 text-blue-500 " />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-gray-900 dark:text-white truncate">

@@ -5,15 +5,17 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-gray-900 text-white dark:bg-python-dark">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Column */}
           <div className="md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-python-blue rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Py</span>
+              <div className="w-8 h-8 bg-python-blue dark:bg-python-light rounded-full flex items-center justify-center">
+                <span className="text-white dark:text-python-blue font-bold text-sm">
+                  Py
+                </span>
               </div>
               <span className="text-xl font-bold text-white">
                 Learning To Py
@@ -238,7 +240,7 @@ const Footer = () => {
                 </svg>
                 <span>and</span>
                 <svg
-                  className="w-4 h-4 text-python-blue"
+                  className="w-4 h-4 text-python-blue dark:text-python-light"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >

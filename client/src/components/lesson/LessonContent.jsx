@@ -36,7 +36,7 @@ const LessonContent = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-6">
       <div className="prose prose-lg max-w-none">
         <MarkdownRenderer
           content={lesson.content}
@@ -82,13 +82,13 @@ const LessonContent = ({
 
       {/* Post-Completion Navigation */}
       {lesson.isCompleted && !isReviewMode && (
-        <div className="mt-12 p-1 border-t border-gray-100 pt-8">
-          <div className="bg-gray-50 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mt-12 p-1 border-t border-gray-100 dark:border-gray-700 pt-8">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-bold text-gray-800">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                 Lesson Complete! 🎉
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 You've mastered this content. What's next?
               </p>
             </div>
@@ -101,17 +101,17 @@ const LessonContent = ({
         !lesson.quiz &&
         !lesson.isCompleted &&
         !isReviewMode && (
-          <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-lg text-center">
-            <h3 className="text-lg font-semibold text-green-800 mb-2">
+          <div className="mt-8 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-center">
+            <h3 className="text-lg font-semibold text-green-800 dark:text-green-300 mb-2">
               Ready to mark this lesson complete?
             </h3>
-            <p className="text-green-700 mb-4">
+            <p className="text-green-700 dark:text-green-400 mb-4">
               You'll earn {lesson.xpReward} XP for completing this lesson.
             </p>
             <button
               onClick={markTheoryComplete}
               disabled={isSubmitting}
-              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-green-300 transition"
+              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 disabled:bg-green-300 dark:disabled:bg-green-800 transition"
             >
               {isSubmitting ? "Marking..." : "Mark Lesson Complete"}
             </button>

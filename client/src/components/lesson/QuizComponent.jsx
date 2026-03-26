@@ -1,4 +1,4 @@
-// QuizComponent.jsx - SIMPLIFIED VERSION
+// QuizComponent.jsx - UPDATED with Dark Mode Support
 import { useEffect, useState } from "react";
 import {
   CheckCircle,
@@ -82,7 +82,6 @@ const QuizComponent = ({
         [questionId]: {
           show: true,
           isCorrect: data.isCorrect,
-          // Only mark as completed if correct
           completed: data.isCorrect,
         },
       }));
@@ -154,15 +153,12 @@ const QuizComponent = ({
     const isCorrect = results[questionId]?.isCorrect;
 
     if (isCorrect) {
-      // Show full explanation when answer is correct
       return (
         serverFeedback[questionId] || questionData.explanation || "Correct!"
       );
     } else if (currentAttempts === 1) {
-      // First wrong attempt - minimal feedback
       return "Not quite. Try again! Think about what each option means.";
     } else if (currentAttempts >= 2) {
-      // After 2+ attempts - show correct answer
       return (
         serverFeedback[questionId] ||
         questionData.explanation ||
@@ -177,18 +173,17 @@ const QuizComponent = ({
   const shouldShowCorrectAnswer = (questionId) => {
     const currentAttempts = attempts[questionId] || 0;
     const isCorrect = results[questionId]?.isCorrect;
-
-    // Show correct answer if:
-    // 1. Answer is correct
-    // 2. User has made 2+ attempts
     return isCorrect || currentAttempts >= 2;
   };
 
   return (
     <div className="space-y-8 my-8">
-      <div className="flex items-center space-x-2 border-b border-gray-200 pb-4">
-        <HelpCircle className="text-blue-600" size={28} />
-        <h2 className="text-2xl font-bold text-gray-800">
+      <div className="flex items-center space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
+        <HelpCircle
+          className="text-python-blue dark:text-python-yellow"
+          size={28}
+        />
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
           {isModuleQuiz ? "Final Module Quiz" : "Lesson Quiz"}
         </h2>
       </div>
@@ -199,39 +194,51 @@ const QuizComponent = ({
         const currentAttempts = attempts[qKey] || 0;
         const isCorrect = result?.isCorrect;
 
+        // Determine question card background based on state
+        const getQuestionCardClass = () => {
+          if (!result?.show) {
+            return "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm";
+          }
+          if (isCorrect) {
+            return "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800";
+          }
+          if (currentAttempts >= 2) {
+            return "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800";
+          }
+          return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800";
+        };
+
         return (
           <div
             key={qKey}
-            className={`p-6 rounded-xl border transition-all ${
-              result?.show
-                ? isCorrect
-                  ? "bg-green-50 border-green-200"
-                  : currentAttempts >= 2
-                    ? "bg-orange-50 border-orange-200"
-                    : "bg-red-50 border-red-200"
-                : "bg-white border-gray-200 shadow-sm"
-            }`}
+            className={`p-6 rounded-xl border transition-all ${getQuestionCardClass()}`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-3">
-                <span className="text-sm font-bold uppercase tracking-wider text-blue-500">
+                <span className="text-sm font-bold uppercase tracking-wider text-python-blue dark:text-python-yellow">
                   Question {qIdx + 1}
                 </span>
                 {currentAttempts > 0 && (
-                  <span className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-full">
+                  <span className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
                     Attempt {currentAttempts}
                   </span>
                 )}
               </div>
               {result?.show &&
                 (isCorrect ? (
-                  <CheckCircle className="text-green-600" size={24} />
+                  <CheckCircle
+                    className="text-green-600 dark:text-green-400"
+                    size={24}
+                  />
                 ) : (
-                  <AlertCircle className="text-red-600" size={24} />
+                  <AlertCircle
+                    className="text-red-600 dark:text-red-400"
+                    size={24}
+                  />
                 ))}
             </div>
 
-            <div className="text-lg font-medium text-gray-900 mb-6">
+            <div className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
               <MarkdownRenderer content={q.question} />
             </div>
 
@@ -256,7 +263,7 @@ const QuizComponent = ({
                 // Override for showing correct answer
                 if (showAsCorrect) {
                   btnClass =
-                    "border-2 border-green-500 bg-green-100 text-green-800";
+                    "border-2 border-green-500 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
                 }
 
                 return (
@@ -266,9 +273,9 @@ const QuizComponent = ({
                     disabled={showResults || isSubmitting}
                     className={`text-left p-4 rounded-lg border-2 transition-all ${btnClass}`}
                   >
-                    <MarkdownRenderer content={option} isDark={false} />
+                    <MarkdownRenderer content={option} />
                     {showAsCorrect && (
-                      <div className="mt-2 text-xs font-bold text-green-600 flex items-center">
+                      <div className="mt-2 text-xs font-bold text-green-600 dark:text-green-400 flex items-center">
                         <CheckCircle size={12} className="mr-1" />
                         Correct Answer
                       </div>
@@ -283,32 +290,32 @@ const QuizComponent = ({
               <button
                 onClick={() => checkSingleAnswer(qKey, qIdx)}
                 disabled={answers[qKey] === undefined || isSubmitting}
-                className="mt-6 flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition-all"
+                className="mt-6 flex items-center justify-center space-x-2 bg-python-dark hover:bg-python-yellow dark:bg-python-yellow dark:hover:bg-python-blue text-white hover:text-gray-800 dark:text-gray-800 dark:hover:text-white  px-6 py-2 rounded-lg font-bold disabled:opacity-50 transition-all"
               >
                 {isSubmitting && <Loader2 className="animate-spin" size={18} />}
                 <span>Check Answer</span>
               </button>
             )}
 
-            {/* Feedback display - CONDITIONAL LOGIC */}
+            {/* Feedback display */}
             {result?.show && (
               <div
                 className={`mt-4 p-3 rounded border ${
                   isCorrect
-                    ? "bg-green-50 border-green-200"
+                    ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
                     : currentAttempts >= 2
-                      ? "bg-orange-50 border-orange-200"
-                      : "bg-red-50 border-red-200"
+                      ? "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+                      : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
                 }`}
               >
-                <div className="text-sm italic">
+                <div className="text-sm italic text-gray-700 dark:text-gray-300">
                   <MarkdownRenderer content={getFeedbackContent(qKey, q)} />
                 </div>
 
                 {!isCorrect && !isModuleQuiz && (
                   <button
                     onClick={() => resetQuestion(qKey)}
-                    className="mt-2 flex items-center text-blue-600 font-bold hover:underline"
+                    className="mt-2 flex items-center text-python-blue dark:text-python-light font-bold hover:underline"
                   >
                     <RotateCcw size={14} className="mr-1" /> Try Again
                   </button>
@@ -321,11 +328,11 @@ const QuizComponent = ({
 
       {/* Module Quiz Submit Button */}
       {isModuleQuiz && allAnswered && (
-        <div className="text-center p-6 bg-blue-50 rounded-2xl border-2 border-blue-200">
+        <div className="text-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
           <button
             onClick={handleFinalSubmit}
             disabled={isSubmitting}
-            className="bg-blue-600 text-white px-10 py-4 rounded-xl font-black text-xl hover:bg-blue-700 shadow-lg transition-all disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-10 py-4 rounded-xl font-black text-xl shadow-lg transition-all disabled:opacity-50"
           >
             {isSubmitting ? "Submitting Quiz..." : "Submit Final Quiz"}
           </button>
@@ -334,14 +341,17 @@ const QuizComponent = ({
 
       {/* Quiz Completion Message */}
       {!isModuleQuiz && quizCompleted && (
-        <div className="p-6 bg-green-50 border-2 border-green-200 rounded-2xl text-center">
+        <div className="p-6 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-2xl text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <CheckCircle className="text-green-600" size={24} />
-            <h3 className="text-lg font-bold text-green-800">
+            <CheckCircle
+              className="text-green-600 dark:text-green-400"
+              size={24}
+            />
+            <h3 className="text-lg font-bold text-green-800 dark:text-green-300">
               Quiz Completed! 🎉
             </h3>
           </div>
-          <p className="text-green-700">
+          <p className="text-green-700 dark:text-green-400">
             All questions answered correctly! The lesson is now marked as
             complete.
           </p>

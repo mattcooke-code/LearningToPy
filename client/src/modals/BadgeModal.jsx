@@ -21,7 +21,7 @@ const BadgeModal = ({
       closeOnOverlayClick
       closeOnEscape
     >
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-gray-500 dark:text-gray-200 mb-6">
         Discover every badge you can earn and track your progress.
       </p>
 
@@ -36,7 +36,7 @@ const BadgeModal = ({
           return (
             <div
               key={badge.id}
-              className={`group flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:shadow-md ${
+              className={`group flex h-full flex-col rounded-2xl border bg-white dark:bg-gray-600 p-5 shadow-sm transition hover:shadow-md ${
                 isEarned ? "border-green-200" : "border-gray-200"
               }`}
             >
@@ -59,7 +59,7 @@ const BadgeModal = ({
                       className={`flex h-full w-full items-center justify-center text-2xl font-semibold ${
                         isEarned
                           ? "bg-green-100 text-green-600"
-                          : "bg-gray-100 text-gray-400"
+                          : "bg-gray-100 text-gray-00"
                       }`}
                     >
                       {badge.name.charAt(0)}
@@ -68,35 +68,39 @@ const BadgeModal = ({
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {badge.name}
                     </h3>
                     {isEarned && (
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:bg-green-700 dark:text-green-100">
                         Earned
                       </span>
                     )}
                     {!isEarned && hasProgress && (
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-700 dark:text-blue-100">
                         In progress
                       </span>
                     )}
                   </div>
-                  <p className="text-xs uppercase tracking-wide text-gray-400">
+                  <p className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-300">
                     {badge.category}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-4 text-sm text-gray-600">{badge.description}</p>
-              <p className="mt-3 text-sm font-medium text-gray-800">
+              <p className="mt-4 text-sm text-gray-600 dark:text-python-light">
+                {badge.description}
+              </p>
+              <p className="mt-3 text-sm font-medium text-gray-800 dark:text-gray-200">
                 How to earn:
               </p>
-              <p className="text-sm text-gray-600">{badge.requirement}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-200">
+                {badge.requirement}
+              </p>
 
               {!isEarned && (
                 <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs font-medium text-gray-500">
+                  <div className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-300 ">
                     <span>Progress</span>
                     <span>{progress}%</span>
                   </div>
