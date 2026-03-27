@@ -18,35 +18,41 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
   const currentXP = user.xp || 0;
   const currentLevel = user.level || 1;
 
-  // XP Logic: Assumes 100 XP per level
-  const changeAmount = parseInt(xpChange) || 0;
-  const newXP = Math.max(0, currentXP + changeAmount);
+  // FIX: Better handling of empty/non-numeric values
+  const changeAmount =
+    xpChange === "" || xpChange === null ? 0 : parseInt(xpChange, 10);
+  // Ensure we don't get NaN
+  const safeChangeAmount = isNaN(changeAmount) ? 0 : changeAmount;
+
+  const newXP = Math.max(0, currentXP + safeChangeAmount);
   const newLevel = Math.floor(newXP / 100) + 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!xpChange || xpChange === "0") {
-      showToast("Please enter a valid XP amount", "error");
+    // FIX: Check safeChangeAmount instead of xpChange
+    if (safeChangeAmount === 0) {
+      showToast("Please enter a valid XP amount (non-zero)", "error");
       return;
     }
 
     if (!reason.trim() || reason.length < 5) {
       showToast(
-        "Please provide a detailed reason for this adjustment",
-        "error"
+        "Please provide a detailed reason for this adjustment (minimum 5 characters)",
+        "error",
       );
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await onSave(user._id, changeAmount, reason);
+      await onSave(user._id, safeChangeAmount, reason);
       setXpChange("");
       setReason("");
       onClose();
     } catch (err) {
-      // Logic assumes parent handles error toast
+      // Error handled by parent
+      console.error("XP adjustment error:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -61,14 +67,16 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
       title={
         <div className="flex items-center space-x-2">
           <Zap className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-          <span>XP Adjustment: {user.username}</span>
+          <span className="text-gray-900 dark:text-white">
+            XP Adjustment: {user.username}
+          </span>
         </div>
       }
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Current Stats Ribbon */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900 text-white dark:bg-blue-900/20 border border-blue-500/20">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900 dark:bg-blue-900/20 text-white border border-blue-500/20">
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
               Current Total
@@ -121,14 +129,16 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
                 type="number"
                 value={xpChange}
                 onChange={(e) => setXpChange(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl font-black focus:ring-0 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl font-black focus:ring-0 focus:border-blue-500 transition-all dark:text-python-yellow"
                 placeholder="0"
               />
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                {changeAmount < 0 ? (
+                {safeChangeAmount < 0 ? (
                   <TrendingDown className="h-5 w-5 text-red-500" />
-                ) : (
+                ) : safeChangeAmount > 0 ? (
                   <TrendingUp className="h-5 w-5 text-green-500" />
+                ) : (
+                  <TrendingUp className="h-5 w-5 text-gray-400" />
                 )}
               </div>
             </div>
@@ -142,7 +152,7 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl font-medium focus:ring-0 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 dark:text-python-light rounded-xl font-medium focus:ring-0 focus:border-blue-500 transition-all"
               placeholder="e.g., Bug bounty reward, manual correction..."
             />
           </div>
@@ -151,18 +161,18 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
         {/* Changes Preview Card */}
         <div
           className={`p-4 rounded-xl border-2 border-dashed transition-colors ${
-            changeAmount === 0
+            safeChangeAmount === 0
               ? "bg-gray-50 border-gray-200 dark:bg-gray-900/40 dark:border-gray-800"
-              : changeAmount < 0
-              ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-900/30"
-              : "bg-green-50 border-green-200 dark:bg-green-900/10 dark:border-green-900/30"
+              : safeChangeAmount < 0
+                ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-900/30"
+                : "bg-green-50 border-green-200 dark:bg-green-900/10 dark:border-green-900/30"
           }`}
         >
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-xs font-black text-gray-500 uppercase flex items-center">
               <Info className="h-3 w-3 mr-1" /> Adjustment Preview
             </h4>
-            {newXP === 0 && changeAmount < 0 && (
+            {newXP === 0 && safeChangeAmount < 0 && (
               <span className="flex items-center text-[10px] font-bold text-red-500 animate-pulse">
                 <AlertTriangle className="h-3 w-3 mr-1" /> Floored at 0 XP
               </span>
@@ -194,8 +204,8 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
                     newLevel > currentLevel
                       ? "text-green-500"
                       : newLevel < currentLevel
-                      ? "text-red-500"
-                      : "text-gray-900 dark:text-white"
+                        ? "text-red-500"
+                        : "text-gray-900 dark:text-white"
                   }`}
                 >
                   Lvl {newLevel}
@@ -234,10 +244,7 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
             <button
               type="submit"
               disabled={
-                isSubmitting ||
-                !xpChange ||
-                xpChange === "0" ||
-                reason.length < 5
+                isSubmitting || safeChangeAmount === 0 || reason.length < 5
               }
               className="px-6 py-2.5 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 flex items-center"
             >

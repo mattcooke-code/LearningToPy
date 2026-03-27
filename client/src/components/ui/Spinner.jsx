@@ -1,4 +1,3 @@
-// Spinner.jsx
 const Spinner = ({
   size = "md",
   color = "python-blue",
@@ -14,14 +13,22 @@ const Spinner = ({
   };
 
   const colorClasses = {
-    "python-blue": "border-python-blue",
-    white: "border-white",
-    gray: "border-gray-400",
+    "python-blue": "border-python-blue dark:border-python-blue",
+    white: "border-white dark:border-gray-300",
+    gray: "border-gray-400 dark:border-gray-500",
+    light: "border-gray-300 dark:border-gray-600",
+  };
+
+  const textColorClasses = {
+    "python-blue": "text-python-blue dark:text-python-blue",
+    white: "text-white dark:text-gray-300",
+    gray: "text-gray-600 dark:text-gray-400",
+    light: "text-gray-500 dark:text-gray-400",
   };
 
   const spinner = (
     <div
-      className={`animate-spin rounded-full border-b-2 ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
+      className={`animate-spin rounded-full border-2 border-t-transparent ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
     ></div>
   );
 
@@ -29,7 +36,9 @@ const Spinner = ({
     return (
       <div className={`flex items-center ${center ? "justify-center" : ""}`}>
         {spinner}
-        <span className="ml-2">{text}</span>
+        <span className={`ml-2 text-sm font-medium ${textColorClasses[color]}`}>
+          {text}
+        </span>
       </div>
     );
   }

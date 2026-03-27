@@ -351,7 +351,7 @@ const ContentManagementTable = () => {
                   <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
                     {module ? (
                       <>
-                        <span className="text-sm font-mono text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mr-2">
+                        <span className="text-sm font-mono text-gray-500 bg-gray-100 dark:bg-gray-700  px-2 py-1 rounded mr-2">
                           M{module.order || "—"}
                         </span>
                         {module.title}
@@ -398,19 +398,19 @@ const ContentManagementTable = () => {
                             <span
                               className={`px-2 py-0.5 rounded-full text-xs ${
                                 lesson.isPublished
-                                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200"
                                   : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400"
                               }`}
                             >
                               {lesson.isPublished ? "Published" : "Draft"}
                             </span>
                             {lesson.difficulty && (
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-gray-500 dark:text-gray-200">
                                 {getDifficultyBadge(lesson.difficulty)}
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <div className="text-xs text-gray-500 dark:text-python-yellow mt-1">
                             ID: {lesson._id?.slice(-8)} • XP:{" "}
                             {lesson.xpReward || 0}
                           </div>
@@ -429,9 +429,9 @@ const ContentManagementTable = () => {
                           title={lesson.isPublished ? "Unpublish" : "Publish"}
                         >
                           {lesson.isPublished ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
+                            <EyeOff className="h-4 w-4 text-gray-500 dark:text-gray-200" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
+                            <Eye className="h-4 w-4 text-gray-500 dark:text-gray-200" />
                           )}
                         </button>
                         <button
@@ -519,7 +519,7 @@ const ContentManagementTable = () => {
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+        <tbody className="bg-white dark:bg-gray-900 divide-y dark:text-gray-200 divide-gray-200 dark:divide-gray-800">
           {filteredContent.map((item) => {
             const TypeIcon = getTypeIcon(item.type);
             const isSelected = selectedItems.some(
@@ -634,15 +634,15 @@ const ContentManagementTable = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center space-x-2">
-                    <span className="font-mono text-sm">
+                    <span className="font-bold text-sm text-purple-700 dark:text-purple-300">
                       #{item.order || 0}
                     </span>
                     <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                      <MoveVertical className="h-4 w-4 text-gray-500" />
+                      <MoveVertical className="h-4 w-4 text-purple-700 dark:text-purple-300" />
                     </button>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">
                   {new Date(item.updatedAt).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -651,7 +651,7 @@ const ContentManagementTable = () => {
                       onClick={() => {
                         handleEdit(item);
                       }}
-                      className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                      className="p-1 text-blue-600 hover:text-blue-800 dark:text-python-light dark:hover:text-yellow-300 hover:bg-blue-50 dark:hover:bg-yellow-900/20 rounded"
                       title="Edit"
                     >
                       <Edit className="h-4 w-4" />
@@ -665,7 +665,7 @@ const ContentManagementTable = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(item._id, item.type)}
-                      className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                      className="p-1 text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
                       title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -795,22 +795,28 @@ const ContentManagementTable = () => {
               <div className="grid grid-cols-2 gap-2 mb-4">
                 <div className="flex items-center text-sm">
                   <Trophy className="h-4 w-4 text-yellow-500 mr-1" />
-                  <span className="font-medium">{item.xpReward || 0}</span>
-                  <span className="text-gray-500 dark:text-gray-400 ml-1">
+                  <span className="font-medium dark:text-gray-200">
+                    {item.xpReward || 0}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-300 ml-1">
                     XP
                   </span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <Hash className="h-4 w-4 text-gray-500 mr-1" />
-                  <span>#{item.order || 0}</span>
+                  <Hash className="h-4 w-4 text-gray-500 dark:text-purple-400 mr-1" />
+                  <span className="dark:text-purple-300">
+                    {item.order || 0}
+                  </span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Zap className="h-4 w-4 text-orange-500 mr-1" />
                   <span>{getDifficultyBadge(item.difficulty)}</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <Calendar className="h-4 w-4 text-gray-500 mr-1" />
-                  <span>{new Date(item.updatedAt).toLocaleDateString()}</span>
+                  <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-200 mr-1" />
+                  <span className="dark:text-gray-300">
+                    {new Date(item.updatedAt).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
 
@@ -820,7 +826,7 @@ const ContentManagementTable = () => {
                   onClick={() => {
                     handleEdit(item);
                   }}
-                  className="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-python-light hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                 >
                   <Edit className="h-4 w-4 inline mr-1" />
                   Edit
@@ -958,14 +964,14 @@ const ContentManagementTable = () => {
           {/* Left Side - Search and Filters */}
           <div className="flex-1 space-y-4 md:space-y-0 md:flex md:items-center md:space-x-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-200" />
               <input
                 type="text"
                 value={filters.search}
                 onChange={(e) =>
                   setFilters({ ...filters, search: e.target.value })
                 }
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200 "
                 placeholder="Search content..."
               />
             </div>
@@ -976,7 +982,7 @@ const ContentManagementTable = () => {
                 onChange={(e) =>
                   setFilters({ ...filters, type: e.target.value })
                 }
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200"
               >
                 <option value="all">All Types</option>
                 <option value="lesson">Lessons</option>
@@ -988,7 +994,7 @@ const ContentManagementTable = () => {
                 onChange={(e) =>
                   setFilters({ ...filters, status: e.target.value })
                 }
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200"
               >
                 <option value="all">All Status</option>
                 <option value="published">Published</option>
@@ -1000,7 +1006,7 @@ const ContentManagementTable = () => {
                 onChange={(e) =>
                   setFilters({ ...filters, difficulty: e.target.value })
                 }
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200"
               >
                 <option value="all">All Difficulties</option>
                 <option value="beginner">Beginner</option>
@@ -1014,7 +1020,7 @@ const ContentManagementTable = () => {
                   onChange={(e) =>
                     setFilters({ ...filters, moduleId: e.target.value })
                   }
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200"
                 >
                   <option value="">All Modules</option>
                   {modules
@@ -1032,7 +1038,7 @@ const ContentManagementTable = () => {
           {/* Right Side - Actions and View */}
           <div className="flex items-center space-x-3">
             {/* View Toggle */}
-            <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <div className="flex items-center bg-gray-100 dark:bg-gray-700 dark:text-gray-200 rounded-lg p-1">
               <button
                 onClick={() => {
                   setViewMode("table");
@@ -1040,7 +1046,7 @@ const ContentManagementTable = () => {
                 }}
                 className={`p-2 rounded ${
                   viewMode === "table" && !groupByModule
-                    ? "bg-white dark:bg-gray-800 shadow"
+                    ? "bg-white dark:bg-gray-800 shadow dark:text-python-yellow"
                     : ""
                 }`}
                 title="Table View"
@@ -1054,7 +1060,7 @@ const ContentManagementTable = () => {
                 }}
                 className={`p-2 rounded ${
                   viewMode === "grid" && !groupByModule
-                    ? "bg-white dark:bg-gray-800 shadow"
+                    ? "bg-white dark:bg-gray-800 shadow dark:text-python-yellow"
                     : ""
                 }`}
                 title="Grid View"
@@ -1068,7 +1074,9 @@ const ContentManagementTable = () => {
                     setViewMode(null);
                   }}
                   className={`p-2 rounded ${
-                    groupByModule ? "bg-white dark:bg-gray-800 shadow" : ""
+                    groupByModule
+                      ? "bg-white dark:bg-gray-800 shadow dark:text-python-yellow"
+                      : ""
                   }`}
                   title="Group by Module"
                 >
@@ -1086,7 +1094,7 @@ const ContentManagementTable = () => {
                 <select
                   value={bulkAction}
                   onChange={(e) => setBulkAction(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 "
                 >
                   <option value="">Bulk Actions</option>
                   <option value="publish">Publish Selected</option>

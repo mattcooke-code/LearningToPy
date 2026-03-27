@@ -17,6 +17,7 @@ router.get("/users/:userId", adminController.getUserDetails);
 router.patch("/users/:userId/xp", adminController.adjustUserXp);
 router.patch("/users/:userId/status", adminController.updateUserStatus);
 router.get("/users/:userId/activity", adminController.getUserActivity);
+router.get("/users/:userId/progress", adminController.getUserProgress);
 router.patch("/users/:userId/progress", adminController.overrideUserProgress);
 
 // Dashboard Stats

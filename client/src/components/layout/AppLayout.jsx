@@ -9,7 +9,7 @@ const AppLayout = () => {
 
   return (
     <div className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""}`}>
-      <main className="flex-grow bg-gray-50 dark:bg-gray-900">
+      <main className="flex-grow bg-gray-300 dark:bg-gray-900">
         <Outlet />
       </main>
     </div>

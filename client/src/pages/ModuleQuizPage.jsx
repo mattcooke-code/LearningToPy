@@ -1,4 +1,3 @@
-// ModuleQuizPage.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient, useAuth, useNotification, useTheme } from "../context";
@@ -23,7 +22,7 @@ const ModuleQuizPage = () => {
   const { moduleId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { themeColor, updateThemeFromCourseProgress } = useTheme();
+  const { themeColor, updateThemeFromCourseProgress, isDarkMode } = useTheme();
   const { showToast } = useNotification();
 
   const [module, setModule] = useState(null);
@@ -39,7 +38,7 @@ const ModuleQuizPage = () => {
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [shuffledOptions, setShuffledOptions] = useState({});
 
-  // ✅ NEW: Review mode state
+  // Review mode state
   const [reviewMode, setReviewMode] = useState(false);
   const [selectedReviewQuestion, setSelectedReviewQuestion] = useState(null);
 
@@ -113,7 +112,6 @@ const ModuleQuizPage = () => {
       actualIndex = displayIndex;
     }
 
-    // Allow changing answer selection
     setUserAnswers((prev) => ({ ...prev, [questionId]: actualIndex }));
   };
 
@@ -124,7 +122,6 @@ const ModuleQuizPage = () => {
     }
   };
 
-  // No previous functionality - students cannot go back
   // Submit quiz to backend
   const handleSubmitQuiz = async () => {
     const unansweredCount =
@@ -139,7 +136,6 @@ const ModuleQuizPage = () => {
 
     setIsSubmitting(true);
     try {
-      // Convert answers to numeric format expected by backend
       const numericAnswers = {};
       Object.entries(userAnswers).forEach(([questionId, answer]) => {
         numericAnswers[questionId] =
@@ -197,23 +193,19 @@ const ModuleQuizPage = () => {
   // Handle continue to next module or modules page
   const handleContinue = () => {
     if (quizResults?.nextModuleId) {
-      // Navigate to the next module's lessons page
       navigate(`/modules/${quizResults.nextModuleId}/lessons`);
     } else {
-      // If no next module (e.g., completed all modules), go to modules page
-      // Force a refresh of the modules page to show updated lock status
       navigate("/modules", { replace: true });
-      // Trigger a page reload to ensure modules are re-fetched with updated status
       window.location.reload();
     }
   };
 
-  // ✅ NEW: Open review modal for a specific question
+  // Open review modal for a specific question
   const openReviewQuestion = (questionResult) => {
     setSelectedReviewQuestion(questionResult);
   };
 
-  // ✅ NEW: Close review modal
+  // Close review modal
   const closeReviewQuestion = () => {
     setSelectedReviewQuestion(null);
   };
@@ -250,37 +242,43 @@ const ModuleQuizPage = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
           {quizResults.passed ? (
             <>
-              <Trophy className="mx-auto h-16 w-16 text-yellow-500 mb-4" />
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              <Trophy className="mx-auto h-16 w-16 text-yellow-500 dark:text-yellow-400 mb-4" />
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
                 Congratulations! 🎉
               </h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
                 You've completed {module.title}!
               </p>
             </>
           ) : (
             <>
-              <XCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              <XCircle className="mx-auto h-16 w-16 text-red-500 dark:text-red-400 mb-4" />
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
                 Keep Trying!
               </h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
                 Review your answers below, then try again.
               </p>
             </>
           )}
 
           {/* Score Display */}
-          <div className="bg-gray-50 rounded-lg p-6 mb-6">
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold">Your Score:</span>
+              <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                Your Score:
+              </span>
               <span
-                className={`text-3xl font-bold ${quizResults.passed ? "text-green-600" : "text-red-600"}`}
+                className={`text-3xl font-bold ${
+                  quizResults.passed
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
+                }`}
               >
                 {quizResults.score}%
               </span>
             </div>
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
               <span>
                 Correct: {quizResults.correctAnswers}/{totalQuestions}
               </span>
@@ -290,19 +288,19 @@ const ModuleQuizPage = () => {
 
           {/* XP Earned */}
           {quizResults.passed && (
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-              <p className="text-blue-700 font-semibold">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-400 p-4 mb-6">
+              <p className="text-blue-700 dark:text-blue-300 font-semibold">
                 🌟 +{quizResults.xpEarned} XP earned!
               </p>
             </div>
           )}
 
-          {/* ✅ Enhanced Review Section - Only show if there are incorrect answers */}
+          {/* Enhanced Review Section */}
           {!quizResults.passed && incorrectQuestions.length > 0 && (
             <div className="mb-6">
               <button
                 onClick={() => setReviewMode(!reviewMode)}
-                className="flex items-center space-x-2 mx-auto text-python-blue hover:underline font-medium"
+                className="flex items-center space-x-2 mx-auto text-python-blue dark:text-python-yellow hover:underline font-medium"
               >
                 <Eye size={18} />
                 <span>
@@ -313,7 +311,7 @@ const ModuleQuizPage = () => {
 
               {reviewMode && (
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Click a question to review:
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
@@ -323,7 +321,7 @@ const ModuleQuizPage = () => {
                           <button
                             key={result.questionId}
                             onClick={() => openReviewQuestion(result)}
-                            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition text-sm"
+                            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition text-sm"
                           >
                             <XCircle size={14} />
                             <span>Question {idx + 1}</span>
@@ -342,7 +340,7 @@ const ModuleQuizPage = () => {
           <div className="flex justify-between items-center">
             <button
               onClick={() => navigate(`/modules/${moduleId}/lessons`)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition"
+              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition"
             >
               <ArrowLeft size={20} />
               <span>Back to Module</span>
@@ -370,23 +368,23 @@ const ModuleQuizPage = () => {
           </div>
         </div>
 
-        {/* ✅ Enhanced Review Modal - Shows question details */}
+        {/* Review Modal */}
         {selectedReviewQuestion && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
             onClick={closeReviewQuestion}
           >
             <div
-              className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
                   Question Review
                 </h3>
                 <button
                   onClick={closeReviewQuestion}
-                  className="text-gray-400 hover:text-gray-600 transition"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
                 >
                   ✕
                 </button>
@@ -395,10 +393,10 @@ const ModuleQuizPage = () => {
               <div className="space-y-4">
                 {/* Question */}
                 <div>
-                  <p className="text-sm font-medium text-gray-500 mb-2">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                     Question:
                   </p>
-                  <div className="p-4 bg-gray-50 rounded-lg">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                     <MarkdownRenderer
                       content={selectedReviewQuestion.question}
                       moduleId={moduleId}
@@ -408,14 +406,14 @@ const ModuleQuizPage = () => {
 
                 {/* User's Answer */}
                 <div>
-                  <p className="text-sm font-medium text-gray-500 mb-2">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                     Your Answer:
                   </p>
                   <div
                     className={`p-4 rounded-lg border-2 ${
                       selectedReviewQuestion.isCorrect
-                        ? "bg-green-50 border-green-200 text-green-800"
-                        : "bg-red-50 border-red-200 text-red-800"
+                        ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300"
+                        : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300"
                     }`}
                   >
                     {selectedReviewQuestion.options?.[
@@ -428,10 +426,10 @@ const ModuleQuizPage = () => {
                 {/* Correct Answer */}
                 {!selectedReviewQuestion.isCorrect && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                       Correct Answer:
                     </p>
-                    <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg text-green-800">
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-lg text-green-800 dark:text-green-300">
                       {selectedReviewQuestion.options?.[
                         selectedReviewQuestion.correctAnswer
                       ] ||
@@ -443,10 +441,10 @@ const ModuleQuizPage = () => {
                 {/* Explanation */}
                 {selectedReviewQuestion.explanation && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
                       Explanation:
                     </p>
-                    <div className="p-4 bg-blue-50 rounded-lg text-blue-800">
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-800 dark:text-blue-300">
                       <MarkdownRenderer
                         content={selectedReviewQuestion.explanation}
                         moduleId={moduleId}
@@ -458,7 +456,7 @@ const ModuleQuizPage = () => {
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={closeReviewQuestion}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition"
                   >
                     Close
                   </button>
@@ -487,21 +485,23 @@ const ModuleQuizPage = () => {
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           {module.title} - Final Quiz
         </h1>
-        <p className="text-gray-600">Test your knowledge of this module</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Test your knowledge of this module
+        </p>
       </div>
 
       {/* Progress Bar */}
       <div className="mb-2">
-        <div className="flex justify-between text-sm text-gray-600 mb-1">
+        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
           <span>
             Question {currentQuestionIndex + 1} of {totalQuestions}
           </span>
           <span>{Math.round(progress)}% Complete</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
             style={{ width: `${progress}%`, backgroundColor: themeColor }}
             className="h-2 rounded-full transition-all duration-300"
@@ -510,8 +510,8 @@ const ModuleQuizPage = () => {
       </div>
 
       {/* Question Card */}
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
           <MarkdownRenderer
             content={currentQuestion.question}
             moduleId={moduleId}
@@ -551,13 +551,13 @@ const ModuleQuizPage = () => {
                   className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                     isSelected
                       ? isThisOptionSelected
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 bg-gray-50 opacity-50"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-gray-800 dark:text-gray-200"
+                        : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 opacity-50"
+                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-800 dark:text-gray-200"
                   }`}
                 >
                   <div className="flex items-start">
-                    <span className="font-semibold text-gray-700 mr-3 min-w-5">
+                    <span className="font-semibold text-gray-700 dark:text-gray-400 mr-3 min-w-5">
                       {optionKey}.
                     </span>
                     <div className="flex-1">
@@ -565,7 +565,7 @@ const ModuleQuizPage = () => {
                     </div>
                     {isSelected && isThisOptionSelected && (
                       <CheckCircle
-                        className="ml-auto text-blue-500"
+                        className="ml-auto text-blue-500 dark:text-blue-400"
                         size={20}
                       />
                     )}
@@ -610,8 +610,8 @@ const ModuleQuizPage = () => {
       </div>
 
       {/* Question Grid Navigation */}
-      <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+      <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
           Question Progress
         </h3>
         <div className="grid grid-cols-10 gap-2">
@@ -628,13 +628,15 @@ const ModuleQuizPage = () => {
                 onClick={() => setCurrentQuestionIndex(idx)}
                 disabled={!isAnswered && !quizSubmitted}
                 className={`w-10 h-10 rounded-lg font-semibold transition ${
-                  isCurrent ? "ring-2 ring-blue-500 ring-offset-2" : ""
+                  isCurrent
+                    ? "ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-800"
+                    : ""
                 } ${
                   isAnswered
                     ? isCorrect
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                      : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
                 title={`Question ${idx + 1}`}
               >

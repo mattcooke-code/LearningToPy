@@ -261,7 +261,7 @@ const LessonPage = () => {
     );
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl bg-gray-200 dark:bg-gray-700">
+    <div className="container mx-auto px-4 py-8 max-w-4xl ">
       <LessonHeader
         lesson={lesson}
         isReviewMode={isReviewMode}

@@ -28,24 +28,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Base background */
-html,
-body,
-#root {
-  background-color: #ffffff;
-  transition: background-color 0.2s ease;
-}
-
-.dark html,
-.dark body,
-.dark #root {
-  background-color: #111827;
-}
-
-.dark body {
-  color: #f3f4f6;
-}
-
 /* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 6px;

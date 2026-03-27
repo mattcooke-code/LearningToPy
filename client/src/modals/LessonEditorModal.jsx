@@ -1,4 +1,3 @@
-// /src/modals/LessonEditorModal.jsx
 import { useState, useEffect } from "react";
 import { BaseModal } from "../components/ui";
 import { adminApiClient, useNotification } from "../context";
@@ -32,7 +31,7 @@ const TABS = [
 
 const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
   const isEditing = !!lesson;
-  const { showToast } = useNotification();
+  const { showToast, showConfirm } = useNotification();
 
   const [formData, setFormData] = useState(DEFAULT_LESSON_FORM_DATA);
   const [modules, setModules] = useState([]);
@@ -147,23 +146,25 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
     }
   };
 
-  const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this lesson? This action cannot be undone.",
-      )
-    )
-      return;
-
-    try {
-      await adminApiClient.delete(`/content/lessons/${lesson._id}`);
-      showToast("Lesson deleted successfully", "success");
-      onSave?.();
-      onClose();
-    } catch (error) {
-      showToast("Failed to delete lesson", "error");
-      console.error("Delete error:", error);
-    }
+  // Updated handleDelete with confirmation modal
+  const handleDelete = () => {
+    showConfirm({
+      title: "Delete Lesson",
+      message: `Are you sure you want to delete "${lesson?.title}"? This action cannot be undone.`,
+      confirmText: "Delete Lesson",
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          await adminApiClient.delete(`/content/lessons/${lesson._id}`);
+          showToast("Lesson deleted successfully", "success");
+          onSave?.();
+          onClose();
+        } catch (error) {
+          showToast("Failed to delete lesson", "error");
+          console.error("Delete error:", error);
+        }
+      },
+    });
   };
 
   // ===== RENDER FUNCTIONS =====
@@ -574,8 +575,8 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
 
   // ===== MODAL FOOTER =====
   const modalFooter = (
-    <div className="flex justify-between items-center w-full ">
-      <div className="text-sm text-gray-500 dark:text-gray-400 ">
+    <div className="flex justify-between items-center w-full">
+      <div className="text-sm text-gray-500 dark:text-gray-400">
         {isEditing && lesson?.updatedAt
           ? `Last updated: ${new Date(lesson.updatedAt).toLocaleDateString()}`
           : "New lesson"}

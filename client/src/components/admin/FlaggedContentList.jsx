@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminApiClient } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
@@ -21,6 +21,23 @@ import {
   HelpCircle,
 } from "lucide-react";
 
+// Debounce utility function
+const useDebounce = (value, delay = 500) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const FlaggedContentList = ({ limit = null }) => {
   // 1. State
   const [page, setPage] = useState(1);
@@ -29,6 +46,8 @@ const FlaggedContentList = ({ limit = null }) => {
     issueType: "",
     search: "",
   });
+  const [searchInput, setSearchInput] = useState(""); // For immediate input
+  const debouncedSearch = useDebounce(searchInput, 500); // Debounce with 500ms delay
   const [selectedFlag, setSelectedFlag] = useState(null);
   const [showResolutionModal, setShowResolutionModal] = useState(false);
   const [showLessonPreview, setShowLessonPreview] = useState(false);
@@ -36,6 +55,12 @@ const FlaggedContentList = ({ limit = null }) => {
   const [previewSemanticId, setPreviewSemanticId] = useState(null);
   const [showUserDetail, setShowUserDetail] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // Update filters when debounced search changes
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, search: debouncedSearch }));
+    setPage(1); // Reset to first page when search changes
+  }, [debouncedSearch]);
 
   // 2. Data Fetching (Flags & Stats)
   const queryParams = useMemo(
@@ -113,6 +138,11 @@ const FlaggedContentList = ({ limit = null }) => {
     setShowUserDetail(true);
   };
 
+  // Handle search input change without triggering immediate fetch
+  const handleSearchChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
   if (loading && flags.length === 0) {
     return <LoadingState message="Fetching reported issues..." height="h-96" />;
   }
@@ -157,7 +187,7 @@ const FlaggedContentList = ({ limit = null }) => {
               setFilters((f) => ({ ...f, status: e.target.value }));
               setPage(1);
             }}
-            className="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm px-3 py-2"
+            className="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm px-3 py-2 dark:text-gray-300"
           >
             <option value="ALL">All Status</option>
             <option value="PENDING">Pending</option>
@@ -173,7 +203,7 @@ const FlaggedContentList = ({ limit = null }) => {
               setFilters((f) => ({ ...f, issueType: e.target.value }));
               setPage(1);
             }}
-            className="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm px-3 py-2"
+            className="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm px-3 py-2 dark:text-gray-300"
           >
             <option value="">All Issue Types</option>
             <option value="CONTENT_ERROR">Content Error</option>
@@ -185,16 +215,13 @@ const FlaggedContentList = ({ limit = null }) => {
           </select>
 
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300" />
             <input
               type="text"
               placeholder="Search by title or description..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm"
-              value={filters.search}
-              onChange={(e) => {
-                setFilters((f) => ({ ...f, search: e.target.value }));
-                setPage(1);
-              }}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm dark:text-gray-300"
+              value={searchInput}
+              onChange={handleSearchChange}
             />
           </div>
         </div>

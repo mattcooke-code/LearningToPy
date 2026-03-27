@@ -210,7 +210,7 @@ const ExerciseComponent = ({
       </div>
 
       {/* Instructions */}
-      <div className={`mb-4 ${isCodeDark ? "text-gray-300" : "text-gray-800"}`}>
+      <div className={`mb-4 ${isCodeDark ? "text-gray-200" : "text-gray-800"}`}>
         <MarkdownRenderer content={exercise.instructions} isDark={isCodeDark} />
       </div>
 

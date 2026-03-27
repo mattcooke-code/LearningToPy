@@ -136,7 +136,7 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search badges by name, description, or category..."
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-yellow-500 outline-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-yellow-500 outline-none dark:text-gray-200"
           />
         </div>
 

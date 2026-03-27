@@ -80,7 +80,7 @@ const ModuleLessonsPage = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-200 dark:bg-gray-900 ">
+    <div className="container mx-auto px-4 py-8  ">
       <ModuleHeader
         moduleData={moduleData}
         completedLessons={completedLessons}
@@ -90,7 +90,7 @@ const ModuleLessonsPage = () => {
         onBack={() => navigate("/modules")}
       />
 
-      <div className="max-w-4xl mx-auto bg-gray-200 dark:bg-gray-700 rounded-lg">
+      <div className="max-w-4xl mx-auto rounded-lg">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6 px-3 py-3 ">
           Lessons in this Module
         </h2>

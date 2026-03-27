@@ -431,7 +431,8 @@ const getUserDetails = catchAsync(async (req, res, next) => {
     .select("-password -refreshToken")
     .populate("badges", "name icon description")
     .populate("completedLessons", "title moduleId")
-    .populate("completedModules", "title order");
+    .populate("completedModules", "title order")
+    .lean();
 
   if (!user) {
     return next(new AppError("User not found", 404));
@@ -573,6 +574,23 @@ const removeBadges = catchAsync(async (req, res, next) => {
       remaining: user.badges.length,
     },
   );
+});
+
+const getUserProgress = catchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+
+  const user = await User.findById(userId)
+    .select("completedLessons completedModules")
+    .lean();
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  sendJsonResponse(res, 200, "User progress retrieved", {
+    completedLessons: user.completedLessons || [],
+    completedModules: user.completedModules || [],
+  });
 });
 
 const overrideUserProgress = catchAsync(async (req, res, next) => {
@@ -1280,6 +1298,7 @@ module.exports = {
   getUserBadges,
   awardBadges,
   removeBadges,
+  getUserProgress,
   overrideUserProgress,
   getActivityLogs,
   resolveFlag,

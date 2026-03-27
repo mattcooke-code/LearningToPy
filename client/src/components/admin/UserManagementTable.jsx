@@ -25,9 +25,8 @@ import {
 import { LoadingState, Pagination } from "../ui";
 import UserTableFilters from "./UserTableFilters";
 
-// Props: searchQuery, onGrantBadge (if you want to lift state up)
-const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
-  const { showToast } = useNotification();
+const UserManagementTable = ({ searchQuery = "" }) => {
+  const { showToast, showConfirm } = useNotification();
   const initialFilters = {
     isBlocked: "",
     isAdmin: "",
@@ -105,35 +104,78 @@ const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handlers
-  const handleToggleAdmin = async (user) => {
-    // Replace prompt with a modal later, but for now use a simple confirm
-    const confirmMsg = `Are you sure you want to ${user.isAdmin ? "remove" : "grant"} admin privileges for ${user.username}?`;
-    if (!window.confirm(confirmMsg)) return;
+  // Handlers with Confirmation Modals
+  const handleToggleAdmin = (user) => {
+    const action = user.isAdmin ? "remove" : "grant";
+    const title = user.isAdmin ? "Remove Admin Privileges" : "Make Admin";
+    const message = `Are you sure you want to ${action} admin privileges for ${user.username}? This action can be reversed.`;
+    const confirmText = user.isAdmin ? "Remove Admin" : "Make Admin";
+    const type = "warning";
 
-    await updateAdmin({
-      id: user._id,
-      body: { makeAdmin: !user.isAdmin },
+    showConfirm({
+      title,
+      message,
+      confirmText,
+      type,
+      onConfirm: async () => {
+        try {
+          await updateAdmin({
+            id: user._id,
+            body: { makeAdmin: !user.isAdmin },
+          });
+          showToast(
+            `${user.username} ${!user.isAdmin ? "is now an admin" : "is no longer an admin"}`,
+            "success",
+          );
+          setActiveDropdownUser(null);
+          refresh();
+        } catch (err) {
+          showToast(`Failed to update admin status`, "error");
+        }
+      },
     });
-    setActiveDropdownUser(null);
-    refresh();
   };
 
-  const handleStatusChange = async (userId, action) => {
-    const confirmMsg = `Are you sure you want to ${action} this user?`;
-    if (!window.confirm(confirmMsg)) return;
+  const handleStatusChange = (userId, action) => {
+    const user = users.find((u) => u._id === userId);
+    const isBlocking = action === "block";
+    const title = isBlocking ? "Block User" : "Unblock User";
+    const message = isBlocking
+      ? `Are you sure you want to block ${user?.username}? They will lose access to the platform until unblocked.`
+      : `Are you sure you want to unblock ${user?.username}? They will regain full access to the platform.`;
+    const confirmText = isBlocking ? "Block User" : "Unblock User";
+    const type = isBlocking ? "danger" : "warning";
 
-    await updateStatus({
-      id: userId,
-      body: { action },
+    showConfirm({
+      title,
+      message,
+      confirmText,
+      type,
+      onConfirm: async () => {
+        try {
+          await updateStatus({
+            id: userId,
+            body: { action },
+          });
+          showToast(
+            `${user?.username} has been ${isBlocking ? "blocked" : "unblocked"}`,
+            "success",
+          );
+          setActiveDropdownUser(null);
+          refresh();
+        } catch (err) {
+          showToast(`Failed to ${action} user`, "error");
+        }
+      },
     });
-    setActiveDropdownUser(null);
-    refresh();
   };
 
   const handleXPAdjust = async (userId, xpAmount, reason) => {
     try {
-      await adminApiClient.patch(`/users/${userId}/xp`, { xpAmount, reason });
+      await adminApiClient.patch(`/users/${userId}/xp`, {
+        xpChange: xpAmount,
+        reason,
+      });
       showToast(`XP adjusted by ${xpAmount}`, "success");
       refresh();
     } catch (err) {
@@ -162,7 +204,7 @@ const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
     if (!button) return { top: 0, left: 0 };
 
     const rect = button.getBoundingClientRect();
-    const dropdownWidth = 220; // Approximate width
+    const dropdownWidth = 220;
     const left = Math.min(
       rect.left - dropdownWidth + rect.width,
       window.innerWidth - dropdownWidth - 10,
@@ -410,6 +452,7 @@ const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
       {/* Modals */}
       {showXPModal && selectedUser && (
         <XPAdjustmentModal
+          isOpen={showXPModal}
           user={selectedUser}
           onClose={() => setShowXPModal(false)}
           onSave={handleXPAdjust}
@@ -418,6 +461,7 @@ const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
 
       {showProgressModal && selectedUser && (
         <ProgressOverrideModal
+          isOpen={showProgressModal}
           user={selectedUser}
           onClose={() => setShowProgressModal(false)}
           onSave={() => {
@@ -430,6 +474,7 @@ const UserManagementTable = ({ searchQuery = "", onGrantBadge }) => {
 
       {showDetailModal && selectedUser && (
         <UserDetailModal
+          isOpen={showDetailModal}
           user={selectedUser}
           onClose={() => setShowDetailModal(false)}
         />

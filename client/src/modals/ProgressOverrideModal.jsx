@@ -39,7 +39,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
         ]);
 
       setUserProgress(
-        userProgressPayload || { completedLessons: [], completedModules: [] }
+        userProgressPayload || { completedLessons: [], completedModules: [] },
       );
 
       const allItems = [
@@ -117,7 +117,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
       title={
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-            <ShieldCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <ShieldCheck className="h-6 w-6 text-blue-600 dark:text-python-yellow" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
@@ -185,7 +185,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={`Filter ${selectedType}s by title or ID...`}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-gray-200"
         />
       </div>
 

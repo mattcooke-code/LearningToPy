@@ -1,4 +1,3 @@
-//LoadingState.jsx
 import { Spinner } from "../ui";
 
 const LoadingState = ({
@@ -11,7 +10,7 @@ const LoadingState = ({
       <div className={`flex justify-center items-center ${height}`}>
         <Spinner
           size={spinnerSize}
-          color="python-blue"
+          color="gray"
           showText={true}
           text={message}
         />
