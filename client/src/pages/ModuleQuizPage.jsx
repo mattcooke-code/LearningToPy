@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Eye,
   RotateCcw,
+  Info,
 } from "lucide-react";
 
 const ModuleQuizPage = () => {
@@ -33,6 +34,7 @@ const ModuleQuizPage = () => {
   // Quiz state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
+  const [questionFeedback, setQuestionFeedback] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizResults, setQuizResults] = useState(null);
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
@@ -102,8 +104,8 @@ const ModuleQuizPage = () => {
     }
   }, [module]);
 
-  // Handle answer selection
-  const handleAnswerSelect = (questionId, displayIndex) => {
+  // Handle answer selection with immediate feedback
+  const handleAnswerSelect = (questionId, displayIndex, question) => {
     const optionsMapping = shuffledOptions[questionId];
     let actualIndex;
     if (optionsMapping?.shuffledIndices) {
@@ -112,13 +114,43 @@ const ModuleQuizPage = () => {
       actualIndex = displayIndex;
     }
 
+    // Check if answer is correct
+    const isCorrect = actualIndex === question.correctAnswer;
+
+    // Update user answers
     setUserAnswers((prev) => ({ ...prev, [questionId]: actualIndex }));
+
+    // Store feedback for this question
+    setQuestionFeedback((prev) => ({
+      ...prev,
+      [questionId]: {
+        isCorrect,
+        selectedOption: actualIndex,
+        correctAnswer: question.correctAnswer,
+        explanation: question.explanation,
+        showFeedback: true,
+      },
+    }));
+
+    // Show toast for immediate feedback
+    if (isCorrect) {
+      showToast("✓ Correct! Great job!", "success", 2000);
+    } else {
+      showToast(
+        "✗ Incorrect. Review the feedback to learn more.",
+        "error",
+        3000,
+      );
+    }
   };
 
-  // Handle next question
+  // Handle next question - only moves to next if current is answered
   const handleNext = () => {
-    if (currentQuestionIndex < shuffledQuestions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+    const currentQuestionId = shuffledQuestions[currentQuestionIndex]?._id;
+    if (currentQuestionId && userAnswers[currentQuestionId] !== undefined) {
+      if (currentQuestionIndex < shuffledQuestions.length - 1) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+      }
     }
   };
 
@@ -183,6 +215,7 @@ const ModuleQuizPage = () => {
   // Handle retake (resets all state)
   const handleRetakeQuiz = () => {
     setUserAnswers({});
+    setQuestionFeedback({});
     setCurrentQuestionIndex(0);
     setQuizSubmitted(false);
     setQuizResults(null);
@@ -225,17 +258,17 @@ const ModuleQuizPage = () => {
 
   const currentQuestion = shuffledQuestions[currentQuestionIndex];
   const totalQuestions = shuffledQuestions.length;
+  const answeredCount = Object.keys(userAnswers).length;
   const progress =
-    totalQuestions > 0
-      ? ((currentQuestionIndex + 1) / totalQuestions) * 100
-      : 0;
+    totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+  const currentFeedback = questionFeedback[currentQuestion?._id];
+  const isCurrentAnswered =
+    currentQuestion?._id && userAnswers[currentQuestion._id] !== undefined;
 
   // ============ RESULTS VIEW ============
   if (quizSubmitted && quizResults) {
     const incorrectQuestions =
       quizResults.results?.filter((r) => !r.isCorrect) || [];
-    const correctQuestions =
-      quizResults.results?.filter((r) => r.isCorrect) || [];
 
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -489,7 +522,8 @@ const ModuleQuizPage = () => {
           {module.title} - Final Quiz
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Test your knowledge of this module
+          Answer each question in order. You'll get immediate feedback and can
+          only proceed once answered.
         </p>
       </div>
 
@@ -510,13 +544,32 @@ const ModuleQuizPage = () => {
       </div>
 
       {/* Question Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
-          <MarkdownRenderer
-            content={currentQuestion.question}
-            moduleId={moduleId}
-          />
-        </h2>
+      <div
+        className={`rounded-lg shadow-lg p-8 mb-6 transition-all ${
+          currentFeedback?.showFeedback
+            ? currentFeedback.isCorrect
+              ? "bg-green-50 dark:bg-green-900/10 border-2 border-green-200 dark:border-green-800"
+              : "bg-red-50 dark:bg-red-900/10 border-2 border-red-200 dark:border-red-800"
+            : "bg-white dark:bg-gray-800"
+        }`}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex-1">
+            <MarkdownRenderer
+              content={currentQuestion.question}
+              moduleId={moduleId}
+            />
+          </h2>
+          {currentFeedback?.showFeedback && (
+            <div className="ml-4 flex-shrink-0">
+              {currentFeedback.isCorrect ? (
+                <CheckCircle className="h-8 w-8 text-green-500 dark:text-green-400" />
+              ) : (
+                <XCircle className="h-8 w-8 text-red-500 dark:text-red-400" />
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Answer Options */}
         <div className="space-y-3">
@@ -532,29 +585,55 @@ const ModuleQuizPage = () => {
             return optionsToDisplay.map((option, displayIndex) => {
               const optionKey = String.fromCharCode(65 + displayIndex);
               const isSelected = userAnswers[questionId] !== undefined;
+              const isSelectedOption =
+                isSelected &&
+                userAnswers[questionId] ===
+                  (optionsMapping?.shuffledIndices
+                    ? optionsMapping.shuffledIndices[displayIndex]
+                    : displayIndex);
 
-              let isThisOptionSelected = false;
-              if (optionsMapping?.shuffledIndices) {
-                const selectedOriginalIndex = userAnswers[questionId];
-                const displayIndexOfSelected =
-                  optionsMapping.shuffledIndices.indexOf(selectedOriginalIndex);
-                isThisOptionSelected = displayIndexOfSelected === displayIndex;
-              } else {
-                isThisOptionSelected = userAnswers[questionId] === displayIndex;
+              let buttonClass =
+                "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-800 dark:text-gray-200";
+
+              if (isSelected) {
+                if (currentFeedback?.showFeedback) {
+                  const isThisCorrect =
+                    displayIndex ===
+                    (optionsMapping?.shuffledIndices
+                      ? optionsMapping.shuffledIndices.indexOf(
+                          currentQuestion.correctAnswer,
+                        )
+                      : currentQuestion.correctAnswer);
+                  if (isThisCorrect) {
+                    buttonClass =
+                      "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300";
+                  } else if (isSelectedOption) {
+                    buttonClass =
+                      "border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300";
+                  } else {
+                    buttonClass =
+                      "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 opacity-50";
+                  }
+                } else if (isSelectedOption) {
+                  buttonClass =
+                    "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300";
+                }
               }
 
               return (
                 <button
                   key={displayIndex}
-                  onClick={() => handleAnswerSelect(questionId, displayIndex)}
-                  disabled={isSelected}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                    isSelected
-                      ? isThisOptionSelected
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-gray-800 dark:text-gray-200"
-                        : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 opacity-50"
-                      : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-800 dark:text-gray-200"
-                  }`}
+                  onClick={() => {
+                    if (!userAnswers[questionId]) {
+                      handleAnswerSelect(
+                        questionId,
+                        displayIndex,
+                        currentQuestion,
+                      );
+                    }
+                  }}
+                  disabled={userAnswers[questionId] !== undefined}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${buttonClass}`}
                 >
                   <div className="flex items-start">
                     <span className="font-semibold text-gray-700 dark:text-gray-400 mr-3 min-w-5">
@@ -563,22 +642,54 @@ const ModuleQuizPage = () => {
                     <div className="flex-1">
                       <MarkdownRenderer content={option} moduleId={moduleId} />
                     </div>
-                    {isSelected && isThisOptionSelected && (
-                      <CheckCircle
-                        className="ml-auto text-blue-500 dark:text-blue-400"
-                        size={20}
-                      />
-                    )}
                   </div>
                 </button>
               );
             });
           })()}
         </div>
+
+        {/* Feedback Section */}
+        {currentFeedback?.showFeedback && (
+          <div
+            className={`mt-6 p-4 rounded-lg ${
+              currentFeedback.isCorrect
+                ? "bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500"
+                : "bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500"
+            }`}
+          >
+            <div className="flex items-start">
+              <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold mb-1">
+                  {currentFeedback.isCorrect ? "✓ Correct!" : "✗ Incorrect"}
+                </p>
+                {currentFeedback.explanation ? (
+                  <MarkdownRenderer
+                    content={currentFeedback.explanation}
+                    moduleId={moduleId}
+                  />
+                ) : (
+                  <p className="text-sm">
+                    {currentFeedback.isCorrect
+                      ? "Great job! You got this one right."
+                      : `The correct answer is: ${currentQuestion.options[currentFeedback.correctAnswer]}`}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          {isCurrentAnswered && (
+            <span>✓ Question {currentQuestionIndex + 1} answered</span>
+          )}
+        </div>
+
         {currentQuestionIndex === totalQuestions - 1 ? (
           <button
             onClick={handleSubmitQuiz}
@@ -600,51 +711,67 @@ const ModuleQuizPage = () => {
         ) : (
           <button
             onClick={handleNext}
+            disabled={!isCurrentAnswered}
             style={{ backgroundColor: themeColor }}
-            className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            className={`flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold transition ${
+              !isCurrentAnswered
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:opacity-90"
+            }`}
           >
-            <span>Next</span>
+            <span>Next Question</span>
             <ArrowRight size={20} />
           </button>
         )}
       </div>
 
-      {/* Question Grid Navigation */}
+      {/* Question Grid Navigation - Visual only, not clickable */}
       <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-          Question Progress
+          Quiz Progress (Questions in order)
         </h3>
         <div className="grid grid-cols-10 gap-2">
           {shuffledQuestions.map((q, idx) => {
             const isAnswered = userAnswers[q._id] !== undefined;
             const isCurrent = idx === currentQuestionIndex;
-            const isCorrect = quizResults?.results?.find(
-              (r) => r.questionId === q._id,
-            )?.isCorrect;
+            const feedback = questionFeedback[q._id];
+
+            let buttonClass =
+              "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400";
+
+            if (isAnswered) {
+              if (feedback?.isCorrect) {
+                buttonClass =
+                  "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+              } else {
+                buttonClass =
+                  "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400";
+              }
+            } else if (idx < currentQuestionIndex) {
+              // This shouldn't happen in linear flow, but just in case
+              buttonClass =
+                "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400";
+            }
 
             return (
-              <button
+              <div
                 key={q._id}
-                onClick={() => setCurrentQuestionIndex(idx)}
-                disabled={!isAnswered && !quizSubmitted}
-                className={`w-10 h-10 rounded-lg font-semibold transition ${
+                className={`w-10 h-10 rounded-lg font-semibold flex items-center justify-center transition ${
                   isCurrent
                     ? "ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-800"
                     : ""
-                } ${
-                  isAnswered
-                    ? isCorrect
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                      : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
-                title={`Question ${idx + 1}`}
+                } ${buttonClass}`}
+                title={`Question ${idx + 1}${feedback?.isCorrect ? " ✓" : feedback ? " ✗" : ""}`}
               >
                 {idx + 1}
-              </button>
+              </div>
             );
           })}
         </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 text-center">
+          Questions must be answered in order. Current question is highlighted
+          in blue.
+        </p>
       </div>
 
       <BackToTopButton />

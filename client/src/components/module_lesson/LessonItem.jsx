@@ -71,7 +71,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
                 <Star size={12} />
                 <span>{lesson.xpReward} XP</span>
               </div>
-              <span className="capitalize px-2 py-1 bg-python-dark text-python-light dark:bg-python-blue dark:text-python-yellow rounded-full">
+              <span className="capitalize px-2 py-1 bg-python-yellow text-python-dark dark:bg-python-blue dark:text-python-yellow rounded-full">
                 {lesson.contentType}
               </span>
             </div>

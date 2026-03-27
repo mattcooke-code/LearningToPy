@@ -21,7 +21,6 @@ export const useTheme = () => {
 const UI_THEMES = {
   LIGHT: "light",
   DARK: "dark",
-  SYSTEM: "system",
 };
 
 // Code theme constants
@@ -37,7 +36,7 @@ export const ThemeProvider = ({ children }) => {
     if (saved && Object.values(UI_THEMES).includes(saved)) {
       return saved;
     }
-    return UI_THEMES.SYSTEM;
+    return UI_THEMES.LIGHT;
   });
 
   // Initialize theme color from localStorage
@@ -61,40 +60,23 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   // Apply theme to document
-  const applyTheme = useCallback(
-    (theme) => {
-      const root = document.documentElement;
-      const shouldBeDark =
-        theme === UI_THEMES.DARK ||
-        (theme === UI_THEMES.SYSTEM && checkSystemPreference());
+  const applyTheme = useCallback((theme) => {
+    const root = document.documentElement;
+    const shouldBeDark = theme === UI_THEMES.DARK;
 
-      if (shouldBeDark) {
-        root.classList.add("dark");
-        setIsDarkMode(true);
-      } else {
-        root.classList.remove("dark");
-        setIsDarkMode(false);
-      }
-    },
-    [checkSystemPreference],
-  );
+    if (shouldBeDark) {
+      root.classList.add("dark");
+      setIsDarkMode(true);
+    } else {
+      root.classList.remove("dark");
+      setIsDarkMode(false);
+    }
+  }, []);
 
   // Update theme when uiTheme changes
   useEffect(() => {
     applyTheme(uiTheme);
     localStorage.setItem("uiTheme", uiTheme);
-  }, [uiTheme, applyTheme]);
-
-  // Listen to system preference changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      if (uiTheme === UI_THEMES.SYSTEM) {
-        applyTheme(UI_THEMES.SYSTEM);
-      }
-    };
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
   }, [uiTheme, applyTheme]);
 
   // Persist theme color to localStorage

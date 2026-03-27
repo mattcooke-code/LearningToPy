@@ -1,17 +1,53 @@
+// Navbar.jsx
 import { memo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../../context";
 import { ThemeToggle } from "../ui";
 import { BookOpen, User, LogOut, Home, Shield } from "lucide-react";
 
 const Navbar = memo(function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
-  const { themeColor } = useTheme();
+  const { themeColor, isDarkMode } = useTheme();
+  const location = useLocation();
+
+  const shouldUseThemeColor = () => {
+    const pathname = location.pathname;
+    return (
+      pathname === "/modules" ||
+      pathname.includes("/modules/") ||
+      pathname.includes("/lessons/") ||
+      pathname === "/dashboard" ||
+      pathname === "/profile"
+    );
+  };
+
+  const getNavbarBg = () => {
+    if (shouldUseThemeColor()) {
+      return { backgroundColor: themeColor };
+    }
+    return isDarkMode
+      ? { backgroundColor: "#1e415e" }
+      : { backgroundColor: "#3776ab" };
+  };
+
+  const getNavbarText = () => {
+    if (shouldUseThemeColor()) {
+      return "text-white";
+    }
+    return isDarkMode ? "text-python-light" : "text-white";
+  };
+
+  const getHoverClass = () => {
+    if (shouldUseThemeColor()) {
+      return "hover:text-python-yellow hover:bg-black hover:bg-opacity-10";
+    }
+    return "hover:text-python-yellow hover:bg-black hover:bg-opacity-10";
+  };
 
   return (
     <nav
-      style={{ backgroundColor: themeColor }}
-      className="text-white p-4 shadow-lg transition-colors duration-500"
+      style={getNavbarBg()}
+      className={`${getNavbarText()} p-4 shadow-lg transition-colors duration-500`}
     >
       <div className="flex items-center space-x-2">
         <ThemeToggle />
@@ -28,30 +64,27 @@ const Navbar = memo(function Navbar() {
               <>
                 <Link
                   to="/dashboard"
-                  className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                  className={`flex items-center space-x-1 ${getHoverClass()} transition px-2 py-1 rounded`}
                 >
                   <Home className="w-5 h-5" />
                   <span>Dashboard</span>
                 </Link>
                 <Link
                   to="/modules"
-                  className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                  className={`flex items-center space-x-1 ${getHoverClass()} transition px-2 py-1 rounded`}
                 >
                   <BookOpen className="w-5 h-5" />
                   <span>Learn</span>
                 </Link>
 
-                {/* Admin Link - Only show for admin users */}
                 {user?.isAdmin && (
                   <Link
                     to="/admin"
-                    className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded relative group"
+                    className={`flex items-center space-x-1 ${getHoverClass()} transition px-2 py-1 rounded relative group`}
                   >
                     <Shield className="w-5 h-5" />
                     <span>Admin</span>
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
-
-                    {/* Tooltip */}
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400  rounded-full animate-pulse"></span>
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                       Admin Dashboard
                     </div>
@@ -60,14 +93,14 @@ const Navbar = memo(function Navbar() {
 
                 <Link
                   to="/profile"
-                  className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                  className={`flex items-center space-x-1 ${getHoverClass()} transition px-2 py-1 rounded`}
                 >
                   <User className="w-5 h-5" />
                   <span>Profile</span>
                 </Link>
                 <button
                   onClick={() => logout()}
-                  className="flex items-center space-x-1 hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                  className={`flex items-center space-x-1 ${getHoverClass()} transition px-2 py-1 rounded`}
                 >
                   <LogOut className="w-5 h-5" />
                   <span>Logout</span>
@@ -77,7 +110,7 @@ const Navbar = memo(function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-2 py-1 rounded"
+                  className={`${getHoverClass()} transition px-2 py-1 rounded`}
                 >
                   Login
                 </Link>
