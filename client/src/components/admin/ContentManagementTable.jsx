@@ -3,7 +3,6 @@ import { adminApiClient, useNotification } from "../../context";
 import { LessonEditorModal, ModuleEditorModal } from "../../modals";
 import { useContentFilter } from "../../hooks";
 import { useConfirmActions, calculateContentStats } from "../../utils";
-import { BackToTopButton } from "../ui";
 import {
   Search,
   Eye,
@@ -1227,9 +1226,6 @@ const ContentManagementTable = () => {
           }}
         />
       )}
-
-      {/* Back to Top Button */}
-      <BackToTopButton />
     </div>
   );
 };

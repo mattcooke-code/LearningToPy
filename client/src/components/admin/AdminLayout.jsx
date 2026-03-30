@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import AdminSidebar from "./AdminSidebar";
-import { LoadingState } from "../ui";
+import { BackToTopButton, LoadingState } from "../ui";
 
 const AdminLayout = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
@@ -83,6 +83,7 @@ const AdminLayout = ({ children }) => {
         {/* Page content */}
         <main className="flex-1 p-4 md:p-6 ">{children || <Outlet />}</main>
       </div>
+      <BackToTopButton />
     </div>
   );
 };

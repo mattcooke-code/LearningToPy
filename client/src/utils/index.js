@@ -4,6 +4,7 @@ export {
   THEME_HOVER_COVERS,
   resolveCourseThemeColor,
   getHoverColor,
+  shouldUseThemeColor,
 } from "./colorUtilities";
 export { useConfirmActions } from "./confirmUtils";
 export {

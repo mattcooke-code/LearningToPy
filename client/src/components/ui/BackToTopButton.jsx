@@ -2,6 +2,8 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "../../context";
+import { PYTHON_BLUE, PYTHON_YELLOW } from "../../constants/themeConstants";
+import { shouldUseThemeColor } from "../../utils";
 import { ArrowUp } from "lucide-react";
 
 const BackToTopButton = memo(function BackToTopButton({
@@ -27,35 +29,24 @@ const BackToTopButton = memo(function BackToTopButton({
     };
   }, [handleScroll]);
 
-  const shouldUseThemeColor = () => {
-    const pathname = location.pathname;
-    return (
-      pathname === "/modules" ||
-      pathname.includes("/modules/") ||
-      pathname.includes("/lessons/") ||
-      pathname === "/dashboard" ||
-      pathname === "/profile"
-    );
-  };
-
   const getButtonColor = () => {
-    if (shouldUseThemeColor()) {
+    if (shouldUseThemeColor(location.pathname)) {
       return themeColor;
     }
     if (isDarkMode) {
-      return "#ffd43b";
+      return PYTHON_YELLOW;
     }
-    return "#3776ab";
+    return PYTHON_BLUE;
   };
 
   const getHoverColor = (baseColor) => {
-    if (baseColor === "#ffd43b") return "#3776ab";
-    if (baseColor === "#3776ab") return "#ffd43b";
+    if (baseColor === PYTHON_YELLOW) return PYTHON_BLUE;
+    if (baseColor === PYTHON_BLUE) return PYTHON_YELLOW;
     return baseColor;
   };
 
   const getHoverArrow = () => {
-    if (shouldUseThemeColor()) {
+    if (shouldUseThemeColor(location.pathname)) {
       return "text-white";
     }
     return isDarkMode

@@ -2,6 +2,8 @@
 import { memo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../../context";
+import { PYTHON_BLUE, PYTHON_DARK } from "../../constants/themeConstants";
+import { shouldUseThemeColor } from "../../utils";
 import { ThemeToggle } from "../ui";
 import { BookOpen, User, LogOut, Home, Shield } from "lucide-react";
 
@@ -10,35 +12,24 @@ const Navbar = memo(function Navbar() {
   const { themeColor, isDarkMode } = useTheme();
   const location = useLocation();
 
-  const shouldUseThemeColor = () => {
-    const pathname = location.pathname;
-    return (
-      pathname === "/modules" ||
-      pathname.includes("/modules/") ||
-      pathname.includes("/lessons/") ||
-      pathname === "/dashboard" ||
-      pathname === "/profile"
-    );
-  };
-
   const getNavbarBg = () => {
-    if (shouldUseThemeColor()) {
+    if (shouldUseThemeColor(location.pathname)) {
       return { backgroundColor: themeColor };
     }
     return isDarkMode
-      ? { backgroundColor: "#1e415e" }
-      : { backgroundColor: "#3776ab" };
+      ? { backgroundColor: PYTHON_DARK }
+      : { backgroundColor: PYTHON_BLUE };
   };
 
   const getNavbarText = () => {
-    if (shouldUseThemeColor()) {
+    if (shouldUseThemeColor(location.pathname)) {
       return "text-white";
     }
     return isDarkMode ? "text-python-light" : "text-white";
   };
 
   const getHoverClass = () => {
-    if (shouldUseThemeColor()) {
+    if (shouldUseThemeColor(location.pathname)) {
       return "hover:text-python-yellow hover:bg-black hover:bg-opacity-10";
     }
     return "hover:text-python-yellow hover:bg-black hover:bg-opacity-10";

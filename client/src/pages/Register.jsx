@@ -61,7 +61,7 @@ const Register = () => {
               maxLength="30"
               disabled={loading}
               placeholder="Enter your username"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue dark:focus:border-python-light disabled:bg-gray-100"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue dark:focus:border-python-light disabled:bg-gray-100 dark:text-gray-200"
             />
           </div>
           <div>
@@ -79,7 +79,7 @@ const Register = () => {
               autoComplete="email"
               disabled={loading}
               placeholder="Enter your email"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue dark:focus:border-python-light disabled:bg-gray-100"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue dark:focus:border-python-light disabled:bg-gray-100 dark:text-gray-200"
             />
           </div>
           <div>
@@ -97,7 +97,7 @@ const Register = () => {
               autoComplete="current-password"
               disabled={loading}
               placeholder="Enter your password"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue dark:focus:border-python-light disabled:bg-gray-100"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue dark:focus:border-python-light disabled:bg-gray-100 dark:text-gray-200"
             />
           </div>
           <button

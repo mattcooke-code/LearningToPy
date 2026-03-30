@@ -43,7 +43,7 @@ export const resolveCourseThemeColor = (courseProgressPercentage) => {
 
 export const getHoverColor = (baseColor) => {
   const entry = Object.entries(THEME_COLORS).find(
-    ([, hex]) => hex === baseColor
+    ([, hex]) => hex === baseColor,
   );
 
   if (entry) {
@@ -51,4 +51,14 @@ export const getHoverColor = (baseColor) => {
     return THEME_HOVER_COVERS[key] || baseColor;
   }
   return baseColor;
+};
+
+export const shouldUseThemeColor = (pathname) => {
+  return (
+    pathname === "/modules" ||
+    pathname.includes("/modules/") ||
+    pathname.includes("/lessons/") ||
+    pathname === "/dashboard" ||
+    pathname === "/profile"
+  );
 };
