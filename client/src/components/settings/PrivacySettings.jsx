@@ -178,12 +178,12 @@ const PrivacySettings = ({ user, onUpdate }) => {
 
             {/* Preview */}
             <div className="rounded-lg border border-gray-200 p-4">
-              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100">
+              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100 ">
                 Preview on leaderboard:
               </p>
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-600 px-4 py-3">
+              <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-300 px-4 py-3">
                 <div className="flex items-center space-x-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-sm font-semibold">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-python-light text-sm font-semibold">
                     #25
                   </span>
                   <span className="font-medium">

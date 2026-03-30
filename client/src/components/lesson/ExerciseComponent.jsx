@@ -159,26 +159,47 @@ const ExerciseComponent = ({
     <div
       className={`border rounded-lg p-6 my-6 ${
         isCodeDark
-          ? "bg-gray-800 border-gray-700"
+          ? "bg-gray-800 border-gray-700 "
           : "bg-yellow-50 border-yellow-200"
       }`}
     >
-      {/* Header */}
-      <div className="flex items-center space-x-3 mb-4">
-        <Code2
-          className={isCodeDark ? "text-blue-400" : "text-yellow-600"}
-          size={24}
-        />
-        <h3
-          className={`text-lg font-semibold ${
-            isCodeDark ? "text-white" : "text-yellow-800"
-          }`}
-        >
-          Try It Yourself {isReviewMode && "(Review)"}
-        </h3>
+      {/* Header Container */}
+      <div className="flex items-center justify-between mb-4">
+        {/* Left Side: Icon and Title */}
+        <div className="flex items-center space-x-3">
+          <Code2
+            className={isCodeDark ? "text-python-light" : "text-python-blue"}
+            size={24}
+          />
+          <h3
+            className={`text-lg font-semibold ${
+              isCodeDark ? "text-white" : "text-python-dark"
+            }`}
+          >
+            Try It Yourself {isReviewMode && "(Review)"}
+          </h3>
+
+          {/* Keep the Review Mode badge next to the title if you like */}
+          {isReviewMode && (
+            <span
+              className={`px-2 py-1 rounded text-xs ${
+                isCodeDark
+                  ? "bg-gray-700 text-gray-300"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              Review Mode
+            </span>
+          )}
+        </div>
+
+        {/* Right Side: Toggle Button */}
+        <div className="flex items-center">
+          <CodeThemeToggle />
+        </div>
       </div>
 
-      {/* Skills/Tags */}
+      {/* Skills/Tags - Moved below the header for better flow */}
       <div className="flex flex-wrap gap-2 mb-4">
         {exercise.tags?.map((tag) => (
           <span
@@ -192,21 +213,6 @@ const ExerciseComponent = ({
             {tag.replace("-", " ")}
           </span>
         ))}
-      </div>
-
-      <div className="flex items-center space-x-3">
-        <CodeThemeToggle />
-        {isReviewMode && (
-          <span
-            className={`px-2 py-1 rounded text-sm ${
-              isCodeDark
-                ? "bg-gray-700 text-gray-300"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            Review Mode
-          </span>
-        )}
       </div>
 
       {/* Instructions */}
@@ -223,7 +229,7 @@ const ExerciseComponent = ({
         >
           <h4
             className={`text-sm font-bold uppercase tracking-wider ${
-              isCodeDark ? "text-blue-400" : "text-yellow-700"
+              isCodeDark ? "text-python-yellow" : "text-python-blue"
             }`}
           >
             Exercise Steps:
@@ -234,8 +240,8 @@ const ExerciseComponent = ({
                 <span
                   className={`mr-2 mt-1 flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
                     isCodeDark
-                      ? "bg-gray-700 text-blue-300"
-                      : "bg-yellow-200 text-yellow-800"
+                      ? "bg-gray-700 text-python-light"
+                      : "bg-yellow-200 text-python-dark"
                   }`}
                 >
                   {index + 1}
@@ -245,61 +251,6 @@ const ExerciseComponent = ({
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* IDE Links for Complex Projects */}
-      {exercise.isComplex && (
-        <div
-          className={`mb-4 p-4 rounded-lg ${
-            isCodeDark ? "bg-gray-700" : "bg-blue-50"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p
-                className={`font-semibold ${
-                  isCodeDark ? "text-white" : "text-blue-800"
-                }`}
-              >
-                🚀 Complex Project Tip
-              </p>
-              <p
-                className={`text-sm ${
-                  isCodeDark ? "text-gray-300" : "text-blue-700"
-                }`}
-              >
-                Consider using a full IDE for this exercise:
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <a
-                href="https://code.visualstudio.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition"
-              >
-                <ExternalLink size={14} />
-                <span>VS Code</span>
-              </a>
-              <a
-                href="https://www.jetbrains.com/pycharm/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-1 px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition"
-              >
-                <ExternalLink size={14} />
-                <span>PyCharm</span>
-              </a>
-              <button
-                onClick={openInExternalIDE}
-                className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition"
-              >
-                <ExternalLink size={14} />
-                <span>Download</span>
-              </button>
-            </div>
           </div>
         </div>
       )}

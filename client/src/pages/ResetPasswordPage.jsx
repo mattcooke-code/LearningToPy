@@ -1,4 +1,3 @@
-// ResetPasswordPage.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { authApiClient, useNotification } from "../context";
@@ -80,7 +79,6 @@ const ResetPasswordPage = () => {
         newPassword: password,
       });
 
-      // Use getSuccessMessage for consistent messaging
       const successMessage =
         response.message || getSuccessMessage("update", "Password");
 
@@ -113,22 +111,25 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-3xl font-extrabold text-python-blue dark:text-python-yellow">
             Reset Your Password
           </h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            Enter your new password below
+          </p>
         </div>
 
         {message && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md">
             {message}
           </div>
         )}
 
         {error && !isValidating && isTokenValid && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md">
             {error}
           </div>
         )}
@@ -139,7 +140,7 @@ const ResetPasswordPage = () => {
               <div>
                 <label
                   htmlFor="newPassword"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-python-dark dark:text-python-light"
                 >
                   New Password
                 </label>
@@ -153,13 +154,13 @@ const ResetPasswordPage = () => {
                   autoComplete="new-password"
                   disabled={loading}
                   placeholder="Enter new password"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue disabled:bg-gray-100"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue dark:focus:border-python-light disabled:bg-gray-100 dark:disabled:bg-gray-700 dark:bg-gray-700 dark:text-gray-200"
                 />
               </div>
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-python-dark dark:text-python-light"
                 >
                   Confirm New Password
                 </label>
@@ -173,7 +174,7 @@ const ResetPasswordPage = () => {
                   autoComplete="new-password"
                   disabled={loading}
                   placeholder="Confirm new password"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue disabled:bg-gray-100"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue dark:focus:border-python-light disabled:bg-gray-100 dark:disabled:bg-gray-700 dark:bg-gray-700 dark:text-gray-200"
                 />
               </div>
             </div>
@@ -181,7 +182,7 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-python-blue hover:bg-python-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm rounded-md text-python-yellow hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-extrabold"
             >
               {loading ? (
                 <Spinner
@@ -198,12 +199,12 @@ const ResetPasswordPage = () => {
           </form>
         ) : (
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               This password reset link is invalid or has expired.
             </p>
             <Link
               to="/forgot-password"
-              className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-python-blue hover:bg-python-dark transition-colors"
+              className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-python-yellow hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue transition-colors"
             >
               Request New Reset Link
             </Link>
@@ -211,10 +212,10 @@ const ResetPasswordPage = () => {
         )}
 
         <div className="text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             <Link
               to="/login"
-              className="font-medium text-python-blue hover:text-python-dark transition-colors"
+              className="font-medium text-python-blue hover:text-python-dark dark:text-python-yellow dark:hover:text-python-light transition-colors"
             >
               Return to Login
             </Link>

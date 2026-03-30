@@ -7,5 +7,6 @@ export { default as LessonEditorModal } from "./LessonEditorModal";
 export { default as LessonPreviewModal } from "./LessonPreviewModal";
 export { default as ModuleEditorModal } from "./ModuleEditorModal";
 export { default as ProgressOverrideModal } from "./ProgressOverrideModal";
+export { default as ReportModal } from "./ReportModal";
 export { default as UserDetailModal } from "./UserDetailModal";
 export { default as XPAdjustmentModal } from "./XPAdjustmentModal";

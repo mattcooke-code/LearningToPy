@@ -7,5 +7,4 @@ export { usePageViewTracker } from "./usePageViewTracker";
 export { useSessionTracker } from "./useSessionTracker";
 export { useSettingsManager } from "./useSettingsManager";
 export { useStreakNotifications } from "./useStreakNotifications";
-export { useThemeColor } from "./useThemeColor";
 export { useThemeStyles } from "./useThemeStyles";
