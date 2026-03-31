@@ -11,6 +11,7 @@ import {
 } from "./components/layout";
 import Curriculum from "./pages/Curriculum";
 import Dashboard from "./pages/Dashboard";
+import FAQ from "./pages/FAQ";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Home from "./pages/Home";
 import LessonPage from "./pages/LessonPage";
@@ -71,6 +72,7 @@ function App() {
             />
             <Route path="/curriculum" element={<Curriculum />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/faq" element={<FAQ />} />
             {/* PROTECTED */}
             <Route
               path="/dashboard"

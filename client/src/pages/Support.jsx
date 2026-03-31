@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { apiClient, useNotification, useTheme } from "../context";
 import { getErrorMessage, getSuccessMessage } from "../utils";
+import { BackToTopButton } from "../components/ui";
 
 const Support = () => {
   const [formData, setFormData] = useState({
@@ -98,7 +99,7 @@ const Support = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-12">
+    <div className="min-h-screen bg-gray-200 dark:bg-gray-900 pt-24 pb-12">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
@@ -113,7 +114,7 @@ const Support = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
             <Link
               to="/curriculum"
               className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-python-blue dark:hover:border-python-yellow transition-all group"
@@ -121,10 +122,10 @@ const Support = () => {
               <BookOpen className="h-8 w-8 text-python-blue dark:text-python-yellow mr-3" />
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">
-                  View Curriculum
+                  View Full Curriculum
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  See what you'll learn
+                  20 modules, 100+ exercises
                 </p>
               </div>
             </Link>
@@ -135,24 +136,10 @@ const Support = () => {
               <HelpCircle className="h-8 w-8 text-python-blue dark:text-python-yellow mr-3" />
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">
-                  FAQ
+                  Frequently Asked Questions
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Common questions answered
-                </p>
-              </div>
-            </Link>
-            <Link
-              to="/terminal"
-              className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-python-blue dark:hover:border-python-yellow transition-all group"
-            >
-              <Zap className="h-8 w-8 text-python-blue dark:text-python-yellow mr-3" />
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">
-                  Python Playground
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Try code in your browser
+                  Find answers quickly
                 </p>
               </div>
             </Link>
@@ -366,6 +353,7 @@ const Support = () => {
           </div>
         </div>
       </div>
+      <BackToTopButton />
     </div>
   );
 };
