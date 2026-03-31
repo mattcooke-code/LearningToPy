@@ -22,6 +22,7 @@ const analyticsRoutes = require("./routes/analytics");
 const authRoutes = require("./routes/auth");
 const progressRoutes = require("./routes/progress");
 const contentRoutes = require("./routes/content");
+const supportRoutes = require("./routes/support");
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/content", contentRoutes);
+app.use("/api/support", supportRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

@@ -11,7 +11,8 @@ import {
   Zap,
   ChevronDown,
 } from "lucide-react";
-import { useTheme } from "../context";
+import { apiClient, useNotification, useTheme } from "../context";
+import { getErrorMessage, getSuccessMessage } from "../utils";
 
 const Support = () => {
   const [formData, setFormData] = useState({
@@ -23,14 +24,41 @@ const Support = () => {
     moduleNumber: "",
     lessonNumber: "",
   });
+  const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { isDarkMode } = useTheme();
+  const { showToast } = useNotification();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Logic to send to your backend goes here
-    console.log("Form Data:", formData);
-    setIsSubmitted(true);
+    setSubmitting(true);
+
+    try {
+      const response = await apiClient.post("/support", {
+        name: formData.name,
+        email: formData.email,
+        category: formData.category,
+        subject: formData.subject,
+        message: formData.message,
+        moduleNumber: formData.moduleNumber,
+        lessonNumber: formData.lessonNumber,
+      });
+
+      setIsSubmitted(true);
+      const successMessage =
+        response.message || getSuccessMessage("send", "message");
+      showToast(successMessage, "success");
+    } catch (err) {
+      // Fixed: using err instead of error
+      const errorMessage = getErrorMessage(
+        err,
+        "Failed to send message. Please try again.",
+        "general",
+      );
+      showToast(errorMessage, "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -48,7 +76,18 @@ const Support = () => {
             <strong>{formData.email}</strong> as soon as possible.
           </p>
           <button
-            onClick={() => setIsSubmitted(false)}
+            onClick={() => {
+              setIsSubmitted(false);
+              setFormData({
+                name: "",
+                email: "",
+                category: "help",
+                subject: "",
+                message: "",
+                moduleNumber: "",
+                lessonNumber: "",
+              });
+            }}
             className="w-full py-3 bg-python-blue hover:bg-python-dark text-white font-semibold rounded-xl transition-all"
           >
             Send another message
@@ -59,7 +98,7 @@ const Support = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-200 dark:bg-gray-900 pt-24 pb-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 pb-12">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
@@ -188,6 +227,7 @@ const Support = () => {
                       required
                       className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                       placeholder="Your name"
+                      value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
@@ -202,6 +242,7 @@ const Support = () => {
                       required
                       className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                       placeholder="email@example.com"
+                      value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
@@ -240,6 +281,7 @@ const Support = () => {
                       required
                       className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                       placeholder="Brief summary"
+                      value={formData.subject}
                       onChange={(e) =>
                         setFormData({ ...formData, subject: e.target.value })
                       }
@@ -258,6 +300,7 @@ const Support = () => {
                         type="text"
                         className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                         placeholder="e.g., M3"
+                        value={formData.moduleNumber}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -274,6 +317,7 @@ const Support = () => {
                         type="text"
                         className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                         placeholder="e.g., L3"
+                        value={formData.lessonNumber}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -294,6 +338,7 @@ const Support = () => {
                     required
                     className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white resize-none"
                     placeholder="Tell us what's on your mind..."
+                    value={formData.message}
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
@@ -302,9 +347,19 @@ const Support = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light text-white dark:text-gray-900 font-bold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center"
+                  disabled={submitting}
+                  className="w-full py-3.5 bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light text-white dark:text-gray-900 font-bold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Message <Send size={18} className="ml-2" />
+                  {submitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white dark:border-gray-900 border-t-transparent mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message <Send size={18} className="ml-2" />
+                    </>
+                  )}
                 </button>
               </form>
             </div>
