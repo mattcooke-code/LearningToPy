@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   CheckCircle,
   Clock,
   Star,
@@ -8,23 +7,9 @@ import {
   Flag,
 } from "lucide-react";
 
-const LessonHeader = ({
-  lesson,
-  isReviewMode,
-  toggleReviewMode,
-  navigate,
-  onReport,
-}) => {
+const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, onReport }) => {
   return (
     <div className="mb-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-python-yellow  transition mb-4"
-      >
-        <ArrowLeft size={20} />
-        <span>Back to Lessons</span>
-      </button>
-
       <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 mb-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">

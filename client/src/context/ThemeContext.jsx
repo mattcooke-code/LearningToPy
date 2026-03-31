@@ -5,7 +5,8 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { resolveCourseThemeColor, THEME_COLORS } from "../utils";
+import { THEME_COLORS } from "../constants/themeConstants";
+import { resolveCourseThemeColor } from "../utils";
 
 const ThemeContext = createContext();
 

@@ -1,9 +1,12 @@
 // getSuccessMessage.js
 export const getSuccessMessage = (action, resource = "item") => {
+  const formattedResource =
+    resource.charAt(0).toUpperCase() + resource.slice(1);
+
   const messages = {
-    create: `${resource} created successfully`,
-    update: `${resource} updated successfully`,
-    delete: `${resource} deleted successfully`,
+    create: `${formattedResource} created successfully`,
+    update: `${formattedResource} updated successfully`,
+    delete: `${formattedResource} deleted successfully`,
     save: "Changes saved successfully",
     publish: "Content published successfully",
     archive: "Content archived successfully",

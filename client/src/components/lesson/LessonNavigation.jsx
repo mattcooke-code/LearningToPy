@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 const LessonNavigation = ({
-  navigate,
   nextLesson,
   lesson,
   isReviewMode,
@@ -24,13 +23,14 @@ const LessonNavigation = ({
 
   return (
     <div className="flex justify-between items-center">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition dark:text-gray-300 dark:hover:text-python-yellow"
+      <Link
+        to={`/modules/${module._id}/lessons`}
+        style={{ backgroundColor: themeColor }}
+        className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
       >
         <ArrowLeft size={20} />
-        <span>Back to Lessons</span>
-      </button>
+        <span>Back To Module</span>
+      </Link>
 
       {/* Next Lesson button  */}
       {nextLesson && lessonFullyCompleted && (

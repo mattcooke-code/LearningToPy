@@ -9,6 +9,7 @@ import {
   Navbar,
   ProtectedRoute,
 } from "./components/layout";
+import Curriculum from "./pages/Curriculum";
 import Dashboard from "./pages/Dashboard";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Home from "./pages/Home";
@@ -20,6 +21,7 @@ import ModuleQuizPage from "./pages/ModuleQuizPage";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import Support from "./pages/Support";
 
 // Import Admin Pages
 import AdminDashboard from "./pages/AdminDashboard";
@@ -67,6 +69,8 @@ function App() {
               path="/reset-password/:token"
               element={<ResetPasswordPage />}
             />
+            <Route path="/curriculum" element={<Curriculum />} />
+            <Route path="/support" element={<Support />} />
             {/* PROTECTED */}
             <Route
               path="/dashboard"

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
 import { apiClient } from "../../context";
 import { useThemeStyles } from "../../hooks";
+import { getErrorMessage, getSuccessMessage } from "../../utils";
 
 const PrivacySettings = ({ user, onUpdate }) => {
   const [settings, setSettings] = useState({
@@ -42,7 +43,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
 
       setMessage({
         type: "success",
-        text: "Privacy settings updated successfully!",
+        text: getSuccessMessage("update", "Privacy settings"),
       });
 
       // Clear message after 3 seconds
@@ -53,7 +54,10 @@ const PrivacySettings = ({ user, onUpdate }) => {
       console.error("Failed to update privacy settings:", err);
       setMessage({
         type: "error",
-        text: "Failed to update settings. Please try again.",
+        text: getErrorMessage(
+          err,
+          "Failed to update settings. Please try again.",
+        ),
       });
     } finally {
       setSaving(false);

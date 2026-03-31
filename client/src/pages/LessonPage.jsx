@@ -217,7 +217,6 @@ const LessonPage = () => {
         lesson={lesson}
         isReviewMode={isReviewMode}
         toggleReviewMode={toggleReviewMode}
-        navigate={navigate}
         onReport={() => setShowReportModal(true)} // Pass report handler
       />
 
@@ -241,7 +240,6 @@ const LessonPage = () => {
       />
 
       <LessonNavigation
-        navigate={navigate}
         nextLesson={nextLesson}
         lesson={lesson}
         module={module}

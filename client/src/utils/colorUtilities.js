@@ -1,26 +1,6 @@
 //colorUtilities.js
 
-import { PYTHON_BLUE, PYTHON_YELLOW } from "../constants/themeConstants";
-
-export const THEME_COLORS = {
-  DEFAULT: PYTHON_BLUE, // Python blue
-  RED: "#ef4444", // 0-25%
-  ORANGE: "#f97316", // 25-40%
-  AMBER: "#fb923c", // 40-55% - NEW: light orange/amber
-  YELLOW: "#FFD700", // 55-70%
-  LIME: "#84cc16", // 70-85%
-  GREEN: "#22c55e", // 85-100%
-};
-
-export const THEME_HOVER_COVERS = {
-  DEFAULT: PYTHON_YELLOW, // Python yellow
-  RED: "#d73d3d",
-  ORANGE: "#e06c14",
-  AMBER: "#ea8029", // NEW: darker amber for hover
-  YELLOW: "#e6c300",
-  LIME: "#75b214",
-  GREEN: "#1eab52",
-};
+import { THEME_COLORS, THEME_HOVER_COVERS } from "../constants/themeConstants";
 
 export const resolveCourseThemeColor = (courseProgressPercentage) => {
   if (courseProgressPercentage <= 25) {

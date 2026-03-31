@@ -77,13 +77,15 @@ const LeaderboardModal = ({
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Spinner size="md" />
-          <p className="mt-3 text-gray-500">Loading leaderboard...</p>
+          <p className="mt-3 text-gray-500 dark:text-gray-300">
+            Loading leaderboard...
+          </p>
         </div>
       ) : (
         <div className="space-y-8 max-h-[60vh] overflow-y-auto pr-2">
           {/* Top Users */}
           <div>
-            <h3 className="mb-3 text-lg font-semibold">
+            <h3 className="mb-3 text-lg font-semibold dark:text-gray-300">
               {isModule ? "Top Learners" : "Top 10 Learners"}
             </h3>
             <div className="space-y-2">
@@ -107,7 +109,7 @@ const LeaderboardModal = ({
           {/* Your Neighborhood (Global Only) */}
           {!isModule && surroundingUsers.length > 0 && (
             <div>
-              <h3 className="mb-3 text-lg font-semibold border-t pt-4 dark:border-gray-700">
+              <h3 className="mb-3 text-lg font-semibold border-t pt-4 dark:border-gray-700 dark:text-gray-300">
                 Your Ranking:{" "}
                 <span className="text-python-blue dark:text-python-yellow">
                   #{currentUserRank || "—"}

@@ -1,7 +1,5 @@
 export { exportToCSV } from "./analyticsUtils";
 export {
-  THEME_COLORS,
-  THEME_HOVER_COVERS,
   resolveCourseThemeColor,
   getHoverColor,
   shouldUseThemeColor,
