@@ -77,11 +77,11 @@ const BackToTopButton = memo(function BackToTopButton({
         e.currentTarget.style.transform = "translateY(0)";
       }}
       className={`
-        fixed z-50 bottom-0 right-0
-       rounded-full
+        fixed z-50 bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 rounded-full
         flex items-center justify-center
         transition-all duration-300 ease-in-out
         hover:shadow-xl ${getHoverArrow()}
+        p-3 sm:p-4 md:p-5
         ${className}
       `}
       aria-label="Back to top"

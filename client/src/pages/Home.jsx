@@ -35,8 +35,8 @@ const Home = () => {
       <header className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
         <div className="absolute inset-0 pointer-events-none"></div>
 
-        <div className="container mx-auto px-4 py-20 lg:py-28 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-6 sm:px-10 py-12 lg:py-32 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
               <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 dark:bg-blue-700 dark:text-blue-50 rounded-full text-sm font-medium mb-6">
                 <Zap size={16} />
@@ -81,7 +81,7 @@ const Home = () => {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <p className="text-sm text-slate-900">Current Streak</p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                    <p className="text-3xl font-bold text-slate-900 dark:text-python-dark">
                       7 days
                     </p>
                   </div>
@@ -114,17 +114,16 @@ const Home = () => {
                     </div>
                   ))}
                 </div>
-
-                <div className="bg-slate-900 text-white rounded-2xl p-6">
+                <div className="bg-slate-900 text-white rounded-2xl p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm text-slate-300">
                       Leaderboard Snapshot
                     </p>
-                    <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                    <span className="bg-green-500/20 text-green-300 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs uppercase tracking-wide">
                       Competitive Mode
                     </span>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {[
                       { name: "CodeCrusader", xp: "2,140", position: 1 },
                       { name: "PyNinja", xp: "1,780", position: 2 },
@@ -132,19 +131,21 @@ const Home = () => {
                     ].map((player) => (
                       <div
                         key={player.name}
-                        className={`flex items-center justify-between bg-slate-800/60 px-4 py-3 rounded-xl ${
+                        className={`flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 rounded-xl ${
                           player.name === "You"
-                            ? "border border-python-yellow/40"
-                            : ""
+                            ? "border border-python-yellow/40 bg-slate-800/80"
+                            : "bg-slate-800/60"
                         }`}
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className="h-8 w-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-semibold">
+                        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                          <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-slate-700 flex items-center justify-center text-xs sm:text-sm font-semibold flex-shrink-0">
                             #{player.position}
                           </div>
-                          <span className="font-medium">{player.name}</span>
+                          <span className="font-medium text-sm sm:text-base truncate">
+                            {player.name}
+                          </span>
                         </div>
-                        <span className="text-python-yellow font-semibold">
+                        <span className="text-python-yellow font-semibold text-sm sm:text-base flex-shrink-0 ml-2">
                           {player.xp} XP
                         </span>
                       </div>
@@ -158,8 +159,8 @@ const Home = () => {
       </header>
 
       {/* Gamification & Feature Highlights - Warm Gray for subtle separation */}
-      <section className="py-20 bg-gray-50 dark:bg-slate-800/50">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-24 lg:py-32 px-6 bg-gray-50 dark:bg-slate-800/50">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-python-dark dark:text-python-light mb-4">
               Gamified learning that keeps you engaged
@@ -219,8 +220,8 @@ const Home = () => {
       </section>
 
       {/* Learning Methodology - Blue accent for visual interest */}
-      <section className="py-20 bg-blue-50 dark:bg-slate-950">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-24 lg:py-32 px-6 bg-blue-50 dark:bg-slate-950">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl font-bold text-python-blue  mb-4">
@@ -271,11 +272,12 @@ const Home = () => {
             </div>
 
             <div
-              className={`relative rounded-3xl p-8 shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all ${
-                isDarkMode
-                  ? "bg-gradient-to-r from-python-dark/80 to-python-light/80"
-                  : "bg-gradient-to-r from-python-blue to-python-yellow"
-              }`}
+              className={`relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all 
+  w-full max-w-md mx-auto lg:max-w-none lg:mx-0 ${
+    isDarkMode
+      ? "bg-gradient-to-br from-python-dark via-python-dark/95 to-python-light"
+      : "bg-gradient-to-br from-python-blue via-python-blue/60  to-python-yellow"
+  }`}
             >
               {!isDarkMode && (
                 <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
@@ -287,39 +289,40 @@ const Home = () => {
                 </h3>
 
                 <div className="bg-white/80 dark:bg-slate-800/70 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 mb-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-slate-700 text-python-light dark:bg-python-blue dark:text-python-yellow flex items-center justify-center font-semibold">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div className="flex items-start space-x-3">
+                      {/* shrink-0 prevents the circle from turning into an oval */}
+                      <div className="shrink-0 h-10 w-10 rounded-full bg-slate-700 text-python-light dark:bg-python-blue dark:text-python-yellow flex items-center justify-center font-semibold text-xs">
                         PY
                       </div>
-                      <div>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 truncate">
                           Lesson 3 · Basic Operations
                         </p>
-                        <p className="font-semibold text-slate-900 dark:text-white">
+                        <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">
                           Output Preview
                         </p>
                       </div>
                     </div>
-                    <span className="px-3 py-1 bg-green-500/20 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
+                    <span className="self-start sm:self-center px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
                       Passed tests
                     </span>
                   </div>
 
-                  <div className="bg-black rounded-xl p-4 font-mono text-sm text-slate-100">
-                    <p className="text-xs uppercase text-slate-500 mb-3">
-                      Console
+                  <div className="bg-black rounded-xl p-4 font-mono text-sm text-slate-100 mb-6">
+                    <p className="text-[10px] uppercase text-slate-500 mb-2 tracking-widest">
+                      Terminal Output
                     </p>
-                    <pre className="whitespace-pre-wrap">
+                    <pre className="whitespace-pre-wrap leading-relaxed text-[13px] sm:text-sm">
                       {`>>> total = 3 * 4 + 2
 >>> print(total)
 14
-✅ Looks great! Remember: Python follows PEMDAS order of operations.`}
+✅ Looks great!`}
                     </pre>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-slate-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-slate-300">
                   {[
                     "Live unit tests",
                     "Hints & explanations",
@@ -328,9 +331,11 @@ const Home = () => {
                   ].map((item) => (
                     <div
                       key={item}
-                      className="bg-slate-800/70 rounded-xl p-4 border border-slate-700"
+                      className="bg-slate-800/70 rounded-xl p-3 sm:p-4 border border-slate-700"
                     >
-                      <p className="text-sm font-medium text-white">{item}</p>
+                      <p className="text-xs sm:text-sm font-medium text-white">
+                        {item}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -341,8 +346,8 @@ const Home = () => {
       </section>
 
       {/* Problem / Solution - Strong contrast section (keep dark) */}
-      <section className="py-20 bg-slate-900 dark:bg-slate-800 text-white">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-24 lg:py-32 px-6 bg-slate-900 dark:bg-slate-800 text-white">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl text-python-yellow font-bold mb-6">
@@ -441,11 +446,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* How it Works - Back to light */}
-      <section className="py-20 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12 ">
-            <h2 className="text-3xl font-bold text-python-dark dark:text-python-blue mb-4">
+      {/* How it Works  */}
+      <section className="py-16 md:py-24 lg:py-32 px-6 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
               How it works
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
@@ -480,43 +485,45 @@ const Home = () => {
                 key={item.title}
                 className="bg-gray-50 dark:bg-slate-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-slate-600 hover:shadow-md transition relative overflow-hidden"
               >
-                <div className="absolute top-6 right-6 text-4xl font-bold text-gray-400 dark:text-slate-500">
+                <div className="absolute top-4 right-4 text-3xl sm:text-4xl font-bold text-gray-400 dark:text-slate-00 opacity-50">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  {item.description}
-                </p>
-                <div className="mt-6">
-                  <Link
-                    to={
-                      index === 0
-                        ? "/modules"
-                        : isAuthenticated
-                          ? "/dashboard"
-                          : "/register"
-                    }
-                    className="text-python-blue dark:text-python-yellow font-semibold hover:underline inline-flex items-center space-x-2"
-                  >
-                    <span>Learn more</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
+                <div className="relative z-10">
+                  <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-3 pr-12">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {item.description}
+                  </p>
+                  <div className="mt-6">
+                    <Link
+                      to={
+                        index === 0
+                          ? "/modules"
+                          : isAuthenticated
+                            ? "/dashboard"
+                            : "/register"
+                      }
+                      className="text-python-blue dark:text-python-yellow font-semibold hover:underline inline-flex items-center space-x-2"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                      />
-                    </svg>
-                  </Link>
+                      <span>Learn more</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                        />
+                      </svg>
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
@@ -525,8 +532,8 @@ const Home = () => {
       </section>
 
       {/* Curriculum Highlights - Soft gray for final section */}
-      <section className="py-20 bg-blue-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-24 lg:py-32 px-6 bg-blue-50 dark:bg-gray-900">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-4">
               Curriculum designed for real-world impact
