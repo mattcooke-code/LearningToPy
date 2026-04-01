@@ -1,4 +1,3 @@
-// Home.jsx
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth, useTheme } from "../context";
@@ -18,7 +17,7 @@ import {
 } from "lucide-react";
 
 const Home = () => {
-  const { setDefaultTheme } = useTheme();
+  const { setDefaultTheme, isDarkMode } = useTheme();
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -31,12 +30,10 @@ const Home = () => {
     : "Start Learning for Free";
 
   return (
-    <div className="bg-slate-300 dark:bg-gray-700 min-h-screen">
-      <header className="relative overflow-hidden bg-slate-200 dark:bg-gray-800">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-python-blue opacity-10 blur-3xl rounded-full" />
-          <div className="absolute top-1/3 -left-24 w-80 h-80 bg-python-yellow opacity-20 blur-3xl rounded-full" />
-        </div>
+    <div className="bg-white dark:bg-slate-900 min-h-screen">
+      {/* Hero Section */}
+      <header className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
+        <div className="absolute inset-0 pointer-events-none"></div>
 
         <div className="container mx-auto px-4 py-20 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -73,18 +70,22 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="bg-white dark:bg-gray-600 rounded-3xl shadow-2xl p-8 border border-slate-100 dark:border-slate-900">
+            <div
+              className={`relative rounded-3xl shadow-2xl p-8 border border-slate-100 dark:border-slate-900 overflow-hidden transition-all ${
+                isDarkMode
+                  ? "bg-gradient-to-b from-python-light via-slate-800 to-python-dark"
+                  : "bg-gradient-to-b from-python-yellow to-python-blue"
+              }`}
+            >
+              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-200 ">
-                      Current Streak
-                    </p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-slate-950">
+                    <p className="text-sm text-slate-900">Current Streak</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-white">
                       7 days
                     </p>
                   </div>
-                  <div className="bg-green-100 text-green-600 px-4 py-2 rounded-full flex items-center space-x-2 font-semibold">
+                  <div className="bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-700 px-4 py-2 rounded-full flex items-center space-x-2 font-semibold">
                     <Trophy size={18} />
                     <span>Top 10%</span>
                   </div>
@@ -149,7 +150,6 @@ const Home = () => {
                       </div>
                     ))}
                   </div>
-                  <BackToTopButton />
                 </div>
               </div>
             </div>
@@ -157,11 +157,11 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Gamification & Feature Highlights */}
-      <section className="py-20">
+      {/* Gamification & Feature Highlights - Warm Gray for subtle separation */}
+      <section className="py-20 bg-gray-50 dark:bg-slate-800/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
+            <h2 className="text-3xl font-bold text-python-dark dark:text-python-light mb-4">
               Gamified learning that keeps you engaged
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
@@ -200,7 +200,7 @@ const Home = () => {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6 border border-slate-100 dark:border-slate-500 hover:shadow-md transition"
+                className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-slate-500 hover:shadow-md transition"
               >
                 <feature.icon
                   size={28}
@@ -218,15 +218,15 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Learning Methodology */}
-      <section className="py-20 bg-blue-200 dark:bg-slate-900">
+      {/* Learning Methodology - Blue accent for visual interest */}
+      <section className="py-20 bg-blue-50 dark:bg-slate-950">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
+              <h2 className="text-3xl font-bold text-python-blue  mb-4">
                 Learn by doing with hands-on challenges
               </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+              <p className="text-lg text-slate-800 dark:text-slate-300 mb-6 leading-relaxed">
                 Our interactive platform is designed to help you absorb concepts
                 faster through practice. Build real skills with coding
                 exercises, receive instant insights, and follow curated paths
@@ -242,9 +242,9 @@ const Home = () => {
                   },
                   {
                     icon: Sparkles,
-                    title: "Real-Time Feedback",
+                    title: "Master the Terminal",
                     description:
-                      "Learn from immediate hints, test results, and smart error explanations.",
+                      "Learn to read and fix Python errors as they happen, turning 'broken' code into a learning opportunity.",
                   },
                   {
                     icon: Target,
@@ -254,17 +254,14 @@ const Home = () => {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start space-x-4">
-                    <div className="shrink-0 h-10 w-10 rounded-full bg-blue-50 dark:bg-python-yellow flex items-center justify-center">
-                      <item.icon
-                        size={20}
-                        className="text-python-blue dark:text-python-dark"
-                      />
+                    <div className="shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-python-yellow flex items-center justify-center">
+                      <item.icon size={20} className="text-python-dark " />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-200">
                         {item.title}
                       </h3>
-                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <p className="text-slate-800 dark:text-slate-300 leading-relaxed">
                         {item.description}
                       </p>
                     </div>
@@ -273,37 +270,43 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="bg-slate-900 dark:bg-slate-700 text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-python-yellow blur-3xl rounded-full" />
-                <div className="absolute bottom-0 left-0 w-56 h-56 bg-python-blue blur-3xl rounded-full" />
-              </div>
+            <div
+              className={`relative rounded-3xl p-8 shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-python-dark/80 to-python-light/80"
+                  : "bg-gradient-to-r from-python-blue to-python-yellow"
+              }`}
+            >
+              {!isDarkMode && (
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
+              )}
 
               <div className="relative z-10">
-                <h3 className="text-2xl font-bold mb-4">
+                <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
                   Instant feedback in action
                 </h3>
-                <div className="bg-slate-800/70 rounded-2xl p-6 border border-slate-700 mb-6">
+
+                <div className="bg-white/80 dark:bg-slate-800/70 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 mb-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-slate-700 dark:bg-python-blue dark:text-python-yellow flex items-center justify-center font-semibold">
+                      <div className="h-10 w-10 rounded-full bg-slate-700 text-python-light dark:bg-python-blue dark:text-python-yellow flex items-center justify-center font-semibold">
                         PY
                       </div>
                       <div>
-                        <p className="text-sm text-slate-300">
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
                           Lesson 3 · Basic Operations
                         </p>
-                        <p className="font-semibold text-white">
+                        <p className="font-semibold text-slate-900 dark:text-white">
                           Output Preview
                         </p>
                       </div>
                     </div>
-                    <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-medium">
+                    <span className="px-3 py-1 bg-green-500/20 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
                       Passed tests
                     </span>
                   </div>
 
-                  <div className="bg-black/40 rounded-xl p-4 font-mono text-sm text-slate-100">
+                  <div className="bg-black rounded-xl p-4 font-mono text-sm text-slate-100">
                     <p className="text-xs uppercase text-slate-500 mb-3">
                       Console
                     </p>
@@ -321,7 +324,7 @@ const Home = () => {
                     "Live unit tests",
                     "Hints & explanations",
                     "Concept references",
-                    "AI-assisted debugging",
+                    "Error decoding practice",
                   ].map((item) => (
                     <div
                       key={item}
@@ -337,12 +340,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Problem / Solution */}
-      <section className="py-20 bg-slate-900 dark:bg-slate-700 text-white">
+      {/* Problem / Solution - Strong contrast section (keep dark) */}
+      <section className="py-20 bg-slate-900 dark:bg-slate-800 text-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">
+              <h2 className="text-3xl text-python-yellow font-bold mb-6">
                 Break free from boring tutorials
               </h2>
               <p className="text-lg text-slate-200 leading-relaxed mb-8">
@@ -375,7 +378,7 @@ const Home = () => {
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className="bg-slate-900/60 rounded-2xl p-5 border border-slate-700"
+                    className="bg-slate-900/80 text-python-light  rounded-2xl p-5 border border-slate-700"
                   >
                     <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                     <p className="text-sm text-slate-300 leading-relaxed">
@@ -391,35 +394,35 @@ const Home = () => {
                 Here’s our winning formula
               </h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
-                We combine battle-tested learning science with compelling game
-                mechanics to keep you growing week after week.
+                We combine proven learning principles with compelling game
+                mechanics to help you stay consistent and grow week after week.
               </p>
               <div className="space-y-4">
                 {[
                   {
                     icon: Users,
-                    title: "Supportive community",
+                    title: "Compete & Progress",
                     description:
-                      "Connect with peers, share solutions, and celebrate wins together.",
+                      "See where you stand on the leaderboard and stay consistent by competing with the global community.",
                   },
                   {
                     icon: Rocket,
-                    title: "Career-focused skills",
+                    title: "Practical Projects",
                     description:
-                      "Build projects and practice hands-on problems that employers value.",
+                      "Go beyond syntax. Build a capstone project that proves you can solve real problems with Python.",
                   },
                   {
                     icon: Layers,
-                    title: "Layered mastery",
+                    title: "Guided Problem Solving",
                     description:
-                      "Reinforce concepts with progressively challenging tasks and reviews.",
+                      "We don't just show you what's wrong; we help you master the process of understanding the 'why' behind error messages.",
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start space-x-4">
-                    <div className="shrink-0 h-12 w-12 rounded-full bg-blue-50 dark:bg-python-light flex items-center justify-center">
+                    <div className="shrink-0 h-12 w-12 rounded-full bg-blue-50 dark:bg-python-blue flex items-center justify-center">
                       <item.icon
                         size={22}
-                        className="text-python-blue dark:text-python-dark "
+                        className="text-python-blue dark:text-white "
                       />
                     </div>
                     <div>
@@ -438,11 +441,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* How it Works */}
-      <section className="py-20">
+      {/* How it Works - Back to light */}
+      <section className="py-20 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+          <div className="text-center mb-12 ">
+            <h2 className="text-3xl font-bold text-python-dark dark:text-python-blue mb-4">
               How it works
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
@@ -456,9 +459,9 @@ const Home = () => {
             {[
               {
                 step: "01",
-                title: "Choose your module",
+                title: "Structured Learning Paths",
                 description:
-                  "Pick a curated learning path aligned to your goals, from fundamentals to data structures.",
+                  "Follow a clear, step-by-step curriculum designed to build your competence from the ground up.",
               },
               {
                 step: "02",
@@ -475,9 +478,9 @@ const Home = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 border border-slate-100 dark:border-slate-600 hover:shadow-md transition relative overflow-hidden"
+                className="bg-gray-50 dark:bg-slate-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-slate-600 hover:shadow-md transition relative overflow-hidden"
               >
-                <div className="absolute top-6 right-6 text-4xl font-bold text-slate-900 dark:text-slate-100">
+                <div className="absolute top-6 right-6 text-4xl font-bold text-gray-400 dark:text-slate-500">
                   {item.step}
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-200 mb-3">
@@ -521,11 +524,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Technology / Curriculum Highlights */}
-      <section className="py-20 bg-white dark:bg-gray-950">
+      {/* Curriculum Highlights - Soft gray for final section */}
+      <section className="py-20 bg-blue-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            <h2 className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-4">
               Curriculum designed for real-world impact
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
@@ -576,15 +579,16 @@ const Home = () => {
         </div>
       </section>
 
-      <footer className="py-12 bg-slate-900 text-slate-300">
+      <footer className="py-12  text-slate-300 bg-black">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm">
-            Ready to start your Python journey? Join thousands of learners
-            leveling up with interactive challenges, real-time feedback, and
-            tangible rewards.
+            Ready to transform your Python skills? Join a growing community of
+            learners mastering code through interactive challenges and real-time
+            feedback.
           </p>
         </div>
       </footer>
+      <BackToTopButton />
     </div>
   );
 };

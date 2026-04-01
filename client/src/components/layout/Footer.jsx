@@ -17,9 +17,9 @@ const Footer = () => {
                   Py
                 </span>
               </div>
-              <span className="text-xl font-bold text-white">
+              <Link to="/" className="text-xl font-bold text-white">
                 Learning To Py
-              </span>
+              </Link>
             </div>
             <p className="text-gray-400 text-sm mb-4">
               Master Python programming through interactive lessons, hands-on
