@@ -67,7 +67,7 @@ const Profile = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="container mx-auto px-4 py-10 ">
+    <div className="container mx-auto px-6 py-10">
       {/* Header Section */}
       <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-dark p-8 text-white shadow-lg dark:bg-python-blue ">
         <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">

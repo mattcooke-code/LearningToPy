@@ -51,7 +51,7 @@ const ModuleCard = ({ module, isLocked }) => {
       </div>
 
       {/* Module Title */}
-      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2 p-2">
         {module.title}
       </h3>
 

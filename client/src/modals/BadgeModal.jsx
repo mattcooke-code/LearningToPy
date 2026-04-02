@@ -16,7 +16,7 @@ const BadgeModal = ({
       onClose={onClose}
       title="All Badges"
       size="5xl"
-      className="max-h-[90vh]"
+      className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
       backdropBlur
       closeOnOverlayClick
       closeOnEscape
@@ -25,7 +25,7 @@ const BadgeModal = ({
         Discover every badge you can earn and track your progress.
       </p>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 max-h-[60vh] overflow-y-auto pr-2">
+      <div className="grid grid-cols-1 gap-4 overflow-y-auto pr-2 sm:grid-cols-2 lg:grid-cols-3 max-h-[60vh]">
         {BADGE_LIBRARY.map((badge) => {
           const isEarned = earnedSet.has(badge.id);
           const progress = isEarned
@@ -42,7 +42,7 @@ const BadgeModal = ({
             >
               <div className="flex items-center space-x-4">
                 <div
-                  className={`relative h-16 w-16 overflow-hidden rounded-xl border ${
+                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border ${
                     isEarned ? "border-green-300" : "border-gray-200"
                   }`}
                 >
@@ -50,7 +50,11 @@ const BadgeModal = ({
                     <img
                       src={badge.image}
                       alt={badge.name}
-                      className={`h-full w-full object-cover transition ${
+                      /* - aspect-square: Forces the 1:1 shape
+           - object-cover: Crops the image to fill the square without stretching
+           - w-full h-full: Ensures it fills the 16x16 container
+        */
+                      className={`aspect-square h-full w-full object-cover transition ${
                         isEarned ? "" : "grayscale opacity-60"
                       }`}
                     />
@@ -59,7 +63,7 @@ const BadgeModal = ({
                       className={`flex h-full w-full items-center justify-center text-2xl font-semibold ${
                         isEarned
                           ? "bg-green-100 text-green-600"
-                          : "bg-gray-100 text-gray-00"
+                          : "bg-gray-100 text-gray-400"
                       }`}
                     >
                       {badge.name.charAt(0)}

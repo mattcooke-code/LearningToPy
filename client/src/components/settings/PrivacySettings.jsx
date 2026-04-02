@@ -179,31 +179,38 @@ const PrivacySettings = ({ user, onUpdate }) => {
                 ></div>
               </label>
             </div>
-
             {/* Preview */}
+            {/* In PrivacySettings.jsx */}
             <div className="rounded-lg border border-gray-200 p-4">
-              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100 ">
+              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100">
                 Preview on leaderboard:
               </p>
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-300 px-4 py-3">
-                <div className="flex items-center space-x-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-python-light text-sm font-semibold">
+              {/* Added 'min-h-[64px]' and 'sm:flex-nowrap' */}
+              <div className="flex flex-wrap items-center justify-between gap-y-2 rounded-lg bg-gray-50 dark:bg-gray-300 px-3 py-3 sm:flex-nowrap">
+                <div className="flex min-w-0 flex-1 items-center space-x-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-python-light text-sm font-semibold">
                     #25
                   </span>
-                  <span className="font-medium">
+                  <span className="truncate font-medium text-gray-900">
                     {settings.showUsernameOnLeaderboards
                       ? user?.username || "YourUsername"
                       : `Learner #${user?._id?.slice(-6) || "ABC123"}`}
                   </span>
                   {!settings.showUsernameOnLeaderboards && (
-                    <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
-                      Anonymous
+                    <span className="hidden xs:inline-block shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 uppercase">
+                      Anon
                     </span>
                   )}
                 </div>
-                <span className="font-semibold text-yellow-600">1,400 XP</span>
+
+                {/* Explicitly alignment for the XP badge */}
+                <div className="flex shrink-0 items-center justify-end sm:ml-4">
+                  <span className="rounded-md bg-white/50 px-2 py-1 text-sm font-bold text-yellow-700 shadow-sm sm:bg-transparent sm:p-0 sm:shadow-none">
+                    1,400 XP
+                  </span>
+                </div>
               </div>
-            </div>
+            </div>{" "}
           </div>
         </div>
 
@@ -222,14 +229,14 @@ const PrivacySettings = ({ user, onUpdate }) => {
 
         {/* Save Button */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-6 ">
-          <p className="text-sm text-gray-500 px-1 dark:text-gray-100">
+          <p className="text-sm text-gray-700 px-1 dark:text-gray-100">
             Changes apply to all leaderboards immediately
           </p>
 
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-lg px-6 py-2 font-semibold text-white disabled:opacity-50"
+            className="rounded-lg px-8 py-2 font-semibold text-white disabled:opacity-50"
             style={{ backgroundColor: themeColor }}
             {...hoverHandlers}
           >

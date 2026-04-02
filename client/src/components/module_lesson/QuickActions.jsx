@@ -12,91 +12,93 @@ const QuickActions = ({
   const nextLesson = lessons.find((lesson) => !lesson.isCompleted);
   const allLessonsDone = lessons.length > 0 && !nextLesson;
 
+  // Reusable button styles to ensure consistency
+  const baseBtnClass =
+    "flex items-center justify-center space-x-2 py-3 px-8 rounded-xl font-bold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] w-full sm:max-w-xs";
+
+  const neutralBtnClass =
+    "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900";
+
   // State 1: Module fully completed (Lessons + Quiz)
   if (allLessonsDone && quizCompleted) {
     return (
-      <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <div className="inline-flex items-center justify-center p-3 bg-green-100 rounded-full text-green-600 mb-3">
-          <CheckCircle size={32} />
+      <div className="mt-8 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-8 text-center">
+        <div className="inline-flex items-center justify-center p-4 bg-green-100 dark:bg-green-800 rounded-full text-green-600 dark:text-green-200 mb-4">
+          <CheckCircle size={40} />
         </div>
-        <h3 className="text-xl font-bold text-green-800 mb-2">
+        <h3 className="text-2xl font-bold text-green-800 dark:text-green-100 mb-2">
           Module Mastered!
         </h3>
-        <p className="text-green-700 mb-6">
-          You've completed every lesson and passed the final quiz.
+        <p className="text-green-700 dark:text-green-300 mb-8 max-w-md mx-auto">
+          You've completed every lesson and passed the final quiz. High five!
         </p>
-        <button
-          onClick={onBackToModules}
-          className="bg-green-600 text-white py-3 px-8 rounded-lg font-bold hover:bg-green-700 transition shadow-sm"
-        >
-          Explore Next Modules
-        </button>
-      </div>
-    );
-  }
-
-  // State 2: Ready for the Final Quiz
-  if (allLessonsDone && !quizCompleted) {
-    return (
-      <div className="mt-8 bg-indigo-50 dark:bg-gray-700 border-2 border-indigo-100 dark:border-slate-500 rounded-xl p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row items-center md:justify-between gap-6">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-indigo-600 rounded-lg text-white shadow-lg">
-              <Award size={30} />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-200">
-                Final Challenge Unlocked
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Complete the {lessons.length}-question review to finish the
-                module.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to={`/modules/${moduleId}/quiz`}
-              className="flex items-center space-x-2 bg-indigo-600 text-white py-3 px-8 rounded-lg font-bold hover:bg-indigo-700 transition transform hover:scale-105"
-            >
-              <span>Take Final Quiz</span>
-            </Link>
-            <button
-              onClick={onBackToModules}
-              className="text-gray-600 dark:text-python-light px-4 py-2 hover:underline font-medium"
-            >
-              Maybe Later
-            </button>
-          </div>
+        <div className="flex flex-col items-center justify-center">
+          <button
+            onClick={onBackToModules}
+            className={`${baseBtnClass} bg-green-600 text-white hover:bg-green-700`}
+          >
+            <span>Return to Dashboard</span>
+          </button>
         </div>
       </div>
     );
   }
 
-  // State 3: Standard "Continue" (Current behavior)
+  // State 2: Lessons done, Quiz remaining
+  if (allLessonsDone && !quizCompleted) {
+    return (
+      <div className="mt-8 bg-blue-50 dark:bg-gray-800 border-2 border-dashed border-blue-200 dark:border-gray-600 rounded-2xl p-8 text-center">
+        <div className="inline-flex items-center justify-center p-4 bg-blue-100 dark:bg-blue-900/40 rounded-full text-blue-600 dark:text-blue-300 mb-4">
+          <Award size={40} />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+          Final Challenge!
+        </h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
+          You've finished all lessons. Are you ready to test your knowledge and
+          earn your module badge?
+        </p>
+        <div className="flex flex-col items-center gap-4">
+          <Link
+            to={`/modules/${moduleId}/quiz`}
+            className={`${baseBtnClass} text-white`}
+            style={{ backgroundColor: accentColor }}
+          >
+            <span>Take Final Quiz</span>
+          </Link>
+          <button
+            onClick={onBackToModules}
+            className={`${baseBtnClass} ${neutralBtnClass}`}
+          >
+            <span>Maybe Later</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // State 3: Standard "Continue"
   return (
-    <div className="mt-8 bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-100 dark:border-gray-500">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 dark:text-gray-300">
-        Ready to continue?
+    <div className="mt-8 bg-gray-50 dark:bg-gray-700 rounded-2xl p-8 border border-gray-100 dark:border-gray-600 text-center">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6">
+        Ready to keep going?
       </h3>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col items-center gap-4">
         {nextLesson && (
           <Link
             to={`/lessons/${nextLesson._id}`}
-            className="flex items-center space-x-2 text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition shadow-sm"
+            className={`${baseBtnClass} text-white`}
             style={{ backgroundColor: accentColor }}
           >
-            <PlayCircle size={20} />
-            <span>Continue: {nextLesson.title}</span>
+            <PlayCircle size={20} className="shrink-0" />
+            <span className="truncate">Continue: {nextLesson.title}</span>
           </Link>
         )}
-
         <button
           onClick={onBackToModules}
-          className="flex items-center space-x-2 bg-white border border-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition"
+          className={`${baseBtnClass} ${neutralBtnClass}`}
         >
-          <span>Back to All Modules</span>
+          <span>Maybe Later</span>
         </button>
       </div>
     </div>

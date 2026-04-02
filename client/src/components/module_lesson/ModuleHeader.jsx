@@ -22,28 +22,33 @@ const ModuleHeader = ({
 
       {/* Module Header */}
       <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 mb-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            <div className="text-4xl" style={{ color: accentColor }}>
+        {/* Change: added flex-col and md:flex-row */}
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+          <div className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left space-y-4 md:space-y-0 md:space-x-4">
+            <div
+              className="text-5xl md:text-4xl"
+              style={{ color: accentColor }}
+            >
               {moduleData.icon || "📚"}
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">
                 {moduleData.title}
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg">
                 {moduleData.description}
               </p>
             </div>
           </div>
-
-          {/* Progress Circle */}
-          <ProgressCircle
-            progress={moduleLessonProgress}
-            completedLessons={completedLessons}
-            totalLessons={totalLessons}
-            accentColor={accentColor}
-          />
+          {/* Progress Circle - center it on mobile */}
+          <div className="shrink-0">
+            <ProgressCircle
+              progress={moduleLessonProgress}
+              completedLessons={completedLessons}
+              totalLessons={totalLessons}
+              accentColor={accentColor}
+            />
+          </div>{" "}
         </div>
 
         {/* Progress Bar */}

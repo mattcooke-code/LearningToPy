@@ -278,7 +278,7 @@ const Dashboard = () => {
                         {progressData.currentModule.order + 1}
                       </span>
                     </div>
-                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                    <span className="font-medium text-gray-800 dark:text-gray-200 px-3">
                       Module {progressData.currentModule.order + 1}
                     </span>
                   </div>

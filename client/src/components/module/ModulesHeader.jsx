@@ -11,7 +11,7 @@ const ModulesHeader = ({ completedModules, totalModules }) => {
   );
 
   return (
-    <div className="text-center mb-8">
+    <div className="text-center mb-8 px-3">
       <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">
         Your Learning Path
       </h1>

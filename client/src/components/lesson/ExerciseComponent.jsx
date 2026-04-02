@@ -166,7 +166,7 @@ const ExerciseComponent = ({
       {/* Header Container */}
       <div className="flex items-center justify-between mb-4">
         {/* Left Side: Icon and Title */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-1">
           <Code2
             className={isCodeDark ? "text-python-light" : "text-python-blue"}
             size={24}
@@ -178,23 +178,10 @@ const ExerciseComponent = ({
           >
             Try It Yourself {isReviewMode && "(Review)"}
           </h3>
-
-          {/* Keep the Review Mode badge next to the title if you like */}
-          {isReviewMode && (
-            <span
-              className={`px-2 py-1 rounded text-xs ${
-                isCodeDark
-                  ? "bg-gray-700 text-gray-300"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
-            >
-              Review Mode
-            </span>
-          )}
         </div>
 
         {/* Right Side: Toggle Button */}
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <CodeThemeToggle />
         </div>
       </div>

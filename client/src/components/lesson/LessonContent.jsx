@@ -3,6 +3,7 @@ import { Lightbulb } from "lucide-react";
 import { useTheme } from "../../context";
 import { QuizComponent, ExerciseComponent, CodeBlock } from "../lesson";
 import { MarkdownRenderer, PythonSyntaxHighlighter } from "../ui";
+import { CheckCircle } from "lucide-react";
 
 const LessonContent = ({
   lesson,
@@ -81,15 +82,19 @@ const LessonContent = ({
       )}
 
       {/* Post-Completion Navigation */}
-      {lesson.isCompleted && !isReviewMode && (
-        <div className="mt-12 p-1 border-t border-gray-100 dark:border-gray-700 pt-8">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+
+      {lesson.isCompleted && (
+        <div className="mt-8 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+          <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4">
+            <div className="p-3 bg-green-100 dark:bg-green-800 rounded-full text-green-600 dark:text-green-200">
+              <CheckCircle size={32} />
+            </div>
             <div>
               <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-                Lesson Complete! 🎉
+                Lesson Mastered! 🎉
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                You've mastered this content. What's next?
+                You've completed this content. Ready for the next challenge?
               </p>
             </div>
           </div>

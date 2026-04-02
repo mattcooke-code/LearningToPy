@@ -23,11 +23,11 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
       }
     `}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 flex-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-start space-x-4 flex-1 min-w-0 w-full">
           {/* Lesson Status Icon */}
           <div
-            className={`p-2 rounded-full ${
+            className={`p-2 rounded-full shrink-0 ${
               lesson.isCompleted
                 ? "bg-green-100 dark:bg-green-600 text-green-600 dark:text-green-100"
                 : isLocked
@@ -53,25 +53,25 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
           </div>
 
           {/* Lesson Content */}
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-              {lesson.order}. {lesson.title}
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate">
+              {lesson.title}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300  mt-1 line-clamp-2">
-              {lesson.shortDescription}
+            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+              {lesson.description}
             </p>
 
-            {/* Lesson Metadata */}
-            <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-300">
-              <div className="flex items-center space-x-1">
+            {/* Metadata - wrap on tiny screens */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-xs text-gray-500 dark:text-gray-300">
+              <div className="flex items-center space-x-1 shrink-0">
                 <Clock size={12} />
                 <span>{lesson.duration} min</span>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 shrink-0">
                 <Star size={12} />
                 <span>{lesson.xpReward} XP</span>
               </div>
-              <span className="capitalize px-2 py-1 bg-python-yellow text-python-dark dark:bg-python-blue dark:text-python-yellow rounded-full">
+              <span className="capitalize px-2 py-0.5 bg-python-blue text-python-yellow  rounded-full shrink-0">
                 {lesson.contentType}
               </span>
             </div>
@@ -79,15 +79,11 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
         </div>
 
         {/* Action Button */}
-        <div className="ml-4">
-          {isLocked ? (
-            <button disabled className="text-gray-400 p-2 cursor-not-allowed">
-              <Lock size={20} />
-            </button>
-          ) : (
+        <div className="w-full sm:w-auto shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0">
+          {!isLocked && (
             <Link
               to={`/lessons/${lesson._id}`}
-              className="flex items-center space-x-2 text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 transition"
+              className="flex items-center justify-center space-x-2 text-white py-2 px-6 rounded-lg font-semibold hover:opacity-90 transition w-full"
               style={{ backgroundColor: resolvedAccent }}
             >
               <span>{lesson.isCompleted ? "Review" : "Start"}</span>
