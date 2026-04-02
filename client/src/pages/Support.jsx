@@ -64,7 +64,7 @@ const Support = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center p-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-lg">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full mb-6">
             <CheckCircle2 size={32} />
@@ -100,10 +100,10 @@ const Support = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 dark:bg-gray-900 pt-24 pb-12">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 px-4">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Support & Feedback
             </h1>
@@ -114,7 +114,7 @@ const Support = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 px-2 md:px-0">
             <Link
               to="/curriculum"
               className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-python-blue dark:hover:border-python-yellow transition-all group"
@@ -145,7 +145,7 @@ const Support = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-2 md:px-0">
             {/* Contact Info Column */}
             <div className="lg:col-span-1 space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">

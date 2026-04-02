@@ -238,19 +238,20 @@ const CURRICULUM_DATA = {
 
 const PhaseCard = ({ phase, modules, index }) => {
   return (
-    <div className="mb-16 last:mb-0">
-      <div className="text-center mb-8">
+    <div className="mb-16 last:mb-0 px-2 md:px-0">
+      {" "}
+      {/* Added mobile side padding */}
+      <div className="text-center mb-8 px-4">
         <div className="inline-block px-4 py-1 rounded-full bg-python-blue/10 text-python-blue dark:bg-python-yellow/10 dark:text-python-yellow text-xs font-bold uppercase tracking-widest mb-4">
           Phase {index + 1}
         </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
           {phase.title}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-2">
           {phase.description}
         </p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {modules.map((module, idx) => (
           <div
@@ -316,7 +317,7 @@ const Curriculum = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 dark:bg-gray-900 pt-24 pb-12">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-8 md:px-10">
         {/* Hero Section */}
         <div className="max-w-4xl mx-auto text-center mb-16">
           <div className="inline-block px-4 py-1 rounded-full bg-python-blue/10 text-python-blue dark:text-python-yellow text-sm font-semibold mb-6">
@@ -396,7 +397,7 @@ const Curriculum = () => {
         {/* Capstone Section - Enhanced for better visibility */}
         <section className="mt-20 mb-16">
           <div
-            className={`relative rounded-3xl p-8 md:p-12 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-xl ${
+            className={`relative rounded-3xl p-6 md:p-12 lg:p-16 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-xl ${
               isDarkMode
                 ? "bg-gradient-to-r from-python-blue/20 to-python-yellow/20"
                 : "bg-gradient-to-r from-python-blue to-python-yellow"
@@ -456,7 +457,7 @@ const Curriculum = () => {
 
               {/* Code Preview */}
               <div className="relative">
-                <div className="bg-gray-900 dark:bg-black/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 font-mono text-sm shadow-2xl">
+                <div className="bg-gray-900 dark:bg-black/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 font-mono text-sm shadow-2xl overflow-x-auto">
                   <div className="flex space-x-2 mb-4">
                     <div className="w-3 h-3 rounded-full bg-red-500/60" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/60" />

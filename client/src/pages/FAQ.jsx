@@ -167,74 +167,82 @@ const FAQ = () => {
   return (
     <div className="min-h-screen bg-gray-200 dark:bg-gray-900 pt-24 pb-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-12 px-4">
+            <h1 className="text-4xl font-bold text-python-blue dark:text-python-yellow mb-4">
               Frequently Asked Questions
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-gray-800 dark:text-gray-300 max-w-3xl mx-auto pt-3">
               Find answers to common questions about Learning To Py. Can't find
               what you're looking for? Contact our support team.
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mb-12">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:border-python-blue dark:focus:border-python-yellow text-gray-900 dark:text-white shadow-sm"
-            />
-          </div>
-
-          {/* FAQ Categories */}
-          <div className="space-y-12">
-            {filteredCategories.map((category) => (
-              <div key={category.id}>
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-python-blue/10 dark:bg-python-yellow/10 rounded-xl text-python-blue dark:text-python-yellow">
-                    {category.icon}
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {category.title}
-                  </h2>
-                </div>
-
-                <div className="space-y-4">
-                  {category.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      <button
-                        onClick={() => toggleItem(item.id)}
-                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                      >
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          {item.question}
-                        </span>
-                        {openItems[item.id] ? (
-                          <ChevronUp className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                        )}
-                      </button>
-                      {openItems[item.id] && (
-                        <div className="px-6 pb-4">
-                          <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {item.answer}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+          {/*Search Bar and FAQ  */}
+          <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+            {/* Search Bar */}
+            <div className="p-4 md:p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+              {/* Add max-w-lg mx-auto here to constrain & center on desktop */}
+              <div className="relative max-w-lg mx-auto">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search questions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-python-blue/20 focus:border-python-blue dark:focus:border-python-yellow text-gray-900 dark:text-white transition-all"
+                />
               </div>
-            ))}
+            </div>
+
+            {/* FAQ Content Area */}
+            <div className="p-2 md:p-6">
+              <div className="space-y-10">
+                {filteredCategories.map((category) => (
+                  <div key={category.id} className="last:mb-4">
+                    <div className="flex items-center space-x-3 mb-4 px-4">
+                      <div className="text-python-blue dark:text-python-yellow">
+                        {category.icon}
+                      </div>
+                      <h2 className="text-xl font-bold text-python-dark dark:text-python-light">
+                        {category.title}
+                      </h2>
+                    </div>
+
+                    <div className="space-y-1">
+                      {category.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="group border-b last:border-0 border-gray-100 dark:border-gray-700/50"
+                        >
+                          <button
+                            onClick={() => toggleItem(item.id)}
+                            className="w-full px-4 py-4 flex items-center justify-between text-left hover:bg-python-blue/5 dark:hover:bg-python-yellow/5 transition-colors rounded-xl"
+                          >
+                            <span className="font-medium text-gray-700 dark:text-gray-200 group-hover:text-python-blue dark:group-hover:text-python-yellow">
+                              {item.question}
+                            </span>
+                            {openItems[item.id] ? (
+                              <ChevronUp className="h-5 w-5 text-python-blue dark:text-python-yellow" />
+                            ) : (
+                              <ChevronDown className="h-5 w-5 text-gray-400" />
+                            )}
+                          </button>
+                          {openItems[item.id] && (
+                            <div className="px-4 pb-5 pt-1">
+                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed ">
+                                {item.answer}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* No Results */}
@@ -251,12 +259,12 @@ const FAQ = () => {
           )}
 
           {/* Contact Support CTA */}
-          <div className="mt-12 p-8 bg-gradient-to-r from-python-blue to-python-yellow dark:from-python-blue/20 dark:to-python-yellow/20 rounded-2xl text-center">
+          <div className="mt-12 p-6 md:p-10 max-w-4xl mx-auto bg-gradient-to-r from-python-blue to-python-yellow  rounded-2xl text-center">
             <Mail className="h-8 w-8 text-python-dark dark:text-python-yellow mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               Still have questions?
             </h3>
-            <p className="text-gray-900 dark:text-gray-400 mb-6">
+            <p className="text-gray-900 mb-6">
               Can't find what you're looking for? Our support team is here to
               help.
             </p>
