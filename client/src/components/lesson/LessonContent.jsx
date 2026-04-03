@@ -2,7 +2,11 @@
 import { Lightbulb } from "lucide-react";
 import { useTheme } from "../../context";
 import { QuizComponent, ExerciseComponent, CodeBlock } from "../lesson";
-import { MarkdownRenderer, PythonSyntaxHighlighter } from "../ui";
+import {
+  CodeThemeToggle,
+  MarkdownRenderer,
+  PythonSyntaxHighlighter,
+} from "../ui";
 import { CheckCircle } from "lucide-react";
 
 const LessonContent = ({

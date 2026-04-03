@@ -84,169 +84,170 @@ const AdminDashboard = () => {
       description="Monitor and manage your learning platform"
       headerAction={<RefreshButton onClick={refetch} loading={loading} />}
     >
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AdminStatsCard
-          title="Total Users"
-          value={stats.totalUsers}
-          icon="👥"
-          color="blue"
-          trend={{ value: "+12%", positive: true }}
-          linkTo="/admin/users"
-        />
-        <AdminStatsCard
-          title="Active Users (7d)"
-          value={stats.activeUsers}
-          icon="🔥"
-          color="green"
-          trend={{ value: "+8%", positive: true }}
-        />
-        <AdminStatsCard
-          title="Published Lessons"
-          value={`${stats.publishedLessons}/${stats.totalLessons}`}
-          icon="📚"
-          color="purple"
-          trend={{
-            value: `${stats.publishedPercentage}%`,
-            positive: true,
-          }}
-          linkTo="/admin/content"
-        />
-        <AdminStatsCard
-          title="Pending Flags"
-          value={stats.flaggedContent}
-          icon="🚩"
-          color="red"
-          trend={{
-            value: pendingFlagsCount > 0 ? `+${pendingFlagsCount}` : "0",
-            positive: false,
-          }}
-          linkTo="/admin/flagged"
-        />
-      </div>
+      <div className="flex flex-col gap-8 md:gap-12">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          <AdminStatsCard
+            title="Total Users"
+            value={stats.totalUsers}
+            icon="👥"
+            color="blue"
+            trend={{ value: "+12%", positive: true }}
+            linkTo="/admin/users"
+          />
+          <AdminStatsCard
+            title="Active Users (7d)"
+            value={stats.activeUsers}
+            icon="🔥"
+            color="green"
+            trend={{ value: "+8%", positive: true }}
+          />
+          <AdminStatsCard
+            title="Published Lessons"
+            value={`${stats.publishedLessons}/${stats.totalLessons}`}
+            icon="📚"
+            color="purple"
+            trend={{
+              value: `${stats.publishedPercentage}%`,
+              positive: true,
+            }}
+            linkTo="/admin/content"
+          />
+          <AdminStatsCard
+            title="Pending Flags"
+            value={stats.flaggedContent}
+            icon="🚩"
+            color="red"
+            trend={{
+              value: pendingFlagsCount > 0 ? `+${pendingFlagsCount}` : "0",
+              positive: false,
+            }}
+            linkTo="/admin/flagged"
+          />
+        </div>
 
-      {/* Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Users */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Recent Users
-            </h2>
-            <Link
-              to="/admin/users"
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              View All →
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {recentUsers.length > 0 ? (
-              recentUsers.map((user) => (
-                <div
-                  key={user._id}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                      <span className="font-semibold text-blue-800 dark:text-blue-200">
-                        {user.username?.charAt(0)?.toUpperCase() || "U"}
-                      </span>
+        {/* Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Users */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Recent Users
+              </h2>
+              <Link
+                to="/admin/users"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                View All →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {recentUsers.length > 0 ? (
+                recentUsers.map((user) => (
+                  <div
+                    key={user._id}
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                        <span className="font-semibold text-blue-800 dark:text-blue-200">
+                          {user.username?.charAt(0)?.toUpperCase() || "U"}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {user.username || "Unknown User"}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Level {user.level || 1} • {user.xp || 0} XP
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {user.username || "Unknown User"}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Level {user.level || 1} • {user.xp || 0} XP
-                      </p>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setSelectedUserForBadge(user);
+                          setShowBadgeModal(true);
+                        }}
+                        className="px-3 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-full transition-colors"
+                        title="Grant Badge"
+                      >
+                        🏆
+                      </button>
+                      <Link
+                        to={`/admin/users/${user._id}`}
+                        className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                      >
+                        View
+                      </Link>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => {
-                        setSelectedUserForBadge(user);
-                        setShowBadgeModal(true);
-                      }}
-                      className="px-3 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-full transition-colors"
-                      title="Grant Badge"
-                    >
-                      🏆
-                    </button>
-                    <Link
-                      to={`/admin/users/${user._id}`}
-                      className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
-                    >
-                      View
-                    </Link>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                  No users found
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-4 text-gray-500 dark:text-gray-400">
-                No users found
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => navigate("/admin/users")}
-              className="p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors text-center group"
-            >
-              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
-                👤
-              </div>
-              <h3 className="font-semibold text-sm">Manage Users</h3>
-            </button>
-
-            <button
-              onClick={() => navigate("/admin/content?action=create")}
-              className="p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors text-center group"
-            >
-              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
-                📝
-              </div>
-              <h3 className="font-semibold text-sm">Create Content</h3>
-            </button>
-
-            <button
-              onClick={handleGrantBadge}
-              className="p-4 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-lg transition-colors text-center group"
-            >
-              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
-                🎁
-              </div>
-              <h3 className="font-semibold text-sm">Grant Badge</h3>
-            </button>
-
-            <button
-              onClick={handleViewReports}
-              className="p-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors text-center group relative"
-            >
-              {pendingFlagsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {pendingFlagsCount}
-                </span>
               )}
-              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
-                📊
-              </div>
-              <h3 className="font-semibold text-sm">View Reports</h3>
-            </button>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => navigate("/admin/users")}
+                className="p-4 bg-blue-300 dark:bg-blue-600/20 hover:bg-blue-400 dark:hover:bg-blue-400/40 rounded-lg dark:text-gray-200 transition-colors text-center group"
+              >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                  👤
+                </div>
+                <h3 className="font-semibold text-sm">Manage Users</h3>
+              </button>
+
+              <button
+                onClick={() => navigate("/admin/content?action=create")}
+                className="p-4 bg-purple-300 dark:bg-purple-600/20 hover:bg-purple-400 dark:hover:bg-purple-400/40 rounded-lg transition-colors text-center group dark:text-gray-200"
+              >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                  📝
+                </div>
+                <h3 className="font-semibold text-sm">Create Content</h3>
+              </button>
+
+              <button
+                onClick={handleGrantBadge}
+                className="p-4 bg-yellow-300/80 dark:bg-yellow-600/60 hover:bg-yellow-300 dark:hover:bg-yellow-400/60 rounded-lg transition-colors text-center group dark:text-gray-200"
+              >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                  🎁
+                </div>
+                <h3 className="font-semibold text-sm">Grant Badge</h3>
+              </button>
+
+              <button
+                onClick={handleViewReports}
+                className="p-4 bg-red-300 dark:bg-red-600/20 hover:bg-red-400 dark:hover:bg-red-400/50 rounded-lg transition-colors text-center group relative dark:text-gray-200"
+              >
+                {pendingFlagsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {pendingFlagsCount}
+                  </span>
+                )}
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                  📊
+                </div>
+                <h3 className="font-semibold text-sm">View Reports</h3>
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Flagged Content */}
+        <FlaggedContentList limit={3} />
       </div>
-
-      {/* Flagged Content */}
-      <FlaggedContentList limit={3} />
-
       {showUserSelector && (
         <BaseModal
           isOpen={showUserSelector}

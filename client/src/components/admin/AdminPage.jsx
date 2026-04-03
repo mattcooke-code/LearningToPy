@@ -11,7 +11,7 @@ const AdminPage = ({
   className = "",
 }) => {
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`flex flex-col space-y-10 pb-12 ${className}`}>
       {showHeader && (
         <AdminPageHeader
           title={title}
@@ -19,7 +19,7 @@ const AdminPage = ({
           action={headerAction}
         />
       )}
-      {children}
+      <div className="px-4 md:px-0">{children}</div>
     </div>
   );
 };

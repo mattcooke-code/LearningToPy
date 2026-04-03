@@ -74,6 +74,13 @@ const Navbar = memo(function Navbar() {
                   <BookOpen className="w-5 h-5" />
                   <span>Learn</span>
                 </Link>
+                <Link
+                  to="/profile"
+                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                >
+                  <User className="w-5 h-5" />
+                  <span>Profile</span>
+                </Link>
                 {user?.isAdmin && (
                   <Link
                     to="/admin"
@@ -83,13 +90,6 @@ const Navbar = memo(function Navbar() {
                     <span>Admin</span>
                   </Link>
                 )}
-                <Link
-                  to="/profile"
-                  className={`flex items-center space-x-1 ${getHoverClass()}`}
-                >
-                  <User className="w-5 h-5" />
-                  <span>Profile</span>
-                </Link>
                 <button
                   onClick={() => logout()}
                   className={`flex items-center space-x-1 ${getHoverClass()}`}
@@ -151,6 +151,16 @@ const Navbar = memo(function Navbar() {
               >
                 <User size={20} /> <span>Profile</span>
               </Link>
+              {user?.isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={toggleMenu}
+                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Admin</span>
+                </Link>
+              )}
               <button
                 onClick={() => {
                   logout();

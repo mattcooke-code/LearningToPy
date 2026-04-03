@@ -22,9 +22,9 @@ const AdminStatsCard = ({
     <div
       className={`${
         linkTo || onClick ? "cursor-pointer hover:shadow-lg" : ""
-      } transition-all duration-200`}
+      } transition-all duration-200 h-full`}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 h-full flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className={`${colorClasses[color]} p-3 rounded-lg`}>
             <span className="text-2xl">{icon}</span>
@@ -47,35 +47,42 @@ const AdminStatsCard = ({
         <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {value}
         </p>
-        {linkTo && (
-          <div className="flex items-center text-sm text-blue-600 dark:text-blue-400">
-            <span>View details</span>
-            <svg
-              className="w-4 h-4 ml-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </div>
-        )}
+        <div className="mt-auto">
+          {linkTo && (
+            <div className="flex items-center text-sm text-blue-600 dark:text-blue-400">
+              <span>View details</span>
+              <svg
+                className="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 
+  // Important: Ensure the Link or button wrappers also pass down height
   if (linkTo) {
-    return <Link to={linkTo}>{Content}</Link>;
+    return (
+      <Link to={linkTo} className="h-full block">
+        {Content}
+      </Link>
+    );
   }
 
   if (onClick) {
     return (
-      <button onClick={onClick} className="w-full text-left">
+      <button onClick={onClick} className="w-full text-left h-full block">
         {Content}
       </button>
     );

@@ -1,5 +1,5 @@
 // AdminLayout.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import AdminSidebar from "./AdminSidebar";
@@ -8,7 +8,13 @@ import { BackToTopButton, LoadingState } from "../ui";
 const AdminLayout = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   if (authLoading) {
     return <LoadingState message="Loading admin dashboard..." />;
@@ -19,7 +25,7 @@ const AdminLayout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-gray-300 dark:bg-gray-900 flex overflow-x-hidden">
       {/* Sidebar */}
       <AdminSidebar
         isOpen={sidebarOpen}
@@ -28,16 +34,18 @@ const AdminLayout = ({ children }) => {
       />
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
+        {" "}
+        {/* added min-w-0 to prevent layout shift */}
         {/* Top bar - Fixed */}
         <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="px-6 py-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                {/* Mobile menu button */}
+                {/* Mobile menu button - Now always visible or lg:hidden based on preference */}
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden mr-4 p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="lg:hidden mr-4 p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none ring-2 ring-transparent focus:ring-blue-500"
                   aria-label="Toggle sidebar"
                 >
                   <svg
@@ -45,7 +53,6 @@ const AdminLayout = ({ children }) => {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -58,10 +65,10 @@ const AdminLayout = ({ children }) => {
 
                 <div>
                   <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                    Admin Dashboard
+                    Admin
                   </h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Welcome back, {user.username} 👋
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Welcome, {user.username}
                   </p>
                 </div>
               </div>
@@ -79,9 +86,14 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
         </div>
-
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-6 ">{children || <Outlet />}</main>
+        <main className="flex-1">
+          <div className="px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-7xl mx-auto">
+              {children || <Outlet />}
+            </div>{" "}
+          </div>
+        </main>
       </div>
       <BackToTopButton />
     </div>
