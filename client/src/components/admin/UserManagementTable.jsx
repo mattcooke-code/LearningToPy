@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { useNotification, adminApiClient } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
 import {
@@ -47,9 +46,8 @@ const UserManagementTable = ({ searchQuery = "" }) => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
 
-  // Dropdown Portal State
+  // Dropdown State
   const [activeDropdownUser, setActiveDropdownUser] = useState(null);
-  const buttonRefs = useRef({});
   const dropdownRef = useRef(null);
 
   // Data Fetching
@@ -91,32 +89,26 @@ const UserManagementTable = ({ searchQuery = "" }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        const isClickOnButton = Object.values(buttonRefs.current).some(
-          (btn) => btn && btn.contains(event.target),
-        );
-        if (!isClickOnButton) {
-          setActiveDropdownUser(null);
-        }
+        setActiveDropdownUser(null);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    if (activeDropdownUser) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [activeDropdownUser]);
 
-  // Handlers with Confirmation Modals
   const handleToggleAdmin = (user) => {
     const action = user.isAdmin ? "remove" : "grant";
     const title = user.isAdmin ? "Remove Admin Privileges" : "Make Admin";
-    const message = `Are you sure you want to ${action} admin privileges for ${user.username}? This action can be reversed.`;
-    const confirmText = user.isAdmin ? "Remove Admin" : "Make Admin";
-    const type = "warning";
+    const message = `Are you sure you want to ${action} admin privileges for ${user.username}?`;
 
     showConfirm({
       title,
       message,
-      confirmText,
-      type,
+      confirmText: user.isAdmin ? "Remove Admin" : "Make Admin",
+      type: "warning",
       onConfirm: async () => {
         try {
           await updateAdmin({
@@ -139,24 +131,17 @@ const UserManagementTable = ({ searchQuery = "" }) => {
   const handleStatusChange = (userId, action) => {
     const user = users.find((u) => u._id === userId);
     const isBlocking = action === "block";
-    const title = isBlocking ? "Block User" : "Unblock User";
-    const message = isBlocking
-      ? `Are you sure you want to block ${user?.username}? They will lose access to the platform until unblocked.`
-      : `Are you sure you want to unblock ${user?.username}? They will regain full access to the platform.`;
-    const confirmText = isBlocking ? "Block User" : "Unblock User";
-    const type = isBlocking ? "danger" : "warning";
 
     showConfirm({
-      title,
-      message,
-      confirmText,
-      type,
+      title: isBlocking ? "Block User" : "Unblock User",
+      message: isBlocking
+        ? `Are you sure you want to block ${user?.username}?`
+        : `Are you sure you want to unblock ${user?.username}?`,
+      confirmText: isBlocking ? "Block User" : "Unblock User",
+      type: isBlocking ? "danger" : "warning",
       onConfirm: async () => {
         try {
-          await updateStatus({
-            id: userId,
-            body: { action },
-          });
+          await updateStatus({ id: userId, body: { action } });
           showToast(
             `${user?.username} has been ${isBlocking ? "blocked" : "unblocked"}`,
             "success",
@@ -193,45 +178,23 @@ const UserManagementTable = ({ searchQuery = "" }) => {
     setPage(1);
   };
 
-  const handleReset = () => {
-    setFilters(initialFilters);
-    setPage(1);
-  };
-
-  // Helper to get button position for portal
-  const getDropdownPosition = () => {
-    const button = buttonRefs.current[activeDropdownUser];
-    if (!button) return { top: 0, left: 0 };
-
-    const rect = button.getBoundingClientRect();
-    const dropdownWidth = 220;
-    const left = Math.min(
-      rect.left - dropdownWidth + rect.width,
-      window.innerWidth - dropdownWidth - 10,
-    );
-
-    return {
-      top: rect.bottom + window.scrollY + 5,
-      left: Math.max(10, left),
-    };
-  };
-
   if (loading && users.length === 0) {
     return <LoadingState message="Loading users..." height="h-96" />;
   }
 
   return (
     <div className="space-y-4">
-      {/* Filters Block */}
       <UserTableFilters
         filters={filters}
         setFilters={setFilters}
-        onReset={handleReset}
+        onReset={() => {
+          setFilters(initialFilters);
+          setPage(1);
+        }}
       />
 
-      {/* Table */}
       <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto pb-50">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800/50">
               <tr>
@@ -277,7 +240,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-3">
-                        {user.username?.charAt(0)?.toUpperCase() || "U"}
+                        {user.username?.charAt(0)?.toUpperCase()}
                       </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -302,11 +265,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                        user.isBlocked
-                          ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                          : "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                      }`}
+                      className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${user.isBlocked ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400" : "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"}`}
                     >
                       {user.isBlocked ? (
                         <XCircle className="w-3 h-3 mr-1" />
@@ -319,9 +278,10 @@ const UserManagementTable = ({ searchQuery = "" }) => {
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 text-right">
+
+                  {/* ACTIONS COLUMN - Now the relative anchor */}
+                  <td className="px-6 py-4 text-right relative">
                     <button
-                      ref={(el) => (buttonRefs.current[user._id] = el)}
                       onClick={(e) => {
                         e.stopPropagation();
                         setActiveDropdownUser(
@@ -332,6 +292,87 @@ const UserManagementTable = ({ searchQuery = "" }) => {
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>
+
+                    {/* REFACTORED DROPDOWN - No longer using Portal */}
+                    {activeDropdownUser === user._id && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute right-6 top-12 z-50 w-56 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-lg py-2 animate-in fade-in zoom-in duration-100 text-left"
+                      >
+                        <button
+                          className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setShowDetailModal(true);
+                            setActiveDropdownUser(null);
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-2 text-blue-500" /> View
+                          Profile
+                        </button>
+                        <button
+                          className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                          onClick={() => handleToggleAdmin(user)}
+                        >
+                          {user.isAdmin ? (
+                            <ShieldOff className="w-4 h-4 mr-2 text-orange-500" />
+                          ) : (
+                            <Shield className="w-4 h-4 mr-2 text-purple-500" />
+                          )}
+                          {user.isAdmin ? "Remove Admin" : "Make Admin"}
+                        </button>
+                        <button
+                          className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setShowXPModal(true);
+                            setActiveDropdownUser(null);
+                          }}
+                        >
+                          <Award className="w-4 h-4 mr-2 text-yellow-500" />{" "}
+                          Adjust XP
+                        </button>
+                        <button
+                          className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setShowProgressModal(true);
+                            setActiveDropdownUser(null);
+                          }}
+                        >
+                          <ShieldCheckIcon className="w-4 h-4 mr-2 text-green-500" />{" "}
+                          Override Progress
+                        </button>
+                        <button
+                          className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setShowBadgeModal(true);
+                            setActiveDropdownUser(null);
+                          }}
+                        >
+                          <Award className="w-4 h-4 mr-2 text-yellow-500" />{" "}
+                          Grant Badge
+                        </button>
+                        <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+                        <button
+                          className={`w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 ${user.isBlocked ? "text-green-600" : "text-red-600"}`}
+                          onClick={() =>
+                            handleStatusChange(
+                              user._id,
+                              user.isBlocked ? "unblock" : "block",
+                            )
+                          }
+                        >
+                          {user.isBlocked ? (
+                            <UserCheck className="w-4 h-4 mr-2" />
+                          ) : (
+                            <UserX className="w-4 h-4 mr-2" />
+                          )}
+                          {user.isBlocked ? "Unblock User" : "Block User"}
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -340,116 +381,9 @@ const UserManagementTable = ({ searchQuery = "" }) => {
         </div>
       </div>
 
-      {/* Pagination */}
       <Pagination page={page} total={totalPages} onPageChange={setPage} />
 
-      {/* Portal Dropdown */}
-      {activeDropdownUser &&
-        createPortal(
-          <div
-            ref={dropdownRef}
-            className="fixed z-[1000] w-56 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-lg py-2 animate-in fade-in zoom-in duration-100"
-            style={{
-              top: getDropdownPosition().top,
-              left: getDropdownPosition().left,
-            }}
-          >
-            {(() => {
-              const user = users.find((u) => u._id === activeDropdownUser);
-              if (!user) return null;
-
-              return (
-                <>
-                  <button
-                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowDetailModal(true);
-                      setActiveDropdownUser(null);
-                    }}
-                  >
-                    <Eye className="w-4 h-4 mr-2 text-blue-500" /> View Profile
-                  </button>
-
-                  <button
-                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
-                    onClick={() => {
-                      handleToggleAdmin(user);
-                    }}
-                  >
-                    {user.isAdmin ? (
-                      <ShieldOff className="w-4 h-4 mr-2 text-orange-500" />
-                    ) : (
-                      <Shield className="w-4 h-4 mr-2 text-purple-500" />
-                    )}
-                    {user.isAdmin ? "Remove Admin" : "Make Admin"}
-                  </button>
-
-                  <button
-                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowXPModal(true);
-                      setActiveDropdownUser(null);
-                    }}
-                  >
-                    <Award className="w-4 h-4 mr-2 text-yellow-500" /> Adjust XP
-                  </button>
-
-                  <button
-                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowProgressModal(true);
-                      setActiveDropdownUser(null);
-                    }}
-                  >
-                    <ShieldCheckIcon className="w-4 h-4 mr-2 text-green-500" />{" "}
-                    Override Progress
-                  </button>
-
-                  <button
-                    className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowBadgeModal(true);
-                      setActiveDropdownUser(null);
-                    }}
-                  >
-                    <Award className="w-4 h-4 mr-2 text-yellow-500" /> Grant
-                    Badge
-                  </button>
-
-                  <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
-
-                  <button
-                    className={`w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                      user.isBlocked
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    }`}
-                    onClick={() => {
-                      handleStatusChange(
-                        user._id,
-                        user.isBlocked ? "unblock" : "block",
-                      );
-                    }}
-                  >
-                    {user.isBlocked ? (
-                      <UserCheck className="w-4 h-4 mr-2" />
-                    ) : (
-                      <UserX className="w-4 h-4 mr-2" />
-                    )}
-                    {user.isBlocked ? "Unblock User" : "Block User"}
-                  </button>
-                </>
-              );
-            })()}
-          </div>,
-          document.body,
-        )}
-
-      {/* Modals */}
+      {/* Modals remain the same */}
       {showXPModal && selectedUser && (
         <XPAdjustmentModal
           isOpen={showXPModal}
@@ -458,20 +392,18 @@ const UserManagementTable = ({ searchQuery = "" }) => {
           onSave={handleXPAdjust}
         />
       )}
-
       {showProgressModal && selectedUser && (
         <ProgressOverrideModal
           isOpen={showProgressModal}
           user={selectedUser}
           onClose={() => setShowProgressModal(false)}
           onSave={() => {
-            showToast("Progress updated successfully", "success");
-            setShowProgressModal(false);
+            showToast("Progress updated", "success");
             refresh();
+            setShowProgressModal(false);
           }}
         />
       )}
-
       {showDetailModal && selectedUser && (
         <UserDetailModal
           isOpen={showDetailModal}
@@ -479,14 +411,13 @@ const UserManagementTable = ({ searchQuery = "" }) => {
           onClose={() => setShowDetailModal(false)}
         />
       )}
-
       {showBadgeModal && selectedUser && (
         <BadgeAwardModal
           isOpen={showBadgeModal}
           user={selectedUser}
           onClose={() => setShowBadgeModal(false)}
           onSave={() => {
-            showToast("Badges updated successfully", "success");
+            showToast("Badges updated", "success");
             refresh();
           }}
         />

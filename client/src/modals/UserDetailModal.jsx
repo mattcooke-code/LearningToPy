@@ -149,14 +149,14 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
   const TabButton = ({ id, label, icon: Icon }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`flex items-center space-x-2 py-3 px-1 text-sm font-bold border-b-2 transition-all ${
+      className={`flex items-center justify-center md:justify-start space-x-2 py-3 px-2 text-xs md:text-sm font-bold transition-all border-b-2 ${
         activeTab === id
           ? "border-blue-500 text-blue-600 dark:text-blue-400"
           : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
       }`}
     >
-      <Icon className="h-4 w-4" />
-      <span>{label}</span>
+      <Icon className="h-4 w-4 shrink-0" />
+      <span className="truncate">{label}</span>
     </button>
   );
 
@@ -184,6 +184,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
       title={
         <div className="flex items-center space-x-2">
           <UserIcon className="h-5 w-5 text-gray-400" />
@@ -246,8 +247,8 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex space-x-6 border-b border-gray-100 dark:border-gray-800 mb-8 px-2">
+      {/* Navigation Tabs*/}
+      <div className="grid grid-cols-2 md:flex md:space-x-6 border-b border-gray-100 dark:border-gray-800 mb-8 px-2 gap-y-2 md:gap-y-0">
         <TabButton id="overview" label="Overview" icon={Activity} />
         <TabButton id="activity" label="Activity Log" icon={ClockIcon} />
         <TabButton id="stats" label="Stats" icon={BarChart3} />
@@ -259,7 +260,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
         {activeTab === "overview" && (
           <div className="space-y-8 animate-in fade-in duration-300">
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
               {stats.map((stat) => {
                 const Icon = stat.icon;
                 const colors =

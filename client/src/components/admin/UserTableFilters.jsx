@@ -1,10 +1,48 @@
-// UserTableFilters.jsx
+import { useState, useEffect } from "react";
 import { Filter, RotateCcw } from "lucide-react";
 
 const UserTableFilters = ({ filters, setFilters, onReset }) => {
-  const handleChange = (e) => {
+  // Local state to handle the input text smoothly before triggering the API
+  const [localLevels, setLocalLevels] = useState({
+    levelMin: filters.levelMin || "",
+    levelMax: filters.levelMax || "",
+  });
+
+  // Sync local state if filters are cleared/reset by the parent component
+  useEffect(() => {
+    setLocalLevels({
+      levelMin: filters.levelMin || "",
+      levelMax: filters.levelMax || "",
+    });
+  }, [filters.levelMin, filters.levelMax]);
+
+  // Debounce logic: Only update the parent state (and trigger API)
+  // after the user stops typing for 500ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({
+        ...prev,
+        levelMin: localLevels.levelMin,
+        levelMax: localLevels.levelMax,
+      }));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localLevels, setFilters]);
+
+  // Instant update for dropdowns
+  const handleSelectChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Update local state only for numeric inputs
+  const handleNumericChange = (e) => {
+    const { name, value } = e.target;
+    setLocalLevels((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -38,14 +76,14 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Status Filter */}
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-400 uppercase">
+          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase">
             Account Status
           </label>
           <select
             name="isBlocked"
             value={filters.isBlocked}
-            onChange={handleChange}
-            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+            onChange={handleSelectChange}
+            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
           >
             <option value="">All Statuses</option>
             <option value="true">Blocked</option>
@@ -55,14 +93,14 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
 
         {/* Role Filter */}
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-400 uppercase">
+          <label className="text-[11px] font-bold text-gray-400 dark:text-gray-200 uppercase">
             Privileges
           </label>
           <select
             name="isAdmin"
             value={filters.isAdmin}
-            onChange={handleChange}
-            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+            onChange={handleSelectChange}
+            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border dark:text-gray-300 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
           >
             <option value="">All Roles</option>
             <option value="true">Admins Only</option>
@@ -70,34 +108,34 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
           </select>
         </div>
 
-        {/* Level Filters */}
+        {/* Level Filters using local state for smooth typing */}
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-400 uppercase">
+          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase">
             Min Level
           </label>
           <input
             type="number"
             name="levelMin"
             min="0"
-            value={filters.levelMin}
-            onChange={handleChange}
+            value={localLevels.levelMin}
+            onChange={handleNumericChange}
             placeholder="0"
-            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border dark:text-gray-300 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-400 uppercase">
+          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase">
             Max Level
           </label>
           <input
             type="number"
             name="levelMax"
             min="0"
-            value={filters.levelMax}
-            onChange={handleChange}
+            value={localLevels.levelMax}
+            onChange={handleNumericChange}
             placeholder="99"
-            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+            className="w-full h-10 px-3 text-sm bg-gray-50 dark:bg-gray-800 border dark:text-gray-300 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
           />
         </div>
       </div>

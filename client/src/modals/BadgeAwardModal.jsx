@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { adminApiClient, useNotification } from "../context";
 import { BaseModal } from "../components/ui";
-import { Search, Award, Loader2, Check, X } from "lucide-react";
+import { Search, Award, Loader2, Check, X, Trophy } from "lucide-react";
 import { BADGE_DEFINITIONS_CORE } from "../../../shared/constants/badgeDefinitions";
 
 const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
@@ -12,24 +12,27 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
   const [saving, setSaving] = useState(false);
   const { showToast } = useNotification();
 
-  // Fetch user's current badges
-  useEffect(() => {
-    if (isOpen && user?._id) {
-      fetchUserBadges();
-    }
-  }, [isOpen, user]);
-
-  const fetchUserBadges = async () => {
+  // Reverted to your original data path: response.badges
+  const fetchUserBadges = useCallback(async () => {
+    if (!user?._id) return;
     setLoading(true);
     try {
       const response = await adminApiClient.get(`/users/${user._id}/badges`);
+      // Restored original logic: response?.badges
       setUserBadges(response?.badges || []);
     } catch (err) {
       showToast("Failed to load user badges", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id, showToast]);
+
+  useEffect(() => {
+    if (isOpen && user?._id) {
+      fetchUserBadges();
+      setSelectedBadges([]);
+    }
+  }, [isOpen, user?._id, fetchUserBadges]);
 
   const filteredBadges = BADGE_DEFINITIONS_CORE.filter(
     (badge) =>
@@ -38,8 +41,8 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
       badge.category.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  // Restored original simple inclusion check
   const isBadgeEarned = (badgeId) => userBadges.includes(badgeId);
-  const isSelected = (badgeId) => selectedBadges.includes(badgeId);
 
   const handleToggleBadge = (badgeId) => {
     setSelectedBadges((prev) =>
@@ -51,9 +54,9 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
 
   const handleAwardBadges = async () => {
     if (selectedBadges.length === 0) return;
-
     setSaving(true);
     try {
+      // Restored original Award payload and path
       await adminApiClient.post(`/users/${user._id}/badges/award`, {
         badgeIds: selectedBadges,
         reason: "Manually awarded by admin",
@@ -63,28 +66,30 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
         `Successfully awarded ${selectedBadges.length} badge(s)`,
         "success",
       );
-      onSave?.();
-      onClose();
+      setSelectedBadges([]);
+      await fetchUserBadges(); // Refresh local list
+      onSave?.(); // Refresh parent table
     } catch (err) {
-      showToast(err.response?.message || "Failed to award badges", "error");
+      showToast("Failed to award badges", "error");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleRemoveBadges = async (badgeIds) => {
+  const handleRemoveBadge = async (badgeId) => {
     setSaving(true);
     try {
+      // Restored original Remove path and payload
       await adminApiClient.post(`/users/${user._id}/badges/remove`, {
-        badgeIds,
+        badgeIds: [badgeId],
         reason: "Manually removed by admin",
       });
 
-      showToast(`Successfully removed ${badgeIds.length} badge(s)`, "success");
-      await fetchUserBadges(); // Refresh the list
-      setSelectedBadges([]); // Clear selection
+      showToast("Badge revoked", "success");
+      await fetchUserBadges();
+      onSave?.();
     } catch (err) {
-      showToast("Failed to remove badges", "error");
+      showToast("Failed to revoke badge", "error");
     } finally {
       setSaving(false);
     }
@@ -94,139 +99,104 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
       title={
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center">
             <Award className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              Manage Badges: {user?.username}
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+              Badge Management: {user?.username}
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Award or remove achievement badges
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+              Grant or Revoke Achievements
             </p>
           </div>
         </div>
       }
       size="4xl"
     >
-      {user && (
-        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <div className="flex items-center space-x-3">
-            <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center text-xl">
-              {user.username?.charAt(0)?.toUpperCase() || "U"}
-            </div>
-          </div>
-          <h4 className="font-semibold text-gray-900 dark:text-white">
-            {user.username}
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {user.email} • Level {user.level} • {user.xp} XP
-          </p>
-        </div>
-      )}
-
-      {/* Search and Stats */}
-      <div className="mb-6">
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search badges by name, description, or category..."
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-yellow-500 outline-none dark:text-gray-200"
-          />
-        </div>
-
-        <div className="flex justify-between items-center text-sm">
-          <span className="text-gray-600 dark:text-gray-400">
-            Earned: {userBadges.length} / {BADGE_DEFINITIONS_CORE.length}
-          </span>
-          {selectedBadges.length > 0 && (
-            <button
-              onClick={() => handleAwardBadges()}
-              disabled={saving}
-              className="px-4 py-2 bg-yellow-600 text-white rounded-lg text-sm font-semibold hover:bg-yellow-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Award className="h-4 w-4" />
-              )}
-              <span>Award Selected ({selectedBadges.length})</span>
-            </button>
-          )}
-        </div>
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={
+            window.innerWidth < 640
+              ? "Search badges..."
+              : "Search by badge name or category..."
+          }
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+        />
       </div>
 
-      {/* Badges Grid */}
       {loading ? (
-        <div className="flex justify-center items-center h-96">
-          <Loader2 className="h-8 w-8 text-yellow-500 animate-spin" />
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+          <p className="text-sm text-gray-500 animate-pulse font-medium">
+            Synchronizing badges...
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto p-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
           {filteredBadges.map((badge) => {
-            const earned = isBadgeEarned(badge.id);
-            const selected = isSelected(badge.id);
+            const earned = isBadgeEarned(badge.id); // Re-connected
+            const selected = selectedBadges.includes(badge.id);
 
             return (
               <div
                 key={badge.id}
-                className={`relative p-4 border rounded-xl transition-all ${
+                className={`group p-4 border rounded-2xl transition-all relative ${
                   earned
-                    ? "bg-green-50/30 border-green-200 dark:bg-green-900/10 dark:border-green-800"
+                    ? "bg-green-50/30 border-green-100 dark:bg-green-900/5 dark:border-green-900/30"
                     : selected
-                      ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/10 dark:border-yellow-800"
-                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-yellow-300"
+                      ? "bg-blue-50/50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800"
+                      : "bg-white dark:bg-gray-800/50 border-gray-100 dark:border-gray-700"
                 }`}
               >
-                <div className="flex items-start space-x-4">
-                  {/* Badge Icon Placeholder */}
-                  <div
-                    className={`h-12 w-12 rounded-lg flex items-center justify-center text-2xl ${
-                      earned
-                        ? "bg-green-100 dark:bg-green-900/40"
-                        : "bg-gray-100 dark:bg-gray-700"
-                    }`}
-                  >
-                    {badge.icon || "🏆"}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-gray-900 dark:text-white flex items-center">
-                      {badge.name}
-                      {earned && (
-                        <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 text-xs rounded-full">
-                          Earned
-                        </span>
-                      )}
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {badge.description}
-                    </p>
-                    <div className="flex items-center mt-2 space-x-2">
-                      <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400">
-                        {badge.category}
+                <div className="flex items-start gap-4">
+                  <div className="flex flex-col items-center space-y-2 shrink-0">
+                    <div className="text-4xl filter drop-shadow-sm group-hover:scale-110 transition-transform">
+                      {badge.icon || "🏆"}
+                    </div>
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full">
+                      <Trophy
+                        className={`h-3 w-3 ${earned ? "text-yellow-500" : "text-gray-400 grayscale opacity-50"}`}
+                      />
+                      <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">
+                        {badge.xpReward || 0}
                       </span>
-                      {badge.tier && (
-                        <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 rounded-full">
-                          {badge.tier}
-                        </span>
-                      )}
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex space-x-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-bold text-gray-900 dark:text-white truncate text-sm">
+                        {badge.name}
+                      </h4>
+                      {earned && (
+                        <span className="text-[9px] font-black uppercase tracking-widest text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded">
+                          Earned
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-tighter mb-1.5">
+                      {badge.category}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                      {badge.description}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
                     {earned ? (
                       <button
-                        onClick={() => handleRemoveBadges([badge.id])}
+                        onClick={() => handleRemoveBadge(badge.id)}
                         disabled={saving}
-                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="Remove Badge"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                        title="Revoke Badge"
                       >
                         <X className="h-5 w-5" />
                       </button>
@@ -234,10 +204,10 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
                       <button
                         onClick={() => handleToggleBadge(badge.id)}
                         disabled={saving}
-                        className={`p-2 rounded-lg transition-colors ${
+                        className={`p-2 rounded-lg transition-all ${
                           selected
-                            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400"
+                            ? "bg-blue-600 text-white shadow-md scale-105"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-blue-500"
                         }`}
                         title={selected ? "Deselect" : "Select to Award"}
                       >
@@ -256,13 +226,32 @@ const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
         </div>
       )}
 
-      <div className="mt-8 flex justify-end">
-        <button
-          onClick={onClose}
-          className="px-6 py-2.5 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-        >
-          Close
-        </button>
+      <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-100 dark:border-gray-800 pt-6">
+        <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+          {selectedBadges.length} badge(s) selected for award
+        </p>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button
+            onClick={onClose}
+            className="flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Cancel
+          </button>
+          {selectedBadges.length > 0 && (
+            <button
+              onClick={handleAwardBadges}
+              disabled={saving}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95 disabled:opacity-50"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Award className="h-4 w-4" />
+              )}
+              Confirm Award
+            </button>
+          )}
+        </div>
       </div>
     </BaseModal>
   );

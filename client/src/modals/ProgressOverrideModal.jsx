@@ -1,4 +1,3 @@
-// ProgressOverrideModal.jsx
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { adminApiClient, useNotification } from "../context";
 import { BaseModal } from "../components/ui";
@@ -65,7 +64,6 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
     if (isOpen) fetchData();
   }, [isOpen, fetchData]);
 
-  // 2. High-Performance Filtering (useMemo replaces useEffect)
   const filteredItems = useMemo(() => {
     const lowerQuery = searchQuery.toLowerCase();
     return items.filter((item) => {
@@ -78,7 +76,6 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
     });
   }, [items, selectedType, searchQuery]);
 
-  // 3. Optimized Toggle Handler
   const toggleItemCompletion = async (itemId, itemType, currentlyCompleted) => {
     try {
       setIsSavingId(itemId);
@@ -89,7 +86,6 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
         reason: "Manual override by admin",
       });
 
-      // Optimistic local state update
       setUserProgress((prev) => {
         const key =
           itemType === "lesson" ? "completedLessons" : "completedModules";
@@ -101,7 +97,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
         };
       });
 
-      showToast(`Status updated for ${itemType}`, "success");
+      showToast(`${itemType} status updated`, "success");
       onSave?.();
     } catch (err) {
       showToast("Failed to override progress", "error");
@@ -114,6 +110,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
       title={
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
@@ -189,7 +186,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
         />
       </div>
 
-      {/* Items Grid/List */}
+      {/* Items List */}
       <div className="min-h-[400px]">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-64 space-y-4">
@@ -219,73 +216,79 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
                 return (
                   <div
                     key={item._id}
-                    className={`flex items-center justify-between p-4 border rounded-xl transition-all ${
+                    className={`p-4 border rounded-xl transition-all ${
                       isCompleted
                         ? "bg-green-50/30 border-green-100 dark:bg-green-900/5 dark:border-green-900/30"
                         : "bg-white dark:bg-gray-800/50 border-gray-100 dark:border-gray-700"
                     }`}
                   >
-                    <div className="flex items-center space-x-4 min-w-0">
-                      <div
-                        className={`h-10 w-10 shrink-0 rounded-lg flex items-center justify-center ${
-                          isCompleted
-                            ? "bg-green-100 dark:bg-green-900/40"
-                            : "bg-gray-100 dark:bg-gray-700"
-                        }`}
-                      >
-                        {selectedType === "lesson" ? (
-                          <FileText
-                            className={`h-5 w-5 ${
-                              isCompleted ? "text-green-600" : "text-gray-400"
-                            }`}
-                          />
-                        ) : (
-                          <BookOpen
-                            className={`h-5 w-5 ${
-                              isCompleted ? "text-purple-600" : "text-gray-400"
-                            }`}
-                          />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="font-bold text-gray-900 dark:text-white truncate text-sm">
-                          {item.title}
-                        </h4>
-                        <div className="flex items-center text-[11px] text-gray-500 dark:text-gray-400 mt-1">
-                          <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded mr-2 uppercase tracking-tighter">
-                            ID: {item._id.slice(-6)}
-                          </span>
-                          <Trophy className="h-3 w-3 mr-1 text-yellow-500" />
-                          <span>{item.xpReward || 0} XP</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center space-x-4 min-w-0">
+                        <div
+                          className={`h-10 w-10 shrink-0 rounded-lg flex items-center justify-center ${
+                            isCompleted
+                              ? "bg-green-100 dark:bg-green-900/40"
+                              : "bg-gray-100 dark:bg-gray-700"
+                          }`}
+                        >
+                          {selectedType === "lesson" ? (
+                            <FileText
+                              className={`h-5 w-5 ${
+                                isCompleted ? "text-green-600" : "text-gray-400"
+                              }`}
+                            />
+                          ) : (
+                            <BookOpen
+                              className={`h-5 w-5 ${
+                                isCompleted
+                                  ? "text-purple-600"
+                                  : "text-gray-400"
+                              }`}
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-gray-900 dark:text-white truncate text-sm">
+                            {item.title}
+                          </h4>
+                          <div className="flex flex-wrap items-center text-[10px] text-gray-500 dark:text-gray-400 mt-1 gap-2">
+                            <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded uppercase tracking-tighter break-all">
+                              ID: {item._id}
+                            </span>
+                            <div className="flex items-center">
+                              <Trophy className="h-3 w-3 mr-1 text-yellow-500" />
+                              <span>{item.xpReward || 0} XP</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <button
-                      onClick={() =>
-                        toggleItemCompletion(item._id, item.type, isCompleted)
-                      }
-                      disabled={isSavingId !== null}
-                      className={`ml-4 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center space-x-2 ${
-                        isCompleted
-                          ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400"
-                          : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-                      } disabled:opacity-50`}
-                    >
-                      {isSaving ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : isCompleted ? (
-                        <>
-                          <XIcon className="h-3.5 w-3.5" />
-                          <span>Reset</span>
-                        </>
-                      ) : (
-                        <>
-                          <Check className="h-3.5 w-3.5" />
-                          <span>Complete</span>
-                        </>
-                      )}
-                    </button>
+                      <button
+                        onClick={() =>
+                          toggleItemCompletion(item._id, item.type, isCompleted)
+                        }
+                        disabled={isSavingId !== null}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 w-full sm:w-32 ${
+                          isCompleted
+                            ? "bg-orange-600 text-orange-50 hover:bg-orange-100 dark:bg-orange-900/40 dark:text-orange-400"
+                            : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                        } disabled:opacity-50`}
+                      >
+                        {isSaving ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : isCompleted ? (
+                          <>
+                            <XIcon className="h-3.5 w-3.5" />
+                            <span>Revoke</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="h-3.5 w-3.5" />
+                            <span>Award</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 );
               })
@@ -306,7 +309,6 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
   );
 };
 
-// Internal icon for the header title
 const ShieldCheck = (props) => (
   <svg
     {...props}

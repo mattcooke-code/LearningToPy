@@ -85,7 +85,7 @@ const BaseModal = ({
       if (e.key !== "Tab") return;
 
       const focusableElements = modalRef.current?.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
 
       if (!focusableElements?.length) return;
