@@ -85,7 +85,7 @@ const FlagResolutionModal = ({
       title="Review Issue Report"
       size="lg"
     >
-      <div className="space-y-6 ">
+      <div className="space-y-6">
         {/* Flag Details */}
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-start space-x-3">
@@ -187,53 +187,68 @@ const FlagResolutionModal = ({
           />
         </div>
 
-        {/* Footer with Action Buttons */}
-        <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          {/* View User Profile Button */}
-          {flag.reporterId?._id && (
-            <button
-              onClick={() => onViewUser(flag.reporterId)}
-              className="px-4 py-2 text-sm font-medium text-amber-900 dark:text-amber-400 bg-amber-400 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg hover:bg-amber-300 dark:hover:bg-amber-900/40 flex items-center"
-            >
-              <User className="h-4 w-4 mr-2" />
-              View User Profile
-            </button>
-          )}
-
-          {/* View Lesson Button */}
-          {flag.targetType === "LESSON" && flag.targetId && (
-            <button
-              onClick={() => onViewLesson(flag.targetId, flag.semanticId)}
-              className="px-4 py-2 text-sm font-medium text-purple-100 dark:text-purple-100 bg-purple-500 dark:bg-purple-800 border border-purple-200 dark:border-purple-400 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-900/40 flex items-center"
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              View Lesson
-            </button>
-          )}
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-100 dark:text-gray-950 bg-gray-900 dark:bg-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-600 dark:hover:bg-gray-950 dark:hover:text-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !status}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-950 dark:bg-blue-400 dark:text-blue-950 dark:hover:bg-blue-700 dark:hover:text-blue-200 disabled:opacity-50 flex items-center"
-          >
-            {submitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4 mr-2" />
-                Submit Resolution
-              </>
+        {/* Footer with Action Buttons - Grid layout for responsive design */}
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          {/* Action Buttons Grid - 2 columns on mobile/tablet, auto on desktop */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* View User Profile Button */}
+            {flag.reporterId?._id && (
+              <button
+                onClick={() => onViewUser(flag.reporterId)}
+                className="px-4 py-2 text-sm font-medium text-amber-900 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-900/40 transition-colors items-center justify-center flex"
+              >
+                <User className="h-4 w-4 mr-2" />
+                View User Profile
+              </button>
             )}
-          </button>
+
+            {/* View Lesson Button */}
+            {flag.targetType === "LESSON" && flag.targetId && (
+              <button
+                onClick={() => onViewLesson(flag.targetId, flag.semanticId)}
+                className="px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors items-center justify-center flex"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                View Lesson
+              </button>
+            )}
+
+            {/* Cancel Button */}
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !status}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center justify-center flex"
+            >
+              {submitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit Resolution
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Note for when buttons are missing */}
+          {(!flag.reporterId?._id || flag.targetType !== "LESSON") && (
+            <div className="mt-2 text-xs text-center text-gray-400">
+              {!flag.reporterId?._id && "User profile not available • "}
+              {flag.targetType !== "LESSON" &&
+                "Lesson view not available for this content type"}
+            </div>
+          )}
         </div>
       </div>
     </BaseModal>

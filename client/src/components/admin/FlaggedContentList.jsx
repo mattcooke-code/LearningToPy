@@ -149,8 +149,8 @@ const FlaggedContentList = ({ limit = null }) => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {/* Stats Cards - Reconfigured for better tablet display */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         <StatCard
           label="Pending"
           value={currentStats.pending}
@@ -293,20 +293,19 @@ const FlaggedContentList = ({ limit = null }) => {
 const StatCard = ({ label, value, status }) => {
   const config = getStatusConfig(status);
   const Icon = config.icon;
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col items-center text-center">
         <div
-          className={`p-2 rounded-lg bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-600`}
+          className={`p-2 rounded-lg bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-600 mb-2`}
         >
-          <Icon size={18} />
+          <Icon size={20} />
         </div>
-        <div>
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-            {label}
-          </p>
-          <p className="text-xl font-bold dark:text-white">{value}</p>
-        </div>
+        <p className="text-2xl font-bold dark:text-white">{value}</p>
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mt-1">
+          {label}
+        </p>
       </div>
     </div>
   );
