@@ -1,4 +1,3 @@
-// ActivityChart.jsx
 import {
   LineChart,
   Line,
@@ -20,10 +19,26 @@ export const ActivityChart = ({ data }) => {
     );
   }
 
+  // Ensure we have valid data
+  const validData = data.filter(
+    (item) =>
+      item &&
+      typeof item === "object" &&
+      (item.activeUsers !== undefined || item.lessonsCompleted !== undefined),
+  );
+
+  if (validData.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-400">
+        Insufficient activity data
+      </div>
+    );
+  }
+
   return (
-    <ResponsiveContainer width="100%" height="100%" debounce={50}>
+    <ResponsiveContainer width="100%" height={320} debounce={50}>
       <LineChart
-        data={data}
+        data={validData}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
@@ -31,14 +46,21 @@ export const ActivityChart = ({ data }) => {
           dataKey="date"
           stroke="#9CA3AF"
           tick={{ fill: "#9CA3AF", fontSize: 12 }}
+          interval="preserveStartEnd"
         />
         <YAxis
           stroke="#9CA3AF"
           tick={{ fill: "#9CA3AF", fontSize: 12 }}
           width={40}
+          allowDecimals={false}
         />
         <Tooltip content={<CustomTooltip />} />
-        <Legend />
+        <Legend
+          wrapperStyle={{
+            fontSize: "12px",
+            paddingTop: "10px",
+          }}
+        />
         <Line
           type="monotone"
           dataKey="activeUsers"
