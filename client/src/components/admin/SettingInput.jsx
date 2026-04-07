@@ -16,7 +16,7 @@ const ColorInput = ({ value, onChange, setting }) => (
       type="text"
       value={value || ""}
       onChange={(e) => onChange(setting, e.target.value)}
-      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 "
       placeholder="#000000"
       pattern="^#[0-9A-Fa-f]{6}$"
       aria-label={`Hex color value for ${setting}`}
@@ -28,7 +28,7 @@ const SelectInput = ({ value, onChange, setting, options }) => (
   <select
     value={value || ""}
     onChange={(e) => onChange(setting, e.target.value)}
-    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 "
     aria-label={`Select option for ${setting}`}
   >
     {options.items?.map((option) => (
@@ -263,7 +263,7 @@ SettingInput.propTypes = {
       PropTypes.shape({
         value: PropTypes.any,
         label: PropTypes.string,
-      })
+      }),
     ),
     min: PropTypes.number,
     max: PropTypes.number,

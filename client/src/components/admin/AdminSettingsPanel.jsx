@@ -56,7 +56,7 @@ const AdminSettingsPanel = () => {
       successAction: "save",
       successResource: "settings",
       defaultErrorMessage: "Failed to save settings",
-    }
+    },
   );
 
   // Load fetched settings into manager
@@ -95,7 +95,7 @@ const AdminSettingsPanel = () => {
       if (changes.themeColor || changes.codeTheme || changes.defaultTheme) {
         showToast(
           "Theme changes may require a page refresh to take effect",
-          "info"
+          "info",
         );
       }
       refetch();
@@ -113,7 +113,7 @@ const AdminSettingsPanel = () => {
     const confirmed = await confirmAction(
       "Reset All Settings",
       "Reset all settings to default values? This will affect all users.",
-      "Reset to Defaults"
+      "Reset to Defaults",
     );
 
     if (confirmed) {
@@ -141,17 +141,17 @@ const AdminSettingsPanel = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* Header — stacks on small screens */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Platform Settings
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             Configure theme, gamification, and platform behavior
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3 shrink-0">
           {settingsManager.hasChanges && (
             <button
               onClick={handleReset}
@@ -183,9 +183,9 @@ const AdminSettingsPanel = () => {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — pb-px keeps the blue active underline from touching the scrollbar */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-8 overflow-x-auto">
+        <nav className="flex space-x-8 overflow-x-auto pb-5">
           {ADMIN_TABS.map((tab) => {
             const Icon = iconMap[tab.icon];
             return (
@@ -195,7 +195,7 @@ const AdminSettingsPanel = () => {
                 className={`py-4 px-1 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                   activeTab === tab.id
                     ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
                 }`}
               >
                 {Icon && <Icon className="h-4 w-4 inline mr-2" />}
@@ -211,7 +211,7 @@ const AdminSettingsPanel = () => {
         {/* Render settings based on active tab */}
         {activeTab !== "advanced" && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 dark:text-gray-300">
               {SETTINGS_CONFIGS[activeTab]?.map((config) => (
                 <SettingInput
                   key={config.key}
@@ -238,7 +238,8 @@ const AdminSettingsPanel = () => {
         {/* Advanced Settings */}
         {activeTab === "advanced" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
+            {/* Advanced header — stacks on small screens */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
               <div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                   Advanced Configuration
@@ -250,7 +251,7 @@ const AdminSettingsPanel = () => {
               </div>
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="self-start sm:self-auto px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shrink-0"
               >
                 {showAdvanced ? (
                   <>
@@ -268,7 +269,7 @@ const AdminSettingsPanel = () => {
 
             {showAdvanced && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 dark:text-gray-300">
                   {SETTINGS_CONFIGS.advanced.map((config) => {
                     const { key, ...restConfig } = config;
                     return (
@@ -290,7 +291,8 @@ const AdminSettingsPanel = () => {
                   </h3>
                   <div className="space-y-4">
                     <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                      <div className="flex items-center justify-between">
+                      {/* Danger zone row — stacks on small screens */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                           <p className="font-medium text-red-800 dark:text-red-300">
                             Reset All Settings
@@ -302,7 +304,7 @@ const AdminSettingsPanel = () => {
                         </div>
                         <button
                           onClick={resetToDefaults}
-                          className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                          className="self-start sm:self-auto shrink-0 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                         >
                           Reset to Defaults
                         </button>
