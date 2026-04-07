@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BaseModal } from "../components/ui";
+import SearchableSelect from "../components/ui/SearchableSelect";
 import { adminApiClient, useNotification } from "../context";
 import {
   FileText,
@@ -13,6 +14,7 @@ import {
   Clock,
   Hash,
   Tag,
+  ChevronDown,
 } from "lucide-react";
 
 // Utilities
@@ -40,6 +42,9 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
   const [newTag, setNewTag] = useState("");
   const [newHint, setNewHint] = useState("");
   const [activeTab, setActiveTab] = useState("content");
+  const [prereqSearchTerm, setPrereqSearchTerm] = useState("");
+  const [isPrereqOpen, setIsPrereqOpen] = useState(false);
+  const prereqRef = useRef(null);
 
   // Initialize form data
   useEffect(() => {
@@ -53,6 +58,19 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
       fetchLessons();
     }
   }, [isOpen, lesson?._id]);
+
+  // Click outside handler for prerequisite dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (prereqRef.current && !prereqRef.current.contains(event.target)) {
+        setIsPrereqOpen(false);
+        setPrereqSearchTerm("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fetchModules = async () => {
     try {
@@ -166,6 +184,13 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
       },
     });
   };
+
+  // Filter prerequisites based on search
+  const filteredPrereqLessons = lessons.filter((l) => {
+    if (l._id === lesson?._id) return false;
+    if (!prereqSearchTerm) return true;
+    return l.title.toLowerCase().includes(prereqSearchTerm.toLowerCase());
+  });
 
   // ===== RENDER FUNCTIONS =====
 
@@ -289,22 +314,17 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Module *
-            </label>
-            <select
+            <SearchableSelect
               value={formData.moduleId}
-              onChange={(e) => handleChange("moduleId", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+              onChange={(value) => handleChange("moduleId", value)}
+              options={modules.map((module) => ({
+                value: module._id,
+                label: `${module.title} ${!module.isPublished ? "(Draft)" : ""}`,
+              }))}
+              placeholder="Select a module"
+              label="Module"
               required
-            >
-              <option value="">Select a module</option>
-              {modules.map((module) => (
-                <option key={module._id} value={module._id}>
-                  {module.title} {!module.isPublished && "(Draft)"}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div>
@@ -330,29 +350,91 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Prerequisite Lessons
             </label>
-            <select
-              multiple
-              value={formData.prerequisiteLessonIds || []}
-              onChange={(e) => {
-                const selected = Array.from(
-                  e.target.selectedOptions,
-                  (opt) => opt.value,
-                );
-                handleChange("prerequisiteLessonIds", selected);
-              }}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 h-32"
-            >
-              {lessons
-                .filter((l) => l._id !== lesson?._id)
-                .map((l) => (
-                  <option key={l._id} value={l._id}>
-                    {l.title} {l.isPublished ? "" : " (Draft)"} (Order {l.order}
-                    )
-                  </option>
-                ))}
-            </select>
-            <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Hold Ctrl/Cmd to select multiple
+            <div ref={prereqRef} className="relative">
+              <div
+                onClick={() => setIsPrereqOpen(!isPrereqOpen)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 cursor-pointer flex items-center justify-between hover:border-blue-500 transition-colors"
+              >
+                <span className="text-gray-700 dark:text-gray-300">
+                  {formData.prerequisiteLessonIds?.length || 0} lesson(s)
+                  selected
+                </span>
+                <ChevronDown
+                  className={`h-5 w-5 text-gray-400 transition-transform ${
+                    isPrereqOpen ? "transform rotate-180" : ""
+                  }`}
+                />
+              </div>
+
+              {isPrereqOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-80 overflow-hidden flex flex-col">
+                  {/* Search Input */}
+                  <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={prereqSearchTerm}
+                        onChange={(e) => setPrereqSearchTerm(e.target.value)}
+                        placeholder="Search lessons..."
+                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Options List */}
+                  <div className="overflow-y-auto max-h-64">
+                    {filteredPrereqLessons.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                        No lessons found
+                      </div>
+                    ) : (
+                      filteredPrereqLessons.map((l) => (
+                        <label
+                          key={l._id}
+                          className="flex items-center p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.prerequisiteLessonIds?.includes(
+                              l._id,
+                            )}
+                            onChange={(e) => {
+                              const current =
+                                formData.prerequisiteLessonIds || [];
+                              if (e.target.checked) {
+                                handleChange("prerequisiteLessonIds", [
+                                  ...current,
+                                  l._id,
+                                ]);
+                              } else {
+                                handleChange(
+                                  "prerequisiteLessonIds",
+                                  current.filter((id) => id !== l._id),
+                                );
+                              }
+                            }}
+                            className="mr-3 h-4 w-4 text-blue-600 rounded shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {l.title}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              Order {l.order} •{" "}
+                              {l.isPublished ? "Published" : "Draft"} •{" "}
+                              {l.xpReward || 0} XP
+                            </div>
+                          </div>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Select lessons that must be completed before this one
             </div>
           </div>
         </div>
@@ -635,6 +717,7 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
       isOpen={isOpen}
       onClose={onClose}
       title={isEditing ? "Edit Lesson" : "Create New Lesson"}
+      className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
       size="6xl"
       closeOnOverlayClick
       closeOnEscape

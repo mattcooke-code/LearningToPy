@@ -9,6 +9,7 @@ export { default as Pagination } from "./Pagination";
 export { default as ProgressGauge } from "./ProgressGauge";
 export { default as PythonSyntaxHighlighter } from "./PythonSyntaxHighlighter";
 export { default as RefreshButton } from "./RefreshButton";
+export { default as SearchableSelect } from "./SearchableSelect";
 export { default as SegmentedLevelProgressBar } from "./SegmentedLevelProgressBar";
 export { default as Spinner } from "./Spinner";
 export { default as ThemeToggle } from "./ThemeToggle";

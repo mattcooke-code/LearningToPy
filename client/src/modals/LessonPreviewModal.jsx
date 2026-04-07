@@ -47,6 +47,7 @@ const LessonPreviewModal = ({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
       title={
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">

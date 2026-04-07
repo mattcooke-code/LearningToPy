@@ -3,6 +3,7 @@ import { adminApiClient, useNotification } from "../../context";
 import { LessonEditorModal, ModuleEditorModal } from "../../modals";
 import { useContentFilter } from "../../hooks";
 import { useConfirmActions, calculateContentStats } from "../../utils";
+import SearchableSelect from "../../components/ui/SearchableSelect";
 import {
   Search,
   Eye,
@@ -65,6 +66,18 @@ const ContentManagementTable = () => {
     }
     return calculateContentStats(content);
   }, [content]);
+
+  // Get module range string (e.g., "M0-M20")
+  const moduleRange = useMemo(() => {
+    if (modules.length === 0) return "No modules";
+    const orders = modules
+      .map((m) => m.order)
+      .filter((o) => o !== undefined && o !== null);
+    if (orders.length === 0) return "No order set";
+    const minOrder = Math.min(...orders);
+    const maxOrder = Math.max(...orders);
+    return `M${minOrder}-M${maxOrder}`;
+  }, [modules]);
 
   useEffect(() => {
     fetchContent();
@@ -267,6 +280,20 @@ const ContentManagementTable = () => {
     }
   };
 
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < 768,
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // On small screens, always use grid view
+  const effectiveViewMode = isMobile ? "grid" : viewMode;
+  const effectiveGroupByModule = isMobile ? false : groupByModule;
+
   const SortIcon = ({ field }) => {
     if (sortConfig.field !== field)
       return <ChevronUp className="h-4 w-4 opacity-30" />;
@@ -468,11 +495,14 @@ const ContentManagementTable = () => {
   };
 
   const renderTableView = () => (
-    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+    <div
+      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-gray-700 [&::-webkit-scrollbar-thumb]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-500 [&::-webkit-scrollbar-thumb]:rounded"
+      style={{ overflowX: "auto", scrollbarGutter: "stable" }}
+    >
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <input
                 type="checkbox"
                 checked={
@@ -501,7 +531,7 @@ const ContentManagementTable = () => {
             ].map((column) => (
               <th
                 key={column.key}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap"
               >
                 <button
                   onClick={() => column.sortable && handleSort(column.key)}
@@ -532,7 +562,7 @@ const ContentManagementTable = () => {
                   isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""
                 }`}
               >
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <input
                     type="checkbox"
                     checked={isSelected}
@@ -550,35 +580,35 @@ const ContentManagementTable = () => {
                     className="h-4 w-4 text-blue-600 rounded"
                   />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap max-w-[220px]">
                   <div className="flex items-center">
                     <div
-                      className={`h-10 w-10 rounded-lg flex items-center justify-center mr-3 ${
+                      className={`h-8 w-8 rounded-lg flex items-center justify-center mr-2 shrink-0 ${
                         item.type === "lesson"
                           ? "bg-blue-100 dark:bg-blue-900"
                           : "bg-purple-100 dark:bg-purple-900"
                       }`}
                     >
                       <TypeIcon
-                        className={`h-5 w-5 ${
+                        className={`h-4 w-4 ${
                           item.type === "lesson"
                             ? "text-blue-600 dark:text-blue-400"
                             : "text-purple-600 dark:text-purple-400"
                         }`}
                       />
                     </div>
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-2">
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate max-w-[160px]">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-1">
                           {item.type === "lesson" ? "📖" : "📦"} #
                           {item.order || "—"}
                         </span>
                         {item.title}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px]">
                         ID: {item._id?.slice(-8)}
                         {item.type === "lesson" && item.moduleId && (
-                          <span className="ml-2">
+                          <span className="ml-1">
                             • {getModuleTitle(item.moduleId)}
                           </span>
                         )}
@@ -586,9 +616,9 @@ const ContentManagementTable = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       item.type === "lesson"
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                         : "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
@@ -598,12 +628,12 @@ const ContentManagementTable = () => {
                     {item.type}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <button
                     onClick={() =>
                       togglePublish(item._id, item.type, item.isPublished)
                     }
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                       item.isPublished
                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
@@ -622,17 +652,19 @@ const ContentManagementTable = () => {
                     )}
                   </button>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   {getDifficultyBadge(item.difficulty)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <div className="flex items-center">
                     <Trophy className="h-4 w-4 text-yellow-500 mr-1" />
-                    <span className="font-medium">{item.xpReward || 0}</span>
+                    <span className="font-medium text-sm">
+                      {item.xpReward || 0}
+                    </span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center space-x-2">
+                <td className="px-3 py-3 whitespace-nowrap">
+                  <div className="flex items-center space-x-1">
                     <span className="font-bold text-sm text-purple-700 dark:text-purple-300">
                       #{item.order || 0}
                     </span>
@@ -641,11 +673,11 @@ const ContentManagementTable = () => {
                     </button>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">
+                <td className="px-3 py-3 whitespace-nowrap text-xs text-gray-500 dark:text-gray-200">
                   {new Date(item.updatedAt).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex items-center space-x-2">
+                <td className="px-3 py-3 whitespace-nowrap text-right text-sm font-medium">
+                  <div className="flex items-center space-x-1">
                     <button
                       onClick={() => {
                         handleEdit(item);
@@ -864,105 +896,86 @@ const ContentManagementTable = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="shrink-0">
-              <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
+      {/* Stats Overview - Reconfigured with centered layout for tablets */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        {/* Total Lessons */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2 md:mb-3">
+              <FileText className="h-5 w-5 md:h-6 md:w-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.totalLessons}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Total Lessons
-              </p>
-              <p className="text-xs text-green-600 dark:text-green-400">
-                {stats.publishedLessons} published
-              </p>
-            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.totalLessons}
+            </h3>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Total Lessons
+            </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="shrink-0">
-              <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
+        {/* Total Modules */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mb-2 md:mb-3">
+              <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.totalModules}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Total Modules
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.totalModules}
+            </h3>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Total Modules
+            </p>
+            {stats.totalModules > 0 && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {moduleRange}
               </p>
-              <div className="text-xs text-gray-500 mt-1">
-                {modules
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((m) => `M${m.order}`)
-                  .join(", ")}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="shrink-0">
-              <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                <Eye className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
+        {/* Published */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-2 md:mb-3">
+              <Eye className="h-5 w-5 md:h-6 md:w-6 text-green-600 dark:text-green-400" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.publishedLessons + stats.publishedModules}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Published Items
-              </p>
-              <p className="text-xs text-blue-600 dark:text-blue-400">
-                {(
-                  ((stats.publishedLessons + stats.publishedModules) /
-                    (stats.totalLessons + stats.totalModules)) *
-                  100
-                ).toFixed(1)}
-                % published
-              </p>
-            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.publishedLessons + stats.publishedModules}
+            </h3>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Published Total
+            </p>
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+              {stats.publishedLessons}/{stats.publishedModules} (L/M)
+            </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="shrink-0">
-              <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
+        {/* Drafts */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center mb-2 md:mb-3">
+              <Clock className="h-5 w-5 md:h-6 md:w-6 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.draftLessons + stats.draftModules}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Drafts</p>
-              <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                Ready for review
-              </p>
-            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.draftLessons + stats.draftModules}
+            </h3>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Drafts
+            </p>
+            <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 hidden sm:block">
+              Ready for review
+            </p>
           </div>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          {/* Left Side - Search and Filters */}
-          <div className="flex-1 space-y-4 md:space-y-0 md:flex md:items-center md:space-x-4">
-            <div className="relative flex-1 max-w-md">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6">
+        <div className="flex flex-col space-y-4">
+          {/* Top row: Search + Add New */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-200" />
               <input
                 type="text"
@@ -970,12 +983,58 @@ const ContentManagementTable = () => {
                 onChange={(e) =>
                   setFilters({ ...filters, search: e.target.value })
                 }
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200 "
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200"
                 placeholder="Search content..."
               />
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            {/* Add New — always visible, never pushed out */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setShowAddMenu(!showAddMenu)}
+                className="px-3 md:px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add New</span>
+              </button>
+              {showAddMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowAddMenu(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                    <button
+                      onClick={() => {
+                        setEditingItem(null);
+                        setShowLessonModal(true);
+                        setShowAddMenu(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg"
+                    >
+                      <FileText className="h-4 w-4 mr-3" />
+                      New Lesson
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingItem(null);
+                        setShowModuleModal(true);
+                        setShowAddMenu(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg"
+                    >
+                      <BookOpen className="h-4 w-4 mr-3" />
+                      New Module
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom row: Filters + View Toggle + Bulk Actions */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap gap-2 flex-1 min-w-0">
               <select
                 value={filters.type}
                 onChange={(e) =>
@@ -1014,30 +1073,32 @@ const ContentManagementTable = () => {
               </select>
 
               {filters.type !== "module" && (
-                <select
-                  value={filters.moduleId || ""}
-                  onChange={(e) =>
-                    setFilters({ ...filters, moduleId: e.target.value })
-                  }
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-200"
-                >
-                  <option value="">All Modules</option>
-                  {modules
-                    .sort((a, b) => (a.order || 0) - (b.order || 0))
-                    .map((module) => (
-                      <option key={module._id} value={module._id}>
-                        M{module.order || "—"} {module.title}
-                      </option>
-                    ))}
-                </select>
+                <div className="relative">
+                  <SearchableSelect
+                    value={filters.moduleId || ""}
+                    onChange={(value) =>
+                      setFilters({ ...filters, moduleId: value })
+                    }
+                    options={[
+                      { value: "", label: "All Modules" },
+                      ...modules
+                        .sort((a, b) => (a.order || 0) - (b.order || 0))
+                        .map((module) => ({
+                          value: module._id,
+                          label: `M${module.order || "—"} ${module.title}${
+                            !module.isPublished ? " (Draft)" : ""
+                          }`,
+                        })),
+                    ]}
+                    placeholder="Select module..."
+                    className="w-[220px]"
+                  />
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Right Side - Actions and View */}
-          <div className="flex items-center space-x-3">
-            {/* View Toggle */}
-            <div className="flex items-center bg-gray-100 dark:bg-gray-700 dark:text-gray-200 rounded-lg p-1">
+            {/* View Toggle — hidden on mobile (grid is always used) */}
+            <div className="hidden md:flex items-center bg-gray-100 dark:bg-gray-700 dark:text-gray-200 rounded-lg p-1 shrink-0">
               <button
                 onClick={() => {
                   setViewMode("table");
@@ -1086,14 +1147,14 @@ const ContentManagementTable = () => {
 
             {/* Bulk Actions */}
             {selectedItems.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
                   {selectedItems.length} selected
                 </span>
                 <select
                   value={bulkAction}
                   onChange={(e) => setBulkAction(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 "
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
                 >
                   <option value="">Bulk Actions</option>
                   <option value="publish">Publish Selected</option>
@@ -1109,49 +1170,6 @@ const ContentManagementTable = () => {
                 </button>
               </div>
             )}
-
-            {/* Add New */}
-            <div className="relative">
-              <button
-                onClick={() => setShowAddMenu(!showAddMenu)}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add New
-              </button>
-              {showAddMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowAddMenu(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
-                    <button
-                      onClick={() => {
-                        setEditingItem(null);
-                        setShowLessonModal(true);
-                        setShowAddMenu(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg"
-                    >
-                      <FileText className="h-4 w-4 mr-3" />
-                      New Lesson
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditingItem(null);
-                        setShowModuleModal(true);
-                        setShowAddMenu(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg"
-                    >
-                      <BookOpen className="h-4 w-4 mr-3" />
-                      New Module
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -1186,9 +1204,9 @@ const ContentManagementTable = () => {
             </div>
 
             {/* Content View */}
-            {groupByModule
+            {effectiveGroupByModule
               ? renderGroupedView()
-              : viewMode === "table"
+              : effectiveViewMode === "table"
                 ? renderTableView()
                 : renderGridView()}
           </>
