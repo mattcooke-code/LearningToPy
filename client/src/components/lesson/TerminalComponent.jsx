@@ -1,5 +1,5 @@
 // components/lesson/TerminalComponent.jsx
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   Terminal as TerminalIcon,
   Play,
@@ -7,10 +7,138 @@ import {
   Copy,
   Download,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { usePython, useTheme } from "../../context";
-import { Spinner } from "../ui";
+import { PythonSyntaxHighlighter, Spinner } from "../ui";
 import { useFileDownload } from "../../hooks/useFileDownload";
+
+// ---------------------------------------------------------------------------
+// Library strategy configuration
+// ---------------------------------------------------------------------------
+
+/**
+ * Libraries that Pyodide can install via micropip at runtime.
+ * These are prepended as an async install block before the student's code.
+ */
+const MICROPIP_LIBRARIES = ["pandas", "numpy", "beautifulsoup4"];
+
+/**
+ * Mapping from the import name a student writes to the micropip package name.
+ * e.g. `import bs4` or `from bs4 import ...` → installs "beautifulsoup4"
+ */
+const IMPORT_TO_PACKAGE = {
+  pandas: "pandas",
+  numpy: "numpy",
+  bs4: "beautifulsoup4",
+  beautifulsoup4: "beautifulsoup4",
+};
+
+/**
+ * Libraries that are built into Pyodide's Python runtime.
+ * No installation needed — they just work.
+ */
+const BUILTIN_LIBRARIES = new Set([
+  "sqlite3",
+  "re",
+  "json",
+  "ast",
+  "sys",
+  "io",
+]);
+
+/**
+ * Libraries that must be mocked because they rely on OS networking
+ * which is unavailable in the browser sandbox.
+ *
+ * Each entry is a Python code string that installs a fake module into
+ * sys.modules. The mock is injected before the student's code runs.
+ */
+const MOCKED_LIBRARIES = {
+  requests: `
+import sys, json as _json
+
+class _MockResponse:
+    def __init__(self):
+        self.status_code = 200
+        self.ok = True
+        self.text = '{"message": "Mock response — requests is simulated in the browser"}'
+        self._data = {"message": "Mock response — requests is simulated in the browser"}
+    def json(self):
+        return self._data
+    def raise_for_status(self):
+        pass
+    def __repr__(self):
+        return f"<MockResponse [200]>"
+
+class _MockRequests:
+    def get(self, url, **kwargs):
+        return _MockResponse()
+    def post(self, url, **kwargs):
+        return _MockResponse()
+    def put(self, url, **kwargs):
+        return _MockResponse()
+    def delete(self, url, **kwargs):
+        return _MockResponse()
+    def head(self, url, **kwargs):
+        return _MockResponse()
+    def patch(self, url, **kwargs):
+        return _MockResponse()
+
+sys.modules['requests'] = _MockRequests()
+`.trim(),
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse import statements from student code and return a list of top-level
+ * module names. Handles:
+ *   import pandas
+ *   import pandas as pd
+ *   from bs4 import BeautifulSoup
+ *   from requests import get
+ */
+const extractImportedModules = (code) => {
+  const modules = new Set();
+  const importRegex = /^\s*(?:import\s+([\w]+)|from\s+([\w]+)\s+import)/gm;
+  let match;
+  while ((match = importRegex.exec(code)) !== null) {
+    modules.add(match[1] || match[2]);
+  }
+  return [...modules];
+};
+
+/**
+ * Build the Python preamble that:
+ *  1. Installs required micropip packages (async, so needs runPythonAsync)
+ *  2. Injects mocks for any mocked libraries found in the code
+ *
+ * Returns { preamble: string, warnings: string[] }
+ */
+const buildPreamble = (code) => {
+  const imported = extractImportedModules(code);
+  const warnings = [];
+
+  // Determine which mocks to inject
+  const toMock = imported.filter((mod) => mod in MOCKED_LIBRARIES);
+
+  if (toMock.length > 0) {
+    warnings.push(
+      `Note: ${toMock.join(", ")} ${toMock.length === 1 ? "is" : "are"} simulated in the browser. Network calls will return mock data.`,
+    );
+  }
+
+  const preamble = toMock.map((mod) => MOCKED_LIBRARIES[mod]).join("\n");
+
+  return { preamble, warnings };
+};
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 const TerminalComponent = ({
   initialCode = "print('Hello, Python Terminal!')",
@@ -19,7 +147,7 @@ const TerminalComponent = ({
   readOnly = false,
 }) => {
   const { isCodeDark } = useTheme();
-  const { runCode, isReady } = usePython();
+  const { runCode, isReady, isLoading } = usePython();
 
   const [input, setInput] = useState(initialCode || "");
   const [output, setOutput] = useState([]);
@@ -29,6 +157,8 @@ const TerminalComponent = ({
 
   const terminalRef = useRef(null);
   const inputRef = useRef(null);
+  const lastInitialCode = useRef(initialCode);
+
   const { downloadTextFile } = useFileDownload();
 
   const focusInput = () => {
@@ -37,216 +167,448 @@ const TerminalComponent = ({
     }
   };
 
-  const handleRun = useCallback(
-    async (codeToRun = input) => {
-      if (!codeToRun.trim() || !isReady || isExecuting) return;
+  const snippets = [
+    { name: "Hello World", code: 'print("Hello, World!")' },
+    { name: "Calculate", code: "print(5 + 3)\nprint(10 / 2)" },
+    {
+      name: "Variables",
+      code: 'name = "Python Learner"\nprint(f"Hello, {name}!")',
+    },
+    { name: "Loop", code: "for i in range(3):\n    print(f'Count: {i}')" },
+  ];
 
-      setIsExecuting(true);
-
-      // Manage History
-      const newHistory = [codeToRun, ...history.slice(0, 49)];
-      setHistory(newHistory);
-      setHistoryIndex(-1);
-
-      try {
-        const result = await runCode(codeToRun, 5000);
-
-        let finalContent = "";
-        if (result.success) {
-          finalContent = result.stdout || result.output || "(no output)";
-        } else {
-          finalContent = result.error;
+  const terminalContent = useMemo(() => {
+    return output
+      .map((item) => {
+        switch (item.type) {
+          case "input":
+            return `>>> ${item.content}`;
+          case "output":
+            return item.content;
+          case "error":
+            return `Error: ${item.content}`;
+          case "warning":
+            return `⚠ ${item.content}`;
+          default:
+            return item.content;
         }
+      })
+      .filter((line) => line.trim() !== "")
+      .join("\n");
+  }, [output]);
 
-        const newEntry = [
-          { type: "input", content: codeToRun },
-          { type: result.success ? "output" : "error", content: finalContent },
-        ];
+  // ---------------------------------------------------------------------------
+  // Core execute logic
+  // ---------------------------------------------------------------------------
 
-        setOutput((prev) => [...prev, ...newEntry]);
-        setInput("");
+  const executeCode = useCallback(
+    async (code = input, { forceRun = false } = {}) => {
+      if (!code.trim() || isExecuting || !isReady) return;
 
-        if (onCodeExecute) onCodeExecute(result);
-      } catch (err) {
+      // ----- Starter code guard -----
+      // If the code hasn't been modified from the initial starter code,
+      // show a hint rather than running potentially broken/incomplete code.
+      // forceRun bypasses this (used when student explicitly clicks Run on
+      // unmodified starter code and confirms they want to proceed).
+      if (code === initialCode && !forceRun) {
         setOutput((prev) => [
           ...prev,
-          { type: "error", content: "Execution failed." },
+          {
+            type: "warning",
+            content:
+              "This looks like unmodified starter code. Edit the code above before running, or click Run again to execute it anyway.",
+          },
+        ]);
+        // Flag so the next Run click on the same unmodified code goes through
+        lastInitialCode.current = null;
+        return;
+      }
+
+      setIsExecuting(true);
+      const newHistory = [...history, code];
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length);
+      setInput("");
+
+      try {
+        // ----- Build preamble (installs + mocks) -----
+        const { preamble, warnings } = buildPreamble(code);
+        const wrappedCode = preamble ? `${preamble}\n${code}` : code;
+
+        // Show mock warnings inline in the terminal output
+        const warningItems = warnings.map((w) => ({
+          type: "warning",
+          content: w,
+        }));
+
+        const result = await runCode(wrappedCode, 15000); // longer timeout for installs
+
+        if (result.success) {
+          let outputText = "";
+          if (result.stdout) outputText = result.stdout;
+          if (
+            result.output &&
+            result.output !== "None" &&
+            result.output !== ""
+          ) {
+            outputText += (outputText ? "\n" : "") + result.output;
+          }
+
+          setOutput((prev) => [
+            ...prev,
+            ...warningItems,
+            { type: "input", content: code },
+            { type: "output", content: outputText || "(no output)" },
+          ]);
+
+          if (onCodeExecute) {
+            onCodeExecute({ code, result: outputText, success: true });
+          }
+        } else {
+          setOutput((prev) => [
+            ...prev,
+            ...warningItems,
+            { type: "input", content: code },
+            { type: "error", content: result.error },
+          ]);
+
+          if (onCodeExecute) {
+            onCodeExecute({ code, error: result.error, success: false });
+          }
+        }
+
+        setTimeout(() => {
+          if (terminalRef.current) {
+            terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+          }
+        }, 10);
+      } catch (error) {
+        setOutput((prev) => [
+          ...prev,
+          { type: "input", content: code },
+          { type: "error", content: error.message },
         ]);
       } finally {
         setIsExecuting(false);
       }
     },
-    [input, isReady, isExecuting, runCode, onCodeExecute, history],
+    [input, isExecuting, history, onCodeExecute, isReady, runCode, initialCode],
   );
 
-  // Keyboard Shortcuts (Arrow Up/Down for history)
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleRun();
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      const nextIndex = historyIndex + 1;
-      if (nextIndex < history.length) {
-        setHistoryIndex(nextIndex);
-        setInput(history[nextIndex]);
-      }
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const nextIndex = historyIndex - 1;
-      if (nextIndex >= 0) {
-        setHistoryIndex(nextIndex);
-        setInput(history[nextIndex]);
-      } else {
-        setHistoryIndex(-1);
-        setInput("");
-      }
-    } else if (e.key === "l" && e.ctrlKey) {
-      e.preventDefault();
-      setOutput([]);
-    }
+  const clearTerminal = () => {
+    setOutput([]);
+    // Reset the starter-code guard so it re-arms after a clear
+    lastInitialCode.current = initialCode;
+    focusInput();
   };
 
-  const clearOutput = () => setOutput([]);
-
-  const copyOutput = () => {
-    const text = output
-      .map((line) =>
-        line.type === "input" ? `>>> ${line.content}` : line.content,
-      )
-      .join("\n");
-    navigator.clipboard.writeText(text);
+  const copyTerminalContent = () => {
+    navigator.clipboard.writeText(terminalContent);
   };
+
+  const downloadTerminalSession = () => {
+    downloadTextFile(terminalContent, "python_terminal_session");
+  };
+
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        executeCode();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (historyIndex > 0) {
+          const newIndex = historyIndex - 1;
+          setHistoryIndex(newIndex);
+          setInput(history[newIndex]);
+        }
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (historyIndex < history.length - 1) {
+          const newIndex = historyIndex + 1;
+          setHistoryIndex(newIndex);
+          setInput(history[newIndex]);
+        } else {
+          setHistoryIndex(history.length);
+          setInput("");
+        }
+      } else if (e.key === "l" && e.ctrlKey) {
+        e.preventDefault();
+        clearTerminal();
+      } else if (e.key === "d" && e.ctrlKey) {
+        e.preventDefault();
+        downloadTerminalSession();
+      }
+    },
+    [executeCode, history, historyIndex],
+  );
 
   const loadSnippet = (code) => {
     setInput(code);
     focusInput();
   };
 
-  const snippets = [
-    { name: "Hello World", code: "print('Hello, World!')" },
-    { name: "Math", code: "print(2 + 2 * 10)" },
-    { name: "Loops", code: "for i in range(5):\n    print(f'Count: {i}')" },
-  ];
+  useEffect(() => {
+    focusInput();
+  }, []);
 
-  // Auto-scroll effect
+  // Sync input when parent changes initialCode (e.g. student moves to next step)
+  useEffect(() => {
+    if (initialCode !== lastInitialCode.current) {
+      setInput(initialCode);
+      lastInitialCode.current = initialCode;
+    }
+  }, [initialCode]);
+
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [output]);
 
+  // ---------------------------------------------------------------------------
+  // Loading / error states
+  // ---------------------------------------------------------------------------
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full">
+        <div
+          className={`flex items-center justify-between p-3 border-b ${
+            isCodeDark
+              ? "border-gray-700 bg-gray-800"
+              : "border-gray-300 bg-gray-100"
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            <TerminalIcon
+              size={20}
+              className={isCodeDark ? "text-green-400" : "text-green-600"}
+            />
+            <span
+              className={`font-mono text-sm ${
+                isCodeDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Python Interactive Terminal
+            </span>
+          </div>
+        </div>
+        <div
+          className={`grow flex items-center justify-center ${
+            isCodeDark ? "bg-black" : "bg-gray-900"
+          }`}
+        >
+          <div className="text-center">
+            <Spinner size={32} />
+            <p
+              className={`mt-4 ${
+                isCodeDark ? "text-gray-400" : "text-gray-300"
+              }`}
+            >
+              Loading Python engine and libraries...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isReady) {
+    return (
+      <div className="flex flex-col h-full">
+        <div
+          className={`flex items-center justify-between p-3 border-b ${
+            isCodeDark
+              ? "border-gray-700 bg-gray-800"
+              : "border-gray-300 bg-gray-100"
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            <TerminalIcon size={20} className="text-red-400" />
+            <span
+              className={`font-mono text-sm ${
+                isCodeDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Python Interactive Terminal
+            </span>
+          </div>
+        </div>
+        <div
+          className={`grow flex items-center justify-center ${
+            isCodeDark ? "bg-black" : "bg-gray-900"
+          }`}
+        >
+          <div className="text-center text-red-400">
+            <AlertCircle size={48} className="mx-auto mb-4" />
+            <p className="text-lg">Failed to load Python engine</p>
+            <p className="text-sm text-gray-400 mt-2">
+              Please refresh the page to try again
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Main render
+  // ---------------------------------------------------------------------------
+
   return (
-    <div
-      className={`flex flex-col rounded-xl overflow-hidden border shadow-sm transition-colors ${
-        isCodeDark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"
-      }`}
-    >
-      {/* HEADER: Responsive Stacking */}
+    <div className="flex flex-col h-full">
+      {/* Header */}
       <div
-        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 gap-3 border-b ${
+        className={`flex items-center justify-between p-3 border-b ${
           isCodeDark
-            ? "bg-gray-800 border-gray-700"
-            : "bg-gray-50 border-gray-200"
+            ? "border-gray-700 bg-gray-800"
+            : "border-gray-300 bg-gray-100"
         }`}
       >
         <div className="flex items-center space-x-2">
           <TerminalIcon
-            size={18}
-            className={isCodeDark ? "text-blue-400" : "text-blue-600"}
+            size={20}
+            className={isCodeDark ? "text-green-400" : "text-green-600"}
           />
           <span
-            className={`font-semibold text-sm ${isCodeDark ? "text-gray-200" : "text-gray-700"}`}
+            className={`font-mono text-sm ${
+              isCodeDark ? "text-gray-300" : "text-gray-700"
+            }`}
           >
-            Interactive Terminal
+            Python Interactive Terminal
           </span>
+          {readOnly && (
+            <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+              Read-only Demo
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-          <div className="flex items-center gap-1">
+        <div className="flex space-x-2">
+          {!readOnly && (
             <button
-              onClick={clearOutput}
-              className="p-2 hover:bg-gray-500/10 rounded-md text-gray-500"
-              title="Clear (Ctrl+L)"
+              onClick={clearTerminal}
+              className={`p-1.5 rounded transition ${
+                isCodeDark
+                  ? "hover:bg-gray-700 text-gray-300"
+                  : "hover:bg-gray-200 text-gray-700"
+              }`}
+              title="Clear terminal (Ctrl+L)"
             >
               <Trash2 size={16} />
             </button>
-            <button
-              onClick={copyOutput}
-              className="p-2 hover:bg-gray-500/10 rounded-md text-gray-500"
-              title="Copy Session"
-            >
-              <Copy size={16} />
-            </button>
-            <button
-              onClick={() =>
-                downloadTextFile(
-                  output.map((o) => o.content).join("\n"),
-                  "terminal_session.txt",
-                )
-              }
-              className="p-2 hover:bg-gray-500/10 rounded-md text-gray-500"
-              title="Download Session"
-            >
-              <Download size={16} />
-            </button>
-          </div>
-
+          )}
           <button
-            onClick={() => handleRun()}
-            disabled={!isReady || isExecuting || !input.trim()}
-            className={`flex items-center space-x-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${
-              isExecuting
-                ? "bg-gray-400"
-                : "bg-green-600 hover:bg-green-700 text-white active:scale-95"
+            onClick={copyTerminalContent}
+            className={`p-1.5 rounded transition ${
+              isCodeDark
+                ? "hover:bg-gray-700 text-gray-300"
+                : "hover:bg-gray-200 text-gray-700"
             }`}
+            title="Copy terminal content"
           >
-            {isExecuting ? <Spinner size="sm" /> : <Play size={16} />}
-            <span>Run</span>
+            <Copy size={16} />
+          </button>
+          <button
+            onClick={downloadTerminalSession}
+            className={`p-1.5 rounded transition ${
+              isCodeDark
+                ? "hover:bg-gray-700 text-gray-300"
+                : "hover:bg-gray-200 text-gray-700"
+            }`}
+            title="Download session (Ctrl+D)"
+          >
+            <Download size={16} />
           </button>
         </div>
       </div>
 
-      {/* TERMINAL BODY */}
+      {/* Output Area */}
       <div
         ref={terminalRef}
-        className="overflow-y-auto p-4 font-mono text-sm space-y-2 custom-scrollbar"
+        className={`grow overflow-y-auto overflow-x-hidden p-4 font-mono text-sm whitespace-pre-wrap break-words ${
+          isCodeDark ? "bg-black text-gray-300" : "bg-gray-900 text-gray-100"
+        }`}
         style={{ height }}
       >
-        {output.length === 0 && (
-          <div className="text-gray-500 italic">
-            Terminal ready. Type code below and press Enter.
-          </div>
-        )}
-
-        {output.map((line, i) => (
-          <div
-            key={i}
-            className={`whitespace-pre-wrap leading-relaxed ${
-              line.type === "input"
-                ? "text-blue-400 font-bold"
-                : line.type === "error"
-                  ? "text-red-500"
-                  : isCodeDark
-                    ? "text-gray-300"
-                    : "text-gray-700"
-            }`}
-          >
-            {line.type === "input" ? (
-              <div className="flex gap-2">
-                <span className="opacity-50 shrink-0">&gt;&gt;&gt;</span>
-                <span>{line.content}</span>
+        {output.map((item, index) => (
+          <div key={index} className="mb-2">
+            {item.type === "input" && (
+              <div className="flex">
+                <span className="text-green-400 mr-2">&gt;&gt;&gt;</span>
+                <div className="grow">
+                  <PythonSyntaxHighlighter
+                    code={item.content}
+                    isDark={isCodeDark}
+                  />
+                </div>
               </div>
-            ) : (
-              <div className="pl-6">{line.content}</div>
+            )}
+            {item.type === "output" && (
+              <div className="text-gray-300 ml-4 leading-relaxed whitespace-pre-line">
+                {item.content}
+              </div>
+            )}
+            {item.type === "error" && (
+              <div className="text-red-400 ml-4 leading-relaxed">
+                {`Error: ${item.content}`}
+              </div>
+            )}
+            {item.type === "warning" && (
+              <div className="flex items-start gap-2 text-yellow-400 ml-4 leading-relaxed">
+                <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                <span>{item.content}</span>
+              </div>
             )}
           </div>
         ))}
 
-        {/* INPUT PROMPT: shrink-0 prevents the symbol from squishing */}
-        {!readOnly && (
-          <div className="flex items-start gap-2 pt-2 border-t border-gray-500/10 mt-2">
-            <span className="text-green-600 dark:text-green-500 font-bold shrink-0 select-none">
+        {output.length === 0 && (
+          <div className="text-gray-500 italic">
+            Type Python code below and press Enter to execute. Use ↑/↓ arrows to
+            navigate command history.
+            <br />
+            <span className="text-xs">
+              Tip: Ctrl+L to clear, Ctrl+D to download, 15s timeout for library
+              installs
+            </span>
+          </div>
+        )}
+
+        {/* Blinking cursor prompt */}
+        <div className="flex items-start mt-2">
+          <span
+            className={`mr-2 ${
+              isCodeDark ? "text-green-400" : "text-green-300"
+            }`}
+          >
+            &gt;&gt;&gt;
+          </span>
+          <span className="text-gray-500 animate-pulse">▋</span>
+        </div>
+      </div>
+
+      {/* Input Area */}
+      <div
+        className={`p-3 border-t ${
+          isCodeDark
+            ? "border-gray-700 bg-gray-800"
+            : "border-gray-300 bg-gray-100"
+        }`}
+      >
+        {/* Input row — stacks vertically on mobile, side-by-side on sm+ */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
+          <div
+            className={`grow flex items-start ${
+              isCodeDark ? "bg-gray-900" : "bg-white"
+            } border rounded`}
+          >
+            <span
+              className={`px-3 py-3 ${
+                isCodeDark ? "text-green-400" : "text-green-600"
+              }`}
+            >
               &gt;&gt;&gt;
             </span>
             <textarea
@@ -254,53 +616,88 @@ const TerminalComponent = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={isExecuting}
-              className="flex-1 bg-transparent border-none outline-none resize-none p-0 focus:ring-0 min-w-0 text-green-600 dark:text-green-500"
-              rows={Math.min(5, input.split("\n").length)}
-              placeholder="Type code here..."
-              spellCheck="false"
+              disabled={readOnly || isExecuting}
+              className={`grow px-2 py-2 font-mono text-sm bg-transparent outline-none resize-none ${
+                isCodeDark ? "text-gray-300" : "text-gray-800"
+              }`}
+              rows={Math.min(10, input.split("\n").length)}
+              placeholder={
+                readOnly
+                  ? "Demo terminal — try: print('Hello')"
+                  : "Type Python code here and press Enter..."
+              }
+              style={{ minHeight: "60px" }}
             />
           </div>
-        )}
-      </div>
 
-      {/* FOOTER: Wrapping Snippets */}
-      <div
-        className={`p-3 border-t text-xs space-y-3 ${
-          isCodeDark
-            ? "bg-gray-800/50 border-gray-700 text-gray-400"
-            : "bg-gray-50 border-gray-200 text-gray-500"
-        }`}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium mr-1 uppercase tracking-tighter opacity-70">
-            Quick Snippets:
-          </span>
-          {snippets.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => loadSnippet(s.code)}
-              className={`px-2 py-1 rounded border transition-colors ${
-                isCodeDark
-                  ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                  : "bg-white border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              {s.name}
-            </button>
-          ))}
+          {/* Run button — full width on mobile */}
+          <button
+            onClick={() => executeCode(input, { forceRun: true })}
+            disabled={!input.trim() || isExecuting || readOnly}
+            className={`px-4 py-2 rounded flex items-center justify-center space-x-2 transition w-full sm:w-auto ${
+              isExecuting
+                ? "bg-gray-400 cursor-not-allowed"
+                : input.trim() && !readOnly
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-gray-300 cursor-not-allowed text-gray-500"
+            }`}
+          >
+            {isExecuting ? (
+              <>
+                <Spinner size={16} />
+                <span>Running...</span>
+              </>
+            ) : (
+              <>
+                <Play size={16} />
+                <span>Run</span>
+              </>
+            )}
+          </button>
         </div>
 
-        <div className="flex justify-between items-center opacity-70">
-          <div className="flex space-x-4">
-            <span>History: {history.length}</span>
-            <span>Lines: {output.length}</span>
-          </div>
-          {isExecuting && (
-            <span className="text-yellow-500 animate-pulse font-bold uppercase">
-              Executing...
-            </span>
+        {/* Quick Snippets and Stats */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 gap-2">
+          {!readOnly && (
+            <div>
+              <div
+                className={`text-xs mb-1 ${
+                  isCodeDark ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                Quick examples:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {snippets.map((snippet, index) => (
+                  <button
+                    key={index}
+                    onClick={() => loadSnippet(snippet.code)}
+                    className={`px-3 py-1 text-xs rounded transition ${
+                      isCodeDark
+                        ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                    }`}
+                  >
+                    {snippet.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
+
+          <div
+            className={`text-xs ${
+              isCodeDark ? "text-gray-500" : "text-gray-600"
+            }`}
+          >
+            <div className="flex space-x-4">
+              <span>Commands: {history.length}</span>
+              <span>Lines: {output.length}</span>
+              {isExecuting && (
+                <span className="text-yellow-500">Executing...</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

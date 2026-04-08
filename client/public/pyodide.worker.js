@@ -11,6 +11,18 @@ async function initPyodide() {
     stderr: (text) => postMessage({ type: "stderr", text, id: currentId }),
   });
 
+  // Pre-install all libraries used across the course modules
+  try {
+    await pyodide.loadPackage("micropip");
+    await pyodide.runPythonAsync(`
+      import micropip
+      # Pre-download heavy packages to the browser cache
+      await micropip.install(['pandas', 'numpy', 'beautifulsoup4'])
+    `);
+  } catch (err) {
+    console.error("Preload error:", err);
+  }
+
   postMessage({ type: "ready" });
 }
 
@@ -22,6 +34,7 @@ onmessage = async (event) => {
   currentId = id;
 
   try {
+    // runPythonAsync handles top-level awaits if the student uses them
     const result = await pyodide.runPythonAsync(code);
     postMessage({
       type: "result",
