@@ -75,6 +75,18 @@ The terminal is your best friend for fixing errors:
 3. Go back to the editor and fix that line
 4. Run again to see if it works
 
+:::tip
+
+## Partial Execution
+
+As your code in the **Editor** gets longer, you might only want to test the first few lines. You can use a special "Marker" to tell Python where to stop:
+
+- **The Marker:** `# ---RUN---`
+- **What it does:** When you click **Run**, the terminal only executes the code **_above_** this line. Everything below it is ignored!
+
+This is perfect for working through long exercises one step at a time without getting distracted by errors in the later tasks.
+:::
+
 ## Terminal vs Editor
 
 | Feature     | The Editor                | The Terminal                   |
