@@ -18,36 +18,6 @@ import { useFileDownload } from "../../hooks/useFileDownload";
 // ---------------------------------------------------------------------------
 
 /**
- * Libraries that Pyodide can install via micropip at runtime.
- * These are prepended as an async install block before the student's code.
- */
-const MICROPIP_LIBRARIES = ["pandas", "numpy", "beautifulsoup4"];
-
-/**
- * Mapping from the import name a student writes to the micropip package name.
- * e.g. `import bs4` or `from bs4 import ...` → installs "beautifulsoup4"
- */
-const IMPORT_TO_PACKAGE = {
-  pandas: "pandas",
-  numpy: "numpy",
-  bs4: "beautifulsoup4",
-  beautifulsoup4: "beautifulsoup4",
-};
-
-/**
- * Libraries that are built into Pyodide's Python runtime.
- * No installation needed — they just work.
- */
-const BUILTIN_LIBRARIES = new Set([
-  "sqlite3",
-  "re",
-  "json",
-  "ast",
-  "sys",
-  "io",
-]);
-
-/**
  * Libraries that must be mocked because they rely on OS networking
  * which is unavailable in the browser sandbox.
  *
@@ -94,6 +64,32 @@ sys.modules['requests'] = _MockRequests()
 // ---------------------------------------------------------------------------
 
 /**
+ * Normalise the # ---RUN--- marker — strip it regardless of internal spacing.
+ * Returns true if the line is a run marker.
+ */
+const isRunMarker = (line) => /^#\s*-{3,}\s*RUN\s*-{3,}\s*$/i.test(line.trim());
+
+/**
+ * Split code at the first # ---RUN--- marker.
+ * Returns { codeToRun, hasMarker }
+ *   - codeToRun: the slice of code that should actually execute
+ *   - hasMarker: whether a marker was found
+ */
+const applyRunMarker = (code) => {
+  const lines = code.split("\n");
+  const markerIndex = lines.findIndex(isRunMarker);
+
+  if (markerIndex === -1) {
+    return { codeToRun: code, hasMarker: false };
+  }
+
+  return {
+    codeToRun: lines.slice(0, markerIndex).join("\n"),
+    hasMarker: true,
+  };
+};
+
+/**
  * Parse import statements from student code and return a list of top-level
  * module names. Handles:
  *   import pandas
@@ -112,9 +108,9 @@ const extractImportedModules = (code) => {
 };
 
 /**
- * Build the Python preamble that:
- *  1. Installs required micropip packages (async, so needs runPythonAsync)
- *  2. Injects mocks for any mocked libraries found in the code
+ * Build the Python preamble.
+ * All course libraries are preloaded in the worker — this only needs to
+ * inject mocks for libraries that cannot run in the browser (e.g. requests).
  *
  * Returns { preamble: string, warnings: string[] }
  */
@@ -122,7 +118,6 @@ const buildPreamble = (code) => {
   const imported = extractImportedModules(code);
   const warnings = [];
 
-  // Determine which mocks to inject
   const toMock = imported.filter((mod) => mod in MOCKED_LIBRARIES);
 
   if (toMock.length > 0) {
@@ -131,7 +126,10 @@ const buildPreamble = (code) => {
     );
   }
 
-  const preamble = toMock.map((mod) => MOCKED_LIBRARIES[mod]).join("\n");
+  const preamble =
+    toMock.length > 0
+      ? toMock.map((mod) => MOCKED_LIBRARIES[mod]).join("\n") + "\n"
+      : "";
 
   return { preamble, warnings };
 };
@@ -189,6 +187,8 @@ const TerminalComponent = ({
             return `Error: ${item.content}`;
           case "warning":
             return `⚠ ${item.content}`;
+          case "marker":
+            return `── PARTIAL RUN: code below marker was not executed ──`;
           default:
             return item.content;
         }
@@ -206,10 +206,6 @@ const TerminalComponent = ({
       if (!code.trim() || isExecuting || !isReady) return;
 
       // ----- Starter code guard -----
-      // If the code hasn't been modified from the initial starter code,
-      // show a hint rather than running potentially broken/incomplete code.
-      // forceRun bypasses this (used when student explicitly clicks Run on
-      // unmodified starter code and confirms they want to proceed).
       if (code === initialCode && !forceRun) {
         setOutput((prev) => [
           ...prev,
@@ -219,8 +215,23 @@ const TerminalComponent = ({
               "This looks like unmodified starter code. Edit the code above before running, or click Run again to execute it anyway.",
           },
         ]);
-        // Flag so the next Run click on the same unmodified code goes through
         lastInitialCode.current = null;
+        return;
+      }
+
+      // ----- Run marker: split code at # ---RUN--- -----
+      const { codeToRun, hasMarker } = applyRunMarker(code);
+
+      // ----- ??? guard: block on incomplete placeholders above the marker -----
+      if (codeToRun.includes("???")) {
+        setOutput((prev) => [
+          ...prev,
+          {
+            type: "error",
+            content:
+              "Your code contains incomplete steps (???). Complete or comment out incomplete steps before running. Tip: add # at the start of a line to skip it.",
+          },
+        ]);
         return;
       }
 
@@ -231,17 +242,16 @@ const TerminalComponent = ({
       setInput("");
 
       try {
-        // ----- Build preamble (installs + mocks) -----
-        const { preamble, warnings } = buildPreamble(code);
-        const wrappedCode = preamble ? `${preamble}\n${code}` : code;
+        // ----- Build preamble (mocks only — libraries preloaded in worker) -----
+        const { preamble, warnings } = buildPreamble(codeToRun);
+        const wrappedCode = preamble ? `${preamble}\n${codeToRun}` : codeToRun;
 
-        // Show mock warnings inline in the terminal output
         const warningItems = warnings.map((w) => ({
           type: "warning",
           content: w,
         }));
 
-        const result = await runCode(wrappedCode, 15000); // longer timeout for installs
+        const result = await runCode(wrappedCode, 5000);
 
         if (result.success) {
           let outputText = "";
@@ -254,26 +264,45 @@ const TerminalComponent = ({
             outputText += (outputText ? "\n" : "") + result.output;
           }
 
-          setOutput((prev) => [
-            ...prev,
+          const newItems = [
             ...warningItems,
-            { type: "input", content: code },
+            { type: "input", content: codeToRun },
             { type: "output", content: outputText || "(no output)" },
-          ]);
+          ];
+
+          // Banner appears after output if a run marker was used
+          if (hasMarker) {
+            newItems.push({ type: "marker", content: null });
+          }
+
+          setOutput((prev) => [...prev, ...newItems]);
 
           if (onCodeExecute) {
-            onCodeExecute({ code, result: outputText, success: true });
+            onCodeExecute({
+              code: codeToRun,
+              result: outputText,
+              success: true,
+            });
           }
         } else {
-          setOutput((prev) => [
-            ...prev,
+          const newItems = [
             ...warningItems,
-            { type: "input", content: code },
+            { type: "input", content: codeToRun },
             { type: "error", content: result.error },
-          ]);
+          ];
+
+          if (hasMarker) {
+            newItems.push({ type: "marker", content: null });
+          }
+
+          setOutput((prev) => [...prev, ...newItems]);
 
           if (onCodeExecute) {
-            onCodeExecute({ code, error: result.error, success: false });
+            onCodeExecute({
+              code: codeToRun,
+              error: result.error,
+              success: false,
+            });
           }
         }
 
@@ -285,7 +314,7 @@ const TerminalComponent = ({
       } catch (error) {
         setOutput((prev) => [
           ...prev,
-          { type: "input", content: code },
+          { type: "input", content: codeToRun },
           { type: "error", content: error.message },
         ]);
       } finally {
@@ -406,7 +435,7 @@ const TerminalComponent = ({
                 isCodeDark ? "text-gray-400" : "text-gray-300"
               }`}
             >
-              Loading Python engine and libraries...
+              Loading Python engine...
             </p>
           </div>
         </div>
@@ -561,6 +590,23 @@ const TerminalComponent = ({
                 <span>{item.content}</span>
               </div>
             )}
+            {item.type === "marker" && (
+              <div
+                className={`flex items-center gap-2 mt-1 text-xs font-mono ${
+                  isCodeDark ? "text-blue-400" : "text-blue-300"
+                }`}
+              >
+                <div
+                  className={`h-px flex-1 ${isCodeDark ? "bg-blue-900" : "bg-blue-700"}`}
+                />
+                <span className="shrink-0">
+                  PARTIAL RUN: code below marker was not executed
+                </span>
+                <div
+                  className={`h-px flex-1 ${isCodeDark ? "bg-blue-900" : "bg-blue-700"}`}
+                />
+              </div>
+            )}
           </div>
         ))}
 
@@ -570,8 +616,10 @@ const TerminalComponent = ({
             navigate command history.
             <br />
             <span className="text-xs">
-              Tip: Ctrl+L to clear, Ctrl+D to download, 15s timeout for library
-              installs
+              Tip: add{" "}
+              <span className="text-gray-400 font-mono"># ---RUN---</span> in
+              your editor to run only the code above that line. Ctrl+L to clear,
+              Ctrl+D to download.
             </span>
           </div>
         )}
