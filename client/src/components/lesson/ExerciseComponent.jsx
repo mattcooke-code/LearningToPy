@@ -62,7 +62,9 @@ const ExerciseComponent = ({
     setTestResults(null);
 
     try {
-      console.log("🔍 Calling validateWithPyodide with runCode:", !!runCode);
+      console.log("🔍 Validating code:", userCode.substring(0, 100) + "...");
+      console.log("🔍 Exercise validation type:", exercise.validation);
+      console.log("🔍 Exercise tests:", exercise.tests?.length || 0);
 
       // Pyodide Validation
       const validationResult = await validateWithPyodide(
@@ -82,7 +84,7 @@ const ExerciseComponent = ({
         setIsRunning(false);
         return;
       }
-
+      console.log("🔍 Validation result:", validationResult);
       // If local validation passes, send to backend
       const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
 

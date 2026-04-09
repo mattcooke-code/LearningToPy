@@ -1,6 +1,7 @@
 {
   "title": "Managing Your Task List",
   "instructions": "You're organizing your daily tasks. Practice removing items from your list using different methods - each one is useful in different situations!",
+  "validation": "tests",
   "steps": [
     "**Step 1:** Remove a task by its name. Use the `remove()` method to delete the task 'Check emails' from your list.",
     "**Step 2:** Complete and store your first task. Use the `pop()` method with index 0 to remove 'Morning workout' and save it in a variable called `completed_task`.",

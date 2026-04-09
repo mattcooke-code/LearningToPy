@@ -86,6 +86,8 @@ const runSingleTest = async (userCode, test, runCode) => {
 import sys, io, ast
 code = ${safeUserCode}
 
+exec(compile(code, "<student_code>)", "exec"), globals())
+
 # Execute the test suite logic
 ${test.code}
 `.trim();
