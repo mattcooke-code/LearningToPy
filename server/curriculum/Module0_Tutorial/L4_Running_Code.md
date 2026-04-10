@@ -37,18 +37,18 @@ print(f"Step 3: Set timer to {timer}")  # Runs third
 
 Order matters! If you try to use a variable before you define it, Python will get confused and throw an error.
 
-## 🛑 The "Run Marker": Stop and Test
+## 🛑 The "Gutter Button": Stop and Test
 
 Sometimes, a project has 5 or 6 steps. If you have a mistake in Step 1, you don't want to see errors for Step 2, 3, and 4 at the same time!
 
-To handle this, we use the **Run Marker**: `# ---RUN---`
+To handle this, we use the **Gutter Button**: `▶`
 
 ### How to use it:
 
 1. Write your code for **Step 1**.
-2. Place the marker `# ---RUN---` on the line immediately below your code.
-3. Click **Run**.
-4. The terminal will execute **only** Step 1 and then stop.
+2. Click the line of code containing your `print()` statement for Step 1.
+3. Click the _Play_ icon `▶` that appears next to the line number.
+4. The terminal will execute **only** the code from the top down to that line of code.
 
 ### Why use it?
 
@@ -56,8 +56,8 @@ To handle this, we use the **Run Marker**: `# ---RUN---`
 - **Ignore Placeholders:** If you have `???` placeholders in later steps, the marker stops them from causing a `SyntaxError` while you work on the current task.
 - **Stay Focused:** You only see the output for the part of the code you are currently building.
 
-:::note
-Think of the `# ---RUN---` marker as a "Safety Gate." It lets you perfect the first half of your program before opening the gate to the rest.
+:::warning
+You **MUST** have a `print()` statement for your code to run in the terminal. No print statement = No output!
 :::
 
 ## Error Messages Are Your Friends 🚨

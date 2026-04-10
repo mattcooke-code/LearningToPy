@@ -3,17 +3,18 @@
   "instructions": "Your goal is to successfully create two variables using proper naming conventions and print their values to the console.",
   "steps": [
     "Create a variable named `project_name` and assign it the string value \"PyGame\".",
-    "Create a variable named `hours_spent` and assign it an integer value of `45`.",
     "Print the value of `project_name`.",
+    "Create a variable named `hours_spent` and assign it an integer value of `45`.",
     "Print the value of `hours_spent`."
   ],
-  "starterCode": "# Create your two variables here:\n\n\n# Print their values below:\n",
-  "solution": "# Create your two variables here:\nproject_name = \"PyGame\"\nhours_spent = 45\n\n# Print their values below:\nprint(project_name)\nprint(hours_spent)",
+  "starterCode": "# Create your first variable and print statement here:\n\n\n# Create your second variable and print statement here:\n",
+  "solution": "# Create your first variable and print statement here:\nproject_name = \"PyGame\"\nprint(project_name)\n\n# Create your second variable and print statement here:\nhours_spent = 45\nprint(hours_spent)",
   "hints": [
     "Make sure your variable names use `snake_case` (lowercase with underscores).",
     "Strings need quotation marks around them (single or double quotes).",
     "Numbers do not need quotation marks.",
-    "Use print() to display each variable's value on separate lines."
+    "Use print() to display each variable's value on separate lines.",
+    "Check your progress in the terminal using the gutter button ▶ in the editor or the Run button in the terminal"
   ],
   "validation": "tests",
   "tests": [

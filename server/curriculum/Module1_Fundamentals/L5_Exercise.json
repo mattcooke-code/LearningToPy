@@ -1,44 +1,43 @@
 {
   "title": "F-Strings Conversion Challenge",
-  "instructions": "Convert the messy concatenation code to clean, readable f-strings.",
+  "instructions": "Convert messy concatenation to clean f-strings. In the final task, you'll build your own f-string from scratch!",
   "steps": [
-    "Task 1: Convert the first message to an f-string",
-    "Task 2: Convert the character stats message to an f-string",
-    "Task 3: Convert the shopping cart message to an f-string",
-    "Task 4: Replace the empty string with an f-string using temp_c and temp_f to show: \"25°C is 77.0°F\""
+    "Task 1: Convert the intro message to an f-string.",
+    "Task 2: Convert the character stats to an f-string.",
+    "Task 3: Convert the shopping cart to an f-string.",
+    "Task 4: Use the variables provided to create the f-string: \"Soylent Green is people!\""
   ],
-  "starterCode": "# Old concatenation code that needs cleaning up\nname = \"Alex\"\nage = 28\ncity = \"Paris\"\n\n# Task 1: Convert this to an f-string\nmessage1 = \"Hello, my name is \" + name + \", I am \" + str(age) + \" years old, and I live in \" + city + \".\"\n\n# Task 2: Convert this to an f-string\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = \"Character: \" + character + \" | Health: \" + str(health) + \" | Mana: \" + str(mana)\n\n# Task 3: Convert this to an f-string\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = \"Item: \" + item + \" | Price per item: $\" + str(price) + \" | Total: $\" + str(price * quantity)\n\n# Task 4: Create an f-string showing the temperature in both Celsius and Fahrenheit\ntemp_c = 25\ntemp_f = temp_c * 9/5 + 32\ntemperature_message = \"\"  # Replace with your f-string",
-  "solution": "name = \"Alex\"\nage = 28\ncity = \"Paris\"\n\n# Task 1: Convert this to an f-string\nmessage1 = f\"Hello, my name is {name}, I am {age} years old, and I live in {city}.\"\n\n# Task 2: Convert this to an f-string\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = f\"Character: {character} | Health: {health} | Mana: {mana}\"\n\n# Task 3: Convert this to an f-string\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = f\"Item: {item} | Price per item: ${price} | Total: ${price * quantity}\"\n\n# Task 4: Create an f-string showing the temperature in both Celsius and Fahrenheit\ntemp_c = 25\ntemp_f = temp_c * 9/5 + 32\ntemperature_message = f\"{temp_c}°C is {temp_f}°F\"",
+  "starterCode": "name = \"Alex\"\nage = 28\ncity = \"Paris\"\n\n# Task 1: Convert this to an f-string\nmessage1 = \"Hello, my name is \" + name + \", I am \" + str(age) + \" years old, and I live in \" + city + \".\"\n\n# Task 2: Convert this to an f-string\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = \"Character: \" + character + \" | Health: \" + str(health) + \" | Mana: \" + str(mana)\n\n# Task 3: Convert this to an f-string\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = \"Item: \" + item + \" | Price per item: $\" + str(price) + \" | Total: $\" + str(price * quantity)\n\n# Task 4: Construct the famous movie line using an f-string\nfood_wafer = \"Soylent Green\"\nadditive = \"people\"\n\ndinner_time = ???",
+  "solution": "name = \"Alex\"\nage = 28\ncity = \"Paris\"\n\nmessage1 = f\"Hello, my name is {name}, I am {age} years old, and I live in {city}.\"\n\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = f\"Character: {character} | Health: {health} | Mana: {mana}\"\n\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = f\"Item: {item} | Price per item: ${price} | Total: ${price * quantity}\"\n\nfood_wafer = \"Soylent Green\"\nadditive = \"people\"\ndinner_time = f\"{food_wafer} is {additive}!\"",
   "hints": [
-    "Start with an 'f' before the opening quote: f\"...\"",
-    "Put variables inside curly braces: {variable_name}",
-    "You can put expressions inside curly braces too: {price * quantity}",
-    "No need to use str() with f-strings!",
-    "For Task 4, just use the variables inside the f-string"
+    "Task 1-3: Replace the + signs and str() calls with f\"... {variable} ...\"",
+    "Task 4: Your f-string should look like f\"{var1} is {var2}!\"",
+    "Make sure you include the 'f' before the first quote mark!",
+    "Include your own print statements to check your progress in the terminal"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check message1 f-string conversion",
-      "code": "# Execute user code first\nexec(code)\n\n# Check message1 variable exists\nif 'message1' not in locals():\n    raise AssertionError('Missing message1 variable. Did you create it?')\n\n# Check it's a string\nif not isinstance(message1, str):\n    raise AssertionError('message1 should be a string')\n\n# Check content\nif 'Alex' not in message1 or '28' not in message1 or 'Paris' not in message1:\n    raise AssertionError('message1 should contain name, age, and city')\n\nprint('TEST_PASSED: message1 f-string conversion is correct')",
-      "expected": "message1 = f\"Hello, my name is {name}, I am {age} years old, and I live in {city}.\""
+      "name": "Check message1 conversion",
+      "code": "if 'message1' not in locals(): raise AssertionError('Missing message1')\nif not isinstance(message1, str) or '+' in code.split('\\n')[8]: raise AssertionError('Use an f-string, not concatenation!')\nif 'Alex' not in message1 or 'Paris' not in message1: raise AssertionError('message1 content is incorrect')\nprint('TEST_PASSED: Task 1 correct')",
+      "expected": "Converted to f-string"
     },
     {
-      "name": "Check message2 f-string conversion",
-      "code": "# Execute user code first\nexec(code)\n\n# Check message2 variable\nif 'message2' not in locals():\n    raise AssertionError('Missing message2 variable. Did you create it?')\n\n# Check content\nif 'Wizard' not in message2 or '85' not in message2 or '120' not in message2:\n    raise AssertionError('message2 should contain character, health, and mana values')\n\nprint('TEST_PASSED: message2 f-string conversion is correct')",
-      "expected": "message2 = f\"Character: {character} | Health: {health} | Mana: {mana}\""
+      "name": "Check message2 conversion",
+      "code": "if 'message2' not in locals(): raise AssertionError('Missing message2')\nif 'Wizard' not in message2 or '120' not in message2: raise AssertionError('message2 content is incorrect')\nprint('TEST_PASSED: Task 2 correct')",
+      "expected": "Converted to f-string"
     },
     {
-      "name": "Check message3 f-string conversion",
-      "code": "# Execute user code first\nexec(code)\n\n# Check message3 variable\nif 'message3' not in locals():\n    raise AssertionError('Missing message3 variable. Did you create it?')\n\n# Check content\nif 'Magic Wand' not in message3 or '49.99' not in message3:\n    raise AssertionError('message3 should contain item name and price')\n\n# Check it calculates total correctly (99.98)\nif not ('99.98' in message3 or '99.980' in message3):\n    raise AssertionError('Total should be 49.99 * 2 = 99.98')\n\nprint('TEST_PASSED: message3 f-string conversion is correct')",
-      "expected": "message3 = f\"Item: {item} | Price per item: ${price} | Total: ${price * quantity}\""
+      "name": "Check message3 conversion",
+      "code": "if 'message3' not in locals(): raise AssertionError('Missing message3')\nif '99.98' not in message3: raise AssertionError('Total calculation (99.98) missing from message3')\nprint('TEST_PASSED: Task 3 correct')",
+      "expected": "Converted to f-string"
     },
     {
-      "name": "Check temperature_message f-string",
-      "code": "# Execute user code first\nexec(code)\n\n# Check temperature_message variable\nif 'temperature_message' not in locals():\n    raise AssertionError('Missing temperature_message variable. Did you create it?')\n\n# Check content - should contain both temperatures\nif '25' not in temperature_message or '77' not in temperature_message:\n    raise AssertionError('temperature_message should contain both temperatures (25 and 77)')\n\n# Check format symbols\nif '°C' not in temperature_message or '°F' not in temperature_message:\n    raise AssertionError('temperature_message should include °C and °F symbols')\n\nprint('TEST_PASSED: temperature_message f-string is correct')",
-      "expected": "temperature_message = f\"{temp_c}°C is {temp_f}°F\""
+      "name": "Check dinner_time construction",
+      "code": "if 'dinner_time' not in locals(): raise AssertionError('Missing dinner_time variable')\nif dinner_time.strip() != \"Soylent Green is people!\": raise AssertionError(f'Expected \"Soylent Green is people!\", but got: \"{dinner_time}\"')\nif 'f\"' not in code and \"f'\" not in code: raise AssertionError('You must use an f-string for this task!')\nprint('TEST_PASSED: Soylent Green is verified!')",
+      "expected": "Soylent Green is people!"
     }
   ],
-  "tags": ["f-strings", "string-formatting", "concatenation", "conversion"],
+  "tags": ["f-strings", "string-formatting", "conversion"],
   "challengeGroup": "f-strings"
 }

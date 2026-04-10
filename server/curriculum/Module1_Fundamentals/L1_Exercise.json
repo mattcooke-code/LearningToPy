@@ -1,6 +1,6 @@
 {
   "title": "Indentation & Comments Practice",
-  "instructions": "In the coding window, you'll see a comment and an 'if' statement. Your job is to indent the `print()` statement using exactly 4 spaces so the program runs. Notice how Python ignores the note at the top!",
+  "instructions": "In the coding window, you'll see a comment and an `if` statement. Your job is to indent the `print()` statement using exactly 4 spaces so the program runs. Notice how Python ignores the note at the top!",
   "steps": [
     "Identify the comment on line 1 (starting with #)",
     "Look at the if statement on line 2",

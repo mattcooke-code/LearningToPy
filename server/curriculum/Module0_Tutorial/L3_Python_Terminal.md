@@ -77,15 +77,13 @@ The terminal is your best friend for fixing errors:
 
 :::tip
 
-## Partial Execution
+### Testing Step-by-Step
 
-As your code in the **Editor** gets longer, you might only want to test the first few lines. You can use a special "Marker" to tell Python where to stop:
+As your code gets longer, you might only want to test the first few lines. Instead of running everything, you can use the **Gutter Button** in the Editor.
 
-- **The Marker:** `# ---RUN---`
-- **What it does:** When you click **Run**, the terminal only executes the code **_above_** this line. Everything below it is ignored!
-
-This is perfect for working through long exercises one step at a time without getting distracted by errors in the later tasks.
-:::
+- **How it looks:** In the Terminal, you will see a blue divider line that says `PARTIAL RUN`.
+- **What it means:** This confirms the Terminal stopped exactly where you clicked, ignoring any unfinished code or placeholders (`???`) below that point.
+  :::
 
 ## Terminal vs Editor
 

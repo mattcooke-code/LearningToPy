@@ -12,12 +12,13 @@ Welcome to your Python playground! The code editor is where you'll write, edit, 
 | ----- | ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | **1** | **Theme Toggle**          | Switch between light and dark mode                                                                                   |
 | **2** | **Exercise Instructions** | Find out what coding tasks need to be carried out for you to pass the exercise                                       |
-| **3** | **Editing Area**          | Where you type your Python code                                                                                      |
+| **3** | **Editing Area**          | Where you type your Python code.                                                                                     |
 | **4** | **Code**                  | Example code. Note the formatting, line numbers at the side and the different colors of code (_syntax highlighting_) |
-| **5** | **Terminal Toggle**       | Show or hide the Python terminal (more on this next lesson)                                                          |
-| **6** | **Submit Code Button**    | To submit code for testing. This is how you pass an exercise                                                         |
-| **7** | **Exercise Hints**        | If you get stuck on an exercise you can click the _Show Hints_ button to see helpful hints                           |
-| **8** | **Download Exercise**     | If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson             |
+| **5** | **Gutter Button**         | Click the ▶ next to the line numbers to run code above this line in the terminal                                     |
+| **6** | **Terminal Toggle**       | Show or hide the Python terminal (more on this next lesson)                                                          |
+| **7** | **Submit Code Button**    | To submit code for testing. This is how you pass an exercise                                                         |
+| **8** | **Exercise Hints**        | If you get stuck on an exercise you can click the _Show Hints_ button to see helpful hints                           |
+| **9** | **Download Exercise**     | If you want to use your own code editor (IDE) you can download the exercise starter code for each lesson             |
 
 :::note
 

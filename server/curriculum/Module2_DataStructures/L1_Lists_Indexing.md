@@ -12,7 +12,7 @@ In Python, a **List** is one of the most useful and versatile built-in data stru
 shopping_list = ["Milk", "Eggs", "Bread", "Cheese"]
 
 # A list of mixed data types
-user_data = ["Alice", 25, 5.9, True]
+user_data = ["Mei", 25, 5.9, True]
 
 # An empty list
 my_new_list = []

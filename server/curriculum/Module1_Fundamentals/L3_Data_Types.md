@@ -58,8 +58,8 @@ Writing `true` or `false` (lowercase) will cause an error! Always capitalize: `T
 You can use the `type()` function to check what type a variable is:
 
 ```python
-name = "Alice"
-age = 25
+name = "Zaria"
+age = 32
 height = 5.8
 is_student = True
 

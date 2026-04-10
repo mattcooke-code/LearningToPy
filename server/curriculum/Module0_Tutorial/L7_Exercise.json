@@ -2,19 +2,18 @@
   "title": "My First Python Program",
   "instructions": "Change `\"Python Learner\"` to your actual name or nickname in the code below. Then run and submit your code to earn XP!",
   "steps": [
-    "Find the line that says: `name = \"Python Learner\"`",
-    "Change `\"Python Learner\"` to your name (keep the quotes!)",
-    "Run the code using the **Run Code** button",
-    "Check that the output shows: `Hello, [Your Name]!`",
-    "Submit using the **Submit Code** button to earn XP!"
+    "Find the line: `name = \"Python Learner\"` and change it to your name.",
+    "**Test Step 1:** Click the Gutter Button (the play icon by the line number) on line 1 to see your variable load.",
+    "**Complete Step 2:** Ensure the `print` statement is ready to use your new name.",
+    "**Final Run:** Click the main **Run Code** button to see the full greeting.",
+    "**Submit:** Click **Submit Code** to earn your first XP!"
   ],
   "starterCode": "name = \"Python Learner\"\nprint(f\"Hello, {name}!\")",
   "solution": "# Example solution\nname = \"Alex\"\nprint(f\"Hello, {name}!\")",
   "hints": [
-    "**Just change the name:** Only edit the part inside quotes on line 1.",
-    "**Keep the quotes:** Make sure your name is inside quotation marks like this: `\"Your Name\"`",
-    "**Test it:** Click Run Code first to make sure it works before submitting!",
-    "**Any name works:** You can use your real name, nickname, or even a fun word like `\"Coder\"`!"
+    "**The Gutter Button:** Look for the small play icon next to the line numbers in the editor. It's a great way to test one line at a time!",
+    "**Keep the quotes:** Make sure your name is inside quotation marks like this: `\"Alex\"`",
+    "**Partial Run:** When you use the gutter, notice the blue 'PARTIAL RUN' marker in the terminal."
   ],
   "validation": "tests",
   "tests": [

@@ -1,5 +1,5 @@
 // ExerciseComponent.jsx
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Code2,
   RefreshCw,
@@ -33,10 +33,33 @@ const ExerciseComponent = ({
   const [startTime, setStartTime] = useState(Date.now());
   const [hasViewedHints, setHasViewedHints] = useState(false);
 
+  const terminalRef = useRef(null);
   const { isCodeDark } = useTheme();
   const { runCode, isReady } = usePython();
   const { downloadPythonFile } = useFileDownload();
   const { showToast } = useNotification(); // ← Initialize toast
+
+  const handleRunToLine = useCallback(
+    (lineNumber) => {
+      console.log("▶ handleRunToLine called, line:", lineNumber);
+      console.log("terminalRef.current:", terminalRef.current);
+      console.log("showTerminal:", showTerminal);
+
+      const lines = userCode.split("\n").slice(0, lineNumber);
+      const slicedCode = lines.join("\n");
+
+      if (!showTerminal) setShowTerminal(true);
+
+      // Give terminal time to mount if not open
+      setTimeout(
+        () => {
+          terminalRef.current?.executeCode(slicedCode);
+        },
+        showTerminal ? 0 : 50,
+      );
+    },
+    [userCode, showTerminal],
+  );
 
   const handleSubmit = async () => {
     console.log("🔍 handleSubmit called");
@@ -257,7 +280,8 @@ const ExerciseComponent = ({
           value={userCode}
           onChange={setUserCode}
           readOnly={isReviewMode && showSolution}
-          height="250px"
+          height="400px"
+          onRunToLine={handleRunToLine}
         />
       </div>
 
@@ -407,6 +431,7 @@ const ExerciseComponent = ({
         {showTerminal && (
           <div className="border rounded-lg overflow-hidden">
             <TerminalComponent
+              ref={terminalRef}
               initialCode={userCode}
               height="300px"
               onCodeExecute={handleTerminalExecute}

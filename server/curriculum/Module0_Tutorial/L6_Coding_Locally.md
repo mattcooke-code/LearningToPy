@@ -40,7 +40,5 @@ You don't need these to finish this course! Our browser editor has everything yo
 :::
 
 :::tip
-Later in this course, we will explore **APIs**, **Web Scraping**, and the **Command Line**. While you can pass those lessons by writing the correct syntax here, our browser editor cannot "talk" to the live internet or run complex system commands.
-
-To actually see your scraper grab data or your API send a message, you’ll need to run that code locally on your computer using the tools above!
+While our browser editor is powerful enough to simulate APIs and run Data Science libraries, professional developers eventually move their work to an IDE like VS Code to access their computer's File System. Once you complete this course your coding will be carried out in an IDE so the sooner you learn to use one, the better off you will be.
 :::

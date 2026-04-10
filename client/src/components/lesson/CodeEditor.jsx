@@ -4,9 +4,99 @@ import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { lintGutter } from "@codemirror/lint";
 import { indentUnit } from "@codemirror/language";
+import { gutter, GutterMarker } from "@codemirror/view";
 import { usePython, useTheme } from "../../context";
 import { Spinner } from "../ui";
 import { Play, AlertCircle } from "lucide-react";
+
+// ---------------------------------------------------------------------------
+// Run-to-here gutter marker
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a CodeMirror gutter extension that shows a ▶ button
+ * on the hovered line. Clicking it calls onRunToLine(lineNumber).
+ */
+const createRunToHereGutter = (onRunToLine) => {
+  class RunMarker extends GutterMarker {
+    constructor(lineNumber) {
+      super();
+      this.lineNumber = lineNumber;
+    }
+
+    toDOM() {
+      const btn = document.createElement("button");
+      btn.textContent = "▶";
+      btn.title = "Run to here";
+      btn.style.cssText = `
+        background: none;
+        border: none;
+        color: #22c55e;
+        cursor: pointer;
+        font-size: 10px;
+        padding: 0 2px;
+        opacity: 0.85;
+        line-height: 1;
+      `;
+      btn.addEventListener("mouseenter", () => (btn.style.opacity = "1"));
+      btn.addEventListener("mouseleave", () => (btn.style.opacity = "0.85"));
+      btn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onRunToLine(this.lineNumber);
+      });
+      return btn;
+    }
+  }
+
+  return gutter({
+    lineMarker(view, line) {
+      const lineNumber = view.state.doc.lineAt(line.from).number;
+      const hoveredLine = view.state.field(hoveredLineField, false);
+      if (hoveredLine === lineNumber) {
+        return new RunMarker(lineNumber);
+      }
+      return null;
+    },
+    initialSpacer: () => {
+      const span = document.createElement("span");
+      span.style.width = "16px";
+      span.style.display = "inline-block";
+      return span;
+    },
+  });
+};
+
+import { StateField, StateEffect } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
+
+const setHoveredLine = StateEffect.define();
+
+const hoveredLineField = StateField.define({
+  create: () => null,
+  update(value, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setHoveredLine)) return effect.value;
+    }
+    return value;
+  },
+});
+
+const hoverPlugin = EditorView.domEventHandlers({
+  mousemove(event, view) {
+    const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
+    if (pos == null) return;
+    const line = view.state.doc.lineAt(pos).number;
+    view.dispatch({ effects: setHoveredLine.of(line) });
+  },
+  mouseleave(_event, view) {
+    view.dispatch({ effects: setHoveredLine.of(null) });
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 const CodeEditor = ({
   value,
@@ -16,12 +106,22 @@ const CodeEditor = ({
   className = "",
   showRunButton = false,
   onRun = null,
+  onRunToLine = null,
 }) => {
   const { isCodeDark } = useTheme();
   const { runCode, isReady, checkSyntax } = usePython();
 
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
+
+  const extensions = [
+    python(),
+    lintGutter(),
+    indentUnit.of("    "),
+    ...(onRunToLine
+      ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
+      : []),
+  ];
 
   const handleQuickRun = async () => {
     if (!isReady || isRunning) return;
@@ -70,7 +170,7 @@ const CodeEditor = ({
         <CodeMirror
           value={value}
           onChange={onChange}
-          extensions={[python(), lintGutter(), indentUnit.of("    ")]}
+          extensions={extensions}
           theme={isCodeDark ? "dark" : "light"}
           height={height}
           editable={!readOnly}

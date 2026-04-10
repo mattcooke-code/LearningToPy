@@ -71,7 +71,10 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
                 <Star size={12} />
                 <span>{lesson.xpReward} XP</span>
               </div>
-              <span className="capitalize px-2 py-0.5 bg-python-blue text-python-yellow  rounded-full shrink-0">
+              <span
+                className="capitalize px-2 py-0.5  text-white font-bold  rounded-full shrink-0"
+                style={{ backgroundColor: resolvedAccent }}
+              >
                 {lesson.contentType}
               </span>
             </div>

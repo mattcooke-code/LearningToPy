@@ -4,14 +4,13 @@
   "steps": [
     "Create a variable called `number_a` and assign it any numeric value (integer or float).",
     "Create a variable called `number_b` and assign it any numeric value (integer or float).",
-    "Calculate the sum of `number_a` and `number_b`, and store it in `sum_result`.",
-    "Calculate the difference (`number_a` minus `number_b`), and store it in `difference_result`.",
-    "Calculate the product (`number_a` times `number_b`), and store it in `product_result`.",
-    "Calculate the quotient (`number_a` divided by `number_b`), and store it in `quotient_result`.",
-    "Print all four result variables using separate print() statements."
+    "Calculate the sum of `number_a` and `number_b`, and store it in `sum_result`. Print the result.",
+    "Calculate the difference (`number_a` minus `number_b`), and store it in `difference_result`. Print the result.",
+    "Calculate the product (`number_a` times `number_b`), and store it in `product_result`. Print the result.",
+    "Calculate the quotient (`number_a` divided by `number_b`), and store it in `quotient_result`. Print the result."
   ],
-  "starterCode": "# Step 1: Create your first number variable\n\n\n# Step 2: Create your second number variable\n\n\n# Step 3: Calculate sum\n\n\n# Step 4: Calculate difference\n\n\n# Step 5: Calculate product\n\n\n# Step 6: Calculate quotient\n\n\n# Step 7: Print all four results\n",
-  "solution": "# Step 1: Create your first number variable\nnumber_a = 50\n\n# Step 2: Create your second number variable\nnumber_b = 7\n\n# Step 3: Calculate sum\nsum_result = number_a + number_b\n\n# Step 4: Calculate difference\ndifference_result = number_a - number_b\n\n# Step 5: Calculate product\nproduct_result = number_a * number_b\n\n# Step 6: Calculate quotient\nquotient_result = number_a / number_b\n\n# Step 7: Print all four results\nprint(sum_result)\nprint(difference_result)\nprint(product_result)\nprint(quotient_result)",
+  "starterCode": "# Step 1: Create your first number variable\n\n\n# Step 2: Create your second number variable\n\n\n# Step 3: Calculate sum\n\n\n# Step 4: Calculate difference\n\n\n# Step 5: Calculate product\n\n\n# Step 6: Calculate quotient\n\n\n",
+  "solution": "# Step 1: Create your first number variable\nnumber_a = 50\n\n# Step 2: Create your second number variable\nnumber_b = 7\n\n# Step 3: Calculate sum\nsum_result = number_a + number_b\nprint(sum_result)\n\n# Step 4: Calculate difference\ndifference_result = number_a - number_b\nprint(difference_result)\n\n# Step 5: Calculate product\nproduct_result = number_a * number_b\nprint(product_result)\n\n# Step 6: Calculate quotient\nquotient_result = number_a / number_b\nprint(quotient_result)\n\n",
   "hints": [
     "You can choose any numbers for number_a and number_b - the validation checks that your math is correct, not what numbers you chose!",
     "Remember: sum uses +, difference uses -, product uses *, quotient uses /",

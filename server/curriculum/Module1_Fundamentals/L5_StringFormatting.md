@@ -9,14 +9,14 @@ Think of f-strings as smart templates - they let you insert variables and expres
 Let's see the problem with concatenation:
 
 ```python
-name = "Luke"
+name = "Hakeem"
 age = 23
 score = 95.5
 
 # Old way (concatenation) - messy and requires str() conversion
 message = "My name is " + name + ", I am " + str(age) + " years old, and my score is " + str(score) + "%"
 
-print(message)  # Output: My name is Luke, I am 23 years old, and my score is 95.5%
+print(message)  # Output: My name is Hakeem, I am 23 years old, and my score is 95.5%
 ```
 
 Notice the problems:
@@ -31,13 +31,13 @@ Notice the problems:
 Put an `f` before the opening quote, then use curly braces `{}` to insert variables:
 
 ```python
-name = "Luke"
+name = "Hakeem"
 age = 23
 
 # Modern way (f-string) ⭐
 message = f"My name is {name} and I am {age} years old"
 
-print(message)  # Output: My name is Luke and I am 23 years old
+print(message)  # Output: My name is Hakeem and I am 23 years old
 ```
 
 Notice: With f-strings, you don't need `str()` to convert numbers! Python does it automatically.
@@ -73,9 +73,9 @@ print(f"Total: ${price * quantity:.2f}")
 # Output: Total: $59.97
 
 # Function calls
-name = "alice"
+name = "eliza"
 print(f"Hello, {name.upper()}!")
-# Output: Hello, ALICE!
+# Output: Hello, ELIZA!
 ```
 
 :::note
@@ -160,9 +160,9 @@ print(f"Success rate: {success_rate:.1%}")  # Output: Success rate: 85.6%
 You can create f-strings that span multiple lines:
 
 ```python
-name = "Sarah"
+name = "Jorge"
 age = 28
-city = "London"
+city = "Mexico City"
 
 profile = f"""
 === USER PROFILE ===

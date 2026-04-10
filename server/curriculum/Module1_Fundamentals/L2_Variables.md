@@ -9,8 +9,8 @@ Think of a variable as a **labelled storage box**. The label is the **variable n
 In Python, you create a variable using the **assignment operator**, which is the single equals sign `=`.
 
 ```python
-# The value "Alice" is assigned to the variable 'name'
-name = "Alice"
+# The value "Rosa" is assigned to the variable 'name'
+name = "Rosa"
 
 # The number 25 is assigned to the variable 'age'
 age = 25
@@ -36,7 +36,7 @@ user_age = 30
 _private_var = "secret"
 totalScore = 100
 item2 = "sword"
-
+# ================================================
 # ❌ Invalid variable names
 2nd_place = "silver"  # Can't start with a number
 user-name = "Bob"     # Can't use hyphens
@@ -116,7 +116,7 @@ print("✅ Changed ONE line, updated THREE outputs!")
 
 :::note
 **Variables don't remember their history:**
-When you reassign `pokemon = "Charmeleon"`, the old value "Charmander" is gone forever.
+When you reassign `pokemon = "Charmeleon"`, the old value `"Charmander"` is gone forever.
 Think of it like a whiteboard - you can erase and write something new, but you can't get the old writing back!
 :::
 
@@ -157,4 +157,4 @@ print(balance)  # Output: 100 (still 100, not 150)
 
 :::
 
-Now you're ready to practice! In the challenge below, you'll create two variables using proper naming conventions and print their values.
+Now you're ready to practice! In the challenge below, you'll create two variables using proper naming conventions and print their values. Remember you can test your progress in the terminal using either the gutter button in the code editor or the Run button in the terminal.

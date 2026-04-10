@@ -9,15 +9,15 @@ Your journey to becoming a Python developer is organized into a clear hierarchy.
 **1. Phases (The Big Picture)**
 The course is divided into three major Phases:
 
-• **Phase 1: Python Fundamentals** _(Modules 1-9)_
+• **_Phase 1: Python Fundamentals_** _(Modules 1-9)_
 Master the core language, from your first "Hello World" to writing reusable functions,
 handling files, managing errors, and creating elegant list comprehensions.
 
-• **Phase 2: Intermediate Python** _(Modules 10-15)_
+• **_Phase 2: Intermediate Python_** _(Modules 10-15)_
 Level up with lambda functions, object-oriented programming, regex, datetime handling,
 and professional development tooling.
 
-• **Phase 3: Advanced Applications** _(Modules 16-20)_
+• **_Phase 3: Advanced Applications_** _(Modules 16-20)_
 Apply your skills to the real world: interact with Web APIs, analyze data with
 Data Science tools, scrape websites, work with databases, and build a portfolio-ready
 final project.
@@ -50,13 +50,13 @@ The platform uses three distinct systems to help you track where you are and wha
 
 ![Progress Bar](./images/ProgressBar.PNG)
 
-**Location:** Top of every Module page
+_Location:_ Top of every Module page
 
-**What it shows:** A visual representation of how many lessons you've completed in the current module.
+_What it shows:_ A visual representation of how many lessons you've completed in the current module.
 
-**How it works:** The bar fills incrementally with each completed lesson. When it reaches 100%, you've finished all lessons in that module and unlocked the Module Quiz.
+_How it works:_ The bar fills incrementally with each completed lesson. When it reaches 100%, you've finished all lessons in that module and unlocked the Module Quiz.
 
-**Why it matters:** This is your real-time indicator of module completion. Use it to see how close you are to unlocking the quiz and moving to the next module.
+_Why it matters:_ This is your real-time indicator of module completion. Use it to see how close you are to unlocking the quiz and moving to the next module.
 
 ### 2. Progress Icons
 
