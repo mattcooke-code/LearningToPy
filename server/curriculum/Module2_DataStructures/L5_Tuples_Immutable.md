@@ -44,8 +44,10 @@ If you try to use methods like `append()`, `remove()`, or assign a new value to 
 ```python
 settings = ('max_users', 50)
 
+
+ settings[1] = 100
 # ❌ This will cause a TypeError!
-# settings[1] = 100
+
 
 # ✅ Workaround: Reassigning the entire variable is allowed,
 # but it creates a brand new tuple in memory.
