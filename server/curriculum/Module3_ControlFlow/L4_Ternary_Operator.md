@@ -8,7 +8,7 @@ It is called "ternary" because it is one of the few operators in Python that tak
 
 The structure is simple but reads backward from a traditional `if/else` statement:
 
-### `value_if_true if condition else value_if_false`
+### `value_if_true - if condition - else value_if_false`
 
 | Component             | Purpose                                           |
 | --------------------- | ------------------------------------------------- |
@@ -56,7 +56,7 @@ Keep it Simple! Avoid nesting ternary operators or using them for complex logic.
 
 :::summary
 
-- **Ternary operator**: `value_if_true if condition else value_if_false`
+- **Ternary operator**: `value_if_true` `if condition` `else value_if_false`
 - Used for simple **one-line** conditional assignments
 - More readable than multi-line `if/else` for simple cases
 - **Don't nest** ternary operators - keep them simple

@@ -73,7 +73,12 @@ Python allows you to write natural-language style chains of comparison, which is
 
 Instead of writing: `if x > 0 and x < 10:`
 
-You can simply write: `if 0 < x < 10:` # This is read as: 0 is less than x, and x is less than 10.
+You can simply write:
+
+```python
+ if 0 < x < 10:
+ # This is read as: 0 is less than x, and x is less than 10.
+```
 
 :::tip
 Chained comparisons like `0 < x < 10` not only save typing but are often easier to read than the equivalent `and` expression. Use them whenever you're checking if a value falls within a range.

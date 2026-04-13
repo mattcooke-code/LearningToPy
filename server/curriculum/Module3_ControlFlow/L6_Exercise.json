@@ -2,28 +2,28 @@
   "title": "Gaming Platform Access Control",
   "instructions": "You're building a login gateway. Use an `if-elif-else` chain to verify access levels based on `account_type` and `account_age`.",
   "steps": [
-    "**Step 1:** If `account_type` is `'VIP'`, print 'Welcome VIP! Full access to all games and features.'",
-    "**Step 2:** If `account_type` is `'Premium'` AND `account_age` >= 30, print 'Welcome Premium member! Access to premium games unlocked.'",
-    "**Step 3:** If `account_type` is `'Premium'` (less than 30 days), print 'Welcome! Premium features unlock in X days.' (where X is 30 - age).",
-    "**Step 4:** For any other case, print 'Welcome! You have access to free games. Upgrade for more!'"
+    "**Step 1:** If `account_type` is `'VIP'`, print a welcome message that includes the word `VIP`.",
+    "**Step 2:** If `account_type` is `'Premium'` AND `account_age` >= 30, print a welcome message that includes the word `Premium`.",
+    "**Step 3:** If `account_type` is `'Premium'` (less than 30 days), print a message that includes `days_remaining` using an f-string so the student sees how many days are left.",
+    "**Step 4:** For any other case, print a message that mentions free games."
   ],
-  "starterCode": "account_type = 'Premium'\naccount_age = 15\n\nprint(\"🎮 GAMING PLATFORM LOGIN\")\n# Write your access control logic below:\n",
-  "solution": "if account_type == 'VIP':\n    print('Welcome VIP! Full access to all games and features.')\nelif account_type == 'Premium' and account_age >= 30:\n    print('Welcome Premium member! Access to premium games unlocked.')\nelif account_type == 'Premium':\n    print(f'Welcome! Premium features unlock in {30 - account_age} days.')\nelse:\n    print('Welcome! You have access to free games. Upgrade for more!')",
+  "starterCode": "account_type = 'Premium'\naccount_age = 15\ndays_remaining = 30 - account_age\n\nprint(\"🎮 GAMING PLATFORM LOGIN\")\n# Write your access control logic below:\n",
+  "solution": "if account_type == 'VIP':\n    print('Welcome VIP! Full access to all games and features.')\nelif account_type == 'Premium' and account_age >= 30:\n    print('Welcome Premium member! Access to premium games unlocked.')\nelif account_type == 'Premium':\n    print(f'Welcome! Premium features unlock in {days_remaining} days.')\nelse:\n    print('Welcome! You have access to free games. Upgrade for more!')",
   "hints": [
     "**if-elif-else chain:** Start with `if`, add one or more `elif` for additional conditions, end with `else` for everything else. Each needs a colon and indented block!",
     "**Order matters:** Python checks conditions from top to bottom and stops at the FIRST match. Put more specific conditions before general ones.",
     "**Multiple conditions:** Use `and` to combine conditions: `if account_type == 'Premium' and account_age >= 30:` requires BOTH to be True.",
     "**String comparison:** Use `==` to check exact matches: `account_type == 'VIP'`. Strings are case-sensitive!",
     "**The else catch-all:** The final `else:` catches any case that didn't match the previous conditions. No condition needed after `else:`!",
-    "**f-strings for dynamic text:** In Step 3, use an f-string to calculate days: `f'...unlock in {30 - account_age} days.'` - the curly braces evaluate the math!",
+    "**f-strings for dynamic text:** In Step 3, use `days_remaining` inside an f-string: `f'...unlock in {days_remaining} days.'` — the curly braces insert the variable's value!",
     "**elif vs nested if:** Use `elif` when conditions are alternatives (only one should run). Use separate `if` statements when multiple conditions could be true simultaneously."
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Scenario Validation",
-      "code": "import io, sys, ast\ntest_cases = [\n    ('VIP', 10, 'Welcome VIP!'),\n    ('Premium', 40, 'Access to premium games unlocked.'),\n    ('Premium', 10, 'unlock in 20 days.'),\n    ('Free', 100, 'access to free games.')\n]\n\nfor acc, age, expected in test_cases:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    try:\n        # Overwrite starter variables to test all paths\n        t_code = code.replace(\"account_type = 'Premium'\", f\"account_type = '{acc}'\")\n        t_code = t_code.replace(\"account_age = 15\", f\"account_age = {age}\")\n        exec(t_code, {})\n        output = sys.stdout.getvalue().lower()\n    finally:\n        sys.stdout = old_stdout\n    \n    if expected.lower() not in output:\n        raise AssertionError(f'Failed logic for {acc} (Age: {age}). We expected a message containing: \"{expected}\"')\n\n# Structural Check\ntree = ast.parse(code)\nelifs = code.count('elif')\nif elifs < 2:\n    raise AssertionError('Use an if-elif-else chain to handle multiple conditions efficiently.')\n\nprint('TEST_PASSED: Gaming platform access rules are perfectly implemented!')",
-      "expected": "All account types (VIP, Premium Old/New, and Free) receive the correct login message."
+      "code": "import io, sys, ast\n\ntest_cases = [\n    ('VIP', 10, 'vip'),\n    ('Premium', 40, 'premium'),\n    ('Premium', 10, '20'),\n    ('Free', 100, 'free')\n]\n\nfor acc, age, expected in test_cases:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    try:\n        t_code = code.replace(\"account_type = 'Premium'\", f\"account_type = '{acc}'\")\n        t_code = t_code.replace('account_age = 15', f'account_age = {age}')\n        t_code = t_code.replace('days_remaining = 30 - account_age', f'days_remaining = 30 - {age}')\n        exec(compile(t_code, '<student_code>', 'exec'), globals())\n        output = sys.stdout.getvalue().lower()\n    finally:\n        sys.stdout = old_stdout\n\n    if expected not in output:\n        raise AssertionError(f'Failed for account_type={acc}, account_age={age}. Expected output to contain \"{expected}\".')\n\n# Structural check\nelifs = code.count('elif')\nif elifs < 2:\n    raise AssertionError('Use an if-elif-else chain with at least two elif branches to handle all account types.')\n\n# Check days_remaining is used in an f-string\nif 'days_remaining' not in code:\n    raise AssertionError('Use the days_remaining variable in your Step 3 message.')\n\nprint('TEST_PASSED: Gaming platform access rules are perfectly implemented!')",
+      "expected": "All account types (VIP, Premium unlocked, Premium locked, and Free) receive the correct login message."
     }
   ],
   "expectedOutput": "🎮 GAMING PLATFORM LOGIN\nWelcome! Premium features unlock in 15 days.",

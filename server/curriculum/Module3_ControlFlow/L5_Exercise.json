@@ -7,7 +7,7 @@
     "**Step 3:** Use an `if` statement to check if `'premium'` is `in` `account_type`. If so, print `'Access granted to premium features.'`.",
     "**Step 4:** Write an `if/else` block. If `'Admin'` is `in` `user_roles`, print `'Full admin access granted'`. Otherwise, print `'Standard user access only'`."
   ],
-  "starterCode": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\naccount_type = 'premium_subscriber'\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\nprint(\"🛡️ WEBSITE SECURITY CHECK\")\n# Step 1: Check city\nis_serviced = \n# Step 2: Check IP\nis_blocked = \n# Step 3: Check premium\n\n# Step 4: Check Admin role\n",
+  "starterCode": "service_areas = ['New York', 'London', 'Paris', 'Dubai']\nuser_city = 'Tokyo'\ntrusted_ips = ('10.0.0.1', '10.0.0.2', '10.0.0.3')\nsuspicious_ip = '192.168.1.1'\naccount_type = 'premium_subscriber'\nuser_roles = ['Viewer', 'Editor', 'Contributor']\n\nprint(\"🛡️ WEBSITE SECURITY CHECK\")\n# Step 1: Check city\nis_serviced = ???\n# Step 2: Check IP\nis_blocked = ???\n# Step 3: Check premium\n\n# Step 4: Check Admin role\n",
   "solution": "is_serviced = user_city in service_areas\nis_blocked = suspicious_ip not in trusted_ips\nif 'premium' in account_type:\n    print('Access granted to premium features.')\nif 'Admin' in user_roles:\n    print('Full admin access granted')\nelse:\n    print('Standard user access only')",
   "hints": [
     "**in operator:** Checks if a value exists inside a sequence (list, tuple, string). Format: `value in sequence` returns `True` or `False`.",

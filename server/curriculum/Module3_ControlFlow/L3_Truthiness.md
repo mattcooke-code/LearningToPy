@@ -54,13 +54,13 @@ else:
 The same principle works for checking if a string is empty:
 
 ```python
-username = "Spock"
+username = "Clarice"
 
 if username:
-    print(f"Welcome, {username}!")
+    print(f"Good evening, {username}!")
 else:
     print("Please enter a username.")
-# Prints: "Welcome, Spock!"
+# Prints: "Good evening, Clarice!"
 ```
 
 ```python
