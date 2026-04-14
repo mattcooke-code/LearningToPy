@@ -3,8 +3,8 @@
   "instructions": "Practice using `for` loops to iterate over lists and strings, and learn to use `enumerate()` to get both index and value.\n\n**Key Concepts:**\n- `for item in sequence:` iterates through each element\n- `enumerate(sequence)` returns (index, value) pairs\n- Strings are sequences of characters",
   "steps": [
     "Task 1: Loop through `project_tasks` and print each task",
-    "Task 2: Use `enumerate()` on `user_scores` to print 'Student X scored Y'",
-    "Task 3: Loop through `document_title` and print only 'T' or 'P' characters"
+    "Task 2: Use `enumerate()` on `user_scores` to print `f'Student {???} scored {???}'`",
+    "Task 3: Loop through `document_title`. Use a nested `if` statement to print only 'T' or 'P' characters"
   ],
   "starterCode": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# Task 1: Print each task\n\n# Task 2: Print scores with index using enumerate()\n\n# Task 3: Print only 'T' or 'P' characters\n",
   "solution": "project_tasks = ['Planning', 'Design', 'Coding', 'Testing', 'Launch']\nuser_scores = [88, 92, 75, 99]\ndocument_title = 'The Great Python Adventure'\n\n# Task 1: Print each task\nfor task in project_tasks:\n    print(task)\n\n# Task 2: Print scores with index using enumerate()\n# Both options work: index (0-based) or index + 1 (1-based)\nfor index, score in enumerate(user_scores):\n    print(f'Student {index} scored {score}')\n\n# Task 3: Print only 'T' or 'P' characters\nfor char in document_title:\n    if char == 'T' or char == 'P':\n        print(char)",

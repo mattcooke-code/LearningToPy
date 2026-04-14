@@ -10,13 +10,16 @@ The syntax is similar to an `if` statement, but the indented code block is execu
 
 ### `while condition:`
 
-• **`while`**: The required keyword.
-
-• **`condition`**: Any expression that evaluates to `True` or `False`.
-
-• The loop body must be **indented**.
+| Syntax      | Description                                         |
+| ----------- | --------------------------------------------------- |
+| `while`     | The required keyword.                               |
+| `condition` | Any expression that evaluates to `True` or `False`. |
 
 :::note
+The loop body must be **indented**.
+:::
+
+:::warning
 
 ### The Crucial Need for a Counter
 
@@ -37,6 +40,33 @@ print("Loop finished.")
 # Loop finished.
 
 ```
+
+### ✨ Shorthand Operators: `+=` and `-=`
+
+You may have noticed `count += 1` in the example above. This is a _shorthand operator_ - a concise way to update a variable's value.
+
+| Long Form           | Shorthand    | What It Does             |
+| ------------------- | ------------ | ------------------------ |
+| `count = count + 1` | `count += 1` | Adds 1 to `count`        |
+| `count = count - 1` | `count -= 1` | Subtracts 1 from `count` |
+| `total = total + 5` | `total += 5` | Adds 5 to `total`        |
+| `lives = lives - 1` | `lives -= 1` | Subtracts 1 from `lives` |
+
+These operators work with any number and are very common in loops where you need to increment or decrement a counter. You'll use them a lot over the next few lessons!
+
+```python
+# These two lines do exactly the same thing:
+score = score + 10
+score += 10
+
+# So do these:
+attempts = attempts - 1
+attempts -= 1
+```
+
+:::tip
+Use these shorthand operators where possible to keep your code clean, readable and efficient.
+:::
 
 ```python
 delorean_speed = 80

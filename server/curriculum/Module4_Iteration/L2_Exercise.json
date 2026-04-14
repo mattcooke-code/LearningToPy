@@ -1,10 +1,10 @@
 {
   "title": "Range Function Workout",
-  "instructions": "Master the `range()` function by generating different number sequences. Remember: `range(stop)` goes 0 to stop-1, `range(start, stop)` goes start to stop-1, and `range(start, stop, step)` uses a custom step.\n\n**Important:** The stop value is never included!",
+  "instructions": "Master the `range()` function by generating different number sequences.\n\n**Important:** The stop value is never included!",
   "steps": [
-    "Task 1: Print numbers 0 through 7",
-    "Task 2: Print numbers 10 through 13",
-    "Task 3: Print even numbers from 0 to 10 (use step of 2)",
+    "Task 1: Print numbers 0 through 7 inclusive.",
+    "Task 2: Print numbers 10 through 13 inclusive.",
+    "Task 3: Print even numbers from 0 to 10 inclusive (use step of 2)",
     "Task 4: Countdown from 5 to 1 using negative step"
   ],
   "starterCode": "# Task 1: Print 0 through 7\n\n# Task 2: Print 10 through 13\n\n# Task 3: Print even numbers from 0 to 10 (0, 2, 4, 6, 8, 10)\n\n# Task 4: Countdown from 5 to 1\n",
@@ -36,6 +36,7 @@
       "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# Check countdown from 5 to 1\nexpected_countdown = ['5', '4', '3', '2', '1']\nfor num in expected_countdown:\n    if num not in lines:\n        raise AssertionError(f'Task 4 failed: Missing {num}. Use range with negative step to countdown: 5, 4, 3, 2, 1')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "(Printed on separate lines)\n0, 1, 2, 3, 4, 5, 6, 7\n10, 11, 12, 13\n0, 2, 4, 6, 8, 10\n5, 4, 3, 2, 1",
   "tags": ["range", "for-loop", "counting", "stepping", "beginner"],
   "challengeGroup": "for-loop-basics"
 }

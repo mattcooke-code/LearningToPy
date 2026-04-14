@@ -56,20 +56,7 @@ for countdown in range(5, 0, -1):
 # Generates: 5, 4, 3, 2, 1
 ```
 
-## 3. `range()` and List Indexing
-
-You can use `range()` to access the items in a list by their index, particularly if you need to modify the list during iteration (which `enumerate()` doesn't allow cleanly).
-
-```python
-data = ["A", "B", "C"]
-
-for i in range(len(data)):
-    # Use the index to access the element
-    data[i] = data[i].lower()
-
-print(data) # Output: ['a', 'b', 'c']
-
-```
+### Real-World Logic: The Countdown Timer
 
 ```python
 print("🍄 Super Mario - Invincibility Star:")
@@ -82,7 +69,22 @@ for seconds_left in range(invincible_time, 0, -1):
 print("The star power has worn off! Watch out for Goombas!")
 ```
 
-## 4. Practical Example: Building a Pattern
+## 3. `range()` and List Indexing
+
+You can use `range()` to access the items in a list by their index, particularly if you need to modify the list during iteration.
+
+```python
+data = ["A", "B", "C"]
+
+for i in range(len(data)):
+    # Use the index to access the element
+    data[i] = data[i].lower()
+
+print(data) # Output: ['a', 'b', 'c']
+
+```
+
+## 4. Example: Building a Pattern
 
 ```python
 # Build a right-aligned triangle pattern

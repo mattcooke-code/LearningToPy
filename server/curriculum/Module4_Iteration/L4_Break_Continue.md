@@ -36,7 +36,7 @@ The `continue` keyword is used to skip the rest of the code inside the loop for 
 :::
 
 ```python
-scores = [85, 42, 98, 55, 70]  # 50 is failing
+scores = [85, 42, 98, 55, 70]  # 59 is failing
 
 for score in scores:
     if score < 60:

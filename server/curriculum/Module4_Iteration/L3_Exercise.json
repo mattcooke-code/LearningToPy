@@ -37,5 +37,6 @@
       "code": "local_vars = {}\nexec(code, {}, local_vars)\n\nif local_vars.get('fuel_level') != 0:\n    raise AssertionError(f'Task 1 failed: fuel_level should end at 0, got {local_vars.get(\"fuel_level\")}')\n\nif local_vars.get('damage', 0) < 50:\n    raise AssertionError(f'Task 2 failed: damage should be ≥50, got {local_vars.get(\"damage\")}')\n\nif local_vars.get('login_attempts') != 0:\n    raise AssertionError(f'Task 3 failed: login_attempts should end at 0, got {local_vars.get(\"login_attempts\")}')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "(Printed on separate lines)\n10, 9, 8, 7, 6, 5, 4, 3, 2, 1\n0, 15, 30, 45\n3, 2, 1, Account Locked",
   "tags": ["while-loop", "iteration", "indefinite-loop", "beginner"]
 }

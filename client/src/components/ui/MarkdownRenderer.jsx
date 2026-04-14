@@ -292,7 +292,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       const isInline = inline || !className || !match;
       if (isInline) {
         return (
-          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-300 text-red-700  dark:bg-gray-300/80 border-gray-400 shadow-sm">
+          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200 text-red-700  dark:bg-gray-300 border-gray-300 shadow-sm">
             {children}
           </code>
         );

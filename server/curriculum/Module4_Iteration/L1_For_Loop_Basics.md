@@ -8,10 +8,15 @@ The `for` loop works by assigning a **temporary variable** to each item in the s
 
 ### `for item_variable in sequence:`
 
-- **`for` and `in`**: Required keywords.
-- **`item_variable`**: A temporary variable (you name this) that holds the _current_ item being processed in the loop.
-- **`sequence`**: The list, tuple, or string you want to iterate over.
-- The code block must be **indented**.
+| Syntax          | Description                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `for` and `in`  | Required keywords.                                                                              |
+| `item_variable` | A temporary variable (you name this) that holds the _current_ item being processed in the loop. |
+| `sequence`      | The list, tuple, or string you want to iterate over.                                            |
+
+:::note
+The code block must be **indented**.
+:::
 
 ```python
 fruits = ["Apple", "Banana", "Cherry"]
@@ -58,12 +63,12 @@ colors = ["Red", "Green", "Blue"]
 
 # item_variable now has two parts: index and value
 for index, color in enumerate(colors):
-    print(f"Color #{index + 1} is {color}.")
+    print(f"Color {index + 1} is {color}.")
 
 # Output:
-# Color #1 is Red.
-# Color #2 is Green.
-# Color #3 is Blue.
+# Color 1 is Red.
+# Color 2 is Green.
+# Color 3 is Blue.
 ```
 
 :::summary

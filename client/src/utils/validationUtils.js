@@ -81,14 +81,31 @@ const runSingleTest = async (userCode, test, runCode) => {
   try {
     // Using JSON.stringify ensures the userCode is a perfectly escaped Python string
     const safeUserCode = JSON.stringify(userCode);
+    const safeTestName = JSON.stringify(test.name);
 
     const fullCode = `
 import sys, io, ast
-code = ${safeUserCode}
 
-exec(compile(code, "<student_code>)", "exec"), globals())
+# Store the student's code for later inspection
+student_code = ${safeUserCode}
 
-# Execute the test suite logic
+# Create string capture for output
+old_stdout = sys.stdout
+captured_output = io.StringIO()
+sys.stdout = captured_output
+
+try:
+    # Execute the student's code
+    exec(compile(student_code, "<student_code>", "exec"), globals())
+except Exception as e:
+    sys.stdout = old_stdout
+    raise AssertionError(f"Error in your code: {str(e)}")
+
+# Restore stdout and get captured output
+sys.stdout = old_stdout
+output = captured_output.getvalue()
+
+# Now run the specific test
 ${test.code}
 `.trim();
 
@@ -98,25 +115,29 @@ ${test.code}
       let feedback = result.error || "Unknown error";
 
       // Error cleaning logic
-      if (feedback.includes("AssertionError:"))
-        feedback = feedback.split("AssertionError:")[1]?.trim();
-      if (feedback.includes("NameError:"))
+      if (feedback.includes("AssertionError:")) {
+        const parts = feedback.split("AssertionError:");
+        feedback = parts.length > 1 ? parts[1].trim() : feedback;
+      }
+      if (feedback.includes("NameError:")) {
         feedback = `Missing variable: ${feedback.split("NameError:")[1]?.trim()}`;
-      if (feedback.includes("IndentationError:"))
+      }
+      if (feedback.includes("IndentationError:")) {
         feedback = "Check your indentation (spacing)!";
+      }
 
       return { passed: false, feedback, error: result.error };
     }
 
-    const output = result.stdout || "";
-    if (output.includes("TEST_PASSED")) {
+    const stdout = result.stdout || "";
+    if (stdout.includes("TEST_PASSED")) {
       return { passed: true, feedback: "Test passed! ✓" };
     }
 
     return {
       passed: false,
       feedback: `Test "${test.name}" failed to confirm logic.`,
-      output: output,
+      output: stdout,
     };
   } catch (error) {
     return { passed: false, feedback: `Execution error: ${error.message}` };

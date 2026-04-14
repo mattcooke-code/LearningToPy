@@ -16,15 +16,15 @@
     {
       "id": "m4l5_q2",
       "type": "multiple-choice",
-      "question": "What will this code print?\n\n```python\nfor i in range(2):\n    for j in range(2):\n        print(i, j)\n```",
+      "question": "Mission Control needs to run diagnostics on all systems. What will this code print?\n\n```python\nmodules = [\"Engine\", \"Nav\"]\ntests = [\"Power\", \"Signal\"]\n\nfor module in modules:\n    for test in tests:\n        print(f\"Testing {module}: {test}\")\n```",
       "options": [
-        "0 0, 0 1, 1 0, 1 1,",
-        "0 0, 1 1",
-        "0 1, 0 2, 1 1, 1 2",
-        "0 0, 0 0, 1 1, 1 1"
+        "`Testing Engine: Power`, `Testing Engine: Signal`, `Testing Nav: Power`, `Testing Nav: Signal`",
+        "`Testing Engine: Power`, `Testing Nav: Power`, `Testing Engine: Signal`, `Testing Nav: Signal`",
+        "`Testing Engine: Power`, `Testing Nav: Signal`",
+        "`Testing Engine: Power`, `Testing Engine: Power`, `Testing Nav: Signal`, `Testing Nav: Signal`"
       ],
       "correctAnswer": 0,
-      "explanation": "The outer loop runs twice (i=0, then i=1). For each i, the inner loop runs twice (j=0, then j=1). So the output is: (0,0), (0,1), (1,0), (1,1)."
+      "explanation": "The outer loop runs through each module (Engine, then Nav). For each module, the inner loop runs ALL tests (Power, then Signal) before moving to the next module. This ensures every module gets fully tested!"
     },
     {
       "id": "m4l5_q3",

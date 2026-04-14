@@ -4,24 +4,25 @@ You are the Chief Cargo Officer aboard the starship _Pythonia_, tasked with mana
 
 This project requires you to master all iteration techniques from this module:
 
-1. **`for` Loop:** To iterate over the cargo manifest (fixed list of containers)
-2. **`while` Loop Logic:** To track progress against weight capacity
-3. **`continue`:** To filter out invalid or dangerous cargo
-4. **`break`:** To halt loading immediately if safety thresholds are exceeded
-5. **Nested Loops:** (Optional bonus) To verify multi-container shipments
+|     |                |                                                               |
+| --- | -------------- | ------------------------------------------------------------- |
+| 1.  | **`for` Loop** | To iterate over the cargo manifest (fixed list of containers) |
+| 2.  | **`continue`** | To filter out invalid or dangerous cargo                      |
+| 3.  | **`break`**    | To halt loading immediately if safety thresholds are exceeded |
 
 ## Mission Briefing
 
 Your starship has a maximum cargo capacity of **1000 metric tons**. You must process the `cargo_manifest` list, adding valid container weights to the `total_weight_loaded` variable, but only as long as the total remains under the `ship_capacity`.
 
+:::note
 You must clearly log the outcome of each container: loaded, rejected, or mission halted due to capacity limits.
+:::
 
 ## Special Conditions
 
 1. **Zero/negative weight containers** are sensor glitches - reject them
 2. **Containers over 500 tons** are too large for the loading bay - reject them
 3. **Critical alert:** If adding a container would exceed 95% of capacity, trigger emergency protocols and halt ALL loading
-4. **Bonus objective:** Some containers are actually shipments containing multiple items - verify all items are safe
 
 ## Project Setup
 
@@ -48,7 +49,7 @@ print(f"📊 Ship Capacity: {ship_capacity} tons")
 print("-" * 40)
 ```
 
-## 📦 Standard Mission: Basic Cargo Processing
+## 📦 Mission: Basic Cargo Processing
 
 Implement the core loading logic using a `for` loop with `continue` for rejections and `break` for emergency halts.
 
@@ -63,34 +64,7 @@ Implement the core loading logic using a `for` loop with `continue` for rejectio
 
 :::
 
-## 🏆 Bonus Mission: Multi-Container Verification
-
-Some cargo entries are actually **shipments** containing multiple items that need individual verification.
-
-```python
-# Advanced cargo manifest with nested shipments
-advanced_manifest = [
-    150,                     # Standard single container
-    [75, 25, 50],           # Medical shipment (3 items: 75+25+50 = 150 total)
-    0,                      # Sensor glitch
-    420,                    # Large machinery
-    [100, 200, 150],        # Engineering kit (3 items: 100+200+150 = 450 total)
-    600,                    # Too large
-    -50                     # Sensor error
-]
-
-print("\n⭐ ACTIVATING BONUS MISSION: MULTI-CONTAINER VERIFICATION")
-print("Some cargo entries contain multiple items that must be verified individually!")
-```
-
-### Bonus Requirements:
-
-1. Use nested loops to handle both single containers and shipment lists
-2. Verify EACH item in a shipment follows all safety rules
-3. Reject entire shipment if ANY item violates rules
-4. Track total items loaded vs total shipments processed
-
-:::note
+```text
 
 ## Expected Output (Standard Mission)
 
@@ -118,7 +92,7 @@ print("Some cargo entries contain multiple items that must be verified individua
 - ⚡ Loading Status: HALTED - Safety protocols engaged
 - 📈 Efficiency: 7 containers processed, 4 loaded, 3 rejected
 
-:::
+```
 
 ## Success Criteria
 
@@ -133,7 +107,5 @@ Your solution must:
 • Provide clear logging for every decision
 
 • Calculate and display final statistics
-
-• **(Bonus)** Handle nested shipment lists correctly
 
 **Remember:** Safety first! The ship's structural integrity depends on your code!
