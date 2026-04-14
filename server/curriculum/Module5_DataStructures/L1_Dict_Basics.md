@@ -14,6 +14,7 @@ Data in a dictionary is stored as `key: value` pairs, where the key and value ar
 ```python
 # A simple user dictionary
 user_profile = {
+    # key: value,
     "username": "coder_x",
     "level": 5,
     "is_premium": True

@@ -1,30 +1,40 @@
 {
-  "title": "World Explorer Research Tool",
-  "instructions": "You are building a research tool to analyze country data. You will use dictionaries to store country profiles and sets to manage their 'regional tags.' Your goal is to identify missing information and create a master list of all unique geographic features found in your data.\n\n**Data Structure Goals:**\n- **Iteration:** Use `.items()` to process each country's facts.\n- **Filtering:** Use Set Difference (`-`) to find which mandatory categories are missing from a country.\n- **Aggregation:** Use Set Union (`|`) to compile a complete list of all geographic features across all countries.",
+  "title": "Module 5 Project: World Explorer Research Tool",
+  "instructions": "You are building a research tool to analyze country data. You will use dictionaries to store country profiles and sets to manage their geographic tags. Your goal is to identify missing information and create a master list of all unique geographic features found in your data.\n\n**Data Structure Goals:**\n- **Iteration:** Use `.items()` to process each country's facts.\n- **Filtering:** Use Set Difference (`-`) to find which mandatory categories are missing from a country.\n- **Aggregation:** Use Set Union (`|`) to compile a complete list of all geographic features across all countries.",
   "steps": [
-    "Step 1: Create a loop that visits every country in the `world_data` dictionary. You'll need access to both the country name (key) and its specific facts (value).",
-    "Step 2: Check the population. If it is less than 10 million, print an alert stating the country is a 'Small Population' country.",
-    "Step 3: Every country *should* have these three tags: 'capital', 'continent', and 'river'. Compare the `REQUIRED_TAGS` against the `tags` currently in the country's facts to find what is missing. Store in a variable called 'missing'.",
-    "Step 4: If there are missing tags, print a helpful message showing the `country` name and which specific categories it is `missing`.",
-    "Step 5: We want to build a master list of every unique feature found. Update the `all_geographic_features` set by combining it with the tags from the current country.",
-    "Step 6: Finally, once the loop has finished its work, print out the complete set of unique geographic features."
+    "**Step 1:** Loop through `world_data` using `.items()` to get both the `country` name and its `facts` dictionary.",
+    "**Step 2:** Inside the loop, check if the country's population (`pop_m`) is less than 10 million. If so, print: `Small Population Alert: [country]`",
+    "**Step 3:** Use the **difference operator** to find which `REQUIRED_TAGS` are missing from the country's current `tags`. Store this result in a variable called `missing`.",
+    "**Step 4:** If `missing` is not empty, print: `[country] is missing info for: [missing]`",
+    "**Step 5:** Use the **union operator** to combine `all_geographic_features` with the current country's `tags`. Reassign this back to `all_geographic_features`.",
+    "**Step 6:** After the loop ends, print the complete master list: `Master List of Geographic Features: [all_geographic_features]`"
   ],
-  "starterCode": "world_data = {\n  'Egypt': {'pop_m': 109, 'tags': {'river', 'continent', 'desert'}},\n  'Iceland': {'pop_m': 0.3, 'tags': {'island', 'volcano'}}\n}\n\nREQUIRED_TAGS = {'capital', 'continent', 'river'}\nall_geographic_features = set()\n\n# Start your World Research processing here\n",
-  "solution": "for country, facts in world_data.items():\n    # Check population size\n    if facts['pop_m'] < 10:\n        print(f'Small Population Alert: {country}')\n    \n    # Identify missing research categories\n    missing = REQUIRED_TAGS - facts['tags']\n    if missing:\n        print(f'{country} is missing info for: {missing}')\n    \n    # Consolidate all unique features\n    all_geographic_features = all_geographic_features | facts['tags']\n\nprint('Master List of Geographic Features:', all_geographic_features)",
+  "starterCode": "world_data = {\n    'Egypt': {'pop_m': 109, 'tags': {'river', 'continent', 'desert'}},\n    'Iceland': {'pop_m': 0.3, 'tags': {'island', 'volcano'}}\n}\n\nREQUIRED_TAGS = {'capital', 'continent', 'river'}\nall_geographic_features = set()\n\n# Write your research processing loop here\n\n",
+  "solution": "world_data = {\n    'Egypt': {'pop_m': 109, 'tags': {'river', 'continent', 'desert'}},\n    'Iceland': {'pop_m': 0.3, 'tags': {'island', 'volcano'}}\n}\n\nREQUIRED_TAGS = {'capital', 'continent', 'river'}\nall_geographic_features = set()\n\nfor country, facts in world_data.items():\n    # Check population size\n    if facts['pop_m'] < 10:\n        print(f'Small Population Alert: {country}')\n    \n    # Identify missing research categories\n    missing = REQUIRED_TAGS - facts['tags']\n    if missing:\n        print(f'{country} is missing info for: {missing}')\n    \n    # Consolidate all unique features\n    all_geographic_features = all_geographic_features | facts['tags']\n\nprint(f'Master List of Geographic Features: {all_geographic_features}')\n",
+  "expectedOutput": "Small Population Alert: Iceland\nEgypt is missing info for: {'capital'}\nIceland is missing info for: {'capital', 'river'}\nMaster List of Geographic Features: {'volcano', 'desert', 'continent', 'island', 'river'}",
   "hints": [
-    "Step 1: To get both pieces of a dictionary at once, use: `for country, facts in world_data.items():`",
-    "Step 2: Access the population value using the key `'pop_m'` inside your `facts` variable. Use a standard `if` statement to check if it is `< 10`.",
-    "Step 3: To find what is in one set but NOT another, use the minus `-` operator. Remove `facts['tags']` from `REQUIRED_TAGS` and store in a variable called `missing`.",
-    "Step 4: In Python, an empty set is 'Falsey.' Use `if missing:` to ensure you only print when there is actually something missing. Don't forget to print both the `country` name and the `missing` variable.",
-    "Step 5: You need to update `all_geographic_features` by combining its current contents with the current country's `facts['tags']`. Use the Union operator `|` to merge them. Remember sets are mutable, so they can be reassigned: `set_a = set_a | set_b`",
-    "Step 6: Print your newly updated version of `all_geographic_features`. Make sure your final `print()` is not indented! If it's indented, it will print after every single country instead of waiting until the end."
+    "**Step 1:** Use: `for country, facts in world_data.items():` to loop through both the country name and its data.",
+    "**Step 2:** Access the population with `facts['pop_m']`. Use `if facts['pop_m'] < 10:` to check for small populations.",
+    "**Step 3:** The difference operator `-` finds items in the first set but not the second: `missing = REQUIRED_TAGS - facts['tags']`",
+    "**Step 4:** An empty set is 'Falsey' in Python. Use `if missing:` to only print when something is actually missing.",
+    "**Step 5:** The union operator `|` combines two sets: `all_geographic_features = all_geographic_features | facts['tags']`",
+    "**Step 6:** Make sure your final `print()` is NOT indented! If it's indented inside the loop, it will print after every country instead of once at the end.",
+    "**Remember:** Sets are unordered, so the order of items in the printed output may vary - that's perfectly fine!"
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check geography research logic",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nlocal_vars = {}\nexec(code, {}, local_vars)\noutput = sys.stdout.getvalue().lower()\nsys.stdout = old_stdout\n\n# Check population check\nif 'small population' not in output or 'iceland' not in output:\n    raise AssertionError('Step 2: Did not find a small population alert for Iceland.')\n\n# Check Set Difference (Missing Tags)\nif 'egypt' in output and 'capital' not in output:\n    raise AssertionError('Step 4: Egypt should be flagged as missing the \"capital\" tag.')\nif 'iceland' in output and ('river' not in output or 'capital' not in output):\n    raise AssertionError('Step 4: Iceland should be flagged as missing \"river\" and \"capital\".')\n\n# Check Set Union\nfinal_features = local_vars.get('all_geographic_features', set())\nexpected = {'river', 'continent', 'desert', 'island', 'volcano'}\nif not expected.issubset(final_features):\n    raise AssertionError(f'Step 5: The Master List is missing some features. Found: {final_features}')\n\nprint('TEST_PASSED')"
+      "code": "local_vars = {}\nexec(student_code, {}, local_vars)\n\n# Check population alert for Iceland\nif 'Small Population Alert: Iceland' not in output:\n    raise AssertionError('Step 2: Should print \"Small Population Alert: Iceland\" (population 0.3 million is less than 10)')\n\n# Egypt should NOT have a population alert (pop 109 million)\nif 'Small Population Alert: Egypt' in output:\n    raise AssertionError('Step 2: Egypt has 109 million people - should NOT trigger small population alert')\n\n# Check missing tags for Egypt (missing 'capital')\nif 'Egypt is missing info for:' not in output:\n    raise AssertionError('Step 4: Egypt should be flagged for missing tags')\nif 'capital' not in output:\n    raise AssertionError(\"Step 4: Egypt is missing the 'capital' tag - this should be reported\")\n\n# Check missing tags for Iceland (missing 'capital' and 'river')\nif 'Iceland is missing info for:' not in output:\n    raise AssertionError('Step 4: Iceland should be flagged for missing tags')\n# The missing set should contain both capital and river\niceland_missing_found = 'capital' in output and 'river' in output\nif not iceland_missing_found:\n    raise AssertionError(\"Step 4: Iceland should be missing both 'capital' and 'river' tags\")\n\n# Check final master list\nfinal_features = local_vars.get('all_geographic_features', set())\nexpected_features = {'river', 'continent', 'desert', 'island', 'volcano'}\nmissing_from_master = expected_features - final_features\nif missing_from_master:\n    raise AssertionError(f'Step 5: Master list missing features: {missing_from_master}')\n\n# Check that the final print statement exists\nif 'Master List of Geographic Features:' not in output:\n    raise AssertionError('Step 6: Should print the final master list after the loop')\n\nprint('TEST_PASSED')"
     }
   ],
-  "tags": ["geography", "dictionary", "set", "loops", "logic"]
+  "tags": [
+    "project",
+    "dictionary",
+    "set",
+    "iteration",
+    "difference",
+    "union",
+    "capstone"
+  ]
 }

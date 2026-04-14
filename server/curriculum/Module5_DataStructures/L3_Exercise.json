@@ -2,26 +2,28 @@
   "title": "Set Creation and Manipulation",
   "instructions": "Sets store unique, unordered elements. Use them when you need to remove duplicates or check membership quickly.",
   "steps": [
-    "Task 1: Convert `log_entries` list to a set called `unique_entries`",
-    "Task 2: Add 'ERROR' to the set using `.add()`",
-    "Task 3: Safely remove 'INFO' using `.discard()`",
-    "Task 4: Check if 'WARNING' is in the set and assign the result (True/False) to `warning_exists`"
+    "**Task 1:** Convert the `log_entries` list into a set using `set()`. Store the result in a variable called `unique_entries`.",
+    "**Task 2:** Add the string `'ERROR'` to `unique_entries` using the `.add()` method.",
+    "**Task 3:** Safely remove the string `'INFO'` from `unique_entries` using the `.discard()` method (this won't cause an error if 'INFO' isn't present).",
+    "**Task 4:** Check if the string `'WARNING'` exists in `unique_entries` using the `in` operator inside an `if` statement. If it exists, print `\"Warning found in logs!\"`"
   ],
-  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# Task 1: Create set from list\nunique_entries = \n\n# Task 2: Add 'ERROR'\n\n# Task 3: Remove 'INFO' safely\n\n# Task 4: Check if 'WARNING' exists (assign result to warning_exists)\nwarning_exists = ",
-  "solution": "unique_entries = set(log_entries)\nunique_entries.add('ERROR')\nunique_entries.discard('INFO')\n\n# Task 4: Check membership directly\nwarning_exists = 'WARNING' in unique_entries",
+  "starterCode": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# Task 1: Create a set from log_entries\nunique_entries = ???\n\n# Task 2: Add 'ERROR' to the set\n\n\n# Task 3: Safely remove 'INFO' from the set\n\n\n# Task 4: Check if 'WARNING' is in the set and print if true\n",
+  "solution": "log_entries = ['INFO', 'WARNING', 'INFO', 'SUCCESS', 'WARNING']\n\n# Task 1: Create a set from log_entries\nunique_entries = set(log_entries)\n\n# Task 2: Add 'ERROR' to the set\nunique_entries.add('ERROR')\n\n# Task 3: Safely remove 'INFO' from the set\nunique_entries.discard('INFO')\n\n# Task 4: Check if 'WARNING' is in the set and print if true\nif 'WARNING' in unique_entries:\n    print(\"Warning found in logs!\")\n",
   "hints": [
-    "Task 1: Use the `set()` constructor to convert the list.",
-    "Task 2: Use `unique_entries.add('ELEMENT_NAME')`.",
-    "Task 3: `.discard()` is safer than `.remove()` because it won't crash if the item is already gone.",
-    "Task 4: You can assign a membership check directly: `variable = 'ITEM' in set_name`.",
-    "Note: Sets are mutable, but the strings inside them are immutable."
+    "**Task 1:** Pass the list to the `set()` constructor: `set(log_entries)`",
+    "**Task 2:** Sets use `.add()` to insert a single element: `unique_entries.add('ERROR')`",
+    "**Task 3:** Use `.discard()` to remove an element without raising an error if it's missing: `unique_entries.discard('INFO')`",
+    "**Task 4:** The `in` operator returns `True` or `False` directly: `warning_exists = 'WARNING' in unique_entries`",
+    "**Task 4 Note:** You don't need an `if` statement! The expression `'WARNING' in unique_entries` evaluates to a Boolean on its own.",
+    "**Remember:** Sets automatically remove duplicates. Your `unique_entries` will only contain one of each log type."
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check set operations",
-      "code": "local_vars = {}\nexec(code, {}, local_vars)\n\nue = local_vars.get('unique_entries')\nif not isinstance(ue, set):\n    raise AssertionError('Task 1: unique_entries should be a set. Did you use set(log_entries)?')\n\nif 'INFO' in ue:\n    raise AssertionError('Task 3: INFO should be removed. Did you use .discard(\"INFO\")?')\n\nif 'ERROR' not in ue:\n    raise AssertionError(\"Task 2: 'ERROR' should be added to the set.\")\n\nif local_vars.get('warning_exists') is not True:\n    raise AssertionError('Task 4: warning_exists should be True. Did you check if \"WARNING\" is in the set?')\n\nprint('TEST_PASSED')"
+      "code": "local_vars = {}\nexec(student_code, {}, local_vars)\n\n# Check Task 1: unique_entries is a set\nue = local_vars.get('unique_entries')\nif ue is None:\n    raise AssertionError(\"Task 1: unique_entries variable not found. Did you create it?\")\nif not isinstance(ue, set):\n    raise AssertionError('Task 1: unique_entries should be a set. Did you use set(log_entries)?')\n\n# Check Task 2: ERROR was added\nif 'ERROR' not in ue:\n    raise AssertionError(\"Task 2: 'ERROR' should be added to the set. Did you use .add('ERROR')?\")\n\n# Check Task 3: INFO was removed\nif 'INFO' in ue:\n    raise AssertionError(\"Task 3: 'INFO' should be removed. Did you use .discard('INFO')?\")\n\n# Check Task 4: output contains the warning message\nif 'Warning found in logs!' not in output:\n    raise AssertionError(\"Task 4: Should print 'Warning found in logs!' when WARNING is in the set. Use an if statement with 'in'.\")\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "Warning found in logs!",
   "tags": ["set", "unique", "membership", "beginner"]
 }

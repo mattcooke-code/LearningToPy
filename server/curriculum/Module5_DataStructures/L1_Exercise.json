@@ -2,13 +2,13 @@
   "title": "Dictionary Creation and Access",
   "instructions": "Practice defining dictionaries and retrieving values using both bracket notation and the safe `.get()` method.",
   "steps": [
-    "Task 1: Create a dictionary `player_stats` with keys: 'health' (100), 'mana' (50), 'class' ('Warrior')",
-    "Task 2: Retrieve the 'class' value using bracket notation `[]` and assign to `player_class`",
-    "Task 3: Use `.get()` to retrieve 'stamina' with a default value of 20 if not found",
-    "Task 4: Update 'health' to 85 using bracket notation"
+    "Task 1: Create a dictionary `player_stats` with keys: 'health' (100), 'mana' (50), 'class' ('Warrior'). Print `player_stats`.",
+    "Task 2: Retrieve the 'class' value using bracket notation `[]` and assign to `player_class`. Print `player_class`.",
+    "Task 3: Use `.get()` to retrieve 'stamina' with a default value of 20 if not found. Print `stamina_level`.",
+    "Task 4: Update 'health' to 85 using bracket notation. Print `player_stats`."
   ],
-  "starterCode": "# Task 1: Create player_stats dictionary\nplayer_stats = \n\n# Task 2: Access 'class' using brackets\nplayer_class = \n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = \n\n# Task 4: Update 'health' to 85\n",
-  "solution": "# Task 1: Create player_stats dictionary\nplayer_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\n\n# Task 2: Access 'class' using brackets\nplayer_class = player_stats['class']\n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = player_stats.get('stamina', 20)\n\n# Task 4: Update 'health' to 85\nplayer_stats['health'] = 85",
+  "starterCode": "# Task 1: Create player_stats dictionary\nplayer_stats = ???\nprint()\n\n# Task 2: Access 'class' using brackets\nplayer_class = ???\nprint()\n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = ???\nprint()\n\n# Task 4: Update 'health' to 85\nplayer_stats['health'] = 85\nprint()\n",
+  "solution": "# Task 1: Create player_stats dictionary\nplayer_stats = {\n    'health': 100,\n    'mana': 50,\n    'class': 'Warrior'\n}\nprint(player_stats)\n\n# Task 2: Access 'class' using brackets\nplayer_class = player_stats['class']\nprint(player_class)\n\n# Task 3: Safely access 'stamina' with .get() and default 20\nstamina_level = player_stats.get('stamina', 20)\nprint(stamina_level)\n\n# Task 4: Update 'health' to 85\nplayer_stats['health'] = 85\nprint(player_stats)\n",
   "hints": [
     "Task 1: Use curly braces: `{'health': 100, 'mana': 50, 'class': 'Warrior'}`",
     "Task 2: Access dictionary values: `player_stats['class']` gets the value for key 'class'",
@@ -18,10 +18,11 @@
     "You can use either single quotes 'key' or double quotes \"key\" for string keys"
   ],
   "validation": "tests",
+  "expectedOutput": "{'health': 100, 'mana': 50, 'class': 'Warrior'}\nWarrior\n20\n{'health': 85, 'mana': 50, 'class': 'Warrior'}",
   "tests": [
     {
       "name": "Check dictionary operations",
-      "code": "user_code = code\nlocal_vars = {}\nexec(user_code, {}, local_vars)\n\n# Check player_stats exists and is a dictionary\nif 'player_stats' not in local_vars:\n    raise AssertionError('Task 1: player_stats dictionary not found. Did you create it?')\n\nps = local_vars['player_stats']\nif not isinstance(ps, dict):\n    raise AssertionError('Task 1: player_stats should be a dictionary (use curly braces {})')\n\n# Check initial values were set (before update)\nif 'mana' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'mana' key\")\nif ps.get('mana') != 50:\n    raise AssertionError(\"Task 1: 'mana' should be 50\")\n\nif 'class' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'class' key\")\nif ps.get('class') != 'Warrior':\n    raise AssertionError(\"Task 1: 'class' should be 'Warrior'\")\n\n# Check health was updated\nif 'health' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'health' key\")\nif ps.get('health') != 85:\n    raise AssertionError(\"Task 4: 'health' should be updated to 85\")\n\n# Check player_class variable\nif 'player_class' not in local_vars:\n    raise AssertionError(\"Task 2: player_class variable not found. Did you assign it?\")\nif local_vars['player_class'] != 'Warrior':\n    raise AssertionError(\"Task 2: player_class should be 'Warrior'\")\n\n# Check stamina_level variable\nif 'stamina_level' not in local_vars:\n    raise AssertionError(\"Task 3: stamina_level variable not found. Did you use .get()?\")\nif local_vars['stamina_level'] != 20:\n    raise AssertionError(\"Task 3: stamina_level should be 20 (the default value, since 'stamina' key doesn't exist)\")\n\nprint('TEST_PASSED')"
+      "code": "local_vars = {}\nexec(student_code, {}, local_vars)\n\n# Check player_stats exists and is a dictionary\nif 'player_stats' not in local_vars:\n    raise AssertionError('Task 1: player_stats dictionary not found. Did you create it?')\n\nps = local_vars['player_stats']\nif not isinstance(ps, dict):\n    raise AssertionError('Task 1: player_stats should be a dictionary (use curly braces {})')\n\n# Check initial values were set (before update)\nif 'mana' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'mana' key\")\nif ps.get('mana') != 50:\n    raise AssertionError(\"Task 1: 'mana' should be 50\")\n\nif 'class' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'class' key\")\nif ps.get('class') != 'Warrior':\n    raise AssertionError(\"Task 1: 'class' should be 'Warrior'\")\n\n# Check health was updated\nif 'health' not in ps:\n    raise AssertionError(\"Task 1: player_stats should have 'health' key\")\nif ps.get('health') != 85:\n    raise AssertionError(\"Task 4: 'health' should be updated to 85\")\n\n# Check player_class variable\nif 'player_class' not in local_vars:\n    raise AssertionError(\"Task 2: player_class variable not found. Did you assign it?\")\nif local_vars['player_class'] != 'Warrior':\n    raise AssertionError(\"Task 2: player_class should be 'Warrior'\")\n\n# Check stamina_level variable\nif 'stamina_level' not in local_vars:\n    raise AssertionError(\"Task 3: stamina_level variable not found. Did you use .get()?\")\nif local_vars['stamina_level'] != 20:\n    raise AssertionError(\"Task 3: stamina_level should be 20 (the default value, since 'stamina' key doesn't exist)\")\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": ["dictionary", "key-value", "get-method", "beginner"]

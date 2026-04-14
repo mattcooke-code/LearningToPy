@@ -9,7 +9,7 @@ Sets are primarily used when the presence of an element is important, but its or
 Sets are defined using **curly braces** (`{}`) or by casting another iterable (like a list or tuple) with the **`set()` constructor**.
 
 :::note
-An empty pair of curly braces `{}` creates an empty **Dictionary**, not an empty Set. To create an empty Set, you must use `set()`.
+An empty pair of curly braces `{}` creates an empty **Dictionary**, not an empty **Set**. To create an empty Set, you must use `set()`.
 :::
 
 ### Creation Examples

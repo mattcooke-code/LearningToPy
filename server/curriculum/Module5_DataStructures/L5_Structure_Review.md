@@ -13,6 +13,8 @@ The choice of structure usually comes down to three key factors: **Order**, **Mu
 | **Dict**  | ✅ Yes\* | ✅ Yes  | ❌ No (keys) |  Key `["key"]`  | Key-value mappings, lookups         |
 |  **Set**  |  ❌ No   | ✅ Yes  |    ❌ No     | Membership `in` | Deduplication, set math, membership |
 
+\*Dictionaries preserve insertion order as of Python 3.7+
+
 :::tip
 **The Zen of Python:** "There should be one—and preferably only one—obvious way to do it." When choosing a data structure, ask: "What's the most obvious structure for this data?" Usually, the answer aligns with the primary use cases in the table above.
 :::

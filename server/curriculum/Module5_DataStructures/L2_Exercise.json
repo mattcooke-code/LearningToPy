@@ -1,28 +1,29 @@
 {
   "title": "Dictionary Manipulation & Loops",
-  "instructions": "Practice adding, removing, and iterating over dictionaries using `.pop()`, `.values()`, and `.items()`.",
+  "instructions": "Practice adding, removing, and iterating over dictionaries using bracket assignment, `.pop()`, `.values()`, and `.items()`.",
   "steps": [
-    "Task 1: Add 'status': 'online' to `user_data`",
-    "Task 2: Remove 'temp_id' using `.pop()` and store its value in `removed_id`",
-    "Task 3: Loop through `item_prices.values()` to calculate total price",
-    "Task 4: Loop through `user_data.items()` to print each key-value pair"
+    "**Task 1:** Add the key `'status'` with the value `'online'` to `user_data` using bracket assignment.",
+    "**Task 2:** Remove the key `'temp_id'` from `user_data` using the `.pop()` method, and store its returned value in the variable `removed_id`.",
+    "**Task 3:** Loop through `item_prices.values()` to add up all the prices. Store the running total in `total_price`.",
+    "**Task 4:** Loop through `user_data.items()` to print each key-value pair in the format: `Key: [key], Value: [value]`."
   ],
-  "starterCode": "user_data = {'username': 'test_user', 'level': 10, 'temp_id': 999}\nitem_prices = {'apple': 0.50, 'banana': 0.30, 'kiwi': 0.75}\ntotal_price = 0\n\n# Task 1: Add 'status': 'online' to user_data\n\n# Task 2: Remove 'temp_id' using .pop() and store its value\nremoved_id = \n\n# Task 3: Loop through item_prices.values() to calculate total_price\n\n# Task 4: Loop through user_data.items() to print each key-value pair\n",
-  "solution": "user_data = {'username': 'test_user', 'level': 10, 'temp_id': 999}\nitem_prices = {'apple': 0.50, 'banana': 0.30, 'kiwi': 0.75}\ntotal_price = 0\n\n# Task 1: Add 'status': 'online' to user_data\nuser_data['status'] = 'online'\n\n# Task 2: Remove 'temp_id' using .pop() and store its value\nremoved_id = user_data.pop('temp_id')\n\n# Task 3: Loop through item_prices.values() to calculate total_price\nfor price in item_prices.values():\n    total_price += price\n\n# Task 4: Loop through user_data.items() to print each key-value pair\nfor key, value in user_data.items():\n    print(f'Key: {key}, Value: {value}')",
+  "starterCode": "user_data = {'username': 'test_user', 'level': 10, 'temp_id': 999}\nitem_prices = {'apple': 0.50, 'banana': 0.30, 'kiwi': 0.75}\ntotal_price = 0\n\n# Task 1: Add 'status': 'online' to user_data\n\n\n# Task 2: Remove 'temp_id' using .pop() and store its value\nremoved_id = ???\n\n\n# Task 3: Loop through item_prices.values() to calculate total_price\n\n\n# Task 4: Loop through user_data.items() to print each key-value pair\n",
+  "solution": "user_data = {'username': 'test_user', 'level': 10, 'temp_id': 999}\nitem_prices = {'apple': 0.50, 'banana': 0.30, 'kiwi': 0.75}\ntotal_price = 0\n\n# Task 1: Add 'status': 'online' to user_data\nuser_data['status'] = 'online'\n\n# Task 2: Remove 'temp_id' using .pop() and store its value\nremoved_id = user_data.pop('temp_id')\n\n# Task 3: Loop through item_prices.values() to calculate total_price\nfor price in item_prices.values():\n    total_price += price\n\n# Task 4: Loop through user_data.items() to print each key-value pair\nfor key, value in user_data.items():\n    print(f'Key: {key}, Value: {value}')\n",
   "hints": [
-    "Task 1: Add key-value pair: `user_data['status'] = 'online'`",
-    "Task 2: `.pop()` removes and returns the value: `user_data.pop('temp_id')`",
-    "Task 3: `.values()` gives only the values: `for price in item_prices.values():`",
-    "Task 3: Inside the loop, add each price to total_price: `total_price += price`",
-    "Task 4: `.items()` gives (key, value) tuples: `for key, value in user_data.items():`",
-    "Task 4: Print using f-string: `print(f'Key: {key}, Value: {value}')`",
-    "Note: `.pop()` both modifies the dictionary AND returns the removed value"
+    "**Task 1:** Add a new key-value pair with: `user_data['status'] = 'online'`",
+    "**Task 2:** The `.pop()` method removes a key AND returns its value: `removed_id = user_data.pop('temp_id')`",
+    "**Task 3:** Use `for price in item_prices.values():` to loop through just the values (prices)",
+    "**Task 3:** Inside the loop, add each price to the running total: `total_price += price`",
+    "**Task 4:** Use `for key, value in user_data.items():` to get both parts of each pair",
+    "**Task 4:** Print using an f-string: `print(f'Key: {key}, Value: {value}')`",
+    "**Remember:** `.pop()` modifies the dictionary AND returns the removed value - two actions at once!"
   ],
   "validation": "tests",
+  "expectedOutput": "Key: username, Value: test_user\nKey: level, Value: 10\nKey: status, Value: online",
   "tests": [
     {
       "name": "Check dictionary operations",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\nuser_code = code\nlocal_vars = {}\nexec(user_code, {}, local_vars)\n\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check user_data exists\nif 'user_data' not in local_vars:\n    raise AssertionError('user_data dictionary not found')\n\nud = local_vars['user_data']\n\n# Check Task 1: status was added\nif 'status' not in ud:\n    raise AssertionError(\"Task 1: 'status' key not found. Did you add it to user_data?\")\nif ud['status'] != 'online':\n    raise AssertionError(\"Task 1: 'status' should be 'online'\")\n\n# Check Task 2: temp_id was removed\nif 'temp_id' in ud:\n    raise AssertionError('Task 2: temp_id should be removed using .pop()')\n\n# Check that removed_id captured the value\nif 'removed_id' not in local_vars:\n    raise AssertionError('Task 2: removed_id variable not found. Did you assign it?')\nif local_vars['removed_id'] != 999:\n    raise AssertionError(f\"Task 2: removed_id should be 999, got {local_vars['removed_id']}\")\n\n# Check Task 3: total_price calculated correctly\nif 'total_price' not in local_vars:\n    raise AssertionError('Task 3: total_price variable not found')\nexpected_total = 1.55\nactual_total = local_vars['total_price']\nif abs(actual_total - expected_total) > 0.01:\n    raise AssertionError(f'Task 3: total_price should be 1.55 (0.50+0.30+0.75), got {actual_total}')\n\n# Check Task 4: printed key-value pairs\nif 'username' not in output or 'test_user' not in output:\n    raise AssertionError('Task 4: Should print all key-value pairs using .items()')\nif 'level' not in output or '10' not in output:\n    raise AssertionError('Task 4: Should print all key-value pairs including level')\nif 'status' not in output or 'online' not in output:\n    raise AssertionError('Task 4: Should print all key-value pairs including status')\n\nprint('TEST_PASSED')"
+      "code": "local_vars = {}\nexec(student_code, {}, local_vars)\n\n# Check user_data exists\nif 'user_data' not in local_vars:\n    raise AssertionError('user_data dictionary not found')\n\nud = local_vars['user_data']\n\n# Check Task 1: status was added\nif 'status' not in ud:\n    raise AssertionError(\"Task 1: 'status' key not found. Did you add it to user_data?\")\nif ud['status'] != 'online':\n    raise AssertionError(\"Task 1: 'status' should be 'online'\")\n\n# Check Task 2: temp_id was removed\nif 'temp_id' in ud:\n    raise AssertionError('Task 2: temp_id should be removed using .pop()')\n\n# Check that removed_id captured the value\nif 'removed_id' not in local_vars:\n    raise AssertionError('Task 2: removed_id variable not found. Did you assign it?')\nif local_vars['removed_id'] != 999:\n    raise AssertionError(f\"Task 2: removed_id should be 999, got {local_vars['removed_id']}\")\n\n# Check Task 3: total_price calculated correctly\nif 'total_price' not in local_vars:\n    raise AssertionError('Task 3: total_price variable not found')\nexpected_total = 1.55\nactual_total = local_vars['total_price']\nif abs(actual_total - expected_total) > 0.01:\n    raise AssertionError(f'Task 3: total_price should be 1.55 (0.50+0.30+0.75), got {actual_total}')\n\n# Check Task 4: printed key-value pairs\nif 'username' not in output or 'test_user' not in output:\n    raise AssertionError('Task 4: Should print all key-value pairs using .items()')\nif 'level' not in output or '10' not in output:\n    raise AssertionError('Task 4: Should print all key-value pairs including level')\nif 'status' not in output or 'online' not in output:\n    raise AssertionError('Task 4: Should print all key-value pairs including status')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": ["dictionary", "pop", "items", "values", "iteration", "beginner"]

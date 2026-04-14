@@ -13,22 +13,22 @@ The **Union** of two sets includes all elements that are present in **either** s
 ### Syntax: `set1 | set2` or `set1.union(set2)`
 
 ```python
-# All characters from both Sunnydale and Los Angeles casts
-sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Cordelia", "Angel"}
-los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Lorne", "Wesley"}
+# Characters from both Sunnydale and Los Angeles casts S1-3
+sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Oz", "Cordelia", "Angel"}
+los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Doyle", "Wesley"}
 
 # Combine both casts
 all_characters = sunnydale | los_angeles
 print(all_characters)
-# Output: {"Buffy", "Willow", "Xander", "Giles", "Cordelia", "Angel",
-#          "Fred", "Gunn", "Lorne", "Wesley"}
+# Output: {"Buffy", "Willow", "Xander", "Giles", "Oz", "Cordelia", "Angel",
+#          "Fred", "Gunn", "Doyle", "Wesley"}
 
 # Using the method works identically
 all_characters_method = sunnydale.union(los_angeles)
 ```
 
 :::note
-Notice how **Angel** and **Cordelia** appear in both original sets, but only once in the _union_ - duplicates are automatically removed!
+Notice how **Angel** and **Cordelia** appear in both original sets, but only once in the _union_ - duplicates are automatically removed. The original sets remain unchanged.
 :::
 
 ## 2. Intersection: Finding Common Elements
@@ -38,9 +38,9 @@ The **Intersection** of two sets includes only the elements that are present in 
 ### Syntax: `set1 & set2` or `set1.intersection(set2)`
 
 ```python
-# Which characters appeared in both shows?
-sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Cordelia", "Angel"}
-los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Lorne", "Wesley"}
+# Which characters appeared as main characters in both shows?
+sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Oz", "Cordelia", "Angel"}
+los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Doyle", "Wesley"}
 
 # Find crossover characters
 crossover_characters = sunnydale & los_angeles
@@ -56,16 +56,16 @@ The **Difference** operation finds elements present in the first set but not in 
 ### Syntax: `set1 - set2` or `set1.difference(set2)`
 
 ```python
-sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Cordelia", "Angel"}
-los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Lorne", "Wesley"}
+sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Oz", "Cordelia", "Angel"}
+los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Doyle", "Wesley"}
 
 # Characters who stayed in Sunnydale (didn't move to LA)
 sunnydale_only = sunnydale - los_angeles
-print(sunnydale_only) # Output: {"Buffy", "Willow", "Xander", "Giles"}
+print(sunnydale_only) # Output: {"Buffy", "Willow", "Xander", "Giles", "Oz"}
 
 # Characters who were only in Los Angeles (not in Sunnydale as a MAIN character)
 los_angeles_only = los_angeles - sunnydale
-print(los_angeles_only) # Output: {"Fred", "Gunn", "Lorne", "Wesley"}
+print(los_angeles_only) # Output: {"Fred", "Gunn", "Doyle", "Wesley"}
 ```
 
 :::warning
@@ -79,12 +79,13 @@ The **Symmetric Difference** includes all elements that are in either set, but n
 ### Syntax: `set1 ^ set2` or `set1.symmetric_difference(set2)`
 
 ```python
+sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Oz", "Cordelia", "Angel"}
+los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Doyle", "Wesley"}
+
 # Main cast members who were exclusive to their respective series
-# This excludes Angel and Cordelia, who were regulars on both.
 exclusive_cast = sunnydale ^ los_angeles
 
 print(exclusive_cast)
-# Output: {"Buffy", "Willow", "Xander", "Giles", "Fred", "Gunn", "Lorne", "Wesley"}
 ```
 
 :::tip
@@ -98,16 +99,16 @@ You can chain set operations together to solve complex questions in a single lin
 **Scenario:** You want to find every character from both shows (_Union_), but you want to filter the list to show **_only the humans_**.
 
 ```python
-sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Cordelia", "Angel"}
-los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Lorne", "Wesley"}
-non_humans = {"Angel", "Lorne"}
+sunnydale = {"Buffy", "Willow", "Xander", "Giles", "Oz", "Cordelia", "Angel"}
+los_angeles = {"Angel", "Cordelia", "Fred", "Gunn", "Doyle", "Wesley"}
+non_humans = {"Angel", "Doyle"}
 
 # 1. Combine both casts (Union)
 # 2. Subtract the non-humans (Difference)
 human_characters = (sunnydale | los_angeles) - non_humans
 
 print(human_characters)
-# Output: {'Buffy', 'Willow', 'Xander', 'Giles', 'Cordelia', 'Fred', 'Gunn', 'Wesley'}
+# Output: {'Buffy', 'Willow', 'Xander', 'Giles', 'Oz', 'Cordelia', 'Fred', 'Gunn', 'Wesley'}
 ```
 
 ### Why use Parentheses?

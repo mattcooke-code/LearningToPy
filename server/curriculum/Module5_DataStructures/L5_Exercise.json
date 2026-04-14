@@ -1,25 +1,27 @@
 {
   "title": "Choosing the Right Data Structure",
-  "instructions": "Below are four different data scenarios. Your job is to initialize the variable with the provided data using the most appropriate Python structure (List, Tuple, Set, or Dictionary).",
+  "instructions": "Below are four different data scenarios. Your job is to initialize each variable with the provided data using the most appropriate Python structure (List, Tuple, Set, or Dictionary).",
   "steps": [
-    "Task 1: Store these unique email subscribers: 'dev@example.com' and 'user@test.org'. Ensure no duplicate emails can ever exist in this collection.",
-    "Task 2: Store the following stock prices in the order they were recorded: 142.50, 143.75, 141.20. New prices will be added every hour.",
-    "Task 3: Map Product Codes to their Prices. Map 'A101' to 19.99 and 'B202' to 25.50 for instant price lookups.",
-    "Task 4: Store a fixed status code: 200, 'OK'. This pair represents a standard that should not be changed by the program."
+    "**Task 1:** Store these unique email subscribers: `'dev@example.com'` and `'user@test.org'`. Choose a structure that ensures no duplicate emails can ever exist.",
+    "**Task 2:** Store these stock prices in the order they were recorded: `142.50`, `143.75`, `141.20`. Choose a structure that preserves order and allows new prices to be added later.",
+    "**Task 3:** Map Product Codes to their Prices: `'A101'` → `19.99` and `'B202'` → `25.50`. Choose a structure that allows instant price lookups by product code.",
+    "**Task 4:** Store a fixed status pair: `200` and `'OK'`. This represents a standard HTTP response that should never be changed by the program."
   ],
-  "starterCode": "# Task 1: Unique Email Subscribers\nsubscriber_emails = \n\n# Task 2: Hourly Stock Prices\nstock_history = \n\n# Task 3: Product Price Catalog\nprice_catalog = \n\n# Task 4: Standard Response Code (Fixed)\nsuccess_response = ",
-  "solution": "# Task 1: Set (Unique items)\nsubscriber_emails = {'dev@example.com', 'user@test.org'}\n\n# Task 2: List (Ordered and growing)\nstock_history = [142.50, 143.75, 141.20]\n\n# Task 3: Dictionary (Label-based mapping)\nprice_catalog = {'A101': 19.99, 'B202': 25.50}\n\n# Task 4: Tuple (Fixed/Immutable constant)\nsuccess_response = (200, 'OK')",
+  "starterCode": "# Task 1: Unique Email Subscribers (no duplicates allowed)\nsubscriber_emails = ???\n\n# Task 2: Hourly Stock Prices (ordered, will grow over time)\nstock_history = ???\n\n# Task 3: Product Price Catalog (look up price by product code)\nprice_catalog = ???\n\n# Task 4: Standard Response Code (fixed, immutable pair)\nsuccess_response = ???\n",
+  "solution": "# Task 1: Set (Unique items, unordered)\nsubscriber_emails = {'dev@example.com', 'user@test.org'}\n\n# Task 2: List (Ordered, mutable, allows duplicates)\nstock_history = [142.50, 143.75, 141.20]\n\n# Task 3: Dictionary (Key-value mapping for fast lookups)\nprice_catalog = {'A101': 19.99, 'B202': 25.50}\n\n# Task 4: Tuple (Immutable fixed constant)\nsuccess_response = (200, 'OK')\n",
   "hints": [
-    "Task 1: If order doesn't matter but uniqueness does, curly braces {} (without colons) create a Set.",
-    "Task 2: Use square brackets [] for a sequence of numbers that you intend to update or append to.",
-    "Task 3: Use {key: value} to create a Dictionary for fast lookups.",
-    "Task 4: Parentheses () create a Tuple, which is ideal for data that stays constant throughout a program. Include the number `200`, and 'OK'"
+    "**Task 1:** Need uniqueness and don't care about order? Use a **Set**: `{item1, item2}`",
+    "**Task 2:** Need order and the ability to add/change items? Use a **List**: `[item1, item2, item3]`",
+    "**Task 3:** Need to look up values by a key/label? Use a **Dictionary**: `{key1: value1, key2: value2}`",
+    "**Task 4:** Need a fixed collection that shouldn't change? Use a **Tuple**: `(item1, item2)`",
+    "**Remember:** Sets use curly braces `{}` with single items. Dictionaries use curly braces `{}` with `key: value` pairs."
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check structure choices",
-      "code": "local_vars = {}\nexec(code, {}, local_vars)\n\nif not isinstance(local_vars.get('subscriber_emails'), set):\n    raise AssertionError('Task 1: Subscribers should be a SET to prevent duplicate entries.')\n\nif not isinstance(local_vars.get('stock_history'), list):\n    raise AssertionError('Task 2: Stock history should be a LIST because it is an ordered, growing sequence.')\n\nif not isinstance(local_vars.get('price_catalog'), dict):\n    raise AssertionError('Task 3: The catalog should be a DICTIONARY for fast key-to-price mapping.')\n\nif not isinstance(local_vars.get('success_response'), tuple):\n    raise AssertionError('Task 4: Response codes should be a TUPLE because they are fixed constants.')\n\nprint('TEST_PASSED')"
+      "code": "local_vars = {}\nexec(student_code, {}, local_vars)\n\n# Check Task 1: Should be a set\nsubs = local_vars.get('subscriber_emails')\nif subs is None:\n    raise AssertionError(\"Task 1: 'subscriber_emails' variable not found. Did you assign it?\")\nif not isinstance(subs, set):\n    raise AssertionError('Task 1: Subscriber emails should be a SET to prevent duplicate entries. Use curly braces: {item1, item2}')\nif subs != {'dev@example.com', 'user@test.org'}:\n    raise AssertionError(\"Task 1: Set should contain exactly 'dev@example.com' and 'user@test.org'\")\n\n# Check Task 2: Should be a list\nstocks = local_vars.get('stock_history')\nif stocks is None:\n    raise AssertionError(\"Task 2: 'stock_history' variable not found. Did you assign it?\")\nif not isinstance(stocks, list):\n    raise AssertionError('Task 2: Stock history should be a LIST for an ordered, growing sequence. Use square brackets: [item1, item2, item3]')\nif stocks != [142.50, 143.75, 141.20]:\n    raise AssertionError(\"Task 2: List should contain exactly [142.50, 143.75, 141.20] in that order\")\n\n# Check Task 3: Should be a dictionary\ncatalog = local_vars.get('price_catalog')\nif catalog is None:\n    raise AssertionError(\"Task 3: 'price_catalog' variable not found. Did you assign it?\")\nif not isinstance(catalog, dict):\n    raise AssertionError('Task 3: Price catalog should be a DICTIONARY for key-value mapping. Use curly braces with colons: {key: value}')\nif catalog != {'A101': 19.99, 'B202': 25.50}:\n    raise AssertionError(\"Task 3: Dictionary should map 'A101' to 19.99 and 'B202' to 25.50\")\n\n# Check Task 4: Should be a tuple\nresponse = local_vars.get('success_response')\nif response is None:\n    raise AssertionError(\"Task 4: 'success_response' variable not found. Did you assign it?\")\nif not isinstance(response, tuple):\n    raise AssertionError('Task 4: Response code should be a TUPLE because it is a fixed constant. Use parentheses: (item1, item2)')\nif response != (200, 'OK'):\n    raise AssertionError(\"Task 4: Tuple should contain exactly (200, 'OK')\")\n\nprint('TEST_PASSED')"
     }
-  ]
+  ],
+  "tags": ["data-structures", "list", "tuple", "dictionary", "set", "review"]
 }

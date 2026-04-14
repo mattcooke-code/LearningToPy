@@ -7,8 +7,8 @@
     "Task 3: Find premium users who are NOT active subscribers using **difference** (`-`)",
     "Task 4: Find elements in either `set_c` OR `set_b` but NOT both using **symmetric difference** (`^`)"
   ],
-  "starterCode": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# Task 1: Union - combine set_a and set_b\ncombined_unique_numbers = \n\n# Task 2: Intersection - common in set_a and set_c\ncommon_elements = \n\n# Task 3: Difference - in premium_users but not active_subscribers\nstale_premium_users = \n\n# Task 4: Symmetric difference - in either set_c or set_b but not both\nunique_to_each_set = ",
-  "solution": "combined_unique_numbers = set_a | set_b\ncommon_elements = set_a & set_c\nstale_premium_users = premium_users - active_subscribers\nunique_to_each_set = set_c ^ set_b",
+  "starterCode": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# Task 1: Union - combine set_a and set_b\ncombined_unique_numbers = ???\n\n# Task 2: Intersection - common in set_a and set_c\ncommon_elements = ???\n\n# Task 3: Difference - in premium_users but not active_subscribers\nstale_premium_users = ???\n\n# Task 4: Symmetric difference - in either set_c or set_b but not both\nunique_to_each_set = ???\n",
+  "solution": "set_a = {1, 5, 8, 10}\nset_b = {5, 7, 10, 12}\nset_c = {1, 2, 5, 8}\npremium_users = {'A', 'B', 'C', 'D'}\nactive_subscribers = {'A', 'D', 'E', 'F'}\n\n# Task 1: Union - combine set_a and set_b\ncombined_unique_numbers = set_a | set_b\n\n# Task 2: Intersection - common in set_a and set_c\ncommon_elements = set_a & set_c\n\n# Task 3: Difference - in premium_users but not active_subscribers\nstale_premium_users = premium_users - active_subscribers\n\n# Task 4: Symmetric difference - in either set_c or set_b but not both\nunique_to_each_set = set_c ^ set_b\n",
   "hints": [
     "Task 1: Union (`|`): All elements from both sets. Example: `set_a | set_b`",
     "Task 2: Intersection (`&`): Elements that are in BOTH sets. Example: `set_a & set_c`",
@@ -18,10 +18,11 @@
     "These operations create NEW sets - original sets remain unchanged"
   ],
   "validation": "tests",
+  "expectedOutput": "",
   "tests": [
     {
       "name": "Check set operations",
-      "code": "local_vars = {}\nexec(code, {}, local_vars)\n\nexpected = {\n    'combined_unique_numbers': {1, 5, 7, 8, 10, 12},\n    'common_elements': {1, 5, 8},\n    'stale_premium_users': {'B', 'C'},\n    'unique_to_each_set': {1, 2, 7, 8, 10, 12}\n}\n\nfor var, val in expected.items():\n    actual = local_vars.get(var)\n    if actual != val:\n        raise AssertionError(f'Error in {var}. Expected {val}, but got {actual}.')\n\nprint('TEST_PASSED')"
+      "code": "local_vars = {}\nexec(student_code, {}, local_vars)\n\nexpected = {\n    'combined_unique_numbers': {1, 5, 7, 8, 10, 12},\n    'common_elements': {1, 5, 8},\n    'stale_premium_users': {'B', 'C'},\n    'unique_to_each_set': {1, 2, 7, 8, 10, 12}\n}\n\nfor var, val in expected.items():\n    actual = local_vars.get(var)\n    if actual is None:\n        raise AssertionError(f'Variable \"{var}\" not found. Did you assign it?')\n    if actual != val:\n        raise AssertionError(f'Error in {var}. Expected {val}, but got {actual}.')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": [

@@ -94,18 +94,14 @@ crew = {
 }
 
 for rank, name in crew.items():
-    print(f"{rank}: {name}")
+    print(f"The {rank} is {name}")
 
 # Output:
-# Captain: James T. Kirk
-# First Officer: Spock
-# Chief Medical Officer: Leonard McCoy
-# Chief Engineer: Montgomery Scott
+# The Captain is James T. Kirk
+# The First Officer is Spock
+# The Chief Medical Officer is Leonard McCoy
+# The Chief Engineer is Montgomery Scott
 ```
-
-:::tip
-**Dictionary Comprehensions:** Like list comprehensions but for dictionaries! `{key: value for key, value in original_dict.items() if condition}`. You'll learn more about comprehensions in advanced modules, but it's good to know they exist.
-:::
 
 :::summary
 
