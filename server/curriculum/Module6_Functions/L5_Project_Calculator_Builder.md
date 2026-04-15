@@ -85,7 +85,7 @@ total = calculate_total(3, 25)  # Returns 75
 
 ### Division - Special Case!
 
-:::note
+:::warning
 Division needs extra care because you **cannot divide by zero**. If someone tries, return an error message instead of crashing.
 :::
 
@@ -143,7 +143,7 @@ side = find_side_length(25)  # Returns 5.0
 To find what percentage one number is of another: `(part / whole) * 100`
 
 :::warning
-Edge Case: If the whole is zero, return 0 (can't calculate percentage of nothing).
+Edge Case: If the whole is zero, return 0 (cannot calculate percentage of nothing).
 :::
 
 Example pattern:
@@ -289,14 +289,5 @@ Common Mistakes to Avoid
 - ❌ Using `print()` instead of return
 - ❌ Making the calculate function do all the work instead of calling other functions
   :::
-
-## Bonus Challenges (Optional)
-
-If you finish early, try:
-
-1. Add a `factorial` function
-2. Add a `absolute_value` function
-3. Support chaining operations: calculate the result, then use it in the next operation
-4. Keep track of the last result
 
 Remember: The goal isn't just to make a working calculator - it's to practice **modular design** with functions. Each function should be a self-contained unit that does its job well!

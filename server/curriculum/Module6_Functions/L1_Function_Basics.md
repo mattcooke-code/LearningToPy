@@ -45,22 +45,22 @@ Functions become truly useful when they can accept input.
 
 • **Parameter**: The name used in the function definition to represent the data it expects to receive (e.g., name in the definition below).
 
-• **Argument**: The actual value passed to the function when it is called (e.g., "Alice" in the call below).
+• **Argument**: The actual value passed to the function when it is called (e.g., "Aoife" in the call below).
 
 ```python
 # 'name' is the parameter
 def personalized_greeting(name):
     print(f"Hello, {name}! How are you?")
 
-# "Alice" is the argument
-personalized_greeting("Alice")
+# "Aoife" is the argument
+personalized_greeting("Aoife")
 
-# "Bob" is a different argument
-personalized_greeting("Bob")
+# "Cian" is a different argument
+personalized_greeting("Cian")
 
 # Output:
-# Hello, Alice! How are you?
-# Hello, Bob! How are you?
+# Hello, Aoife! How are you?
+# Hello, Cian! How are you?
 ```
 
 :::note

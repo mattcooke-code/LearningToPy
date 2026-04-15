@@ -144,6 +144,13 @@ print(f"Average: {avg}, Grade: {grade}")  # Average: 87.75, Grade: B
 
 Functions are invaluable for text manipulation and formatting, taking raw string inputs and returning cleanly structured or analyzed outputs.
 
+:::note
+In the following examples, you'll see two string methods that look similar but perform very different roles:
+
+- `.upper()`: This is an action. It creates a new version of the string where every letter is converted to uppercase. **Example:** `"python".upper()` becomes `"PYTHON"`.
+- `.isupper()`: This is a question. It returns `True` if the string contains at least one letter and all letters are uppercase; otherwise, it returns `False`. **Example:** `"PYTHON".isupper()` is `True`, but `"Python".isupper()` is `False`.
+  :::
+
 ### Example: Text Formatter
 
 This function shows how to handle **optional arguments** (`middle=""`) to create dynamic string outputs and returns a **dictionary** for structured, easy-to-access results.
@@ -176,6 +183,10 @@ print(name_info['formal'])  # Doe, John Michael
 ### Example: Password Strength Checker
 
 This demonstrates analyzing a string by iterating over its characters and using built-in string methods (`isupper()`, `isdigit()`) to calculate a score.
+
+:::tip
+In Python, methods starting with "is" (like `.isdigit()`, `.islower()`, or `.isupper()`) almost always return a boolean (`True` or `False`).
+:::
 
 ```python
 def check_password_strength(password):

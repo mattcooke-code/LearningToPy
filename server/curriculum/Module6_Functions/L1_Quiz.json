@@ -11,7 +11,7 @@
       "id": "m6l1_q2",
       "question": "What is the primary difference between a parameter and an argument?",
       "options": [
-        "Parameters are values passed; arguments are placeholders.",
+        "Parameters are the actual values passed during the call; arguments are the placeholders in the definition.",
         "Parameters are the placeholders in the definition; arguments are the actual values passed during the call.",
         "Parameters are for numbers; arguments are for strings.",
         "There is no technical difference between them."

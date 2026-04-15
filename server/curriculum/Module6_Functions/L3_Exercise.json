@@ -2,10 +2,8 @@
   "title": "Scope: Global Keyword vs Return Values",
   "instructions": "Learn two ways to work with variables across functions: using the `global` keyword (Part A) and using return values (Part B - the better approach).",
   "steps": [
-    "Part A: Using Global Keyword",
     "Task 1: Define `increment_score` that modifies the global `game_score` by adding 10 using the `global` keyword",
     "Task 2: Call `increment_score` once",
-    "Part B: Using Return Values (Better Approach)",
     "Task 3: Define `add_points` that takes `current_score` and `points` as parameters and returns their sum",
     "Task 4: Call `add_points` with `player_score` and 25, reassigning the result back to `player_score`"
   ],
@@ -24,15 +22,15 @@
   "tests": [
     {
       "name": "Check Part A - Global keyword usage",
-      "code": "# Execute in a way that allows global to work properly\nuser_code = code\n\n# Execute with shared global and local namespace\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Check game_score was incremented\nif 'game_score' not in exec_namespace:\n    raise AssertionError('game_score variable not found')\n\nif exec_namespace['game_score'] != 10:\n    raise AssertionError(f'Task 1-2: game_score should be 10 after calling increment_score, got {exec_namespace[\"game_score\"]}')\n\n# Check function exists\nif 'increment_score' not in exec_namespace:\n    raise AssertionError('Task 1: increment_score function not defined')\n\nif not callable(exec_namespace['increment_score']):\n    raise AssertionError('Task 1: increment_score should be a function')\n\nprint('TEST_PASSED')"
+      "code": "# Execute in a way that allows global to work properly\n\n# Execute with shared global and local namespace\nexec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\n# Check game_score was incremented\nif 'game_score' not in exec_namespace:\n    raise AssertionError('game_score variable not found')\n\nif exec_namespace['game_score'] != 10:\n    raise AssertionError(f'Task 1-2: game_score should be 10 after calling increment_score, got {exec_namespace[\"game_score\"]}')\n\n# Check function exists\nif 'increment_score' not in exec_namespace:\n    raise AssertionError('Task 1: increment_score function not defined')\n\nif not callable(exec_namespace['increment_score']):\n    raise AssertionError('Task 1: increment_score should be a function')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check Part B - Return values approach",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Check player_score was updated\nif 'player_score' not in exec_namespace:\n    raise AssertionError('player_score variable not found')\n\nif exec_namespace['player_score'] != 25:\n    raise AssertionError(f'Task 3-4: player_score should be 25 after calling add_points, got {exec_namespace[\"player_score\"]}')\n\n# Check function exists and works\nif 'add_points' not in exec_namespace:\n    raise AssertionError('Task 3: add_points function not defined')\n\nif not callable(exec_namespace['add_points']):\n    raise AssertionError('Task 3: add_points should be a function')\n\n# Test the function\ntry:\n    result = exec_namespace['add_points'](10, 5)\n    if result != 15:\n        raise AssertionError(f'Task 3: add_points(10, 5) should return 15, got {result}')\nexcept TypeError:\n    raise AssertionError('Task 3: add_points should take two parameters (current_score, points)')\n\nprint('TEST_PASSED')"
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\n# Check player_score was updated\nif 'player_score' not in exec_namespace:\n    raise AssertionError('player_score variable not found')\n\nif exec_namespace['player_score'] != 25:\n    raise AssertionError(f'Task 3-4: player_score should be 25 after calling add_points, got {exec_namespace[\"player_score\"]}')\n\n# Check function exists and works\nif 'add_points' not in exec_namespace:\n    raise AssertionError('Task 3: add_points function not defined')\n\nif not callable(exec_namespace['add_points']):\n    raise AssertionError('Task 3: add_points should be a function')\n\n# Test the function\ntry:\n    result = exec_namespace['add_points'](10, 5)\n    if result != 15:\n        raise AssertionError(f'Task 3: add_points(10, 5) should return 15, got {result}')\nexcept TypeError:\n    raise AssertionError('Task 3: add_points should take two parameters (current_score, points)')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Compare both approaches",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Verify both methods achieved the goal\nif exec_namespace.get('game_score') != 10:\n    raise AssertionError('Part A (global) should result in game_score = 10')\n\nif exec_namespace.get('player_score') != 25:\n    raise AssertionError('Part B (return) should result in player_score = 25')\n\n# Both work! But Part B is cleaner and more Pythonic\nprint('TEST_PASSED')"
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\n# Verify both methods achieved the goal\nif exec_namespace.get('game_score') != 10:\n    raise AssertionError('Part A (global) should result in game_score = 10')\n\nif exec_namespace.get('player_score') != 25:\n    raise AssertionError('Part B (return) should result in player_score = 25')\n\n# Both work! But Part B is cleaner and more Pythonic\nprint('TEST_PASSED')"
     }
   ],
   "tags": ["function", "scope", "global", "return-values", "best-practices"],

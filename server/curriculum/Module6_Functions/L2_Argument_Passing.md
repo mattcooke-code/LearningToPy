@@ -28,8 +28,8 @@ Keyword arguments allow you to explicitly name which parameter each argument val
 
 ### Benefits of Keyword Arguments:
 
-1.  Clarity: Code is easier to read and understand.
-2.  Order Independence: You can pass the arguments in any order.
+1.  _Clarity:_ Code is easier to read and understand.
+2.  _Order Independence:_ You can pass the arguments in any order.
 
 ```python
 def set_settings(theme, font_size):
