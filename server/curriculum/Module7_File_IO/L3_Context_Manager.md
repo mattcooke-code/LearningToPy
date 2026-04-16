@@ -23,12 +23,8 @@ print("File operation complete. File is closed.")
 
 The main advantage of `with open(...)` is that it guarantees the file's `.close()` method is called.
 
-:::note
-
-1. **Normal Execution**: When the code reaches the end of the `with` block.
-
-2. **Exception/Error**: If an error (exception) occurs inside the `with` block, the file is still closed before the program crashes or the exception is handled by a `try/except` block.
-   :::
+- **Normal Execution**: When the code reaches the end of the `with` block.
+- **Exception/Error**: If an error (exception) occurs inside the `with` block, the file is still closed before the program crashes or the exception is handled by a `try/except` block.
 
 ## 3. Comparing Approaches
 

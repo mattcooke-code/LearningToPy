@@ -85,10 +85,6 @@ const ExerciseComponent = ({
     setTestResults(null);
 
     try {
-      console.log("🔍 Validating code:", userCode.substring(0, 100) + "...");
-      console.log("🔍 Exercise validation type:", exercise.validation);
-      console.log("🔍 Exercise tests:", exercise.tests?.length || 0);
-
       // Pyodide Validation
       const validationResult = await validateWithPyodide(
         userCode,
@@ -107,7 +103,7 @@ const ExerciseComponent = ({
         setIsRunning(false);
         return;
       }
-      console.log("🔍 Validation result:", validationResult);
+
       // If local validation passes, send to backend
       const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
 
@@ -176,9 +172,33 @@ const ExerciseComponent = ({
     downloadPythonFile(userCode, "exercise");
   };
 
-  const handleTerminalExecute = (result) => {
-    console.log("Terminal execution:", result);
-  };
+  const handleTerminalExecute = useCallback(
+    (code) => {
+      // Build file setup code if needed
+      let fullTerminalCode = code;
+      if (exercise.fileSetup) {
+        const fileSetupLines = [];
+        for (const [filename, content] of Object.entries(exercise.fileSetup)) {
+          const escapedContent = content
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'")
+            .replace(/\n/g, "\\n");
+          fileSetupLines.push(
+            `with open('${filename}', 'w') as f:\n    f.write('${escapedContent}')`,
+          );
+        }
+        fullTerminalCode = fileSetupLines.join("\n") + "\n\n" + code;
+      }
+
+      // Execute the combined code
+      runCode(fullTerminalCode).then((result) => {
+        if (!result.success) {
+          console.error("Terminal execution error:", result.error);
+        }
+      });
+    },
+    [exercise.fileSetup, runCode],
+  );
 
   return (
     <div

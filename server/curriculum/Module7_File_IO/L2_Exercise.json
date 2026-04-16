@@ -2,46 +2,33 @@
   "title": "Line-by-Line Reading",
   "instructions": "Practice reading file contents line by line using different methods. Learn how file pointers work and when you need to reopen files.",
   "steps": [
-    "Open the file `shopping_list.txt` in read mode and assign it to `f_handle`.",
-    "Use a **`for` loop** to iterate over `f_handle`. Inside the loop, print each line after stripping whitespace, and track the last processed line in `last_item_stripped`.",
-    "Close `f_handle` - the file pointer is now at the end, so we need a fresh start.",
-    "Re-open the file `shopping_list.txt` and assign the new handle to `f_lines`.",
-    "Use **`.readlines()`** to read all lines into `all_items_list`.",
-    "Close `f_lines`."
+    "**Step 1:** Open the file `shopping_list.txt` in read mode (`'r'`) and assign the file object to `f_handle`.",
+    "**Step 2:** Initialize `last_item_stripped` as an empty string. Use a `for` loop to iterate over `f_handle`. Inside the loop, use `.strip()` on each line to remove whitespace and the newline character `\\n`. Print the stripped line, and update `last_item_stripped` with the stripped value.",
+    "**Step 3:** Close `f_handle` using `.close()`. The file pointer is now at the end, so we need a fresh start to read again.",
+    "**Step 4:** Re-open `shopping_list.txt` in read mode and assign the new file object to `f_lines`.",
+    "**Step 5:** Use the `.readlines()` method on `f_lines` to read all remaining lines into a list. Store this list in `all_items_list`.",
+    "**Step 6:** Close `f_lines` using `.close()`."
   ],
-  "starterCode": "# The file 'shopping_list.txt' is available.\n\n# 1. Open the file for iteration:\nf_handle = \n\n# 2. Iterate through file, strip/print lines, track last item:\nlast_item_stripped = ''\n\n\n# 3. Close the first handle:\n\n\n# 4. Re-open for .readlines():\nf_lines = \n\n# 5. Read all lines into a list:\nall_items_list = \n\n# 6. Close the second handle:",
-  "solution": "# The file 'shopping_list.txt' is available.\n\n# 1. Open the file for iteration:\nf_handle = open('shopping_list.txt', 'r')\n\n# 2. Iterate through file, strip/print lines, track last item:\nlast_item_stripped = ''\nfor line in f_handle:\n    stripped_line = line.strip()\n    print(stripped_line)\n    last_item_stripped = stripped_line\n\n# 3. Close the first handle:\nf_handle.close()\n\n# 4. Re-open for .readlines():\nf_lines = open('shopping_list.txt', 'r')\n\n# 5. Read all lines into a list:\nall_items_list = f_lines.readlines()\n\n# 6. Close the second handle:\nf_lines.close()",
+  "starterCode": "# The file 'shopping_list.txt' is available.\n\n# Step 1: Open the file for iteration\nf_handle = ???\n\n# Step 2: Iterate through file, strip/print lines, track last item\nlast_item_stripped = ???\n\n\n# Step 3: Close the first handle\n\n\n# Step 4: Re-open for .readlines()\nf_lines = ???\n\n# Step 5: Read all lines into a list\nall_items_list = ???\n\n# Step 6: Close the second handle\n",
+  "solution": "# The file 'shopping_list.txt' is available.\n\n# Step 1: Open the file for iteration\nf_handle = open('shopping_list.txt', 'r')\n\n# Step 2: Iterate through file, strip/print lines, track last item\nlast_item_stripped = ''\nfor line in f_handle:\n    stripped_line = line.strip()\n    print(stripped_line)\n    last_item_stripped = stripped_line\n\n# Step 3: Close the first handle\nf_handle.close()\n\n# Step 4: Re-open for .readlines()\nf_lines = open('shopping_list.txt', 'r')\n\n# Step 5: Read all lines into a list\nall_items_list = f_lines.readlines()\n\n# Step 6: Close the second handle\nf_lines.close()\n",
   "fileSetup": {
     "shopping_list.txt": "Milk\nEggs\nBread\nCheese"
   },
   "hints": [
-    "**Step 2 (Stripping)**: Inside your loop, use `line.strip()` to remove the hidden `\\n` at the end of each item. You can assign this to a variable like `clean_name = line.strip()` before printing.",
-    "**Tracking the last item**: To keep track of the last item, simply update your `last_item_stripped` variable inside the loop. By the time the loop finishes, it will hold the value of the final line.",
-    "**The 'Invisible Cursor'**: Think of the file pointer as a cursor. After your `for` loop finishes, that cursor is stuck at the very end of the file. If you try to call `.readlines()` immediately, you'll get an empty list because there is nothing left to read!",
-    "**Starting Over**: To move the 'cursor' back to the start, the easiest way is to `close()` the current file handle and `open()` it again under a new variable name.",
-    "**Iteration Syntax**: Remember the pattern: `for line in f_handle:`—this automatically pulls one line at a time until the file is empty."
+    "**Step 1:** Use `open('shopping_list.txt', 'r')` to open the file.",
+    "**Step 2:** Loop with `for line in f_handle:`. Inside, use `stripped = line.strip()` to remove `\\n`. Print the stripped line, then `last_item_stripped = stripped`.",
+    "**Step 3:** Call `f_handle.close()` - the file pointer is now at the end!",
+    "**Step 4:** Open again with `f_lines = open('shopping_list.txt', 'r')` to reset the pointer.",
+    "**Step 5:** Use `all_items_list = f_lines.readlines()` to get all lines as a list.",
+    "**Step 6:** Always close files: `f_lines.close()`",
+    "**Why reopen?** After the `for` loop finishes, the file pointer is at the end. Calling `.readlines()` without reopening would return an empty list!"
   ],
   "validation": "tests",
+
   "tests": [
     {
-      "name": "Check file iteration with for loop",
-      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue().strip()\n    \n    # Check output contains all items stripped\n    lines = [line.strip() for line in output.split('\\n') if line.strip()]\n    assert 'Milk' in lines, 'Should print Milk'\n    assert 'Eggs' in lines, 'Should print Eggs'\n    assert 'Bread' in lines, 'Should print Bread'\n    assert 'Cheese' in lines, 'Should print Cheese'\n    \n    # Check for loop over file object\n    tree = ast.parse(code)\n    for_loop_found = False\n    file_iteration = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.For):\n            for_loop_found = True\n            # Check it iterates over a file variable\n            if isinstance(node.iter, ast.Name):\n                file_iteration = True\n    \n    assert for_loop_found, 'Should use for loop for iteration'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: File iterated line by line with for loop')",
-      "expected": "Should iterate through file with for loop and print stripped lines"
-    },
-    {
-      "name": "Check .strip() usage and last_item tracking",
-      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check last_item_stripped variable\n    last_item = exec_globals.get('last_item_stripped', '')\n    assert last_item == 'Cheese', f'last_item_stripped should be \"Cheese\", got \"{last_item}\"'\n    \n    # Check .strip() method is used\n    tree = ast.parse(code)\n    strip_method_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'strip':\n                strip_method_found = True\n    \n    assert strip_method_found, 'Should use .strip() method on lines'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: Lines stripped and last item tracked correctly')",
-      "expected": "Should use .strip() and track last_item_stripped as 'Cheese'"
-    },
-    {
-      "name": "Check file closing and reopening",
-      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check file is opened twice (reopened)\n    tree = ast.parse(code)\n    open_calls = []\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if isinstance(node.func, ast.Name) and node.func.id == 'open':\n                open_calls.append(node)\n    \n    assert len(open_calls) >= 2, f'Should open file at least twice (close and reopen), got {len(open_calls)} calls'\n    \n    # Check both files are closed\n    close_calls = []\n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'close':\n                close_calls.append(node)\n    \n    assert len(close_calls) >= 2, f'Should close both file handles, got {len(close_calls)} close calls'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: File closed and reopened correctly')",
-      "expected": "Should close first handle and reopen file for .readlines()"
-    },
-    {
-      "name": "Check .readlines() usage and list content",
-      "code": "import io\nimport sys\nimport ast\nimport os\n\n# Create the test file\nwith open('shopping_list.txt', 'w') as f:\n    f.write('Milk\\nEggs\\nBread\\nCheese')\n\ntry:\n    old_stdout = sys.stdout\n    sys.stdout = io.StringIO()\n    \n    exec_globals = {}\n    exec(code, exec_globals)\n    \n    # Check all_items_list variable\n    all_items = exec_globals.get('all_items_list', [])\n    assert isinstance(all_items, list), 'all_items_list should be a list'\n    assert len(all_items) == 4, f'Should have 4 items in list, got {len(all_items)}'\n    \n    # Check list contains expected content (with newlines)\n    assert 'Milk\\n' in all_items or 'Milk' in all_items[0], 'First item should be Milk'\n    assert 'Cheese' in all_items[-1] or 'Cheese\\n' in all_items[-1], 'Last item should be Cheese'\n    \n    # Check .readlines() method is used\n    tree = ast.parse(code)\n    readlines_found = False\n    \n    for node in ast.walk(tree):\n        if isinstance(node, ast.Call):\n            if hasattr(node.func, 'attr') and node.func.attr == 'readlines':\n                readlines_found = True\n    \n    assert readlines_found, 'Should use .readlines() method'\n    \nfinally:\n    sys.stdout = old_stdout\n    # Clean up test file\n    if os.path.exists('shopping_list.txt'):\n        os.remove('shopping_list.txt')\n\nprint('TEST_PASSED: .readlines() used correctly, list contains file lines')",
-      "expected": "Should use .readlines() to get list of file lines"
+      "name": "Check file operations",
+      "code": "# File already created by validationUtils\n# Check variables\nif 'f_handle' not in globals():\n    raise AssertionError('Step 1: f_handle variable not found')\nif 'last_item_stripped' not in globals():\n    raise AssertionError('Step 2: last_item_stripped variable not found')\nif 'f_lines' not in globals():\n    raise AssertionError('Step 4: f_lines variable not found')\nif 'all_items_list' not in globals():\n    raise AssertionError('Step 5: all_items_list variable not found')\n\n# Check output\nif 'Milk' not in output:\n    raise AssertionError('Step 2: Should print \"Milk\"')\nif 'Cheese' not in output:\n    raise AssertionError('Step 2: Should print \"Cheese\"')\n\n# Check last item\nif last_item_stripped != 'Cheese':\n    raise AssertionError(f'Step 2: last_item_stripped should be \"Cheese\", got \"{last_item_stripped}\"')\n\n# Check all_items_list\nif not isinstance(all_items_list, list):\n    raise AssertionError('Step 5: all_items_list should be a list')\nif len(all_items_list) != 4:\n    raise AssertionError(f'Step 5: all_items_list should have 4 items, got {len(all_items_list)}')\n\n# Check method usage\nif '.close()' not in student_code or student_code.count('.close()') < 2:\n    raise AssertionError('Steps 3 & 6: Should call .close() twice')\nif '.readlines()' not in student_code:\n    raise AssertionError('Step 5: Should use .readlines()')\nif '.strip()' not in student_code:\n    raise AssertionError('Step 2: Should use .strip()')\n\nprint('TEST_PASSED')"
     }
   ],
   "expectedOutput": "Milk\nEggs\nBread\nCheese",

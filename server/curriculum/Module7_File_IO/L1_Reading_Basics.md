@@ -22,7 +22,9 @@ file_object = open(file_path, mode)
 | `'w'` | **Write**  | Used for writing data. **⚠️ CAUTION**: Overwrites the file if it exists! | ✅ Creates a new file           |
 | `'a'` | **Append** | Used for adding new data to the end of the file.                         | ✅ Creates a new file           |
 
+:::note
 For reading a plain text file, we typically use the `'r'` mode.
+:::
 
 ## 2. Reading the Entire File: `.read()`
 
@@ -48,6 +50,8 @@ print(file_content)  # Output: Hello, World!\nWelcome to Python.\n
 
 # 4. CRITICAL: Close the file
 file_handle.close()
+
+# NOTE: \n denotes a new line
 ```
 
 ## 3. The Crucial Step: Closing the File
@@ -82,6 +86,6 @@ While the manual `open()/close()` pattern works and helps you understand the fil
 - The default mode is `'r'` (Read). Use `'w'` (Write) to start fresh, or `'a'` (Append) to add to existing data.
 - The `.read()` method pulls the entire content of a file into a single string.
 - **CRITICAL:** You must call `.close()` to release system resources and ensure all data is safely saved to the disk.
-- While manual closing is foundational, modern Python usually automates this with the `with` statement (coming in L7.3).
+- While manual closing is foundational, modern Python usually automates this using the `with` statement (coming in L7.3).
 
 :::

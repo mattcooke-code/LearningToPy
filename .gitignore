@@ -97,3 +97,5 @@ dist-ssr/
 # Uploads folder/photos
 /server/uploads/
 
+# Python temp files
+shared/Test.py

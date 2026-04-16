@@ -31,7 +31,7 @@ When `.readline()` reaches the end of the file, it returns an empty string (`""`
 
 ## 2. Reading All Lines into a List: `.readlines()`
 
-The `.readlines()` method reads the entire file content, but it returns a **list of strings**, where each string is one line from the file (including the `\n`). This is useful if you need to sort the name or access them bu index.
+The `.readlines()` method reads the entire file content, but it returns a **list of strings**, where each string is one line from the file (including the `\n`). This is useful if you need to sort the name or access them by index.
 
 ```python
 file_handle = open('station_records.txt', 'r')

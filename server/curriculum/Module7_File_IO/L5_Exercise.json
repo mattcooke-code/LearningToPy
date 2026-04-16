@@ -1,53 +1,47 @@
 {
   "title": "Log File Processing Project",
-  "instructions": "Read data from `server_log_raw.txt`, filter for '200' status codes, and write the cleaned URLs to `clean_urls.txt`.",
+  "instructions": "Read data from `server_log_raw.txt`, filter for '200' status codes, and write the cleaned URLs to `clean_urls.txt`. This project combines everything you've learned about file I/O!",
   "steps": [
-    "Initialize an empty list called `success_urls` (completed).",
-    "Use `with open()` to open `server_log_raw.txt` in read mode (`'r'`) as `infile`.",
-    "Inside the `with` block, iterate through `infile` line by line.",
-    "For each line, check if the line starts with the string `\"200|\"`.",
-    "If the check passes, strip the line, split it by `|`, and append the URL (the second element) to the `success_urls` list.",
-    "Use a **second** `with open()` block to open `clean_urls.txt` in write mode (`'w'`) as `outfile`.",
-    "Inside the second block, iterate through the `success_urls` list.",
-    "For each `url` in the list, write the `url` followed by a newline character (`\\n`) to `outfile`."
+    "**Step 1:** Initialize an empty list called `success_urls` (already done for you).",
+    "**Step 2:** Use `with open()` to open `server_log_raw.txt` in read mode (`'r'`) and assign the file object to `infile`.",
+    "**Step 3:** Inside the `with` block, use a `for` loop to iterate through `infile` line by line.",
+    "**Step 4:** For each line, check if it starts with the string `\"200|\"` using the `.startswith()` method.",
+    "**Step 5:** If the check passes: use `.strip()` to remove the newline, then `.split('|')` to separate the status code from the URL. The URL is the second element (index `[1]`). Append it to `success_urls`.",
+    "**Step 6:** Use a second `with open()` block to open `clean_urls.txt` in write mode (`'w'`) and assign the file object to `outfile`.",
+    "**Step 7:** Inside the second block, loop through `success_urls`. For each URL, write it to `outfile` followed by a newline character (`\\n`).",
+    "**Step 8:** Print `f\"Processed {len(success_urls)} successful URLs\"` to show how many were found."
   ],
-  "starterCode": "success_urls = []\n\n# 1. Read and process the raw log file:\n\n\n\n\n# 2. Write the cleaned URLs to the new file:\n\n",
-  "solution": "success_urls = []\n\n# 1. Read and process the raw log file:\nwith open('server_log_raw.txt', 'r') as infile:\n    for line in infile:\n        if line.startswith('200|'):\n            parts = line.strip().split('|')\n            success_urls.append(parts[1])\n\n# 2. Write the cleaned URLs to the new file:\nwith open('clean_urls.txt', 'w') as outfile:\n    for url in success_urls:\n        outfile.write(url + '\\n')",
+  "starterCode": "success_urls = []\n\n# Step 2-5: Read and filter the log file\n\n\n\n\n\n# Step 6-7: Write the cleaned URLs to a new file\n\n\n\n\n# Step 8: Print processing summary\n\n",
+  "solution": "success_urls = []\n\n# Step 2-5: Read and filter the log file\nwith open('server_log_raw.txt', 'r') as infile:\n    for line in infile:\n        if line.startswith('200|'):\n            parts = line.strip().split('|')\n            success_urls.append(parts[1])\n\n# Step 6-7: Write the cleaned URLs to a new file\nwith open('clean_urls.txt', 'w') as outfile:\n    for url in success_urls:\n        outfile.write(url + '\\n')\n\n# Step 8: Print processing summary\nprint(f\"Processed {len(success_urls)} successful URLs\")\n",
   "fileSetup": {
-    "server_log_raw.txt": "404|/image/logo.png\n200|/api/v1/profile/data\n200|/products/listing\n500|/admin/internal/error\n200|/checkout/process\n403|/secret/page"
+    "server_log_raw.txt": "404|/image/logo.png\n200|/api/v1/profile/data\n200|/products/listing\n500|/admin/internal/error\n200|/checkout/process\n403|/secret/page\n"
   },
-  "expectedOutputFiles": {
-    "clean_urls.txt": "/api/v1/profile/data\n/products/listing\n/checkout/process\n"
-  },
+  "hints": [
+    "**Step 2:** Use `with open('server_log_raw.txt', 'r') as infile:` to open the log file.",
+    "**Step 3:** Loop with `for line in infile:` - each line looks like `'200|/some/url\\n'`.",
+    "**Step 4:** Check for success codes with `if line.startswith('200|'):`",
+    "**Step 5:** First `.strip()` removes `\\n`, then `.split('|')` breaks the string at the pipe character. The URL is at index `[1]`.",
+    "**Step 6:** Use `with open('clean_urls.txt', 'w') as outfile:` to create the output file.",
+    "**Step 7:** Loop through `success_urls` and write each one with `outfile.write(url + '\\n')`.",
+    "**Step 8:** Use an f-string: `print(f\"Processed {len(success_urls)} successful URLs\")`",
+    "**Expected result:** There are 3 lines starting with '200|' in the input file."
+  ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check log filtering and URL extraction",
-      "code": "import os\n\n# Set up the input file\nlog_content = '404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n'\nwith open('server_log_raw.txt', 'w') as f:\n    f.write(log_content)\n\n# Run the user's code\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Check success_urls list\nif 'success_urls' not in exec_namespace:\n    raise AssertionError('success_urls list not found')\n\nurls = exec_namespace['success_urls']\n\nif not isinstance(urls, list):\n    raise AssertionError('success_urls should be a list')\n\nif len(urls) != 3:\n    raise AssertionError(f'success_urls should contain 3 URLs (lines starting with 200|), got {len(urls)}')\n\nif '/api/v1/profile/data' not in urls:\n    raise AssertionError('success_urls should contain /api/v1/profile/data')\nif '/products/listing' not in urls:\n    raise AssertionError('success_urls should contain /products/listing')\nif '/checkout/process' not in urls:\n    raise AssertionError('success_urls should contain /checkout/process')\n\nprint('TEST_PASSED')"
+      "code": "# Check variables exist\nif 'success_urls' not in globals():\n    raise AssertionError('Step 1: success_urls list not found')\n\nif not isinstance(success_urls, list):\n    raise AssertionError('Step 1: success_urls should be a list')\n\nif len(success_urls) != 3:\n    raise AssertionError(f'Step 5: success_urls should contain 3 URLs (lines starting with 200|), got {len(success_urls)}')\n\n# Check correct URLs were extracted\nif '/api/v1/profile/data' not in success_urls:\n    raise AssertionError('Step 5: success_urls should contain \"/api/v1/profile/data\"')\nif '/products/listing' not in success_urls:\n    raise AssertionError('Step 5: success_urls should contain \"/products/listing\"')\nif '/checkout/process' not in success_urls:\n    raise AssertionError('Step 5: success_urls should contain \"/checkout/process\"')\n\n# Check non-200 URLs were excluded\nif '/image/logo.png' in success_urls:\n    raise AssertionError('Step 4: 404 URL should NOT be in success_urls')\nif '/admin/internal/error' in success_urls:\n    raise AssertionError('Step 4: 500 URL should NOT be in success_urls')\nif '/secret/page' in success_urls:\n    raise AssertionError('Step 4: 403 URL should NOT be in success_urls')\n\n# Check correct methods were used\nif '.startswith(' not in student_code:\n    raise AssertionError('Step 4: Should use .startswith() to check for \"200|\"')\n\nif '.split(' not in student_code:\n    raise AssertionError('Step 5: Should use .split(\"|\") to separate status and URL')\n\nif '.strip()' not in student_code:\n    raise AssertionError('Step 5: Should use .strip() to remove newlines')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check output file was written correctly",
-      "code": "import os\n\n# Set up the input file\nlog_content = '404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n'\nwith open('server_log_raw.txt', 'w') as f:\n    f.write(log_content)\n\n# Run the user's code\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\n# Check clean_urls.txt was created\nif not os.path.exists('clean_urls.txt'):\n    raise AssertionError('clean_urls.txt was not created. Did you write the second with open() block?')\n\n# Read and check the output file\nwith open('clean_urls.txt', 'r') as f:\n    content = f.read()\n\nlines = [line.strip() for line in content.split('\\n') if line.strip()]\n\nif len(lines) != 3:\n    raise AssertionError(f'clean_urls.txt should contain 3 URLs, got {len(lines)}')\n\nif '/api/v1/profile/data' not in lines:\n    raise AssertionError('clean_urls.txt should contain /api/v1/profile/data')\nif '/products/listing' not in lines:\n    raise AssertionError('clean_urls.txt should contain /products/listing')\nif '/checkout/process' not in lines:\n    raise AssertionError('clean_urls.txt should contain /checkout/process')\n\nprint('TEST_PASSED')"
+      "name": "Check output file creation",
+      "code": "# Check output file was created\nimport os\nif not os.path.exists('clean_urls.txt'):\n    raise AssertionError('Step 6: clean_urls.txt was not created. Did you write the second with open() block?')\n\n# Read and check the output file\nwith open('clean_urls.txt', 'r') as f:\n    content = f.read()\n\nlines = [line.strip() for line in content.split('\\n') if line.strip()]\n\nif len(lines) != 3:\n    raise AssertionError(f'Step 7: clean_urls.txt should contain 3 URLs, got {len(lines)}')\n\nif '/api/v1/profile/data' not in lines:\n    raise AssertionError('Step 7: clean_urls.txt should contain \"/api/v1/profile/data\"')\nif '/products/listing' not in lines:\n    raise AssertionError('Step 7: clean_urls.txt should contain \"/products/listing\"')\nif '/checkout/process' not in lines:\n    raise AssertionError('Step 7: clean_urls.txt should contain \"/checkout/process\"')\n\n# Check write mode was used\nif \"'w'\" not in student_code and '\"w\"' not in student_code:\n    raise AssertionError('Step 6: Should open output file in write mode (\\'w\\')')\n\n# Check .write() was used\nif '.write(' not in student_code:\n    raise AssertionError('Step 7: Should use .write() to write URLs to file')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check non-200 codes are excluded",
-      "code": "import os\n\n# Set up the input file\nlog_content = '404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n'\nwith open('server_log_raw.txt', 'w') as f:\n    f.write(log_content)\n\n# Run the user's code\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nurls = exec_namespace.get('success_urls', [])\n\n# Make sure non-200 URLs were excluded\nif '/image/logo.png' in urls:\n    raise AssertionError('404 URL should NOT be in success_urls')\nif '/admin/internal/error' in urls:\n    raise AssertionError('500 URL should NOT be in success_urls')\nif '/secret/page' in urls:\n    raise AssertionError('403 URL should NOT be in success_urls')\n\n# Also verify in the output file if it exists\nif os.path.exists('clean_urls.txt'):\n    with open('clean_urls.txt', 'r') as f:\n        content = f.read()\n    if '/image/logo.png' in content:\n        raise AssertionError('clean_urls.txt should not contain 404 URLs')\n    if '/admin/internal/error' in content:\n        raise AssertionError('clean_urls.txt should not contain 500 URLs')\n\nprint('TEST_PASSED')"
+      "name": "Check summary output",
+      "code": "# Check the summary was printed\nif 'Processed 3 successful URLs' not in output:\n    raise AssertionError('Step 8: Should print \"Processed 3 successful URLs\"')\n\n# Check len() was used\nif 'len(success_urls)' not in student_code and 'len( success_urls )' not in student_code:\n    raise AssertionError('Step 8: Should use len(success_urls) to count URLs')\n\n# Check with statement was used for both files\nwith_count = student_code.count('with open')\nif with_count < 2:\n    raise AssertionError(f'Should use \"with open()\" twice (once for reading, once for writing), found {with_count}')\n\nprint('TEST_PASSED')"
     }
   ],
-  "expectedOutput": "",
-  "hints": [
-    "Step 2: Open the file using `with open('server_log_raw.txt', 'r') as infile:` then loop with `for line in infile:`",
-    "Step 3: Each line looks like '200|/some/url' - use `.startswith()` to check if the line begins with the status code you want",
-    "Step 3: Remember from the lesson - `.startswith('FRESH')` checked for fruit orders. What would you check for here?",
-    "Step 4: Before splitting, use `.strip()` to remove the trailing newline character from the line",
-    "Step 4: Use `.split('|')` to break the line into a list - think about which index holds the URL (it's not index 0!)",
-    "Step 5: Open the output file using `with open('clean_urls.txt', 'w') as outfile:`",
-    "Step 6: When writing each URL, remember to add `+ '\\n'` so each URL appears on its own line"
-  ],
-  "bonusChallenge": {
-    "description": "Enhance your solution to count and print statistics about the processing.",
-    "solution": "success_urls = []\nstatus_counts = {}\n\nwith open('server_log_raw.txt', 'r') as infile:\n    for line in infile:\n        parts = line.strip().split('|')\n        status = parts[0]\n        status_counts[status] = status_counts.get(status, 0) + 1\n        if status == '200':\n            success_urls.append(parts[1])\n\nwith open('clean_urls.txt', 'w') as outfile:\n    for url in success_urls:\n        outfile.write(url + '\\n')\n\nprint(f'Processed {len(success_urls)} successful URLs')\nprint(f'Status code distribution: {status_counts}')"
-  },
+  "expectedOutput": "Processed 3 successful URLs",
   "tags": [
     "project",
     "file-io",

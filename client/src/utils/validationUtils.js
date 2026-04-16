@@ -51,7 +51,7 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
   const validationResults = [];
 
   for (const test of tests) {
-    const testResult = await runSingleTest(userCode, test, runCode);
+    const testResult = await runSingleTest(userCode, test, runCode, exercise); // ← ADD exercise parameter
     validationResults.push(testResult);
 
     if (!testResult.passed) {
@@ -75,37 +75,105 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
 };
 
 /**
+ * Get file creation code for specific exercises
+ * Add new entries here as you create more file-based exercises
+ */
+const getFileCreationCode = (exercise) => {
+  const title = exercise.title || "";
+  const challengeGroup = exercise.challengeGroup || "";
+
+  // Lesson 7.1 - Opening and Reading Files
+  if (
+    title.includes("Opening and Reading Files") ||
+    challengeGroup === "file-reading-basics"
+  ) {
+    return `
+# Create messages.txt for Lesson 7.1
+with open('messages.txt', 'w') as f:
+    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')
+`;
+  }
+
+  // Lesson 7.2 - Line-by-Line Reading
+  if (
+    title.includes("Line-by-Line Reading") ||
+    challengeGroup === "file-line-processing"
+  ) {
+    return `
+# Create shopping_list.txt for Lesson 7.2
+with open('shopping_list.txt', 'w') as f:
+    f.write('Milk\\nEggs\\nBread\\nCheese')
+`;
+  }
+
+  // Lesson 7.3 - Using the With Statement
+  if (
+    title.includes("Using the With Statement") ||
+    challengeGroup === "context-manager"
+  ) {
+    return `
+# Create settings.conf for Lesson 7.3
+with open('settings.conf', 'w') as f:
+    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')
+`;
+  }
+
+  // Lesson 7.4 - Writing and Appending Data
+  if (
+    title.includes("Writing and Appending Data") ||
+    challengeGroup === "file-writing"
+  ) {
+    return `
+# Create empty data.txt for Lesson 7.4
+with open('data.txt', 'w') as f:
+    f.write('')
+`;
+  }
+
+  // Lesson 7.5 - Log File Processing Project
+  if (
+    title.includes("Log File Processing") ||
+    challengeGroup === "file-io-project"
+  ) {
+    return `
+# Create server_log_raw.txt for Lesson 7.5
+with open('server_log_raw.txt', 'w') as f:
+    f.write('404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n')
+`;
+  }
+
+  // Default: no file creation
+  return "";
+};
+
+/**
  * Run a single test case
  */
-const runSingleTest = async (userCode, test, runCode) => {
+const runSingleTest = async (userCode, test, runCode, exercise) => {
   try {
-    // Using JSON.stringify ensures the userCode is a perfectly escaped Python string
     const safeUserCode = JSON.stringify(userCode);
-    const safeTestName = JSON.stringify(test.name);
+    const fileCreationCode = getFileCreationCode(exercise);
 
     const fullCode = `
-import sys, io, ast
+import sys, io
 
-# Store the student's code for later inspection
+${fileCreationCode}
+
 student_code = ${safeUserCode}
 
-# Create string capture for output
 old_stdout = sys.stdout
 captured_output = io.StringIO()
 sys.stdout = captured_output
 
 try:
-    # Execute the student's code
     exec(compile(student_code, "<student_code>", "exec"), globals())
 except Exception as e:
     sys.stdout = old_stdout
     raise AssertionError(f"Error in your code: {str(e)}")
 
-# Restore stdout and get captured output
 sys.stdout = old_stdout
 output = captured_output.getvalue()
 
-# Now run the specific test
 ${test.code}
 `.trim();
 
