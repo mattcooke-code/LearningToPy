@@ -2,35 +2,39 @@
   "title": "Basic List Comprehensions",
   "instructions": "Practice transforming data using basic list comprehensions for common operations like squaring numbers, capitalizing strings, and type conversions.",
   "steps": [
-    "Create a list comprehension that squares each number in the range 1-5",
-    "Create a list comprehension that capitalizes each name in the list of lowercase names",
-    "Create a list comprehension that converts string numbers to integers",
-    "Create a list comprehension that extracts the **second element (y-coordinate)** from each tuple in a list of coordinates"
+    "**Task 1:** Create a list comprehension that squares each number from 1 to 5 inclusive. Print `squared`.",
+    "**Task 2:** Create a list comprehension that capitalizes each name in the list using the `.title()` method. Print `capitalized`.",
+    "**Task 3:** Create a list comprehension that converts string numbers to integers. Print `integers`.",
+    "**Task 4:** Create a list comprehension that extracts the **second element (y-coordinate)** from each tuple in the coordinates list. Print `y_coords`."
   ],
-  "starterCode": "numbers = [1, 2, 3, 4, 5]\nnames = [\"alice\", \"bob\", \"charlie\"]\nstring_numbers = [\"10\", \"20\", \"30\"]\ncoordinates = [(1, 2), (3, 4), (5, 6)]\n\n# 1. Square numbers 1-5:\nsquared = \n\n# 2. Capitalize names:\ncapitalized = \n\n# 3. Convert strings to integers:\nintegers = \n\n# 4. Extract y-coordinates:\ny_coords = ",
-  "solution": "numbers = [1, 2, 3, 4, 5]\nnames = [\"alice\", \"bob\", \"charlie\"]\nstring_numbers = [\"10\", \"20\", \"30\"]\ncoordinates = [(1, 2), (3, 4), (5, 6)]\n\n# 1. Square numbers 1-5:\nsquared = [x**2 for x in numbers]\n\n# 2. Capitalize names:\ncapitalized = [name.title() for name in names]\n\n# 3. Convert strings to integers:\nintegers = [int(num) for num in string_numbers]\n\n# 4. Extract y-coordinates:\ny_coords = [y for x, y in coordinates]",
+  "starterCode": "numbers = [1, 2, 3, 4, 5]\nnames = [\"wei\", \"amara\", \"sofia\"]\nstring_numbers = [\"10\", \"20\", \"30\"]\ncoordinates = [(1, 2), (3, 4), (5, 6)]\n\n# Task 1: Square numbers 1-5\nsquared = ???\n\n# Task 2: Capitalize names using .title()\ncapitalized = ???\n\n# Task 3: Convert strings to integers\nintegers = ???\n\n# Task 4: Extract y-coordinates\ny_coords = ???\n",
+  "solution": "numbers = [1, 2, 3, 4, 5]\nnames = [\"wei\", \"amara\", \"sofia\"]\nstring_numbers = [\"10\", \"20\", \"30\"]\ncoordinates = [(1, 2), (3, 4), (5, 6)]\n\n# Task 1: Square numbers 1-5\nsquared = [x**2 for x in numbers]\n\n# Task 2: Capitalize names using .title()\ncapitalized = [name.title() for name in names]\n\n# Task 3: Convert strings to integers\nintegers = [int(num) for num in string_numbers]\n\n# Task 4: Extract y-coordinates\ny_coords = [y for x, y in coordinates]\n",
   "validation": "tests",
   "tests": [
     {
       "name": "Task 1: Square numbers",
-      "code": "if 'squared' not in locals():\n    raise AssertionError('Missing squared variable')\n\nif not isinstance(squared, list):\n    raise AssertionError('squared should be a list')\n\nif squared != [1, 4, 9, 16, 25]:\n    raise AssertionError(f'Expected [1, 4, 9, 16, 25], got {squared}')\n\n# Check if comprehension was used (no explicit loop)\nimport ast\ntree = ast.parse(code)\nhas_comprehension = any(isinstance(node, ast.ListComp) for node in ast.walk(tree))\nif not has_comprehension:\n    raise AssertionError('Use a list comprehension, not a manual loop')\n\nprint('TEST_PASSED')"
+      "code": "if 'squared' not in globals():\n    raise AssertionError('Task 1: Missing squared variable')\n\nif not isinstance(squared, list):\n    raise AssertionError('Task 1: squared should be a list')\n\nif squared != [1, 4, 9, 16, 25]:\n    raise AssertionError(f'Task 1: Expected [1, 4, 9, 16, 25], got {squared}')\n\nif '[' not in student_code or 'for' not in student_code:\n    raise AssertionError('Task 1: Use a list comprehension with [ and for')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Task 2: Capitalize names",
-      "code": "if 'capitalized' not in locals():\n    raise AssertionError('Missing capitalized variable')\n\nif not isinstance(capitalized, list):\n    raise AssertionError('capitalized should be a list')\n\nif capitalized != ['Alice', 'Bob', 'Charlie']:\n    raise AssertionError(f'Expected [\"Alice\", \"Bob\", \"Charlie\"], got {capitalized}')\n\nprint('TEST_PASSED')"
+      "code": "if 'capitalized' not in globals():\n    raise AssertionError('Task 2: Missing capitalized variable')\n\nif not isinstance(capitalized, list):\n    raise AssertionError('Task 2: capitalized should be a list')\n\nif capitalized != ['Wei', 'Amara', 'Sofia']:\n    raise AssertionError(f'Task 2: Expected [\"Wei\", \"Amara\", \"Sofia\"], got {capitalized}')\n\nif '.title()' not in student_code:\n    raise AssertionError('Task 2: Use the .title() method')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Task 3: Convert strings to integers",
-      "code": "if 'integers' not in locals():\n    raise AssertionError('Missing integers variable')\n\nif not isinstance(integers, list):\n    raise AssertionError('integers should be a list')\n\nif integers != [10, 20, 30]:\n    raise AssertionError(f'Expected [10, 20, 30], got {integers}')\n\n# Check they're actually integers\nfor i, val in enumerate(integers):\n    if not isinstance(val, int):\n        raise AssertionError(f'Item at index {i} should be int, got {type(val).__name__}')\n\nprint('TEST_PASSED')"
+      "code": "if 'integers' not in globals():\n    raise AssertionError('Task 3: Missing integers variable')\n\nif not isinstance(integers, list):\n    raise AssertionError('Task 3: integers should be a list')\n\nif integers != [10, 20, 30]:\n    raise AssertionError(f'Task 3: Expected [10, 20, 30], got {integers}')\n\nfor i, val in enumerate(integers):\n    if not isinstance(val, int):\n        raise AssertionError(f'Task 3: Item at index {i} should be int, got {type(val).__name__}')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Task 4: Extract y-coordinates",
-      "code": "if 'y_coords' not in locals():\n    raise AssertionError('Missing y_coords variable')\n\nif not isinstance(y_coords, list):\n    raise AssertionError('y_coords should be a list')\n\nif y_coords != [2, 4, 6]:\n    raise AssertionError(f'Expected [2, 4, 6], got {y_coords}')\n\n# Check tuple unpacking was used (ensure they didn't do [coord[1] for coord in coordinates])\ncode_str = code.replace(' ', '').replace('\\n', '')\nif 'coord[1]' in code_str or 't[1]' in code_str:\n    raise AssertionError('Use tuple unpacking: [y for x, y in coordinates]')\n\nprint('TEST_PASSED')"
+      "code": "if 'y_coords' not in globals():\n    raise AssertionError('Task 4: Missing y_coords variable')\n\nif not isinstance(y_coords, list):\n    raise AssertionError('Task 4: y_coords should be a list')\n\nif y_coords != [2, 4, 6]:\n    raise AssertionError(f'Task 4: Expected [2, 4, 6], got {y_coords}')\n\ncode_str = student_code.replace(' ', '').replace('\\n', '')\nif 'coord[1]' in code_str or 't[1]' in code_str:\n    raise AssertionError('Task 4: Use tuple unpacking: [y for x, y in coordinates]')\n\nprint('TEST_PASSED')"
     }
   ],
   "hints": [
-    "**Task 1: Squaring numbers**\n```python\n# Syntax: [expression for item in iterable]\n# Example: Get cubes of numbers\nnums = [1, 2, 3]\nresult = [x**3 for x in nums]  # [1, 8, 27]\n```\n\n**Task 2: Capitalizing strings**\n```python\n# Example: Convert to uppercase\nnames = ['john', 'jane']\nresult = [name.upper() for name in names]  # ['JOHN', 'JANE']\n\n# For Task 2, use .title() instead of .upper()\n```\n\n**Task 3: Type conversion**\n```python\n# Example: Convert strings to floats\nstr_nums = ['1.5', '2.7', '3.9']\nresult = [float(num) for num in str_nums]  # [1.5, 2.7, 3.9]\n\n# For Task 3, use int() instead of float()\n```\n\n**Task 4: Tuple unpacking**\n```python\n# Example: Extract first element from each tuple\npoints = [(10, 20), (30, 40), (50, 60)]\nresult = [x for x, y in points]  # [10, 30, 50]\n\n# For Task 4, extract y instead of x: [y for x, y in coordinates]\n```\n\n**General Tips:**\n- List comprehension syntax: `[expression for item in list]`\n- For tuple unpacking, you can use `[y for x, y in tuples]`\n- Each task's variable name is already provided - just assign the comprehension to it"
+    "**Task 1: Squaring numbers**\n```python\n# Example: Get cubes of numbers\nnums = [1, 2, 3]\nresult = [x**3 for x in nums]  # [1, 8, 27]\n```",
+    "**Task 2: Capitalizing strings**\n```python\n# Example from the lesson:\nword = \"hello\"\nletters = [char.upper() for char in word]\nprint(letters)  # ['H', 'E', 'L', 'L', 'O']\n\n# For Task 2, use .title() instead of .upper() on each name\n```",
+    "**Task 3: Type conversion**\n```python\n# Example: Convert strings to floats\nstr_nums = ['1.5', '2.7', '3.9']\nresult = [float(num) for num in str_nums]  # [1.5, 2.7, 3.9]\n\n# For Task 3, use int() instead of float()\n```",
+    "**Task 4: Tuple unpacking**\n```python\n# Example: Extract first element from each tuple\npoints = [(10, 20), (30, 40), (50, 60)]\nresult = [x for x, y in points]  # [10, 30, 50]\n\n# For Task 4, extract y instead of x: [y for x, y in coordinates]\n```"
   ],
+  "expectedOutput": "",
   "tags": ["list-comprehensions", "transformation", "pythonic", "iterables"],
   "challengeGroup": "comprehension-basics"
 }

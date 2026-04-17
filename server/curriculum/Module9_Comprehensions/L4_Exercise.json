@@ -2,52 +2,42 @@
   "title": "Nested Comprehensions & Advanced Patterns",
   "instructions": "Practice nested comprehensions, set comprehensions, and generator expressions to transform and process data efficiently.",
   "steps": [
-    "Use a nested list comprehension to flatten the 2D matrix into a single list",
-    "Create a 3×3 multiplication table using a nested list comprehension (rows 1-3, columns 1-3)",
-    "Use a set comprehension to find all unique vowels across all the words in the list",
-    "Use a generator expression to create a sequence of squares, then get the first 3 values from it",
-    "Create a nested dictionary using comprehension that maps each student to their average score across all subjects"
+    "**Task 1:** Use a nested list comprehension to flatten the 2D `matrix` into a single list. Print `flattened`.",
+    "**Task 2:** Create a 3×3 multiplication table using a nested list comprehension (rows 1-3, columns 1-3). Print `mult_table`.",
+    "**Task 3:** Use a nested set comprehension to find all unique vowels across all the words in the `words` list. Print `unique_vowels`.",
+    "**Task 4:** Use a nested list comprehension to extract all numbers greater than 5 from the 2D `matrix`. Print `large_numbers`.",
+    "**Task 5:** Create a coordinate grid as nested dictionaries where keys are x-coordinates and values are dictionaries of y-coordinates. Print `coordinate_grid`."
   ],
-  "starterCode": "# Given data\nmatrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n\nwords = ['apple', 'banana', 'cherry', 'grape', 'orange']\n\ngrades = {\n    'Alice': {'math': 85, 'science': 90, 'english': 88},\n    'Bob': {'math': 92, 'science': 88, 'english': 85},\n    'Charlie': {'math': 78, 'science': 82, 'english': 80}\n}\n\n# Task 1: Flatten the matrix\nflattened = \n\n# Task 2: Create 3x3 multiplication table\nmult_table = \n\n# Task 3: Find unique vowels in all words\nVOWELS = 'aeiou'\nunique_vowels = \n\n# Task 4: Generator for squares, get first 3\nsquares_gen = \nfirst_three_squares = \n\n# Task 5: Calculate average grade for each student\naverages = \n\nprint('Flattened:', flattened)\nprint('Multiplication table:', mult_table)\nprint('Unique vowels:', unique_vowels)\nprint('First three squares:', first_three_squares)\nprint('Averages:', averages)",
-  "solution": "# Given data\nmatrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n\nwords = ['apple', 'banana', 'cherry', 'grape', 'orange']\n\ngrades = {\n    'Alice': {'math': 85, 'science': 90, 'english': 88},\n    'Bob': {'math': 92, 'science': 88, 'english': 85},\n    'Charlie': {'math': 78, 'science': 82, 'english': 80}\n}\n\n# Task 1: Flatten the matrix\nflattened = [num for row in matrix for num in row]\n\n# Task 2: Create 3x3 multiplication table\nmult_table = [[row * col for col in range(1, 4)] for row in range(1, 4)]\n\n# Task 3: Find unique vowels in all words\nVOWELS = 'aeiou'\nunique_vowels = {char for word in words for char in word if char in VOWELS}\n\n# Task 4: Generator for squares, get first 3\nsquares_gen = (x**2 for x in range(1, 100))\nfirst_three_squares = [next(squares_gen) for _ in range(3)]\n\n# Task 5: Calculate average grade for each student\naverages = {\n    student: sum(scores.values()) / len(scores)\n    for student, scores in grades.items()\n}\n\nprint('Flattened:', flattened)\nprint('Multiplication table:', mult_table)\nprint('Unique vowels:', unique_vowels)\nprint('First three squares:', first_three_squares)\nprint('Averages:', averages)",
+  "starterCode": "# Given data\nmatrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\nwords = ['apple', 'banana', 'cherry', 'grape', 'orange']\n\n# Task 1: Flatten the matrix\nflattened = ???\n\n# Task 2: Create 3x3 multiplication table\nmult_table = ???\n\n# Task 3: Find unique vowels in all words\nVOWELS = 'aeiou'\nunique_vowels = ???\n\n# Task 4: Extract numbers > 5 from matrix\nlarge_numbers = ???\n\n# Task 5: Create coordinate grid (0-2 for both x and y)\n# Format: {x: {y: f\"({x},{y})\" for y in range(3)} for x in range(3)}\ncoordinate_grid = ???",
+  "solution": "# Given data\nmatrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\nwords = ['apple', 'banana', 'cherry', 'grape', 'orange']\n\n# Task 1: Flatten the matrix\nflattened = [num for row in matrix for num in row]\n\n# Task 2: Create 3x3 multiplication table\nmult_table = [[row * col for col in range(1, 4)] for row in range(1, 4)]\n\n# Task 3: Find unique vowels in all words\nVOWELS = 'aeiou'\nunique_vowels = {char for word in words for char in word if char in VOWELS}\n\n# Task 4: Extract numbers > 5 from matrix\nlarge_numbers = [num for row in matrix for num in row if num > 5]\n\n# Task 5: Create coordinate grid\ncoordinate_grid = {x: {y: f\"({x},{y})\" for y in range(3)} for x in range(3)}\n\n",
   "hints": [
-    "Task 1: The pattern for flattening is: [what_you_want for outer_item in outer_collection for inner_item in outer_item]",
-    "Task 1: Structure to use: `[i for j in matrix for i in j]`",
-    "Task 1: The outer loop gets each row from matrix, the inner loop gets each number from that row",
-    "Task 2: For creating a 2D structure, you need nested comprehensions: [[inner_expression for inner_loop] for outer_loop]",
-    "Task 2: The pattern is: `[[i * j for j in range(1, 4)] for i in range(1, 4)]`",
-    "Task 2: Outer comprehension creates rows (1, 2, 3), inner comprehension creates columns (1, 2, 3) and multiplies them",
-    "Task 3: Set comprehension uses curly braces and has the pattern: {what_you_want for outer_loop for inner_loop if condition}",
-    "Task 3: The structure is: `{letter for item in words for letter in item if letter in VOWELS}`",
-    "Task 3: Outer loop goes through words, inner loop goes through characters, filter keeps only vowels",
-    "Task 4: Generator expression uses parentheses: (expression for item in sequence)",
-    "Task 4: Create it like: `(i**2 for i in range(1, 100))`",
-    "Task 4: Get first 3 values: `[next(generator) for _ in range(3)]`",
-    "Task 5: Dictionary comprehension pattern: {key: value_expression for key, value in dictionary.items()}",
-    "Task 5: For averages: `{name: sum(data.values()) / len(data) for name, data in grades.items()}`",
-    "Task 5: The `sum()` function adds all values, `len()` counts them, dividing gives the average"
+    "**Task 1:** Pattern: `[num for row in matrix for num in row]` - outer loop gets rows, inner loop gets numbers.",
+    "**Task 2:** Nested list comprehension: `[[row * col for col in range(1, 4)] for row in range(1, 4)]`",
+    "**Task 3:** Set comprehension with nested loops: `{char for word in words for char in word if char in VOWELS}`",
+    "**Task 4:** Add an `if` condition to Task 1: `[num for row in matrix for num in row if num > 5]`",
+    "**Task 5:** Nested dictionary comprehension: `{x: {y: f\"({x},{y})\" for y in range(3)} for x in range(3)}`"
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check Task 1 - Flatten matrix",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'flattened' not in exec_namespace:\n    raise AssertionError('Task 1: flattened variable not found')\n\nflattened = exec_namespace['flattened']\n\nif not isinstance(flattened, list):\n    raise AssertionError('Task 1: flattened should be a list')\n\nif flattened != [1, 2, 3, 4, 5, 6, 7, 8, 9]:\n    raise AssertionError(f'Task 1: Expected [1, 2, 3, 4, 5, 6, 7, 8, 9], got {flattened}')\n\nprint('TEST_PASSED')"
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\nif 'flattened' not in exec_namespace:\n    raise AssertionError('Task 1: flattened variable not found')\n\nflattened = exec_namespace['flattened']\n\nif not isinstance(flattened, list):\n    raise AssertionError('Task 1: flattened should be a list')\n\nif flattened != [1, 2, 3, 4, 5, 6, 7, 8, 9]:\n    raise AssertionError(f'Task 1: Expected [1, 2, 3, 4, 5, 6, 7, 8, 9], got {flattened}')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check Task 2 - Multiplication table",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'mult_table' not in exec_namespace:\n    raise AssertionError('Task 2: mult_table variable not found')\n\nmult_table = exec_namespace['mult_table']\n\nif not isinstance(mult_table, list):\n    raise AssertionError('Task 2: mult_table should be a list')\n\nexpected = [[1, 2, 3], [2, 4, 6], [3, 6, 9]]\n\nif mult_table != expected:\n    raise AssertionError(f'Task 2: Expected {expected}, got {mult_table}')\n\nprint('TEST_PASSED')"
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\nif 'mult_table' not in exec_namespace:\n    raise AssertionError('Task 2: mult_table variable not found')\n\nmult_table = exec_namespace['mult_table']\n\nif not isinstance(mult_table, list):\n    raise AssertionError('Task 2: mult_table should be a list')\n\nexpected = [[1, 2, 3], [2, 4, 6], [3, 6, 9]]\n\nif mult_table != expected:\n    raise AssertionError(f'Task 2: Expected {expected}, got {mult_table}')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check Task 3 - Unique vowels",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'unique_vowels' not in exec_namespace:\n    raise AssertionError('Task 3: unique_vowels variable not found')\n\nunique_vowels = exec_namespace['unique_vowels']\n\nif not isinstance(unique_vowels, set):\n    raise AssertionError('Task 3: unique_vowels should be a set (use curly braces)')\n\nexpected = {'a', 'e', 'o'}\n\nif unique_vowels != expected:\n    raise AssertionError(f\"Task 3: Expected {{'a', 'e', 'o'}}, got {unique_vowels}\")\n\nprint('TEST_PASSED')"
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\nif 'unique_vowels' not in exec_namespace:\n    raise AssertionError('Task 3: unique_vowels variable not found')\n\nunique_vowels = exec_namespace['unique_vowels']\n\nif not isinstance(unique_vowels, set):\n    raise AssertionError('Task 3: unique_vowels should be a set (use curly braces)')\n\nexpected = {'a', 'e', 'o'}\n\nif unique_vowels != expected:\n    raise AssertionError(f\"Task 3: Expected {{'a', 'e', 'o'}}, got {unique_vowels}\")\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check Task 4 - Generator and first three",
-      "code": "import types\n\nuser_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'squares_gen' not in exec_namespace:\n    raise AssertionError('Task 4: squares_gen variable not found')\n\nif 'first_three_squares' not in exec_namespace:\n    raise AssertionError('Task 4: first_three_squares variable not found')\n\nfirst_three = exec_namespace['first_three_squares']\n\nif not isinstance(first_three, list):\n    raise AssertionError('Task 4: first_three_squares should be a list')\n\nif first_three != [1, 4, 9]:\n    raise AssertionError(f'Task 4: Expected [1, 4, 9], got {first_three}')\n\nprint('TEST_PASSED')"
+      "name": "Check Task 4 - Numbers > 5",
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\nif 'large_numbers' not in exec_namespace:\n    raise AssertionError('Task 4: large_numbers variable not found')\n\nlarge_numbers = exec_namespace['large_numbers']\n\nif not isinstance(large_numbers, list):\n    raise AssertionError('Task 4: large_numbers should be a list')\n\n# Sort for consistent comparison since order might vary\nif sorted(large_numbers) != [6, 7, 8, 9]:\n    raise AssertionError(f'Task 4: Expected numbers > 5: [6, 7, 8, 9], got {sorted(large_numbers)}')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check Task 5 - Average grades",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\n\nif 'averages' not in exec_namespace:\n    raise AssertionError('Task 5: averages variable not found')\n\naverages = exec_namespace['averages']\n\nif not isinstance(averages, dict):\n    raise AssertionError('Task 5: averages should be a dictionary')\n\n# Check structure and approximate values\nif 'Alice' not in averages or 'Bob' not in averages or 'Charlie' not in averages:\n    raise AssertionError('Task 5: averages should have Alice, Bob, and Charlie as keys')\n\n# Alice: (85+90+88)/3 = 87.666...\nif abs(averages['Alice'] - 87.67) > 0.1:\n    raise AssertionError(f\"Task 5: Alice's average should be approximately 87.67, got {averages['Alice']}\")\n\n# Bob: (92+88+85)/3 = 88.333...\nif abs(averages['Bob'] - 88.33) > 0.1:\n    raise AssertionError(f\"Task 5: Bob's average should be approximately 88.33, got {averages['Bob']}\")\n\n# Charlie: (78+82+80)/3 = 80.0\nif abs(averages['Charlie'] - 80.0) > 0.1:\n    raise AssertionError(f\"Task 5: Charlie's average should be 80.0, got {averages['Charlie']}\")\n\nprint('TEST_PASSED')"
+      "name": "Check Task 5 - Coordinate grid",
+      "code": "exec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\nif 'coordinate_grid' not in exec_namespace:\n    raise AssertionError('Task 5: coordinate_grid variable not found')\n\ncoordinate_grid = exec_namespace['coordinate_grid']\n\nif not isinstance(coordinate_grid, dict):\n    raise AssertionError('Task 5: coordinate_grid should be a dictionary')\n\n# Check structure\nexpected = {\n    0: {0: '(0,0)', 1: '(0,1)', 2: '(0,2)'},\n    1: {0: '(1,0)', 1: '(1,1)', 2: '(1,2)'},\n    2: {0: '(2,0)', 1: '(2,1)', 2: '(2,2)'}\n}\n\nif coordinate_grid != expected:\n    raise AssertionError(f'Task 5: Expected nested coordinate dictionary, got {coordinate_grid}')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": [

@@ -22,14 +22,14 @@ You'll work with this student database:
 
 ```python
 students = [
-    {'name': 'Alice', 'class': 'Math', 'scores': [85, 92, 88, 90]},
-    {'name': 'Bob', 'class': 'Math', 'scores': [78, 82, 75, 80]},
-    {'name': 'Charlie', 'class': 'Math', 'scores': [92, 95, 88, 91]},
-    {'name': 'Diana', 'class': 'Science', 'scores': [88, 85, 90, 87]},
-    {'name': 'Eve', 'class': 'Science', 'scores': [72, 68, 70, 65]},
-    {'name': 'Frank', 'class': 'Science', 'scores': [95, 92, 94, 96]},
-    {'name': 'Grace', 'class': 'English', 'scores': [88, 90, 85, 87]},
-    {'name': 'Henry', 'class': 'English', 'scores': [65, 70, 68, 72]},
+    {'name': 'Mal', 'class': 'Math', 'scores': [85, 92, 88, 90]},
+    {'name': 'Zoe', 'class': 'Math', 'scores': [78, 82, 75, 80]},
+    {'name': 'Wash', 'class': 'Math', 'scores': [92, 95, 88, 91]},
+    {'name': 'Kaylee', 'class': 'Science', 'scores': [88, 85, 90, 87]},
+    {'name': 'Inara', 'class': 'Science', 'scores': [72, 68, 70, 65]},
+    {'name': 'Jayne', 'class': 'Science', 'scores': [95, 92, 94, 96]},
+    {'name': 'Simon', 'class': 'English', 'scores': [88, 90, 85, 87]},
+    {'name': 'River', 'class': 'English', 'scores': [65, 70, 68, 72]},
 ]
 ```
 
@@ -45,7 +45,7 @@ Create a list of average scores for all students.
 
 Create a list of student names whose average is 85 or higher.
 
-**Expected output:** `['Alice', 'Charlie', 'Diana', 'Frank', 'Grace']`
+**Expected output:** `['Mal', 'Wash', 'Kaylee', 'Jayne', 'Simon']`
 
 ### Task 3: Class Rosters (Dictionary Comprehension)
 
@@ -55,9 +55,9 @@ Create a dictionary mapping each class to a list of student names in that class.
 
 ```python
 {
-    'Math': ['Alice', 'Bob', 'Charlie'],
-    'Science': ['Diana', 'Eve', 'Frank'],
-    'English': ['Grace', 'Henry']
+    'Math': ['Mal', 'Zoe', 'Wash'],
+    'Science': ['Kaylee', 'Inara', 'Jayne'],
+    'English': ['Simon', 'River']
 }
 ```
 
@@ -74,9 +74,9 @@ Create a dictionary mapping each student name to their performance category base
 
 ```python
 {
-    'Alice': 'Good',
-    'Bob': 'Satisfactory',
-    'Charlie': 'Excellent',
+    'Mal': 'Good',
+    'Zoe': 'Satisfactory',
+    'Wash': 'Excellent',
     ...
 }
 ```
@@ -172,4 +172,4 @@ flattened = [val for i in data for val in i['values']]
 5. **Break Down Complex Tasks**: For nested comprehensions, think about the outer loop first, then the inner loop
    :::
 
-Good luck! This project brings together everything you've learned about comprehensions in Module 9.
+Good luck! This project brings together Inararything you've learned about comprehensions in Module 9.

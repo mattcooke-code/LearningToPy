@@ -2,35 +2,39 @@
   "title": "Conditional List Comprehensions",
   "instructions": "Practice using conditional logic in list comprehensions for filtering data and applying conditional transformations.",
   "steps": [
-    "Task 1: Filter `numbers` to include only positive values (greater than 0)",
-    "Task 2: Create a list that labels each number in `numbers` as 'even' or 'odd'",
-    "Task 3: Filter `words` to include only those with length greater than 3 characters",
-    "Task 4: Transform `numbers` by squaring positive numbers and converting negatives to zero"
+    "**Task 1:** Filter `numbers` to include only positive values (greater than 0). Print `positive`.",
+    "**Task 2:** Create a list that labels each number in `numbers` as 'even' or 'odd'. Print `labels`.",
+    "**Task 3:** Filter `words` to include only those with length greater than 3 characters. Print `long_words`.",
+    "**Task 4:** Transform `numbers` by squaring positive numbers and converting negatives to zero. Print `transformed"
   ],
-  "starterCode": "numbers = [-5, 2, -1, 8, 0, -3, 10]\nwords = [\"cat\", \"elephant\", \"dog\", \"butterfly\", \"ox\"]\n\n# Task 1: Filter positive numbers (greater than 0)\npositive = \n\n# Task 2: Label numbers as 'even' or 'odd'\nlabels = \n\n# Task 3: Filter words longer than 3 characters\nlong_words = \n\n# Task 4: Square positives, convert negatives to 0\ntransformed = ",
-  "solution": "numbers = [-5, 2, -1, 8, 0, -3, 10]\nwords = [\"cat\", \"elephant\", \"dog\", \"butterfly\", \"ox\"]\n\n# Task 1: Filter positive numbers (greater than 0)\npositive = [num for num in numbers if num > 0]\n\n# Task 2: Label numbers as 'even' or 'odd'\nlabels = [\"even\" if num % 2 == 0 else \"odd\" for num in numbers]\n\n# Task 3: Filter words longer than 3 characters\nlong_words = [word for word in words if len(word) > 3]\n\n# Task 4: Square positives, convert negatives to 0\ntransformed = [num**2 if num > 0 else 0 for num in numbers]",
+  "starterCode": "numbers = [-5, 2, -1, 8, 0, -3, 10]\nwords = [\"car\", \"house\", \"tree\", \"building\", \"sun\"]\n\n# Task 1: Filter positive numbers (greater than 0)\npositive = ???\n\n# Task 2: Label numbers as 'even' or 'odd'\nlabels = ???\n\n# Task 3: Filter words longer than 3 characters\nlong_words = ???\n\n# Task 4: Square positives, convert negatives to 0\ntransformed = ???\n",
+  "solution": "numbers = [-5, 2, -1, 8, 0, -3, 10]\nwords = [\"car\", \"house\", \"tree\", \"building\", \"sun\"]\n\n# Task 1: Filter positive numbers (greater than 0)\npositive = [num for num in numbers if num > 0]\n\n# Task 2: Label numbers as 'even' or 'odd'\nlabels = [\"even\" if num % 2 == 0 else \"odd\" for num in numbers]\n\n# Task 3: Filter words longer than 3 characters\nlong_words = [word for word in words if len(word) > 3]\n\n# Task 4: Square positives, convert negatives to 0\ntransformed = [num**2 if num > 0 else 0 for num in numbers]\n",
   "validation": "tests",
   "tests": [
     {
       "name": "Task 1: Filter positive numbers",
-      "code": "if 'positive' not in locals():\n    raise AssertionError('Missing positive variable')\n\nif not isinstance(positive, list):\n    raise AssertionError('positive should be a list')\n\nif positive != [2, 8, 10]:\n    raise AssertionError(f'Expected [2, 8, 10], got {positive}')\n\nprint('TEST_PASSED')"
+      "code": "if 'positive' not in globals():\n    raise AssertionError('Task 1: Missing positive variable')\n\nif not isinstance(positive, list):\n    raise AssertionError('Task 1: positive should be a list')\n\nif positive != [2, 8, 10]:\n    raise AssertionError(f'Task 1: Expected [2, 8, 10], got {positive}')\n\nif 'if' not in student_code or '>' not in student_code:\n    raise AssertionError('Task 1: Use a list comprehension with an if condition')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Task 2: Label numbers as even/odd",
-      "code": "if 'labels' not in locals():\n    raise AssertionError('Missing labels variable')\n\nif not isinstance(labels, list):\n    raise AssertionError('labels should be a list')\n\nif len(labels) != len(numbers):\n    raise AssertionError(f'Expected {len(numbers)} labels, got {len(labels)}')\n\nexpected = ['odd', 'even', 'odd', 'even', 'even', 'odd', 'even']\nif labels != expected:\n    raise AssertionError(f'Expected {expected}, got {labels}')\n\nprint('TEST_PASSED')"
+      "code": "if 'labels' not in globals():\n    raise AssertionError('Task 2: Missing labels variable')\n\nif not isinstance(labels, list):\n    raise AssertionError('Task 2: labels should be a list')\n\nif len(labels) != len(numbers):\n    raise AssertionError(f'Task 2: Expected {len(numbers)} labels, got {len(labels)}')\n\nexpected = ['odd', 'even', 'odd', 'even', 'even', 'odd', 'even']\nif labels != expected:\n    raise AssertionError(f'Task 2: Expected {expected}, got {labels}')\n\nif 'if' not in student_code or 'else' not in student_code:\n    raise AssertionError('Task 2: Use if-else inside the comprehension')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Task 3: Filter long words",
-      "code": "if 'long_words' not in locals():\n    raise AssertionError('Missing long_words variable')\n\nif not isinstance(long_words, list):\n    raise AssertionError('long_words should be a list')\n\nif long_words != ['elephant', 'butterfly']:\n    raise AssertionError(f'Expected [\"elephant\", \"butterfly\"], got {long_words}')\n\nprint('TEST_PASSED')"
+      "code": "if 'long_words' not in globals():\n    raise AssertionError('Task 3: Missing long_words variable')\n\nif not isinstance(long_words, list):\n    raise AssertionError('Task 3: long_words should be a list')\n\nif long_words != ['house', 'tree', 'building']:\n    raise AssertionError(f'Task 3: Expected [\"house\", \"tree\", \"building\"], got {long_words}')\n\nif 'len(' not in student_code:\n    raise AssertionError('Task 3: Use len() to check word length')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Task 4: Transform numbers",
-      "code": "if 'transformed' not in locals():\n    raise AssertionError('Missing transformed variable')\n\nif not isinstance(transformed, list):\n    raise AssertionError('transformed should be a list')\n\nif len(transformed) != len(numbers):\n    raise AssertionError(f'Expected {len(numbers)} values, got {len(transformed)}')\n\nexpected = [0, 4, 0, 64, 0, 0, 100]\nif transformed != expected:\n    raise AssertionError(f'Expected {expected}, got {transformed}')\n\nprint('TEST_PASSED')"
+      "code": "if 'transformed' not in globals():\n    raise AssertionError('Task 4: Missing transformed variable')\n\nif not isinstance(transformed, list):\n    raise AssertionError('Task 4: transformed should be a list')\n\nif len(transformed) != len(numbers):\n    raise AssertionError(f'Task 4: Expected {len(numbers)} values, got {len(transformed)}')\n\nexpected = [0, 4, 0, 64, 0, 0, 100]\nif transformed != expected:\n    raise AssertionError(f'Task 4: Expected {expected}, got {transformed}')\n\nprint('TEST_PASSED')"
     }
   ],
   "hints": [
-    "**Task 1: Filtering basics**\n```python\n# Syntax: [item for item in list if condition]\n# Example: Get all numbers greater than 5\nnums = [2, 8, 3, 10, 1]\nresult = [num for num in nums if num > 5]\n# result: [8, 10]\n```\n\n**Task 2: Conditional expressions**\n```python\n# Syntax: [true_value if condition else false_value for item in list]\n# Example: Label numbers as 'high' or 'low'\nnums = [3, 8, 2, 10]\nresult = ['high' if num > 5 else 'low' for num in nums]\n# result: ['low', 'high', 'low', 'high']\n\n# Remember: num % 2 == 0 checks for even numbers!\n```\n\n**Task 3: Filtering with string operations**\n```python\n# Example: Keep words starting with 'a'\nwords = ['apple', 'banana', 'apricot', 'cherry']\nresult = [word for word in words if word.startswith('a')]\n# result: ['apple', 'apricot']\n\n# For Task 3, you need len(word) > 3\n```\n\n**Task 4: Combining transformation with condition**\n```python\n# Example: Double even numbers, halve odd numbers\nnums = [1, 2, 3, 4]\nresult = [num*2 if num % 2 == 0 else num/2 for num in nums]\n# result: [0.5, 4, 1.5, 8]\n\n# For Task 4: square (num**2) if num > 0, otherwise 0\n```\n\n**General Tips:**\n- Filtering `if` goes at the END: `[item for item in list if condition]`\n- Conditional expression goes BEFORE the `for`: `[x if condition else y for item in list]`\n- The modulo operator `%` helps check even/odd: `num % 2 == 0` means even\n- Your variables (`positive`, `labels`, `long_words`, `transformed`) must be exactly these names"
+    "**Task 1: Filtering basics**\n```python\n# Syntax: [item for item in list if condition]\n# Example: Get all numbers greater than 5\nnums = [2, 8, 3, 10, 1]\nresult = [num for num in nums if num > 5]\n# result: [8, 10]\n```",
+    "**Task 2: Conditional expressions**\n```python\n# Syntax: [true_value if condition else false_value for item in list]\n# Example: Label numbers as 'high' or 'low'\nnums = [3, 8, 2, 10]\nresult = ['high' if num > 5 else 'low' for num in nums]\n# result: ['low', 'high', 'low', 'high']\n\n# Remember: num % 2 == 0 checks for even numbers!\n```",
+    "**Task 3: Filtering with string operations**\n```python\n# Example: Keep words starting with 's'\nwords = ['sun', 'moon', 'star', 'sky']\nresult = [word for word in words if word.startswith('s')]\n# result: ['sun', 'star', 'sky']\n\n# For Task 3, use len(word) > 3\n```",
+    "**Task 4: Combining transformation with condition**\n```python\n# Example: Double even numbers, halve odd numbers\nnums = [1, 2, 3, 4]\nresult = [num*2 if num % 2 == 0 else num/2 for num in nums]\n# result: [0.5, 4, 1.5, 8]\n\n# For Task 4: square (num**2) if num > 0, otherwise 0\n```"
   ],
+  "expectedOutput": "",
   "tags": ["conditional-comprehensions", "filtering", "if-else"],
   "challengeGroup": "conditional-comprehensions"
 }

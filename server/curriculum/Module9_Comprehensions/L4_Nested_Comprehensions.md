@@ -4,7 +4,7 @@
 
 ## Understanding the Structure
 
-Just as conditional comprehensions follow the same pattern as the ternary operator, **nested comprehensions follow the same logic as nested loops** - but written in reverse order!
+Just as conditional comprehensions follow the same pattern as the ternary operator, **nested comprehensions follow the same logic as nested loops**.
 
 ### Nested Loops vs Nested Comprehensions
 
@@ -76,6 +76,22 @@ print(matrix)  # [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
 **Explanation:** The outer comprehension `for i in range(3)` creates three rows. For each row, the inner comprehension `for j in range(3)` creates three columns. The expression `i * 3 + j + 1` calculates the value for each cell based on its row (i) and column (j).
 
+### Creating a Multiplication Table
+
+A more intuitive example is creating a multiplication table:
+
+```python
+# Create a 3x3 multiplication table
+mult_table = [[row * col for col in range(1, 4)] for row in range(1, 4)]
+print(mult_table)  # [[1, 2, 3], [2, 4, 6], [3, 6, 9]]
+```
+
+**Explanation:** The outer comprehension `for row in range(1, 4)` creates three rows (1, 2, 3). For each row, the inner comprehension `for col in range(1, 4)` creates three columns (1, 2, 3). The expression `row * col` multiplies them to produce the value for each cell.
+
+:::note
+Notice how we use `range(1, 4)` instead of `range(3)` so our row and column numbers start at 1, making the multiplication logic clearer.
+:::
+
 ## 2. Nested Dictionary Comprehensions
 
 ### Creating a Matrix as Nested Dictionaries
@@ -139,7 +155,15 @@ print(long_unique_words)  # {'banana', 'cherry', 'elderberry'}
 
 ## 4. Generator Expressions
 
-Generator expressions are similar to list comprehensions but create generators (memory-efficient iterators). They use parentheses `()` instead of square brackets `[]`.
+Generator expressions are similar to list comprehensions but create generators (memory-efficient iterators). They use parentheses `()` instead of square brackets `[]`. The key difference is **Memory Efficiency**.
+
+:::note
+
+### Eager vs. Lazy Evaluation
+
+- **List Comprehensions** are _"eager"_: they create the entire collection in memory immediately.
+- **Generator Expressions** are _"lazy"_: they produce items one at a time, only when requested.
+  :::
 
 ### Basic Generator Expression
 
@@ -157,7 +181,7 @@ for square in squares_gen:
     print(square)
 ```
 
-**Explanation:** The list comprehension creates all 1,000,000 squares immediately, using a significant memory. The generator expression creates a generator object that produces squares on-demand - it only calculates the next value when you ask for it.
+**Explanation:** The list comprehension creates all 1,000,000 squares immediately, using significant memory. The generator expression creates a generator object that produces squares _on-demand_ - it only calculates the next value when you ask for it. Creating a generator is virtually instantaneous because it doesn't actually compute anything. The list comprehension does all the work immediately. However, when you actually use the generator's values, the time difference evens out.
 
 ### Generator with Conditions
 
@@ -167,6 +191,14 @@ print(list(even_squares))  # Convert to list to see results: [0, 4, 16, 36, ...]
 ```
 
 **Explanation:** Like comprehensions, generators can include conditions. Here, we generate squares of even numbers only. Converting to a list with `list()` is useful for small generators when you need all results at once.
+
+:::tip
+
+### When to use which?
+
+- Use a **List Comprehension** if you need to keep the data around to use it multiple times or perform operations like `.sort()` or `.reverse()`.
+- Use a **Generator** if you are processing a massive dataset once (like reading lines from a huge log file).
+  :::
 
 ## 5. When to Use Comprehensions vs Loops
 
@@ -200,46 +232,7 @@ for item in data:
 
 **Explanation:** While the comprehension version is technically correct, it is difficult to read. The loop version, while longer, makes each condition clear and easy to modify.
 
-## 6. Performance Considerations
-
-### Memory Efficiency
-
-```python
-# List comprehension - loads everything into memory
-large_list = [x**2 for x in range(1000000)]
-
-# Generator expression - memory efficient
-large_generator = (x**2 for x in range(1000000))
-
-# Use generators for large datasets or when you might not need all results
-```
-
-**Explanation:** The list comprehension consumes memory for all 1,000,000 values at once. The generator uses almost no memory regardless of size, making it ideal for processing large datasets or infinite sequences.
-
-### Speed Comparison
-
-```python
-import time
-
-data = range(1000000)
-
-# List comprehension
-start = time.time()
-squares = [x**2 for x in data]
-list_time = time.time() - start
-
-# Generator expression
-start = time.time()
-squares_gen = (x**2 for x in data)
-gen_time = time.time() - start
-
-print(f"List: {list_time:.4f}s, Generator: {gen_time:.4f}s")
-# Generator creation is instant, but consumption takes time
-```
-
-**Explanation:** Creating a generator is virtually instantaneous because it doesn't actually compute anything. The list comprehension does all the work immediately. However, when you actually use the generator's values, the time difference evens out.
-
-## 7. Advanced Patterns
+## 6. Advanced Patterns
 
 ### Dictionary with Conditional Key-Value Pairs
 
@@ -261,21 +254,21 @@ print(result)
 ### Multiple Data Source Combination
 
 ```python
-names = ['Alice', 'Bob', 'Charlie']
+names = ['Daphne', 'Fred', 'Velma']
 scores = [85, 92, 78]
 subjects = ['Math', 'Science', 'English']
 
 student_records = [
-    {'name': names[i], 'score': scores[i], 'subject': subjects[i]}
-    for i in range(len(names))
+    {'name': n, 'score': s, 'subject': sub}
+    for n, s, sub in zip(names, scores, subjects)
 ]
 print(student_records)
-# [{'name': 'Alice', 'score': 85, 'subject': 'Math'}, ...]
+# [{'name': 'Daphne', 'score': 85, 'subject': 'Math'}, ...]
 ```
 
-**Explanation:** When you have parallel lists representing different attributes of the same objects, a comprehension can combine them into structured dictionaries. The index `i` pulls corresponding elements from each list.
+**Explanation:** When you have parallel lists representing different attributes of the same objects, a comprehension can combine them into structured dictionaries. You learned about parallel lists and the `zip()` function in the previous lesson (Dictionary Comprehensions). This is the same concept.
 
-## 8. Best Practices for Readability
+## 7. Best Practices for Readability
 
 ### Break Into Multiple Lines
 

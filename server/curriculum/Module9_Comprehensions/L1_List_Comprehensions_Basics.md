@@ -55,9 +55,11 @@ print(numbers)  # [1, 2, 3]
 ### From Strings
 
 ```python
-word = "hello"
-letters = [char.upper() for char in word]
-print(letters)  # ['H', 'E', 'L', 'L', 'O']
+# Converting strings to title case
+words = ["python", "programming", "language"]
+title_words = [word.title() for word in words]
+print(title_words)  # ['Python', 'Programming', 'Language']
+# Fist letter is capitalized
 ```
 
 ### From Ranges
@@ -96,7 +98,7 @@ print(x_coords)  # [1, 3, 5]
 ## 6. Memory Considerations
 
 :::note
-List comprehensions create the entire list in memory at once. For very large datasets, consider **generator expressions** (covered in advanced modules).
+List comprehensions create the entire list in memory at once. For very large datasets, consider **generator expressions** (covered in later lessons).
 :::
 
 ```python

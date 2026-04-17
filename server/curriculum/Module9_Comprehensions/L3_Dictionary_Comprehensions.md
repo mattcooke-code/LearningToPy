@@ -47,7 +47,7 @@ print(fruit_dict)  # {0: 'apple', 1: 'banana', 2: 'cherry'}
 
 ### From Two Parallel Lists
 
-When you have separate lists for keys and values, you can zip them together:
+When you have separate lists for keys and values, you need a way to pair them up:
 
 ```python
 keys = ['name', 'age', 'origin']
@@ -56,7 +56,29 @@ highlander = {keys[i]: values[i] for i in range(len(keys))}
 print(highlander)  # {'name': 'Connor MacLeod', 'age': 450, 'origin': 'Scotland'}
 ```
 
-**Explanation:** We loop through indices from 0 to the length of the keys list, using each index to fetch the corresponding key and value from their respective lists.
+**Explanation:** We loop through indices from 0 to the length of the **keys** list. For each index `i`, we fetch `keys[i]` to use as the key and `values[i]` to use as the value.
+
+:::warning
+**Lists of different lengths:** When using `range(len(keys))`, if `values` is shorter than `keys`, the code will crash with an `IndexError`. If `keys` is shorter than `values` the additional values will be ignored. A better approach is to use the `zip()` function.
+:::
+
+_The `zip()` Function_
+
+Python provides a built-in function called `zip()` specifically to "pair up" elements from two lists into tuples automatically.
+
+```python
+# The same result, but cleaner:
+keys = ['name', 'age', 'origin']
+values = ['Connor MacLeod', 450, 'Scotland']
+highlander = {k: v for k, v in zip(keys, values)}
+print(highlander)  # {'name': 'Connor MacLeod', 'age': 450, 'origin': 'Scotland'}
+```
+
+Using `zip()` is generally preferred because it’s more readable and avoids manual index management.
+
+:::note
+**Lists of different lengths:** the `zip()` function will stop at the end of the shortest list, ignoring additional items. Unlike manual indexing, it will **not** crash when lists are of different lengths.
+:::
 
 ### From List of Tuples
 
@@ -133,9 +155,9 @@ print(inventory)  # {'apple': 5, 'banana': 3, 'cherry': 8}
 `enumerate()` can start counting from any number:
 
 ```python
-students = ['Alice', 'Bob', 'Charlie']
+students = ['Cheyenne', 'Yuri', 'Branwen']
 student_ids = {index: student for index, student in enumerate(students, start=1001)}
-print(student_ids)  # {1001: 'Alice', 1002: 'Bob', 1003: 'Charlie'}
+print(student_ids)  # {1001: 'Cheyenne', 1002: 'Yuri', 1003: 'Branwen'}
 ```
 
 **Explanation:** By setting `start=1001`, we create student IDs starting from 1001 instead of the default 0 - perfect for real-world ID systems.
@@ -191,9 +213,9 @@ print(config)  # {'HOST': 'localhost', 'PORT': '8080', 'DEBUG': 'True'}
 When data types are inconsistent, normalize them:
 
 ```python
-user_data = {'Alice': 25, 'Bob': '30', 'Charlie': 35.5, 'Diana': '28'}
+user_data = {'Cheyenne': 25, 'Yuri': '30', 'Branwen': 35.5, 'Khufu': '28'}
 normalized = {name: int(float(age)) for name, age in user_data.items()}
-print(normalized)  # {'Alice': 25, 'Bob': 30, 'Charlie': 35, 'Diana': 28}
+print(normalized)  # {'Cheyenne': 25, 'Yuri': 30, 'Branwen': 35, 'Khufu': 28}
 ```
 
 **Explanation:** The original data mixes integers, strings, and floats. We convert everything to integers by first converting to float (handles both strings and numbers) then to int.
