@@ -1,35 +1,69 @@
 {
-  "title": "User Data Validator",
+  "title": "Module 8 Project: User Data Validator",
   "instructions": "Build a validation function that uses `try`/`except`/`else`/`finally` to validate user data. Once your function is defined correctly, the pre-written test runner at the bottom will automatically validate the test cases.",
   "steps": [
-    "Step 1: Define a function `validate_user()` with parameters: `name`, `age_str`, `email` ",
-    "Step 2: Inside the function, use a `try` block to convert `age_str` to an `int`",
-    "Step 3: Add validation rules: name must not be empty, age must be 18-120, and email must contain '@'",
-    "Step 4: Use `raise ValueError('message')` for any validation failures",
-    "Step 5: Use an `else` block to print a success message and `return True` only when validation passes",
-    "Step 6: Use a `finally` block to print 'Validation attempted' (this should run every time)",
-    "Step 7: Catch `ValueError` in an `except` block to print the error message and `return False`"
+    "**Step 1:** Define a function `validate_user()` with three parameters: `name`, `age_str`, and `email`.",
+    "**Step 2:** Inside the function, start a `try` block and convert `age_str` to an integer. Store the result in a variable called `age`.",
+    "**Step 3:** Add validation rules using `if` statements. If validation fails, use `raise ValueError('error message')`. The rules are:\n\na) `name` must not be empty\n\nb) `age` must be between 18 and 120 inclusive \n\nc) `email` must contain '@'",
+    "**Step 4:** Add an `except ValueError as e:` block that prints `f\"Error: {e}\"` and returns `False`.",
+    "**Step 5:** Add an `else` block that prints a success message, `Validation passed!` and returns `True`.",
+    "**Step 6:** Add a `finally` block that prints `'Validation attempted'`."
   ],
-  "starterCode": "# Steps 1-7: Define your validate_user function below\n# Ensure it returns True on success and False on failure\n\n\n\n\n\n# --- TEST RUNNER (DO NOT MODIFY) ---\ntest_users = [\n    (\"Alice\", \"30\", \"alice@example.com\"),    # Valid\n    (\"Bob\", \"twenty-five\", \"bob@email.com\"), # Invalid age format\n    (\"\", \"25\", \"charlie@test.com\"),          # Empty name\n    (\"Diana\", \"40\", \"diana@test.org\"),       # Valid\n    (\"Eve\", \"17\", \"eve@test.org\"),           # Age under 18\n    (\"Frank\", \"150\", \"frank@email.com\"),     # Age over 120\n    (\"Grace\", \"28\", \"grace.email.com\"),      # Missing @\n]\n\nprint(\"🔍 TESTING USER VALIDATION...\")\nprint(\"=\" * 30)\n\npassed = 0\nfailed = 0\n\ntry:\n    for name, age_str, email in test_users:\n        if validate_user(name, age_str, email):\n            passed += 1\n        else:\n            failed += 1\nexcept NameError:\n    print(\"\\n❌ Error: validate_user function not found. Please check Step 1.\")\n\nprint(\"\\n📊 SUMMARY\")\nprint(\"=\" * 30)\nprint(f\"Total tested: {len(test_users)}\")\nprint(f\"Passed: {passed}\")\nprint(f\"Failed: {failed}\")",
-  "solution": "def validate_user(name, age_str, email):\n    try:\n        age = int(age_str)\n        if not name:\n            raise ValueError(\"Name cannot be empty\")\n        if age < 18 or age > 120:\n            raise ValueError(f\"Age out of range: {age}\")\n        if '@' not in email:\n            raise ValueError(\"Invalid email format\")\n    except ValueError as e:\n        print(f\"❌ FAIL: {name} - {e}\")\n        return False\n    else:\n        print(f\"✅ PASS: {name} validated successfully.\")\n        return True\n    finally:\n        print(f\"   Validation attempted for {name}\")\n\n# Test runner remains as provided in starter code",
+  "starterCode": "# Define your validate_user function below\n# Include try/except/else/finally blocks\n\n\n\n\n\n\n\n\n# --- TEST RUNNER (DO NOT MODIFY) ---\ntest_users = [\n    (\"Alice\", \"30\", \"alice@example.com\"),    # Valid\n    (\"Bob\", \"twenty-five\", \"bob@email.com\"), # Invalid age format\n    (\"\", \"25\", \"charlie@test.com\"),          # Empty name\n    (\"Diana\", \"40\", \"diana@test.org\"),       # Valid\n    (\"Eve\", \"17\", \"eve@test.org\"),           # Age under 18\n    (\"Frank\", \"150\", \"frank@email.com\"),     # Age over 120\n    (\"Grace\", \"28\", \"grace.email.com\"),      # Missing @\n]\n\nprint(\"🔍 TESTING USER VALIDATION...\")\nprint(\"=\" * 30)\n\npassed = 0\nfailed = 0\n\nfor name, age_str, email in test_users:\n    if validate_user(name, age_str, email):\n        passed += 1\n    else:\n        failed += 1\n\nprint(\"\\n📊 SUMMARY\")\nprint(\"=\" * 30)\nprint(f\"Total tested: {len(test_users)}\")\nprint(f\"Passed: {passed}\")\nprint(f\"Failed: {failed}\")\n",
+  "solution": "def validate_user(name, age_str, email):\n    try:\n        age = int(age_str)\n        if not name:\n            raise ValueError(\"Name cannot be empty\")\n        if age < 18 or age > 120:\n            raise ValueError(f\"Age out of range: {age}\")\n        if '@' not in email:\n            raise ValueError(\"Invalid email format\")\n    except ValueError as e:\n        print(f\"Error: {e}\")\n        return False\n    else:\n        print(\"Validation passed!\")\n        return True\n    finally:\n        print(\"Validation attempted\")\n\n# --- TEST RUNNER (DO NOT MODIFY) ---\ntest_users = [\n    (\"Alice\", \"30\", \"alice@example.com\"),    # Valid\n    (\"Bob\", \"twenty-five\", \"bob@email.com\"), # Invalid age format\n    (\"\", \"25\", \"charlie@test.com\"),          # Empty name\n    (\"Diana\", \"40\", \"diana@test.org\"),       # Valid\n    (\"Eve\", \"17\", \"eve@test.org\"),           # Age under 18\n    (\"Frank\", \"150\", \"frank@email.com\"),     # Age over 120\n    (\"Grace\", \"28\", \"grace.email.com\"),      # Missing @\n]\n\nprint(\"🔍 TESTING USER VALIDATION...\")\nprint(\"=\" * 30)\n\npassed = 0\nfailed = 0\n\nfor name, age_str, email in test_users:\n    if validate_user(name, age_str, email):\n        passed += 1\n    else:\n        failed += 1\n\nprint(\"\\n📊 SUMMARY\")\nprint(\"=\" * 30)\nprint(f\"Total tested: {len(test_users)}\")\nprint(f\"Passed: {passed}\")\nprint(f\"Failed: {failed}\")\n",
   "hints": [
-    "Step 1: Your function needs exactly three arguments in the order specified.",
-    "Step 2: `int(age_str)` will throw a ValueError if the user typed words instead of numbers.",
-    "Step 5: The `else` block in a try/except only runs if NO exceptions were raised.",
-    "Step 6: The `finally` block is great for 'cleanup' or logging that must happen regardless of success or failure.",
-    "Step 7: Make sure your `except` block catches `ValueError` specifically so you don't accidentally hide syntax errors."
+    "**Step 1:** Remember the `def` keyword and parameter syntax from Module 6.",
+    "**Step 2:** `int()` will raise a `ValueError` if the string can't be converted to a number.",
+    "**Step 3:** Think about what condition means 'empty' for a string. What keyword checks if something is NOT in a string?",
+    "**Step 4:** The `except` block should catch `ValueError` specifically, not all exceptions.",
+    "**Step 5:** The `else` block only runs if NO exceptions were raised in the `try` block.",
+    "**Step 6:** The `finally` block is for code that must run whether validation passed or failed.",
+    "**Order matters:** `try` → `except` → `else` → `finally`. This is the standard pattern."
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check validate_user function structure",
-      "code": "import ast\ntree = ast.parse(code)\ntry_nodes = [n for n in ast.walk(tree) if isinstance(n, ast.Try)]\nif not try_nodes:\n    raise AssertionError('Function must contain a try block')\ntn = try_nodes[0]\nif not tn.handlers or not tn.orelse or not tn.finalbody:\n    raise AssertionError('Your try block is missing an except, else, or finally clause.')\nprint('TEST_PASSED')"
+      "code": "# Check function exists\nif 'validate_user' not in globals():\n    raise AssertionError('Step 1: validate_user function not found')\n\nif not callable(validate_user):\n    raise AssertionError('Step 1: validate_user should be a function')\n\n# Check for required blocks in student_code\nif 'try:' not in student_code:\n    raise AssertionError('Step 2: Function must contain a try block')\n\nif 'except' not in student_code:\n    raise AssertionError('Step 4: Function must contain an except block')\n\nif 'else:' not in student_code:\n    raise AssertionError('Step 5: Function must contain an else block')\n\nif 'finally:' not in student_code:\n    raise AssertionError('Step 6: Function must contain a finally block')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Verify passing/failing logic",
-      "code": "exec_namespace = {}\nexec(code, exec_namespace)\nvalidate = exec_namespace['validate_user']\nassert validate('Alice', '30', 'a@b.com') == True, 'Valid data should return True'\nassert validate('Bob', '15', 'a@b.com') == False, 'Underage should return False'\nprint('TEST_PASSED')"
+      "name": "Test valid user returns True",
+      "code": "# Test valid user\nresult = validate_user('Alice', '30', 'alice@example.com')\nif result != True:\n    raise AssertionError(f'Valid user (Alice, 30, alice@example.com) should return True, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test invalid age format returns False",
+      "code": "# Test invalid age string\nresult = validate_user('Bob', 'twenty-five', 'bob@email.com')\nif result != False:\n    raise AssertionError(f'Invalid age format should return False, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test empty name returns False",
+      "code": "# Test empty name\nresult = validate_user('', '25', 'charlie@test.com')\nif result != False:\n    raise AssertionError(f'Empty name should return False, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test age under 18 returns False",
+      "code": "# Test underage\nresult = validate_user('Eve', '17', 'eve@test.org')\nif result != False:\n    raise AssertionError(f'Age under 18 should return False, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test age over 120 returns False",
+      "code": "# Test age over 120\nresult = validate_user('Frank', '150', 'frank@email.com')\nif result != False:\n    raise AssertionError(f'Age over 120 should return False, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test missing @ in email returns False",
+      "code": "# Test invalid email\nresult = validate_user('Grace', '28', 'grace.email.com')\nif result != False:\n    raise AssertionError(f'Email missing @ should return False, got {result}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check output contains required messages",
+      "code": "# Execute the test runner to check output\nexec_namespace = {}\nexec(student_code, exec_namespace, exec_namespace)\n\n# Check for expected output patterns\nif 'Error:' not in output:\n    raise AssertionError('Step 4: Should print \"Error: [message]\" for invalid inputs')\n\nif 'Validation passed!' not in output:\n    raise AssertionError('Step 5: Should print \"Validation passed!\" for valid inputs')\n\nif 'Validation attempted' not in output:\n    raise AssertionError('Step 6: Should print \"Validation attempted\" in finally block')\n\n# Check summary counts\nif 'Passed: 2' not in output:\n    raise AssertionError('Should have 2 passing test cases (Alice and Diana)')\n\nif 'Failed: 5' not in output:\n    raise AssertionError('Should have 5 failing test cases')\n\nprint('TEST_PASSED')"
     }
   ],
-  "tags": ["project", "error-handling", "try-except", "raise", "validation"],
+  "expectedOutput": "🔍 TESTING USER VALIDATION...\n==============================\nError: invalid literal for int() with base 10: 'twenty-five'\nValidation attempted\nError: Name cannot be empty\nValidation attempted\nValidation passed!\nValidation attempted\nError: Age out of range: 17\nValidation attempted\nError: Age out of range: 150\nValidation attempted\nError: Invalid email format\nValidation attempted\nValidation passed!\nValidation attempted\n\n📊 SUMMARY\n==============================\nTotal tested: 7\nPassed: 2\nFailed: 5",
+  "tags": [
+    "project",
+    "error-handling",
+    "try-except",
+    "raise",
+    "validation",
+    "else",
+    "finally"
+  ],
   "challengeGroup": "module-8-project"
 }

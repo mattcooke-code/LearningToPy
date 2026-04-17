@@ -2,43 +2,49 @@
   "title": "Raising Custom Exceptions",
   "instructions": "Practice raising exceptions for input validation and creating custom exception classes for specific error conditions.",
   "steps": [
-    "Create a function `validate_password` that takes a `password` parameter",
-    "If `password` is less than 8 characters, raise `ValueError` with message `'Password must be at least 8 characters'`",
-    "If `password` doesn't contain a digit, raise `ValueError` with message `'Password must contain at least one digit'`",
-    "Test the function with different passwords and handle the exceptions appropriately"
+    "**Step 1:** Create a function `validate_password` that takes a `password` parameter.",
+    "**Step 2:** If the length `len()` of the password is less than 8 characters, raise a  `ValueError` with the message `'Password must be at least 8 characters'`.",
+    "**Step 3:** If there are spaces `\" \"` in the password, raise a `ValueError` with the message `'Password cannot contain spaces'`.",
+    "**Step 4:** If the password is valid, return the string `'Password is valid!'`.",
+    "**Step 5:** Test the function with three passwords using `try/except` blocks: `'Secure123'` (valid), `'short'` (too short), and `'has space'` (contains space)."
   ],
-  "starterCode": "# 1. Create validate_password function:\n\n\n\n# 2. Test with valid password:\nprint(\"Testing 'Secure123':\")\n\n\n# 3. Test with short password:\nprint(\"Testing 'short':\")\n\n\n# 4. Test with no digits:\nprint(\"Testing 'NoDigits':\")",
-  "solution": "# 1. Create validate_password function:\ndef validate_password(password):\n    if len(password) < 8:\n        raise ValueError(\"Password must be at least 8 characters\")\n    if not any(char.isdigit() for char in password):\n        raise ValueError(\"Password must contain at least one digit\")\n    return \"Password is valid!\"\n\n# 2. Test with valid password:\nprint(\"Testing 'Secure123':\")\ntry:\n    result = validate_password(\"Secure123\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\n# 3. Test with short password:\nprint(\"Testing 'short':\")\ntry:\n    result = validate_password(\"short\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\n# 4. Test with no digits:\nprint(\"Testing 'NoDigits':\")\ntry:\n    result = validate_password(\"NoDigits\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")",
+  "starterCode": "# Step 1: Create validate_password function\n    \n\n# Step 5: Test with different passwords\nprint(\"Testing 'Secure123':\")\ntry:\n    result = validate_password(\"Secure123\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\nprint(\"\\nTesting 'short':\")\ntry:\n    result = validate_password(\"short\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\nprint(\"\\nTesting 'has space':\")\ntry:\n    result = validate_password(\"has space\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n",
+  "solution": "# Step 1: Create validate_password function\ndef validate_password(password):\n    if len(password) < 8:\n        raise ValueError(\"Password must be at least 8 characters\")\n    if \" \" in password:\n        raise ValueError(\"Password cannot contain spaces\")\n    return \"Password is valid!\"\n\n# Step 5: Test with different passwords\nprint(\"Testing 'Secure123':\")\ntry:\n    result = validate_password(\"Secure123\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\nprint(\"\\nTesting 'short':\")\ntry:\n    result = validate_password(\"short\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n\nprint(\"\\nTesting 'has space':\")\ntry:\n    result = validate_password(\"has space\")\n    print(result)\nexcept ValueError as e:\n    print(f\"Error: {e}\")\n",
   "hints": [
-    "Use `len(password)` to check length",
-    "Use `any()` with `char.isdigit()` to check for digits: `any(char.isdigit() for char in password)`",
-    "Raise `ValueError` with descriptive messages",
-    "Test each case in separate try/except blocks",
-    "Remember to handle the exceptions with `except ValueError as e:`"
+    "**Step 2:** Use `len(password) < 8` to check if the password is too short.",
+    "**Step 3:** Use `\" \" in password` to check if the password contains a space.",
+    "**Step 4:** If no exceptions are raised, `return \"Password is valid!\"`",
+    "**Step 5:** The test code is already provided - just complete the function!",
+    "**Remember:** `raise ValueError(\"message\")` stops the function and passes the error to the caller."
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check validate_password function exists",
-      "code": "import ast\n\n# Check if function is defined\ntree = ast.parse(code)\n\nfunction_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]\nfunction_names = [func.name for func in function_nodes]\n\nif 'validate_password' not in function_names:\n    raise AssertionError('Function validate_password is not defined')\n\nprint('TEST_PASSED')"
+      "code": "# Check if function is defined\nif 'validate_password' not in globals():\n    raise AssertionError('Step 1: validate_password function not found')\n\nif not callable(validate_password):\n    raise AssertionError('Step 1: validate_password should be a function')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Test function raises exception for short password",
-      "code": "import sys\nfrom io import StringIO\n\ntry:\n    # Try to access the function from user code\n    namespace = {}\n    exec(code, namespace)\n    \n    if 'validate_password' not in namespace:\n        raise AssertionError('validate_password function not found')\n    \n    validate = namespace['validate_password']\n    \n    # Test short password\n    try:\n        validate('short')\n        raise AssertionError('Function should raise ValueError for password shorter than 8 characters')\n    except ValueError as e:\n        if 'Password must be at least 8 characters' not in str(e):\n            raise AssertionError(f'Wrong error message: {e}')\n    \n    print('TEST_PASSED')\n    \nexcept Exception as e:\n    if 'AssertionError' in str(e):\n        raise\n    raise AssertionError(f'Error testing function: {e}')"
+      "code": "# Test short password\ntry:\n    result = validate_password('short')\n    raise AssertionError('Step 2: Should raise ValueError for password shorter than 8 characters')\nexcept ValueError as e:\n    if 'Password must be at least 8 characters' not in str(e):\n        raise AssertionError(f'Step 2: Wrong error message. Expected \"Password must be at least 8 characters\", got \"{e}\"')\nexcept Exception as e:\n    raise AssertionError(f'Step 2: Should raise ValueError, got {type(e).__name__}')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Test function raises exception for password without digits",
-      "code": "import sys\nfrom io import StringIO\n\ntry:\n    # Try to access the function from user code\n    namespace = {}\n    exec(code, namespace)\n    \n    if 'validate_password' not in namespace:\n        raise AssertionError('validate_password function not found')\n    \n    validate = namespace['validate_password']\n    \n    # Test password with no digits\n    try:\n        validate('NoDigits')\n        raise AssertionError('Function should raise ValueError for password with no digits')\n    except ValueError as e:\n        if 'Password must contain at least one digit' not in str(e):\n            raise AssertionError(f'Wrong error message: {e}')\n    \n    print('TEST_PASSED')\n    \nexcept Exception as e:\n    if 'AssertionError' in str(e):\n        raise\n    raise AssertionError(f'Error testing function: {e}')"
+      "name": "Test function raises exception for password with space",
+      "code": "# Test password with space\ntry:\n    result = validate_password('has space')\n    raise AssertionError('Step 3: Should raise ValueError for password containing spaces')\nexcept ValueError as e:\n    if 'Password cannot contain spaces' not in str(e):\n        raise AssertionError(f'Step 3: Wrong error message. Expected \"Password cannot contain spaces\", got \"{e}\"')\nexcept Exception as e:\n    raise AssertionError(f'Step 3: Should raise ValueError, got {type(e).__name__}')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Test function accepts valid password",
-      "code": "import sys\nfrom io import StringIO\n\ntry:\n    # Try to access the function from user code\n    namespace = {}\n    exec(code, namespace)\n    \n    if 'validate_password' not in namespace:\n        raise AssertionError('validate_password function not found')\n    \n    validate = namespace['validate_password']\n    \n    # Test valid password\n    result = validate('Secure123')\n    \n    if result != 'Password is valid!':\n        raise AssertionError(f'Expected \"Password is valid!\", got {result}')\n    \n    print('TEST_PASSED')\n    \nexcept Exception as e:\n    if 'AssertionError' in str(e):\n        raise\n    raise AssertionError(f'Error testing function: {e}')"
+      "code": "# Test valid password\ntry:\n    result = validate_password('Secure123')\n    if result != 'Password is valid!':\n        raise AssertionError(f'Step 4: Expected return value \"Password is valid!\", got \"{result}\"')\nexcept Exception as e:\n    raise AssertionError(f'Step 4: Valid password should not raise an exception. Got {type(e).__name__}: {e}')\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Test function with edge case - exactly 8 characters",
+      "code": "# Test exactly 8 characters (should be valid)\ntry:\n    result = validate_password('Pass1234')\n    if result != 'Password is valid!':\n        raise AssertionError(f'Step 2: Password with exactly 8 characters should be valid. Got \"{result}\"')\nexcept Exception as e:\n    raise AssertionError(f'Step 2: 8-character password should be valid. Got {type(e).__name__}: {e}')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check output format for test cases",
-      "code": "import sys\nfrom io import StringIO\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check for expected output patterns\nif 'Testing' not in output:\n    raise AssertionError('Should print test case headers')\n\nif 'Password is valid!' not in output:\n    raise AssertionError('Should print success message for valid password')\n\nif 'Error: Password must be at least 8 characters' not in output:\n    raise AssertionError('Should handle short password with error message')\n\nif 'Error: Password must contain at least one digit' not in output:\n    raise AssertionError('Should handle password without digits with error message')\n\nprint('TEST_PASSED')"
+      "code": "# Check that the test code printed the expected output\nif 'Testing' not in output:\n    raise AssertionError('Step 5: Should print test case headers like \"Testing \\'Secure123\\':\"')\n\nif 'Password is valid!' not in output:\n    raise AssertionError('Step 5: Should print \"Password is valid!\" for Secure123')\n\nif 'Error: Password must be at least 8 characters' not in output:\n    raise AssertionError('Step 5: Should print error for \"short\" password')\n\nif 'Error: Password cannot contain spaces' not in output:\n    raise AssertionError('Step 5: Should print error for \"has space\" password')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "Testing 'Secure123':\nPassword is valid!\n\nTesting 'short':\nError: Password must be at least 8 characters\n\nTesting 'has space':\nError: Password cannot contain spaces",
   "tags": [
     "raising-exceptions",
     "valueerror",

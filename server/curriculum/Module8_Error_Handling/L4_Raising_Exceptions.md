@@ -133,6 +133,10 @@ except InsufficientFundsError as e:
     print(f"Transaction failed: {e}")
 ```
 
+:::note
+You will learn more about classes in Module 11.
+:::
+
 ## 6. Best Practices for Raising Exceptions
 
 :::tip
@@ -178,7 +182,7 @@ def divide_numbers(a, b):
 - Choose appropriate **built-in** exceptions (`ValueError`, `TypeError`, etc.) for common situations
 - Provide clear, helpful error messages that explain what went wrong
 - Re-raise exceptions with `raise` alone when you need to log errors but let them propagate
-- Create custom exception classes for application-specific error types
+- Create custom exception classes for specific error types
 - **Fail fast** - validate inputs and raise exceptions as soon as you detect problems
 - Document exceptions in docstrings so users know what to expect
 

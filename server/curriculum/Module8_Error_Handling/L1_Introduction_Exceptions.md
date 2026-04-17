@@ -84,13 +84,12 @@ shark_hunt()
 
 ## 3. Why Use Error Handling?
 
-1. **Prevent crashes**: Keep your program running even when errors occur
-
-2. **Better user experience**: Show friendly error messages instead of technical tracebacks
-
-3. **Robust code**: Handle edge cases and unexpected inputs gracefully
-
-4. **Debugging**: Log errors for later analysis
+|     |                            |                                                              |
+| --- | -------------------------- | ------------------------------------------------------------ |
+| 1.  | **Prevent crashes**        | Keep your program running even when errors occur             |
+| 2.  | **Better user experience** | Show friendly error messages instead of technical tracebacks |
+| 3.  | **Robust code**            | Handle edge cases and unexpected inputs gracefully           |
+| 4.  | **Debugging**              | Log errors for later analysis                                |
 
 ## 4. Catching All Exceptions
 
@@ -106,8 +105,8 @@ In the next lesson we will look at a better approach: **Specific Exceptions**.
 
 - **Syntax Errors:** Caught before the code runs (grammar mistakes).
 - **Exceptions:** Caught while the code is running (logical mistakes).
-- `try` block: Wraps the code you think might fail.
-- `except` block: Contains the code that runs _only_ if an error happens in the `try` block.
+- **`try` block:** Wraps the code you think might fail.
+- **`except` block:** Contains the code that runs _only_ if an error happens in the `try` block.
 - **Resilience:** Using `try/except` allows the rest of your script to keep executing even after a failure.
 
 :::

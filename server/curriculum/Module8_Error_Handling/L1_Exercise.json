@@ -1,34 +1,42 @@
 {
   "title": "Basic Exception Handling",
-  "instructions": "Practice using try/except blocks to handle common exceptions and prevent program crashes.",
+  "instructions": "Practice using try/except blocks to handle errors and prevent program crashes.",
   "steps": [
-    "Write a `try` block that attempts to convert user input to an integer",
-    "Add an `except` block that catches all exceptions and prints `'Invalid input!'`",
-    "After the `try/except`, print `'Program continues...'` to show the program doesn't crash"
+    "**Step 1:** Create a variable `numerator` with value `100` and a variable `denominator` with value `0`.",
+    "**Step 2:** Write a `try` block that divides `numerator` by `denominator` and prints the result.",
+    "**Step 3:** Add an `except` block that catches any exception and prints `'Cannot divide by zero!'`.",
+    "**Step 4:** After the `try/except` block, print `'Program continues...'` to show the program doesn't crash."
   ],
-  "starterCode": "# 1. Try block for integer conversion:\n\n\n# 2. Except block:\n\n\n# 3. Program continues:\nprint('Program continues...')",
-  "solution": "# 1. Try block for integer conversion:\ntry:\n    user_input = input(\"Enter a number: \")\n    number = int(user_input)\n    print(f\"You entered: {number}\")\n\n# 2. Except block:\nexcept:\n    print(\"Invalid input!\")\n\n# 3. Program continues:\nprint('Program continues...')",
-  "simulatedInput": ["abc"],
+  "starterCode": "# Step 1: Create variables\nnumerator = ???\ndenominator = ???\n\n# Step 2: Try to divide\n\n\n# Step 3: Handle the error\n\n\n# Step 4: Show program continues\nprint('Program continues...')\n",
+  "solution": "# Step 1: Create variables\nnumerator = 100\ndenominator = 0\n\n# Step 2: Try to divide\ntry:\n    result = numerator / denominator\n    print(f\"Result: {result}\")\n\n# Step 3: Handle the error\nexcept:\n    print(\"Cannot divide by zero!\")\n\n# Step 4: Show program continues\nprint('Program continues...')\n",
   "hints": [
-    "Use `input()` inside the `try` block to get user input",
-    "`int()` will raise an exception if given non-numeric input",
-    "The `except` block should handle any exception that occurs"
+    "**Step 2:** Inside the `try` block, use `result = numerator / denominator`",
+    "**Step 2:** Then print the result: `print(f\"Result: {result}\")`",
+    "**Step 3:** The `except` block runs only if an error occurs in the `try` block",
+    "**Step 3:** Use `except:` on its own line, then indent and print the error message",
+    "**Step 4:** The final print should be outside the try/except - it runs whether an error occurred or not!",
+    "**Remember:** A bare `except:` catches ALL exceptions - perfect for this simple example!"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check for try/except structure",
-      "code": "import ast\n\ntree = ast.parse(code)\n\n# Check for try block\ntry_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.Try)]\nif not try_nodes:\n    raise AssertionError('Your code must include a try block')\n\n# Check for except handler\ntry_node = try_nodes[0]\nif not try_node.handlers:\n    raise AssertionError('Your try block must have an except handler')\n\nprint('TEST_PASSED')"
+      "name": "Check try/except structure",
+      "code": "# Check for required components\nif 'try:' not in student_code:\n    raise AssertionError('Step 2: Your code must include a try block')\n\nif 'except:' not in student_code:\n    raise AssertionError('Step 3: Your code must include an except block')\n\nif 'numerator' not in globals():\n    raise AssertionError('Step 1: numerator variable not found')\n\nif 'denominator' not in globals():\n    raise AssertionError('Step 1: denominator variable not found')\n\n# Check variable values\nif globals().get('numerator') != 100:\n    raise AssertionError('Step 1: numerator should be 100')\n\nif globals().get('denominator') != 0:\n    raise AssertionError('Step 1: denominator should be 0')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Test with invalid input",
-      "code": "import sys\nfrom io import StringIO\n\n# Simulate user input 'abc'\nold_stdin = sys.stdin\nsys.stdin = StringIO('abc\\n')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdin = old_stdin\n    sys.stdout = old_stdout\n\n# Check for expected output\nif 'Invalid input!' not in output:\n    raise AssertionError('When user enters \"abc\", should print \"Invalid input!\"')\n\nif 'Program continues...' not in output:\n    raise AssertionError('Should print \"Program continues...\" after try/except')\n\nprint('TEST_PASSED')"
+      "name": "Check output with division by zero",
+      "code": "import sys\nfrom io import StringIO\n\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(student_code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check for expected output\nif 'Cannot divide by zero!' not in output:\n    raise AssertionError('Step 3: When dividing by zero, should print \"Cannot divide by zero!\"')\n\nif 'Result:' in output:\n    raise AssertionError('Step 2: Should NOT print result when division fails')\n\nif 'Program continues...' not in output:\n    raise AssertionError('Step 4: Should print \"Program continues...\" after try/except')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Test with valid input",
-      "code": "import sys\nfrom io import StringIO\n\n# Simulate user input '42'\nold_stdin = sys.stdin\nsys.stdin = StringIO('42\\n')\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdin = old_stdin\n    sys.stdout = old_stdout\n\n# Check for expected output\nif 'You entered: 42' not in output:\n    raise AssertionError('When user enters \"42\", should print \"You entered: 42\"')\n\nif 'Invalid input!' in output:\n    raise AssertionError('Should not print error message for valid input')\n\nif 'Program continues...' not in output:\n    raise AssertionError('Should print \"Program continues...\" after try/except')\n\nprint('TEST_PASSED')"
+      "name": "Check program doesn't crash with division by zero",
+      "code": "import sys\nfrom io import StringIO\n\n# Run the code and verify it completes without raising an exception\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec(student_code)\n    output = sys.stdout.getvalue()\n    \n    # If we get here, the program didn't crash - success!\n    if 'Program continues...' not in output:\n        raise AssertionError('Step 4: Program should print \"Program continues...\" after handling the error')\n    \nexcept ZeroDivisionError:\n    raise AssertionError('Your program crashed! The except block should catch the ZeroDivisionError')\nexcept Exception as e:\n    raise AssertionError(f'Your program crashed with: {type(e).__name__}. The except block should catch all exceptions.')\nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED')"
+    },
+    {
+      "name": "Check division operation is present",
+      "code": "# Check that division is attempted\nif '/ denominator' not in student_code and '/denominator' not in student_code:\n    raise AssertionError('Step 2: Should attempt to divide numerator by denominator')\n\n# Check print statements\nif 'print' not in student_code:\n    raise AssertionError('Should use print() to display output')\n\nprint('TEST_PASSED')"
     }
   ],
-  "tags": ["exceptions", "try-except", "error-handling"],
+  "expectedOutput": "Cannot divide by zero!\nProgram continues...",
+  "tags": ["exceptions", "try-except", "error-handling", "beginner"],
   "challengeGroup": "basic-exceptions"
 }
