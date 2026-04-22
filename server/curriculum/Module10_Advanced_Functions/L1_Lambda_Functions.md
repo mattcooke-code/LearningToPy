@@ -58,15 +58,16 @@ Lambdas are most commonly used with the built-in `sorted()` function (or the `.s
 
 ```python
 # Sorting a list of tuples by different elements
-user_scores = [("Alex", 88), ("Ben", 95), ("Chris", 72)]
+user_scores = [("Feyja", 88), ("Odin", 95), ("Týr", 72)]
 
 # Sort by score (second element)
 sorted_by_score = sorted(user_scores, key=lambda user: user[1])
-print(sorted_by_score)  # [('Chris', 72), ('Alex', 88), ('Ben', 95)]
+print(sorted_by_score)  # [('Týr', 72), ('Feyja', 88), ('Odin', 95)]
 
 # Sort by name length
 sorted_by_name_length = sorted(user_scores, key=lambda user: len(user[0]))
-print(sorted_by_name_length)  # [('Ben', 95), ('Alex', 88), ('Chris', 72)]
+print(sorted_by_name_length)  # [('Týr', 72), ('Odin', 95), ('Freyja', 88)]
+
 ```
 
 ### Data Transformation (`map` and `filter`)
@@ -91,7 +92,7 @@ print(evens)  # [2, 4]
 
 ## 3. Conditional Logic in Lambdas
 
-Since a lambda can only contain an expression, conditional logic must be implemented using a **ternary operator** (also known as a conditional expression): `value_if_true if condition else value_if_false`.
+Since a lambda can only contain an expression, conditional logic must be implemented using a **ternary operator**: `value_if_true if condition else value_if_false`.
 
 ```python
 # Categorize numbers as "even" or "odd"
@@ -129,20 +130,21 @@ When sorting dictionaries or objects, you can combine keys. Using a lambda allow
 
 ```python
 students = [
-    {'name': 'Alice', 'grade': 85, 'age': 20},
-    {'name': 'Bob', 'grade': 92, 'age': 19},
-    {'name': 'Charlie', 'grade': 78, 'age': 21}
+    {'name': 'Amara', 'grade': 85, 'age': 20},
+    {'name': 'Arjun', 'grade': 92, 'age': 19},
+    {'name': 'Mei-Ling', 'grade': 78, 'age': 21}
 ]
 
 # Sort by grade descending (using -s['grade']), then by age ascending (s['age'])
 sorted_students = sorted(students,
                          key=lambda s: (-s['grade'], s['age']))
-print([s['name'] for s in sorted_students])  # ['Bob', 'Alice', 'Charlie']
+
+print([s['name'] for s in sorted_students])  # ['Arjun', 'Amara', 'Mei-Ling']
 ```
 
 ## 5. Lambda in Functional Composition
 
-These patterns lean into the functional programming paradigm, treating functions as building blocks.
+**Functional Composition** treats functions like building blocks. You can combine several small Lambda functions to create a larger, more powerful workflow. Think of lambdas like Lego bricks that can be snapped together to build more complex functions.
 
 ### Function Pipelines
 
@@ -169,6 +171,8 @@ print(add_five(3))  # 8 (5 + 3)
 print(add_five(10)) # 15 (5 + 10)
 ```
 
+This is helpful when you need to _pre-load_ a function with data you may need later.
+
 ## 6. Real-World Applications
 
 ### Event Handlers (GUIs)
@@ -186,9 +190,9 @@ button = create_button(lambda: print("Button clicked!"))
 button()  # Button clicked!
 ```
 
-### Configuration-driven Behavior
+### Using a "Dictionary of Actions"
 
-Lambdas can be stored in data structures (like dictionaries) to quickly map a string key to an executable function, allowing for dynamic behavior based on user input or configuration files.
+You can store Lambdas inside a dictionary to create a shortcut menu. This lets your program decide which bit of code to run based on a word or a user's choice, making your code much more flexible.
 
 ```python
 operations = {
@@ -214,7 +218,7 @@ print(calculate('power', 2, 3))     # 8
 | Body     | Must be a single expression                                            | Can contain multiple statements and complex logic       |
 | Return   | Automatic return of expression result                                  | Requires explicit return keyword                        |
 | Name     | Anonymous (no formal name)                                             | Always requires a name                                  |
-| Best Use | Arguments to higher-order functions (key, map), simple throwaway logic | Complex logic, reusable code, documentation, type hints |
+| Best Use | Arguments to higher-order functions (key, map); simple throwaway logic | Complex logic, reusable code, documentation, type hints |
 
 ## 8. Limitations and Best Practices
 
@@ -262,7 +266,7 @@ While lambdas are technically slightly slower to create at runtime than pre-defi
 - **Conditional logic** requires ternary operator: `value_if_true if condition else value_if_false`
 - **Advanced patterns**: Returning lambdas (closures), currying, and function pipelines
 - **Common applications**: Sorting with custom keys, event handlers, configuration-driven behavior
-- **Best practices**: Keep them short (one line), use meaningful variable names, prefer comprehensions for complex logic
+- **Best practices**: Keep them short (one line), use meaningful variable names, use comprehensions for complex logic
 - **Lambdas vs regular functions**: Use lambdas for simple operations; use `def` for complex logic, reusability, or when documentation is needed
 - **Readability matters**: If a lambda makes code harder to understand, use a regular function instead
 

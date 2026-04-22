@@ -41,7 +41,7 @@ print(list(upper_names))  # ['KEISHA', 'MUTYA', 'SIOBHAN']
 filter(function, iterable)
 ```
 
-### Example
+### Examples
 
 ```python
 # Filter by custom condition
@@ -51,6 +51,14 @@ def is_current_sugababe(name):
 names = ['Keisha', 'Heidi', 'Mutya', 'Amelle', 'Siobhan', 'Jade']
 sugababes = filter(is_current_sugababe, names)
 print(list(sugababes))  # ['Keisha', 'Mutya', 'Siobhan']
+```
+
+```python
+# Filter by length of song title
+track = ['Overload', 'Shape', 'Ugly', 'Stronger', 'Easy', 'Girls']
+
+less_than_five = list(filter(lambda x: len(x) < 5, track))
+print(less_than_five)  # ['Ugly', 'Easy']
 ```
 
 ## 3. The `reduce()` Function

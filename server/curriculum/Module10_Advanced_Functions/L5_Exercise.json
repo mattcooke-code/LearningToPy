@@ -1,49 +1,46 @@
 {
-  "title": "Module 10 Project: Sales Analytics Toolkit",
-  "instructions": "Build a sales analytics toolkit using functional programming. You will create reusable logic to filter, transform, and analyze data efficiently.",
+  "title": "Functional Programming Tools",
+  "instructions": "Practice using `map`, `filter`, `reduce`, and `partial` to process data in a functional style.",
   "steps": [
-    "**Task 1: Lambda Utilities**\nCreate four lambda functions to act as your data 'extractors'. Each takes one `entry` (a tuple):\n* **a)** `extract_category`: Returns index 1.\n* **b)** `extract_sales`: Returns index 2.\n* **c)** `calculate_profit`: Returns (Sales * Margin) using indices 2 and 4.\n* **d)** `avg_unit_value`: Returns (Sales / Units) using indices 2 and 3.",
-    "**Task 2: Performance Monitor Decorator**\nCreate a decorator `monitor_performance(func)` to track function execution:\n* **a)** Define a `wrapper` that accepts `*args` and `**kwargs`.\n* **b)** Start a timer using `start = time.time()`.\n* **c)** Run the original function and store the result in a variable.\n* **d)** Stop the timer using `end = time.time()`.\n* **e)** Print this exact string: `f'📊 {func.__name__} executed in {end - start:.4f}s - returned {len(result)} results'`\n* **f)** Return the result and then return the `wrapper` function.",
-    "**Task 3: Flexible Query Function**\nDefine `query_sales_data(*criteria)` and decorate it with `@monitor_performance`:\n* **a)** Start with `results = sales_data`.\n* **b)** Use a `for` loop to iterate through every `criterion` in `*criteria`.\n* **c)** Inside the loop, update `results` using `filter(criterion, results)` and store the results in a list.\n* **d)** Return the final `results` list **after** the loop has finished processing all criteria. Remember: Indentation matters!",
-    "**Task 4: Business Query (Top Electronics)**\nCreate a variable `top_electronics` by calling `query_sales_data` with two criteria:\n* **a)** A lambda to check if the category is 'Electronics'.\n* **b)** A lambda to check if sales are greater than 100,000.\n* **Hint:** Use your `extract_category` and `extract_sales` functions from Task 1 inside these new lambdas.",
-    "**Task 5: Step-by-Step Analysis (Clothing Profit)**\nCalculate the total profit for all 'Clothing' items by creating the following variables in order:\n* **a)** `clothing_only`: Use `filter()` to keep only 'Clothing' entries from `sales_data`.\n* **b)** `clothing_profits`: Use `map()` and your `calculate_profit` utility on the `clothing_only` list.\n* **c)** `total_clothing_profit`: Use `reduce()` to sum up the values in `clothing_profits` (start the sum at 0).",
-    "**Task 6: Chained Pipeline (High-Value Categories)**\nCreate a variable `high_value_categories` using a single chained pipeline:\n* **a)** Use `filter()` to find entries where `avg_unit_value` > 100.\n* **b)** Use `map()` to extract the category names from that filtered list.\n* **c)** Wrap the entire expression in `set()` to ensure category names are unique."
+    "**Task 1:** Use `map()` with `str.upper` to convert all names in `stark_names` to uppercase. Store as a list in `upper_names`.",
+    "**Task 2:** Use `filter()` with a lambda to keep only names longer than 4 characters from `stark_names`. Store as a list in `long_names`.",
+    "**Task 3:** Use `reduce()` to find the product of all numbers in `values`. Store in `product`.",
+    "**Task 4:** Use `partial` to create `say_winter` that pre-fills `'Winter is coming'` for the `greet` function. Call it with `'Ned'` and store in `message`.",
+    "**Task 5:** Create a pipeline using `filter`, `map`, and `reduce` that: filters `pipeline_data` for even numbers, squares them, and sums the result. Store in `pipeline_result`."
   ],
-  "starterCode": "import time\nfrom functools import reduce\n\n# Sales data: (region, category, sales, units, margin)\nsales_data = [\n    ('North', 'Electronics', 125000, 450, 0.35),\n    ('North', 'Clothing', 82000, 1200, 0.55),\n    ('North', 'Home Goods', 45000, 380, 0.42),\n    ('South', 'Electronics', 98000, 320, 0.35),\n    ('South', 'Clothing', 112000, 1650, 0.55),\n    ('South', 'Food', 67000, 8900, 0.22),\n    ('East', 'Electronics', 156000, 520, 0.35),\n    ('East', 'Clothing', 94000, 1380, 0.55),\n    ('East', 'Books', 28000, 1250, 0.48),\n    ('East', 'Home Goods', 62000, 510, 0.42),\n    ('West', 'Electronics', 210000, 680, 0.35),\n    ('West', 'Clothing', 145000, 2100, 0.55),\n    ('West', 'Food', 89000, 11200, 0.22),\n    ('West', 'Books', 35000, 1580, 0.48),\n    ('West', 'Home Goods', 78000, 640, 0.42)\n]\n\n# Task 1: Lambda Utilities\n\n# Task 2: monitor_performance decorator\n\n# Task 3: query_sales_data function\n\n# Task 4: top_electronics query\n\n# Task 5: Step-by-Step Analysis\n\n# Task 6: Chained Pipeline Analysis\n",
-  "solution": "import time\nfrom functools import reduce\n\n# Task 1\nextract_category = lambda entry: entry[1]\nextract_sales = lambda entry: entry[2]\ncalculate_profit = lambda entry: entry[2] * entry[4]\navg_unit_value = lambda entry: entry[2] / entry[3]\n\n# Task 2\ndef monitor_performance(func):\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        end = time.time()\n        print(f'📊 {func.__name__} executed in {end - start:.4f}s - returned {len(result)} results')\n        return result\n    return wrapper\n\n# Task 3\n@monitor_performance\ndef query_sales_data(*criteria):\n    results = sales_data\n    for criterion in criteria:\n        results = list(filter(criterion, results))\n    return results\n\n# Task 4\ntop_electronics = query_sales_data(\n    lambda e: extract_category(e) == 'Electronics',\n    lambda e: extract_sales(e) > 100000\n)\n\n# Task 5\nclothing_only = filter(lambda e: extract_category(e) == 'Clothing', sales_data)\nclothing_profits = map(calculate_profit, clothing_only)\ntotal_clothing_profit = reduce(lambda x, y: x + y, clothing_profits, 0)\n\n# Task 6\nhigh_value_categories = set(map(extract_category, filter(lambda e: avg_unit_value(e) > 100, sales_data)))",
-  "hints": [
-    "**Task 1 Hint:** Access tuple elements using `entry[i]`. Profit is `entry[2] * entry[4]`.",
-    "**Task 2 Hint:** The wrapper needs to return `result`, and the decorator needs to return `wrapper`.",
-    "**Task 3 Hint:** Use `results = list(filter(criterion, results))` inside your loop to keep narrowing down the data. The `return` should be inline with the `for`.",
-    "**Task 4 Hint:** Use your Task 1 functions inside the lambdas. Example: `lambda e: extract_sales(e) > 100000`. Remember this syntax structure for later tasks.",
-    "**Task 5 Hint:** Step (a) gives you an iterator, Step (b) processes it, and Step (c) sums it up. Don't forget `list()` isn't needed here as `reduce` will iterate for you!",
-    "**Task 6 Hint:** Structure your code like this: `set(map(func, filter(func, data)))`."
-  ],
+  "starterCode": "from functools import reduce, partial\n\nstark_names = ['eddard', 'catelyn', 'robb', 'sansa', 'arya', 'brandon', 'rickon']\nvalues = [2, 3, 4, 5]\npipeline_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n\ndef greet(greeting, name):\n    return f'{greeting}, {name}'\n\n# Task 1: Use map to uppercase all Stark names\nupper_names = ???\nprint(f'Uppercase Stark names: {upper_names}')\n\n# Task 2: Use filter to keep names longer than 4 characters\nlong_names = ???\nprint(f'Names longer than 4 chars: {long_names}')\n\n# Task 3: Use reduce to find product of values\nproduct = ???\nprint(f'Product of {values}: {product}')\n\n# Task 4: Use partial to create say_winter and generate message\nsay_winter = ???\nmessage = ???\nprint(f'Message: {message}')\n\n# Task 5: Pipeline - even numbers, square them, sum them\npipeline_result = ???\nprint(f'Pipeline result (sum of squares of evens): {pipeline_result}')\n",
+  "solution": "from functools import reduce, partial\n\nstark_names = ['eddard', 'catelyn', 'robb', 'sansa', 'arya', 'brandon', 'rickon']\nvalues = [2, 3, 4, 5]\npipeline_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n\ndef greet(greeting, name):\n    return f'{greeting}, {name}'\n\n# Task 1: Use map to uppercase all Stark names\nupper_names = list(map(str.upper, stark_names))\nprint(f'Uppercase Stark names: {upper_names}')\n\n# Task 2: Use filter to keep names longer than 4 characters\nlong_names = list(filter(lambda x: len(x) > 4, stark_names))\nprint(f'Names longer than 4 chars: {long_names}')\n\n# Task 3: Use reduce to find product of values\nproduct = reduce(lambda x, y: x * y, values)\nprint(f'Product of {values}: {product}')\n\n# Task 4: Use partial to create say_winter and generate message\nsay_winter = partial(greet, 'Winter is coming')\nmessage = say_winter('Ned')\nprint(f'Message: {message}')\n\n# Task 5: Pipeline - even numbers, square them, sum them\npipeline_result = reduce(\n    lambda x, y: x + y,\n    map(\n        lambda x: x**2,\n        filter(lambda x: x % 2 == 0, pipeline_data)\n    )\n)\nprint(f'Pipeline result (sum of squares of evens): {pipeline_result}')\n",
   "validation": "tests",
   "tests": [
     {
-      "name": "Task 1 - Lambda Utilities",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\nfor name in ['extract_category', 'extract_sales', 'calculate_profit', 'avg_unit_value']:\n    if name not in exec_namespace or not callable(exec_namespace[name]):\n        raise AssertionError(f'Task 1: {name} not defined correctly')\nprint('TEST_PASSED')"
+      "name": "Task 1: map with str.upper",
+      "code": "if 'upper_names' not in globals():\n    raise AssertionError('Task 1: upper_names variable not found')\n\nupper_names = globals()['upper_names']\n\nif not isinstance(upper_names, list):\n    raise AssertionError('Task 1: upper_names should be a list (use list())')\n\nexpected = ['EDDARD', 'CATELYN', 'ROBB', 'SANSA', 'ARYA', 'BRANDON', 'RICKON']\nif upper_names != expected:\n    raise AssertionError(f'Task 1: Expected {expected}, got {upper_names}')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 2 - Performance Monitor Decorator",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\nmonitor = exec_namespace.get('monitor_performance')\ndef test_fn(x): return [x]\nwrapped = monitor(test_fn)\nif wrapped(5) != [5]:\n    raise AssertionError('Task 2: Wrapper must return the original function result')\nprint('TEST_PASSED')"
+      "name": "Task 2: filter names longer than 4",
+      "code": "if 'long_names' not in globals():\n    raise AssertionError('Task 2: long_names variable not found')\n\nlong_names = globals()['long_names']\n\nif not isinstance(long_names, list):\n    raise AssertionError('Task 2: long_names should be a list (use list())')\n\nexpected = ['eddard', 'catelyn', 'sansa', 'brandon', 'rickon']\nif sorted(long_names) != sorted(expected):\n    raise AssertionError(f'Task 2: Expected {expected}, got {long_names}')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 3 - Flexible Query Function",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\nquery = exec_namespace.get('query_sales_data')\nres = query(lambda e: e[0] == 'North')\nif len(res) != 3:\n    raise AssertionError('Task 3: query_sales_data did not filter correctly using *criteria')\nprint('TEST_PASSED')"
+      "name": "Task 3: reduce product",
+      "code": "if 'product' not in globals():\n    raise AssertionError('Task 3: product variable not found')\n\nproduct = globals()['product']\n\nif product != 120:\n    raise AssertionError(f'Task 3: Product of 2*3*4*5 should be 120, got {product}')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 4 - Top Electronics Query",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\ntop = exec_namespace.get('top_electronics')\nif len(top) != 3:\n    raise AssertionError('Task 4: top_electronics should have 3 items')\nprint('TEST_PASSED')"
+      "name": "Task 4: partial and message",
+      "code": "if 'message' not in globals():\n    raise AssertionError('Task 4: message variable not found')\n\nmessage = globals()['message']\n\nif 'winter' not in message.lower() or 'ned' not in message.lower():\n    raise AssertionError(f'Task 4: Message should contain \"Winter is coming\" and \"Ned\", got \"{message}\"')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 5 - Step-by-Step Analysis",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\nprofit = exec_namespace.get('total_clothing_profit')\nif not (238000 < profit < 238200):\n    raise AssertionError('Task 5: total_clothing_profit calculation is incorrect')\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Task 6 - Chained Pipeline",
-      "code": "user_code = code\nexec_namespace = {}\nexec(user_code, exec_namespace, exec_namespace)\ncats = exec_namespace.get('high_value_categories')\nif not isinstance(cats, set) or len(cats) < 2:\n    raise AssertionError('Task 6: high_value_categories should be a set of unique category names')\nprint('TEST_PASSED')"
+      "name": "Task 5: pipeline result",
+      "code": "if 'pipeline_result' not in globals():\n    raise AssertionError('Task 5: pipeline_result variable not found')\n\nresult = globals()['pipeline_result']\n\n# Even numbers: 2,4,6,8,10 -> squares: 4,16,36,64,100 -> sum: 220\nif result != 220:\n    raise AssertionError(f'Task 5: Sum of squares of evens should be 220, got {result}')\n\nprint('TEST_PASSED')"
     }
-  ]
+  ],
+  "hints": [
+    "**Task 1:** `map(str.upper, stark_names)` applies `.upper()` to each name. Wrap with `list()` to see results.",
+    "**Task 2:** `filter(lambda x: len(x) > 4, stark_names)` keeps names with 5+ characters. Use `list()`.",
+    "**Task 3:** `reduce(lambda x, y: x * y, values)` multiplies all numbers together.",
+    "**Task 4:** `partial(greet, 'Winter is coming')` creates a new function with the greeting pre-filled.",
+    "**Task 5:** Work inside out: `filter` evens → `map` squares → `reduce` sum."
+  ],
+  "expectedOutput": "Uppercase Stark names: ['EDDARD', 'CATELYN', 'ROBB', 'SANSA', 'ARYA', 'BRANDON', 'RICKON']\nNames longer than 4 chars: ['eddard', 'catelyn', 'sansa', 'brandon', 'rickon']\nProduct of [2, 3, 4, 5]: 120\nMessage: Winter is coming, Ned\nPipeline result (sum of squares of evens): 220",
+  "tags": ["functional-programming", "map", "filter", "reduce", "partial"],
+  "challengeGroup": "functional-tools"
 }

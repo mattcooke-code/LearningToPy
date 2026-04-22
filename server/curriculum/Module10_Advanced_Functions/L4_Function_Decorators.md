@@ -22,6 +22,14 @@ This is exactly the same as saying: `say_hello = my_decorator(say_hello)`
 
 It’s like taking a standard phone and "reassigning" it to be a "Phone + Case."
 
+### Why Use Decorators?
+
+|                                 |                                                                                                                                                                                                                 |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **DRY (Don’t Repeat Yourself)** | If you have 10 different functions that all need to check if a user is logged in, you shouldn't write that check 10 times. A decorator allows you to write the logic once and "apply" it everywhere.            |
+| **Separation of Concerns**      | Keep your "Business Logic" (what the function does) separate from "Administrative Logic" (logging, timing, security). This makes your code much easier to read and maintain.                                    |
+| **Cleanliness**                 | It prevents your functions from becoming cluttered. Instead of a function being 20 lines of "setup" and 2 lines of actual work, the function stays 2 lines long, and the setup is tucked away in the decorator. |
+
 ## 2. A Simple Decorator Example: The "Phone Case"
 
 In this example, `simple_decorator` acts as the case. It defines a `wrapper` (the physical case) that does something before and after the phone (the function) is used.
@@ -151,7 +159,7 @@ def person():
 
 - **Decorators** modify or enhance functions without changing their internal code (like adding a case to a phone)
 - The `@decorator` syntax is shorthand for: `function = decorator(function)`
-- **Structure**: A decorator is a function that takes a function, defines a `wrapper` inside, adds logic before/after, and returns the wrapper
+- **Structure**: A decorator is a function that takes another function, defines a `wrapper` inside, adds logic before/after, and returns the wrapper
 - For **any function**, use `*args, **kwargs` in the wrapper to accept all arguments
 - Use `@wraps` from `functools` to preserve the original function's name and docstring
 - **Decorators with parameters** need triple nesting: outer for config → middle for function → inner wrapper for logic

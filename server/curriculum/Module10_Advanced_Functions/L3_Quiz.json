@@ -1,45 +1,43 @@
 {
-  "lessonId": "M10L3",
-  "title": "Function Decorators - Quiz",
   "questions": [
     {
       "id": "m10l3_q1",
       "type": "multiple-choice",
-      "question": "What does the `@decorator` syntax do?",
+      "question": "What will this code print?\n\n```python\ndef configure_settings(**kwargs):\n    defaults = {'host': 'localhost', 'port': 8080, 'debug': False}\n    config = defaults.copy()\n    config.update(kwargs)\n    return config\n\nprint(configure_settings(port=9000, debug=True))\n```",
       "options": [
-        "It's a special comment that Python ignores",
-        "It's shorthand for `function = decorator(function)`",
-        "It creates a new function called 'decorator'",
-        "It runs the function multiple times"
+        "`{'host': 'localhost', 'port': 9000, 'debug': True}`",
+        "`{'port': 9000, 'debug': True}`",
+        "`{'host': 'localhost', 'port': 8080, 'debug': False}`",
+        "`{'host': 'localhost', 'port': 9000, 'debug': True, 'port': 8080}`"
       ],
-      "correctAnswer": 1,
-      "explanation": "The `@decorator` syntax is just syntactic sugar. When you write `@my_decorator` above a function definition, Python automatically replaces the original function with the result of calling `my_decorator` on that function."
+      "correctAnswer": 0,
+      "explanation": "The function starts with a copy of the defaults dictionary, then calls `.update(kwargs)` which overwrites only the keys provided by the caller. `host` keeps its default value of `'localhost'`, while `port` and `debug` are overridden by the caller's values."
     },
     {
       "id": "m10l3_q2",
       "type": "multiple-choice",
-      "question": "What is the purpose of `@wraps` from the `functools` module?",
+      "question": "A function is defined as `def validate_and_process(required, *args, min_args=1, max_args=5):`. Which of the following calls will raise a `ValueError`?",
       "options": [
-        "It makes the decorator run faster",
-        "It preserves the original function's name and docstring",
-        "It wraps the function multiple times",
-        "It adds error handling to the decorator"
+        "`validate_and_process(2, 10, 20, 30)`",
+        "`validate_and_process(2, 10, min_args=2)`",
+        "`validate_and_process(2, min_args=1)`",
+        "`validate_and_process(2, 10, 20, max_args=3)`"
       ],
-      "correctAnswer": 1,
-      "explanation": "Without `@wraps`, the decorated function would have its metadata (name, docstring, etc.) replaced by the wrapper function's metadata. `@wraps` copies this information from the original function to the wrapper, preserving its identity."
+      "correctAnswer": 2,
+      "explanation": "In this call, `required=2` and `args` is empty (no extra positional arguments were passed). The default `min_args=1` means at least 1 additional argument is required, but none were given, so `len(args) < min_args` is `True` and a `ValueError` is raised."
     },
     {
       "id": "m10l3_q3",
       "type": "multiple-choice",
-      "question": "When stacking decorators like this:\n\n```python\n@top\n@middle\n@bottom\ndef my_func():\n    pass\n```\n\nIn what order are they applied?",
+      "question": "Why does the `wrapper` function inside a decorator use `*args` and `**kwargs`?\n\n```python\ndef universal_logger(func):\n    def wrapper(*args, **kwargs):\n        result = func(*args, **kwargs)\n        return result\n    return wrapper\n```",
       "options": [
-        "`top` → `middle` → `bottom` (top to bottom)",
-        "`bottom` → `middle` → `top` (bottom to top)",
-        "All decorators are applied simultaneously",
-        "Only the top decorator is applied"
+        "To make the wrapper run faster by avoiding fixed parameter checks.",
+        "To ensure the wrapper can accept and pass through any arguments, regardless of the wrapped function's signature.",
+        "Because decorators require at least one positional and one keyword argument.",
+        "To prevent the wrapped function from receiving any arguments directly."
       ],
       "correctAnswer": 1,
-      "explanation": "Decorators are applied from the bottom up. First `@bottom` wraps `my_func`, then `@middle` wraps the result, and finally `@top` wraps that. When you call the function, they execute from top to bottom (like putting on a shirt, then sweater, then jacket)."
+      "explanation": "The decorator has no way of knowing in advance what signature the wrapped function (`func`) will have. By using `*args` and `**kwargs`, the wrapper can accept any combination of arguments and pass them through to `func` unchanged, guaranteeing compatibility with any function it wraps."
     }
   ]
 }
