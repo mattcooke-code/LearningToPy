@@ -654,8 +654,8 @@ const ModuleQuizPage = () => {
           <div
             className={`mt-6 p-4 rounded-lg ${
               currentFeedback.isCorrect
-                ? "bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500"
-                : "bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500"
+                ? "bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-300"
+                : "bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-500 dark:text-red-300"
             }`}
           >
             <div className="flex items-start">

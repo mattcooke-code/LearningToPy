@@ -16,9 +16,9 @@ const ThemeToggle = () => {
       title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
     >
       {isDarkMode ? (
-        <Sun className="h-5 w-5 text-python-light hover:text-python-yellow" />
+        <Sun className="h-5 w-5 text-white hover:text-black" />
       ) : (
-        <Moon className="h-5 w-5 text-python-light hover:text-python-yellow" />
+        <Moon className="h-5 w-5 text-white hover:text-black" />
       )}
     </button>
   );

@@ -2,36 +2,40 @@
   "title": "Implementing Basic Inheritance",
   "instructions": "Create a `Person` class and then define a `Student` class that inherits from `Person`. The `Student` class should add a unique method.",
   "steps": [
-    "Define the parent class `Person`. Its `__init__` should accept and store a `name` attribute.",
-    "Add a method `greet(self)` to `Person` that prints: `Hello, my name is [name].`",
-    "Define the child class `Student` which inherits from `Person`.",
-    "Add a unique method `study(self)` to `Student` that prints: `[name] is studying hard.`",
-    "Create an instance of `Student` named `student1` with the name 'Alex'.",
-    "Call both the inherited method (`greet`) and the unique method (`study`) on `student1`."
+    "**Step 1:** Define the parent class `Person`. Its `__init__` should accept and store a `name` attribute.",
+    "**Step 2:** Add a method `greet(self)` to `Person` that prints: `Hello, my name is [name].`",
+    "**Step 3:** Define the child class `Student` which inherits from `Person`.",
+    "**Step 4:** Add a unique method `study(self)` to `Student` that prints: `[name] is studying hard.`",
+    "**Step 5:** Create an instance of `Student` named `student1` with the name 'Alex'.",
+    "**Step 6:** Call both the inherited method (`greet`) and the unique method (`study`) on `student1`."
   ],
-  "starterCode": "# Step 1-2: Define the Person class with __init__ and greet method\n\n\n\n# Step 3-4: Define the Student class inheriting from Person with study method\n\n\n\n# Step 5: Create student1 instance\n\n\n\n# Step 6: Call both methods\n",
-  "solution": "# Step 1-2: Define the Person class with __init__ and greet method\nclass Person:\n    def __init__(self, name):\n        self.name = name\n    \n    def greet(self):\n        print(f\"Hello, my name is {self.name}.\")\n\n# Step 3-4: Define the Student class inheriting from Person with study method\nclass Student(Person):\n    def study(self):\n        print(f\"{self.name} is studying hard.\")\n\n# Step 5: Create student1 instance\nstudent1 = Student('Alex')\n\n# Step 6: Call both methods\nstudent1.greet()\nstudent1.study()",
+  "starterCode": "# Step 1-2: Define the Person class\n\n\n\n\n# Step 3-4: Define the Student class inheriting from Person\n\n\n\n\n# Step 5: Create student1 instance\nstudent1 = ???\n\n# Step 6: Call both methods\n\n\n",
+  "solution": "# Step 1-2: Define the Person class\nclass Person:\n    def __init__(self, name):\n        self.name = name\n    \n    def greet(self):\n        print(f\"Hello, my name is {self.name}.\")\n\n# Step 3-4: Define the Student class inheriting from Person\nclass Student(Person):\n    def study(self):\n        print(f\"{self.name} is studying hard.\")\n\n# Step 5: Create student1 instance\nstudent1 = Student('Alex')\n\n# Step 6: Call both methods\nstudent1.greet()\nstudent1.study()\n",
   "fileSetup": {},
   "hints": [
-    "To inherit, use `class Student(Person):`.",
-    "Remember that methods must take `self` as the first argument.",
-    "The `Student` class does not need its own `__init__` yet; it inherits the one from `Person`."
+    "**Step 1:** `class Person:` with `def __init__(self, name): self.name = name`",
+    "**Step 2:** `def greet(self): print(f\"Hello, my name is {self.name}.\")`",
+    "**Step 3:** Inheritance syntax: `class Student(Person):`",
+    "**Step 4:** `def study(self): print(f\"{self.name} is studying hard.\")`",
+    "**Step 5:** `student1 = Student('Alex')`",
+    "**Step 6:** `student1.greet()` and `student1.study()`"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check Person class exists with __init__ and greet method",
-      "code": "import ast\n\n# Parse the code\nuser_code = code\ntree = ast.parse(user_code)\n\n# Check if Person class is defined\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nif 'Person' not in class_names:\n    raise AssertionError('Step 1: Person class not defined')\n\n# Find Person class and check its methods\nfor node in class_nodes:\n    if node.name == 'Person':\n        method_names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]\n        \n        if '__init__' not in method_names:\n            raise AssertionError('Step 1: Person class missing __init__ method')\n        if 'greet' not in method_names:\n            raise AssertionError('Step 2: Person class missing greet method')\n        \n        # Check greet method has self parameter\n        for item in node.body:\n            if isinstance(item, ast.FunctionDef) and item.name == 'greet':\n                args = item.args.args\n                if len(args) < 1 or args[0].arg != 'self':\n                    raise AssertionError('greet method should have self as first parameter')\n        break\n\nprint('TEST_PASSED')"
+      "name": "Check Person class",
+      "code": "if 'Person' not in globals():\n    raise AssertionError('Step 1: Person class not defined')\n\nPerson = globals()['Person']\n\n# Test instantiation\ntry:\n    p = Person('Test')\n    if p.name != 'Test':\n        raise AssertionError('Step 1: Person should store name attribute')\nexcept Exception as e:\n    raise AssertionError(f'Step 1: Error creating Person: {e}')\n\n# Check greet method\nif not hasattr(Person, 'greet'):\n    raise AssertionError('Step 2: Person class missing greet method')\n\np = Person('Test')\nif not callable(p.greet):\n    raise AssertionError('Step 2: greet should be callable')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check Student class inherits from Person",
-      "code": "import ast\n\n# Parse the code\nuser_code = code\ntree = ast.parse(user_code)\n\n# Find Student class\nclass_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]\nclass_names = [cls.name for cls in class_nodes]\n\nif 'Student' not in class_names:\n    raise AssertionError('Step 3: Student class not defined')\n\n# Check that Student inherits from Person\nstudent_node = None\nfor node in class_nodes:\n    if node.name == 'Student':\n        student_node = node\n        # Check inheritance\n        if not node.bases:\n            raise AssertionError('Student class should inherit from Person')\n        \n        # Check that one of the base classes is named 'Person'\n        base_names = []\n        for base in node.bases:\n            if isinstance(base, ast.Name):\n                base_names.append(base.id)\n        \n        if 'Person' not in base_names:\n            raise AssertionError('Student class should inherit from Person')\n        \n        # Check for study method\n        method_names = [item.name for item in node.body if isinstance(item, ast.FunctionDef)]\n        if 'study' not in method_names:\n            raise AssertionError('Step 4: Student class missing study method')\n        \n        break\n\nprint('TEST_PASSED')"
+      "name": "Check Student class inheritance",
+      "code": "if 'Student' not in globals():\n    raise AssertionError('Step 3: Student class not defined')\n\nStudent = globals()['Student']\nPerson = globals().get('Person')\n\n# Check inheritance\nif Person and not issubclass(Student, Person):\n    raise AssertionError('Step 3: Student should inherit from Person')\n\n# Check study method exists\nif not hasattr(Student, 'study'):\n    raise AssertionError('Step 4: Student class missing study method')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check instance creation and method calls",
-      "code": "import io\nimport sys\n\n# Execute the code and capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check if student1 exists\nif 'student1' not in exec_globals:\n    raise AssertionError('Step 5: student1 variable not found')\n\nstudent1 = exec_globals['student1']\n\n# Check if the class relationships work\nPerson = exec_globals.get('Person')\nStudent = exec_globals.get('Student')\n\nif Person and Student:\n    if not isinstance(student1, Student):\n        raise AssertionError('student1 should be an instance of Student')\n    if not isinstance(student1, Person):\n        raise AssertionError('student1 should also be an instance of Person (inheritance)')\n\n# Check name attribute\nif not hasattr(student1, 'name'):\n    raise AssertionError('student1 missing name attribute')\nif student1.name != 'Alex':\n    raise AssertionError(f'student1.name should be \"Alex\", got \"{student1.name}\"')\n\n# Check output\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\nif len(lines) < 2:\n    raise AssertionError('Step 6: Both greet() and study() should be called')\n\n# Check for expected output content\noutput_lower = output.lower()\nif 'hello, my name is alex' not in output_lower and 'hello, my name is alex.' not in output_lower:\n    raise AssertionError('greet() should print \"Hello, my name is Alex.\"')\n\nif 'alex is studying hard' not in output_lower:\n    raise AssertionError('study() should print \"Alex is studying hard.\"')\n\nprint('TEST_PASSED')"
+      "name": "Check instance and method calls",
+      "code": "if 'student1' not in globals():\n    raise AssertionError('Step 5: student1 variable not found')\n\nstudent1 = globals()['student1']\nStudent = globals().get('Student')\nPerson = globals().get('Person')\n\n# Check type\nif Student and not isinstance(student1, Student):\n    raise AssertionError('Step 5: student1 should be a Student instance')\nif Person and not isinstance(student1, Person):\n    raise AssertionError('Step 3: student1 should also be a Person instance (inheritance)')\n\n# Check name attribute\nif not hasattr(student1, 'name'):\n    raise AssertionError('Step 1: student1 missing name attribute')\nif student1.name != 'Alex':\n    raise AssertionError(f'Step 5: student1.name should be \"Alex\", got \"{student1.name}\"')\n\n# Check output\nlower_output = output.lower()\nif 'hello, my name is alex' not in lower_output:\n    raise AssertionError('Step 6: Should call greet() which prints greeting with name')\nif 'studying hard' not in lower_output:\n    raise AssertionError('Step 6: Should call study() which prints studying message')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "Hello, my name is Alex.\nAlex is studying hard.",
   "tags": ["inheritance", "superclass", "subclass", "__init__"],
   "challengeGroup": "oop-inheritance"
 }
