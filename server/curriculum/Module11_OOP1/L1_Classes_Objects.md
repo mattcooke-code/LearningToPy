@@ -2,7 +2,7 @@
 
 Object-Oriented Programming (OOP) is a paradigm that structures programs around objects, rather than actions and data. It allows you to model real-world entities like "cars," "users," or "bank accounts" in your code.
 
-In Python, the two fundamental concepts of OOP are **Classes** and Objects.
+In Python, the two fundamental concepts of OOP are **Classes** and **Objects**.
 
 ## 1. Classes: The Blueprint
 
@@ -75,7 +75,7 @@ print(r2d2 is wall_e) # Output: False (They are separate objects!)
 robot_a.greet() # Output: Beep boop! Systems online.
 ```
 
-The next lesson will introduce instance attributes which are unique to each object (like `name` or `serial_number`) and are defined using the special `__init__` method.
+The next lesson will introduce _instance attributes_ which are unique to each object (like `name` or `serial_number`) and are defined using the special `__init__` method.
 
 :::summary
 

@@ -20,10 +20,12 @@ The first parameter of almost every method in a Python class, including `__init_
 
 ```python
 class Car: # 1. __init__ accepts the object (self) and two parameters
-    def __init__(self, make, year): # 2. Assign the parameters to instance attributes using self. # These attributes (self.make, self.year) are now unique to this object.
+    # 2. Assign the parameters to instance attributes using self.
+    def __init__(self, make, year):
         self.make = make
         self.year = year
         self.engine_running = False # Default attribute
+    # These attributes (self.make, self.year) are now unique to this object.
 
     def start_engine(self):
         self.engine_running = True

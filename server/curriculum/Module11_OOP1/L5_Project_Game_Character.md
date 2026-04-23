@@ -17,12 +17,14 @@ You'll create a `Character` class for a role-playing game that can:
 
 Your character system will demonstrate:
 
-1. **Class definition** with shared data (class variables)
-2. **Object instantiation** with unique attributes per character
-3. **Instance methods** that modify character state
-4. **Encapsulation** using protected attributes
-5. **Static methods** for utility functions
-6. **The `__init__` constructor** to initialize character data
+|     |                                                               |
+| --- | ------------------------------------------------------------- |
+| 1.  | **Class definition** with shared data (class variables)       |
+| 2.  | **Object instantiation** with unique attributes per character |
+| 3.  | **Instance methods** that modify character state              |
+| 4.  | **Encapsulation** using protected attributes                  |
+| 5.  | **Static methods** for utility functions                      |
+| 6.  | **The `__init__` constructor** to initialize character data   |
 
 ## Character Specifications
 
@@ -30,12 +32,14 @@ Your character system will demonstrate:
 
 Each character should have:
 
-- **Name** - The character's name (public)
-- **Class** - Their role (Warrior, Mage, Rogue, or Cleric)
-- **Level** - Current experience level (protected: `_level`)
-- **Health** - Current hit points (protected: `_health`)
-- **Max Health** - Maximum possible health (protected: `_max_health`)
-- **Alive Status** - Whether the character is still alive
+|                  |                                                    |
+| ---------------- | -------------------------------------------------- |
+| **Name**         | The character's name (public)                      |
+| **Class**        | Their role (Warrior, Mage, Rogue, or Cleric)       |
+| **Level**        | Current experience level (protected: `_level`)     |
+| **Health**       | Current hit points (protected: `_health`)          |
+| **Max Health**   | Maximum possible health (protected: `_max_health`) |
+| **Alive Status** | Whether the character is still alive               |
 
 ### Class Variable
 
@@ -133,26 +137,6 @@ Thief: Robin (Rogue) - Level 1, Health: 10/10
 Total characters created: 3
 ```
 
-## Design Principles Applied
-
-### Encapsulation
-
-- Protected attributes (`_health`, `_level`, `_max_health`) signal internal data
-- Public methods (`get_health()`, `take_damage()`, etc.) control access
-- Data validation happens in methods (health capping, level restrictions)
-
-### Class vs Instance
-
-- **Class variable** (`character_count`) - shared by all characters
-- **Instance attributes** (`name`, `_health`) - unique to each character
-- **Static method** (`is_valid_class()`) - utility function, no instance needed
-
-### State Management
-
-- Methods maintain object consistency (health never negative, never exceeds max)
-- `is_alive` automatically updates based on health
-- Level up properly updates all related stats
-
 ## Tips for Success
 
 :::tip
@@ -168,16 +152,11 @@ Total characters created: 3
 
 ## What You're Demonstrating
 
-By completing this project, you show mastery of:
+By completing this project, you show mastery of the core pillars of OOP:
 
-- ✅ Defining classes with `class` keyword
-- ✅ Creating objects with instantiation
-- ✅ Writing `__init__` constructors
-- ✅ Using `self` to access instance data
-- ✅ Creating instance methods that modify state
-- ✅ Implementing encapsulation with protected attributes
-- ✅ Using class variables for shared data
-- ✅ Writing static methods with `@staticmethod`
-- ✅ Building a complete, working OOP system
+- ✅ **State Management:** Using `self` and instance methods to keep character health and levels consistent.
+- ✅ **Encapsulation:** Protecting internal data (`_health`) while providing controlled public access.
+- ✅ **Shared Logic:** Managing global data with _Class Variables_ and _Static Methods_.
+- ✅ **Object Lifecycle:** Mastering the `__init__` constructor to bring characters to life.
 
 Good luck, and may your characters live long and prosper! ⚔️🛡️
