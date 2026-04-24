@@ -4,7 +4,7 @@ In Lesson 4, we learned how to organize a project so _we_ can use it. In this le
 
 ## 1. The "Package within a Project" Pattern
 
-When you look at a professional _GitHub_ repository, you’ll notice a "double folder" structure. This separates the code you want to share from the "junk" (tests, READMEs, licenses) that helps you manage the project.
+When you look at a professional _GitHub_ repository, you’ll notice a "double folder" structure. This separates the code you want to share from the other files (tests, READMEs, licenses) that help you manage the project.
 
 ```text
 my_tool_project/         # The "Project Root" (The outer shell)
@@ -57,7 +57,7 @@ pip install -e .
 - `.`: Tells pip to look in the **current folder** for the installation instructions.
 
 :::tip
-Once you run this, you can open a terminal anywhere on your computer, type `import my_cool_tool`, and it will work! If you change the code in your folder, those changes are reflected instantly without needing a second install.
+Once you run an editable install, your package is linked to your Python environment. This means you can `import` your package from **anywhere** on your computer. More importantly, any changes you make to your source code happen in real-time so you don't need to run the install command again to see your fixes!
 :::
 
 ## 4. Why Package Your Code?

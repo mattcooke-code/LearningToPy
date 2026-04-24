@@ -23,15 +23,30 @@ Imagine Python is like a shared kitchen.
 We use the **Command Line** (Terminal) to create these environments. Think of the terminal as a way to talk directly to your computer's operating system instead of using a mouse.
 
 :::note
-When we talk about the **System Terminal** or **Command Line**, it is different from the **Python Terminal** we have included with our code editor at the bottom of each lesson. The website terminal is for running Python code; the System Terminal is for managing your computer's files and settings.
+When we talk about the **System Terminal** or **Command Line**, it is different from the **Python Terminal** we have included with our code editor at the bottom of each lesson. The Python terminal is for running Python code; the System Terminal is for managing your computer's files and settings. You won't be able to run **bash** commands on this website, but you will use them every day once you move your coding to your own computer!
 :::
 
 **The Command**: `python -m venv .venv`
 
+```bash
+# 1. Navigate to your project folder
+cd my_python_project
+
+# 2. Create the environment
+python -m venv .venv
+
+# 3. Activate it (example for Mac/Linux)
+source .venv/bin/activate
+
+# 4. (Optional) Check where your Python is running from
+which python
+# Output should point to your .venv folder!
+```
+
 | Part      | What it means                                                                 |
 | --------- | ----------------------------------------------------------------------------- |
 | `python`  | "Hello Python"                                                                |
-| `-m venv` | "Run the Virtual **ENV**ironment module."                                     |
+| `-m venv` | "Run the **V**irtual **ENV**ironment module."                                 |
 | `.venv`   | The name of the folder you want to create. (We usually just call it `.venv`). |
 
 ## 4. Activating the Environment
@@ -46,6 +61,18 @@ Creating the folder is like buying the kitchen equipment—you still have to "wa
 ### How do I know it worked?
 
 Look at your terminal prompt. You should see `(.venv)` appear at the start of the line. This is Python’s way of saying: _"You are now cooking in your private kitchen!"_
+
+_File Directory:_
+
+```bash
+my_project/
+├── script.py
+├── data.csv
+└── .venv/         <-- Your "Private Kitchen" lives here!
+    ├── bin/ (or Scripts/)
+    ├── lib/
+    └── pyvenv.cfg
+```
 
 ## 5. Leaving the Environment
 

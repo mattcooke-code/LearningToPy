@@ -167,6 +167,9 @@ sys.stdout = captured_output
 
 try:
     exec(compile(student_code, "<student_code>", "exec"), globals())
+except ModuleNotFoundError:
+    # Allow import exercises to fail without crashing validation
+    pass
 except Exception as e:
     sys.stdout = old_stdout
     raise AssertionError(f"Error in your code: {str(e)}")

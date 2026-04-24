@@ -2,6 +2,10 @@
 
 Debugging is the systematic process of finding and fixing bugs in your code. Python comes with a powerful, interactive source code debugger called `pdb` (**Python Debugger**). Using `pdb` allows you to pause execution, step through code line-by-line, and inspect variable values.
 
+:::note
+**Web Learners:** The interactive `pdb` debugger requires a local terminal to work. While you can read about it here, you should practice these commands in **VS Code** or **PyCharm** on your own computer! We still have an interactive debugging exercise for you in store at the end of this lesson.
+:::
+
 ## 1. Entering the Debugger
 
 The simplest way to use `pdb` is to insert a breakpoint directly into your code where you suspect a problem might occur.
@@ -19,7 +23,7 @@ When Python executes the line containing `breakpoint()` or `pdb.set_trace()`, it
 
 ## 2. Essential `pdb` Commands
 
-Once inside the (`Pdb`) shell, you use short commands to control the execution flow and inspect the program state.
+Once inside the `Pdb` shell, you use short commands to control the execution flow and inspect the program state.
 
 | Command | Short Form | Function                                                                   |
 | ------- | ---------- | -------------------------------------------------------------------------- |
@@ -87,7 +91,7 @@ In the debugger:
 
 ## 4. Stepping Into Functions
 
-The real power of pdb is seeing exactly what happens inside functions:
+The real power of `pdb` is seeing exactly what happens inside functions:
 
 ```python
 def multiply(a, b):

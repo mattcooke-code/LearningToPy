@@ -20,6 +20,13 @@ To install a package, you simply use `pip install`. You can optionally specify a
 (my_env) $ pip install numpy==1.22.0
 ```
 
+:::warning
+
+### Stop & Check!
+
+Always check for the `(.venv)` prefix in your terminal before running `pip install`. If you don't see it, your "private kitchen" isn't open, and you might accidentally clutter your main system.
+:::
+
 ### B. Listing Installed Packages
 
 To see everything installed in the current environment, use `pip list`.
@@ -67,6 +74,14 @@ requests==2.31.0
 urllib3==2.1.0
 ```
 
+:::note
+
+### The `pip list` vs. `pip freeze` Distinction
+
+- `pip list` is for human eyes (clean columns, easy to read).
+- `pip freeze` is for computer eyes (exact versions, ready to be installed).
+  :::
+
 ### B. Installing from a Requirements File
 
 If you receive a project that has a `requirements.txt` file, you can recreate the exact environment by passing the file path to `pip install` using the `-r`(requirements) flag.
@@ -78,6 +93,10 @@ If you receive a project that has a `requirements.txt` file, you can recreate th
 ```
 
 This is the standard, reproducible way to manage and share Python dependencies across teams and deployment environments.
+
+:::tip
+When sharing projects, you do not share the `.venv` folder itself. Share `requirements.txt` instead. This keeps your project size small and ensures it works on different operating systems.
+:::
 
 :::summary
 

@@ -1,32 +1,33 @@
 {
   "title": "Organizing Python Projects",
-  "instructions": "Practice creating imports and understanding package structure by completing the import statements in a multi-file project.",
+  "instructions": "Practice creating imports and understanding package structure by completing the import statements in a multi-file project.\n\n**Note:** The terminal will show import errors because these modules don't actually exist. Click **Submit Code** to validate your syntax.",
   "steps": [
-    "**Task 1: Import a module** - Complete the import statement to import the entire `config` module from the same directory. Replace the `____` with your solution.",
-    "**Task 2: Import a specific function** - Complete the import to bring in the `validate_email` function from `utils.validators`.",
-    "**Task 3: Import with alias** - Complete the import to bring in the `format_date` function from `utils.helpers`, but give it an alias `fmt_date`.",
-    "**Task 4: Import from a package's `__init__.py`** - Complete the import to bring in the `calculate_total` function, which has been exposed through the `utils` package's `__init__.py` file.",
-    "**Task 5: Use `__all__`** - Complete the `__all__` list in the `utils/__init__.py` file to expose only `format_date` and `validate_email` (but not `calculate_total`).",
-    "**Task 6: Write a relative import** - Inside `utils/helpers.py`, write a relative import to bring in the `validate_email` function from the neighboring `validators.py` module."
+    "**Task 1:** Complete the statement to import the entire `config` module.",
+    "**Task 2:** Complete the statement to import the `validate_email` function from `utils.validators`.",
+    "**Task 3:** Complete the statement to import the `format_date` function from `utils.helpers` with the alias `fmt_date`.",
+    "**Task 4:** Complete the statement to import `calculate_total` from the `utils` package (exposed via `__init__.py`).",
+    "**Task 5:** Complete the `__all__` list to expose only `format_date` and `validate_email`.",
+    "**Task 6:** Write a relative import inside `utils/helpers.py` to import `validate_email` from the neighboring `validators.py` module."
   ],
-  "starterCode": "# Task 1: Import the entire config module\n____ config\n\n\n# Task 2: Import validate_email from utils.validators\n____ utils.validators ____ validate_email\n\n\n# Task 3: Import format_date with alias fmt_date\n____ utils.helpers ____ format_date ____ fmt_date\n\n\n# Task 4: Import calculate_total from utils (exposed via __init__.py)\n____ utils ____ calculate_total\n\n\n# Task 5: Complete the __all__ list in utils/__init__.py\n__all__ = [____, ____]\n\n\n# Task 6: Write a relative import in utils/helpers.py to import validate_email\n# Inside utils/helpers.py, add the import statement:\n____ .____ ____ validate_email\n",
-  "solution": "# Task 1: Import the entire config module\nimport config\n\n\n# Task 2: Import validate_email from utils.validators\nfrom utils.validators import validate_email\n\n\n# Task 3: Import format_date with alias fmt_date\nfrom utils.helpers import format_date as fmt_date\n\n\n# Task 4: Import calculate_total from utils (exposed via __init__.py)\nfrom utils import calculate_total\n\n\n# Task 5: Complete the __all__ list in utils/__init__.py\n__all__ = ['format_date', 'validate_email']\n\n\n# Task 6: Write a relative import in utils/helpers.py to import validate_email\n# Inside utils/helpers.py, add the import statement:\nfrom .validators import validate_email\n",
+  "starterCode": "# Task 1: Import the entire config module\n???\n\n# Task 2: Import validate_email from utils.validators\n???\n\n# Task 3: Import format_date with alias fmt_date\n???\n\n# Task 4: Import calculate_total from utils (exposed via __init__.py)\n???\n\n# Task 5: Complete the __all__ list in utils/__init__.py\n__all__ = ???\n\n# Task 6: Relative import in utils/helpers.py to import validate_email\n# Write the import statement you would use inside utils/helpers.py:\n???\n",
+  "solution": "# Task 1: Import the entire config module\nimport config\n\n# Task 2: Import validate_email from utils.validators\nfrom utils.validators import validate_email\n\n# Task 3: Import format_date with alias fmt_date\nfrom utils.helpers import format_date as fmt_date\n\n# Task 4: Import calculate_total from utils (exposed via __init__.py)\nfrom utils import calculate_total\n\n# Task 5: Complete the __all__ list in utils/__init__.py\n__all__ = ['format_date', 'validate_email']\n\n# Task 6: Relative import in utils/helpers.py to import validate_email\n# Write the import statement you would use inside utils/helpers.py:\nfrom .validators import validate_email\n",
   "fileSetup": {},
   "hints": [
-    "**Task 1:** Use `import module_name` to import an entire module.",
-    "**Task 2:** Use `from package.module import function` to import a specific function.",
-    "**Task 3:** Use `as` to create an alias: `from module import function as alias`.",
-    "**Task 4:** Functions exposed in `__init__.py` can be imported directly from the package: `from package import function`.",
-    "**Task 5:** `__all__` should be a list of strings containing the function names to expose.",
-    "**Task 6:** Relative imports use dots: one dot (`.`) means current directory, two dots (`..`) means parent directory."
+    "**Task 1:** Syntax: `import module_name`",
+    "**Task 2:** Syntax: `from package.module import function_name`",
+    "**Task 3:** Syntax: `from package.module import function_name as alias`",
+    "**Task 4:** When exposed via `__init__.py`: `from package import function_name`",
+    "**Task 5:** `__all__` is a list of strings: `['function1', 'function2']`",
+    "**Task 6:** Relative imports start with a dot: `from .module import function`"
   ],
   "validation": "tests",
   "tests": [
     {
       "name": "Check import syntax",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\n# We're just checking that the code parses (no syntax errors)\n# The actual imports will be validated by the structure\n\nprint('TEST_PASSED')"
+      "code": "# Check Task 1: import config\nimport re\nif not re.search(r'^import\\s+config\\s*$', student_code, re.MULTILINE):\n    raise AssertionError('Task 1: Should use \"import config\"')\n\n# Check Task 2: from utils.validators import validate_email\nif 'from utils.validators import validate_email' not in student_code:\n    raise AssertionError('Task 2: Should use \"from utils.validators import validate_email\"')\n\n# Check Task 3: from utils.helpers import format_date as fmt_date\nif 'import format_date as fmt_date' not in student_code:\n    raise AssertionError('Task 3: Should use \"import format_date as fmt_date\"')\n\n# Check Task 4: from utils import calculate_total\nif 'from utils import calculate_total' not in student_code:\n    raise AssertionError('Task 4: Should use \"from utils import calculate_total\"')\n\n# Check Task 5: __all__ contains format_date and validate_email\nif '__all__' not in student_code:\n    raise AssertionError('Task 5: Should define __all__')\nif 'format_date' not in student_code or 'validate_email' not in student_code:\n    raise AssertionError('Task 5: __all__ should include format_date and validate_email')\n\n# Check Task 6: relative import\nif 'from .validators import validate_email' not in student_code:\n    raise AssertionError('Task 6: Should use \"from .validators import validate_email\"')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "",
   "tags": [
     "modules",
     "packages",

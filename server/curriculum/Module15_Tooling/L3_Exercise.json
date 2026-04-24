@@ -6,11 +6,11 @@
     "**Task 2: Fix the IndentationError** - Error: `IndentationError: expected an indented block after 'if' statement`",
     "**Task 3: Fix the NameError** - Error: `NameError: name 'usernme' is not defined. Did you mean: 'username'?`",
     "**Task 4: Fix the TypeError** - Error: `TypeError: can only concatenate str (not \"int\") to str`",
-    "**Task 5: Fix the ValueError** - Error: `ValueError: invalid literal for int() with base 10: 'abc'`",
-    "**Task 6: Fix the ZeroDivisionError** - Error: `ZeroDivisionError: division by zero`"
+    "**Task 5: Fix the ValueError** - Error: `ValueError: invalid literal for int() with base 10: 'abc'`. Use an `if` statement and `isdigit()` to check if the `user_input` is a number, else, assign 0 to `number`",
+    "**Task 6: Fix the ZeroDivisionError** - Error: `ZeroDivisionError: division by zero`. Use an `if` statement to check if `b` is not 0."
   ],
-  "starterCode": "# Task 1: Fix the SyntaxError\nuser_logged_in = True\nif user_logged_in\n    print(\"Welcome!\")\n\n\n# Task 2: Fix the IndentationError\ntemperature = 35\nif temperature > 30:\nprint(\"It's hot outside!\")\n\n\n# Task 3: Fix the NameError\nusername = \"alice\"\nprint(usernme)\n\n\n# Task 4: Fix the TypeError\nage = 25\nmessage = \"I am \" + age + \" years old\"\n\n\n# Task 5: Fix the ValueError\nuser_input = \"abc\"\nnumber = int(user_input)\n\n\n# Task 6: Fix the ZeroDivisionError\na = 10\nb = 0\nresult = a / b\n",
-  "solution": "# Task 1: Fix the SyntaxError\nuser_logged_in = True\nif user_logged_in:\n    print(\"Welcome!\")\n\n\n# Task 2: Fix the IndentationError\ntemperature = 35\nif temperature > 30:\n    print(\"It's hot outside!\")\n\n\n# Task 3: Fix the NameError\nusername = \"alice\"\nprint(username)\n\n\n# Task 4: Fix the TypeError\nage = 25\nmessage = \"I am \" + str(age) + \" years old\"\n\n\n# Task 5: Fix the ValueError\nuser_input = \"abc\"\nif user_input.isdigit():\n    number = int(user_input)\nelse:\n    number = 0\n\n\n# Task 6: Fix the ZeroDivisionError\na = 10\nb = 0\nif b != 0:\n    result = a / b\nelse:\n    result = None\n",
+  "starterCode": "# Task 1: Fix the SyntaxError\nuser_logged_in = True\nif user_logged_in\n    print(\"Welcome!\")\n\n\n# Task 2: Fix the IndentationError\ntemperature = 35\nif temperature > 30:\nprint(\"It's hot outside!\")\n\n\n# Task 3: Fix the NameError\nusername = \"naran\"\nprint(usernme)\n\n\n# Task 4: Fix the TypeError\nage = 25\nmessage = \"I am \" + age + \" years old\"\n\n\n# Task 5: Fix the ValueError\nuser_input = \"abc\"\nnumber = int(user_input)\n\n\n# Task 6: Fix the ZeroDivisionError\na = 10\nb = 0\nresult = a / b\n",
+  "solution": "# Task 1: Fix the SyntaxError\nuser_logged_in = True\nif user_logged_in:\n    print(\"Welcome!\")\n\n\n# Task 2: Fix the IndentationError\ntemperature = 35\nif temperature > 30:\n    print(\"It's hot outside!\")\n\n\n# Task 3: Fix the NameError\nusername = \"naran\"\nprint(username)\n\n\n# Task 4: Fix the TypeError\nage = 25\nmessage = \"I am \" + str(age) + \" years old\"\n\n\n# Task 5: Fix the ValueError\nuser_input = \"abc\"\nif user_input.isdigit():\n    number = int(user_input)\nelse:\n    number = 0\n\n\n# Task 6: Fix the ZeroDivisionError\na = 10\nb = 0\nif b != 0:\n    result = a / b\nelse:\n    result = None\n",
   "fileSetup": {},
   "hints": [
     "**Task 1:** Python expects a colon `:` after every `if` statement.",
@@ -21,10 +21,11 @@
     "**Task 6:** Always check that your divisor is not zero before performing division."
   ],
   "validation": "tests",
+  "expectedOutput": "Welcome!\nIt's hot outside!\nnaran",
   "tests": [
     {
       "name": "Check all tasks run without errors",
-      "code": "import sys\nfrom io import StringIO\n\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nexcept Exception as e:\n    sys.stdout = old_stdout\n    raise AssertionError(f'Code still has an error: {type(e).__name__}: {e}')\nfinally:\n    sys.stdout = old_stdout\n\nprint('TEST_PASSED')"
+      "code": "import sys\nfrom io import StringIO\n\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(student_code, exec_globals)\n    output = sys.stdout.getvalue()\nexcept Exception as e:\n    sys.stdout = old_stdout\n    raise AssertionError(f'Code still has an error: {type(e).__name__}: {e}')\nfinally:\n    sys.stdout = old_stdout\n\n# Check that expected output appears\nif 'Welcome!' not in output:\n    raise AssertionError('Task 1: Should print \"Welcome!\"')\nif \"It's hot outside!\" not in output:\n    raise AssertionError('Task 2: Should print \"It\\'s hot outside!\"')\nif 'naran' not in output:\n    raise AssertionError('Task 3: Should print \"naran\"')\n\nprint('TEST_PASSED')"
     }
   ],
   "tags": [

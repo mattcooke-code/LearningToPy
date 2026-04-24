@@ -65,23 +65,11 @@ Remember the debugging process we learned:
 
 **Error:** `SyntaxError: expected ':'`
 
-**Line:** 11
-
-When you first run the program, Python immediately stops. A `for` loop is missing its colon.
-
-**Fix:** Add a colon at the end of the for statement.
-
 ---
 
 ### Task 2: Fix the NameError
 
 **Error:** `NameError: name 'usernme' is not defined. Did you mean: 'username'?`
-
-**Line:** 5
-
-After fixing the syntax, Python shows a name error. A variable is misspelled.
-
-**Fix:** Correct the variable name in the print statement to match the variable defined above.
 
 ---
 
@@ -89,35 +77,17 @@ After fixing the syntax, Python shows a name error. A variable is misspelled.
 
 **Potential Error:** `ZeroDivisionError: division by zero`
 
-**Line:** 21
-
-The program could crash when dividing. Add error handling to prevent this.
-
-**Fix:** Add an `if` statement to check if `b != 0` before dividing.
-
 ---
 
 ### Task 4: Fix the IndentationError
 
 **Error:** `IndentationError: expected an indented block after 'for' statement`
 
-**Line:** 26
-
-The program runs, but the final results don't print correctly.
-
-**Fix:** Indent the `print(res)` line to be inside the for loop.
-
 ---
 
 ### Task 5: Fix the Logic Error
 
-**Problem:** The numbers are wrong!
-
-**Line:** 17
-
-The program runs without errors, but the results show subtraction instead of addition.
-
-**Fix:** Change the `-` operator to `+` in the add_result calculation.
+**Problem:** The numbers are wrong! The project requirements say the calculator should **add** 2 to each number, but the output shows the numbers are getting smaller.
 
 ---
 
