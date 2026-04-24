@@ -2,37 +2,36 @@
   "title": "Creating Date and Time Objects",
   "instructions": "Use the `datetime` module to create and print both the current date/time and a specific future date.",
   "steps": [
-    "Import the `datetime` class from the `datetime` module.",
-    "Use `datetime.now()` to get the current date and time. Store it in a variable named `current_moment`.",
-    "Print `current_moment`.",
-    "Create a specific `datetime` object for January 25, 2028, at 8:00 AM. Store it in a variable named `future_date`.",
-    "Print the year, month, and hour attributes of `future_date` individually."
+    "**Step 1:** Import the `datetime` class from the `datetime` module.",
+    "**Step 2:** Use `datetime.now()` to get the current date and time. Store it in `current_moment` and print it.",
+    "**Step 3:** Create a specific `datetime` object for January 25, 2028, at 8:00 AM. Store it in `future_date`.",
+    "**Step 4:** Print the `year`, `month`, and `hour` attributes of `future_date` individually."
   ],
-  "starterCode": "# Step 1: Import the datetime class\n\n\n\n# Step 2: Get the current moment\ncurrent_moment = \nprint(current_moment)\n\n# Step 3: Create the specific future date (Jan 25, 2028, 8:00 AM)\nfuture_date = \n\n# Step 4: Print components of the future date\nprint(future_date.year)\nprint(future_date.month)\nprint(future_date.hour)\n",
+  "starterCode": "# Step 1: Import the datetime class\n\n\n\n# Step 2: Get the current moment\ncurrent_moment = ???\nprint(current_moment)\n\n# Step 3: Create the specific future date (Jan 25, 2028, 8:00 AM)\nfuture_date = ???\n\n# Step 4: Print components of the future date\nprint(future_date.year)\nprint(future_date.month)\nprint(future_date.hour)\n",
   "solution": "# Step 1: Import the datetime class\nfrom datetime import datetime\n\n# Step 2: Get the current moment\ncurrent_moment = datetime.now()\nprint(current_moment)\n\n# Step 3: Create the specific future date (Jan 25, 2028, 8:00 AM)\nfuture_date = datetime(2028, 1, 25, 8, 0)\n\n# Step 4: Print components of the future date\nprint(future_date.year)\nprint(future_date.month)\nprint(future_date.hour)\n",
   "fileSetup": {},
   "hints": [
-    "**Step 1: Import**\n```python\nfrom datetime import datetime\n```\n\n**Step 2: Current moment**\n```python\ncurrent_moment = datetime.now()\n```\n\n**Step 3: Future date**\n```python\n# Arguments: year, month, day, hour, minute\nfuture_date = datetime(2028, 1, 25, 8, 0)\n```\n\n**Step 4: Component access**\n```python\nprint(future_date.year)   # 2028\nprint(future_date.month)  # 1\nprint(future_date.hour)   # 8\n```\n\n**Key Concepts:**\n- `datetime.now()` gives the current moment\n- Create specific datetimes with `datetime(year, month, day, hour, minute)`\n- Access components using dot notation: `object.year`, `object.month`, etc."
+    "**Step 1:** `from datetime import datetime`",
+    "**Step 2:** `current_moment = datetime.now()`",
+    "**Step 3:** `future_date = datetime(2028, 1, 25, 8, 0)` — arguments: year, month, day, hour, minute",
+    "**Step 4:** Access components with dot notation: `future_date.year`, `future_date.month`, `future_date.hour`"
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check import statement",
-      "code": "import ast\n\n# Parse the code\nuser_code = code\ntree = ast.parse(user_code)\n\n# Check for correct import\nfound_import = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ImportFrom) and node.module == 'datetime':\n        for name in node.names:\n            if name.name == 'datetime':\n                found_import = True\n                break\n\nif not found_import:\n    raise AssertionError('Step 1: Missing import: from datetime import datetime')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check current_moment variable",
-      "code": "import sys\nfrom io import StringIO\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check if current_moment exists\nif 'current_moment' not in exec_globals:\n    raise AssertionError('Step 2: current_moment variable not found')\n\n# Check if it's a datetime object\nif 'datetime' not in str(type(exec_globals['current_moment'])):\n    raise AssertionError('current_moment should be a datetime object')\n\n# Check that it was printed\nlines = output.strip().split('\\n')\nif len(lines) < 1:\n    raise AssertionError('Step 3: current_moment should be printed')\n\nprint('TEST_PASSED')"
+      "name": "Check import and current_moment",
+      "code": "# Check import\nif 'datetime' not in globals():\n    raise AssertionError('Step 1: Missing import: from datetime import datetime')\n\n# Check current_moment exists\nif 'current_moment' not in globals():\n    raise AssertionError('Step 2: current_moment variable not found')\n\n# Check it's a datetime object\nfrom datetime import datetime\ncurrent_moment = globals()['current_moment']\nif not isinstance(current_moment, datetime):\n    raise AssertionError('Step 2: current_moment should be a datetime object')\n\n# Check it was printed\nif not output.strip():\n    raise AssertionError('Step 2: current_moment should be printed')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check future_date creation",
-      "code": "import sys\nfrom io import StringIO\nfrom datetime import datetime\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check if future_date exists\nif 'future_date' not in exec_globals:\n    raise AssertionError('Step 3: future_date variable not found')\n\nfuture_date = exec_globals['future_date']\n\n# Check type\nif not isinstance(future_date, datetime):\n    raise AssertionError('future_date should be a datetime object')\n\n# Check values\nif future_date.year != 2028:\n    raise AssertionError(f'future_date.year should be 2028, got {future_date.year}')\nif future_date.month != 1:\n    raise AssertionError(f'future_date.month should be 1, got {future_date.month}')\nif future_date.day != 25:\n    raise AssertionError(f'future_date.day should be 25, got {future_date.day}')\nif future_date.hour != 8:\n    raise AssertionError(f'future_date.hour should be 8, got {future_date.hour}')\nif future_date.minute != 0:\n    raise AssertionError(f'future_date.minute should be 0, got {future_date.minute}')\n\nprint('TEST_PASSED')"
+      "code": "if 'future_date' not in globals():\n    raise AssertionError('Step 3: future_date variable not found')\n\nfrom datetime import datetime\nfuture_date = globals()['future_date']\n\nif not isinstance(future_date, datetime):\n    raise AssertionError('Step 3: future_date should be a datetime object')\n\n# Check values\nif future_date.year != 2028:\n    raise AssertionError(f'Step 3: year should be 2028, got {future_date.year}')\nif future_date.month != 1:\n    raise AssertionError(f'Step 3: month should be 1, got {future_date.month}')\nif future_date.day != 25:\n    raise AssertionError(f'Step 3: day should be 25, got {future_date.day}')\nif future_date.hour != 8:\n    raise AssertionError(f'Step 3: hour should be 8, got {future_date.hour}')\nif future_date.minute != 0:\n    raise AssertionError(f'Step 3: minute should be 0, got {future_date.minute}')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check component printing",
-      "code": "import sys\nfrom io import StringIO\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Split output into lines and filter out the current_moment line\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# The first line should be current_moment, the next three should be year, month, hour\nif len(lines) < 4:\n    raise AssertionError('Step 4: Expected at least 4 lines of output (current_moment + 3 components)')\n\n# Check the last three lines for expected values\ncomponents = lines[-3:]\nexpected = ['2028', '1', '8']\n\nif components != expected:\n    raise AssertionError(f'Expected component outputs {expected}, got {components}')\n\nprint('TEST_PASSED')"
+      "code": "# Split output into lines\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# The first line is current_moment, last three should be year, month, hour\nif len(lines) < 4:\n    raise AssertionError('Step 4: Expected at least 4 lines of output')\n\n# Check the last three lines for expected values\ncomponents = lines[-3:]\nexpected = ['2028', '1', '8']\n\nif components != expected:\n    raise AssertionError(f'Step 4: Expected {expected}, got {components}')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "2025-04-23 12:34:56.789012\n2028\n1\n8",
   "tags": ["datetime", "now", "date", "time", "basic-objects"],
   "challengeGroup": "datetime-basics"
 }

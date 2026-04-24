@@ -1,36 +1,38 @@
 {
   "title": "Time Zone Conversion",
-  "instructions": "Write the code to convert a London time to Tokyo time using the `zoneinfo` module. (The validation will check your code structure without executing the timezone conversion.)",
+  "instructions": "Convert a London meeting time to Tokyo time using the `zoneinfo` module.",
   "steps": [
-    "Import `datetime` and `ZoneInfo`.",
-    "Define the London time zone object for `ZoneInfo('Europe/London')`. Store it in `london_tz` ",
-    "Create an aware datetime object for 9:00 AM on July 10, 2025, in the London time zone. Store it in `london_meeting`.",
-    "Define the Tokyo time zone object for `ZoneInfo('Asia/Tokyo')`. Store it in `tokyo_tz`",
-    "Use the `.astimezone()` method to convert `london_meeting` to Tokyo time. Store the result in `tokyo_meeting`.",
-    "Print the hour of `tokyo_meeting`.",
-    "NOTE: You may see an error in the terminal because we are not actually importing the package for this exercise."
+    "**Step 1:** Import `datetime` from `datetime` and `ZoneInfo` from `zoneinfo`.",
+    "**Step 2:** Create a `ZoneInfo` object for `'Europe/London'` and store in `london_tz`.",
+    "**Step 3:** Create an aware datetime for July 10, 2025 at 9:00 AM in London. Use `tzinfo=london_tz`. Store in `london_meeting`.",
+    "**Step 4:** Create a `ZoneInfo` object for `'Asia/Tokyo'` and store in `tokyo_tz`.",
+    "**Step 5:** Convert `london_meeting` to Tokyo time using `.astimezone(tokyo_tz)`. Store in `tokyo_meeting`.",
+    "**Step 6:** Print the `hour` attribute of `tokyo_meeting`."
   ],
-  "starterCode": "# Step 1: Import datetime and ZoneInfo\n\n\n\n# Step 2: Define London time zone\n\n\n\n# Step 3: Create the aware datetime (July 10, 2025, 9:00 AM London)\n\n\n\n# Step 4: Define Tokyo time zone\n\n\n\n# Step 5: Convert to Tokyo time\n\n\n\n# Step 6: Print the hour\nprint(tokyo_meeting.hour)\n",
-  "solution": "# Step 1: Import datetime and ZoneInfo\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\n\n# Step 2: Define London time zone\nlondon_tz = ZoneInfo('Europe/London')\n\n# Step 3: Create the aware datetime\nlondon_meeting = datetime(2025, 7, 10, 9, 0, 0, tzinfo=london_tz)\n\n# Step 4: Define Tokyo time zone\ntokyo_tz = ZoneInfo('Asia/Tokyo')\n\n# Step 5: Convert to Tokyo time\ntokyo_meeting = london_meeting.astimezone(tokyo_tz)\n\n# Step 6: Print the hour\nprint(tokyo_meeting.hour)\n",
+  "starterCode": "# Step 1: Import datetime and ZoneInfo\n\n# Step 2: Define London time zone\nlondon_tz = ???\n\n# Step 3: Create aware datetime (July 10, 2025, 9:00 AM London)\nlondon_meeting = ???\n\n# Step 4: Define Tokyo time zone\ntokyo_tz = ???\n\n# Step 5: Convert to Tokyo time\ntokyo_meeting = ???\n\n# Step 6: Print the hour\nprint(tokyo_meeting.hour)\n",
+  "solution": "# Step 1: Import datetime and ZoneInfo\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\n\n# Step 2: Define London time zone\nlondon_tz = ZoneInfo('Europe/London')\n\n# Step 3: Create aware datetime (July 10, 2025, 9:00 AM London)\nlondon_meeting = datetime(2025, 7, 10, 9, 0, 0, tzinfo=london_tz)\n\n# Step 4: Define Tokyo time zone\ntokyo_tz = ZoneInfo('Asia/Tokyo')\n\n# Step 5: Convert to Tokyo time\ntokyo_meeting = london_meeting.astimezone(tokyo_tz)\n\n# Step 6: Print the hour\nprint(tokyo_meeting.hour)\n",
   "fileSetup": {},
+  "hints": [
+    "**Step 1:** `from datetime import datetime` and `from zoneinfo import ZoneInfo`",
+    "**Step 2:** Use the `ZoneInfo()` constructor with a timezone string.",
+    "**Step 3:** `datetime()` takes: year, month, day, hour, minute, second. Add `tzinfo=` to make it timezone-aware.",
+    "**Step 4:** Same pattern as Step 2 — just a different city.",
+    "**Step 5:** Call `.astimezone()` on the London datetime, passing in the Tokyo timezone.",
+    "**Step 6:** Access the `.hour` attribute of the converted time.",
+    "**Note:** London is 8 hours behind Tokyo in July. Use this to verify your answer."
+  ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check imports using AST",
-      "code": "import ast\n\n# Parse the code without executing it\nuser_code = code\ntree = ast.parse(user_code)\n\n# Check for correct imports\nfound_datetime_import = False\nfound_zoneinfo_import = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.ImportFrom):\n        if node.module == 'datetime':\n            for name in node.names:\n                if name.name == 'datetime':\n                    found_datetime_import = True\n        if node.module == 'zoneinfo':\n            for name in node.names:\n                if name.name == 'ZoneInfo':\n                    found_zoneinfo_import = True\n\nif not found_datetime_import:\n    raise AssertionError('Step 1: Missing import: from datetime import datetime')\nif not found_zoneinfo_import:\n    raise AssertionError('Step 1: Missing import: from zoneinfo import ZoneInfo')\n\nprint('TEST_PASSED')"
+      "name": "Check timezone objects and conversion",
+      "code": "# Check london_tz\nif 'london_tz' not in globals():\n    raise AssertionError('Step 2: london_tz variable not found')\n\nlondon_tz = globals()['london_tz']\nif str(london_tz) != 'Europe/London':\n    raise AssertionError('Step 2: london_tz should be Europe/London')\n\n# Check tokyo_tz\nif 'tokyo_tz' not in globals():\n    raise AssertionError('Step 4: tokyo_tz variable not found')\n\ntokyo_tz = globals()['tokyo_tz']\nif str(tokyo_tz) != 'Asia/Tokyo':\n    raise AssertionError('Step 4: tokyo_tz should be Asia/Tokyo')\n\n# Check london_meeting\nif 'london_meeting' not in globals():\n    raise AssertionError('Step 3: london_meeting variable not found')\n\nlondon_meeting = globals()['london_meeting']\nif london_meeting.tzinfo is None:\n    raise AssertionError('Step 3: london_meeting should be timezone-aware (use tzinfo=)')\nif london_meeting.hour != 9:\n    raise AssertionError('Step 3: Hour should be 9 AM')\n\n# Check tokyo_meeting\nif 'tokyo_meeting' not in globals():\n    raise AssertionError('Step 5: tokyo_meeting variable not found')\n\ntokyo_meeting = globals()['tokyo_meeting']\nif tokyo_meeting.hour != 17:\n    raise AssertionError(f'Step 5: Tokyo hour should be 17 (5 PM), got {tokyo_meeting.hour}')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Check timezone variable definitions",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\n# Track variable assignments\nfound_london_tz = False\nfound_tokyo_tz = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        for target in node.targets:\n            if isinstance(target, ast.Name):\n                if target.id == 'london_tz':\n                    found_london_tz = True\n                if target.id == 'tokyo_tz':\n                    found_tokyo_tz = True\n\nif not found_london_tz:\n    raise AssertionError('Step 2: london_tz variable not defined')\nif not found_tokyo_tz:\n    raise AssertionError('Step 4: tokyo_tz variable not defined')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check london_meeting creation",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\nfound_london_meeting = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        for target in node.targets:\n            if isinstance(target, ast.Name) and target.id == 'london_meeting':\n                found_london_meeting = True\n                # Check that it's a datetime call with tzinfo parameter\n                if isinstance(node.value, ast.Call):\n                    if isinstance(node.value.func, ast.Name) and node.value.func.id == 'datetime':\n                        # Check for tzinfo keyword argument\n                        for keyword in node.value.keywords:\n                            if keyword.arg == 'tzinfo' and isinstance(keyword.value, ast.Name) and keyword.value.id == 'london_tz':\n                                break\n                        else:\n                            raise AssertionError('london_meeting should have tzinfo=london_tz')\n                    else:\n                        raise AssertionError('london_meeting should be created with datetime()')\n                break\n\nif not found_london_meeting:\n    raise AssertionError('Step 3: london_meeting variable not defined')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check conversion to Tokyo time",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\nfound_tokyo_meeting = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        for target in node.targets:\n            if isinstance(target, ast.Name) and target.id == 'tokyo_meeting':\n                found_tokyo_meeting = True\n                # Check that it uses .astimezone()\n                if isinstance(node.value, ast.Call):\n                    if isinstance(node.value.func, ast.Attribute):\n                        if node.value.func.attr == 'astimezone':\n                            # Check that it's called on london_meeting\n                            if isinstance(node.value.func.value, ast.Name) and node.value.func.value.id == 'london_meeting':\n                                # Check argument is tokyo_tz\n                                if node.value.args and isinstance(node.value.args[0], ast.Name) and node.value.args[0].id == 'tokyo_tz':\n                                    break\n                                else:\n                                    raise AssertionError('astimezone() should be called with tokyo_tz')\n                            else:\n                                raise AssertionError('astimezone() should be called on london_meeting')\n                        else:\n                            raise AssertionError('tokyo_meeting should use .astimezone() method')\n                    else:\n                        raise AssertionError('tokyo_meeting should be assigned from a method call')\n                break\n\nif not found_tokyo_meeting:\n    raise AssertionError('Step 5: tokyo_meeting variable not defined')\n\nprint('TEST_PASSED')"
+      "name": "Check output",
+      "code": "if '17' not in output:\n    raise AssertionError('Step 6: Should print the Tokyo hour (17)')\n\nprint('TEST_PASSED')"
     }
   ],
-  "tags": ["timezone", "tzinfo", "zoneinfo", "astimezone", "ast-validation"]
+  "expectedOutput": "17",
+  "tags": ["timezone", "tzinfo", "zoneinfo", "astimezone"],
+  "challengeGroup": "datetime-timezone"
 }
