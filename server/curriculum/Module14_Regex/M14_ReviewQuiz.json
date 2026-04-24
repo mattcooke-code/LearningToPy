@@ -86,7 +86,7 @@
       "type": "multiple-choice",
       "question": "What will `re.findall(r'(\\d{2})-(\\d{2})', '12-34 56-78')` return?",
       "options": [
-        "`['12-34', '56-78']`",
+        "`['56-78', '12-34']`",
         "`[('12', '34'), ('56', '78')]`",
         "`['12', '34', '56', '78']`",
         "`['12-34', '56-78']`"
@@ -133,12 +133,12 @@
       "type": "multiple-choice",
       "question": "What will `re.split(r'[;,]', 'a,b;c,d')` return?",
       "options": [
-        "`['a', 'b', 'c', 'd']`",
+        "`['a', ',', 'b', ';', 'c', ',', 'd']`",
         "`['a', 'b;c', 'd']`",
         "`['a,b', 'c,d']`",
         "`['a', 'b', 'c', 'd']`"
       ],
-      "correctAnswer": 0,
+      "correctAnswer": 3,
       "explanation": "The character set `[;,]` matches either a semicolon or a comma. `re.split()` splits the string at every occurrence of either delimiter, resulting in `['a', 'b', 'c', 'd']`."
     }
   ]

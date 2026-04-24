@@ -2,41 +2,42 @@
   "title": "Quantifiers, Character Sets, and Anchors",
   "instructions": "Practice using quantifiers, character sets, and anchors to extract and validate patterns in text.",
   "steps": [
-    "**Task 1: Import the `re` module** - Add the import statement at the top of your code.",
-    "**Task 2: Match vowels** - Create a pattern that matches any single vowel (a, e, i, o, u - both lowercase and uppercase). Use `re.findall()` to find all vowels in the string `'Hello World'` and store the result in `vowels`.",
-    "**Task 3: Match 4-digit numbers** - Create a pattern that matches exactly four digits in a row. Use `re.findall()` to find all 4-digit numbers in `text_numbers` and store the result in `four_digit_numbers`.",
-    "**Task 4: Match words ending with 'ing'** - Create a pattern that matches words ending with 'ing' (like 'playing', 'running'). Use `re.findall()` to find all such words in `text_actions` and store the result in `ing_words`.",
-    "**Task 5: Validate product codes** - Create a pattern that validates product codes starting with 'P', followed by exactly two uppercase letters, then a hyphen, then exactly three digits (e.g., 'PXY-123'). Use `re.match()` to check if `product_code` matches the pattern and store the result (the match object or None) in `valid_code`."
+    "**Task 1:** Import the `re` module.",
+    "**Task 2:** Create a character set pattern to match any vowel (a, e, i, o, u — both lowercase and uppercase). Use `re.findall()` on `'Hello World'` and store in `vowels`. Print the result.",
+    "**Task 3:** Create a pattern using a quantifier to match exactly four digits in a row. Use `re.findall()` on `text_numbers` and store in `four_digit_numbers`. Print the result.",
+    "**Task 4:** Create a pattern to match words ending with 'ing'. Use `re.findall()` on `text_actions` and store in `ing_words`. Print the result.",
+    "**Task 5:** Create a pattern to validate product codes: starts with 'P', followed by exactly two uppercase letters, a hyphen, then exactly three digits. Use `re.match()` on `product_code` and store in `valid_code`. Print whether it's valid."
   ],
-  "starterCode": "# Task 1: Import the re module\n\n\n\n# Task 2: Find all vowels in 'Hello World'\ntext1 = 'Hello World'\nvowels = re.findall(..., text1)\n\n# Task 3: Find all 4-digit numbers\ntext_numbers = 'Contact us at 1234 or 5678, but not at 123 or 12345'\nfour_digit_numbers = re.findall(..., text_numbers)\n\n# Task 4: Find all words ending with 'ing'\ntext_actions = 'The kids are playing, running, and swimming in the pool.'\ning_words = re.findall(..., text_actions)\n\n# Task 5: Validate product code\nproduct_code = 'PXY-123'\nvalid_code = re.match(..., product_code)\n\n# Print results\nprint(f'Vowels found: {vowels}')\nprint(f'4-digit numbers: {four_digit_numbers}')\nprint(f'Words ending with ing: {ing_words}')\nprint(f'Product code valid: {bool(valid_code)}')",
-  "solution": "# Task 1: Import the re module\nimport re\n\n# Task 2: Find all vowels in 'Hello World'\ntext1 = 'Hello World'\nvowels = re.findall(r'[aeiouAEIOU]', text1)\n\n# Task 3: Find all 4-digit numbers\ntext_numbers = 'Contact us at 1234 or 5678, but not at 123 or 12345'\nfour_digit_numbers = re.findall(r'\\d{4}', text_numbers)\n\n# Task 4: Find all words ending with 'ing'\ntext_actions = 'The kids are playing, running, and swimming in the pool.'\ning_words = re.findall(r'[a-zA-Z]+ing\\b', text_actions)\n\n# Task 5: Validate product code\nproduct_code = 'PXY-123'\nvalid_code = re.match(r'P[A-Z]{2}-\\d{3}$', product_code)\n\n# Print results\nprint(f'Vowels found: {vowels}')\nprint(f'4-digit numbers: {four_digit_numbers}')\nprint(f'Words ending with ing: {ing_words}')\nprint(f'Product code valid: {bool(valid_code)}')",
+  "starterCode": "# Task 1: Import the re module\n\n\n\n# Task 2: Find all vowels in 'Hello World'\ntext1 = 'Hello World'\nvowels = ???\nprint(f'Vowels found: {vowels}')\n\n# Task 3: Find all 4-digit numbers\ntext_numbers = 'Contact us at 1234 or 5678, but not at 123 or 12345'\nfour_digit_numbers = ???\nprint(f'4-digit numbers: {four_digit_numbers}')\n\n# Task 4: Find all words ending with 'ing'\ntext_actions = 'The kids are playing, running, and swimming in the pool.'\ning_words = ???\nprint(f'Words ending with ing: {ing_words}')\n\n# Task 5: Validate product code\nproduct_code = 'PXY-123'\nvalid_code = ???\nprint(f'Product code valid: {bool(valid_code)}')\n",
+  "solution": "# Task 1: Import the re module\nimport re\n\n# Task 2: Find all vowels in 'Hello World'\ntext1 = 'Hello World'\nvowels = re.findall(r'[aeiouAEIOU]', text1)\nprint(f'Vowels found: {vowels}')\n\n# Task 3: Find all 4-digit numbers\ntext_numbers = 'Contact us at 1234 or 5678, but not at 123 or 12345'\nfour_digit_numbers = re.findall(r'\\d{4}', text_numbers)\nprint(f'4-digit numbers: {four_digit_numbers}')\n\n# Task 4: Find all words ending with 'ing'\ntext_actions = 'The kids are playing, running, and swimming in the pool.'\ning_words = re.findall(r'[a-zA-Z]+ing\\b', text_actions)\nprint(f'Words ending with ing: {ing_words}')\n\n# Task 5: Validate product code\nproduct_code = 'PXY-123'\nvalid_code = re.match(r'P[A-Z]{2}-\\d{3}$', product_code)\nprint(f'Product code valid: {bool(valid_code)}')\n",
   "fileSetup": {},
   "hints": [
-    "**Task 1: Import**\n```python\nimport re\n```\n\n**Task 2: Vowel pattern**\n```python\n# Character set for vowels (both cases)\npattern = r'[aeiouAEIOU]'\n```\n\n**Task 3: 4-digit numbers**\n```python\n# Exactly four digits in a row\npattern = r'\\d{4}'\n```\n\n**Task 4: Words ending with 'ing'**\n```python\n# One or more letters, followed by 'ing', at a word boundary\npattern = r'[a-zA-Z]+ing\\b'\n```\n\n**Task 5: Product code validation**\n```python\n# Start with P, then 2 uppercase letters, hyphen, 3 digits, end\npattern = r'P[A-Z]{2}-\\d{3}$'\n# Use re.match() since we want to check from the beginning\n```\n\n**Expected Output:**\n```\nVowels found: ['e', 'o', 'o']\n4-digit numbers: ['1234', '5678']\nWords ending with ing: ['playing', 'running', 'swimming']\nProduct code valid: True\n```"
+    "**Task 1:** `import re`",
+    "**Task 2:** Use square brackets for a character set: `[aeiouAEIOU]`. Call `re.findall(pattern, string)`.",
+    "**Task 3:** Use `\\d` for a digit and `{4}` to match exactly four.",
+    "**Task 4:** Use `[a-zA-Z]+` for one or more letters, followed by `ing`, with `\\b` for word boundary.",
+    "**Task 5:** Pattern parts: `P` then `[A-Z]{2}` then `-` then `\\d{3}` then `$` for end-of-string. Use `re.match()`."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Task 1: Check import",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\nfound_import = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 're' for name in node.names):\n        found_import = True\n    if isinstance(node, ast.ImportFrom) and node.module == 're':\n        found_import = True\n\nif not found_import:\n    raise AssertionError('Task 1: Missing import re module')\n\nprint('TEST_PASSED')"
+      "name": "Check import and vowels",
+      "code": "# Check import\nimport re\n\n# Check vowels\nif 'vowels' not in globals():\n    raise AssertionError('Task 2: vowels variable not found')\n\nvowels = globals()['vowels']\nexpected = ['e', 'o', 'o']\nif vowels != expected:\n    raise AssertionError(f'Task 2: Expected {expected}, got {vowels}')\n\nif 'Vowels found:' not in output:\n    raise AssertionError('Task 2: Should print the vowels')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 2: Find vowels",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'vowels' not in exec_globals:\n    raise AssertionError('Task 2: vowels variable not found')\n\nvowels = exec_globals['vowels']\nexpected = ['e', 'o', 'o']\nif vowels != expected:\n    raise AssertionError(f'Task 2: Expected {expected}, got {vowels}')\n\nprint('TEST_PASSED')"
+      "name": "Check 4-digit numbers",
+      "code": "if 'four_digit_numbers' not in globals():\n    raise AssertionError('Task 3: four_digit_numbers variable not found')\n\nfour_digit = globals()['four_digit_numbers']\n\nif '1234' not in four_digit:\n    raise AssertionError('Task 3: Should find 1234')\nif '5678' not in four_digit:\n    raise AssertionError('Task 3: Should find 5678')\nif '123' in four_digit or '12345' in four_digit:\n    raise AssertionError('Task 3: Should NOT match 3-digit or 5-digit numbers')\n\nif '4-digit numbers:' not in output:\n    raise AssertionError('Task 3: Should print the numbers')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 3: Find 4-digit numbers",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'four_digit_numbers' not in exec_globals:\n    raise AssertionError('Task 3: four_digit_numbers variable not found')\n\nfour_digit = exec_globals['four_digit_numbers']\n\n# Check that both required numbers are present\nif '1234' not in four_digit:\n    raise AssertionError('Task 3: Missing 1234 in results')\nif '5678' not in four_digit:\n    raise AssertionError('Task 3: Missing 5678 in results')\n\n# Count occurrences - should be at least 1 each\nif four_digit.count('1234') < 1:\n    raise AssertionError('Task 3: 1234 should appear at least once')\nif four_digit.count('5678') < 1:\n    raise AssertionError('Task 3: 5678 should appear at least once')\n\nprint('TEST_PASSED')"
+      "name": "Check ing words",
+      "code": "if 'ing_words' not in globals():\n    raise AssertionError('Task 4: ing_words variable not found')\n\ning_words = globals()['ing_words']\nexpected = ['playing', 'running', 'swimming']\nif ing_words != expected:\n    raise AssertionError(f'Task 4: Expected {expected}, got {ing_words}')\n\nif 'Words ending with ing:' not in output:\n    raise AssertionError('Task 4: Should print the words')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 4: Find words ending with ing",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'ing_words' not in exec_globals:\n    raise AssertionError('Task 4: ing_words variable not found')\n\ning_words = exec_globals['ing_words']\nexpected = ['playing', 'running', 'swimming']\nif ing_words != expected:\n    raise AssertionError(f'Task 4: Expected {expected}, got {ing_words}')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Task 5: Validate product code",
-      "code": "exec_globals = {}\nexec(code, exec_globals)\n\nif 'valid_code' not in exec_globals:\n    raise AssertionError('Task 5: valid_code variable not found')\n\nvalid = exec_globals['valid_code']\nif valid is None:\n    raise AssertionError('Task 5: valid_code should be a match object, not None')\n\n# Check output\nimport sys\nfrom io import StringIO\n\nold_stdout = sys.stdout\nsys.stdout = StringIO()\nexec(code, {})\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nif 'True' not in output:\n    raise AssertionError('Task 5: Product code should be valid (True)')\n\nprint('TEST_PASSED')"
+      "name": "Check product code validation",
+      "code": "if 'valid_code' not in globals():\n    raise AssertionError('Task 5: valid_code variable not found')\n\nvalid = globals()['valid_code']\nif valid is None:\n    raise AssertionError('Task 5: \"PXY-123\" should be a valid product code')\n\nif 'Product code valid: True' not in output:\n    raise AssertionError('Task 5: Should print that product code is valid')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "Vowels found: ['e', 'o', 'o']\n4-digit numbers: ['1234', '5678']\nWords ending with ing: ['playing', 'running', 'swimming']\nProduct code valid: True",
   "tags": [
     "quantifiers",
     "character-sets",

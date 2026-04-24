@@ -2,38 +2,40 @@
   "title": "Basic Matching with re.search()",
   "instructions": "Use `re.search()` and simple special characters (`.`, `\\d`, `\\s`) to find specific patterns in a string.",
   "steps": [
-    "**Task 1: Import the `re` module** - Add the import statement at the top of your code.",
-    "**Task 2: Define the test string** - Create a variable `log_entry` with the value: `'ERR [ID-456] User failed login at 15:30:00'`.",
-    "**Task 3: Find the ID** - Create a raw string pattern `pattern_id` that matches the literal `'ID-'` followed by three digits. Use `re.search()` to find this pattern in `log_entry` and store the result in `id_match`.",
-    "**Task 4: Print the ID** - Print the matched text using `id_match.group()`.",
-    "**Task 5: Find the time** - Create a raw string pattern `pattern_time` that matches a time in the format `HH:MM:SS` (two digits, colon, two digits, colon, two digits). Use `re.search()` to find this pattern and store the result in `time_match`.",
-    "**Task 6: Print the time** - Print the matched text using `time_match.group()`."
+    "**Task 1:** Import the `re` module.",
+    "**Task 2:** Create a variable `log_entry` with the value: `'ERR [ID-456] User failed login at 15:30:00'`.",
+    "**Task 3:** Create a raw string pattern `pattern_id` that matches the literal `'ID-'` followed by three digits. Use `re.search()` to find this pattern and store the result in `id_match`.",
+    "**Task 4:** Print the matched ID using `id_match.group()`.",
+    "**Task 5:** Create a raw string pattern `pattern_time` that matches a time in format `HH:MM:SS`. Use `re.search()` to find this pattern and store the result in `time_match`.",
+    "**Task 6:** Print the matched time using `time_match.group()`."
   ],
-  "starterCode": "# Task 1: Import the re module\n\n\n\n# Task 2: Define the test string\n\n\n\n# Task 3: Find the ID\npattern_id = \nid_match = \n\n# Task 4: Print the ID\n\n\n\n# Task 5: Find the time\npattern_time = \ntime_match = \n\n# Task 6: Print the time\n",
-  "solution": "# Task 1: Import the re module\nimport re\n\n# Task 2: Define the test string\nlog_entry = 'ERR [ID-456] User failed login at 15:30:00'\n\n# Task 3: Find the ID\npattern_id = r'ID-\\d\\d\\d'\nid_match = re.search(pattern_id, log_entry)\n\n# Task 4: Print the ID\nprint(id_match.group())\n\n# Task 5: Find the time\npattern_time = r'\\d\\d:\\d\\d:\\d\\d'\ntime_match = re.search(pattern_time, log_entry)\n\n# Task 6: Print the time\nprint(time_match.group())",
+  "starterCode": "# Task 1: Import the re module\n\n\n\n# Task 2: Define the test string\nlog_entry = ???\n\n# Task 3: Find the ID\npattern_id = ???\nid_match = ???\n\n# Task 4: Print the ID\n\n\n\n# Task 5: Find the time\npattern_time = ???\ntime_match = ???\n\n# Task 6: Print the time\n\n",
+  "solution": "# Task 1: Import the re module\nimport re\n\n# Task 2: Define the test string\nlog_entry = 'ERR [ID-456] User failed login at 15:30:00'\n\n# Task 3: Find the ID\npattern_id = r'ID-\\d\\d\\d'\nid_match = re.search(pattern_id, log_entry)\n\n# Task 4: Print the ID\nprint(id_match.group())\n\n# Task 5: Find the time\npattern_time = r'\\d\\d:\\d\\d:\\d\\d'\ntime_match = re.search(pattern_time, log_entry)\n\n# Task 6: Print the time\nprint(time_match.group())\n",
   "fileSetup": {},
   "hints": [
-    "**Task 1: Import**\n```python\nimport re\n```\n\n**Task 2: Test string**\n```python\nlog_entry = 'ERR [ID-456] User failed login at 15:30:00'\n```\n\n**Task 3: ID pattern**\n```python\n# Match literal 'ID-' followed by exactly three digits\npattern_id = r'ID-\\d\\d\\d'\nid_match = re.search(pattern_id, log_entry)\n```\n\n**Task 4: Print ID**\n```python\nprint(id_match.group())  # Should print: ID-456\n```\n\n**Task 5: Time pattern**\n```python\n# Match two digits, colon, two digits, colon, two digits\npattern_time = r'\\d\\d:\\d\\d:\\d\\d'\ntime_match = re.search(pattern_time, log_entry)\n```\n\n**Task 6: Print time**\n```python\nprint(time_match.group())  # Should print: 15:30:00\n```\n\n**Key Concepts:**\n- Always use raw strings (`r\"...\"`) for regex patterns\n- `\\d` matches any single digit (0-9)\n- `re.search()` finds the pattern anywhere in the string\n- `.group()` returns the actual text that matched"
+    "**Task 1:** `import re`",
+    "**Task 2:** Assign the exact string to `log_entry`.",
+    "**Task 3:** Use a raw string `r'...'` with `\\d` to match digits. `re.search()` takes a pattern and a string. Don't forget the hyphen after 'ID' `-` and check the lesson content if you are still struggling",
+    "**Task 4:** Call `.group()` on the match object to get the matched text.",
+    "**Task 5:** Match digit-digit-colon-digit-digit-colon-digit-digit using `\\d` and literal colons.",
+    "**Task 6:** Same pattern as Task 4 — call `.group()` on the time match."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Task 1: Check import",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\nfound_import = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 're' for name in node.names):\n        found_import = True\n    if isinstance(node, ast.ImportFrom) and node.module == 're':\n        found_import = True\n\nif not found_import:\n    raise AssertionError('Task 1: Missing import re module')\n\nprint('TEST_PASSED')"
+      "name": "Check import and log_entry",
+      "code": "# Check import\nimport re\n\n# Check log_entry exists\nif 'log_entry' not in globals():\n    raise AssertionError('Task 2: log_entry variable not found')\n\nlog_entry = globals()['log_entry']\nif 'ID-456' not in log_entry or '15:30:00' not in log_entry:\n    raise AssertionError('Task 2: log_entry should contain the error log string')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Task 2: Check log_entry variable",
-      "code": "import ast\n\nuser_code = code\ntree = ast.parse(user_code)\n\nfound_log_entry = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        for target in node.targets:\n            if isinstance(target, ast.Name) and target.id == 'log_entry':\n                found_log_entry = True\n                break\n\nif not found_log_entry:\n    raise AssertionError('Task 2: log_entry variable not defined')\n\nprint('TEST_PASSED')"
+      "name": "Check ID matching",
+      "code": "if 'id_match' not in globals():\n    raise AssertionError('Task 3: id_match variable not found')\nif 'pattern_id' not in globals():\n    raise AssertionError('Task 3: pattern_id variable not found')\n\nid_match = globals()['id_match']\n\n# Check it's a match object\nif not hasattr(id_match, 'group'):\n    raise AssertionError('Task 3: id_match should be a match object from re.search()')\n\n# Check it found the right thing\nif id_match.group() != 'ID-456':\n    raise AssertionError(f'Task 3: id_match should be \"ID-456\", got \"{id_match.group()}\"')\n\n# Check ID was printed\nif 'ID-456' not in output:\n    raise AssertionError('Task 4: Should print the matched ID')\n\nprint('TEST_PASSED')"
     },
     {
-      "name": "Tasks 3-4: Find and print ID",
-      "code": "import sys\nfrom io import StringIO\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check that id_match exists\nif 'id_match' not in exec_globals:\n    raise AssertionError('Task 3: id_match variable not found')\n\n# Check that pattern_id exists and is a raw string (heuristic check)\nif 'pattern_id' not in exec_globals:\n    raise AssertionError('Task 3: pattern_id variable not found')\n\n# Check output contains ID\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\nif len(lines) < 2:\n    raise AssertionError('Expected at least 2 lines of output (ID and time)')\n\nif 'ID-456' not in lines[0]:\n    raise AssertionError(f'Task 4: First output should be \"ID-456\", got \"{lines[0]}\"')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Tasks 5-6: Find and print time",
-      "code": "import sys\nfrom io import StringIO\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = StringIO()\n\ntry:\n    exec_globals = {}\n    exec(code, exec_globals)\n    output = sys.stdout.getvalue()\nfinally:\n    sys.stdout = old_stdout\n\n# Check that time_match exists\nif 'time_match' not in exec_globals:\n    raise AssertionError('Task 5: time_match variable not found')\n\n# Check that pattern_time exists\nif 'pattern_time' not in exec_globals:\n    raise AssertionError('Task 5: pattern_time variable not found')\n\n# Check output contains time\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\nif len(lines) < 2:\n    raise AssertionError('Expected at least 2 lines of output')\n\n# Time should be on line 2\nif '15:30:00' not in lines[1]:\n    raise AssertionError(f'Task 6: Second output should be \"15:30:00\", got \"{lines[1]}\"')\n\nprint('TEST_PASSED')"
+      "name": "Check time matching",
+      "code": "if 'time_match' not in globals():\n    raise AssertionError('Task 5: time_match variable not found')\nif 'pattern_time' not in globals():\n    raise AssertionError('Task 5: pattern_time variable not found')\n\ntime_match = globals()['time_match']\n\n# Check it's a match object\nif not hasattr(time_match, 'group'):\n    raise AssertionError('Task 5: time_match should be a match object from re.search()')\n\n# Check it found the right thing\nif time_match.group() != '15:30:00':\n    raise AssertionError(f'Task 5: time_match should be \"15:30:00\", got \"{time_match.group()}\"')\n\n# Check time was printed\nif '15:30:00' not in output:\n    raise AssertionError('Task 6: Should print the matched time')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "ID-456\n15:30:00",
   "tags": [
     "regex",
     "re-module",

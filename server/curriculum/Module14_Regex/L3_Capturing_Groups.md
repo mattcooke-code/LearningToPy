@@ -58,22 +58,24 @@ print(f"Multiple Groups Findall: {matches2}")
 
 ## 3. Non-Capturing Groups (`(?:...)`)
 
-Sometimes you need to group parts of a regex for applying quantifiers or alternation (`|`), but you don't need to extract the content. In this case, use a **non-capturing group** by starting the parenthesis with `?:`.
+Sometimes you need to group parts of a regex (like when using the OR `|` operator), but you don't actually want to extract that specific part of the text. To do this, use a **non-capturing group** by adding `?:` inside the opening parenthesis.
 
 ```python
-# Match 'Apple' or 'Banana', followed by 'Pie' or 'Muffin'
-# If we don't use non-capturing groups, we get the middle part
-pattern_bad = r"(Apple|Banana)( Pie| Muffin)"
+# Goal: Extract the domain names, ignoring the protocol (http/https)
+text = "Links: https://google.com, http://python.org"
 
-# If we only want the entire dessert name, use non-capturing groups
-pattern_good = r"(?:Apple|Banana)(?: Pie| Muffin)"
-# Only Group 0 (the full match) is captured.
+# We need the parentheses for the '|' (OR), but we don't want 'http' in our results
+pattern = r"(?:http|https)://(\w+\.\w+)"
+# (\w+\.\w+) is a capturing group for the domain
 
-text = "I want a Banana Muffin."
-match = re.search(pattern_good, text)
-
-# This is less commonly needed than capturing groups, but good practice for pattern clarity.
+domains = re.findall(pattern, text)
+print(domains)
+# Output: ['google.com', 'python.org']
 ```
+
+:::note
+`(?:...)` tells Python: "_I need you to look for this to find a match, but I don't want you to save it for me._"
+:::
 
 :::summary
 

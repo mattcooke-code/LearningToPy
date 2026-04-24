@@ -21,26 +21,25 @@ Example Line:
 
 `192.168.1.10 - - [21/Jun/2025:14:30:15] "GET /index.html HTTP/1.1" 200 1024`
 
-### Implementation Steps
+### 📖 Regex Reference Guide
 
-**Step 1: Import the `re` module**
+Use this table as a quick reminder of the building blocks you'll need for the Log Analyzer:
 
-**Step 2: Define the log data** (provided in the starter code)
+| Component            | Regex Syntax | Purpose in this Project                                                           |
+| -------------------- | ------------ | --------------------------------------------------------------------------------- |
+| **Digits**           | `\d`         | To match numbers in IP addresses and status codes.                                |
+| **Quantifier**       | `{n,m}`      | To specify a range, like `\d{1,3}` for IP octets.                                 |
+| **Literal Dot**      | `\.`         | To match the actual `.` between IP numbers (must be escaped).                     |
+| **Non-Greedy**       | `.*?`        | To capture everything _inside_ a set of brackets or quotes without over-matching. |
+| **Alternation**      | `\|`         | To allow for multiple options, like `GET\|POST\|PUT`.                             |
+| **Boundaries**       | `\b`         | To ensure you match a standalone 3-digit status code.                             |
+| **Escaped Brackets** | `\[ and \]`  | To match the literal square brackets surrounding the timestamp.                   |
 
-**Step 3: Create individual patterns for testing**
+### 🛠️ Strategic Approach
 
-- IP pattern: Four groups of 1-3 digits separated by dots
-- Timestamp pattern: Date in [DD/Mon/YYYY:HH:MM:SS] format
-- Method pattern: The HTTP verb (GET, POST, etc.)
-- Status pattern: Three-digit status code
+To solve this challenge, you’ll want to break the complex log entry down into smaller, manageable patterns before combining them:
 
-**Step 4: Create a single combined pattern** with four capturing groups:
-
-- Group 1: IP Address
-- Group 2: Timestamp (content inside brackets)
-- Group 3: HTTP Method
-- Group 4: Status Code
-
-**Step 5: Use `re.findall()`** to extract all matches from the log data
-
-**Step 6: Process and display results** in a formatted table
+1. **Isolate the Components:** Start by writing individual patterns for the IP address and the status code. Test these first to ensure they match correctly.
+2. **Handle Special Characters:** Log files use a lot of brackets `[]` and quotes `""`. Remember to _escape_ your brackets `\[ \]` so Python treats them as literal characters.
+3. **Use "Lazy" Matching:** For the timestamp, use a non-greedy match `.*?` inside the brackets to ensure you capture only what's inside.
+4. **The Master Pattern:** Finally, combine your individual patterns using `.*?` between them. This tells Python to "find the IP, skip some text, find the date, skip some text," and so on, until the full line is parsed.
