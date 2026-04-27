@@ -70,7 +70,7 @@ When sending data with POST requests, you have two common options:
    - Set the `Content-Type` header to `application/json`
 
 ```python
-  payload = {'title': 'foo', 'body': 'bar', 'userId': 1}
+  payload = {'title': 'Caesar', 'body': 'Apes together strong.', 'userId': 1968}
   response = requests.post(url, json=payload)
 ```
 

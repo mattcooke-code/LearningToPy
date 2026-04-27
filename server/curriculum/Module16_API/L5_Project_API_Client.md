@@ -75,6 +75,22 @@ You'll submit a new completed task for user 5.
 }
 ```
 
+:::note
+
+## Combining Base URLs with Endpoints
+
+In previous exercises, you used full URLs like `'https://jsonplaceholder.typicode.com/posts/1'`. In real projects, you'll often store the base URL separately and build the full URL using f-strings:
+
+```python
+base_url = 'https://jsonplaceholder.typicode.com'
+
+# Combining with f-strings:
+get_response = requests.get(f'{base_url}/todos', params=get_params)
+post_response = requests.post(f'{base_url}/todos', json=new_task)
+```
+
+:::
+
 ## Your Tasks
 
 You'll write code that:

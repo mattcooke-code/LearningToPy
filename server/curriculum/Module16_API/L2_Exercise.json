@@ -2,48 +2,30 @@
   "title": "Making GET Requests with Query Parameters",
   "instructions": "Practice making GET requests and using query parameters to filter API results. Focus on writing the correct syntax using the `requests` library.",
   "steps": [
-    "Import the `requests` library at the top of your code",
-    "Make a GET request to `'https://jsonplaceholder.typicode.com/posts/1'` and store the response in a variable called `single_post`",
-    "Create a dictionary called `filter_params` with two key-value pairs: `'userId'` set to `1` and `'_limit'` set to `5`",
-    "Make a GET request to `'https://jsonplaceholder.typicode.com/posts'` using the `filter_params` dictionary with the `params` argument, and store the response in `filtered_posts`",
-    "Create another dictionary called `search_params` with one key-value pair: `'userId'` set to `3`. Make a GET request to the same posts URL using this dictionary and store the response in `user_posts`"
+    "**Task 1:** Import the `requests` library.",
+    "**Task 2:** Make a GET request to the full URL `'https://jsonplaceholder.typicode.com/posts/1'` and store the response in `single_post`.",
+    "**Task 3:** Create a dictionary called `filter_params` with two key-value pairs: `'userId': 1` and `'_limit': 5`.",
+    "**Task 4:** Make a GET request using `base_url` and the `params` argument to pass `filter_params`. Store the response in `filtered_posts`.",
+    "**Task 5:** Create a dictionary called `search_params` with `'userId': 3`. Make a GET request using `base_url` and `params=search_params`. Store the response in `user_posts`."
   ],
-  "starterCode": "# Task 1: Import requests\n\n\n# Task 2: Get a single post (post ID 1)\n\n\n# Task 3: Create filter parameters dictionary\n\n\n# Task 4: Get filtered posts (userId=1, limit=5)\n\n\n# Task 5: Get all posts from user 3\n",
-  "solution": "# Task 1: Import requests\nimport requests\n\n# Task 2: Get a single post (post ID 1)\nsingle_post = requests.get('https://jsonplaceholder.typicode.com/posts/1')\n\n# Task 3: Create filter parameters dictionary\nfilter_params = {'userId': 1, '_limit': 5}\n\n# Task 4: Get filtered posts (userId=1, limit=5)\nfiltered_posts = requests.get('https://jsonplaceholder.typicode.com/posts', params=filter_params)\n\n# Task 5: Get all posts from user 3\nsearch_params = {'userId': 3}\nuser_posts = requests.get('https://jsonplaceholder.typicode.com/posts', params=search_params)",
+  "starterCode": "# Base URL for the API\nbase_url = 'https://jsonplaceholder.typicode.com/posts'\n\n# Task 1: Import requests\n\n\n# Task 2: Get a single post (post ID 1)\nsingle_post = ???\n\n# Task 3: Create filter parameters dictionary\nfilter_params = ???\n\n# Task 4: Get filtered posts (userId=1, limit=5)\nfiltered_posts = ???\n\n# Task 5: Get all posts from user 3\nsearch_params = ???\nuser_posts = ???\n",
+  "solution": "# Task 1: Import requests\nimport requests\n\n# Base URL for the API\nbase_url = 'https://jsonplaceholder.typicode.com/posts'\n\n# Task 2: Get a single post (post ID 1)\nsingle_post = requests.get('https://jsonplaceholder.typicode.com/posts/1')\n\n# Task 3: Create filter parameters dictionary\nfilter_params = {'userId': 1, '_limit': 5}\n\n# Task 4: Get filtered posts (userId=1, limit=5)\nfiltered_posts = requests.get(base_url, params=filter_params)\n\n# Task 5: Get all posts from user 3\nsearch_params = {'userId': 3}\nuser_posts = requests.get(base_url, params=search_params)\n",
+  "fileSetup": {},
   "hints": [
-    "Task 1: Use the standard import statement: import requests",
-    "Task 2: Use requests.get(url) with the full URL as a string",
-    "Task 2: Store the result: single_post = requests.get('https://jsonplaceholder.typicode.com/posts/1')",
-    "Task 3: Create a dictionary with two keys: 'userId' and '_limit'",
-    "Task 3: Dictionary syntax: filter_params = {'userId': 1, '_limit': 5}",
-    "Task 4: Use requests.get(url, params=dictionary) to pass query parameters",
-    "Task 4: The base URL should be 'https://jsonplaceholder.typicode.com/posts'",
-    "Task 5: Create search_params dictionary first, then use it in requests.get() with the params argument",
-    "Task 5: Structure: search_params = {'userId': 3} then user_posts = requests.get(url, params=search_params)"
+    "**Task 1:** `import requests`.",
+    "**Task 2:** Use `requests.get()` with the full URL as a string: `'https://jsonplaceholder.typicode.com/posts/1'`.",
+    "**Task 3:** Dictionary syntax: `{'userId': 1, '_limit': 5}`.",
+    "**Task 4:** Use `requests.get(base_url, params=filter_params)` to pass query parameters.",
+    "**Task 5:** Create the dictionary, then use `requests.get(base_url, params=search_params)`."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check Task 1 - Import requests",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_import = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import):\n        for alias in node.names:\n            if alias.name == 'requests':\n                found_import = True\n\nif not found_import:\n    raise AssertionError('Task 1: Missing \"import requests\" statement')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 2 - Single post GET request",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_assignment = False\nuses_get = False\ncorrect_url = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        if any(isinstance(target, ast.Name) and target.id == 'single_post' for target in node.targets):\n            found_assignment = True\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'get'):\n                        uses_get = True\n                        if node.value.args and isinstance(node.value.args[0], ast.Constant):\n                            url = str(node.value.args[0].value)\n                            if 'jsonplaceholder' in url and 'posts/1' in url:\n                                correct_url = True\n\nif not found_assignment:\n    raise AssertionError('Task 2: Variable single_post not found')\nif not uses_get:\n    raise AssertionError('Task 2: Should use requests.get() method')\nif not correct_url:\n    raise AssertionError('Task 2: URL should be https://jsonplaceholder.typicode.com/posts/1')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 3 - Filter parameters dictionary",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_dict = False\nhas_userid = False\nhas_limit = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        if any(isinstance(target, ast.Name) and target.id == 'filter_params' for target in node.targets):\n            if isinstance(node.value, ast.Dict):\n                found_dict = True\n                # Check for keys\n                for key in node.value.keys:\n                    if isinstance(key, ast.Constant):\n                        if key.value == 'userId':\n                            has_userid = True\n                        elif key.value == '_limit':\n                            has_limit = True\n\nif not found_dict:\n    raise AssertionError('Task 3: filter_params should be a dictionary')\nif not has_userid:\n    raise AssertionError(\"Task 3: Dictionary should have 'userId' key\")\nif not has_limit:\n    raise AssertionError(\"Task 3: Dictionary should have '_limit' key\")\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 4 - Filtered GET request with params",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_assignment = False\nuses_get = False\nhas_params = False\nuses_filter_params = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        if any(isinstance(target, ast.Name) and target.id == 'filtered_posts' for target in node.targets):\n            found_assignment = True\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'get'):\n                        uses_get = True\n                        # Check for params keyword argument\n                        for keyword in node.value.keywords:\n                            if keyword.arg == 'params':\n                                has_params = True\n                                # Check if it uses filter_params variable\n                                if isinstance(keyword.value, ast.Name) and keyword.value.id == 'filter_params':\n                                    uses_filter_params = True\n\nif not found_assignment:\n    raise AssertionError('Task 4: Variable filtered_posts not found')\nif not uses_get:\n    raise AssertionError('Task 4: Should use requests.get() method')\nif not has_params:\n    raise AssertionError('Task 4: Should use params keyword argument')\nif not uses_filter_params:\n    raise AssertionError('Task 4: Should use filter_params dictionary with params argument')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 5 - Search params and user posts request",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_search_params = False\nfound_user_posts = False\nhas_userid = False\nuses_params = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        # Check for search_params dictionary\n        if any(isinstance(target, ast.Name) and target.id == 'search_params' for target in node.targets):\n            if isinstance(node.value, ast.Dict):\n                found_search_params = True\n                for key in node.value.keys:\n                    if isinstance(key, ast.Constant) and key.value == 'userId':\n                        has_userid = True\n        \n        # Check for user_posts request\n        if any(isinstance(target, ast.Name) and target.id == 'user_posts' for target in node.targets):\n            found_user_posts = True\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'get'):\n                        for keyword in node.value.keywords:\n                            if keyword.arg == 'params':\n                                uses_params = True\n\nif not found_search_params:\n    raise AssertionError('Task 5: search_params dictionary not found')\nif not has_userid:\n    raise AssertionError(\"Task 5: search_params should have 'userId' key\")\nif not found_user_posts:\n    raise AssertionError('Task 5: Variable user_posts not found')\nif not uses_params:\n    raise AssertionError('Task 5: Should use params keyword argument in requests.get()')\n\nprint('TEST_PASSED')"
+      "name": "Check all tasks completed",
+      "code": "# Get non-empty, non-comment lines\nlines = [line.strip() for line in student_code.split('\\n') if line.strip() and not line.strip().startswith('#')]\n\n# Task 2: single_post with GET and correct URL\nif not any('single_post' in line and 'requests.get' in line and 'posts/1' in line for line in lines):\n    raise AssertionError('Task 2: single_post should use requests.get() with posts/1 URL')\n\n# Task 3: filter_params dictionary\nif not any('filter_params' in line and 'userId' in line and '_limit' in line and '5' in line for line in lines):\n    raise AssertionError(\"Task 3: filter_params should be a dictionary with 'userId' and '_limit' keys\")\n\n# Task 4: filtered_posts with GET, base_url, and params\nif not any('filtered_posts' in line and 'requests.get' in line and 'base_url' in line and 'params' in line for line in lines):\n    raise AssertionError('Task 4: filtered_posts should use requests.get(base_url, params=filter_params)')\n\n# Task 5: search_params and user_posts\nif not any('search_params' in line and 'userId' in line and '3' in line for line in lines):\n    raise AssertionError(\"Task 5: search_params should be a dictionary with 'userId': 3\")\nif not any('user_posts' in line and 'requests.get' in line and 'params' in line for line in lines):\n    raise AssertionError('Task 5: user_posts should use requests.get() with params argument')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "",
   "tags": ["http", "requests", "get", "query-parameters", "api"],
   "challengeGroup": "api-basics"
 }

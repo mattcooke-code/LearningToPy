@@ -2,46 +2,30 @@
   "title": "Making GET and POST Requests",
   "instructions": "Practice using the `requests` library syntax to make GET and POST requests. Focus on writing the correct syntax - you'll use these patterns in real API projects.",
   "steps": [
-    "Import the `requests` library at the top of your code using the standard import statement",
-    "Make a GET request to `'https://httpbin.org/status/200'` and store the response in a variable called `r_success`",
-    "Make a GET request to `'https://httpbin.org/status/404'` and store the response in a variable called `r_fail`",
-    "Make a POST request to `'https://httpbin.org/post'` with a JSON payload `{'key': 'value'}` and store the response in `post_success`",
-    "Make a POST request to `'https://httpbin.org/status/405'` with the same JSON payload and store the response in `post_fail`"
+    "**Task 1:** Import the `requests` library.",
+    "**Task 2:** Make a GET request to `'https://httpbin.org/status/200'` and store the response in `r_success`.",
+    "**Task 3:** Make a GET request to `'https://httpbin.org/status/404'` and store the response in `r_fail`.",
+    "**Task 4:** Make a POST request to `'https://httpbin.org/post'` with a JSON payload `{'key': 'value'}`. Store the response in `post_success`.",
+    "**Task 5:** Make a POST request to `'https://httpbin.org/status/405'` with the same JSON payload. Store the response in `post_fail`."
   ],
-  "starterCode": "# Task 1: Import requests\n\n\n# Task 2: Successful GET request (200 OK)\n\n\n# Task 3: Failing GET request (404 Not Found)\n\n\n# Task 4: Successful POST request with JSON data\n\n\n# Task 5: Failing POST request\n",
-  "solution": "# Task 1: Import requests\nimport requests\n\n# Task 2: Successful GET request (200 OK)\nr_success = requests.get('https://httpbin.org/status/200')\n\n# Task 3: Failing GET request (404 Not Found)\nr_fail = requests.get('https://httpbin.org/status/404')\n\n# Task 4: Successful POST request with JSON data\npost_success = requests.post('https://httpbin.org/post', json={'key': 'value'})\n\n# Task 5: Failing POST request\npost_fail = requests.post('https://httpbin.org/status/405', json={'key': 'value'})",
+  "starterCode": "# Task 1: Import requests\n\n\n# Task 2: Successful GET request (200 OK)\nr_success = ???\n\n# Task 3: Failing GET request (404 Not Found)\nr_fail = ???\n\n# Task 4: Successful POST request with JSON data\npost_success = ???\n\n# Task 5: Failing POST request\npost_fail = ???\n",
+  "solution": "# Task 1: Import requests\nimport requests\n\n# Task 2: Successful GET request (200 OK)\nr_success = requests.get('https://httpbin.org/status/200')\n\n# Task 3: Failing GET request (404 Not Found)\nr_fail = requests.get('https://httpbin.org/status/404')\n\n# Task 4: Successful POST request with JSON data\npost_success = requests.post('https://httpbin.org/post', json={'key': 'value'})\n\n# Task 5: Failing POST request\npost_fail = requests.post('https://httpbin.org/status/405', json={'key': 'value'})\n",
+  "fileSetup": {},
   "hints": [
-    "Task 1: The import statement is simply: import requests",
-    "Task 2: Use requests.get(url) where url is the string 'https://httpbin.org/status/200'",
-    "Task 2: Store the result: r_success = requests.get('https://httpbin.org/status/200')",
-    "Task 3: Same pattern as Task 2, but use the 404 URL and store in r_fail",
-    "Task 4: Use requests.post(url, json=data) where data is a dictionary",
-    "Task 4: The json parameter should be: json={'key': 'value'}",
-    "Task 5: Same pattern as Task 4, but use the 405 URL and store in post_fail"
+    "**Task 1:** `import requests`",
+    "**Task 2:** Use `requests.get(url)` with the URL as a string.",
+    "**Task 3:** Same pattern as Task 2, different URL.",
+    "**Task 4:** Use `requests.post(url, json=data)` with a dictionary for data.",
+    "**Task 5:** Same pattern as Task 4, different URL."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check Task 1 - Import statement",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_import = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import):\n        for alias in node.names:\n            if alias.name == 'requests':\n                found_import = True\n                break\n\nif not found_import:\n    raise AssertionError('Task 1: Missing \"import requests\" statement')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 2 - GET request to 200 endpoint",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_assignment = False\ncorrect_url = False\nuses_get = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        # Check if assigning to r_success\n        if any(isinstance(target, ast.Name) and target.id == 'r_success' for target in node.targets):\n            found_assignment = True\n            # Check if it's a requests.get call\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'get'):\n                        uses_get = True\n                        # Check the URL argument\n                        if node.value.args and isinstance(node.value.args[0], ast.Constant):\n                            if '200' in str(node.value.args[0].value):\n                                correct_url = True\n\nif not found_assignment:\n    raise AssertionError('Task 2: Variable r_success not found')\nif not uses_get:\n    raise AssertionError('Task 2: Should use requests.get() method')\nif not correct_url:\n    raise AssertionError('Task 2: URL should contain \"200\" (https://httpbin.org/status/200)')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 3 - GET request to 404 endpoint",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_assignment = False\ncorrect_url = False\nuses_get = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        if any(isinstance(target, ast.Name) and target.id == 'r_fail' for target in node.targets):\n            found_assignment = True\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'get'):\n                        uses_get = True\n                        if node.value.args and isinstance(node.value.args[0], ast.Constant):\n                            if '404' in str(node.value.args[0].value):\n                                correct_url = True\n\nif not found_assignment:\n    raise AssertionError('Task 3: Variable r_fail not found')\nif not uses_get:\n    raise AssertionError('Task 3: Should use requests.get() method')\nif not correct_url:\n    raise AssertionError('Task 3: URL should contain \"404\" (https://httpbin.org/status/404)')\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 4 - POST request with JSON",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_assignment = False\nuses_post = False\ncorrect_url = False\nhas_json_param = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        if any(isinstance(target, ast.Name) and target.id == 'post_success' for target in node.targets):\n            found_assignment = True\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'post'):\n                        uses_post = True\n                        # Check URL\n                        if node.value.args and isinstance(node.value.args[0], ast.Constant):\n                            if 'post' in str(node.value.args[0].value).lower():\n                                correct_url = True\n                        # Check for json keyword argument\n                        for keyword in node.value.keywords:\n                            if keyword.arg == 'json':\n                                has_json_param = True\n\nif not found_assignment:\n    raise AssertionError('Task 4: Variable post_success not found')\nif not uses_post:\n    raise AssertionError('Task 4: Should use requests.post() method')\nif not correct_url:\n    raise AssertionError('Task 4: URL should be https://httpbin.org/post')\nif not has_json_param:\n    raise AssertionError(\"Task 4: POST request should include json={'key': 'value'} parameter\")\n\nprint('TEST_PASSED')"
-    },
-    {
-      "name": "Check Task 5 - POST request to 405 endpoint",
-      "code": "import ast\n\ntree = ast.parse(code)\n\nfound_assignment = False\nuses_post = False\ncorrect_url = False\nhas_json_param = False\n\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Assign):\n        if any(isinstance(target, ast.Name) and target.id == 'post_fail' for target in node.targets):\n            found_assignment = True\n            if isinstance(node.value, ast.Call):\n                if isinstance(node.value.func, ast.Attribute):\n                    if (isinstance(node.value.func.value, ast.Name) and \n                        node.value.func.value.id == 'requests' and \n                        node.value.func.attr == 'post'):\n                        uses_post = True\n                        if node.value.args and isinstance(node.value.args[0], ast.Constant):\n                            if '405' in str(node.value.args[0].value):\n                                correct_url = True\n                        for keyword in node.value.keywords:\n                            if keyword.arg == 'json':\n                                has_json_param = True\n\nif not found_assignment:\n    raise AssertionError('Task 5: Variable post_fail not found')\nif not uses_post:\n    raise AssertionError('Task 5: Should use requests.post() method')\nif not correct_url:\n    raise AssertionError('Task 5: URL should contain \"405\" (https://httpbin.org/status/405)')\nif not has_json_param:\n    raise AssertionError(\"Task 5: POST request should include json={'key': 'value'} parameter\")\n\nprint('TEST_PASSED')"
+      "name": "Check all tasks completed",
+      "code": "# Check each line is not a comment and not empty\nlines = student_code.split('\\n')\n\n# Check Task 1: import\nhas_import = any('import requests' in line for line in lines)\nif not has_import:\n    raise AssertionError('Task 1: Missing \"import requests\"')\n\n# Check Task 2: r_success with GET and correct URL\nhas_r_success = False\nfor line in lines:\n    if 'r_success' in line and 'requests.get' in line and '200' in line:\n        has_r_success = True\n        break\nif not has_r_success:\n    raise AssertionError('Task 2: r_success should use requests.get() with status/200 URL')\n\n# Check Task 3: r_fail with GET and correct URL\nhas_r_fail = False\nfor line in lines:\n    if 'r_fail' in line and 'requests.get' in line and '404' in line:\n        has_r_fail = True\n        break\nif not has_r_fail:\n    raise AssertionError('Task 3: r_fail should use requests.get() with status/404 URL')\n\n# Check Task 4: post_success with POST, JSON, and correct URL\nhas_post_success = False\nfor line in lines:\n    if 'post_success' in line and 'requests.post' in line and 'post' in line and 'json=' in line:\n        has_post_success = True\n        break\nif not has_post_success:\n    raise AssertionError('Task 4: post_success should use requests.post() with JSON and /post URL')\n\n# Check Task 5: post_fail with POST, JSON, and correct URL\nhas_post_fail = False\nfor line in lines:\n    if 'post_fail' in line and 'requests.post' in line and '405' in line and 'json=' in line:\n        has_post_fail = True\n        break\nif not has_post_fail:\n    raise AssertionError('Task 5: post_fail should use requests.post() with JSON and status/405 URL')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "",
   "tags": ["http", "requests", "get", "post", "api", "syntax"],
   "challengeGroup": "api-basics"
 }

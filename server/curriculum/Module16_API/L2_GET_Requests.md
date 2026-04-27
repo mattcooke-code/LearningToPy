@@ -31,9 +31,17 @@ For data returned in JSON format (which is the most common for APIs), you should
 
 **Query Parameters** allow you to filter or customize the results returned by an API. These appear in a URL after a question mark `?` and are separated by ampersands `&`.
 
+```python
+# Manual string concatenation
+manual_url = "https://jsonplaceholder.typicode.com/posts?userId=5&_limit=3"
+response = requests.get(manual_url)
+```
+
 ### Using the `params` Argument (Recommended)
 
+:::tip
 While you _could_ manually type out a long URL string, the `requests` library provides a `params` argument that accepts a **Python Dictionary**.
+:::
 
 ### Why use `params`?
 

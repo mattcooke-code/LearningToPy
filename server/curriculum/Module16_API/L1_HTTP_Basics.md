@@ -15,18 +15,18 @@ HTTP is the protocol used for communication between a **client** (like your brow
 
 An HTTP **Method** (or **Verb**) tells the server what kind of action the client wants to perform on a resource. The two most common methods are:
 
-| Method   | Purpose                                                                                     | Analogy                |
-| :------- | :------------------------------------------------------------------------------------------ | :--------------------- |
-| **GET**  | **Retrieve data** from a specified resource. It should have no side effects on the server.  | **Reading** a book.    |
-| **POST** | **Submit data** to be processed to a specified resource. This often creates a new resource. | **Submitting** a form. |
+| Method   | Purpose                                                                                     | Analogy                                             |
+| :------- | :------------------------------------------------------------------------------------------ | :-------------------------------------------------- |
+| **GET**  | **Retrieve data** from a specified resource. It should have no side effects on the server.  | **Reading** a book.                                 |
+| **POST** | **Submit data** to be processed to a specified resource. This often creates a new resource. | **Writing** a book and sending it to the publisher. |
 
 Other useful methods are:
 
-|        |                              |
-| ------ | ---------------------------- |
-| PATCH  | Update a specific field      |
-| PUT    | Update a resource entirely.  |
-| DELETE | Remove a specified resource. |
+|            |                              |
+| ---------- | ---------------------------- |
+| **PATCH**  | Update a specific field      |
+| **PUT**    | Update a resource entirely.  |
+| **DELETE** | Remove a specified resource. |
 
 ![Fetch Methods](./images/Reqs.png)
 
@@ -70,13 +70,22 @@ In your Python script, you simply import it and assign the response to a variabl
 ```python
 import requests
 
-# We'll use a public test API for the next lesson
-response = requests.get('https://jsonplaceholder.typicode.com/posts/1')
-print(response)
-# Output: <Response [200]>
+# 1. GET Request: Fetching data (Reading)
+get_response = requests.get('https://jsonplaceholder.typicode.com/posts/1')
+print(f"GET Status: {get_response.status_code}")
+
+# 2. POST Request: Sending data (Creating)
+post_response = requests.post('https://jsonplaceholder.typicode.com/posts', json={'title': 'Learning HTTP'})
+
+print(f"POST Status: {post_response.status_code}")
+print(f"Server returned: {post_response.json()}")
 ```
 
 The `response` object holds all the information, including the status code, content, and headers.
+
+:::note
+We send data using **JSON** (JavaScript Object Notation). In Python, we represent this as a dictionary (key-value pairs). When you use the `json=` argument, the `requests` library automatically converts your dictionary into a format the server can understand.
+:::
 
 :::summary
 
