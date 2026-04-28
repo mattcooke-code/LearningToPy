@@ -43,15 +43,28 @@ Websites can tell the difference between a human using Chrome and a Python scrip
 The `User-Agent` is a string that tells the server: "I am a standard web browser on a Windows/Mac computer."
 
 ```python
+# 1. Define your headers (usually a dictionary)
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36'
 }
 
+url = "http://books.toscrape.com/"
+
+# 2. Pass the headers into the GET request
+# This is assigned the same way you used 'params' or 'json' in Module 16!
+response = requests.get(url, headers=headers)
 ```
+
+:::note
+
+### Why this works
+
+By passing the headers dictionary into the `requests.get()` function, your script sends extra metadata to the server. This tells the server: "I am a standard web browser on a Windows computer," which can help avoid basic security filters.
+:::
 
 :::tip
 
-The "Inspect" Trick
+### The "Inspect" Trick
 
 Before you write a single line of Python, always open the website in your browser, **Right-Click > Inspect**, and go to the **Network** tab. Refresh the page to see exactly what the server is sending back. This ensures the site isn't using complex JavaScript to hide the data you're looking for!
 :::

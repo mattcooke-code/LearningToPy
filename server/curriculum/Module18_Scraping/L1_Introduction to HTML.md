@@ -6,6 +6,7 @@
 
 Before you can scrape a website, you must understand how it is built. HTML uses **tags** to define the elements of a page. Most tags come in pairs: an opening tag (`<tag>`) and a closing tag (`</tag>`). The content between them is the element's value.
 
+- **The Container:** Every HTML document must be enclosed within an opening `<html>` tag and a closing `</html>` tag. This tells the browser (and your scraper) where the document begins and ends.
 - **Elements:** The main building blocks (e.g., `<h1>`, `<p>`, `<a>`, `<div>`).
 - **Attributes:** Provide extra information about an element, usually defining its style or function (e.g., `href` for a link, `class` or `id` for styling).
 

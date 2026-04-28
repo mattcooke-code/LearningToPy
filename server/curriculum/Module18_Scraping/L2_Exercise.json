@@ -2,28 +2,26 @@
   "title": "Fetching HTML with a Custom User-Agent",
   "instructions": "Practice making a GET request with a custom User-Agent header and handling the response.",
   "steps": [
-    "**Task 1: Import requests** - Import the `requests` module.",
-    "**Task 2: Review the setup** - A test URL (`http://httpbin.org/get`) and a headers dictionary with a custom User-Agent have been created for you.",
-    "**Task 3: Make the GET request** - Use `requests.get()` to fetch the URL, passing the `headers` dictionary. Store the response in a variable called `response`.",
-    "**Task 4: Process and print the result** - Print the status code using `response.status_code`. The print statement is already provided - just complete it with the correct variable."
+    "**Task 1:** Import the `requests` module.",
+    "**Task 2:** The URL and `custom_headers` dictionary are provided. Make a GET request using `requests.get()` with the `headers=` parameter. Store in `response`.",
+    "**Task 3:** Print the status code using `response.status_code`."
   ],
-  "starterCode": "# Task 1: Import requests\n\n\n\nurl = \"http://httpbin.org/get\"\n\n# Custom headers with a User-Agent (already set up for you)\ncustom_headers = { \n    'User-Agent': 'LearningToPyBot/1.0'\n}\n\n# Task 2: Make the request, passing the headers\nresponse = \n\n# Task 3: Print the status code\nprint(f\"Status Code: {response.status_code}\")\n",
-  "solution": "# Task 1: Import requests\nimport requests\n\nurl = \"http://httpbin.org/get\"\n\n# Custom headers with a User-Agent (already set up for you)\ncustom_headers = { \n    'User-Agent': 'LearningToPyBot/1.0'\n}\n\n# Task 2: Make the request, passing the headers\nresponse = requests.get(url, headers=custom_headers)\n\n# Task 3: Print the status code\nprint(f\"Status Code: {response.status_code}\")",
+  "starterCode": "# Task 1: Import requests\n\n\nurl = \"http://httpbin.org/get\"\n\n# Custom headers with a User-Agent (already set up)\ncustom_headers = { \n    'User-Agent': 'LearningToPyBot/1.0'\n}\n\n# Task 2: Make the request, passing the headers\nresponse = ???\n\n# Task 3: Print the status code\n\n",
+  "solution": "# Task 1: Import requests\nimport requests\n\nurl = \"http://httpbin.org/get\"\n\n# Custom headers with a User-Agent (already set up)\ncustom_headers = { \n    'User-Agent': 'LearningToPyBot/1.0'\n}\n\n# Task 2: Make the request, passing the headers\nresponse = requests.get(url, headers=custom_headers)\n\n# Task 3: Print the status code\nprint(f\"Status Code: {response.status_code}\")\n",
   "fileSetup": {},
   "hints": [
-    "**Task 1:** The import is `import requests`",
-    "**Task 2:** The headers dictionary is already provided - you don't need to modify it",
-    "**Task 3:** Use `requests.get(url, headers=custom_headers)` - the `headers=` parameter is the key!",
-    "**Task 4:** The print statement already has the correct f-string - you just need to make sure `response` exists",
-    "**Expected output:**\n```\nStatus Code: 200\n```\n\nThe httpbin.org/get endpoint echoes back your request headers, so you can verify your User-Agent was sent correctly."
+    "**Task 1:** `import requests`",
+    "**Task 2:** Use `requests.get(url, headers=custom_headers)` — the `headers=` parameter sends your custom headers.",
+    "**Task 3:** Access the status code with `response.status_code` and print it."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check syntax and structure - no execution",
-      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error: {e}')\n\n# Check for requests import\nfound_requests = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'requests' for name in node.names):\n        found_requests = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'requests':\n        found_requests = True\n\nif not found_requests:\n    raise AssertionError('Task 1: Missing import requests')\n\n# Check that custom_headers dictionary exists with User-Agent key\nfound_headers_dict = False\nfound_user_agent = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Dict):\n        found_headers_dict = True\n        # Check keys for 'User-Agent'\n        for key in node.keys:\n            if isinstance(key, ast.Constant) and key.value == 'User-Agent':\n                found_user_agent = True\n            elif isinstance(key, ast.Str) and key.s == 'User-Agent':  # Older Python\n                found_user_agent = True\n\nif not found_headers_dict:\n    raise AssertionError('custom_headers dictionary not found or malformed')\nif not found_user_agent:\n    raise AssertionError('custom_headers missing \"User-Agent\" key')\n\n# Check for requests.get() call with headers parameter\nfound_get = False\ncorrect_url = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute):\n            if isinstance(node.func.value, ast.Name) and node.func.value.id == 'requests' and node.func.attr == 'get':\n                # Check for headers keyword argument\n                for kw in node.keywords:\n                    if kw.arg == 'headers':\n                        found_get = True\n                        # Check that headers argument references custom_headers\n                        if isinstance(kw.value, ast.Name) and kw.value.id == 'custom_headers':\n                            pass  # Good, using the correct variable\n                # Check URL is correct (positional first argument)\n                if node.args:\n                    url_arg = ast.unparse(node.args[0])\n                    if 'httpbin.org/get' in url_arg:\n                        correct_url = True\n\nif not found_get:\n    raise AssertionError('Task 3: Missing requests.get() call with headers= parameter')\nif not correct_url:\n    raise AssertionError('Task 3: URL should be \"http://httpbin.org/get\"')\n\n# Check for print statement with status_code\nfound_print = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':\n        found_print = True\n        # Check that .status_code is accessed somewhere (not necessarily in print)\n        pass\n\n# Also check that .status_code is accessed somewhere\nfound_status = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Attribute) and node.attr == 'status_code':\n        found_status = True\n\nif not found_print:\n    raise AssertionError('Task 4: Missing print statement')\nif not found_status:\n    raise AssertionError('Missing access to response.status_code')\n\nprint('TEST_PASSED')"
+      "name": "Check all tasks completed",
+      "code": "# Get non-empty, non-comment lines\nlines = [line.strip() for line in student_code.split('\\n') if line.strip() and not line.strip().startswith('#')]\n\n# Task 1: Check import\nif not any('import requests' in line for line in lines):\n    raise AssertionError('Task 1: Missing \"import requests\"')\n\n# Task 2: Check requests.get() with headers parameter\nif not any('response' in line and 'requests.get' in line and 'headers=' in line for line in lines):\n    raise AssertionError('Task 2: response should use requests.get() with headers= parameter')\nif not any('custom_headers' in line for line in lines if 'headers=' in line):\n    raise AssertionError('Task 2: Should pass custom_headers as the headers argument')\n\n# Task 3: Check status_code is printed (flexible format)\nif not any(('print' in line and 'status_code' in line) for line in lines):\n    raise AssertionError('Task 3: Should print response.status_code')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "Status Code: 200",
   "tags": ["requests", "html", "headers", "user-agent"],
   "challengeGroup": "web-scraping"
 }

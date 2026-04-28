@@ -23,9 +23,14 @@ print(f"Title Tag: {page_title}")
 print(f"Title Text: {page_title.text}") # .text extracts only the content inside the tag
 ```
 
+When you write `BeautifulSoup(html_content, 'html.parser')`, you are telling the library which **engine** to use to read the code.
+
+- **`html.parser`:** This is built into Python. It’s convenient because you don't have to install anything extra, and it’s great for beginners.
+- **Why does it matter?** Different engines have different "personalities." Some are very strict (if the HTML is missing a tag, they might fail), while others are "lenient" and will try to fix broken HTML for you.
+
 ## 2. Finding Elements by Tag
 
-The simplest way to find content is by using the tag name directly on the `soup` object.
+When you run `BeautifulSoup(html_content, 'html.parser')`, the "builder" (parser) reads the raw string of HTML and constructs a 3D model of the house (the DOM tree). Once that model is built, `find()` and `find_all()` act as your search tools to navigate it.
 
 | Method                 | Purpose                             | Returns                         |
 | ---------------------- | ----------------------------------- | ------------------------------- |
@@ -43,7 +48,12 @@ print(f"Total Divs Found: {len(all_divs)}")
 ```
 
 :::warning
-Common Beginner Error: You cannot use `.text` on the result of `find_all()` because it is a list, not a single element. You must loop through the list to get the text of each item!
+Common Beginner Error: You cannot use `.text` on the result of `find_all()` because it is a list, not a single element.
+
+- `soup.find('h1')`: You are asking the parser to point to the very first `<h1>` branch it built. Because it’s a single branch, you can immediately 'grab the fruit' (`.text`).
+- `soup.find_all('h1')`: You are asking the parser to gather every `<h1>` branch it found into a 'bucket' (a Python List), so you have to grab each piece of fruit one by one.
+
+Therefore, running `soup.find_all('h1').text` will **crash your program!** You must loop through the list to get the text of each item!
 :::
 
 ```python
