@@ -29,11 +29,11 @@ matrix_data = {
 matrix_df = pd.DataFrame(matrix_data)
 print(matrix_df)
 # Output:
-#     Character   Status  Awakening_Level  Can_Fly
-# 0         Neo  The One              100     True
-# 1     Trinity    Human               95     True
-# 2     Morpheus    Human               99    False
-# 3  Agent Smith  Program                0    False
+#     Character     Status   Awakening_Level  Can_Fly
+# 0   Neo           The One      100           True
+# 1   Trinity       Human         95           True
+# 2   Morpheus      Human         99           False
+# 3   Agent Smith   Program        0           False
 ```
 
 DataFrames are also commonly loaded from external files like CSV (`.read_csv()`), Excel (`.read_excel()`), or JSON.

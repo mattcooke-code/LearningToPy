@@ -2,29 +2,28 @@
   "title": "Creating and Inspecting a Pandas DataFrame",
   "instructions": "Create a small DataFrame representing sales data, and then use the `.head()` and `.dtypes` methods to inspect it.",
   "steps": [
-    "**Task 1: Import Pandas** - Import the `pandas` library with the standard alias `pd`.",
-    "**Task 2: Review the data** - A dictionary called `sales_data` has been created for you with product information, prices, and units sold.",
-    "**Task 3: Create the DataFrame** - Use `pd.DataFrame()` to convert the `sales_data` dictionary into a Pandas DataFrame. Store the result in a variable called `sales_df`.",
-    "**Task 4: Preview the data** - Use the `.head()` method to view the first 3 rows of the DataFrame and print the result.",
-    "**Task 5: Inspect data types** - Print the data types of each column using the `.dtypes` attribute."
+    "**Task 1:** Import the `pandas` library with the standard alias `pd`.",
+    "**Task 2:** Convert the provided `sales_data` dictionary into a DataFrame using `pd.DataFrame()`. Store in `sales_df`.",
+    "**Task 3:** Use `.head(3)` to preview the first 3 rows and print the result.",
+    "**Task 4:** Print the data types of each column using the `.dtypes` attribute."
   ],
-  "starterCode": "# Task 1: Import pandas as pd\n\n\n\nsales_data = {\n    'Product': ['A', 'B', 'C', 'D'],\n    'Price': [10.5, 20.0, 5.25, 15.0],\n    'Units_Sold': [150, 90, 310, 120]\n}\n\n# Task 2: Create the DataFrame\nsales_df = \n\n# Task 3: Print the first 3 rows\n\n\n# Task 4: Print the data types of each column\n",
-  "solution": "# Task 1: Import pandas as pd\nimport pandas as pd\n\nsales_data = {\n    'Product': ['A', 'B', 'C', 'D'],\n    'Price': [10.5, 20.0, 5.25, 15.0],\n    'Units_Sold': [150, 90, 310, 120]\n}\n\n# Task 2: Create the DataFrame\nsales_df = pd.DataFrame(sales_data)\n\n# Task 3: Print the first 3 rows\nprint(sales_df.head(3))\n\n# Task 4: Print the data types of each column\nprint(sales_df.dtypes)",
+  "starterCode": "# Task 1: Import pandas as pd\n\n\nsales_data = {\n    'Product': ['A', 'B', 'C', 'D'],\n    'Price': [10.5, 20.0, 5.25, 15.0],\n    'Units_Sold': [150, 90, 310, 120]\n}\n\n# Task 2: Create the DataFrame\nsales_df = ???\n\n# Task 3: Print the first 3 rows\n\n\n# Task 4: Print the data types of each column\n\n",
+  "solution": "# Task 1: Import pandas as pd\nimport pandas as pd\n\nsales_data = {\n    'Product': ['A', 'B', 'C', 'D'],\n    'Price': [10.5, 20.0, 5.25, 15.0],\n    'Units_Sold': [150, 90, 310, 120]\n}\n\n# Task 2: Create the DataFrame\nsales_df = pd.DataFrame(sales_data)\n\n# Task 3: Print the first 3 rows\nprint(sales_df.head(3))\n\n# Task 4: Print the data types of each column\nprint(sales_df.dtypes)\n",
   "fileSetup": {},
   "hints": [
-    "**Task 1:** The standard import is `import pandas as pd`",
-    "**Task 2:** Use `pd.DataFrame(sales_data)` - the dictionary keys become column names automatically",
-    "**Task 3:** The `.head(3)` method returns the first 3 rows - don't forget to print it!",
-    "**Task 4:** The `.dtypes` attribute shows the data type of each column (e.g., object for strings, int64 for integers, float64 for floats)",
-    "**Expected output format:**\n```\n  Product  Price  Units_Sold\n0       A  10.50         150\n1       B  20.00          90\n2       C   5.25         310\nProduct       object\nPrice        float64\nUnits_Sold     int64\ndtype: object\n```"
+    "**Task 1:** `import pandas as pd`",
+    "**Task 2:** `pd.DataFrame(sales_data)` — dictionary keys become column names.",
+    "**Task 3:** `.head(3)` returns the first 3 rows. Don't forget to `print()` it!",
+    "**Task 4:** `.dtypes` shows each column's type (object for strings, int64 for integers, float64 for floats)."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check syntax only - no execution",
-      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error in your code: {e}')\n\n# Check for pandas import\nfound_pandas = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'pandas' for name in node.names):\n        found_pandas = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'pandas':\n        found_pandas = True\n\nif not found_pandas:\n    raise AssertionError('Task 1: Missing import pandas (check syntax)')\n\n# Check for pd.DataFrame() call\nfound_dataframe = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute):\n            if isinstance(node.func.value, ast.Name) and node.func.value.id == 'pd' and node.func.attr == 'DataFrame':\n                found_dataframe = True\n\nif not found_dataframe:\n    raise AssertionError('Task 2: Missing pd.DataFrame() call')\n\n# Check for .head() method call\nfound_head = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute) and node.func.attr == 'head':\n            found_head = True\n\nif not found_head:\n    raise AssertionError('Task 3: Missing .head() method call')\n\n# Check for .dtypes attribute access\nfound_dtypes = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Attribute) and node.attr == 'dtypes':\n        found_dtypes = True\n\nif not found_dtypes:\n    raise AssertionError('Task 4: Missing .dtypes attribute access')\n\n# Check for print statements (at least 2)\nprint_calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and \n               isinstance(node.func, ast.Name) and node.func.id == 'print']\n\nif len(print_calls) < 2:\n    raise AssertionError('Tasks 3 & 4: Expected at least 2 print statements')\n\nprint('TEST_PASSED')"
+      "name": "Check all tasks completed",
+      "code": "# Get non-empty, non-comment lines\nlines = [line.strip() for line in student_code.split('\\n') if line.strip() and not line.strip().startswith('#')]\n\n# Task 1: Check import\nif not any('import pandas as pd' in line for line in lines):\n    raise AssertionError('Task 1: Missing \"import pandas as pd\"')\n\n# Task 2: Check pd.DataFrame() call\nif not any('sales_df' in line and 'pd.DataFrame' in line for line in lines):\n    raise AssertionError('Task 2: sales_df should use pd.DataFrame()')\nif not any('pd.DataFrame(sales_data)' in line for line in lines):\n    raise AssertionError('Task 2: Should pass sales_data dictionary to pd.DataFrame()')\n\n# Task 3: Check .head(3) is used and printed (flexible format)\nif not any('.head(3)' in line for line in lines):\n    raise AssertionError('Task 3: Should use .head(3) method')\nif not any(('print' in line and 'head(3)' in line) for line in lines):\n    raise AssertionError('Task 3: Should print the result of .head(3)')\n\n# Task 4: Check .dtypes is printed (flexible format)\nif not any(('print' in line and '.dtypes' in line) for line in lines):\n    raise AssertionError('Task 4: Should print sales_df.dtypes')\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "  Product  Price  Units_Sold\n0       A  10.50         150\n1       B  20.00          90\n2       C   5.25         310\nProduct        object\nPrice         float64\nUnits_Sold      int64\ndtype: object",
   "tags": ["pandas", "dataframe", "head", "dtypes", "inspection"],
   "challengeGroup": "data-science-intro"
 }

@@ -69,7 +69,7 @@ print(f"The area is {width * height} square meters")
 
 price = 19.99
 quantity = 3
-print(f"Total: ${price * quantity:.2f}")
+print(f"Total: ${price * quantity}")
 # Output: Total: $59.97
 
 # Function calls
@@ -77,17 +77,6 @@ name = "eliza"
 print(f"Hello, {name.upper()}!")
 # Output: Hello, ELIZA!
 ```
-
-:::note
-The `:.2f` formats numbers to 2 decimal places. The `f` stands for "float" and the `.2` means "2 decimal places".
-So `{3.14159:.2f}` becomes `3.14`. The number after the decimal controls how many digits appear after the decimal point:
-
-- `:.1f` → 1 decimal place (3.1)
-- `:.2f` → 2 decimal places (3.14)
-- `:.3f` → 3 decimal places (3.142)
-
-Python will round the last digit automatically!
-:::
 
 ## 4. Common Use Cases
 
@@ -127,7 +116,7 @@ discount = 0.15  # 15% discount
 print(f"Item: {item}")
 print(f"Original price: ${price}")
 print(f"Discount: {discount * 100}%")
-print(f"Final price: ${price * (1 - discount):.2f}")
+print(f"Final price: ${price * (1 - discount)}")
 
 # Output:
 # Item: Python Book
@@ -199,7 +188,7 @@ print(f"You can buy {coins // price} items with {coins} coins")
 
 # Example 3
 temp_c = 22.5
-print(f"Temperature: {temp_c}°C ({temp_c * 9/5 + 32:.1f}°F)")
+print(f"Temperature: {temp_c}°C ({temp_c * 9/5 + 32}°F)")
 ```
 
 :::summary

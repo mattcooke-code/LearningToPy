@@ -2,31 +2,30 @@
   "title": "Creating and Indexing a Pandas Series",
   "instructions": "Create a Pandas Series to hold product prices with specific product names as the index, and then access one item by its label.",
   "steps": [
-    "**Task 1: Import Pandas** - Import the `pandas` library with the standard alias `pd`.",
-    "**Task 2: Review the data** - A dictionary of product prices has been created for you with the keys as product names and values as prices.",
-    "**Task 3: Create the Series** - Use `pd.Series()` to convert the `prices` dictionary into a Pandas Series. Store the result in a variable called `product_series`.",
-    "**Task 4: Print the Series** - Print the entire `product_series` to see how it displays.",
-    "**Task 5: Access a specific price** - Access the price of the 'Monitor' using its label and store it in a variable called `monitor_price`.",
-    "**Task 6: Print the result** - Print the monitor price using the provided f-string."
+    "**Task 1:** Import the `pandas` library with the standard alias `pd`.",
+    "**Task 2:** Convert the provided `prices` dictionary into a Pandas Series using `pd.Series()`. Store in `product_series`.",
+    "**Task 3:** Print the entire `product_series`.",
+    "**Task 4:** Access the price of `'Monitor'` by its label. Store in `monitor_price`.",
+    "**Task 5:** The f-string print is provided — it will display the monitor price."
   ],
-  "starterCode": "# Task 1: Import pandas as pd\n\n\n\nprices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}\n\n# Task 2: Create the Pandas Series\nproduct_series = \n\n# Task 3: Print the Series\n\n\n# Task 4: Access the 'Monitor' price by label\nmonitor_price = \n\n# Task 5: Print the result\nprint(f\"Monitor Price: ${monitor_price}\")",
-  "solution": "# Task 1: Import pandas as pd\nimport pandas as pd\n\nprices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}\n\n# Task 2: Create the Pandas Series\nproduct_series = pd.Series(prices)\n\n# Task 3: Print the Series\nprint(product_series)\n\n# Task 4: Access the 'Monitor' price by label\nmonitor_price = product_series['Monitor']\n\n# Task 5: Print the result\nprint(f\"Monitor Price: ${monitor_price}\")",
+  "starterCode": "# Task 1: Import pandas as pd\n\n\nprices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}\n\n# Task 2: Create the Pandas Series\nproduct_series = ???\n\n# Task 3: Print the Series\n\n\n# Task 4: Access the 'Monitor' price by label\nmonitor_price = ???\n\n# Task 5: Print the result (already provided)\nprint(f\"Monitor Price: ${monitor_price}\")\n",
+  "solution": "# Task 1: Import pandas as pd\nimport pandas as pd\n\nprices = {'Laptop': 1200, 'Mouse': 25, 'Monitor': 300, 'Keyboard': 75}\n\n# Task 2: Create the Pandas Series\nproduct_series = pd.Series(prices)\n\n# Task 3: Print the Series\nprint(product_series)\n\n# Task 4: Access the 'Monitor' price by label\nmonitor_price = product_series['Monitor']\n\n# Task 5: Print the result (already provided)\nprint(f\"Monitor Price: ${monitor_price}\")\n",
   "fileSetup": {},
   "hints": [
-    "**Task 1:** The standard import is `import pandas as pd`",
-    "**Task 2:** Use `pd.Series(prices)` to create the Series - the dictionary keys become the index labels automatically",
-    "**Task 3:** Just `print(product_series)` - it will show both labels and values",
-    "**Task 4:** Access by label using square brackets: `product_series['Monitor']` - just like a dictionary!",
-    "**Task 5:** The f-string is already provided - just make sure `monitor_price` contains the correct value",
-    "**Expected output format:**\n```\nLaptop     1200\nMouse       25\nMonitor     300\nKeyboard     75\ndtype: int64\nMonitor Price: $300\n```"
+    "**Task 1:** `import pandas as pd`",
+    "**Task 2:** `pd.Series(prices)` — dictionary keys become the index labels automatically.",
+    "**Task 3:** `print(product_series)` or use an f-string.",
+    "**Task 4:** Access by label: `product_series['Monitor']` — just like dictionary indexing!",
+    "**Task 5:** Already done — just make sure `monitor_price` is correctly set."
   ],
   "validation": "tests",
   "tests": [
     {
-      "name": "Check syntax only - no execution",
-      "code": "import ast\n\n# Parse the code for syntax validation only\nuser_code = code\ntry:\n    tree = ast.parse(user_code)\nexcept SyntaxError as e:\n    raise AssertionError(f'Syntax error in your code: {e}')\n\n# Check for pandas import\nfound_pandas = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Import) and any(name.name == 'pandas' for name in node.names):\n        found_pandas = True\n    if isinstance(node, ast.ImportFrom) and node.module == 'pandas':\n        found_pandas = True\n\nif not found_pandas:\n    raise AssertionError('Task 1: Missing import pandas (check syntax)')\n\n# Check for pd.Series() call\nfound_series = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Attribute):\n            if isinstance(node.func.value, ast.Name) and node.func.value.id == 'pd' and node.func.attr == 'Series':\n                found_series = True\n\nif not found_series:\n    raise AssertionError('Task 2: Missing pd.Series() call')\n\n# Check for label-based access (dictionary-style indexing)\nfound_label_access = False\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Subscript):\n        if isinstance(node.slice, ast.Constant) and node.slice.value == 'Monitor':\n            found_label_access = True\n        elif isinstance(node.slice, ast.Str) and node.slice.s == 'Monitor':  # For older Python versions\n            found_label_access = True\n\nif not found_label_access:\n    raise AssertionError('Task 4: Missing label-based access with product_series[\\'Monitor\\']')\n\n# Check for print statements (at least 2)\nprint_calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and \n               isinstance(node.func, ast.Name) and node.func.id == 'print']\n\nif len(print_calls) < 2:\n    raise AssertionError('Tasks 3 & 5: Expected at least 2 print statements')\n\nprint('TEST_PASSED')"
+      "name": "Check all tasks completed",
+      "code": "# Get non-empty, non-comment lines\nlines = [line.strip() for line in student_code.split('\\n') if line.strip() and not line.strip().startswith('#')]\n\n# Task 1: Check import\nif not any('import pandas as pd' in line for line in lines):\n    raise AssertionError('Task 1: Missing \"import pandas as pd\"')\n\n# Task 2: Check pd.Series() call\nif not any('product_series' in line and 'pd.Series' in line for line in lines):\n    raise AssertionError('Task 2: product_series should use pd.Series()')\nif not any('pd.Series(prices)' in line for line in lines):\n    raise AssertionError('Task 2: Should pass prices dictionary to pd.Series()')\n\n# Task 3: Check Series is printed (flexible format)\nif not any(('print' in line and 'product_series' in line) for line in lines):\n    raise AssertionError('Task 3: Should print the product_series')\n\n# Task 4: Check label-based access\nif not any(\"product_series['Monitor']\" in line or 'product_series[\"Monitor\"]' in line for line in lines):\n    raise AssertionError(\"Task 4: monitor_price should use product_series['Monitor']\")\n\nprint('TEST_PASSED')"
     }
   ],
+  "expectedOutput": "Laptop     1200\nMouse        25\nMonitor     300\nKeyboard     75\ndtype: int64\nMonitor Price: $300",
   "tags": ["pandas", "series", "dictionary", "indexing"],
   "challengeGroup": "data-science-intro"
 }

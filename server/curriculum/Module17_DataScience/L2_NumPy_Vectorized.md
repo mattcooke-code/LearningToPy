@@ -58,6 +58,17 @@ print(f"Average Score: {scores.mean():.2f}")
 print(f"Highest Score: {np.max(scores)}")
 ```
 
+:::note
+The `:.2f` formats numbers to 2 decimal places. The `f` stands for "float" and the `.2` means "2 decimal places".
+So `{3.14159:.2f}` becomes `3.14`. The number after the decimal controls how many digits appear after the decimal point:
+
+- `:.1f` → 1 decimal place (3.1)
+- `:.2f` → 2 decimal places (3.14)
+- `:.3f` → 3 decimal places (3.142)
+
+Python will round the last digit automatically!
+:::
+
 :::tip
 Best Pactice: Using the method approach (e.g `arr.sum()`) is generally considered more "Pythonic" and readable.
 :::

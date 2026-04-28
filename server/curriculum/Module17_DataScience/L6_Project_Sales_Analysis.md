@@ -77,10 +77,6 @@ Calculate and store the following values:
 
 You may use either NumPy functions (`np.mean()`, `np.sum()`, `np.max()`) or Pandas methods (`.mean()`, `.sum()`, `.max()`) - both are valid!
 
-### Task 10: Generate a Report
-
-Complete the print statements in the starter code by inserting the correct variable names. The formatting has been done for you.
-
 ### Expected Output
 
 When you've completed all tasks correctly, your output should look like this:
