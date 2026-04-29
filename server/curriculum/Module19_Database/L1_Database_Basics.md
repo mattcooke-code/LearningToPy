@@ -1,6 +1,6 @@
 # 🧱 Database Basics and Connecting with `sqlite3`
 
-Relational databases are essential for persistent, structured data storage that goes beyond simple file I/O. **SQLite** is a C-language library that implements a small, fast, self-contained, SQL database engine. It is the default database used in many applications and is built into Python via the **`sqlite3`** module.
+**Relational Databases** act like a professional filing cabinet for your data. Instead of just saving text to a file, a database organizes your information into structured tables so you can search, update, and retrieve exactly what you need in an instant. In this module, we will use **SQLite**, a lightweight database engine that is built directly into Python. It doesn't require any complex setup; it simply saves your data into a single `.db` file on your computer. It is the default database used in many applications and is built into Python via the **`sqlite3`** module.
 
 ## 1. Relational Database Concepts (RDBMS)
 

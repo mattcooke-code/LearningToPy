@@ -17,7 +17,7 @@ async function initPyodide() {
     await pyodide.runPythonAsync(`
       import micropip
       # Pre-download heavy packages to the browser cache
-      await micropip.install(['pandas', 'numpy', 'tzdata'])
+      await micropip.install(['pandas', 'numpy', 'tzdata', 'sqlite3'])
     `);
   } catch (err) {
     console.error("Preload error:", err);
