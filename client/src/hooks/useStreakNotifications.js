@@ -16,7 +16,7 @@ export const useStreakNotifications = (
 
     const daysRemaining = weeklyProgress?.daysRemaining ?? 2;
 
-    if (streakStatus === "warning") {
+    if (streakStatus === "WARNING") {
       showToast(
         `⚠️ Complete 1 lesson or module quiz in the next ${daysRemaining} days to save your ${streak}-day streak!`,
         "warning",
@@ -24,7 +24,7 @@ export const useStreakNotifications = (
       );
     }
 
-    if (streakStatus === "at_risk") {
+    if (streakStatus === "AT_RISK") {
       showToast(
         `⚡ Complete 1 lesson or module quiz today to maintain your ${streak}-day streak!`,
         "warning",
@@ -32,7 +32,7 @@ export const useStreakNotifications = (
       );
     }
 
-    if (streakStatus === "resetting") {
+    if (streakStatus === "RESETTING") {
       showConfirm({
         title: "Streak Lost",
         message: `Your ${streak}-day streak has reset. Complete a lesson today to start a new one!`,

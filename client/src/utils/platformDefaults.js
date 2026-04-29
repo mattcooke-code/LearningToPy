@@ -5,7 +5,7 @@ export const PLATFORM_DEFAULTS = {
   maxAvatarSize: 2, // MB
   sessionTimeout: 60, // minutes
   maxLoginAttempts: 5,
-  defaultDifficulty: "beginner",
+  defaultDifficulty: "BEGINNER",
   maxLessonsPerModule: 6,
 
   // Theme Settings (from theme tab)

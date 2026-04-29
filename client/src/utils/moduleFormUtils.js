@@ -35,7 +35,7 @@ export const DEFAULT_MODULE_FORM_DATA = {
   lessons: [], // array of lesson IDs (strings)
   prerequisites: [], // array of module IDs
   estimatedDuration: 60, // minutes
-  difficulty: "beginner",
+  difficulty: "BEGINNER",
   badgeId: "", // optional
   xpReward: 200,
 };
@@ -64,7 +64,7 @@ export const mapModuleToFormData = (module = {}) => {
       ? module.prerequisites.map((p) => p._id || p)
       : [],
     estimatedDuration: module.estimatedDuration || 60,
-    difficulty: module.difficulty || "beginner",
+    difficulty: module.difficulty || "BEGINNER",
     badgeId: module.badgeId || "",
     xpReward: module.xpReward || 200,
   };

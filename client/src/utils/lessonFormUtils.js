@@ -5,7 +5,7 @@ export const DEFAULT_LESSON_FORM_DATA = {
   title: "",
   description: "",
   content: "",
-  difficulty: "beginner",
+  difficulty: "BEGINNER",
   xpReward: 100,
   estimatedTime: 15,
   order: 0,
@@ -14,7 +14,7 @@ export const DEFAULT_LESSON_FORM_DATA = {
   moduleId: "",
   prerequisiteLessonIds: [],
   challengeGroup: "",
-  contentType: "theory",
+  contentType: "THEORY",
   initialCode: "",
   testCases: "", // Keep as string for the UI Textarea
   solution: "",
@@ -58,7 +58,7 @@ export const normalizeLessonForAPI = (formData) => {
 
   // 1. Convert testCases back to JSON object/array if it's a valid string
   if (
-    payload.contentType === "exercise" &&
+    payload.contentType === "EXERCISE" &&
     typeof payload.testCases === "string"
   ) {
     try {
@@ -72,12 +72,12 @@ export const normalizeLessonForAPI = (formData) => {
   }
 
   // 2. Data Cleaning: Remove unused fields based on content type
-  if (payload.contentType !== "exercise") {
+  if (payload.contentType !== "EXERCISE") {
     const exerciseFields = ["initialCode", "testCases", "solution", "hints"];
     exerciseFields.forEach((field) => delete payload[field]);
   }
 
-  if (payload.contentType !== "quiz") {
+  if (payload.contentType !== "QUIZ") {
     delete payload.questions;
   }
 
