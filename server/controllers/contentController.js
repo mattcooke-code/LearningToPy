@@ -300,7 +300,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     }
   } else if (
     (code === undefined && answer === undefined) ||
-    lesson.contentType === "theory"
+    lesson.contentType === "THEORY"
   ) {
     isCorrectValue = true;
     feedback = "Status checked/Theory completed!";

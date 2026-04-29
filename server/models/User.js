@@ -12,6 +12,15 @@ const UserSchema = new mongoose.Schema(
       maxlength: [30, "Username must not exceed 30 characters"],
       trim: true,
       lowercase: true, // Normalize usernames to lowercase
+      match: [/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"],
+      validate: {
+        validator: function(value) {
+          // Prevent reserved usernames
+          const reserved = ['admin', 'root', 'system', 'api', 'www', 'mail', 'support', 'null', 'undefined'];
+          return !reserved.includes(value.toLowerCase());
+        },
+        message: "Username is reserved"
+      }
     },
     email: {
       type: String,
@@ -19,13 +28,33 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true, // Normalize emails to lowercase
-      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
+      match: [
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Please use a valid email address"
+      ],
+      validate: {
+        validator: function(value) {
+          // Prevent common disposable email domains
+          const disposableDomains = ['tempmail.com', '10minutemail.com', 'guerrillamail.com', 'mailinator.com'];
+          const domain = value.split('@')[1]?.toLowerCase();
+          return !disposableDomains.some(d => domain?.includes(d));
+        },
+        message: "Disposable email addresses are not allowed"
+      }
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters"],
+      maxlength: [128, "Password must not exceed 128 characters"],
       select: false, // Exclude password from queries by default
+      validate: {
+        validator: function(value) {
+          // Strong password validation
+          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(value);
+        },
+        message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      }
     },
     // --- AUTHENTICATION FIELD CHANGE START ---
     resetPasswordToken: String,
@@ -53,8 +82,9 @@ const UserSchema = new mongoose.Schema(
     },
     streakStatus: {
       type: String,
-      enum: ["active", "warning", "at_risk", "resetting"],
-      default: "active",
+      enum: ["ACTIVE", "WARNING", "AT_RISK", "RESETTING"],
+      default: "ACTIVE",
+      uppercase: true,
     },
     // Streak only - different to lastActive
     lastActiveDate: { type: Date, default: null },
@@ -138,13 +168,15 @@ const UserSchema = new mongoose.Schema(
         source: {
           type: String,
           enum: [
-            "lesson_completion",
-            "lesson_quiz",
-            "exercise",
-            "module_quiz",
-            "module_completion",
-            "bonus",
+            "LESSON_COMPLETION",
+            "LESSON_QUIZ",
+            "EXERCISE",
+            "MODULE_QUIZ",
+            "MODULE_COMPLETION",
+            "BONUS",
           ],
+          uppercase: true,
+          required: true,
         },
         meta: mongoose.Schema.Types.Mixed, // { lessonId, moduleId, attempts, etc. }
         awardedAt: { type: Date, default: Date.now },

@@ -131,7 +131,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     .lean();
   const moduleOrder = module?.order;
   const isM0 = moduleOrder === 0;
-  const isProjectLesson = lesson.contentType === "project";
+  const isProjectLesson = lesson.contentType === "PROJECT";
   const isFinalModule = moduleOrder === 20 && isProjectLesson;
 
   let totalXP = 0;
@@ -152,7 +152,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
     xpLog.push({
       amount: exerciseXP,
-      source: "exercise",
+      source: "EXERCISE",
       meta: { lessonId, submissions: submissionCount, firstTryPass },
     });
   }
@@ -173,7 +173,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
           xpLog.push({
             amount: quizXP,
-            source: "lesson_quiz",
+            source: "LESSON_QUIZ",
             meta: {
               lessonId,
               questionIndex: result.questionIndex,
@@ -190,7 +190,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
         totalXP += XP.LESSON_QUIZ.PASSING_BONUS;
         xpLog.push({
           amount: XP.LESSON_QUIZ.PASSING_BONUS,
-          source: "lesson_quiz",
+          source: "LESSON_QUIZ",
           meta: { lessonId, score, passingBonus: true },
         });
       }
@@ -201,7 +201,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   totalXP += XP.LESSON.COMPLETION;
   xpLog.push({
     amount: XP.LESSON.COMPLETION,
-    source: "lesson_completion",
+    source: "LESSON_COMPLETION",
     meta: { lessonId },
   });
 
@@ -210,7 +210,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     totalXP += XP.LESSON.PROJECT_BONUS;
     xpLog.push({
       amount: XP.LESSON.PROJECT_BONUS,
-      source: "bonus",
+      source: "BONUS",
       meta: { lessonId, reason: "project_lesson" },
     });
   }
@@ -220,7 +220,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
     xpLog.push({
       amount: XP.SPECIAL.M20_PROJECT_BONUS,
-      source: "bonus",
+      source: "BONUS",
       meta: { lessonId, reason: "capstone_project" },
     });
   }
@@ -230,7 +230,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     totalXP += submissionBody.moduleConfigReward;
     xpLog.push({
       amount: submissionBody.moduleConfigReward,
-      source: "bonus",
+      source: "BONUS",
       meta: { lessonId, reason: "module_config_reward" },
     });
   }
@@ -297,7 +297,7 @@ const processModuleCompletion = async (
     totalXP += quizXP;
     xpLog.push({
       amount: quizXP,
-      source: "module_quiz",
+      source: "MODULE_QUIZ",
       meta: { moduleId, correct: correctCount, total: quizResults.length },
     });
 
@@ -305,7 +305,7 @@ const processModuleCompletion = async (
     totalXP += XP.MODULE_QUIZ.COMPLETION_BONUS;
     xpLog.push({
       amount: XP.MODULE_QUIZ.COMPLETION_BONUS,
-      source: "module_quiz",
+      source: "MODULE_QUIZ",
       meta: { moduleId, completionBonus: true },
     });
 
@@ -314,7 +314,7 @@ const processModuleCompletion = async (
       totalXP += XP.MODULE_QUIZ.PERFECT_SCORE_BONUS;
       xpLog.push({
         amount: XP.MODULE_QUIZ.PERFECT_SCORE_BONUS,
-        source: "module_quiz",
+        source: "MODULE_QUIZ",
         meta: { moduleId, perfectScore: true },
       });
     }
@@ -326,7 +326,7 @@ const processModuleCompletion = async (
   totalXP += completionBonus;
   xpLog.push({
     amount: completionBonus,
-    source: "module_completion",
+    source: "MODULE_COMPLETION",
     meta: { moduleId, phase: module.phase },
   });
 
@@ -335,7 +335,7 @@ const processModuleCompletion = async (
     totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
     xpLog.push({
       amount: XP.SPECIAL.M20_PROJECT_BONUS,
-      source: "bonus",
+      source: "BONUS",
       meta: { moduleId, reason: "capstone_completion" },
     });
   }
@@ -345,7 +345,7 @@ const processModuleCompletion = async (
     totalXP += XP.SPECIAL.M0_COMPLETION;
     xpLog.push({
       amount: XP.SPECIAL.M0_COMPLETION,
-      source: "module_completion",
+      source: "MODULE_COMPLETION",
       meta: { moduleId, reason: "tutorial_completion" },
     });
   }
@@ -355,7 +355,7 @@ const processModuleCompletion = async (
     totalXP += module.xpReward;
     xpLog.push({
       amount: module.xpReward,
-      source: "bonus",
+      source: "BONUS",
       meta: { moduleId, reason: "module_config_reward" },
     });
   }
@@ -401,7 +401,7 @@ const isLessonFullyCompleted = (
 
   if (forceComplete) return true;
 
-  if (lesson.contentType === "theory" && !lessonHasQuiz && !lessonHasExercise) {
+  if (lesson.contentType === "THEORY" && !lessonHasQuiz && !lessonHasExercise) {
     return true;
   }
 

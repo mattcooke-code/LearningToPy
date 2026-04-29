@@ -19,7 +19,7 @@ const seedModule0 = async (Lesson, Module, readContent, parseJSONContent) => {
     shortDescription: "Platform introduction and navigation guide",
     order: 0,
     moduleNumber: "M0",
-    difficulty: "beginner",
+    difficulty: "BEGINNER",
     estimatedHours: 0.5,
     isPublished: true,
     learningObjectives: [

@@ -88,13 +88,13 @@ const trackCompletion = async (user) => {
 
   user.lastCompletionDate = new Date();
 
-  // Recover from both "warning" and "at_risk" statuses on completion
+  // Recover from both "WARNING" and "AT_RISK" statuses on completion
   if (
-    (user.streakStatus === "warning" || user.streakStatus === "at_risk") &&
+    (user.streakStatus === "WARNING" || user.streakStatus === "AT_RISK") &&
     user.weeklyProgress.completionsThisWeek >=
       STREAK_CONFIG.REQUIRED_COMPLETIONS
   ) {
-    user.streakStatus = "active";
+    user.streakStatus = "ACTIVE";
     user.weeklyProgress.warningIssued = false;
   }
 
@@ -157,7 +157,7 @@ const handleNewDayOfActivity = async (user, today) => {
       user.weeklyProgress.completionsThisWeek <
       STREAK_CONFIG.REQUIRED_COMPLETIONS
     ) {
-      user.streakStatus = "at_risk";
+      user.streakStatus = "AT_RISK";
     }
   }
 };
@@ -170,7 +170,7 @@ const updateStreak = async (user, today) => {
 
   if (!user.lastActiveDate) {
     user.streak = 1;
-    user.streakStatus = "active";
+    user.streakStatus = "ACTIVE";
     return;
   }
 
@@ -183,7 +183,7 @@ const updateStreak = async (user, today) => {
     user.streak += 1;
   } else if (diffDays > 1) {
     user.streak = 1;
-    user.streakStatus = "active";
+    user.streakStatus = "ACTIVE";
   }
 };
 
@@ -195,9 +195,9 @@ const evaluateLastWeek = async (user) => {
     user.weeklyProgress.completionsThisWeek < STREAK_CONFIG.REQUIRED_COMPLETIONS
   ) {
     user.streak = 0;
-    user.streakStatus = "resetting";
+    user.streakStatus = "RESETTING";
   } else {
-    user.streakStatus = "active";
+    user.streakStatus = "ACTIVE";
   }
 };
 
@@ -219,7 +219,7 @@ const checkWarningStatus = async (user) => {
     user.streak > 0
   ) {
     user.weeklyProgress.warningIssued = true;
-    user.streakStatus = "warning";
+    user.streakStatus = "WARNING";
   }
 
   // Day 7: Point of No Return
@@ -228,7 +228,7 @@ const checkWarningStatus = async (user) => {
     user.weeklyProgress.completionsThisWeek === 0 &&
     user.streak > 0
   ) {
-    user.streakStatus = "resetting";
+    user.streakStatus = "RESETTING";
   }
 };
 

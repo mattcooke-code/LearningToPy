@@ -31,17 +31,44 @@ const flaggedContentSchema = new mongoose.Schema(
     },
     title: {
       type: String,
-      required: true,
-      maxLength: 200,
+      required: [true, "Title is required"],
+      maxlength: [200, "Title must not exceed 200 characters"],
+      minlength: [5, "Title must be at least 5 characters"],
+      trim: true,
+      validate: {
+        validator: function(value) {
+          // Prevent script injection in title
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Title contains invalid content"
+      }
     },
     description: {
       type: String,
-      required: true,
-      maxLength: 2000,
+      required: [true, "Description is required"],
+      maxlength: [2000, "Description must not exceed 2000 characters"],
+      minlength: [10, "Description must be at least 10 characters"],
+      trim: true,
+      validate: {
+        validator: function(value) {
+          // Prevent script injection in description
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Description contains invalid content"
+      }
     },
     suggestedFix: {
       type: String,
-      maxLength: 1000,
+      maxlength: [1000, "Suggested fix must not exceed 1000 characters"],
+      trim: true,
+      validate: {
+        validator: function(value) {
+          if (!value) return true; // Optional field
+          // Prevent script injection in suggested fix
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Suggested fix contains invalid content"
+      }
     },
     status: {
       type: String,
@@ -50,7 +77,16 @@ const flaggedContentSchema = new mongoose.Schema(
     },
     adminResponse: {
       type: String,
-      maxLength: 1000,
+      maxlength: [1000, "Admin response must not exceed 1000 characters"],
+      trim: true,
+      validate: {
+        validator: function(value) {
+          if (!value) return true; // Optional field
+          // Prevent script injection in admin response
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Admin response contains invalid content"
+      }
     },
     xpCompensation: {
       type: Number,

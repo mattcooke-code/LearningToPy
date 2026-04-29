@@ -7,8 +7,29 @@ const LessonSchema = new mongoose.Schema(
       type: String,
       required: [true, "Lesson title is required"],
       trim: true,
+      minlength: [3, "Lesson title must be at least 3 characters"],
+      maxlength: [100, "Lesson title must not exceed 100 characters"],
+      validate: {
+        validator: function(value) {
+          // Prevent script injection in titles
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Title contains invalid content"
+      }
     },
-    content: { type: String, required: [true, "Lesson content is required"] },
+    content: { 
+      type: String, 
+      required: [true, "Lesson content is required"],
+      minlength: [10, "Content must be at least 10 characters"],
+      maxlength: [50000, "Content must not exceed 50000 characters"],
+      validate: {
+        validator: function(value) {
+          // Basic XSS prevention for content
+          return !/<script[^>]*>.*?<\/script>/gi.test(value);
+        },
+        message: "Content contains invalid script tags"
+      }
+    },
     shortDescription: { type: String, maxLength: 150 },
     order: { type: Number, required: true, min: 1 },
     moduleId: {
@@ -17,17 +38,30 @@ const LessonSchema = new mongoose.Schema(
       required: true,
       index: true, // Added for faster queries when loading a module's lessons
     },
-    xpReward: { type: Number, default: 25, min: 0 },
+    xpReward: { 
+      type: Number, 
+      default: 25, 
+      min: [0, "XP reward cannot be negative"],
+      max: [500, "XP reward cannot exceed 500"],
+      validate: {
+        validator: Number.isInteger,
+        message: "XP reward must be an integer"
+      }
+    },
     duration: { type: Number, default: 15, min: 1 },
     contentType: {
       type: String,
-      enum: ["theory", "exercise", "quiz", "project", "guided-setup"],
-      default: "theory",
+      enum: ["THEORY", "EXERCISE", "QUIZ", "PROJECT", "GUIDED_SETUP"],
+      default: "THEORY",
+      uppercase: true,
+      required: true,
     },
     difficulty: {
       type: String,
-      enum: ["beginner", "intermediate", "advanced"],
-      default: "beginner",
+      enum: ["BEGINNER", "INTERMEDIATE", "ADVANCED"],
+      default: "BEGINNER",
+      uppercase: true,
+      required: true,
     },
     tags: [{ type: String, trim: true }],
     challengeGroup: { type: String, trim: true },
@@ -41,7 +75,13 @@ const LessonSchema = new mongoose.Schema(
       solution: String,
       hints: [String],
       testCases: [mongoose.Schema.Types.Mixed],
-      validation: { type: String, enum: ["tests", "output", "none"] },
+      validation: { 
+        type: String, 
+        enum: ["TESTS", "OUTPUT", "NONE"],
+        uppercase: true,
+        default: "NONE",
+        required: true,
+      },
       tests: [mongoose.Schema.Types.Mixed],
       expectedOutput: String,
       tags: [String],

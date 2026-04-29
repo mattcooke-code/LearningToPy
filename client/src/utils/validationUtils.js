@@ -12,12 +12,12 @@ export const validateWithPyodide = async (userCode, exercise, runCode) => {
 
   try {
     // 1. Tests Mode (Logic-based validation)
-    if (exercise.validation === "tests" && exercise.tests) {
+    if (exercise.validation === "TESTS" && exercise.tests) {
       return await runTestsWithPyodide(userCode, exercise, runCode);
     }
 
     // 2. Output Mode (Comparison-based validation)
-    if (exercise.validation === "output") {
+    if (exercise.validation === "OUTPUT") {
       return await validateOutputWithPyodide(
         userCode,
         exercise.expectedOutput,

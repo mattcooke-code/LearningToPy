@@ -806,7 +806,7 @@ const getSettings = catchAsync(async (req, res, next) => {
     enableComments: true,
     maintenanceMode: false,
     allowRegistrations: true,
-    defaultDifficulty: "beginner",
+    defaultDifficulty: "BEGINNER",
     maxLessonsPerModule: 20,
     previewMode: false,
     autoPublishNewContent: false,

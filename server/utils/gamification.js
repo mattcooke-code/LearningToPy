@@ -295,12 +295,12 @@ const BADGE_LOGIC_MAP = {
     check: (h, user) =>
       (user.lessonCompletionHistory || []).some(
         (entry) =>
-          entry.contentType === "exercise" || entry.contentType === "project",
+          entry.contentType === "EXERCISE" || entry.contentType === "PROJECT",
       ),
     progress: (h, user) =>
       (user.lessonCompletionHistory || []).some(
         (entry) =>
-          entry.contentType === "exercise" || entry.contentType === "project",
+          entry.contentType === "EXERCISE" || entry.contentType === "PROJECT",
       )
         ? 100
         : 0,

@@ -6,18 +6,38 @@ const ModuleSchema = new mongoose.Schema(
       type: String,
       required: [true, "Module title is required"],
       trim: true,
+      minlength: [3, "Module title must be at least 3 characters"],
+      maxlength: [100, "Module title must not exceed 100 characters"],
+      validate: {
+        validator: function(value) {
+          // Prevent script injection in titles
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Title contains invalid content"
+      }
     },
     description: {
       type: String,
       required: [true, "Module description is required"],
+      minlength: [10, "Description must be at least 10 characters"],
+      maxlength: [2000, "Description must not exceed 2000 characters"],
+      validate: {
+        validator: function(value) {
+          // Basic XSS prevention
+          return !/<script|javascript:|on\w+=/i.test(value);
+        },
+        message: "Description contains invalid content"
+      }
     },
     shortDescription: { type: String, maxLength: 150 },
     order: { type: Number, min: 0 },
     moduleNumber: { type: String, unique: true },
     difficulty: {
       type: String,
-      enum: ["beginner", "intermediate", "advanced"],
-      default: "beginner",
+      enum: ["BEGINNER", "INTERMEDIATE", "ADVANCED"],
+      default: "BEGINNER",
+      uppercase: true,
+      required: true,
     },
     estimatedHours: { type: Number, default: 2, min: 0.5 },
     isPublished: { type: Boolean, default: false },
@@ -25,7 +45,16 @@ const ModuleSchema = new mongoose.Schema(
     learningObjectives: [String],
     icon: { type: String, default: "📚" },
     slug: { type: String, unique: true, index: true, trim: true },
-    xpReward: { type: Number, default: 100, min: 0 },
+    xpReward: { 
+      type: Number, 
+      default: 100, 
+      min: [0, "XP reward cannot be negative"],
+      max: [1000, "XP reward cannot exceed 1000"],
+      validate: {
+        validator: Number.isInteger,
+        message: "XP reward must be an integer"
+      }
+    },
     lessonCount: { type: Number, default: 0 },
     // Updated to handle the nested JSON structure from seeders
     moduleQuiz: {

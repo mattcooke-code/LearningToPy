@@ -405,9 +405,9 @@ const fetchDemographicStats = async (start) => {
           _id: {
             $switch: {
               branches: [
-                { case: { $lte: ["$level", 2] }, then: "Beginner" },
-                { case: { $lte: ["$level", 5] }, then: "Intermediate" },
-                { case: { $lte: ["$level", 8] }, then: "Advanced" },
+                { case: { $lte: ["$level", 2] }, then: "BEGINNER" },
+                { case: { $lte: ["$level", 5] }, then: "INTERMEDIATE" },
+                { case: { $lte: ["$level", 8] }, then: "ADVANCED" },
               ],
               default: "Expert",
             },

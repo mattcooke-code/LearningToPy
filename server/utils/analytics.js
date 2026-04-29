@@ -96,7 +96,7 @@ const formatProgressResponse = (
     level: currentLevel,
     maxLevel: 20,
     streak: user.streak || 0,
-    streakStatus: user.streakStatus || "active",
+    streakStatus: user.streakStatus || "ACTIVE",
     weeklyProgress: user.weeklyProgress || null,
     stats: {
       lessonsCompleted: uniqueLessons.length,
