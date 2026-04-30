@@ -5,9 +5,11 @@ const adminController = require("../controllers/adminController");
 const analyticsController = require("../controllers/analyticsController");
 const { adminOnly } = require("../middleware/adminOnly");
 const { protect } = require("../middleware/auth");
+const { adminActionLimiter } = require("../middleware/rateLimiter");
 
 router.use(protect);
 router.use(adminOnly);
+router.use(adminActionLimiter);
 
 // Admin user management
 router.patch("/users/:userId/admin-status", adminController.toggleAdminStatus);

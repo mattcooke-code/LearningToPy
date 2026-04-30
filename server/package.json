@@ -15,7 +15,9 @@
     "reset:lesson": "node scripts/resetUserLesson.js",
     "reset:curriculum": "SEED_CLEAR_DATA=true node seeders/seedDatabase.js",
     "backup:db": "node scripts/backupDatabase.js",
-    "restore:db": "node scripts/restoreDatabase.js"    
+    "restore:db": "node scripts/restoreDatabase.js",
+    "migrate:accounts": "node scripts/updateAccountsToNewValidations.js",
+    "fix:xpHistory": "node scripts/fixXPHistoryEnums.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -26,7 +28,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "node-cache": "^5.1.2",
-    "nodemailer": "^8.0.2"
+    "nodemailer": "^8.0.2",
+    "express-rate-limit": "^7.1.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

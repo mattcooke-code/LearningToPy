@@ -16,6 +16,9 @@ const AppError = require("./utils/AppError");
 const { sendJsonResponse } = require("./utils/responseHelpers");
 const errorHandler = require("./middleware/errorHandler");
 
+// Rate limiting
+const { apiLimiter, ipBlocker, abuseDetector } = require("./middleware/rateLimiter");
+
 // Routes
 const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
@@ -35,6 +38,11 @@ app.use(
     credentials: true,
   }),
 );
+
+// Rate limiting
+app.use(ipBlocker); // Check if IP is blocked first
+app.use(abuseDetector); // Detect suspicious patterns
+app.use("/api/", apiLimiter); // Apply general API rate limiting
 
 // Database
 const connectDB = async () => {

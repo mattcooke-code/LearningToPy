@@ -9,19 +9,24 @@ const {
   validatePasswordResetConfirm,
   validateProfileUpdate,
 } = require("../middleware/validation");
+const {
+  authLimiter,
+  passwordResetLimiter,
+  apiLimiter,
+} = require("../middleware/rateLimiter");
 
 // === PUBLIC ROUTES ===
-router.post("/register", validateUserRegistration, authController.register);
+router.post("/register", authLimiter, validateUserRegistration, authController.register);
 
-router.post("/login", authController.login);
+router.post("/login", authLimiter, authController.login);
 
 router.post("/refresh-token", authController.refreshToken);
 
-router.post("/forgot-password", validatePasswordReset, authController.forgotPassword);
+router.post("/forgot-password", passwordResetLimiter, validatePasswordReset, authController.forgotPassword);
 
 router.get("/validate-reset-token/:token", authController.validateResetToken);
 
-router.post("/reset-password", validatePasswordResetConfirm, authController.resetPassword);
+router.post("/reset-password", passwordResetLimiter, validatePasswordResetConfirm, authController.resetPassword);
 
 // === AUTHENTICATED ROUTES ===
 router.post("/logout", protect, authController.logout);
