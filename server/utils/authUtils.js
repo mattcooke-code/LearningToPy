@@ -15,10 +15,11 @@ const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000; // 30 days
 // Common cookie options for refresh tokens
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: IS_PRODUCTION, // Use secure: true in production
-  sameSite: "Lax",
+  httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+  secure: IS_PRODUCTION, // Requires HTTPS in production
+  sameSite: "Strict", // Strict CSRF protection (was "Lax")
   path: "/",
+  partitioned: true, // CHIPS (Cookies Having Independent Partitioned State) for privacy
 };
 
 const getRefreshTokenSettings = (rememberMe) => {

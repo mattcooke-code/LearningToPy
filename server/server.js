@@ -11,10 +11,18 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const config = require("./config/envConfig");
 
+// Security middleware
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const hpp = require("hpp");
+
 // Error handling
 const AppError = require("./utils/AppError");
 const { sendJsonResponse } = require("./utils/responseHelpers");
 const errorHandler = require("./middleware/errorHandler");
+
+// Security configuration
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // Rate limiting
 const { apiLimiter, ipBlocker, abuseDetector } = require("./middleware/rateLimiter");
@@ -29,17 +37,94 @@ const supportRoutes = require("./routes/support");
 
 const app = express();
 
-// Middleware
-app.use(express.json({ limit: "10mb" }));
-app.use(cookieParser());
+// Trust proxy (required for secure cookies behind reverse proxy)
+app.set("trust proxy", 1);
+
+// Security Middleware - Order matters!
+// 1. Helmet - Set security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:5173"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for development
+        imgSrc: ["'self'", "data:", "https:"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Disable for development
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    dnsPrefetchControl: { allow: false },
+    frameguard: { action: "deny" },
+    hidePoweredBy: true,
+    hsts: IS_PRODUCTION
+      ? {
+          maxAge: 31536000, // 1 year
+          includeSubDomains: true,
+          preload: true,
+        }
+      : false, // Disable HSTS in development
+    ieNoOpen: true,
+    noSniff: true,
+    originAgentCluster: true,
+    permittedCrossDomainPolicies: { permittedPolicies: "none" },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xssFilter: true,
+  })
+);
+
+// 2. CORS configuration
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
-  }),
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+  "Content-Type",
+  "Authorization", 
+  "X-Requested-With",
+  "x-session-id",      // ✅ Add this - the missing header
+  "x-device-info", // Match the error message exactly
+  "x-page-path",   // Safe to lowercase this too
+  "X-Device-Info", // Keeping the uppercase version doesn't hurt
+],
+  })
 );
 
-// Rate limiting
+// 3. Body parsing
+app.use(express.json({ limit: "10mb" }));
+
+// 4. Cookie parsing with secure defaults
+app.use(cookieParser());
+
+// 5. Data sanitization against NoSQL query injection
+app.use(
+  mongoSanitize({
+    replaceWith: "_", // Replace prohibited characters with underscore
+    onSanitize: ({ req, key }) => {
+      console.warn(`Sanitized key: ${key} from IP: ${req.ip}`);
+    },
+  })
+);
+
+// 6. Prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      // Add any parameters that are allowed to be arrays
+      "sort",
+      "fields",
+      "tags",
+    ],
+  })
+);
+
+// 7. Rate limiting
 app.use(ipBlocker); // Check if IP is blocked first
 app.use(abuseDetector); // Detect suspicious patterns
 app.use("/api/", apiLimiter); // Apply general API rate limiting
