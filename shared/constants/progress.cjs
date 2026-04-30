@@ -91,10 +91,9 @@ const getPhaseBonus = (phase) => {
   return 0;
 };
 
-// --- UNIVERSAL EXPORT ---
-// This part makes it work for BOTH Node.js (CommonJS) and React (ESM)
+
+// === ONLY THIS AT THE BOTTOM ===
 if (typeof module !== "undefined" && module.exports) {
-  // For Node.js (Server)
   module.exports = {
     THRESHOLDS,
     XP,
@@ -103,13 +102,3 @@ if (typeof module !== "undefined" && module.exports) {
     getPhaseBonus,
   };
 }
-
-// For Vite/React (Frontend)
-// We add these explicit exports so the "Named Export" error goes away
-export {
-  THRESHOLDS,
-  XP,
-  calculateLessonQuizXP,
-  calculateExerciseXP,
-  getPhaseBonus,
-};

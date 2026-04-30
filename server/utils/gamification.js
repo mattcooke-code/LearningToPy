@@ -2,8 +2,8 @@
 
 const {
   BADGE_DEFINITIONS_CORE,
-} = require("../../shared/constants/badgeDefinitions");
-const { XP } = require("../../shared/constants/progress");
+} = require("../../shared/constants/badgeDefinitions.cjs");
+const { XP } = require("../../shared/constants/progress.cjs");
 const { toStringId } = require("./generalUtils");
 const Module = require("../models/Module");
 const Lesson = require("../models/Lesson");

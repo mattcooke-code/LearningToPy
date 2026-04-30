@@ -2,7 +2,7 @@
 const {
   XP,
   calculateLessonQuizXP,
-} = require("../../shared/constants/progress");
+} = require("../../shared/constants/progress.cjs");
 
 const hasQuiz = (lesson) => {
   return lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0;

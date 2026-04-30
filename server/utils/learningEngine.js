@@ -13,7 +13,7 @@ const {
   calculateLessonQuizXP,
   calculateExerciseXP,
   getPhaseBonus,
-} = require("../../shared/constants/progress");
+} = require("../../shared/constants/progress.cjs");
 const {
   getQuizResultsForXP,
   hasExercise,

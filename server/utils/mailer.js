@@ -9,8 +9,7 @@ const createTransporter = async () => {
     const testAccount = await nodemailer.createTestAccount();
     console.log("\n📧 Using Ethereal Email for testing:");
     console.log(`   Preview URL: ${testAccount.web}`);
-    console.log(`   Username: ${testAccount.user}`);
-    console.log(`   Password: ${testAccount.pass}\n`);
+  
 
     return nodemailer.createTransport({
       host: "smtp.ethereal.email",

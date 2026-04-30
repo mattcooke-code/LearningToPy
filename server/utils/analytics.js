@@ -1,5 +1,5 @@
 // analytics.js
-const { XP } = require("../../shared/constants/progress");
+const { XP } = require("../../shared/constants/progress.cjs");
 const { calculateLevelFromModules } = require("./levelUtils");
 
 /**

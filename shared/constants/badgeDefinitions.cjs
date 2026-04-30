@@ -380,11 +380,6 @@ const BADGE_DEFINITIONS_CORE = [
   },
 ];
 
-// --- UNIVERSAL EXPORT ---
-if (typeof module !== "undefined" && module.exports) {
-  // Server-side (Node.js)
-  module.exports = { BADGE_DEFINITIONS_CORE };
-}
 
-// Client-side (Vite/React)
-export { BADGE_DEFINITIONS_CORE };
+  module.exports = { BADGE_DEFINITIONS_CORE };
+

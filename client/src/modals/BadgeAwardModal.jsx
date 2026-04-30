@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { adminApiClient, useNotification } from "../context";
 import { BaseModal } from "../components/ui";
 import { Search, Award, Loader2, Check, X, Trophy } from "lucide-react";
-import { BADGE_DEFINITIONS_CORE } from "../../../shared/constants/badgeDefinitions";
+import { BADGE_DEFINITIONS_CORE } from "@shared/constants/badgeDefinitions.cjs";
 
 const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
   const [searchQuery, setSearchQuery] = useState("");

@@ -1,6 +1,6 @@
 // badges.js
 
-import { BADGE_DEFINITIONS_CORE } from "../../../shared/constants/badgeDefinitions";
+import { BADGE_DEFINITIONS_CORE } from "@shared/constants/badgeDefinitions.cjs";
 
 export const BADGE_LIBRARY = BADGE_DEFINITIONS_CORE;
 export const BADGES_BY_ID = BADGE_DEFINITIONS_CORE.reduce((acc, badge) => {

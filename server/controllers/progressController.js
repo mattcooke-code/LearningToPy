@@ -28,7 +28,7 @@ const {
 } = require("../utils/streakManager");
 const {
   BADGE_DEFINITIONS_CORE,
-} = require("../../shared/constants/badgeDefinitions");
+} = require("../../shared/constants/badgeDefinitions.cjs");
 
 // --- CONTROLLER FUNCTIONS ---
 

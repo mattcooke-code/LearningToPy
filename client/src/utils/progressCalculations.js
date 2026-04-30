@@ -1,4 +1,6 @@
-import { XP } from "../../../shared/constants/progress";
+//utils/progressCalculations.js
+import { XP } from "@shared/constants/progress.cjs";
+
 
 /** Calculate progress percentage for lessons within a specific module */
 export const calculateModuleLessonProgress = (lessons = []) => {
