@@ -3,19 +3,25 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
+const {
+  validateUserRegistration,
+  validatePasswordReset,
+  validatePasswordResetConfirm,
+  validateProfileUpdate,
+} = require("../middleware/validation");
 
 // === PUBLIC ROUTES ===
-router.post("/register", authController.register);
+router.post("/register", validateUserRegistration, authController.register);
 
 router.post("/login", authController.login);
 
 router.post("/refresh-token", authController.refreshToken);
 
-router.post("/forgot-password", authController.forgotPassword);
+router.post("/forgot-password", validatePasswordReset, authController.forgotPassword);
 
 router.get("/validate-reset-token/:token", authController.validateResetToken);
 
-router.post("/reset-password", authController.resetPassword);
+router.post("/reset-password", validatePasswordResetConfirm, authController.resetPassword);
 
 // === AUTHENTICATED ROUTES ===
 router.post("/logout", protect, authController.logout);

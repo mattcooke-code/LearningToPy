@@ -15,7 +15,7 @@
     "reset:lesson": "node scripts/resetUserLesson.js",
     "reset:curriculum": "SEED_CLEAR_DATA=true node seeders/seedDatabase.js",
     "backup:db": "node scripts/backupDatabase.js",
-    "restore:db": "node scripts/restoreDatabase.js"
+    "restore:db": "node scripts/restoreDatabase.js"    
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

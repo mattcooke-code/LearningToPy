@@ -93,7 +93,8 @@ exports.validateUsername = function(username) {
   // Check against reserved usernames
   const reserved = [
     'admin', 'root', 'system', 'api', 'www', 'mail', 'support', 'null', 'undefined',
-    'user', 'test', 'demo', 'guest', 'anonymous', 'moderator', 'superadmin'
+    'demo', 'guest', 'anonymous', 'moderator', 'superadmin', 'administrator',
+    'staff', 'security', 'help', 'info', 'contact', 'service'
   ];
   
   if (reserved.includes(username.toLowerCase())) {

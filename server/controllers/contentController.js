@@ -4,6 +4,7 @@ const Lesson = require("../models/Lesson");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
+const { validateContent, validateEnum } = require("../utils/validationHelpers");
 const {
   validateCodeSubmission,
   processLessonCompletion,

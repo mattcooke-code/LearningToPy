@@ -11,10 +11,27 @@ const authUtils = require("../utils/authUtils");
 const { sendEmail, createPasswordResetEmail } = require("../utils/mailer");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackLessonView } = require("../utils/streakManager");
+const { validateEmail, validateUsername, validatePassword } = require("../utils/validationHelpers");
 
 const register = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
+  // Validate input using validationHelpers
+  const usernameValidation = validateUsername(username);
+  if (!usernameValidation.isValid) {
+    return next(new AppError(usernameValidation.message, 400));
+  }
+
+  if (!validateEmail(email)) {
+    return next(new AppError('Please provide a valid email address', 400));
+  }
+
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.isValid) {
+    return next(new AppError(passwordValidation.message, 400));
+  }
+
+  // Check for existing users
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
     return next(new AppError("Email already in use.", 400));
@@ -238,6 +255,12 @@ const logout = catchAsync(async (req, res, next) => {
 
 const forgotPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
+
+  // Validate email using validationHelpers
+  if (!validateEmail(email)) {
+    return next(new AppError('Please provide a valid email address', 400));
+  }
+
   const user = await User.findOne({ email });
 
   const genericMessage =
@@ -295,6 +318,13 @@ const validateResetToken = catchAsync(async (req, res, next) => {
 
 const resetPassword = catchAsync(async (req, res, next) => {
   const { token, newPassword } = req.body;
+
+  // Validate new password using validationHelpers
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    return next(new AppError(passwordValidation.message, 400));
+  }
+
   const user = await User.findOne({
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: Date.now() },
