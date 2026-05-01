@@ -235,7 +235,67 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // Award and Log XP
+  // Mark lesson as completed
+  user.completedLessons.push(lessonId);
+
+  // Auto-complete quiz-less modules (e.g., Module 20 capstone)
+  // This must happen BEFORE awarding XP so all XP is counted correctly
+  if (!isM0 && !hasQuiz(lesson)) {
+    const moduleLessons = await Lesson.find({
+      moduleId: lesson.moduleId,
+      isPublished: true,
+    }).select("_id").lean();
+
+    const allLessonsComplete = moduleLessons.every(
+      (l) => user.completedLessons.includes(l._id.toString()),
+    );
+
+    if (allLessonsComplete) {
+      const fullModule = await Module.findById(lesson.moduleId);
+      const moduleQuiz = hasQuiz(fullModule);
+
+      if (!moduleQuiz) {
+        // Module has no quiz - mark it complete now
+        if (!user.completedModules.includes(fullModule._id.toString())) {
+          user.completedModules.push(fullModule._id.toString());
+
+          // Award module completion XP
+          const modulePhase = fullModule.phase || 1;
+          const moduleBonus =
+            XP.MODULE.COMPLETION_BONUS + getPhaseBonus(modulePhase);
+
+          // Special M20 capstone bonus
+          if (fullModule.order === 20) {
+            totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
+            xpLog.push({
+              amount: XP.SPECIAL.M20_PROJECT_BONUS,
+              source: "BONUS",
+              meta: { lessonId, reason: "capstone_auto_complete" },
+            });
+          }
+
+          totalXP += moduleBonus;
+          xpLog.push({
+            amount: moduleBonus,
+            source: "MODULE_COMPLETION_AUTO",
+            meta: { moduleId: fullModule._id.toString(), phase: modulePhase },
+          });
+
+          // Add to module completion history
+          if (!Array.isArray(user.moduleCompletionHistory)) {
+            user.moduleCompletionHistory = [];
+          }
+          user.moduleCompletionHistory.push({
+            moduleId: fullModule._id,
+            completedAt: new Date(),
+            quizScore: null,
+          });
+        }
+      }
+    }
+  }
+
+  // Award and Log XP (now includes lesson + any auto-completed module XP)
   user.xp = (user.xp || 0) + totalXP;
   user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
 
@@ -244,9 +304,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
       ...xpLog.map((log) => ({ ...log, awardedAt: new Date() })),
     );
   }
-
-  // Mark lesson as completed
-  user.completedLessons.push(lessonId);
 
   // Create history & update stats
   const now = new Date();
