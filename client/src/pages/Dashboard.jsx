@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { apiClient, useAuth, useTheme } from "../context";
 import { useStreakNotifications, useThemeStyles } from "../hooks";
 import {
@@ -14,22 +14,29 @@ import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { updateThemeFromCourseProgress } = useTheme();
   const { themeColor, hoverHandlers } = useThemeStyles();
   const [userProgress, setUserProgress] = useState(null);
   const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   const [nextModule, setNextModule] = useState(null);
 
+  const location = useLocation();
+
   useEffect(() => {
-    if (!user) {
+    // Wait for auth to be ready before fetching data
+    if (authLoading || !isAuthenticated || !user) {
       return;
     }
 
     const fetchProgress = async () => {
       try {
+        setProgressLoading(true);
+        setFetchError(null);
         const progressData = await apiClient.get("/progress/current");
         setUserProgress(progressData);
         updateThemeFromCourseProgress(progressData.courseProgressPercentage);
@@ -45,6 +52,10 @@ const Dashboard = () => {
         }
       } catch (err) {
         console.error("Failed to fetch progress:", err);
+        setFetchError(err);
+        // Don't clear userProgress on error - keep previous data
+      } finally {
+        setProgressLoading(false);
       }
     };
 
@@ -65,13 +76,15 @@ const Dashboard = () => {
 
     fetchProgress();
     fetchSurroundingLeaderboard();
-  }, [updateThemeFromCourseProgress, user]);
+  }, [updateThemeFromCourseProgress, user, isAuthenticated, authLoading, location.pathname]);
 
+  // Use user data from auth as fallback when progress hasn't loaded yet
+  // This prevents showing all zeros during initial load
   const progressData = userProgress || {
     xp: user?.xp || 0,
     level: user?.level || 1,
     streak: user?.streak || 0,
-    courseProgressPercentage: 0,
+    courseProgressPercentage: progressLoading ? null : 0,
     progress: {},
     stats: {
       lessonsCompleted: 0,
@@ -80,6 +93,26 @@ const Dashboard = () => {
     badges: [],
     currentModule: null,
   };
+
+  // Show loading state if auth is still loading or if we're fetching progress
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[50vh]">
+        <Spinner size="large" />
+      </div>
+    );
+  }
+
+  // Show message if not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-gray-600 dark:text-gray-400">
+          Please log in to view your dashboard.
+        </p>
+      </div>
+    );
+  }
 
   const isCourseComplete = progressData.level >= 20;
 
@@ -105,7 +138,7 @@ const Dashboard = () => {
     });
 
   return (
-    <div className="container mx-auto px-4 py-8  ">
+    <div className="container mx-auto px-4 py-8">
       {/* Welcome Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-python-blue dark:text-python-yellow">
@@ -125,10 +158,14 @@ const Dashboard = () => {
             Your Python Progress
           </h2>
           <div className="flex justify-center">
-            <ProgressGauge
-              progress={progressData.courseProgressPercentage}
-              size={280}
-            />
+            {progressLoading ? (
+              <Spinner size="large" />
+            ) : (
+              <ProgressGauge
+                progress={progressData.courseProgressPercentage}
+                size={280}
+              />
+            )}
           </div>
           <p className="text-center text-gray-600 dark:text-gray-300 mt-4">
             Currently at <strong>Level {progressData.level}</strong> with{" "}

@@ -470,10 +470,19 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
+    // Always ensure the API client has the auth header set
+    if (token && isTokenValid(token)) {
+      const authHeader = `Bearer ${token}`;
+      apiClient.defaults.headers.common["Authorization"] = authHeader;
+      authApiClient.defaults.headers.common["Authorization"] = authHeader;
+      adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+    }
+
     if (!isTokenValid(token)) {
       try {
         await refreshAuthToken();
-        setLoading(false);
+        // After successful refresh, the token will be set by setAuthData
+        // Don't set loading false here - let the effect re-run
         return;
       } catch {
         setAuthData(null, null);
@@ -482,6 +491,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
+    // If we already have user data and token is valid, no need to refetch
     if (user && isTokenValid(token)) {
       setLoading(false);
       return;
@@ -494,7 +504,16 @@ export const AuthProvider = ({ children }) => {
 
       setAuthData(userData, token, !!localStorage.getItem("accessToken"));
     } catch (err) {
-      if (err.response?.status !== 401) setAuthData(null, null);
+      if (err.response?.status === 401) {
+        // Token expired during request, try to refresh
+        try {
+          await refreshAuthToken();
+        } catch {
+          setAuthData(null, null);
+        }
+      } else {
+        setAuthData(null, null);
+      }
     } finally {
       setLoading(false);
     }
@@ -508,9 +527,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Initial auth check - only run once on mount
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    let isMounted = true;
+    
+    const initAuth = async () => {
+      const token = getStoredAccessToken();
+      
+      // If we have a token, ensure it's set on API clients before any requests
+      if (token && isTokenValid(token)) {
+        const authHeader = `Bearer ${token}`;
+        apiClient.defaults.headers.common["Authorization"] = authHeader;
+        authApiClient.defaults.headers.common["Authorization"] = authHeader;
+        adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+      }
+      
+      if (isMounted) {
+        await fetchUserProfile();
+      }
+    };
+    
+    initAuth();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array - only run once on mount
 
   // --- SETUP INTERCEPTORS (SIMPLE NOW!) ---
   useEffect(() => {
