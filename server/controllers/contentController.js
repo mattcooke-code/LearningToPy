@@ -11,7 +11,7 @@ const {
   isLessonFullyCompleted,
   getCurriculumProgressStats,
   processModuleCompletion,
-} = require("../utils/learningEngine");
+} = require("../services/learningEngine");
 
 const {
   hasQuiz,
@@ -26,7 +26,7 @@ const {
   checkPrerequisites,
   hasPassedModuleQuiz,
   getModuleLessonCompletion,
-} = require("../utils/moduleProgress");
+} = require("../services/moduleProgress");
 
 const { findNextLesson, findNextModule } = require("../utils/navigation");
 
@@ -34,16 +34,16 @@ const {
   calculateProgress,
   isModuleFinished,
   formatProgressResponse,
-} = require("../utils/analytics");
+} = require("../services/analytics");
 
 const {
   evaluateBadges,
   checkLeaderboardBadges,
-  calculateExerciseSubmissionXP,
-} = require("../utils/gamification");
+} = require("../services/gamification");
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
-const { trackCompletion } = require("../utils/streakManager");
+const { trackCompletion } = require("../services/streakManager");
+const {calculateExerciseXP} = require("../../shared/constants/progress.cjs")
 
 // ====== CONTROLLER FUNCTIONS ======
 
@@ -380,7 +380,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     const submissionCount = Math.max(1, submissions.length);
     const firstTryPass =
       submissionCount === 1 && (req.body.testsPassed || req.body.isCorrect);
-    partialXPEarned = calculateExerciseSubmissionXP(
+    partialXPEarned = calculateExerciseXP(
       submissionCount,
       firstTryPass,
     );

@@ -1,19 +1,28 @@
 // analytics.js
 const { XP } = require("../../shared/constants/progress.cjs");
-const { calculateLevelFromModules } = require("./levelUtils");
+const { calculateLevelFromModules } = require("../utils/levelUtils");
 
 /**
  * --- PERCENTAGE CALCULATORS ---
  */
 
+/**
+ * Calculate percentage progress, capped at 100.
+ * @param {number} count - Completed items
+ * @param {number} total - Total items
+ * @returns {number} Progress percentage (0-100)
+ */
 const calculateProgress = (count, total) => {
   if (!total || total === 0) return 0;
   return Math.min(100, Math.round((count / total) * 100));
 };
 
 /**
- * Checks if a module is finished by comparing completed lessons
- * against the module's lesson list.
+ * Determine if a module is fully completed by comparing user's completed
+ * lessons against the module's published lesson list.
+ * @param {string[]} userCompletedLessonIds - Array of completed lesson IDs
+ * @param {Object[]} moduleLessons - Published lessons in the module
+ * @returns {boolean} True if all module lessons are completed
  */
 const isModuleFinished = (userCompletedLessonIds, moduleLessons) => {
   if (!moduleLessons || moduleLessons.length === 0) return false;
@@ -50,7 +59,7 @@ const calculateModuleLessonProgress = (
  *
  * @param {Object} user - User object with completion data
  * @param {number} totalCourseLessons - Total curriculum lessons
- * @param {number} completedCurriculumCount - User's completed curriculum lessons (optional, will calculate if not provided)
+ * @param {number} completedCurriculumCount - User's completed curriculum lessons If null, calculated from user.completedLessons (less accurate, deduplicates IDs).
  * @param {Object} currentModuleData - Current module data { order, title, lessonCount, lessonsCompleted }
  * @param {Map} moduleOrderCache - Map of module ID to order number for level calculation
  */
@@ -168,6 +177,11 @@ const calculateDaysActive = (user) => {
       }
     });
   }
+
+  if (user.lastActiveDate) {
+  const dateKey = user.lastActiveDate.toISOString().split("T")[0];
+  uniqueDays.add(dateKey);
+}
 
   // Add days from module completions
   if (user.moduleCompletionHistory) {

@@ -1,6 +1,6 @@
-// utils/streakManager.js
+// services/streakManager.js
 const User = require("../models/User");
-const { checkDate } = require("./generalUtils");
+const { checkDate } = require("../utils/generalUtils");
 
 const STREAK_CONFIG = {
   WARNING_DAY: 5,
@@ -10,7 +10,9 @@ const STREAK_CONFIG = {
 };
 
 /**
- * Get the start of the week (Monday) for a given date
+ * Get the start of the week (Monday 00:00:00) for a given date.
+ * @param {Date|string} date - The reference date
+ * @returns {Date} Monday of that week at midnight
  */
 const getWeekStart = (date) => {
   const d = new Date(date);
@@ -22,7 +24,10 @@ const getWeekStart = (date) => {
 };
 
 /**
- * Get the day of the week (1 = Monday ... 7 = Sunday)
+ * Get the 1-based day of the week relative to the user's week start.
+ * @param {Date|string} date - The date to check
+ * @param {Date|string} weekStart - The user's current week start date
+ * @returns {number} Day number (1 = Monday, 7 = Sunday)
  */
 const getDayOfWeek = (date, weekStart) => {
   const dateTime = checkDate(date);
@@ -111,7 +116,12 @@ const trackCompletion = async (user) => {
 };
 
 /**
- * Initialize new week if needed
+ * Initialize a new week's tracking data if the current week has ended.
+ * Rolls over weeklyProgress and evaluates the previous week's performance
+ * (resets streak if requirements weren't met).
+ * 
+ * @param {Object} user - User document (mutated in place)
+ * @param {Date} today - Current date
  */
 const initializeWeekIfNeeded = async (user, today) => {
   const weekStart = getWeekStart(today);
@@ -143,7 +153,13 @@ const initializeWeekIfNeeded = async (user, today) => {
 };
 
 /**
- * Handle first activity of a new day
+ * Process the first activity on a new day.
+ * Increments daysActive, updates streak if within the qualifying window
+ * (first 5 days of the week), or marks streak AT_RISK if past that window
+ * with insufficient completions.
+ * 
+ * @param {Object} user - User document (mutated in place)
+ * @param {Date} today - Current date
  */
 const handleNewDayOfActivity = async (user, today) => {
   user.weeklyProgress.daysActive += 1;
@@ -163,7 +179,12 @@ const handleNewDayOfActivity = async (user, today) => {
 };
 
 /**
- * Update user's streak based on consecutive days
+ * Update the user's streak counter.
+ * Increments if yesterday was active, resets to 1 if a gap occurred.
+ * Consecutive days only — a single missed day breaks the streak.
+ * 
+ * @param {Object} user - User document (mutated in place)
+ * @param {Date} today - Current date
  */
 const updateStreak = async (user, today) => {
   const todayTime = checkDate(today);
@@ -188,7 +209,11 @@ const updateStreak = async (user, today) => {
 };
 
 /**
- * Evaluate last week's performance before rolling into a new week
+ * Evaluate last week's performance and set streak status for the new week.
+ * Sets status to RESETTING if completions fell below the required threshold,
+ * or ACTIVE if the requirement was met.
+ * 
+ * @param {Object} user - User document (mutated in place)
  */
 const evaluateLastWeek = async (user) => {
   if (
@@ -202,8 +227,12 @@ const evaluateLastWeek = async (user) => {
 };
 
 /**
- * Check whether a warning needs to be issued.
- * Does NOT save — caller handles persistence.
+ * Check if the user should receive a streak warning.
+ * Issues WARNING on day 5 with no completions and an active streak.
+ * Issues RESETTING on day 7 with no completions.
+ * Does NOT persist — caller must call user.save().
+ * 
+ * @param {Object} user - User document (mutated in place)
  */
 const checkWarningStatus = async (user) => {
   if (!user.weeklyProgress.weekStartDate) return;

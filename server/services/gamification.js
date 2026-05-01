@@ -4,7 +4,7 @@ const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions.cjs");
 const { XP } = require("../../shared/constants/progress.cjs");
-const { toStringId } = require("./generalUtils");
+const { toStringId } = require("../utils/generalUtils");
 const Module = require("../models/Module");
 const Lesson = require("../models/Lesson");
 
@@ -351,6 +351,9 @@ const evaluateBadges = async (user, context = {}) => {
 /**
  * Return progress percentage (0–100) for every badge.
  * Used by the achievements page to show in-progress and locked badges.
+ * 
+ * NOTE: Leaderboard badges always return 0% until awarded externally
+ * by checkLeaderboardBadges(). They cannot be progressed through normal play.
  */
 const getBadgeProgress = async (user) => {
   const helpers = await createBadgeHelpers(user);
@@ -448,23 +451,6 @@ const awardLeaderboardBadge = async (user, badgeId) => {
   return true;
 };
 
-/**
- * Calculate XP for a coding exercise submission
- * @param {number} submissionCount - Total submissions for this exercise
- * @param {boolean} isFirstTryPass - Whether tests passed on first submission
- * @returns {number} - XP to awarf
- */
-const calculateExerciseSubmissionXP = (submissionCount, isFirstTryPass) => {
-  let xp = Math.min(
-    submissionCount * XP.EXERCISE.SUBMISSION_BASE,
-    XP.EXERCISE.MAX_SUBMISSION_XP,
-  );
-
-  if (isFirstTryPass) {
-    xp += XP.EXERCISE.FIRST_TRY_BONUS;
-  }
-  return xp;
-};
 
 module.exports = {
   evaluateBadges,
@@ -472,6 +458,5 @@ module.exports = {
   awardLeaderboardBadge,
   calculateLevelProgress,
   checkLeaderboardBadges,
-  calculateExerciseSubmissionXP,
   XP_PER_LEVEL,
 };

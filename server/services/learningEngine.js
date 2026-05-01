@@ -4,9 +4,8 @@ const Module = require("../models/Module");
 const {
   findNextLesson,
   findNextModule,
-  getNextModuleId,
-} = require("./navigation");
-const { normalizeTags } = require("./generalUtils");
+} = require("../utils/navigation");
+const { normalizeTags } = require("../utils/generalUtils");
 const {
   XP,
   THRESHOLDS,
@@ -19,10 +18,29 @@ const {
   hasExercise,
   hasQuiz,
   isQuizCompleted,
-} = require("./quizHelpers");
+} = require("../utils/quizHelpers");
 
 /**
  * --- VALIDATION LOGIC ---
+ */
+
+/**
+ * Validates a user's code submission against the exercise requirements.
+ * 
+ * @param {string} userCode - The code submitted by the user
+ * @param {Object} exercise - The exercise document with starterCode
+ * @param {string} exercise.starterCode - The initial code template
+ * @returns {{ isCorrect: boolean, feedback: string }} Validation result
+ * 
+ * @example
+ * // Returns true for modified code
+ * validateCodeSubmission("print('hello')", { starterCode: "# your code" })
+ * // => { isCorrect: true, feedback: "Code accepted (validated in frontend)" }
+ * 
+ * @example
+ * // Returns false for empty or unchanged code
+ * validateCodeSubmission("", { starterCode: "# template" })
+ * // => { isCorrect: false, feedback: "No code submitted" }
  */
 const validateCodeSubmission = (userCode, exercise) => {
   if (!userCode || userCode.trim() === "") {
@@ -40,6 +58,20 @@ const validateCodeSubmission = (userCode, exercise) => {
 
 /**
  * --- STATS TRACKING ---
+ */
+
+/**
+ * Increments user statistics based on lesson completion performance.
+ * Tracks speed, accuracy, and tag-based challenge categories.
+ * Mutates the user object directly.
+ * 
+ * @param {Object} user - The user document (mutated in place)
+ * @param {Object} lessonRecord - The lesson completion record
+ * @param {Object} submissionBody - Submission metadata from the frontend
+ * @param {number} [submissionBody.elapsedSeconds] - Time taken to complete
+ * @param {number} [submissionBody.attemptNumber] - Number of attempts
+ * @param {boolean} [submissionBody.usedHints] - Whether hints were used
+ * @param {boolean} [submissionBody.wasOptimalSolution] - Whether solution was optimal
  */
 const updateUserStats = (user, lessonRecord, submissionBody) => {
   user.stats = user.stats || {};
@@ -84,6 +116,15 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
 /**
  * --- COMPLETION CORE ---
  */
+
+/**
+ * Creates a standardized lesson completion record for history tracking.
+ * 
+ * @param {Object} lesson - The lesson document
+ * @param {Object} submissionBody - Submission metadata
+ * @param {Date} timestamp - Completion timestamp
+ * @returns {Object} Formatted completion record with normalized tags and metadata
+ */
 const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
   return {
     lessonId: lesson._id.toString(),
@@ -99,19 +140,61 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
   };
 };
 
-const ensureNotAlreadyCompleted = (completedArray, itemId) => {
-  if (completedArray.includes(itemId)) {
-    return {
-      xpIncrease: 0,
-      newlyCompleted: false,
-      nextId: null,
-    };
-  }
-  return null;
-};
 
 /**
  * Main Orchestrator for Lesson Completion.
+ */
+
+/**
+ * Orchestrates the complete lesson completion workflow.
+ * 
+ * Handles XP calculation across multiple sources (exercise, quiz, bonuses),
+ * auto-completes quiz-less modules when all lessons are done (e.g., Module 20 capstone),
+ * updates user XP/level/stats/history, and returns navigation info.
+ * 
+ * **XP Sources (awarded in order):**
+ * 1. Exercise submission XP (if lesson has coding exercise, skipped for M0)
+ * 2. Lesson quiz XP (per-question + passing bonus, skipped for M0)
+ * 3. Base lesson completion XP (always awarded)
+ * 4. Project lesson bonus (if contentType === "PROJECT")
+ * 5. Capstone project bonus (if Module 20 project lesson)
+ * 6. Module config reward (if provided in submissionBody)
+ * 7. Auto-completed module bonus (if all lessons done and module has no quiz)
+ * 
+ * **Auto-completion behavior:**
+ * For modules without a quiz (e.g., Module 20 capstone), completing the final
+ * lesson triggers automatic module completion. This awards the module completion
+ * bonus, phase bonus, and any special module bonuses (M20 capstone).
+ * 
+ * @param {Object} user - The user document (mutated with new XP, level, history)
+ * @param {Object} lesson - The lesson being completed
+ * @param {Object} submissionBody - Submission data from the frontend
+ * @param {Array} [submissionBody.submissionHistory] - Array of previous code submissions
+ * @param {number} [submissionBody.attemptNumber] - Attempt count
+ * @param {boolean} [submissionBody.testsPassed] - Whether all tests passed
+ * @param {boolean} [submissionBody.isCorrect] - Whether solution is correct
+ * @param {number} [submissionBody.moduleConfigReward] - Additional XP from module config
+ * @param {Object} [submissionBody] - Additional metadata for stats tracking
+ * 
+ * @returns {Promise<{
+ *   xpIncrease: number,
+ *   newlyCompleted: boolean,
+ *   nextLessonId: string|null,
+ *   xpBreakdown: Array<{amount: number, source: string, meta: Object}>
+ * }>} Completion result with XP breakdown and navigation
+ * 
+ * @example
+ * // Completing a coding exercise lesson in Module 5
+ * const result = await processLessonCompletion(user, lesson, {
+ *   submissionHistory: [{ code: "print('hello')" }],
+ *   attemptNumber: 1,
+ *   testsPassed: true,
+ *   isCorrect: true,
+ *   elapsedSeconds: 45
+ * });
+ * // => { xpIncrease: 35, newlyCompleted: true, nextLessonId: "...", ... }
+ * 
+ * @throws {Error} If Module.findById fails (module not found)
  */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
   const lessonId = lesson._id.toString();
@@ -322,6 +405,27 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 /**
  * Main Orchestrator for Module Completion.
  */
+
+/**
+ * Orchestrates the complete module completion workflow.
+ * 
+ * Awards XP for module quiz performance, module completion, phase bonuses,
+ * and special module bonuses (M0 tutorial, M20 capstone). Updates user
+ * XP/level and adds to moduleCompletionHistory.
+ * 
+ * @param {Object} user - The user document (mutated with new XP, level, history)
+ * @param {Object} module - The module being completed
+ * @param {number|null} quizScore - The quiz score (0-100), or null if no quiz
+ * @param {Array} [quizResults=[]] - Individual quiz question results
+ * @param {boolean} quizResults[].isCorrect - Whether the answer was correct
+ * 
+ * @returns {Promise<{
+ *   xpIncrease: number,
+ *   newlyCompleted: boolean,
+ *   nextModuleId: string|null,
+ *   xpBreakdown: Array<{amount: number, source: string, meta: Object}>
+ * }>} Completion result with XP breakdown and navigation
+ */
 const processModuleCompletion = async (
   user,
   module,
@@ -446,6 +550,22 @@ const processModuleCompletion = async (
 
 /**
  * Check if lesson is fully completed based on its components
+ */
+
+/**
+ * Determines if a lesson is fully completed based on its content type and required components.
+ * 
+ * A lesson is complete when all its interactive components are satisfied:
+ * - Theory-only lessons: always complete
+ * - Exercise lessons: code must be correct
+ * - Quiz lessons: all quiz questions answered
+ * - Exercise + Quiz lessons: both must be satisfied
+ * 
+ * @param {Object} lesson - The lesson document
+ * @param {Object} quizProgress - User's quiz progress for this lesson
+ * @param {boolean} isCorrect - Whether the exercise solution is correct
+ * @param {boolean}  - Skip all checks and mark complete
+ * @returns {boolean} Whether the lesson is fully completed
  */
 const isLessonFullyCompleted = (
   lesson,

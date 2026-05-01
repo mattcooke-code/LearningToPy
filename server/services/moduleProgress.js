@@ -1,4 +1,4 @@
-// server/utils/moduleProgress.js
+// services/moduleProgress.js
 /**
  * Check if module prerequisites are met
  */

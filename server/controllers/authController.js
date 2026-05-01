@@ -8,9 +8,9 @@ const FlaggedContent = require("../models/FlaggedContent");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
-const { sendEmail, createPasswordResetEmail } = require("../utils/mailer");
+const { sendEmail } = require("../services/mailer");
 const { sendJsonResponse } = require("../utils/responseHelpers");
-const { trackLessonView } = require("../utils/streakManager");
+const { trackLessonView } = require("../services/streakManager");
 const { validateEmail, validateUsername, validatePassword } = require("../utils/validationHelpers");
 
 const register = catchAsync(async (req, res, next) => {
@@ -282,7 +282,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
   const resetUrl = `${config.getFrontendUrl()}/reset-password/${resetToken}`;
 
-  const emailContent = createPasswordResetEmail(resetUrl);
+  const emailContent = authUtils.createPasswordResetEmail(resetUrl);
 
   const emailResult = await sendEmail(
     user.email,

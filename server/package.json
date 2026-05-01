@@ -17,7 +17,9 @@
     "backup:db": "node scripts/backupDatabase.js",
     "restore:db": "node scripts/restoreDatabase.js",
     "migrate:accounts": "node scripts/updateAccountsToNewValidations.js",
-    "fix:xpHistory": "node scripts/fixXPHistoryEnums.js"
+    "fix:xpHistory": "node scripts/fixXPHistoryEnums.js",
+     "test": "vitest run",
+  "test:watch": "vitest"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -25,16 +27,17 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "node-cache": "^5.1.2",
-    "nodemailer": "^8.0.2",
-    "express-rate-limit": "^7.1.5",
-    "helmet": "^7.1.0",
-    "express-mongo-sanitize": "^2.2.0",
-    "hpp": "^0.2.3"
+    "nodemailer": "^8.0.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "vitest": "^4.1.5"
   }
 }

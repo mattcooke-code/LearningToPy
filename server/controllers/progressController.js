@@ -6,12 +6,12 @@ const Module = require("../models/Module");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-const { formatProgressResponse } = require("../utils/analytics");
+const { formatProgressResponse } = require("../services/analytics");
 const {
   getCurriculumProgressStats,
   processLessonCompletion,
   processModuleCompletion,
-} = require("../utils/learningEngine");
+} = require("../services/learningEngine");
 const {
   getModuleOrderMap,
   calculateLevelFromModules,
@@ -20,12 +20,12 @@ const {
   evaluateBadges,
   getBadgeProgress,
   checkLeaderboardBadges,
-} = require("../utils/gamification");
+} = require("../services/gamification");
 const {
   trackLessonView,
   trackCompletion,
   getStreakInfo,
-} = require("../utils/streakManager");
+} = require("../services/streakManager");
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions.cjs");
