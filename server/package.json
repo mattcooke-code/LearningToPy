@@ -18,8 +18,8 @@
     "restore:db": "node scripts/restoreDatabase.js",
     "migrate:accounts": "node scripts/updateAccountsToNewValidations.js",
     "fix:xpHistory": "node scripts/fixXPHistoryEnums.js",
-     "test": "vitest run",
-  "test:watch": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -37,6 +37,7 @@
     "nodemailer": "^8.0.2"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^9.4.1",
     "nodemon": "^3.0.2",
     "vitest": "^4.1.5"
   }

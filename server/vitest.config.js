@@ -6,11 +6,13 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['services/__tests__/**/*.test.js'],
-    testTimeout: 10000,
+    hookTimeout: 30000,
+  testTimeout: 30000,
   },
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, '../shared'),
+      '@utils': path.resolve(__dirname, 'utils'),
     },
   },
 });

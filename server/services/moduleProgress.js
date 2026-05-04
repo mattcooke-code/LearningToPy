@@ -21,9 +21,11 @@ const checkPrerequisites = (module, userCompletedModules) => {
  * Check if a module quiz has been passed
  */
 const hasPassedModuleQuiz = (user, moduleId) => {
-  return user.quizAttempts?.some(
-    (attempt) =>
-      attempt.moduleId.toString() === moduleId.toString() && attempt.passed
+  return (
+    user.quizAttempts?.some(
+      (attempt) =>
+        attempt.moduleId.toString() === moduleId.toString() && attempt.passed,
+    ) ?? false
   );
 };
 
@@ -32,7 +34,7 @@ const hasPassedModuleQuiz = (user, moduleId) => {
  */
 const getModuleLessonCompletion = (lessons, userCompletedLessons) => {
   return lessons.filter((lesson) =>
-    userCompletedLessons.includes(lesson._id.toString())
+    userCompletedLessons.includes(lesson._id.toString()),
   ).length;
 };
 
