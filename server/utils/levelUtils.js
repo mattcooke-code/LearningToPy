@@ -31,10 +31,15 @@ const getModuleOrderMap = async () => {
 };
 
 /**
- * Calculate a user's level based on completed modules
- * @param {Array} completedModules - Array of completed module IDs
- * @param {Map} moduleOrderMap - Optional pre-fetched module order map
- * @returns {number} Current level (1-20)
+ * Calculate a user's level based on completed modules.
+ *
+ * Excludes M0 (tutorial module, order = 0). Level = number of completed
+ * regular modules, clamped to 1–20. If no moduleOrderMap is provided,
+ * all completed modules are counted (fallback).
+ *
+ * @param   {Array}    completedModules - Array of completed module IDs (strings or ObjectIds)
+ * @param   {Map}      [moduleOrderMap] - Map of moduleId → order (from getModuleOrderMap)
+ * @returns {number}   Current level (1–20)
  */
 const calculateLevelFromModules = (completedModules, moduleOrderMap = null) => {
   if (!completedModules || !Array.isArray(completedModules)) {

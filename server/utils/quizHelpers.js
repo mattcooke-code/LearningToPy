@@ -4,14 +4,34 @@ const {
   calculateLessonQuizXP,
 } = require("../../shared/constants/progress.cjs");
 
+/**
+ * Check if a lesson has a quiz component.
+ * @param   {Object} lesson - Lesson document
+ * @returns {boolean} True if quiz array exists and is non-empty
+ */
 const hasQuiz = (lesson) => {
   return lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
 };
 
+/**
+ * Check if a lesson has an exercise component.
+ * @param   {Object} lesson - Lesson document
+ * @returns {boolean} True if exercise object exists
+ */
 const hasExercise = (lesson) => {
   return !!lesson.exercise;
 };
 
+/**
+ * Get or create a quiz progress record for a user on a specific lesson.
+ * Initialises with empty questionAttempts if no progress exists yet.
+ * Mutates the user document in place.
+ *
+ * @param   {Object} user     - User document (mutated)
+ * @param   {string} lessonId - Lesson ID
+ * @param   {Object} lesson   - Lesson document
+ * @returns {Object} Quiz progress record
+ */
 const getOrCreateQuizProgress = (user, lessonId, lesson) => {
   let quizProgress = user.lessonQuizProgress?.find(
     (qp) => qp.lessonId.toString() === lessonId,
@@ -32,6 +52,12 @@ const getOrCreateQuizProgress = (user, lessonId, lesson) => {
   return quizProgress;
 };
 
+/**
+ * Check if all quiz questions in a lesson have been answered correctly.
+ * @param   {Object} quizProgress - User's quiz progress record
+ * @param   {Object} lesson       - Lesson document
+ * @returns {boolean} True if every question has a correct attempt
+ */
 const isQuizCompleted = (quizProgress, lesson) => {
   if (!quizProgress || !hasQuiz(lesson)) return false;
   const totalQuestions = lesson.quiz.length;
@@ -40,10 +66,19 @@ const isQuizCompleted = (quizProgress, lesson) => {
   return answeredCorrectly === totalQuestions;
 };
 
+/**
+ * Record a quiz answer attempt for a specific question.
+ * Increments attempt count. If correct, marks the question as correct.
+ * Mutates the quizProgress object in place.
+ *
+ * @param   {Object}  quizProgress  - Quiz progress record (mutated)
+ * @param   {number}  questionIndex - Index of the question in the lesson's quiz array
+ * @param   {boolean} isCorrect     - Whether the answer was correct
+ * @returns {boolean} Whether the answer was correct
+ */
 const updateQuizProgress = (quizProgress, questionIndex, isCorrect) => {
   if (!quizProgress) return false;
 
-  // Find or create attempt record for this question
   let attempt = quizProgress.questionAttempts?.find(
     (qa) => qa.questionIndex === questionIndex,
   );
@@ -62,7 +97,14 @@ const updateQuizProgress = (quizProgress, questionIndex, isCorrect) => {
   return attempt.correct;
 };
 
-// Get attempt count for a specific question
+/**
+ * Get the number of attempts for a specific quiz question.
+ * Defaults to 1 if no attempt record exists (first attempt).
+ *
+ * @param   {Object} quizProgress  - Quiz progress record
+ * @param   {number} questionIndex - Question index
+ * @returns {number} Attempt count
+ */
 const getQuestionAttempts = (quizProgress, questionIndex) => {
   const attempt = quizProgress?.questionAttempts?.find(
     (qa) => qa.questionIndex === questionIndex,
@@ -71,16 +113,24 @@ const getQuestionAttempts = (quizProgress, questionIndex) => {
 };
 
 /**
- *  Calculate XP for a single correct quiz answer based on attempt count
- * @param {number} attempts - Number of attempts for this question
- * @returns {number} - XP to award
+ * Calculate XP for a correct quiz answer based on attempt count.
+ * Delegates to the shared `calculateLessonQuizXP` for the actual formula.
+ *
+ * @param   {number} attempts - Number of attempts for this question
+ * @returns {number} XP to award
  */
-
 const calculateQuizAnswerXP = (attempts) => {
   return calculateLessonQuizXP(attempts);
 };
 
-//  Get all correct answers with attempt counts (for XP calculation)
+/**
+ * Build an array of results for all quiz questions, including attempt counts
+ * and correctness. Used by the XP calculation pipeline.
+ *
+ * @param   {Object} quizProgress - Quiz progress record
+ * @param   {Object} lesson       - Lesson document
+ * @returns {Array} Array of { questionIndex, attempts, correct } objects
+ */
 const getQuizResultsForXP = (quizProgress, lesson) => {
   if (!quizProgress || !hasQuiz(lesson)) return [];
 

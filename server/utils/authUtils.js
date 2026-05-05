@@ -4,24 +4,52 @@ const config = require("../config/envConfig");
 const AppError = require("./AppError");
 
 // --- Token Lifespans ---
+/**
+ * Access token lifespan: 15 minutes.
+ */
 const ACCESS_TOKEN_LIFESPAN = "15m";
+
+/**
+ * Refresh token lifespan when "remember me" is NOT checked: 1 hour.
+ */
 const REFRESH_TOKEN_LIFESPAN_SESSION = "1h";
+
+/**
+ * Refresh token lifespan when "remember me" IS checked: 30 days.
+ */
 const REFRESH_TOKEN_LIFESPAN_REMEMBER_ME = "30d";
 
 // --- Cookie Max Ages (milliseconds) ---
-const COOKIE_MAX_AGE_SESSION = 60 * 60 * 1000; // 1 hour
-const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000; // 30 days
+/**
+ * Cookie max age for session-only refresh token: 1 hour in milliseconds.
+ */
+const COOKIE_MAX_AGE_SESSION = 60 * 60 * 1000;
 
-// Common cookie options for refresh tokens
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
+/**
+ * Cookie max age for "remember me" refresh token: 30 days in milliseconds.
+ */
+const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * Common cookie options for refresh tokens.
+ * - httpOnly: prevents JavaScript access (XSS protection)
+ * - secure: HTTPS only in production
+ * - sameSite Strict: CSRF protection
+ * - partitioned: CHIPS privacy standard
+ */
 const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-  secure: IS_PRODUCTION, // Requires HTTPS in production
-  sameSite: "Strict", // Strict CSRF protection (was "Lax")
+  httpOnly: true,
+  secure: config.isProduction(),
+  sameSite: "Strict",
   path: "/",
-  partitioned: true, // CHIPS (Cookies Having Independent Partitioned State) for privacy
+  partitioned: true,
 };
 
+/**
+ * Get token lifespan and cookie max age based on "remember me" preference.
+ * @param   {boolean} rememberMe - Whether the user checked "remember me"
+ * @returns {{ tokenLifespan: string, cookieMaxAge: number }}
+ */
 const getRefreshTokenSettings = (rememberMe) => {
   return {
     tokenLifespan: rememberMe
@@ -33,7 +61,11 @@ const getRefreshTokenSettings = (rememberMe) => {
   };
 };
 
-// Helper to clear refresh token cookie (using the name 'refreshToken')
+/**
+ * Overwrite the refresh token cookie with an expired placeholder.
+ * Called on logout, invalid token detection, or account blocking.
+ * @param {Object} res - Express response object
+ */
 const clearRefreshTokenCookie = (res) => {
   res.cookie("refreshToken", "loggedout", {
     httpOnly: true,
@@ -44,12 +76,25 @@ const clearRefreshTokenCookie = (res) => {
   });
 };
 
-// Helper for JWT generation (takes payload, secret, expiresIn)
+/**
+ * Sign a JWT with a given payload, secret, and expiration.
+ * @param   {Object} payload   - Data to encode in the token
+ * @param   {string} secret    - Signing secret
+ * @param   {string} expiresIn - Token lifespan (e.g., "15m", "1h", "30d")
+ * @returns {string} Signed JWT
+ */
 const generateToken = (payload, secret, expiresIn) => {
   return jwt.sign(payload, secret, { expiresIn });
 };
 
-// Helper for JWT verification (takes token, secret)
+/**
+ * Verify and decode a JWT. Throws AppError on expiration or invalid signature.
+ * @param   {string} token  - JWT to verify
+ * @param   {string} secret - Signing secret
+ * @returns {Object} Decoded payload
+ * @throws  {AppError} 401 - Token expired or invalid
+ * @throws  {AppError} 500 - Unexpected verification failure
+ */
 const verifyToken = (token, secret) => {
   try {
     return jwt.verify(token, secret);
@@ -60,11 +105,9 @@ const verifyToken = (token, secret) => {
     if (err instanceof jwt.JsonWebTokenError) {
       throw new AppError("Invalid token! Please log in again.", 401);
     }
-    // For any other unexpected errors during verification
     throw new AppError("Token verification failed unexpectedly.", 500);
   }
 };
-
 
 /**
  * Generates the HTML content for a password reset email.
