@@ -209,4 +209,5 @@ function escapeHtml(str) {
 
 module.exports = {
   sendSupportMessage,
+  escapeHtml, // Exported for testing
 };

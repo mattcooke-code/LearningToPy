@@ -762,4 +762,7 @@ module.exports = {
   getPlatformAnalytics,
   getContentAnalytics,
   getUserAnalytics,
+  // Exported for testing
+  getDateRange,
+  formatRetentionCohorts,
 };
