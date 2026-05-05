@@ -10,7 +10,11 @@ const {
  * @returns {boolean} True if quiz array exists and is non-empty
  */
 const hasQuiz = (lesson) => {
-  return lesson.quiz && Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
+  return !!(
+    lesson.quiz &&
+    Array.isArray(lesson.quiz) &&
+    lesson.quiz.length > 0
+  );
 };
 
 /**
