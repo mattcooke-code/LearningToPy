@@ -1,4 +1,31 @@
-// server.js
+/**
+ * LearningToPy — Express Application Entry Point
+ *
+ * **Middleware order (security-first):**
+ * 1. Helmet — security headers (CSP, HSTS, clickjacking protection)
+ * 2. CORS — cross-origin requests from frontend
+ * 3. Body parser — JSON (10mb limit)
+ * 4. Cookie parser — signed/unsigned cookies
+ * 5. Mongo sanitize — NoSQL injection prevention
+ * 6. HPP — HTTP parameter pollution protection
+ * 7. Rate limiting — IP blocker → abuse detector → API limiter
+ *
+ * **Route mounting:**
+ * - /api/admin      → admin routes (adminOnly middleware applied)
+ * - /api/analytics  → analytics routes (adminOnly)
+ * - /api/auth       → public + protected auth routes
+ * - /api/progress   → protected progress routes
+ * - /api/content    → public content + protected submission routes
+ * - /api/support    → protected support routes
+ * - /api/health     → public health check
+ *
+ * **Error handling:**
+ * - 404 catch-all for unmatched routes
+ * - Global error handler (must be registered last)
+ * - Unhandled rejection + uncaught exception handlers for process-level crashes
+ *
+ * @module server
+ */
 if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: ".env.production" });
 } else {
@@ -25,7 +52,11 @@ const errorHandler = require("./middleware/errorHandler");
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // Rate limiting
-const { apiLimiter, ipBlocker, abuseDetector } = require("./middleware/rateLimiter");
+const {
+  apiLimiter,
+  ipBlocker,
+  abuseDetector,
+} = require("./middleware/rateLimiter");
 
 // Routes
 const adminRoutes = require("./routes/admin");
@@ -47,7 +78,10 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:5173"],
+        connectSrc: [
+          "'self'",
+          process.env.FRONTEND_URL || "http://localhost:5173",
+        ],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for development
         imgSrc: ["'self'", "data:", "https:"],
@@ -75,7 +109,7 @@ app.use(
     permittedCrossDomainPolicies: { permittedPolicies: "none" },
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     xssFilter: true,
-  })
+  }),
 );
 
 // 2. CORS configuration
@@ -84,16 +118,16 @@ app.use(
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-  "Content-Type",
-  "Authorization", 
-  "X-Requested-With",
-  "x-session-id",      // ✅ Add this - the missing header
-  "x-device-info", // Match the error message exactly
-  "x-page-path",   // Safe to lowercase this too
-  "X-Device-Info", // Keeping the uppercase version doesn't hurt
-],
-  })
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "x-session-id", // ✅ Add this - the missing header
+      "x-device-info", // Match the error message exactly
+      "x-page-path", // Safe to lowercase this too
+      "X-Device-Info", // Keeping the uppercase version doesn't hurt
+    ],
+  }),
 );
 
 // 3. Body parsing
@@ -109,7 +143,7 @@ app.use(
     onSanitize: ({ req, key }) => {
       console.warn(`Sanitized key: ${key} from IP: ${req.ip}`);
     },
-  })
+  }),
 );
 
 // 6. Prevent parameter pollution
@@ -121,7 +155,7 @@ app.use(
       "fields",
       "tags",
     ],
-  })
+  }),
 );
 
 // 7. Rate limiting
