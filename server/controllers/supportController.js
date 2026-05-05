@@ -1,3 +1,4 @@
+//supportController.js
 const nodemailer = require("nodemailer");
 const {
   getEmailConfig,
@@ -50,7 +51,22 @@ try {
   emailEnabled = false;
 }
 
-// Send support message
+/**
+ * Send a support/contact message via email.
+ *
+ * Uses the configured email transporter (Nodemailer). Falls back gracefully
+ * in development if email is not configured — logs to console instead.
+ *
+ * @route   POST /api/support
+ * @body    {string} name - Sender's name
+ * @body    {string} email - Sender's email
+ * @body    {string} subject - Message subject
+ * @body    {string} message - Message body
+ * @body    {string} [moduleNumber] - Module location (for bug reports)
+ * @body    {string} [lessonNumber] - Lesson location (for bug reports)
+ * @returns {Object} 200 - Confirmation message
+ * @returns {Object} 500 - Email sending failed (production only; soft-fails in dev)
+ */
 const sendSupportMessage = catchAsync(async (req, res, next) => {
   const {
     name,
@@ -173,7 +189,14 @@ const sendSupportMessage = catchAsync(async (req, res, next) => {
   );
 });
 
-// Helper function to escape HTML
+/**
+ * Escape HTML special characters to prevent injection in support emails.
+ *
+ * Handles: & < > " '
+ *
+ * @param   {string} str - Raw string
+ * @returns {string} HTML-safe string
+ */
 function escapeHtml(str) {
   if (!str) return "";
   return str

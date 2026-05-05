@@ -11,8 +11,26 @@ const authUtils = require("../utils/authUtils");
 const { sendEmail } = require("../services/mailer");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackLessonView } = require("../services/streakManager");
-const { validateEmail, validateUsername, validatePassword } = require("../utils/validationHelpers");
+const {
+  validateEmail,
+  validateUsername,
+  validatePassword,
+} = require("../utils/validationHelpers");
 
+/**
+ * Register a new user account.
+ *
+ * Validates username, email, and password via validationHelpers.
+ * Checks for existing email/username conflicts. Hashes password with bcrypt (12 rounds).
+ * Generates access and refresh tokens, sets refresh token as httpOnly cookie.
+ *
+ * @route   POST /api/auth/register
+ * @body    {string} username - Unique username
+ * @body    {string} email - Valid email address
+ * @body    {string} password - Must meet strength requirements (uppercase, lowercase, number, special char)
+ * @returns {Object} 201 - { accessToken, user: { id, username, isAdmin, streak } }
+ * @returns {Object} 400 - Validation error, duplicate email, or duplicate username
+ */
 const register = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -23,7 +41,7 @@ const register = catchAsync(async (req, res, next) => {
   }
 
   if (!validateEmail(email)) {
-    return next(new AppError('Please provide a valid email address', 400));
+    return next(new AppError("Please provide a valid email address", 400));
   }
 
   const passwordValidation = validatePassword(password);
@@ -90,6 +108,20 @@ const register = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Authenticate a user and return tokens.
+ *
+ * Verifies email/password against stored hash. Tracks a lesson view for streak
+ * (login counts as activity). Supports "remember me" for extended refresh token lifespan.
+ * Sets refresh token as httpOnly cookie.
+ *
+ * @route   POST /api/auth/login
+ * @body    {string} email - User's email
+ * @body    {string} password - User's password
+ * @body    {boolean} [rememberMe] - Extend refresh token lifespan if true
+ * @returns {Object} 200 - { accessToken, user, streak }
+ * @returns {Object} 401 - Invalid credentials or account blocked
+ */
 const login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
 
@@ -147,6 +179,15 @@ const login = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Fetch the authenticated user's profile.
+ *
+ * Excludes password and refresh token fields from the response.
+ *
+ * @route   GET /api/auth/me
+ * @returns {Object} 200 - { user }
+ * @returns {Object} 404 - User not found
+ */
 const getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId || req.user._id).select(
     "-password -refreshToken",
@@ -161,6 +202,20 @@ const getUser = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Refresh an expired access token using the refresh token cookie.
+ *
+ * Validates the refresh token, checks token version hasn't been revoked,
+ * tracks streak activity, and issues a new access + refresh token pair.
+ * Clears the cookie and returns 401/403 if the token is invalid, expired,
+ * or the account is blocked.
+ *
+ * @route   POST /api/auth/refresh-token
+ * @cookie  {string} refreshToken - httpOnly refresh token
+ * @returns {Object} 200 - { accessToken, user, streak }
+ * @returns {Object} 401 - No token, invalid token, or expired token
+ * @returns {Object} 403 - Account blocked or token revoked
+ */
 const refreshToken = catchAsync(async (req, res, next) => {
   const refreshTokenCookie = req.cookies.refreshToken;
 
@@ -239,6 +294,15 @@ const refreshToken = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Log out the current user.
+ *
+ * Increments `refreshTokenVersion` on the user document, which invalidates
+ * all existing refresh tokens. Clears the refresh token cookie.
+ *
+ * @route   POST /api/auth/logout
+ * @returns {Object} 200 - Confirmation message
+ */
 const logout = catchAsync(async (req, res, next) => {
   authUtils.clearRefreshTokenCookie(res);
 
@@ -253,12 +317,27 @@ const logout = catchAsync(async (req, res, next) => {
   return sendJsonResponse(res, 200, "Logged out successfully.");
 });
 
+/**
+ * Send a password reset email to the user.
+ *
+ * Generates a cryptographically secure reset token (32 bytes hex),
+ * stores it on the user document with a 1-hour expiry, and sends
+ * an email with a reset link. Returns a generic success message
+ * regardless of whether the email exists (prevents user enumeration).
+ *
+ * In development, includes the reset token and preview URL in the response.
+ *
+ * @route   POST /api/auth/forgot-password
+ * @body    {string} email - User's email address
+ * @returns {Object} 200 - Generic success message (always)
+ * @returns {Object} 400 - Invalid email format
+ */
 const forgotPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   // Validate email using validationHelpers
   if (!validateEmail(email)) {
-    return next(new AppError('Please provide a valid email address', 400));
+    return next(new AppError("Please provide a valid email address", 400));
   }
 
   const user = await User.findOne({ email });
@@ -301,6 +380,17 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, genericMessage);
 });
 
+/**
+ * Validate a password reset token.
+ *
+ * Checks that the token exists on a user document and hasn't expired.
+ * Used by the frontend to determine whether to show the reset form.
+ *
+ * @route   GET /api/auth/reset-password/:token
+ * @param   {string} token - Reset token from email link
+ * @returns {Object} 200 - { success: true }
+ * @returns {Object} 400 - Token invalid or expired
+ */
 const validateResetToken = catchAsync(async (req, res, next) => {
   const { token } = req.params;
   const user = await User.findOne({
@@ -316,6 +406,18 @@ const validateResetToken = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Token is valid.", { success: true });
 });
 
+/**
+ * Set a new password using a valid reset token.
+ *
+ * Validates the new password strength, hashes it, clears the reset token fields,
+ * and increments `refreshTokenVersion` to invalidate all existing sessions.
+ *
+ * @route   POST /api/auth/reset-password
+ * @body    {string} token - Reset token from email link
+ * @body    {string} newPassword - New password meeting strength requirements
+ * @returns {Object} 200 - Success message
+ * @returns {Object} 400 - Invalid token, expired token, or weak password
+ */
 const resetPassword = catchAsync(async (req, res, next) => {
   const { token, newPassword } = req.body;
 
@@ -345,6 +447,20 @@ const resetPassword = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Your password has been updated successfully.");
 });
 
+/**
+ * Update the user's privacy settings.
+ *
+ * Accepts three boolean fields: showOnLeaderboards, showAsAnonymous,
+ * showUsernameOnLeaderboards. All three are required.
+ *
+ * @route   PUT /api/auth/privacy
+ * @body    {boolean} showOnLeaderboards - Appear on leaderboards
+ * @body    {boolean} showAsAnonymous - Hide identity
+ * @body    {boolean} showUsernameOnLeaderboards - Show username vs "Learner #XXXXXX"
+ * @returns {Object} 200 - { privacySettings }
+ * @returns {Object} 400 - Invalid format (non-boolean values)
+ * @returns {Object} 404 - User not found
+ */
 const updatePrivacySettings = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const { showOnLeaderboards, showAsAnonymous, showUsernameOnLeaderboards } =
@@ -380,6 +496,24 @@ const updatePrivacySettings = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Flag content for admin review.
+ *
+ * Supports flagging LESSON, EXERCISE, or QUIZ targets. Validates that the
+ * target exists, prevents duplicate pending flags from the same user on
+ * the same target, and creates a FlaggedContent record.
+ *
+ * @route   POST /api/auth/flag
+ * @body    {string} targetType - "LESSON" | "EXERCISE" | "QUIZ"
+ * @body    {string} targetId - ID of the flagged content
+ * @body    {string} issueType - One of: CONTENT_ERROR, CODE_ERROR, QUIZ_ERROR, BROKEN_FUNCTIONALITY, XP_ADJUSTMENT, OTHER
+ * @body    {string} title - Brief flag title
+ * @body    {string} description - Detailed description of the issue
+ * @body    {string} [suggestedFix] - Optional suggested correction
+ * @returns {Object} 201 - { flag }
+ * @returns {Object} 400 - Invalid target type, issue type, missing title/description, or duplicate flag
+ * @returns {Object} 404 - Target not found
+ */
 const createFlag = catchAsync(async (req, res, next) => {
   const { targetType, targetId, issueType, title, description, suggestedFix } =
     req.body;

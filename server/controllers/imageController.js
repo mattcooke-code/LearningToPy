@@ -3,7 +3,10 @@ const path = require("path");
 const fs = require("fs").promises;
 const catchAsync = require("../utils/catchAsync");
 
-// Map module IDs to folder names
+/**
+ * Mapping of module IDs to curriculum folder names.
+ * Used to locate badge/icon images on the filesystem.
+ */
 const moduleFolders = {
   M0: "Module0_Tutorial",
   M1: "Module1_Fundamentals",
@@ -16,6 +19,9 @@ const moduleFolders = {
   M16: "Module16_API",
 };
 
+/**
+ * File extension → MIME type mapping for image serving.
+ */
 const mimeTypes = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -25,6 +31,17 @@ const mimeTypes = {
   ".webp": "image/webp",
 };
 
+/**
+ * Serve module badge/icon images from the filesystem.
+ *
+ * Looks up images by module order number (e.g., /api/images/module/5.png).
+ * Images are served from the badges directory with proper content-type headers.
+ *
+ * @route   GET /api/images/module/:imageName
+ * @param   {string} imageName - Image filename (e.g., "5.png")
+ * @returns {Buffer} 200 - Image file with correct Content-Type
+ * @returns {Object} 404 - Image not found
+ */
 const serveModuleImage = catchAsync(async (req, res) => {
   const { moduleId, imageName } = req.params;
 

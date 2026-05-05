@@ -1,4 +1,11 @@
-// controllers/analyticsController.js
+/**
+ * Analytics Controller — 3 functions for platform metrics.
+ *
+ * Uses `analyticsCache` for read-through caching of expensive aggregation queries.
+ * All routes require admin authentication.
+ *
+ * @middleware adminOnly - Required on all routes
+ */
 const Activity = require("../models/ActivityLog");
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
@@ -14,7 +21,18 @@ const WEEKS_TO_TRACK = [1, 2, 3, 4];
 // ---------------------------------------------------------------------------
 // Date range helper
 // ---------------------------------------------------------------------------
-
+/**
+ * Calculate a date range based on a named range or custom start/end dates.
+ *
+ * Supported named ranges: "24h", "7d", "30d", "90d", "1y", "all".
+ * Defaults to "30d" if the range is unrecognized.
+ * Custom dates take precedence over named ranges.
+ *
+ * @param   {string}  range       - Named range ("24h", "7d", "30d", "90d", "1y", "all")
+ * @param   {string}  [customStart] - ISO date string for custom start
+ * @param   {string}  [customEnd]   - ISO date string for custom end
+ * @returns {{ start: Date, end: Date }} Date range object
+ */
 const getDateRange = (range, customStart, customEnd) => {
   const now = new Date();
   let startDate = new Date();
@@ -53,7 +71,16 @@ const getDateRange = (range, customStart, customEnd) => {
 // ---------------------------------------------------------------------------
 // Retention helper
 // ---------------------------------------------------------------------------
-
+/**
+ * Calculate weekly retention cohorts for users who signed up within a date range.
+ *
+ * For each monthly cohort, tracks how many users returned in weeks 1, 2, 3, and 4
+ * after their signup date. Uses indexed activity lookups for performance.
+ *
+ * @param   {Date} startDate - Cohort window start
+ * @param   {Date} endDate   - Cohort window end
+ * @returns {Object} Cohorts keyed by "YYYY-MM" with total users and per-week active counts
+ */
 const calculateRetention = async (startDate, endDate) => {
   const users = await User.find({
     createdAt: { $gte: startDate, $lte: endDate },
@@ -104,7 +131,13 @@ const calculateRetention = async (startDate, endDate) => {
   return cohorts;
 };
 
-// ✅ Dynamically compute week rates from WEEKS_TO_TRACK instead of hardcoding
+/**
+ * Format raw retention cohort data into an array with calculated percentage rates.
+ * Computes week1Rate, week2Rate, week3Rate, week4Rate for each cohort.
+ *
+ * @param   {Object} retentionData - Raw cohort data from calculateRetention
+ * @returns {Array}  Array of cohort objects with rates
+ */
 const formatRetentionCohorts = (retentionData) =>
   Object.entries(retentionData).map(([cohort, data]) => ({
     cohort,
@@ -121,7 +154,17 @@ const formatRetentionCohorts = (retentionData) =>
 // Query groups — each fetches one logical slice of the analytics
 // ---------------------------------------------------------------------------
 
-// ✅ User counts and retention in one place
+/**
+ * Fetch user statistics: total users, active users (within date window),
+ * new signups, and retention cohorts.
+ *
+ * Runs 3 count queries in parallel, then calculates retention.
+ * Retention errors are caught and logged — they don't fail the request.
+ *
+ * @param   {Date} start - Window start
+ * @param   {Date} end   - Window end
+ * @returns {Object} { total, active, new, retention }
+ */
 const fetchUserStats = async (start, end) => {
   const [total, active, newUsers] = await Promise.all([
     User.countDocuments(),
@@ -145,7 +188,15 @@ const fetchUserStats = async (start, end) => {
   };
 };
 
-// ✅ Content counts, XP, and completion rate in one place
+/**
+ * Fetch content statistics: lesson/module counts, total completions,
+ * aggregate XP, and lesson start→complete conversion rate for the period.
+ *
+ * Runs 6 queries in parallel via Promise.all.
+ *
+ * @param   {Date} start - Window start (completion rate window)
+ * @returns {Object} { totalLessons, totalModules, lessonsCompleted, totalXP, completionRate }
+ */
 const fetchContentStats = async (start) => {
   const [
     totalLessons,
@@ -181,7 +232,21 @@ const fetchContentStats = async (start) => {
   };
 };
 
-// ✅ All time-series and ranking aggregates together
+/**
+ * Fetch time-series activity data for charts and rankings.
+ *
+ * Returns three datasets:
+ * - **dailyActivity**: Actions grouped by day/hour with per-action counts and completion rate
+ * - **userGrowth**: Cumulative user signups over time
+ * - **contentPerformance**: Top 20 lessons by completions with per-lesson metrics
+ *
+ * Uses MongoDB aggregation pipelines with $lookup joins to the Activity collection.
+ *
+ * @param   {Date}   start   - Window start
+ * @param   {Date}   end     - Window end
+ * @param   {string} groupBy - "hour", "day", or "month" for date grouping
+ * @returns {Object} { dailyActivity, userGrowth, contentPerformance }
+ */
 const fetchActivityStats = async (start, end, groupBy) => {
   const [dailyActivity, rawUserGrowth, contentPerformance] = await Promise.all([
     // Daily activity breakdown
@@ -385,7 +450,16 @@ const fetchActivityStats = async (start, end, groupBy) => {
   return { dailyActivity, userGrowth, contentPerformance };
 };
 
-// ✅ Device breakdown and user segments together
+/**
+ * Fetch demographic statistics: device/platform breakdown and user segmentation
+ * by experience level (BEGINNER, INTERMEDIATE, ADVANCED, Expert).
+ *
+ * Device percentages are computed in JS from raw counts for precision.
+ * User segments include avgLevel, avgXP, and avgLessonsCompleted.
+ *
+ * @param   {Date} start - Window start for device stats
+ * @returns {Object} { devices, userSegments }
+ */
 const fetchDemographicStats = async (start) => {
   const [rawDeviceStats, userSegments] = await Promise.all([
     Activity.aggregate([
@@ -449,7 +523,16 @@ const fetchDemographicStats = async (start) => {
   return { devices, userSegments };
 };
 
-// ✅ Session duration and per-user engagement rates together
+/**
+ * Fetch engagement statistics: average session duration, actions per active user,
+ * total sessions, and returning user count.
+ *
+ * Runs 5 queries in parallel. "Returning users" are defined as users with
+ * more than 1 activity event in the period.
+ *
+ * @param   {Date} start - Window start
+ * @returns {Object} { avgSessionDuration, avgActionsPerUser, totalSessions, returningUsers }
+ */
 const fetchEngagementStats = async (start) => {
   const [
     avgSessionDuration,
@@ -500,7 +583,13 @@ const fetchEngagementStats = async (start) => {
 // ---------------------------------------------------------------------------
 // Controllers
 // ---------------------------------------------------------------------------
-
+/**
+ * Get platform-wide analytics (users, signups, activity trends).
+ * Results are cached for 5 minutes.
+ *
+ * @route   GET /api/analytics/platform
+ * @returns {Object} 200 - Aggregated platform metrics
+ */
 const getPlatformAnalytics = catchAsync(async (req, res) => {
   const {
     range = "30d",
@@ -548,6 +637,13 @@ const getPlatformAnalytics = catchAsync(async (req, res) => {
   });
 });
 
+/**
+ * Get content engagement analytics (lesson views, completions, popular modules).
+ * Results are cached for 5 minutes.
+ *
+ * @route   GET /api/analytics/content
+ * @returns {Object} 200 - Content engagement data
+ */
 const getContentAnalytics = catchAsync(async (req, res, next) => {
   const { contentId, contentType = "lesson" } = req.params;
 
@@ -601,6 +697,13 @@ const getContentAnalytics = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get user behavior analytics (retention, progression, segmentation).
+ * Results are cached for 5 minutes.
+ *
+ * @route   GET /api/analytics/users
+ * @returns {Object} 200 - User behavior metrics
+ */
 const getUserAnalytics = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 

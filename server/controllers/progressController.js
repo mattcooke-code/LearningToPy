@@ -32,6 +32,19 @@ const {
 
 // --- CONTROLLER FUNCTIONS ---
 
+/**
+ * Fetch the current user's full progress for the Dashboard.
+ *
+ * Determines the "current module" (first incomplete module after M0),
+ * calculates curriculum-wide completion percentage, and formats
+ * the response via `formatProgressResponse` for the frontend.
+ *
+ * If all 20 modules (M1–M20) are complete, signals course completion.
+ *
+ * @route   GET /api/progress/current
+ * @returns {Object} 200 - Full progress object (level, XP, course %, current module, badges, stats)
+ * @returns {Object} 404 - User not found
+ */
 const getCurrentProgress = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new AppError("User not found.", 404));
@@ -98,6 +111,22 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Progress fetched", progressData);
 });
 
+/**
+ * Evaluate all badges and categorize them as earned, in-progress, or locked.
+ *
+ * Calls `evaluateBadges` to detect newly unlocked badges since last check,
+ * persists any new ones, then calls `getBadgeProgress` to calculate
+ * 0–100 progress for every badge in BADGE_DEFINITIONS_CORE.
+ *
+ * Returns three arrays:
+ * - **earned**: Badges the user has (progress = 100)
+ * - **inProgress**: Badges with progress > 0 but not yet earned
+ * - **locked**: Badges with 0 progress
+ *
+ * @route   GET /api/progress/achievements
+ * @returns {Object} 200 - { earnedBadges, inProgress, locked, totalBadges, earnedCount }
+ * @returns {Object} 404 - User not found
+ */
 const getAchievements = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const user = await User.findById(userId)
@@ -178,6 +207,17 @@ const getAchievements = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get the leaderboard slice surrounding the current user (±2 ranks).
+ *
+ * Fetches all users who have opted into leaderboards, sorts by XP,
+ * finds the current user's position, and returns a window of nearby users.
+ * Respects privacy settings — users who hide usernames appear as "Learner #XXXXXX".
+ *
+ * @route   GET /api/progress/leaderboard/around-me
+ * @returns {Object} 200 - { users: [...], currentUserRank, totalUsers }
+ * @returns {Object} 404 - User not found or not on leaderboard
+ */
 const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const range = 2;
@@ -234,6 +274,13 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get the top N users on the platform leaderboard (default 10).
+ *
+ * @route   GET /api/progress/leaderboard/top
+ * @query   {number} [limit=10] - Number of top users to return
+ * @returns {Object} 200 - { topUsersWithPrivacy: [...] }
+ */
 const getTopLeaderboard = catchAsync(async (req, res, next) => {
   const limit = parseInt(req.query.limit) || 10;
 
@@ -259,6 +306,15 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get the leaderboard for a specific module — users who completed it, sorted by XP.
+ *
+ * Also calculates the requesting user's rank within that module's leaderboard.
+ *
+ * @route   GET /api/progress/leaderboard/module/:moduleId
+ * @param   {string} moduleId - Module ID
+ * @returns {Object} 200 - { users, currentUserRank, totalInModule }
+ */
 const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
@@ -298,6 +354,17 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Record that a user has started viewing a lesson.
+ *
+ * Lightweight endpoint — validates the lesson exists, then returns a timestamp.
+ * Does not modify user state (no XP, no completion).
+ *
+ * @route   POST /api/progress/lessons/:lessonId/start
+ * @param   {string} lessonId - Lesson ID
+ * @returns {Object} 200 - { lessonId, timestamp }
+ * @returns {Object} 404 - Lesson not found
+ */
 const startLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
 
@@ -312,6 +379,19 @@ const startLesson = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Complete a lesson and award XP.
+ *
+ * Delegates to `processLessonCompletion` for all XP calculation,
+ * then tracks streak via `trackCompletion`, persists the user,
+ * and checks for leaderboard badges.
+ *
+ * @route   POST /api/progress/lessons/:lessonId/complete
+ * @param   {string} lessonId - Lesson ID
+ * @body    {Object} submissionData - Passed directly to processLessonCompletion
+ * @returns {Object} 200 - { xpGained, newStreak, streakStatus, nextLessonId, newlyCompleted }
+ * @returns {Object} 404 - User or lesson not found
+ */
 const completeLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const submissionData = req.body;
@@ -342,6 +422,20 @@ const completeLesson = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Complete a module with quiz results.
+ *
+ * Delegates to `processModuleCompletion` for XP calculation,
+ * records the quiz attempt on the user, tracks streak,
+ * and checks for leaderboard badges.
+ *
+ * @route   POST /api/progress/modules/:moduleId/complete
+ * @param   {string} moduleId - Module ID
+ * @body    {number} quizScore - Quiz score (0–100)
+ * @body    {Array}  [answers] - Quiz answers to record in history
+ * @returns {Object} 200 - { xpGained, newStreak, streakStatus, nextModuleId, newlyCompleted }
+ * @returns {Object} 404 - User or module not found
+ */
 const completeModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const { quizScore, answers } = req.body;
@@ -382,7 +476,16 @@ const completeModule = catchAsync(async (req, res, next) => {
   });
 });
 
-// UPDATED: replaced calculateStreakUpdate logic with getStreakInfo
+/**
+ * Get the current user's streak information.
+ *
+ * Returns days active, completions this week, warning day, days remaining,
+ * and current streak status (ACTIVE, WARNING, AT_RISK, RESETTING).
+ *
+ * @route   GET /api/progress/streak
+ * @returns {Object} 200 - Streak info object
+ * @returns {Object} 404 - User not found
+ */
 const checkStreak = catchAsync(async (req, res, next) => {
   const streakInfo = await getStreakInfo(req.userId);
 

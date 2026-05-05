@@ -43,10 +43,19 @@ const {
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackCompletion } = require("../services/streakManager");
-const {calculateExerciseXP} = require("../../shared/constants/progress.cjs")
+const { calculateExerciseXP } = require("../../shared/constants/progress.cjs");
 
 // ====== CONTROLLER FUNCTIONS ======
-
+/**
+ * Fetch all published modules with user progress metadata.
+ *
+ * For each module, calculates lesson completion %, quiz status,
+ * prerequisite lock state, and overall completion.
+ *
+ * @route   GET /api/content/modules
+ * @returns {Object} 200 - Array of modules with progress fields
+ * @returns {Object} 401 - Unauthorized
+ */
 const getAllModules = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 
@@ -106,6 +115,17 @@ const getAllModules = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Fetch a single module with detailed user progress.
+ *
+ * Includes lesson completion count, quiz attempt history,
+ * best quiz score, and whether module is fully complete.
+ *
+ * @route   GET /api/content/modules/:moduleId
+ * @param   {string} moduleId - Module ID
+ * @returns {Object} 200 - Module with progress details
+ * @returns {Object} 404 - Module not found
+ */
 const getModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
@@ -155,6 +175,17 @@ const getModule = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Fetch all published lessons for a module with completion status.
+ *
+ * Strips exercise solutions and quiz answers from response.
+ * Each lesson includes an `isCompleted` flag.
+ *
+ * @route   GET /api/content/modules/:moduleId/lessons
+ * @param   {string} moduleId - Module ID
+ * @returns {Object} 200 - Module header + lessons array with progress
+ * @returns {Object} 404 - Module not found
+ */
 const getModuleLessons = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
@@ -194,6 +225,18 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Fetch full lesson content, conditionally including answers.
+ *
+ * If the user has NOT completed the lesson, exercise solutions
+ * and quiz correct answers are stripped. If completed, they are included
+ * so the user can review.
+ *
+ * @route   GET /api/content/lessons/:lessonId
+ * @param   {string} lessonId - Lesson ID
+ * @returns {Object} 200 - Lesson content with quiz/exercise progress
+ * @returns {Object} 404 - Lesson not found
+ */
 const getLessonContent = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const userId = req.userId;
@@ -245,6 +288,38 @@ const getLessonContent = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Submit a lesson attempt — handles exercises, quizzes, and theory lessons.
+ *
+ * **Submission types:**
+ * - EXERCISE: Validates code via `validationResult` or `hasExercise`/`isCorrect`
+ * - QUIZ: Checks answer against correctAnswer, tracks attempts per question
+ * - THEORY / manual completion: Marked complete immediately
+ *
+ * **Partial vs full completion:**
+ * - If the lesson is fully done (`isLessonFullyCompleted`), delegates to
+ *   `processLessonCompletion` for full XP award, badge evaluation, streak tracking
+ * - If only a quiz question or exercise attempt is submitted, awards partial XP
+ *   via `calculateExerciseXP` or `calculateQuizAnswerXP`
+ *
+ * @route   POST /api/content/lessons/:lessonId/submit
+ * @param   {string} lessonId - Lesson ID
+ * @body    {string} [code] - User's code submission (exercise lessons)
+ * @body    {number} [answer] - Answer index (quiz lessons)
+ * @body    {number} [questionIndex=0] - Quiz question being answered
+ * @body    {Object} [validationResult] - Frontend validation output
+ * @body    {boolean} [isCorrect] - Whether the solution is correct
+ * @body    {boolean} [testsPassed] - Whether all tests passed
+ * @body    {Array}  [submissionHistory] - Previous code submissions
+ * @body    {number} [attemptNumber] - Attempt count
+ * @body    {boolean} [usedHints] - Whether hints were used
+ * @body    {number} [elapsedSeconds] - Time taken
+ * @body    {boolean} [wasOptimalSolution] - Whether optimal solution was reached
+ * @body    {number} [moduleConfigReward] - Bonus XP from module config
+ * @returns {Object} 200 - { isCorrect, feedback, completed, xpEarned, progress, badgesUnlocked, nextLessonId }
+ * @returns {Object} 400 - Invalid question index or no code submitted
+ * @returns {Object} 404 - Lesson or user not found
+ */
 const submitLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const userId = req.userId;
@@ -380,10 +455,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     const submissionCount = Math.max(1, submissions.length);
     const firstTryPass =
       submissionCount === 1 && (req.body.testsPassed || req.body.isCorrect);
-    partialXPEarned = calculateExerciseXP(
-      submissionCount,
-      firstTryPass,
-    );
+    partialXPEarned = calculateExerciseXP(submissionCount, firstTryPass);
 
     user.xp = (user.xp || 0) + partialXPEarned;
   } else if (hasQuiz(lesson) && answer !== undefined && isCorrectValue) {
@@ -407,6 +479,25 @@ const submitLesson = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Submit a module quiz after all lessons are completed.
+ *
+ * **Flow:**
+ * 1. Verifies all lessons in the module are completed
+ * 2. Grades each answer against correctAnswer
+ * 3. Calculates score and determines pass/fail (passingScore from module config or 70)
+ * 4. Records quiz attempt in user.quizAttempts
+ * 5. If passed, delegates to `processModuleCompletion` for XP, badge evaluation,
+ *    streak tracking, and leaderboard check
+ * 6. Returns updated progress via `formatProgressResponse`
+ *
+ * @route   POST /api/content/modules/:moduleId/quiz
+ * @param   {string} moduleId - Module ID
+ * @body    {Object} answers - Map of questionId → selected answer index
+ * @returns {Object} 200 - { passed, score, correctAnswers, totalQuestions, results, xpEarned, moduleCompleted, progress, badgesUnlocked, nextModuleId }
+ * @returns {Object} 403 - Not all lessons completed
+ * @returns {Object} 404 - Module or quiz not found
+ */
 const submitModuleQuiz = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
@@ -548,6 +639,22 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Fix module completion state for admin users.
+ *
+ * Scans all published modules and auto-completes any where:
+ * - All lessons are completed (`isModuleFinished`)
+ * - Module quiz is passed (`hasPassedModuleQuiz`)
+ * - Module is not already in `completedModules`
+ *
+ * Awards base module XP and records completion in history.
+ * Admin-only — returns 403 for non-admin users.
+ *
+ * @route   POST /api/content/modules/fix-progress
+ * @returns {Object} 200 - { fixedCount, modules: [...] }
+ * @returns {Object} 403 - Not an admin
+ * @returns {Object} 404 - User not found
+ */
 const fixModuleProgress = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 

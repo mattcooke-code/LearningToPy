@@ -1,4 +1,22 @@
-//adminController.js
+/**
+ * Admin Controller — 35 functions for platform administration.
+ *
+ * All routes require admin authentication (enforced by `adminOnly` middleware).
+ * Provides CRUD for users, lessons, modules, flags, settings, and analytics.
+ *
+ * **Categories:**
+ * - **User management:** toggleAdminStatus, getAdmins, searchUsers, adjustUserXp,
+ *   updateUserStatus, getUserDetails, getUserActivity, getUserBadges, getUserProgress,
+ *   overrideUserProgress, awardBadges, removeBadges
+ * - **Flag management:** getFlaggedContent, getFlagStats, resolveFlag
+ * - **Content management:** getAllLessons, getAllModules, createLesson, createModule,
+ *   updateLesson, updateModule, deleteLesson, deleteModule, duplicateLesson,
+ *   duplicateModule, updateLessonOrder, updateModuleOrder, publishLesson, publishModule
+ * - **Settings & stats:** getSettings, updateSettings, getAdminStats, getContentStats,
+ *   getActivityLogs
+ *
+ * @middleware adminOnly - Required on all routes
+ */
 const AdminLog = require("../models/AdminLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
@@ -16,6 +34,20 @@ const { anonymiseIp } = require("../utils/parseDeviceInfo");
 const mongoose = require("mongoose");
 
 // ======= HELPER FUNCTION =======
+/**
+ * Create an audit log entry for admin actions.
+ *
+ * Anonymises the admin's IP address for GDPR/data protection compliance.
+ * Logging failures are caught silently — they never fail the request.
+ *
+ * @param {string}   adminId    - ID of the admin performing the action
+ * @param {string}   action     - Action type (e.g., "USER_MADE_ADMIN", "LESSON_DELETED")
+ * @param {string}   targetType - Type of target ("USER", "LESSON", "MODULE", "FLAG", "SETTINGS")
+ * @param {string}   targetId   - ID of the affected resource
+ * @param {Object}   changes    - { old, new } diff of the change
+ * @param {string}   reason     - Human-readable reason for the action
+ * @param {Object}   req        - Express request object (for IP and user-agent)
+ */
 const createAdminLog = async (
   adminId,
   action,
@@ -44,6 +76,17 @@ const createAdminLog = async (
   }
 };
 
+/**
+ * Toggle a user's admin status.
+ * Prevents self-modification (admin cannot demote themselves).
+ *
+ * @route   PUT /api/admin/users/:userId/toggle-admin
+ * @body    {boolean} makeAdmin - New admin status
+ * @body    {string}  [reason]  - Reason for the change
+ * @returns {Object} 200 - Updated user
+ * @returns {Object} 400 - Cannot modify own admin status
+ * @returns {Object} 404 - User not found
+ */
 const toggleAdminStatus = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { makeAdmin, reason } = req.body;
@@ -80,6 +123,12 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * List all admin users, sorted by creation date.
+ *
+ * @route   GET /api/admin/admins
+ * @returns {Object} 200 - { admins: [...] }
+ */
 const getAdmins = catchAsync(async (req, res, next) => {
   const admins = (
     await User.find({ isAdmin: true }).select(
@@ -90,6 +139,12 @@ const getAdmins = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Admins retrieved", { admins });
 });
 
+/**
+ * Get dashboard summary stats (user counts, lesson counts, pending flags).
+ *
+ * @route   GET /api/admin/stats
+ * @returns {Object} 200 - { totalUsers, activeUsers, totalLessons, publishedLessons, pendingFlags }
+ */
 const getAdminStats = catchAsync(async (req, res, next) => {
   const [
     totalUsers,
@@ -116,6 +171,23 @@ const getAdminStats = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Search users with filtering, sorting, and pagination.
+ *
+ * Supports text search on username/email, filters for blocked/admin status,
+ * level range filtering, and arbitrary sort fields.
+ *
+ * @route   GET /api/admin/users/search
+ * @query   {string}  [query]    - Text search (username/email)
+ * @query   {number}  [page=1]   - Page number
+ * @query   {number}  [limit=20] - Results per page
+ * @query   {string}  [sort=-createdAt] - Sort field (prefix with - for descending)
+ * @query   {boolean} [isBlocked] - Filter by blocked status
+ * @query   {boolean} [isAdmin]   - Filter by admin status
+ * @query   {number}  [levelMin]  - Minimum user level
+ * @query   {number}  [levelMax]  - Maximum user level
+ * @returns {Object} 200 - { users, pagination: { page, limit, total, totalPages } }
+ */
 const searchUsers = catchAsync(async (req, res, next) => {
   const {
     query,
@@ -197,6 +269,17 @@ const searchUsers = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Manually adjust a user's XP.
+ * Prevents self-modification. Logs old/new XP values.
+ *
+ * @route   PUT /api/admin/users/:userId/xp
+ * @body    {number} xpChange - Positive or negative XP adjustment
+ * @body    {string} [reason] - Reason for adjustment
+ * @returns {Object} 200 - { user, change }
+ * @returns {Object} 400 - Cannot modify own XP
+ * @returns {Object} 404 - User not found
+ */
 const adjustUserXp = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { xpChange, reason } = req.body;
@@ -248,6 +331,18 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * List flagged content with filters, search, and pagination.
+ * Enriches lesson flags with semantic IDs (e.g., "M3L5") for readability.
+ *
+ * @route   GET /api/admin/flags
+ * @query   {string} [status]    - Filter by status (PENDING, IN_REVIEW, FIXED, REJECTED, ALL)
+ * @query   {string} [issueType] - Filter by issue type
+ * @query   {string} [search]    - Text search on title/description
+ * @query   {number} [page=1]    - Page number
+ * @query   {number} [limit=20]  - Results per page
+ * @returns {Object} 200 - { flaggedContent, pagination }
+ */
 const getFlaggedContent = catchAsync(async (req, res, next) => {
   const { status, issueType, search, page = 1, limit = 20 } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -334,6 +429,12 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get aggregate flag statistics grouped by status.
+ *
+ * @route   GET /api/admin/flags/stats
+ * @returns {Object} 200 - { pending, in_review, fixed, rejected, xp_adjusted }
+ */
 const getFlagStats = catchAsync(async (req, res, next) => {
   const stats = await FlaggedContent.aggregate([
     { $group: { _id: "$status", count: { $sum: 1 } } },
@@ -357,6 +458,18 @@ const getFlagStats = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Flag statistics retrieved", result);
 });
 
+/**
+ * Block, unblock, or delete a user account.
+ * Prevents self-modification. Block can include a duration (in days).
+ *
+ * @route   PUT /api/admin/users/:userId/status
+ * @body    {string} action   - "block", "unblock", or "delete"
+ * @body    {number} [duration] - Block duration in days (only for "block")
+ * @body    {string} [reason]   - Reason for the action
+ * @returns {Object} 200 - Updated user (null for delete)
+ * @returns {Object} 400 - Cannot modify own status or invalid action
+ * @returns {Object} 404 - User not found
+ */
 const updateUserStatus = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { action, duration, reason } = req.body;
@@ -424,6 +537,13 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get detailed user information including stats, privacy settings, and completion rate.
+ *
+ * @route   GET /api/admin/users/:userId
+ * @returns {Object} 200 - Full user details with computed stats
+ * @returns {Object} 404 - User not found
+ */
 const getUserDetails = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 
@@ -476,6 +596,14 @@ const getUserDetails = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "User details retrieved", userData);
 });
 
+/**
+ * Get a user's lesson completion activity and admin action history.
+ *
+ * @route   GET /api/admin/users/:userId/activity
+ * @query   {number} [limit=50] - Max activity entries to return
+ * @returns {Object} 200 - { userActivity, adminActions }
+ * @returns {Object} 404 - User not found
+ */
 const getUserActivity = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { limit = 50 } = req.query;
@@ -501,6 +629,13 @@ const getUserActivity = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get a user's earned badge IDs.
+ *
+ * @route   GET /api/admin/users/:userId/badges
+ * @returns {Object} 200 - { badges: [...] }
+ * @returns {Object} 404 - User not found
+ */
 const getUserBadges = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.userId).select("badges");
   if (!user) return next(new AppError("User not found", 404));
@@ -510,6 +645,15 @@ const getUserBadges = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Award one or more badges to a user. Skips badges already earned.
+ *
+ * @route   POST /api/admin/users/:userId/badges/award
+ * @body    {string[]} badgeIds - Badge IDs to award
+ * @body    {string}   [reason] - Reason for awarding
+ * @returns {Object} 200 - { awarded, total }
+ * @returns {Object} 404 - User not found
+ */
 const awardBadges = catchAsync(async (req, res, next) => {
   const { badgeIds, reason } = req.body;
   const user = await User.findById(req.params.userId);
@@ -542,6 +686,15 @@ const awardBadges = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Remove one or more badges from a user.
+ *
+ * @route   POST /api/admin/users/:userId/badges/remove
+ * @body    {string[]} badgeIds - Badge IDs to remove
+ * @body    {string}   [reason] - Reason for removal
+ * @returns {Object} 200 - { removed, remaining }
+ * @returns {Object} 404 - User not found
+ */
 const removeBadges = catchAsync(async (req, res, next) => {
   const { badgeIds, reason } = req.body;
   const user = await User.findById(req.params.userId);
@@ -576,6 +729,13 @@ const removeBadges = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Get a user's completed lessons and modules.
+ *
+ * @route   GET /api/admin/users/:userId/progress
+ * @returns {Object} 200 - { completedLessons, completedModules }
+ * @returns {Object} 404 - User not found
+ */
 const getUserProgress = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 
@@ -593,6 +753,19 @@ const getUserProgress = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Override a user's lesson or module completion status.
+ * Prevents self-modification. Can mark as complete or incomplete.
+ *
+ * @route   PUT /api/admin/users/:userId/progress
+ * @body    {string}  [lessonId] - Lesson ID to override (use this OR moduleId)
+ * @body    {string}  [moduleId] - Module ID to override
+ * @body    {boolean} completed  - New completion status
+ * @body    {string}  [reason]   - Reason for override
+ * @returns {Object} 200 - Updated progress
+ * @returns {Object} 400 - Cannot modify own progress, or missing lessonId/moduleId
+ * @returns {Object} 404 - User not found
+ */
 const overrideUserProgress = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { moduleId, lessonId, completed, reason } = req.body;
@@ -671,6 +844,16 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * List all admin activity logs with filtering and pagination.
+ *
+ * @route   GET /api/admin/activity-logs
+ * @query   {string} [actionType] - Filter by action type
+ * @query   {string} [targetType] - Filter by target type
+ * @query   {number} [page=1]     - Page number
+ * @query   {number} [limit=50]   - Results per page
+ * @returns {Object} 200 - { logs, pagination }
+ */
 const getActivityLogs = catchAsync(async (req, res, next) => {
   const { page = 1, limit = 50, actionType, targetType } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -699,6 +882,19 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Resolve a flagged content report.
+ *
+ * Updates flag status to IN_REVIEW, FIXED, or REJECTED. When fixed, awards
+ * 25 XP to the reporter as compensation and logs the XP adjustment.
+ *
+ * @route   PUT /api/admin/flags/:flagId/resolve
+ * @body    {string} status         - "IN_REVIEW", "FIXED", or "REJECTED"
+ * @body    {string} [adminResponse] - Response message
+ * @returns {Object} 200 - { flag, message }
+ * @returns {Object} 400 - Invalid status
+ * @returns {Object} 404 - Flag not found
+ */
 const resolveFlag = catchAsync(async (req, res, next) => {
   const { flagId } = req.params;
   const { status, adminResponse } = req.body;
@@ -785,6 +981,12 @@ const resolveFlag = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Get platform settings (returns defaults — not persisted to DB).
+ *
+ * @route   GET /api/admin/settings
+ * @returns {Object} 200 - Default platform settings
+ */
 const getSettings = catchAsync(async (req, res, next) => {
   const defaultSettings = {
     themeColor: "#3b82f6",
@@ -819,6 +1021,14 @@ const getSettings = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Settings retrieved.", defaultSettings);
 });
 
+/**
+ * Update platform settings. Validates XP values.
+ *
+ * @route   PUT /api/admin/settings
+ * @body    {Object} changes - Key-value pairs of settings to update
+ * @returns {Object} 200 - { changes, timestamp }
+ * @returns {Object} 400 - Invalid XP values
+ */
 const updateSettings = catchAsync(async (req, res, next) => {
   const { changes } = req.body;
 
@@ -846,6 +1056,17 @@ const updateSettings = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * List all lessons with filtering by status, difficulty, and module.
+ *
+ * @route   GET /api/admin/lessons
+ * @query   {string} [status]     - "published", "draft", or omit for all
+ * @query   {string} [difficulty] - Filter by difficulty
+ * @query   {string} [moduleId]   - Filter by module
+ * @query   {number} [page=1]     - Page number
+ * @query   {number} [limit=1000] - Results per page
+ * @returns {Object} 200 - { lessons, pagination }
+ */
 const getAllLessons = catchAsync(async (req, res, next) => {
   const { limit = 1000, page = 1, status, difficulty, moduleId } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -880,6 +1101,15 @@ const getAllLessons = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * List all modules with filtering by publish status.
+ *
+ * @route   GET /api/admin/modules
+ * @query   {string} [status]     - "published", "draft", or omit for all
+ * @query   {number} [page=1]     - Page number
+ * @query   {number} [limit=1000] - Results per page
+ * @returns {Object} 200 - { modules, pagination }
+ */
 const getAllModules = catchAsync(async (req, res, next) => {
   const { limit = 1000, page = 1, status } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -907,6 +1137,13 @@ const getAllModules = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Update a lesson's fields. Runs Mongoose validators.
+ *
+ * @route   PUT /api/admin/lessons/:lessonId
+ * @returns {Object} 200 - Updated lesson
+ * @returns {Object} 404 - Lesson not found
+ */
 const updateLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const updateData = req.body;
@@ -933,6 +1170,13 @@ const updateLesson = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Lesson updated", { lesson });
 });
 
+/**
+ * Update a module's fields. Runs Mongoose validators.
+ *
+ * @route   PUT /api/admin/modules/:moduleId
+ * @returns {Object} 200 - Updated module
+ * @returns {Object} 404 - Module not found
+ */
 const updateModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const updateData = req.body;
@@ -959,6 +1203,12 @@ const updateModule = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Module updated", { module });
 });
 
+/**
+ * Get content statistics (lesson/module counts, published vs draft).
+ *
+ * @route   GET /api/admin/content/stats
+ * @returns {Object} 200 - { totalLessons, publishedLessons, draftLessons, totalModules, publishedModules, draftModules }
+ */
 const getContentStats = catchAsync(async (req, res, next) => {
   const [totalLessons, publishedLessons, totalModules, publishedModules] =
     await Promise.all([
@@ -978,6 +1228,14 @@ const getContentStats = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Publish or unpublish a lesson.
+ *
+ * @route   PUT /api/admin/lessons/:lessonId/publish
+ * @body    {boolean} publish - True to publish, false to unpublish
+ * @returns {Object} 200 - Updated lesson
+ * @returns {Object} 404 - Lesson not found
+ */
 const publishLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const { publish } = req.body;
@@ -1008,6 +1266,11 @@ const publishLesson = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Publish or unpublish a module.
+ * Same pattern as publishLesson
+ * @route   PUT /api/admin/modules/:moduleId/publish
+ */
 const publishModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const { publish } = req.body;
@@ -1038,6 +1301,10 @@ const publishModule = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Create a new lesson. Auto-assigns order if not provided.
+ * @route   POST /api/admin/lessons
+ */
 const createLesson = catchAsync(async (req, res, next) => {
   const lessonData = req.body;
 
@@ -1063,6 +1330,10 @@ const createLesson = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 201, "Lesson created", { lesson });
 });
 
+/**
+ * Create a new module. Auto-handles moduleNumber and order.
+ * @route   POST /api/admin/modules
+ */
 const createModule = catchAsync(async (req, res, next) => {
   const moduleData = req.body;
 
@@ -1097,6 +1368,10 @@ const createModule = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 201, "Module created", { module });
 });
 
+/**
+ * Delete a lesson by ID.
+ * @route   DELETE /api/admin/lessons/:lessonId
+ */
 const deleteLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
 
@@ -1120,6 +1395,11 @@ const deleteLesson = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Lesson deleted", { lessonId });
 });
 
+/**
+ * Delete a module. Refuses if it still contains lessons.
+ * @route   DELETE /api/admin/modules/:moduleId
+ * @returns {Object} 400 - Cannot delete non-empty module
+ */
 const deleteModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
 
@@ -1153,6 +1433,10 @@ const deleteModule = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Module deleted", { moduleId });
 });
 
+/**
+ * Duplicate a lesson (unpublished, titled "Original (Copy)").
+ * @route   POST /api/admin/lessons/:lessonId/duplicate
+ */
 const duplicateLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
 
@@ -1187,6 +1471,10 @@ const duplicateLesson = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 201, "Lesson duplicated", { lesson: duplicatedLesson });
 });
 
+/**
+ * Duplicate an entire module including all its lessons (all unpublished).
+ * @route   POST /api/admin/modules/:moduleId/duplicate
+ */
 const duplicateModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
 
@@ -1250,6 +1538,10 @@ const duplicateModule = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Update a lesson's sort order within its module.
+ * @route   PUT /api/admin/lessons/:lessonId/order
+ */
 const updateLessonOrder = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const { order } = req.body;
@@ -1267,6 +1559,10 @@ const updateLessonOrder = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Lesson order updated", { lesson });
 });
 
+/**
+ * Update a module's sort order in the curriculum.
+ * @route   PUT /api/admin/modules/:moduleId/order
+ */
 const updateModuleOrder = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const { order } = req.body;
