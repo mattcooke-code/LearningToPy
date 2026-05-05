@@ -5,40 +5,46 @@ const AppError = require("../utils/AppError");
 const authUtils = require("../utils/authUtils");
 const catchAsync = require("../utils/catchAsync");
 
+/**
+ * Authentication middleware — protects routes by verifying JWT access tokens.
+ *
+ * **Flow:**
+ * 1. Extracts Bearer token from Authorization header
+ * 2. Verifies token signature and expiry
+ * 3. Looks up user in database (excludes password field)
+ * 4. Checks if user account is blocked
+ * 5. Attaches `req.user` and `req.userId` for downstream handlers
+ *
+ * **Error responses:**
+ * - 401: No token provided, invalid token, expired token, or user not found/blocked
+ *
+ * @middleware Applied via `router.use(protect)` on protected route groups
+ */
 const protect = catchAsync(async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    console.log("🔐 No token provided");
     return next(new AppError("Not authorized.", 401));
   }
 
   try {
-    console.log("🔐 Verifying token...");
     const decoded = jwt.verify(token, authUtils.getAccessTokenSecret());
-    console.log("🔐 Token decoded for user ID:", decoded.id);
 
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
-      console.log("🔐 User not found for ID:", decoded.id);
       return next(new AppError("User not found.", 401));
     }
 
-    // Check if user is blocked
     if (user.isBlocked) {
-      console.log("🔐 User is blocked:", user.username);
       return next(new AppError("User account is blocked.", 401));
     }
 
-    console.log("🔐 User authorized:", user.username);
     req.user = user;
     req.userId = user.id;
     next();
   } catch (error) {
-    console.error("🔐 Token verification failed:", error.message);
-
     if (error.name === "JsonWebTokenError") {
       return next(new AppError("Invalid token.", 401));
     } else if (error.name === "TokenExpiredError") {
@@ -48,5 +54,3 @@ const protect = catchAsync(async (req, res, next) => {
     }
   }
 });
-
-module.exports = { protect };

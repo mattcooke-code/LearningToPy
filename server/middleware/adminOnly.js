@@ -2,6 +2,21 @@
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 
+/**
+ * Admin authorization middleware — must run AFTER `protect` (auth middleware).
+ *
+ * Checks that the authenticated user has `isAdmin: true`.
+ * Also re-verifies the account isn't blocked (defense in depth).
+ *
+ * **Error responses:**
+ * - 401: No authenticated user (protect middleware not applied or failed)
+ * - 403: Account blocked or not an admin
+ *
+ * @middleware Applied per-route or per-router after `protect`
+ *
+ * @example
+ *   router.delete('/lessons/:id', protect, adminOnly, deleteLesson);
+ */
 const adminOnly = catchAsync(async (req, res, next) => {
   if (!req.user) {
     return next(new AppError("Authentication required", 401));
@@ -18,5 +33,4 @@ const adminOnly = catchAsync(async (req, res, next) => {
   }
 });
 
-// Export as object
 module.exports = { adminOnly };
