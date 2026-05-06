@@ -12,7 +12,7 @@ Custom React hooks. Encapsulate reusable stateful logic, side effects, and conte
 | `useContentFilter.js`       | State           | Content filtering by type/status/difficulty/search and sorting                               | ✅     |
 | `useCourseThemeUpdater.js`  | Side effect     | Syncs theme colour to course progress on route change                                        | ❌     |
 | `useFileDownload.js`        | Util wrapper    | Memoised callbacks for file, CSV, and Python code downloads                                  | ✅     |
-| `useModal.js`               | Store wrapper   | Accessor for the Zustand modal store (`openModal`, `closeModal`)                             | ✅     |
+| `useModal.js`               | Store wrapper   | Accessor for the Zustand modal store (`openModal`, `closeModal`)                             | ❌     |
 | `usePageViewTracker.js`     | Side effect     | POSTs page view analytics on authenticated route changes                                     | ❌     |
 | `useSettingsManager.js`     | State           | Editable settings with dirty-change tracking against server originals                        | ✅     |
 | `useStreakNotifications.js` | Side effect     | Toast/confirm notifications for streak WARNING, AT_RISK, RESETTING states                    | ❌     |

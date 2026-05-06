@@ -27,7 +27,7 @@ export const useFileDownload = () => {
     downloadContent(content, filename, mimeType);
   }, []);
 
-  const downloadCSV = useCallback((data, filename) => {
+  const downloadCSV = useCallback((data, filename = "data") => {
     const csv = convertToCSV(data);
     downloadContent(csv, filename, "text/csv");
   }, []);
