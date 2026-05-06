@@ -1,13 +1,14 @@
 // ModuleLessonsPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { apiClient, useAuth, useTheme } from "../context";
+import { useAuth, useTheme } from "../context";
 import { BackToTopButton, LoadingState, ErrorState } from "../components/ui";
 import {
   LessonsList,
   ModuleHeader,
   QuickActions,
 } from "../components/module_lesson";
+import { apiClient } from "../services";
 import { getErrorMessage, calculateModuleLessonProgress } from "../utils";
 
 const ModuleLessonsPage = () => {

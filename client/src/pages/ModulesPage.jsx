@@ -1,8 +1,9 @@
 // client/src/pages/ModulesPage.jsx
 import { useEffect, useState } from "react";
-import { apiClient, useAuth } from "../context";
+import { useAuth } from "../context";
 import { BackToTopButton, LoadingState, ErrorState } from "../components/ui";
 import { ModulesHeader, ModulesGrid, ModulesStats } from "../components/module";
+import { apiClient } from "../services";
 import { getErrorMessage } from "../utils";
 
 const ModulesPage = () => {

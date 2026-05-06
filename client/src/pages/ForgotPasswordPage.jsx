@@ -1,7 +1,8 @@
 // ForgotPasswordPage.jsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useNotification, authApiClient, useAuth } from "../context";
+import { useNotification, useAuth } from "../context";
+import { authApiClient } from "../services";
 import { getErrorMessage } from "../utils";
 import { Spinner } from "../components/ui";
 

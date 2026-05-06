@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { apiClient, useAuth, useNotification, useTheme } from "../context";
+import { useAuth, useNotification, useTheme } from "../context";
 import {
   LoadingState,
   ErrorState,
   BackToTopButton,
   MarkdownRenderer,
 } from "../components/ui";
+import { apiClient } from "../services";
 import { getErrorMessage } from "../utils";
 import {
   Trophy,

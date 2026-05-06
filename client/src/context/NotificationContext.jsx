@@ -1,4 +1,24 @@
 // NotificationContext.jsx
+/**
+ * @fileoverview Notification context provider and hooks.
+ *
+ * Provides a lightweight toast notification system and a confirmation modal
+ * dialog that can be triggered from anywhere in the component tree without
+ * prop drilling.
+ *
+ * **Toasts** appear at the bottom-center of the viewport and auto-dismiss
+ * after a configurable duration (default 5 seconds). They support four
+ * semantic types: info, success, error, warning.
+ *
+ * **Confirmation modals** present a two-button dialog (confirm/cancel) with
+ * a title, message, and type-based styling (info, warning, danger).
+ *
+ * @module NotificationContext
+ * @requires react
+ * @requires uuid
+ * @requires ../components/ui/BaseModal
+ */
+
 import {
   createContext,
   useContext,
@@ -9,9 +29,33 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import BaseModal from "../components/ui/BaseModal";
 
+// ---------------------------------------------------------------------------
+// Context Definition
+// ---------------------------------------------------------------------------
+
+/**
+ * React Context holding notification state and actions.
+ *
+ * @type {React.Context<object|null>}
+ */
 const NotificationContext = createContext();
 
-// Toast Component
+// ---------------------------------------------------------------------------
+// Internal Components
+// ---------------------------------------------------------------------------
+
+/**
+ * Individual toast notification bar.
+ *
+ * Renders a coloured, animated bar at the bottom of the screen with a
+ * message and a close button. Colours are determined by the `type` prop.
+ *
+ * @todo Extract to /client/src/components/ui/Toast.jsx — this is a
+ *   presentational component, not context logic.
+ *
+ * @param {{ id: string, message: string, type: 'info'|'success'|'error'|'warning', onClose: (id: string) => void }} props
+ * @returns {JSX.Element}
+ */
 const Toast = ({ id, message, type, onClose }) => {
   const typeStyles = {
     info: "bg-blue-500 border-blue-600",
@@ -36,7 +80,20 @@ const Toast = ({ id, message, type, onClose }) => {
   );
 };
 
-// Confirmation Modal Component
+/**
+ * Confirmation modal dialog.
+ *
+ * Displays a modal with a title, message, and two action buttons (confirm /
+ * cancel). The styling adapts based on the `type` prop (info, warning,
+ * danger).
+ *
+ * Uses the shared `BaseModal` component for the overlay and container.
+ *
+ * @todo Extract to /client/src/components/ui/ConfirmationModal.jsx.
+ *
+ * @param {{ isOpen: boolean, title: string, message: string, onConfirm: () => void, onCancel: () => void, confirmText?: string, cancelText?: string, type?: 'info'|'warning'|'danger' }} props
+ * @returns {JSX.Element}
+ */
 const ConfirmationModal = ({
   isOpen,
   title,
@@ -68,7 +125,6 @@ const ConfirmationModal = ({
         <div
           className={`w-16 h-16 rounded-full ${styles.bg} flex items-center justify-center mb-4`}
         >
-          {/* You can dynamically choose icon based on type here */}
           <div
             className={`w-3 h-3 rounded-full animate-pulse ${
               type === "danger" ? "bg-red-500" : "bg-blue-500"
@@ -102,8 +158,31 @@ const ConfirmationModal = ({
   );
 };
 
+// ---------------------------------------------------------------------------
+// NotificationProvider Component
+// ---------------------------------------------------------------------------
+
+/**
+ * Provider component that manages toast notifications and confirmation
+ * modals.
+ *
+ * **State managed:**
+ * - `toasts` — array of active toast objects `{ id, message, type, duration }`
+ * - `confirmModal` — configuration object for the current (or last) confirmation dialog
+ *
+ * **Actions exposed via context:**
+ * - `showToast(message, type?, duration?)` — display a toast
+ * - `showConfirm({ title, message, onConfirm, onCancel?, type?, confirmText?, cancelText? })` — open a confirmation modal
+ * - `closeConfirm()` — programmatically close the confirmation modal
+ *
+ * @param {{ children: React.ReactNode }} props
+ * @returns {JSX.Element}
+ */
 export const NotificationProvider = ({ children }) => {
+  /** @type {[{ id: string, message: string, type: string, duration: number }[], Function]} */
   const [toasts, setToasts] = useState([]);
+
+  /** @type {[object, Function]} */
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     title: "",
@@ -115,6 +194,17 @@ export const NotificationProvider = ({ children }) => {
     cancelText: "Cancel",
   });
 
+  /**
+   * Display a toast notification.
+   *
+   * Each toast receives a unique ID (UUID v4) and is automatically removed
+   * after `duration` milliseconds.
+   *
+   * @param {string} message - The text to display.
+   * @param {'info'|'success'|'error'|'warning'} [type='info'] - Semantic type
+   *   controlling colour.
+   * @param {number} [duration=5000] - Auto-dismiss delay in ms.
+   */
   const showToast = useCallback((message, type = "info", duration = 5000) => {
     const id = uuidv4();
     setToasts((prev) => [...prev, { id, message, type, duration }]);
@@ -124,11 +214,24 @@ export const NotificationProvider = ({ children }) => {
     }, duration);
   }, []);
 
+  /**
+   * Remove a toast immediately by ID (used by the close button).
+   *
+   * @param {string} id - The UUID of the toast to dismiss.
+   */
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
-  // Confirm methods
+  /**
+   * Open a confirmation modal dialog.
+   *
+   * The `onConfirm` callback is wrapped to automatically close the modal
+   * before executing. The `onCancel` callback is wrapped similarly and is
+   * optional — if omitted the modal simply closes.
+   *
+   * @param {{ title: string, message: string, onConfirm: () => void, onCancel?: () => void, type?: 'info'|'warning'|'danger', confirmText?: string, cancelText?: string }} config
+   */
   const showConfirm = useCallback(
     ({
       title,
@@ -159,10 +262,19 @@ export const NotificationProvider = ({ children }) => {
     [],
   );
 
+  /**
+   * Programmatically close the confirmation modal without executing either
+   * callback. Useful for cleanup or external state changes.
+   */
   const closeConfirm = useCallback(() => {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
+  /**
+   * Memoised context value to prevent unnecessary re-renders of consumers.
+   *
+   * @type {{ showToast: Function, showConfirm: Function, closeConfirm: Function }}
+   */
   const value = useMemo(
     () => ({
       showToast,
@@ -176,19 +288,30 @@ export const NotificationProvider = ({ children }) => {
     <NotificationContext.Provider value={value}>
       {children}
 
-      {/* Toast Container - Bottom Center */}
+      {/* Toast Container — fixed bottom-center, above all other content */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center">
         {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} onClose={removeToast} />
         ))}
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal — spread the full state object as props */}
       <ConfirmationModal {...confirmModal} />
     </NotificationContext.Provider>
   );
 };
 
+// ---------------------------------------------------------------------------
+// Consumer Hook
+// ---------------------------------------------------------------------------
+
+/**
+ * Access the notification context. Must be called from a component wrapped in
+ * `<NotificationProvider>`.
+ *
+ * @returns {{ showToast: Function, showConfirm: Function, closeConfirm: Function }}
+ * @throws {Error} If called outside of a NotificationProvider.
+ */
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {

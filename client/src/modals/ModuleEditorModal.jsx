@@ -1,7 +1,8 @@
 // /src/modals/ModuleEditorModal.jsx
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { BaseModal } from "../components/ui";
-import { adminApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
+import { adminApiClient } from "../services";
 import {
   X,
   Save,

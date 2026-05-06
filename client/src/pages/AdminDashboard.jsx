@@ -1,7 +1,7 @@
 // /client/src/pages/AdminDashboard.jsx (updated with unwrapped responses)
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { adminApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
 import {
   AdminPage,
   AdminStatsCard,
@@ -9,6 +9,7 @@ import {
 } from "../components/admin";
 import { BaseModal, RefreshButton } from "../components/ui";
 import { useAdminData } from "../hooks";
+import { adminApiClient } from "../services";
 import { calculateAdminDashboardStats } from "../utils/statsManagement";
 import { BadgeAwardModal } from "../modals";
 

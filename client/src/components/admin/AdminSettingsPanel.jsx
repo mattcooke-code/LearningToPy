@@ -1,6 +1,7 @@
 // AdminSettingsPanel.jsx
 import { useState, useEffect } from "react";
-import { useNotification, adminApiClient } from "../../context";
+import { useNotification } from "../../context";
+import { adminApiClient } from "../../services";
 import {
   Globe,
   Palette,

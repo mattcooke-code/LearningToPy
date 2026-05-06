@@ -1,5 +1,5 @@
 // /client/src/utils/lessonCalculations.js
-import { apiClient } from "../context";
+import { apiClient } from "../services";
 import { calculateModuleLessonProgress } from "./progressCalculations";
 
 /**
@@ -7,7 +7,7 @@ import { calculateModuleLessonProgress } from "./progressCalculations";
  */
 export const calculateNextLessonManually = async (
   currentLessonId,
-  moduleId
+  moduleId,
 ) => {
   try {
     if (!moduleId) {
@@ -17,7 +17,7 @@ export const calculateNextLessonManually = async (
 
     // Get all lessons in the current module to find the next one
     const responseData = await apiClient.get(
-      `/content/modules/${moduleId}/lessons`
+      `/content/modules/${moduleId}/lessons`,
     );
 
     // Extract lessons array from the response
@@ -31,7 +31,7 @@ export const calculateNextLessonManually = async (
 
     // Find current lesson index
     const currentIndex = moduleLessons.findIndex(
-      (lesson) => (lesson._id || lesson.id) === currentLessonId
+      (lesson) => (lesson._id || lesson.id) === currentLessonId,
     );
 
     if (currentIndex === -1) {

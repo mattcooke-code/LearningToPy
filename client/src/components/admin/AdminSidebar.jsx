@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { X, ShieldCheck, ChevronRight } from "lucide-react";
 import { ADMIN_MENU_ITEMS } from "../../constants/adminConstants";
-import { adminApiClient } from "../../context";
+import { adminApiClient } from "../../services";
 import { useAdminData } from "../../hooks";
 
 // Custom hook for active path detection
@@ -24,7 +24,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     {
       autoRetry: false, // Don't auto-retry sidebar requests
       showToastOnError: false, // Don't show toasts for sidebar errors
-    }
+    },
   );
 
   return (
@@ -77,7 +77,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
               const isActive = useActivePath(
                 currentPath,
                 item.path,
-                item.exact
+                item.exact,
               );
 
               // Get dynamic badge count

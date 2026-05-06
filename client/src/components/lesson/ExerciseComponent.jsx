@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import { CodeThemeToggle, Spinner } from "../ui";
 import { CodeBlock, CodeEditor, TerminalComponent } from "../lesson";
-import { useTheme, usePython, apiClient, useNotification } from "../../context"; // ← Added useNotification
+import { useTheme, usePython, useNotification } from "../../context";
+import { apiClient } from "../../services";
 import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
 import { validateWithPyodide, getErrorMessage } from "../../utils";

@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminApiClient } from "../../context";
+import { adminApiClient } from "../../services";
 import { useAdminData, useAdminMutation } from "../../hooks";
 import {
   getStatusConfig,

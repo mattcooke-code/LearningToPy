@@ -54,3 +54,5 @@ const protect = catchAsync(async (req, res, next) => {
     }
   }
 });
+
+module.exports = { protect };

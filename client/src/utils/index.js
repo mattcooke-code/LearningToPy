@@ -35,5 +35,6 @@ export {
   calculateModuleEditorStats,
   calculateUserDashboardStats,
 } from "./statsManagement";
+export { getStoredAccessToken, isTokenValid } from "./tokenUtils";
 export { normalizeUserData } from "./userUtils";
 export { validateWithPyodide } from "./validationUtils";

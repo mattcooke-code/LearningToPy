@@ -7,7 +7,8 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { apiClient, useNotification } from "../../context";
+import { useNotification } from "../../context";
+import { apiClient } from "../../services";
 import { MarkdownRenderer } from "../ui";
 import {
   areAllQuestionsAnswered,

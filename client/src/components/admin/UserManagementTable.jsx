@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useNotification, adminApiClient } from "../../context";
+import { useNotification } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
 import {
   XPAdjustmentModal,
@@ -7,6 +7,7 @@ import {
   UserDetailModal,
   BadgeAwardModal,
 } from "../../modals";
+import { adminApiClient } from "../../services";
 import {
   ChevronDown,
   ChevronUp,

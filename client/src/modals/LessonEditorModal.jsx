@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { BaseModal } from "../components/ui";
 import SearchableSelect from "../components/ui/SearchableSelect";
-import { adminApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
+import { adminApiClient } from "../services";
 import {
   FileText,
   Settings,

@@ -11,7 +11,8 @@ import {
   Zap,
   ChevronDown,
 } from "lucide-react";
-import { apiClient, useNotification, useTheme } from "../context";
+import { useNotification, useTheme } from "../context";
+import { apiClient } from "../services";
 import { getErrorMessage, getSuccessMessage } from "../utils";
 import { BackToTopButton } from "../components/ui";
 

@@ -1,12 +1,11 @@
 // context/index.js
 
-export {
-  AuthProvider,
-  useAuth,
-  apiClient,
-  authApiClient,
-  adminApiClient,
-} from "./AuthContext";
+/**
+ * @fileoverview Centralised exports for all context providers and hooks.
+ *
+ * @module context
+ */
+export { AuthProvider, useAuth } from "./AuthContext";
 export { NotificationProvider, useNotification } from "./NotificationContext";
-export { usePython } from "./PythonContext";
+export { PythonProvider, usePython } from "./PythonContext";
 export { ThemeProvider, useTheme } from "./ThemeContext";

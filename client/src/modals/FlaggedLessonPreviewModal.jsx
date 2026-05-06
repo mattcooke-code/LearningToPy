@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { BaseModal } from "../components/ui";
-import { apiClient } from "../context";
 import { MarkdownRenderer } from "../components/ui";
+import { apiClient } from "../services";
 import {
   BookOpen,
   Flag,

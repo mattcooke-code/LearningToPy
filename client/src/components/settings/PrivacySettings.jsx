@@ -1,7 +1,7 @@
 // PrivacySettings.jsx
 import { useState, useEffect } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
-import { apiClient } from "../../context";
+import { apiClient } from "../../services";
 import { useThemeStyles } from "../../hooks";
 import { getErrorMessage, getSuccessMessage } from "../../utils";
 

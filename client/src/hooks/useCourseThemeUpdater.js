@@ -1,11 +1,12 @@
 // useCourseThemeUpdater.js
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useTheme, useAuth, apiClient } from "../context";
+import { useTheme, useAuth } from "../context";
 import {
   DEFAULT_THEME_PATHS,
   ADMIN_PATH_PREFIX,
 } from "../constants/themeConstants";
+import { apiClient } from "../services";
 
 export const useCourseThemeUpdater = () => {
   const location = useLocation();

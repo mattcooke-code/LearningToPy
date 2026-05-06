@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { adminApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
 import { BaseModal, Spinner } from "../components/ui";
+import { adminApiClient } from "../services";
 import {
   Calendar,
   Trophy,

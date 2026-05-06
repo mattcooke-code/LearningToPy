@@ -1,7 +1,8 @@
 // components/modals/ReportModal.jsx
 import { useState } from "react";
-import { apiClient, useNotification } from "../context";
+import { useNotification } from "../context";
 import { BaseModal } from "../components/ui";
+import { apiClient } from "../services";
 import { Flag } from "lucide-react";
 
 const ISSUE_TYPES = [

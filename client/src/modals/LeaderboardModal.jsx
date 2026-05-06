@@ -1,6 +1,7 @@
 // LeaderboardModal.jsx
 import { useEffect, useState } from "react";
-import { apiClient, useNotification } from "../context";
+import { useNotification } from "../context";
+import { apiClient } from "../services";
 import { getErrorMessage } from "../utils";
 import { BaseModal, LeaderboardRow, Spinner } from "../components/ui";
 import { data } from "react-router-dom";

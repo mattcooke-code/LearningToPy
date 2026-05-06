@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { apiClient, useAuth, useTheme } from "../context";
+import { useAuth, useTheme } from "../context";
 import { useStreakNotifications, useThemeStyles } from "../hooks";
 import {
   ProgressGauge,
@@ -10,6 +10,7 @@ import {
   LeaderboardRow,
 } from "../components/ui";
 import { LeaderboardModal } from "../modals";
+import { apiClient } from "../services";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
 
@@ -76,7 +77,13 @@ const Dashboard = () => {
 
     fetchProgress();
     fetchSurroundingLeaderboard();
-  }, [updateThemeFromCourseProgress, user, isAuthenticated, authLoading, location.pathname]);
+  }, [
+    updateThemeFromCourseProgress,
+    user,
+    isAuthenticated,
+    authLoading,
+    location.pathname,
+  ]);
 
   // Use user data from auth as fallback when progress hasn't loaded yet
   // This prevents showing all zeros during initial load

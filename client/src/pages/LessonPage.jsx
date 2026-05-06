@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { apiClient, useAuth, useNotification, useTheme } from "../context";
+import { useAuth, useNotification, useTheme } from "../context";
 import { LoadingState, ErrorState, BackToTopButton } from "../components/ui";
 import {
   LessonHeader,
   LessonContent,
   LessonNavigation,
 } from "../components/lesson";
+import { apiClient } from "../services";
 import { ReportModal } from "../modals";
 import { getErrorMessage, calculateNextLessonManually } from "../utils";
 

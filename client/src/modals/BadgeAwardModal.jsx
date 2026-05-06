@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { adminApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
+import { adminApiClient } from "../services";
 import { BaseModal } from "../components/ui";
 import { Search, Award, Loader2, Check, X, Trophy } from "lucide-react";
 import { BADGE_DEFINITIONS_CORE } from "@shared/constants/badgeDefinitions.cjs";

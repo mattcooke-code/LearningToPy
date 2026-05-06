@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
-import { apiClient, useAuth } from "../context";
+import { useAuth } from "../context";
 import { useThemeStyles } from "../hooks";
 import {
   Spinner,
@@ -9,6 +9,7 @@ import {
 } from "../components/ui";
 import { BadgeModal } from "../modals";
 import PrivacySettings from "../components/settings/PrivacySettings";
+import { apiClient } from "../services";
 import { BADGES_BY_ID } from "../data/badges";
 import { getErrorMessage } from "../utils";
 

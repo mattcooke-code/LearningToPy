@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { adminApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
 import { BaseModal } from "../components/ui";
+import { adminApiClient } from "../services";
 import {
   BookOpen,
   FileText,

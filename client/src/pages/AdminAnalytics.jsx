@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { adminApiClient } from "../context";
+import { adminApiClient } from "../services";
 import { AdminPage } from "../components/admin";
 import { RefreshButton, LoadingState, ErrorState } from "../components/ui";
 import { useAdminData } from "../hooks";

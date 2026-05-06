@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { authApiClient, useNotification } from "../context";
+import { useNotification } from "../context";
+import { authApiClient } from "../services";
 import { getErrorMessage, getSuccessMessage } from "../utils";
 import { LoadingState, ErrorState, Spinner } from "../components/ui";
 
