@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNotification } from "../../context";
 import { LessonEditorModal, ModuleEditorModal } from "../../modals";
-import { useContentFilter } from "../../hooks";
+import { useContentFilter, useConfirmActions } from "../../hooks";
 import { adminApiClient } from "../../services";
-import { useConfirmActions, calculateContentStats } from "../../utils";
+import { calculateContentStats } from "../../utils";
 import SearchableSelect from "../../components/ui/SearchableSelect";
 import {
   Search,

@@ -16,7 +16,7 @@ export const useConfirmActions = () => {
         });
       });
     },
-    [showConfirm]
+    [showConfirm],
   );
 
   return useMemo(
@@ -57,6 +57,6 @@ export const useConfirmActions = () => {
 
       createConfirmPromise,
     }),
-    [createConfirmPromise]
+    [createConfirmPromise],
   );
 };

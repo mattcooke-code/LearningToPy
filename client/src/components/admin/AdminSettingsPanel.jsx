@@ -25,9 +25,9 @@ import { Spinner, LoadingState, ErrorState } from "../ui";
 import {
   useAdminData,
   useAdminMutation,
+  useConfirmActions,
   useSettingsManager,
 } from "../../hooks";
-import { useConfirmActions } from "../../utils";
 import { AdminTabPreview } from "./AdminTabPreview";
 import { SETTINGS_CONFIGS, ADMIN_TABS } from "../../constants/settingsConfigs";
 

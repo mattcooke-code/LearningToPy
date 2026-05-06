@@ -1,8 +1,50 @@
-// /src/utils/userUtils.js
+// /client/src/utils/userUtils.js
+/**
+ * @fileoverview User data normalisation utility.
+ *
+ * Maps raw API user responses (which may come in different shapes depending
+ * on the endpoint) into a consistent client-side user object with safe
+ * defaults for every field.
+ *
+ * @module utils/userUtils
+ */
 
 /**
- * Normalizes raw user data from API into consistent shape
- * Handles multiple response formats and provides safe defaults
+ * Normalise raw user data from the API into a consistent shape.
+ *
+ * Handles multiple response formats:
+ * - Standard `{ _id, username, email, ... }` from `/auth/user`
+ * - Wrapped `{ success: true, id, ... }` from login/register
+ * - Sparse objects with alternative key names (`currentLevel` vs `level`,
+ *   `totalXP` vs `xp`, `lastActive` vs `lastActiveDate`)
+ *
+ * If `rawUser` has `success: true` and an `id`, it's used as the source;
+ * otherwise `fallbackUser` (usually the previous user state) is used.
+ *
+ * All array fields are defensively copied. All boolean fields are cast.
+ * Missing values receive safe defaults (empty strings, 0, empty arrays).
+ *
+ * @param {object} [rawUser={}] - The raw user object from the API.
+ * @param {object} [fallbackUser={}] - Fallback user data (previous state)
+ *   used when `rawUser` is a wrapped response format.
+ * @returns {{
+ *   _id: string,
+ *   username: string,
+ *   email: string,
+ *   level: number,
+ *   xp: number,
+ *   streak: number,
+ *   badges: object[],
+ *   completedLessons: string[],
+ *   completedModules: string[],
+ *   stats: object,
+ *   privacySettings: object,
+ *   lastActiveDate: string|null,
+ *   totalLearningTime: number,
+ *   createdAt: string|null,
+ *   isAdmin: boolean,
+ *   isBlocked: boolean
+ * }}
  */
 export const normalizeUserData = (rawUser = {}, fallbackUser = {}) => {
   const source = rawUser.success && rawUser.id ? rawUser : fallbackUser;

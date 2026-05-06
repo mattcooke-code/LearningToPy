@@ -20,13 +20,13 @@ import {
   Zap,
 } from "lucide-react";
 
-// Utilities
+// Hooks & Utilities
+import { useConfirmActions } from "../hooks";
 import {
   DEFAULT_MODULE_FORM_DATA,
   mapModuleToFormData,
   normalizeModuleForAPI,
   calculateModuleEditorStats,
-  useConfirmActions,
 } from "../utils";
 
 // Icons

@@ -1,4 +1,13 @@
-// utils/fileDownloadUtils.js
+// /client/src/utils/fileDownloadUtils.js
+/**
+ * @fileoverview File download utilities.
+ *
+ * Pure functions for creating and triggering browser file downloads.
+ * Handles blob creation, anchor element generation, cleanup, and
+ * format-specific downloads (Python, CSV, terminal output).
+ *
+ * @module utils/fileDownloadUtils
+ */
 
 /**
  * Creates a download link for a blob
@@ -55,19 +64,44 @@ export const downloadPythonCode = (code, filename = "exercise") => {
 
 /**
  * Downloads terminal session
- * @param {Array} output - Terminal output array
+ * @param {Array} output - Terminal output array of { type, content } objects
  * @param {string} filename - Base filename
  */
 export const downloadTerminalOutput = (
   output,
-  filename = "terminal_session"
+  filename = "terminal_session",
 ) => {
   const content = output
     .map((item) => {
-      if (item.type === "input") return item.content;
+      if (item.type === "input") return `>>> ${item.content}`;
       return item.content;
     })
     .join("\n");
 
   downloadContent(content, `${filename}.txt`, "text/plain");
+};
+
+/**
+ * Convert an array of flat objects to a CSV string.
+ *
+ * @param {object[]} data - Array of objects with consistent keys.
+ * @returns {string} CSV-formatted string with header row.
+ */
+export const convertToCSV = (data) => {
+  if (!data || !Array.isArray(data) || data.length === 0) return "";
+
+  const headers = Object.keys(data[0]);
+  const rows = data.map((row) =>
+    headers
+      .map((header) => {
+        const cell =
+          row[header] !== null && row[header] !== undefined
+            ? String(row[header]).replace(/"/g, '""')
+            : "";
+        return `"${cell}"`;
+      })
+      .join(","),
+  );
+
+  return [headers.join(","), ...rows].join("\r\n");
 };

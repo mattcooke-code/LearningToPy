@@ -1,5 +1,6 @@
 export { useAdminData } from "./useAdminData";
 export { useAdminMutation } from "./useAdminMutation";
+export { useConfirmActions } from "./useConfirmActions";
 export { useContentFilter } from "./useContentFilter";
 export { useCourseThemeUpdater } from "./useCourseThemeUpdater";
 export { useFileDownload } from "./useFileDownload";

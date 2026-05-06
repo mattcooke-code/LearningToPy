@@ -1,5 +1,40 @@
+// /client/src/utils/validationUtils.js
 /**
- * Run exercise validation using Pyodide
+ * @fileoverview Pyodide-based Python code validation engine.
+ *
+ * Orchestrates the validation of user-submitted Python code against exercise
+ * requirements. Supports three validation modes:
+ *
+ * 1. **TESTS** — Runs a suite of Python test assertions via Pyodide.
+ * 2. **OUTPUT** — Compares the user's stdout against an expected string
+ *    (case-insensitive, whitespace-normalised).
+ * 3. **THEORY** — No validation; always passes.
+ *
+ * Also provides helper functions for file-based exercise setup, test
+ * execution with timeout, output normalisation, and optimal-solution checks.
+ *
+ * @module utils/validationUtils
+ */
+
+import { getFileCreationCode } from "../data/fileExercises";
+
+/**
+ * Run exercise validation using Pyodide.
+ *
+ * Dispatches to the appropriate validation strategy based on
+ * `exercise.validation`. Requires a `runCode` function (from PythonContext)
+ * to execute Python code.
+ *
+ * @param {string} userCode - The user's submitted Python code.
+ * @param {object} exercise - The exercise definition object.
+ * @param {string} exercise.validation - `"TESTS"`, `"OUTPUT"`, or anything
+ *   else (treated as theory).
+ * @param {object[]} [exercise.tests] - Array of test case definitions (for
+ *   TESTS mode).
+ * @param {string} [exercise.expectedOutput] - Expected stdout string (for
+ *   OUTPUT mode).
+ * @param {Function} runCode - The `runCode` function from PythonContext.
+ * @returns {Promise<{ success: boolean, feedback: string, [key]: any }>}
  */
 export const validateWithPyodide = async (userCode, exercise, runCode) => {
   if (!runCode) {
@@ -72,78 +107,6 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
     totalTests: tests.length,
     isOptimal: checkIfOptimalSolution(userCode, exercise),
   };
-};
-
-/**
- * Get file creation code for specific exercises
- * Add new entries here as you create more file-based exercises
- */
-const getFileCreationCode = (exercise) => {
-  const title = exercise.title || "";
-  const challengeGroup = exercise.challengeGroup || "";
-
-  // Lesson 7.1 - Opening and Reading Files
-  if (
-    title.includes("Opening and Reading Files") ||
-    challengeGroup === "file-reading-basics"
-  ) {
-    return `
-# Create messages.txt for Lesson 7.1
-with open('messages.txt', 'w') as f:
-    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')
-`;
-  }
-
-  // Lesson 7.2 - Line-by-Line Reading
-  if (
-    title.includes("Line-by-Line Reading") ||
-    challengeGroup === "file-line-processing"
-  ) {
-    return `
-# Create shopping_list.txt for Lesson 7.2
-with open('shopping_list.txt', 'w') as f:
-    f.write('Milk\\nEggs\\nBread\\nCheese')
-`;
-  }
-
-  // Lesson 7.3 - Using the With Statement
-  if (
-    title.includes("Using the With Statement") ||
-    challengeGroup === "context-manager"
-  ) {
-    return `
-# Create settings.conf for Lesson 7.3
-with open('settings.conf', 'w') as f:
-    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')
-`;
-  }
-
-  // Lesson 7.4 - Writing and Appending Data
-  if (
-    title.includes("Writing and Appending Data") ||
-    challengeGroup === "file-writing"
-  ) {
-    return `
-# Create empty data.txt for Lesson 7.4
-with open('data.txt', 'w') as f:
-    f.write('')
-`;
-  }
-
-  // Lesson 7.5 - Log File Processing Project
-  if (
-    title.includes("Log File Processing") ||
-    challengeGroup === "file-io-project"
-  ) {
-    return `
-# Create server_log_raw.txt for Lesson 7.5
-with open('server_log_raw.txt', 'w') as f:
-    f.write('404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n')
-`;
-  }
-
-  // Default: no file creation
-  return "";
 };
 
 /**

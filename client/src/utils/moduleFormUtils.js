@@ -1,4 +1,16 @@
-// /src/utils/moduleFormUtils.js
+// /client/src/utils/moduleFormUtils.js
+/**
+ * @fileoverview Module form data transformation utilities.
+ *
+ * Provides default form state, API-to-form mapping (including populated-ID
+ * unwrapping for lessons and prerequisites), and form-to-API normalisation
+ * (field trimming, conditional order/moduleNumber inclusion).
+ *
+ * Used primarily by `ModuleEditorModal.jsx` for the admin module editor.
+ *
+ * @module utils/moduleFormUtils
+ */
+
 import {
   BookOpen,
   FileText,
@@ -20,14 +32,16 @@ import {
 } from "lucide-react";
 
 /**
- * Default form state for module creation/editing
+ * Default form state for module creation/editing.
+ *
+ * @type {object}
  */
 export const DEFAULT_MODULE_FORM_DATA = {
   title: "",
   shortDescription: "",
   description: "",
   icon: "book", // key from ICON_MAP
-  color: "blue", // default theme color
+  color: "blue", // default theme colour
   isPublished: false,
   order: null,
   moduleNumber: "",
@@ -41,9 +55,18 @@ export const DEFAULT_MODULE_FORM_DATA = {
 };
 
 /**
- * Maps API module data to form-compatible state
- * @param {Object} module - Module from API
- * @returns {Object} Form-ready data
+ * Map an API module object to form-compatible data.
+ *
+ * Handles:
+ * - Providing defaults for all fields via spread over `DEFAULT_MODULE_FORM_DATA`.
+ * - Unwrapping populated `lessons` and `prerequisites` arrays (Mongoose
+ *   objects → ID strings).
+ * - Casting `isPublished` to boolean.
+ * - Ensuring `tags` is always an array.
+ * - Falling back `moduleNumber` from `module.order` when not explicitly set.
+ *
+ * @param {object} [module={}] - The module object from the API (may be sparse).
+ * @returns {object} A complete form data object with all defaults filled.
  */
 export const mapModuleToFormData = (module = {}) => {
   return {
@@ -71,10 +94,15 @@ export const mapModuleToFormData = (module = {}) => {
 };
 
 /**
- * Normalizes form data for API submission
- * Ensures arrays are clean and removes UI-only fields
- * @param {Object} formData - Form state
- * @returns {Object} API-ready payload
+ * Normalise form data for API submission.
+ *
+ * - Trims whitespace from `title`, `shortDescription`, and `description`.
+ * - Conditionally includes `order` (only when > 0 and not null/undefined).
+ * - Conditionally includes `moduleNumber` (only when non-empty after trim).
+ * - Strips `badgeId` when it's an empty string (sends `undefined`).
+ *
+ * @param {object} formData - The raw form data from the editor.
+ * @returns {object} A cleaned payload suitable for PUT/POST to the API.
  */
 export const normalizeModuleForAPI = (formData) => {
   const payload = {
@@ -85,8 +113,8 @@ export const normalizeModuleForAPI = (formData) => {
     color: formData.color,
     isPublished: formData.isPublished,
     tags: formData.tags,
-    lessons: formData.lessons, // array of lesson IDs
-    prerequisites: formData.prerequisites, // array of module IDs
+    lessons: formData.lessons,
+    prerequisites: formData.prerequisites,
     estimatedDuration: formData.estimatedDuration,
     difficulty: formData.difficulty,
     badgeId: formData.badgeId || undefined,
