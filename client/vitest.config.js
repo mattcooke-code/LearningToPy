@@ -9,11 +9,12 @@ export default defineConfig({
     environment: "jsdom",
     include: ["src/**/__tests__/**/*.test.{js,jsx}"],
     setupFiles: ["./src/test-setup.js"],
-    css: false, // don't process CSS imports during tests
+    css: false,
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      "@shared": path.resolve(__dirname, "../shared"),
     },
   },
 });

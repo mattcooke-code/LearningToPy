@@ -47,7 +47,8 @@
  * }}
  */
 export const normalizeUserData = (rawUser = {}, fallbackUser = {}) => {
-  const source = rawUser.success && rawUser.id ? rawUser : fallbackUser;
+  const source =
+    rawUser._id || rawUser.id || rawUser.username ? rawUser : fallbackUser;
 
   return {
     _id: source.id || source._id || "",
