@@ -1,4 +1,16 @@
-// confirmUtils.js
+// /client/src/hooks/useConfirmActions.js
+/**
+ * @fileoverview Confirmation dialog hook.
+ *
+ * Wraps the NotificationContext's confirmation modal in a Promise-based API
+ * with pre-built confirmation types (delete, archive, publish, reset) and a
+ * generic `confirmAction` for custom dialogs.
+ *
+ * @module hooks/useConfirmActions
+ * @requires react
+ * @requires ../context (useNotification)
+ */
+
 import { useCallback, useMemo } from "react";
 import { useNotification } from "../context";
 

@@ -11,26 +11,6 @@
  * @module utils/moduleFormUtils
  */
 
-import {
-  BookOpen,
-  FileText,
-  Database,
-  Puzzle,
-  Code,
-  Rocket,
-  Zap,
-  Lightbulb,
-  Palette,
-  Cog,
-  Star,
-  Trophy,
-  Flame,
-  Leaf,
-  Heart,
-  Shield,
-  Globe,
-} from "lucide-react";
-
 /**
  * Default form state for module creation/editing.
  *

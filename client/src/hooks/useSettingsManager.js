@@ -1,7 +1,37 @@
-// useSettingsManager.js
+// /client/src/hooks/useSettingsManager.js
+/**
+ * @fileoverview Admin settings state management hook.
+ *
+ * Manages a working copy of platform settings with change tracking against
+ * the server-provided original. Supports loading settings from the API,
+ * individual field updates, resetting to original, and resetting to platform
+ * defaults.
+ *
+ * Used by the admin settings panel to enable dirty-state detection and
+ * selective saving of only changed fields.
+ *
+ * @module hooks/useSettingsManager
+ * @requires react
+ * @requires ../utils (PLATFORM_DEFAULTS)
+ */
+
 import { useState, useCallback } from "react";
 import { PLATFORM_DEFAULTS } from "../utils";
 
+/**
+ * Manage editable settings with change tracking.
+ *
+ * @returns {{
+ *   settings: object,
+ *   changes: object,
+ *   updateSetting: (key: string, value: any) => void,
+ *   resetChanges: () => void,
+ *   loadSettings: (newSettings: object) => void,
+ *   resetToDefaults: () => void,
+ *   hasChanges: boolean,
+ *   getChangedSettings: () => object
+ * }}
+ */
 export const useSettingsManager = () => {
   // The "Source of Truth" from the database
   const [originalSettings, setOriginalSettings] = useState({

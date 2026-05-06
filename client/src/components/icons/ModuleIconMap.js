@@ -1,4 +1,20 @@
-// /src/components/icons/ModuleIconMap.js
+// /client/src/components/icons/ModuleIconMap.js
+/**
+ * @fileoverview Centralised icon registry for module display.
+ *
+ * Maps string keys (stored in module data as `module.icon`) to Lucide React
+ * components. Used by `ModuleEditorModal.jsx` for the icon picker and by any
+ * component that needs to resolve a module's icon from its string key.
+ *
+ * Also exports `ICON_OPTIONS` — an array of `{ value, label, icon }` for
+ * rendering icon picker dropdowns.
+ *
+ * To add a new icon: import it from lucide-react and add an entry to `ICON_MAP`.
+ *
+ * @module components/icons/ModuleIconMap
+ * @requires lucide-react
+ */
+
 import {
   BookOpen,
   FileText,
@@ -17,69 +33,35 @@ import {
   Heart,
   Shield,
   Globe,
-  Calculator,
-  ChartBar,
   Cloud,
   Cpu,
-  Gamepad2,
   GraduationCap,
-  Hammer,
   Key,
   Layers,
-  LifeBuoy,
   Magnet,
   Map,
   Medal,
   Microscope,
   Mountain,
-  Music,
   Network,
-  PenTool,
-  Phone,
-  PieChart,
-  Play,
-  Plug,
-  PuzzleIcon,
-  Radio,
-  Route,
   Satellite,
   Scale,
-  Scan,
-  Search,
-  Settings,
-  Shapes,
-  Ship,
-  ShoppingBag,
-  Signal,
-  Smartphone,
-  Speaker,
-  Sprout,
-  SquareStack,
   Telescope,
-  Ticket,
-  // Toolbox,
   TrendingUp,
-  Umbrella,
-  Upload,
   User,
   Users,
-  Verified,
-  Video,
   Wallet,
-  Wand2,
-  Waves,
-  Wifi,
-  Wind,
-  Wine,
   Wrench,
-  Zap as Lightning,
 } from "lucide-react";
 
-// Icon registry: string key → Lucide React component
+/**
+ * String key → Lucide React component mapping.
+ *
+ * @type {{ [key: string]: React.Component }}
+ */
 export const ICON_MAP = {
-  // Core
   book: BookOpen,
-  text: FileText,
+  file: FileText,
   database: Database,
   puzzle: Puzzle,
   code: Code,
@@ -88,8 +70,6 @@ export const ICON_MAP = {
   bulb: Lightbulb,
   palette: Palette,
   settings: Cog,
-
-  // Rewards & Progress
   star: Star,
   trophy: Trophy,
   flame: Flame,
@@ -97,66 +77,32 @@ export const ICON_MAP = {
   heart: Heart,
   shield: Shield,
   globe: Globe,
-
-  // Additional (alphabetical)
-  calculator: Calculator,
-  chart: ChartBar,
   cloud: Cloud,
   cpu: Cpu,
-  game: Gamepad2,
   graduation: GraduationCap,
-  hammer: Hammer,
   key: Key,
   layers: Layers,
-  lifebuoy: LifeBuoy,
   magnet: Magnet,
   map: Map,
   medal: Medal,
   microscope: Microscope,
   mountain: Mountain,
-  music: Music,
   network: Network,
-  pen: PenTool,
-  phone: Phone,
-  pie: PieChart,
-  play: Play,
-  plug: Plug,
-  puzzle2: PuzzleIcon,
-  radio: Radio,
-  route: Route,
   satellite: Satellite,
   scale: Scale,
-  scan: Scan,
-  search: Search,
-  shapes: Shapes,
-  ship: Ship,
-  shopping: ShoppingBag,
-  signal: Signal,
-  smartphone: Smartphone,
-  speaker: Speaker,
-  sprout: Sprout,
-  stack: SquareStack,
   telescope: Telescope,
-  ticket: Ticket,
-  //toolbox: Toolbox,
   trending: TrendingUp,
-  umbrella: Umbrella,
-  upload: Upload,
   user: User,
   users: Users,
-  verified: Verified,
-  video: Video,
   wallet: Wallet,
-  wand: Wand2,
-  waves: Waves,
-  wifi: Wifi,
-  wind: Wind,
-  wine: Wine,
   wrench: Wrench,
-  lightning: Lightning,
 };
 
-// Optional: export as array for easy mapping in UI
+/**
+ * Array form of ICON_MAP for use in dropdowns and pickers.
+ *
+ * @type {{ value: string, label: string, icon: React.Component }[]}
+ */
 export const ICON_OPTIONS = Object.entries(ICON_MAP).map(([key, Icon]) => ({
   value: key,
   label: key.charAt(0).toUpperCase() + key.slice(1),

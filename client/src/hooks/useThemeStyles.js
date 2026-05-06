@@ -1,4 +1,16 @@
-// useThemeStyles.js
+// /client/src/hooks/useThemeStyles.js
+/**
+ * @fileoverview Theme-aware style hook.
+ *
+ * Provides the current theme colour and hover event handlers for interactive
+ * elements. The hover colour is derived from `getHoverColor` and memoised.
+ *
+ * @module hooks/useThemeStyles
+ * @requires react
+ * @requires ../context (useTheme)
+ * @requires ../utils (getHoverColor)
+ */
+
 import { useMemo } from "react";
 import { useTheme } from "../context";
 import { getHoverColor } from "../utils";
@@ -27,7 +39,7 @@ export const useThemeStyles = () => {
         e.currentTarget.style.backgroundColor = themeColor;
       },
     }),
-    [themeColor, themeHoverColor]
+    [themeColor, themeHoverColor],
   );
 
   return { themeColor, hoverHandlers };

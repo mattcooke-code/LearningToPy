@@ -1,6 +1,32 @@
-// useContentFilter.js
+// /client/src/hooks/useContentFilter.js
+/**
+ * @fileoverview Content filtering and sorting hook.
+ *
+ * Provides filter state (type, status, difficulty, search) and sort
+ * configuration for an array of content items. Returns the filtered and sorted
+ * result via `useMemo` so it only recalculates when inputs change.
+ *
+ * @module hooks/useContentFilter
+ * @requires react
+ */
+
 import { useState, useMemo } from "react";
 
+/**
+ * Create filter/sort state and a memoised filtered result for a content array.
+ *
+ * @param {object[]} initialContent - The full, unfiltered array of content
+ *   items. Each item should have `type`, `isPublished`, `difficulty`, `title`,
+ *   `description`, `_id`, and optionally `tags`.
+ * @returns {{
+ *   filters: { type: string, status: string, difficulty: string, search: string },
+ *   setFilters: Function,
+ *   sortConfig: { field: string, direction: 'ascend'|'descend' },
+ *   handleSort: Function,
+ *   filteredContent: object[],
+ *   clearFilters: Function
+ * }}
+ */
 export const useContentFilter = (initialContent) => {
   const [filters, setFilters] = useState({
     type: "all",
@@ -23,7 +49,7 @@ export const useContentFilter = (initialContent) => {
 
     if (filters.status !== "all") {
       result = result.filter((item) =>
-        filters.status === "published" ? item.isPublished : !item.isPublished
+        filters.status === "published" ? item.isPublished : !item.isPublished,
       );
     }
 
@@ -38,7 +64,7 @@ export const useContentFilter = (initialContent) => {
           item.title?.toLowerCase().includes(term) ||
           item.description?.toLowerCase().includes(term) ||
           item._id?.toLowerCase().includes(term) ||
-          item.tags?.some((tag) => tag.toLowerCase().includes(term))
+          item.tags?.some((tag) => tag.toLowerCase().includes(term)),
       );
     }
 

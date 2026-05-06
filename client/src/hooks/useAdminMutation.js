@@ -1,8 +1,45 @@
-// hooks/useAdminMutation.js
+// /client/src/hooks/useAdminMutation.js
+/**
+ * @fileoverview Generic admin mutation hook with confirmation dialogs, pre-mutation
+ * checks, loading/error state, and success/error toast notifications.
+ *
+ * Wraps any async mutation function with optional confirmation prompts,
+ * pre-mutation validation hooks, and standardised admin error extraction.
+ *
+ * @module hooks/useAdminMutation
+ * @requires react
+ * @requires ../context (useNotification)
+ * @requires ../utils (getAdminErrorMessage, getSuccessMessage)
+ */
+
 import { useState, useCallback } from "react";
 import { useNotification } from "../context";
 import { getAdminErrorMessage, getSuccessMessage } from "../utils";
 
+/**
+ * Create a standardised mutation handler for admin operations.
+ *
+ * @param {Function} mutationFn - The async function that performs the mutation
+ *   (receives `variables` as its only argument).
+ * @param {object} [options={}] - Configuration options.
+ * @param {string} [options.defaultErrorMessage="Operation failed"] - Fallback
+ *   error message.
+ * @param {boolean} [options.showToastOnError=true] - Show a toast on failure.
+ * @param {boolean} [options.showToastOnSuccess=true] - Show a toast on success.
+ * @param {string} [options.successAction="save"] - Action key passed to
+ *   `getSuccessMessage`.
+ * @param {string} [options.successResource="item"] - Resource name passed to
+ *   `getSuccessMessage`.
+ * @param {Function|null} [options.onBeforeMutate=null] - Async pre-mutation
+ *   check. If it returns `false`, the mutation is cancelled.
+ * @param {boolean} [options.requireConfirmation=false] - Show a confirmation
+ *   dialog before executing.
+ * @param {object} [options.confirmationOptions={}] - Overrides for the
+ *   confirmation dialog (title, message, confirmText, cancelText).
+ * @returns {{ mutate: Function, loading: boolean, error: string|null,
+ *   data: any, reset: Function, isError: boolean, isSuccess: boolean,
+ *   isLoading: boolean }}
+ */
 export const useAdminMutation = (mutationFn, options = {}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -63,7 +100,7 @@ export const useAdminMutation = (mutationFn, options = {}) => {
         if (showToastOnSuccess) {
           showToast(
             getSuccessMessage(successAction, successResource),
-            "success"
+            "success",
           );
         }
 
@@ -94,7 +131,7 @@ export const useAdminMutation = (mutationFn, options = {}) => {
       confirmationOptions.message,
       confirmationOptions.confirmText,
       confirmationOptions.cancelText,
-    ]
+    ],
   );
 
   const reset = useCallback(() => {

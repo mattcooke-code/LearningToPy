@@ -1,5 +1,4 @@
-//App.jsx
-import { useEffect } from "react";
+// App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useAuth } from "./context";
 import {
@@ -32,28 +31,14 @@ import AdminFlagged from "./pages/AdminFlagged";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 
-import {
-  useCourseThemeUpdater,
-  useSessionTracker,
-  usePageViewTracker,
-} from "./hooks";
+import { useCourseThemeUpdater, usePageViewTracker } from "./hooks";
 import { AdminLayout } from "./components/admin";
 
 import ModalManager from "./modals/ModalManager";
 
 function App() {
   useCourseThemeUpdater();
-
-  const { isAuthenticated, apiClient } = useAuth();
-  const { sessionId } = useSessionTracker(isAuthenticated);
-
   usePageViewTracker();
-
-  useEffect(() => {
-    if (apiClient && sessionId) {
-      setupAnalyticsHeaders(apiClient, sessionId);
-    }
-  }, [apiClient, sessionId]);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex flex-col">
@@ -98,7 +83,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/lessons/:id"
               element={

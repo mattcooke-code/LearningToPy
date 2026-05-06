@@ -1,4 +1,17 @@
-// /client/hooks/useAdminData.js
+// /client/src/hooks/useAdminData.js
+/**
+ * @fileoverview Generic admin data fetching hook with error handling, auto-retry,
+ * and toast notifications.
+ *
+ * Wraps any async fetcher function with loading/error state, optional toast
+ * alerts on failure, and configurable retry logic for network and server errors.
+ *
+ * @module hooks/useAdminData
+ * @requires react
+ * @requires ../context (useNotification)
+ * @requires ../utils/getErrorMessage
+ */
+
 import { useState, useCallback, useEffect } from "react";
 import { useNotification } from "../context";
 import {
@@ -78,7 +91,7 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
       retryDelay,
       showToastOnError,
       context,
-    ]
+    ],
   );
 
   useEffect(() => {
