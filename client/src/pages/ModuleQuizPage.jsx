@@ -20,6 +20,80 @@ import {
   Info,
 } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Comprehensive module quiz page with shuffled questions, immediate feedback, review mode,
+ * and detailed results analysis. This is the most complex quiz component implementing Fisher-Yates
+ * shuffling, answer tracking, progress management, and post-quiz review functionality.
+ * 
+ * Features linear question progression, mandatory answer requirements, and sophisticated
+ * state management for quiz flow control. Includes comprehensive error handling and
+ * theme integration with progress-based updates.
+ */
+
+/**
+ * Module quiz page component with interactive quiz functionality and comprehensive feedback.
+ * 
+ * This component implements a full-featured quiz system with question shuffling,
+ * immediate feedback, progress tracking, and detailed results analysis. Features linear
+ * progression through questions, mandatory answering, review mode for incorrect answers,
+ * and automatic theme updates based on quiz performance.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete quiz interface with questions, feedback, and results
+ * 
+ * @stateManagement
+ * - module: Module data with quiz content and completion status
+ * - currentQuestionIndex: Current position in question sequence
+ * - userAnswers: User's selected answers for each question
+ * - questionFeedback: Immediate feedback for answered questions
+ * - quizSubmitted: Overall quiz submission state
+ * - quizResults: Detailed quiz results and scoring
+ * - shuffledQuestions: Randomized question order
+ * - shuffledOptions: Randomized answer options with correct answer tracking
+ * - reviewMode: Toggle for reviewing incorrect answers
+ * - selectedReviewQuestion: Currently selected question for detailed review
+ * 
+ * @quizFlow
+ * - Linear progression: Must answer current question before proceeding
+ * - Immediate feedback: Shows correctness and explanation after each answer
+ * - Shuffling: Randomizes both questions and answer options
+ * - Progress tracking: Visual progress bar and question grid
+ * - Mandatory completion: All questions must be answered before submission
+ * 
+ * @dataProcessing
+ * - Fisher-Yates shuffle algorithm for randomization
+ * - Answer mapping between shuffled and original indices
+ * - Score calculation with passing threshold evaluation
+ * - XP calculation based on performance
+ * - Theme updates based on course progress
+ * 
+ * @interactionHandlers
+ * - handleAnswerSelect: Processes answer selection with immediate feedback
+ * - handleNext: Advances to next question (only if current answered)
+ * - handleSubmitQuiz: Submits all answers for scoring
+ * - handleRetakeQuiz: Resets all state for quiz retake
+ * - openReviewQuestion: Opens detailed review for specific question
+ * 
+ * @feedbackSystem
+ * - Immediate correctness feedback with visual indicators
+ * - Toast notifications for answer validation
+ * - Detailed explanations for incorrect answers
+ * - Post-quiz review modal for incorrect questions
+ * - Comprehensive results display with XP rewards
+ * 
+ * @errorHandling
+ * - Prerequisite checking (all lessons must be complete)
+ * - API error handling with user feedback
+ * - Graceful fallback for missing quiz data
+ * - Navigation fallbacks on failures
+ * 
+ * @securityFeatures
+ * - Server-side answer validation
+ * - Question order tracking for integrity
+ * - Answer index mapping for shuffled options
+ * - Prevention of answer modification after submission
+ */
 const ModuleQuizPage = () => {
   const { moduleId } = useParams();
   const navigate = useNavigate();

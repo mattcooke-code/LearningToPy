@@ -3,6 +3,55 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context";
 import { Spinner } from "../components/ui";
 
+/**
+ * User registration page with comprehensive form validation and password confirmation.
+ * This page handles new user account creation with username, email, and password fields,
+ * including real-time password matching validation and automatic redirect after successful registration.
+ */
+
+/**
+ * Registration page component for creating new user accounts with comprehensive validation.
+ * 
+ * This component manages user registration with form fields for username, email, password,
+ * and password confirmation. Features real-time password validation, character limits,
+ * accessibility attributes, and automatic redirect for authenticated users. Includes
+ * error handling, loading states, and responsive design for optimal user experience.
+ * 
+ * @component
+ * @returns {JSX.Element} Registration form with validation and user creation
+ * 
+ * @stateManagement
+ * - username: User's chosen username (3-30 characters)
+ * - email: User's email address for account
+ * - password: User's password for authentication
+ * - confirmPassword: Password confirmation field
+ * - passwordError: Real-time validation error for password mismatch
+ * 
+ * @validationLogic
+ * - Username length validation (3-30 characters)
+ * - Email format validation through HTML5 input type
+ * - Password matching validation in real-time
+ * - Form validation before submission
+ * - Disabled submit button when validation fails
+ * 
+ * @userExperience
+ * - Real-time password mismatch feedback
+ * - Loading spinner during registration process
+ * - Error messages for failed registration attempts
+ * - Auto-complete attributes for better UX
+ * - Responsive design for all screen sizes
+ * 
+ * @securityFeatures
+ * - Password confirmation to prevent typos
+ * - Secure password handling through AuthContext
+ * - Auto-complete attributes for password managers
+ * - Form validation before API submission
+ * 
+ * @navigationLogic
+ * - Automatic redirect for authenticated users
+ * - Link to login page for existing users
+ * - Prevents access when already authenticated
+ */
 const Register = () => {
   // --- STATE MANAGEMENT ---
   const [username, setUsername] = useState("");

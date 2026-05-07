@@ -1,3 +1,11 @@
+/**
+ * @fileoverview
+ * Main administrative dashboard providing centralized platform oversight and management capabilities.
+ * This page serves as the primary admin interface with real-time statistics, recent user activity,
+ * quick action buttons, and flagged content monitoring. Integrates user management, badge awarding,
+ * and navigation to other admin sections with comprehensive error handling and loading states.
+ */
+
 // /client/src/pages/AdminDashboard.jsx (updated with unwrapped responses)
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,6 +21,34 @@ import { adminApiClient } from "../services";
 import { calculateAdminDashboardStats } from "../utils/statsManagement";
 import { BadgeAwardModal } from "../modals";
 
+/**
+ * Main administrative dashboard component providing platform oversight and management tools.
+ * 
+ * This component displays comprehensive platform statistics, recent user activity, quick action
+ * buttons for common admin tasks, and flagged content monitoring. Features user badge awarding
+ * functionality, navigation to detailed admin sections, and real-time data refresh capabilities.
+ * 
+ * @component
+ * @returns {JSX.Element} Admin dashboard with stats, users, actions, and flagged content
+ * 
+ * @dataManagement
+ * - Fetches dashboard stats and recent users via parallel API calls
+ * - Transforms raw stats data using calculateAdminDashboardStats utility
+ * - Manages modal states for user selection and badge awarding
+ * - Handles loading states with skeleton UI components
+ * 
+ * @userInteractions
+ * - Badge awarding with user search and selection modal
+ * - Quick navigation to user management, content creation, and reports
+ * - Real-time data refresh with loading indicators
+ * - Individual user actions (view details, grant badges)
+ * 
+ * @conditionalFeatures
+ * - Shows pending flags count badge on "View Reports" button
+ * - Displays skeleton loading state during data fetch
+ * - Renders user search modal when granting badges
+ * - Shows "No users found" message when user list is empty
+ */
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { showToast } = useNotification();

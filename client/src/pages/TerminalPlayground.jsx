@@ -4,6 +4,68 @@ import { Terminal as TerminalIcon, BookOpen, Code } from "lucide-react";
 import TerminalComponent from "../components/lesson/TerminalComponent";
 import { useTheme } from "../context";
 
+/**
+ * Interactive Python playground page with integrated terminal and learning examples.
+ * This page provides a safe environment for Python experimentation with pre-built examples,
+ * theme-aware terminal integration, and educational content structure. Features tab-based
+ * navigation between examples and a full-featured Python code runner.
+ */
+
+/**
+ * Terminal playground component providing interactive Python coding environment.
+ * 
+ * This component offers a comprehensive Python learning experience with an integrated
+ * terminal, pre-built learning examples, and educational content. Features theme-aware
+ * styling, example-based learning, and direct integration with the Python code runner
+ * for real-time code execution and feedback.
+ * 
+ * @component
+ * @returns {JSX.Element} Interactive playground with terminal and learning examples
+ * 
+ * @stateManagement
+ * - activeTab: Currently selected example or terminal mode
+ * 
+ * @pythonRunnerIntegration
+ * - TerminalComponent handles all Python code execution
+ * - Real-time code execution with immediate output
+ * - Session state management for variable persistence
+ * - Command history navigation with arrow keys
+ * - Multi-line code support for complex structures
+ * 
+ * @learningContent
+ * - Structured examples progressing from basic to advanced
+ * - Basic Output: print statements and string formatting
+ * - Variables: data storage and f-string formatting
+ * - Math Operations: arithmetic and exponentiation
+ * - Each example includes multiple code snippets for exploration
+ * 
+ * @userInteraction
+ * - Click examples to load code into terminal
+ * - Direct code editing in terminal interface
+ * - Execute code with Enter key
+ * - Navigate command history with arrow keys
+ * - Session restart with exit() command
+ * 
+ * @themeIntegration
+ * - Uses isCodeDark theme context for terminal styling
+ * - Consistent theming across all components
+ * - Adaptive color schemes for code display
+ * - Theme-aware example presentation
+ * 
+ * @educationalFeatures
+ * - Progressive difficulty in examples
+ * - Clear descriptions for each concept
+ * - Multiple code examples per topic
+ * - Interactive tips for terminal usage
+ * - Safe sandboxed environment for experimentation
+ * 
+ * @terminalCapabilities
+ * - Full Python syntax support
+ * - Variable persistence between commands
+ * - Multi-line statement support
+ * - Error handling and display
+ * - Session management and restart
+ */
 const TerminalPlayground = () => {
   const { isCodeDark } = useTheme();
   const [activeTab, setActiveTab] = useState("terminal");

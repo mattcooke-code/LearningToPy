@@ -13,6 +13,69 @@ import { apiClient } from "../services";
 import { BADGES_BY_ID } from "../data/badges";
 import { getErrorMessage } from "../utils";
 
+/**
+ * @fileoverview
+ * Comprehensive user profile page displaying learning progress, achievements, badges, and privacy settings.
+ * This page aggregates user data from multiple API endpoints, manages complex state for progress tracking,
+ * badge collection, and settings. Features responsive design, theme integration, and modal interactions
+ * for detailed badge viewing and privacy management.
+ */
+
+/**
+ * User profile page component displaying comprehensive learning progress and achievements.
+ * 
+ * This component presents a complete overview of user's learning journey including level progress,
+ * XP statistics, badge collection, learning metrics, and privacy settings. Fetches data from multiple
+ * API endpoints, manages complex state for achievements and progress, and provides interactive elements
+ * for badge viewing and settings management. Features responsive design with theme integration.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete user profile with progress, badges, and settings
+ * 
+ * @stateManagement
+ * - loading: Loading state for achievement data fetch
+ * - error: Error state for failed API calls
+ * - userProgress: User's current learning progress and level information
+ * - earnedBadgeIds: Array of earned badge identifiers
+ * - isModalOpen: Modal state for detailed badge viewing
+ * 
+ * @dataFetching
+ * - Parallel API calls for achievements and progress data
+ * - Error handling with user-friendly messages
+ * - Loading states with spinner components
+ * - Graceful fallbacks for missing data
+ * 
+ * @progressDisplay
+ * - Level progress with SegmentedLevelProgressBar component
+ * - XP and streak statistics display
+ * - Learning metrics (days active, completion rate, etc.)
+ * - Theme-aware color styling throughout
+ * 
+ * @badgeSystem
+ * - Grid layout for earned badges with hover effects
+ * - Badge modal for detailed viewing
+ * - Fallback display for badges without images
+ * - "View more" button for large collections
+ * - Accessibility attributes for badge interactions
+ * 
+ * @privacyIntegration
+ * - PrivacySettings component integration
+ * - Real-time updates to user privacy settings
+ * - Leaderboard refresh trigger on privacy changes
+ * - User context integration for settings persistence
+ * 
+ * @themeIntegration
+ * - Dynamic theming via useThemeStyles hook
+ * - Consistent color application across components
+ * - Hover effects and transitions
+ * - Dark mode support throughout
+ * 
+ * @responsiveDesign
+ * - Mobile-first responsive layout
+ * - Adaptive grid layouts for badges
+ * - Flexible card layouts for statistics
+ * - Touch-friendly interactive elements
+ */
 const Profile = () => {
   const { user, updateUser, triggerLeaderboardRefresh } = useAuth();
   const [loading, setLoading] = useState(true);

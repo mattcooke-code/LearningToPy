@@ -21,6 +21,80 @@ import {
 import { BackToTopButton } from "../components/ui";
 import { useTheme } from "../context";
 
+/**
+ * @fileoverview
+ * Comprehensive curriculum page displaying the complete 20-module Python learning path.
+ * This page showcases the structured learning journey with three phases, detailed module information,
+ * learning highlights, duration estimates, and a capstone project section. Features responsive design,
+ * theme-aware styling, and interactive elements for user engagement and enrollment.
+ */
+
+/**
+ * Curriculum page component displaying the complete Python learning path with detailed module information.
+ * 
+ * This component presents a comprehensive overview of the 20-module curriculum organized into three
+ * phases: Python Fundamentals, Intermediate Python, and Advanced Applications. Features detailed
+ * module cards with icons, learning highlights, duration estimates, and enrollment CTAs. Includes
+ * statistics display, capstone project showcase with code preview, and responsive design with
+ * theme-aware styling. Provides a complete learning journey visualization for prospective students.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete curriculum page with modules and capstone project
+ * 
+ * @curriculumStructure
+ * - Phase 1: Python Fundamentals (Modules 1-9)
+ * - Phase 2: Intermediate Python (Modules 10-15)
+ * - Phase 3: Advanced Applications (Modules 16-20)
+ * - Capstone Project: Module 20 with portfolio-ready project
+ * 
+ * @moduleInformation
+ * - Detailed descriptions for each module
+ * - Learning highlights with key topics
+ * - Duration estimates (2-3 hours for fundamentals, 3-4 for intermediate, 4-5 for advanced)
+ * - Visual icons representing module themes
+ * - Progress indicators and numbering
+ * 
+ * @phaseCardComponent
+ * - Reusable PhaseCard component for displaying phase modules
+ * - Responsive grid layout for module cards
+ * - Hover effects and transitions
+ * - Theme-aware styling throughout
+ * - Enrollment CTAs for each module
+ * 
+ * @capstoneSection
+ * - Detailed capstone project overview
+ * - Interactive code preview with syntax highlighting
+ * - Feature highlights and project requirements
+ * - Visual design with gradients and overlays
+ * - Call-to-action for enrollment
+ * 
+ * @statisticsDisplay
+ * - 20 Interactive Modules
+ * - 100+ Coding Exercises
+ * - 15+ Hours of Content
+ * - 1 Capstone Project
+ * - Grid layout with visual emphasis
+ * 
+ * @visualDesign
+ * - Module number overlays with hover effects
+ * - Icon integration for visual hierarchy
+ * - Gradient backgrounds and overlays
+ * - Theme-aware color schemes
+ * - Responsive grid layouts
+ * 
+ * @userInteraction
+ * - Hover effects on module cards
+ * - Smooth transitions and animations
+ * - Interactive enrollment links
+ * - Visual feedback for user engagement
+ * 
+ * @responsiveDesign
+ * - Mobile-first approach
+ * - Adaptive grid layouts
+ * - Touch-friendly interactive elements
+ * - Flexible spacing and typography
+ */
+
 // Complete curriculum data with all 20 modules
 const CURRICULUM_DATA = {
   phase1: {
@@ -236,6 +310,21 @@ const CURRICULUM_DATA = {
   },
 };
 
+/**
+ * PhaseCard component displaying a curriculum phase with its modules.
+ * 
+ * This component renders a phase section with header information and a responsive
+ * grid of module cards. Features phase numbering, titles, descriptions, and
+ * module cards with interactive elements. Includes hover effects, theme-aware
+ * styling, and enrollment CTAs for each module.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.phase - Phase data with title and description
+ * @param {Array} props.modules - Array of module objects for this phase
+ * @param {number} props.index - Phase index for numbering
+ * @returns {JSX.Element} Phase section with module cards
+ */
 const PhaseCard = ({ phase, modules, index }) => {
   return (
     <div className="mb-16 last:mb-0 px-2 md:px-0">

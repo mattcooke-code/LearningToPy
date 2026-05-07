@@ -16,6 +16,71 @@ import { apiClient } from "../services";
 import { getErrorMessage, getSuccessMessage } from "../utils";
 import { BackToTopButton } from "../components/ui";
 
+/**
+ * Support and feedback page with comprehensive contact form and help resources.
+ * This page provides multiple support channels including a detailed contact form with
+ * category-specific fields, quick links to help resources, and contextual information
+ * for different support needs. Features form validation, success states, and responsive design.
+ */
+
+/**
+ * Support page component providing comprehensive help and feedback functionality.
+ * 
+ * This component offers multiple support channels including a detailed contact form with
+ * category-specific fields (bug reports include module/lesson numbers), quick links to
+ * help resources, and contextual support information. Features form validation, success
+ * states with confirmation messaging, error handling with toast notifications, and
+ * responsive design. Includes direct contact information and helpful tips for different
+ * support scenarios.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete support page with form and resources
+ * 
+ * @stateManagement
+ * - formData: Form data including name, email, category, subject, message
+ * - submitting: Loading state during form submission
+ * - isSubmitted: Success state for confirmation display
+ * 
+ * @formFeatures
+ * - Dynamic form fields based on category selection
+ * - Bug-specific fields for module and lesson numbers
+ * - Category selection with dropdown styling
+ * - Form validation with required field indicators
+ * - Success state with confirmation messaging
+ * 
+ * @supportCategories
+ * - Technical Help: General assistance requests
+ * - Course Feedback: Feedback on learning content
+ * - Report a Bug: Error reporting with specific fields
+ * - Feature Request: Suggestions for improvements
+ * - Other: Miscellaneous inquiries
+ * 
+ * @quickLinks
+ * - Direct navigation to curriculum page
+ * - Link to FAQ for common questions
+ * - Visual icons and descriptions for each resource
+ * - Hover effects and transitions
+ * 
+ * @contactInformation
+ * - Direct email contact: hello@learningtopy.com
+ * - Response time expectations (24-48 hours)
+ * - Contextual tips for different support needs
+ * - Bug reporting guidance with specific instructions
+ * 
+ * @userExperience
+ * - Loading states during form submission
+ * - Success confirmation with email display
+ * - Error handling with toast notifications
+ * - Form reset functionality for multiple submissions
+ * - Responsive design for mobile and desktop
+ * 
+ * @visualDesign
+ * - Theme-aware styling throughout
+ * - Icon integration for visual hierarchy
+ * - Color-coded information sections
+ * - Gradient backgrounds for CTAs
+ * - Consistent spacing and typography
+ */
 const Support = () => {
   const [formData, setFormData] = useState({
     name: "",

@@ -16,6 +16,84 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Landing page showcasing the Learning To Py platform with comprehensive feature highlights,
+ * learning methodology explanations, and compelling call-to-action sections. Features dynamic
+ * theming, responsive design, and contextual CTAs based on authentication status. Includes
+ * interactive elements, gamification previews, and curriculum highlights to drive user engagement.
+ */
+
+/**
+ * Landing page component showcasing the Learning To Py platform and its features.
+ * 
+ * This component serves as the main landing page for the platform, featuring a hero section
+ * with interactive dashboard preview, gamification highlights, learning methodology explanations,
+ * problem/solution sections, how-it-works steps, and curriculum highlights. Includes dynamic
+ * theming, responsive design, and contextual CTAs that change based on authentication status.
+ * Features rich visual design with gradients, icons, and interactive elements.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete landing page with hero, features, and CTAs
+ * 
+ * @dynamicContent
+ * - ctaLink: Routes to /dashboard for authenticated users, /register for guests
+ * - ctaLabel: Changes text based on authentication status
+ * - Theme-aware styling throughout the component
+ * - Interactive dashboard preview with sample data
+ * 
+ * @heroSection
+ * - Eye-catching headline with gradient text effects
+ * - Interactive dashboard preview showing gamified elements
+ * - Sample streak, XP, and leaderboard data
+ * - Responsive layout with side-by-side content
+ * - Dynamic theming based on dark/light mode
+ * 
+ * @gamificationHighlights
+ * - Four key features: Leaderboards, Points & XP, Badges & Achievements, Mastery Paths
+ * - Icon-based visual presentation
+ * - Hover effects and transitions
+ * - Grid layout for responsive design
+ * 
+ * @learningMethodology
+ * - Three-step process explanation
+ * - Interactive coding environment preview
+ * - Terminal output simulation
+ * - Feature highlights with icons
+ * - Side-by-side layout with visual elements
+ * 
+ * @problemSolutionSection
+ * - Traditional learning pain points addressed
+ * - Winning formula explanation
+ * - Feature comparison grid
+ * - Dark theme section for visual contrast
+ * 
+ * @howItWorks
+ * - Three-step process with numbered steps
+ * - Contextual navigation links
+ * - Hover effects and transitions
+ * - Progress indicators
+ * 
+ * @curriculumHighlights
+ * - Three main curriculum phases overview
+ * - Module highlights with key topics
+ * - Statistics display (20 modules, 100+ exercises, etc.)
+ * - Capstone project section with code preview
+ * 
+ * @visualDesign
+ * - Gradient backgrounds and overlays
+ * - Icon integration throughout
+ * - Hover effects and micro-interactions
+ * - Responsive grid layouts
+ * - Dark mode support with theme-aware colors
+ * 
+ * @userExperience
+ * - Smooth scrolling and transitions
+ * - Mobile-responsive design
+ * - Accessibility considerations
+ * - Loading states and error handling
+ * - Contextual CTAs for user journey
+ */
 const Home = () => {
   const { setDefaultTheme, isDarkMode } = useTheme();
   const { isAuthenticated } = useAuth();

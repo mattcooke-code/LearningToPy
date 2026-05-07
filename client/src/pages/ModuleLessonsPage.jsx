@@ -11,6 +11,49 @@ import {
 import { apiClient } from "../services";
 import { getErrorMessage, calculateModuleLessonProgress } from "../utils";
 
+/**
+ * Module lessons listing page that displays all lessons within a specific module.
+ * This page provides lesson navigation, progress tracking, and module-specific theming.
+ * Requires authentication and includes comprehensive error handling with navigation fallbacks.
+ */
+
+/**
+ * Module lessons page component displaying individual lesson listings within a module context.
+ * 
+ * This component fetches module and lesson data, calculates progress metrics, applies
+ * theme-based styling, and provides navigation between lessons. Includes authentication
+ * checks, error handling with navigation fallbacks, and progress-based theming.
+ * 
+ * @component
+ * @returns {JSX.Element} Module lessons page with header, lesson list, and quick actions
+ * 
+ * @stateManagement
+ * - moduleData: Module information including title and completion status
+ * - lessons: Array of lessons within the module
+ * - loading: Loading state during data fetch
+ * - error: Error state for failed API calls
+ * 
+ * @authenticationFlow
+ * - Checks authentication status before data fetching
+ * - Redirects to login page if not authenticated
+ * - Prevents data fetches during auth loading state
+ * 
+ * @dataProcessing
+ * - Calculates lesson completion metrics using calculateModuleLessonProgress
+ * - Determines module accent color based on progress using getModuleThemeColor
+ * - Processes module quiz completion status for quick actions
+ * 
+ * @errorHandling
+ * - Redirects to login if not authenticated
+ * - Shows error state with back navigation to modules page
+ * - Handles module not found scenario gracefully
+ * - Provides empty state button for navigation fallback
+ * 
+ * @theming
+ * - Applies dynamic module accent colors based on progress
+ * - Uses theme context for consistent styling
+ * - Progress-based color calculations for visual feedback
+ */
 const ModuleLessonsPage = () => {
   // HOOKS & STATE
   const { moduleId } = useParams();

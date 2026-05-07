@@ -14,6 +14,79 @@ import { apiClient } from "../services";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Comprehensive user dashboard displaying learning progress, achievements, leaderboard position,
+ * and personalized learning recommendations. This page aggregates data from multiple API endpoints,
+ * manages complex state for progress tracking, and provides interactive elements for navigation
+ * and achievement viewing. Features real-time updates, theme integration, and responsive design.
+ */
+
+/**
+ * User dashboard component providing comprehensive learning progress overview and navigation.
+ * 
+ * This component serves as the main hub for authenticated users, displaying progress metrics,
+ * leaderboard rankings, recent achievements, and personalized learning recommendations. Fetches
+ * data from multiple API endpoints, manages complex state for progress and leaderboard data,
+ * and provides interactive elements for navigation and detailed views. Features theme integration,
+ * streak notifications, and responsive design for optimal user experience.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete dashboard with progress, leaderboard, and recommendations
+ * 
+ * @stateManagement
+ * - userProgress: User's current learning progress and level information
+ * - surroundingLeaderboard: Leaderboard data showing user's competitive position
+ * - isLeaderboardModalOpen: Modal state for full leaderboard view
+ * - leaderboardLoading: Loading state for leaderboard data fetch
+ * - progressLoading: Loading state for progress data fetch
+ * - fetchError: Error state for failed API calls
+ * - nextModule: Predicted next module for learning progression
+ * 
+ * @dataFetching
+ * - Parallel API calls for progress and leaderboard data
+ * - Automatic data refresh on route changes
+ * - Error handling with graceful fallbacks
+ * - Loading states with spinner components
+ * - Theme updates based on course progress
+ * 
+ * @progressDisplay
+ * - ProgressGauge component for visual progress representation
+ * - SegmentedLevelProgressBar for detailed level progression
+ * - XP, streak, and level statistics
+ * - Current module progress tracking
+ * - Course completion status and congratulations
+ * 
+ * @leaderboardIntegration
+ * - Surrounding leaderboard display for competitive context
+ * - LeaderboardModal for full leaderboard view
+ * - User position highlighting
+ * - Competitive zone with ranking display
+ * 
+ * @achievementSystem
+ * - Recent badges display with images and descriptions
+ * - Badge data integration with BADGES_BY_ID
+ * - Fallback display for badges without images
+ * - Achievement progress tracking
+ * 
+ * @personalizedRecommendations
+ * - Dynamic next module suggestions
+ * - Course completion handling with congratulations
+ * - Continue learning buttons with proper navigation
+ * - Module preview with unlocking information
+ * 
+ * @themeIntegration
+ * - Dynamic theme updates based on course progress
+ * - useThemeStyles hook for consistent styling
+ * - Hover effects and transitions
+ * - Dark mode support throughout
+ * 
+ * @responsiveDesign
+ * - Mobile-first responsive layout
+ * - Adaptive grid layouts for different screen sizes
+ * - Touch-friendly interactive elements
+ * - Flexible card layouts for statistics
+ */
 const Dashboard = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { updateThemeFromCourseProgress } = useTheme();

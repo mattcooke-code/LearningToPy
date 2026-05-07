@@ -5,6 +5,69 @@ import { authApiClient } from "../services";
 import { getErrorMessage, getSuccessMessage } from "../utils";
 import { LoadingState, ErrorState, Spinner } from "../components/ui";
 
+/**
+ * @fileoverview
+ * Password reset page with token validation and secure password reset functionality.
+ * This page handles the complete password reset flow including token validation, password confirmation,
+ * form validation, and automatic redirect after successful reset. Features comprehensive error handling
+ * and security measures for expired or invalid tokens.
+ */
+
+/**
+ * Password reset page component with token validation and secure password reset.
+ * 
+ * This component manages the complete password reset process starting with token validation
+ * on mount, followed by password entry with confirmation and validation. Features comprehensive
+ * error handling for invalid/expired tokens, form validation for password requirements,
+ * automatic redirect after successful reset, and security-conscious messaging throughout.
+ * 
+ * @component
+ * @returns {JSX.Element} Password reset form with token validation
+ * 
+ * @stateManagement
+ * - password: New password for account reset
+ * - confirmPassword: Password confirmation field
+ * - message: Success message after reset completion
+ * - error: Error message for validation or API failures
+ * - loading: Loading state during password reset submission
+ * - isValidating: Loading state during token validation
+ * - isTokenValid: Boolean indicating token validity
+ * 
+ * @tokenValidation
+ * - Automatic token validation on component mount
+ * - API call to validate reset token authenticity
+ * - Error handling for expired or invalid tokens
+ * - Loading state during validation process
+ * - Full-page error display for invalid tokens
+ * 
+ * @passwordValidation
+ * - Minimum 6 character length requirement
+ * - Password confirmation matching validation
+ * - Real-time validation feedback
+ * - Form validation before submission
+ * - Secure password handling through API
+ * 
+ * @securityFeatures
+ * - Server-side token validation
+ * - Secure password transmission
+ * - Automatic redirect after successful reset
+ * - Token expiration handling
+ * - Generic error messages for security
+ * 
+ * @userExperience
+ * - Loading states for all async operations
+ * - Clear error messages and feedback
+ * - Automatic redirect with countdown
+ * - Responsive design for all devices
+ * - Accessibility attributes for screen readers
+ * 
+ * @apiIntegration
+ * - GET request for token validation
+ * - POST request for password reset
+ * - Comprehensive error handling
+ * - Toast notification integration
+ * - Success message handling
+ */
 const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();

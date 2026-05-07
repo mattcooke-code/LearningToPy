@@ -6,6 +6,53 @@ import { authApiClient } from "../services";
 import { getErrorMessage } from "../utils";
 import { Spinner } from "../components/ui";
 
+/**
+ * Password recovery page for initiating password reset process via email.
+ * This page handles forgot password functionality with email submission, success/error messaging,
+ * and user feedback through toast notifications. Includes security considerations for email enumeration.
+ */
+
+/**
+ * Forgot password page component for initiating password reset via email.
+ * 
+ * This component manages the password reset request process with email input validation,
+ * API integration for sending reset links, and comprehensive error handling. Features success
+ * and error messaging, loading states, and user feedback through toast notifications. Implements
+ * security-conscious messaging to prevent email enumeration attacks.
+ * 
+ * @component
+ * @returns {JSX.Element} Password reset request form with email input
+ * 
+ * @stateManagement
+ * - email: User email address for reset link delivery
+ * - message: Success message for reset link sent confirmation
+ * - error: Error message for failed reset requests
+ * - loading: Loading state during API submission
+ * 
+ * @securityFeatures
+ * - Generic success message to prevent email enumeration
+ * - Secure API communication through authApiClient
+ * - Form validation before submission
+ * - Auto-complete attributes for user convenience
+ * 
+ * @userExperience
+ * - Loading spinner during submission process
+ * - Success message with email confirmation
+ * - Error messages with user-friendly text
+ * - Toast notifications for immediate feedback
+ * - Responsive design for all devices
+ * 
+ * @apiIntegration
+ * - POST request to /api/auth/forgot-password endpoint
+ * - Error handling with getErrorMessage utility
+ * - Response message handling for user feedback
+ * - Toast notification integration
+ * 
+ * @navigationLogic
+ * - Link back to login page
+ * - Clear form after successful submission
+ * - Error state handling with retry options
+ */
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");

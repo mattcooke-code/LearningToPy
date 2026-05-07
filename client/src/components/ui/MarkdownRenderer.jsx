@@ -3,6 +3,61 @@ import remarkGfm from "remark-gfm";
 import { CodeBlock } from "../lesson";
 import { useTheme } from "../../context";
 
+/**
+ * A sophisticated Markdown renderer with custom container parsing and theme support.
+ * 
+ * This component extends standard Markdown rendering with:
+ * - Custom container syntax (e.g., :::tip, :::warning, :::note, :::summary)
+ * - Automatic image path resolution for module-specific images
+ * - Theme-aware styling for both light and dark modes
+ * - Comprehensive component overrides for consistent styling
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <MarkdownRenderer 
+ *   content="# Hello\n\n:::tip\nThis is a tip!\n:::\n\n![image](./images/example.png)" 
+ *   moduleId="M1"
+ *   isDark={false}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.content - The markdown content to render. Supports standard markdown plus custom container syntax.
+ * @param {string} [props.moduleId="M0"] - Module identifier used for resolving relative image paths. Images starting with "./images/" will be prefixed with `/api/content/modules/${moduleId}/images/`
+ * @param {boolean} [props.isDark] - Explicit theme override. If provided, takes precedence over global theme. If undefined, uses global theme context.
+ * 
+ * @returns {JSX.Element} Rendered markdown content with custom styling and containers
+ * 
+ * @customContainerSyntax
+ * Custom containers use the syntax:
+ * ```
+ * :::container-type
+ * Content here (supports full markdown)
+ * :::
+ * ```
+ * 
+ * Supported container types:
+ * - `summary` - Blue styled container with "What You've Learned" title
+ * - `tip` - Yellow styled container with "Pro Tip" title  
+ * - `warning` - Red styled container with "Important" title
+ * - `note` - Green styled container with "Note" title
+ * 
+ * @internalLogic
+ * The component uses a two-phase parsing approach:
+ * 1. `parseContent()` - Splits content into regular markdown and custom container blocks
+ * 2. Renders each section with appropriate components
+ * 
+ * Image path resolution:
+ * - Relative paths starting with "./images/" are converted to absolute API paths
+ * - Other paths are passed through unchanged
+ * - Images are wrapped in responsive containers with alt text captions
+ * 
+ * Theme handling:
+ * - Uses `useTheme()` hook for global theme state
+ * - Merges explicit `isDark` prop with global theme
+ * - Applies theme-specific Tailwind classes throughout
+ */
 const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
   const { isDarkMode: globalIsDarkMode } = useTheme();
 

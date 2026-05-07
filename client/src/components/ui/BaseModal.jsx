@@ -3,6 +3,92 @@ import { useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
+/**
+ * A comprehensive, accessible modal component with advanced focus management and customization options.
+ * 
+ * This modal implements full accessibility standards including:
+ * - Focus trapping within the modal
+ * - Focus restoration on close
+ * - Escape key handling
+ * - Screen reader support with proper ARIA attributes
+ * - Body scroll prevention when open
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * const [isOpen, setIsOpen] = useState(false);
+ * const inputRef = useRef(null);
+ * 
+ * <BaseModal
+ *   isOpen={isOpen}
+ *   onClose={() => setIsOpen(false)}
+ *   title="Confirm Action"
+ *   size="lg"
+ *   initialFocusRef={inputRef}
+ *   footer={
+ *   <button onClick={() => setIsOpen(false)}>Cancel</button>
+ * }
+ * >
+ *   <p>Are you sure you want to continue?</p>
+ * </BaseModal>
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Controls modal visibility. When false, modal is not rendered.
+ * @param {Function} props.onClose - Callback function triggered when modal should close (overlay click, escape key, close button)
+ * @param {string} [props.title] - Modal title displayed in the header. If not provided, header may still render for close button.
+ * @param {React.ReactNode} props.children - Content to display in the modal body area
+ * @param {string} [props.size="md"] - Modal size preset. Affects max-width of the modal.
+ * @param {boolean} [props.showCloseButton=true] - Whether to show close button (X icon)
+ * @param {boolean} [props.closeOnOverlayClick=true] - If true, clicking the overlay/backdrop closes the modal
+ * @param {boolean} [props.closeOnEscape=true] - If true, pressing Escape key closes the modal
+ * @param {string} [props.className=""] - Additional CSS classes to apply to the modal panel
+ * @param {boolean} [props.hideOverlay=false] - If true, no overlay/backdrop is rendered
+ * @param {React.ReactNode} [props.footer] - Content to display in the modal footer area
+ * @param {string} [props.footerAlign="right"] - Alignment of footer content: "left", "center", "right", or "between"
+ * @param {boolean} [props.disableBodyScroll=true] - If true, prevents body scrolling when modal is open
+ * @param {React.RefObject} [props.initialFocusRef] - Ref to element that should receive focus when modal opens
+ * @param {Function} [props.onAfterClose] - Callback function triggered after modal closes and focus is restored
+ * @param {string} [props.closeButtonPosition="header"] - Position of close button: "header" or "corner"
+ * @param {boolean} [props.backdropBlur=false] - If true, applies backdrop blur effect to overlay
+ * 
+ * @returns {JSX.Element|null} Modal rendered via React Portal, or null when closed
+ * 
+ * @sizeOptions
+ * Available size presets:
+ * - "xs" - max-w-xs (320px)
+ * - "sm" - max-w-sm (384px) 
+ * - "md" - max-w-md (448px)
+ * - "lg" - max-w-lg (512px)
+ * - "xl" - max-w-xl (576px)
+ * - "2xl" - max-w-2xl (672px)
+ * - "3xl" - max-w-3xl (768px)
+ * - "4xl" - max-w-4xl (896px)
+ * - "5xl" - max-w-5xl (1024px)
+ * - "6xl" - max-w-6xl (1152px)
+ * - "full" - max-w-full with horizontal margins
+ * 
+ * @accessibilityFeatures
+ * - Focus trapping: Tab navigation stays within modal bounds
+ * - Focus restoration: Previous focused element is restored on close
+ * - Escape handling: Standard accessibility pattern
+ * - ARIA attributes: role="dialog", aria-modal="true", proper labeling
+ * - Keyboard navigation: Full keyboard support
+ * - Screen reader friendly: Semantic HTML structure
+ * 
+ * @internalLogic
+ * Focus Management:
+ * 1. Stores current focused element when modal opens
+ * 2. Attempts to focus initialFocusRef or modal itself
+ * 3. Traps focus using Tab key detection and boundary handling
+ * 4. Restores focus to stored element on close (with timeout for DOM updates)
+ * 
+ * Event Handling:
+ * - Escape key listener added/removed based on isOpen state
+ * - Body scroll lock/unlock for prevent background scrolling
+ * - Click outside detection for overlay closing
+ * - Cleanup functions properly remove all event listeners
+ */
 const BaseModal = ({
   isOpen,
   onClose,

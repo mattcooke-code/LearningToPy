@@ -1,6 +1,39 @@
 import { useTheme } from "../../context";
 import { Sun, Moon } from "lucide-react";
 
+/**
+ * A theme toggle button that switches between light and dark modes.
+ * 
+ * This component provides a simple toggle interface for switching between
+ * application themes. It uses the global theme context and displays appropriate
+ * icons based on the current theme state.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <ThemeToggle />
+ * ```
+ * 
+ * @returns {JSX.Element} A button with sun/moon icons for theme switching
+ * 
+ * @themeIntegration
+ * - Uses `useTheme()` hook to access global theme state
+ * - Leverages `UI_THEMES` constants for theme values
+ * - Automatically updates icon based on current theme
+ * - Persists theme preference through context
+ * 
+ * @accessibility
+ * - Includes tooltip with descriptive text
+ * - Semantic button element with proper labeling
+ * - Clear visual feedback with icon changes
+ * - Hover states for interactive feedback
+ * 
+ * @visualDesign
+ * - Sun icon appears in dark mode (indicating switch to light)
+ * - Moon icon appears in light mode (indicating switch to dark)
+ * - Smooth color transitions on hover
+ * - Consistent sizing and spacing
+ */
 const ThemeToggle = () => {
   const { isDarkMode, setUiTheme, UI_THEMES } = useTheme();
 

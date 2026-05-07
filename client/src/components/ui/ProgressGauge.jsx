@@ -1,5 +1,62 @@
 // ProgressGauge.jsx
-
+/**
+ * A circular progress gauge component with gradient coloring and animated needle.
+ * 
+ * This component renders a semi-circular gauge (270° arc) with a moving needle
+ * indicator and color gradient background. It provides visual feedback for
+ * progress percentage with smooth animations and clear labeling.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <ProgressGauge progress={75} size={250} />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {number} [props.progress=0] - Progress percentage (0-100). Clamped to valid range
+ * @param {number} [props.size=200] - Width and height of the gauge in pixels
+ * 
+ * @returns {JSX.Element} A circular SVG gauge with progress indicator
+ * 
+ * @visualDesign
+ * - Semi-circular gauge with 270° arc (gap at bottom)
+ * - Color gradient from red (0%) through yellow to green (100%)
+ * - Animated needle pointer showing current progress
+ * - Center text showing percentage and "Complete" label
+ * - Scale labels at 0% and 100% positions
+ * 
+ * @gradientColors
+ * - 0-20%: Red (#ef4444) - Low progress
+ * - 30-70%: Yellow (#FFD700) - Medium progress  
+ * - 80-100%: Green (#22c55e) - High progress
+ * - Smooth transitions between color zones
+ * 
+ * @svgStructure
+ * - Main SVG rotated 180° to place gap at 6 o'clock position
+ * - Background track in light gray
+ * - Colored progress track with gradient
+ * - Counter-rotated inner group to keep text upright
+ * - Needle and center circles rendered last (on top)
+ * 
+ * @animationBehavior
+ * - Needle rotation: 0.5s ease-out transition
+ * - Progress track: 0.5s ease-out transition
+ * - Smooth interpolation between percentage values
+ * - Transform-based animations for performance
+ * 
+ * @mathCalculations
+ * - Radius: 80 units (fixed for viewBox)
+ * - Circumference: 2πr = 502.65 units
+ * - Arc length: 75% of circumference = 376.99 units
+ * - Needle rotation: 135° - (progress × 2.7°)
+ * - Dash offset: 12.5% of circumference for gap positioning
+ * 
+ * @accessibility
+ * - Clear visual hierarchy with high contrast
+ * - Semantic text elements for screen readers
+ * - Consistent color scheme with meaning
+ * - Responsive sizing maintains proportions
+ */
 const ProgressGauge = ({ progress = 0, size = 200 }) => {
   const radius = 80;
   const circumference = 2 * Math.PI * radius;

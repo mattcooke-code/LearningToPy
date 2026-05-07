@@ -2,6 +2,77 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, X } from "lucide-react";
 
+/**
+ * A searchable dropdown select component with filtering and keyboard navigation.
+ * 
+ * This component provides an enhanced select experience with search functionality,
+ * making it ideal for long option lists. It includes proper accessibility features,
+ * click-outside handling, and comprehensive keyboard support.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * const options = [
+ *   { value: "us", label: "United States" },
+ *   { value: "uk", label: "United Kingdom" },
+ *   { value: "ca", label: "Canada" }
+ * ];
+ * 
+ * <SearchableSelect
+ *   value="us"
+ *   onChange={setSelectedCountry}
+ *   options={options}
+ *   label="Country"
+ *   placeholder="Select a country..."
+ *   required
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.value - Currently selected option value
+ * @param {Function} props.onChange - Callback function called when selection changes. Receives the new value as argument
+ * @param {Array<{value: string, label: string}>} props.options - Array of option objects with value and label properties
+ * @param {string} [props.placeholder="Select..."] - Placeholder text displayed when no option is selected
+ * @param {string} [props.label=null] - Optional label displayed above the select input
+ * @param {boolean} [props.required=false] - If true, shows an asterisk (*) next to the label
+ * @param {string} [props.className=""] - Additional CSS classes to apply to the wrapper element
+ * @param {boolean} [props.disabled=false] - If true, disables the select and prevents interaction
+ * 
+ * @returns {JSX.Element} A searchable select dropdown with filtering capabilities
+ * 
+ * @features
+ * - Real-time search filtering of options
+ * - Click outside to close functionality
+ * - Keyboard navigation support
+ * - Clear search button
+ * - Visual feedback for selected state
+ * - Disabled state handling
+ * - Required field indicator
+ * - Responsive dropdown with scroll
+ * 
+ * @internalLogic
+ * State Management:
+ * - `isOpen` - Controls dropdown visibility
+ * - `searchTerm` - Current search query for filtering
+ * - `wrapperRef` - Reference for click-outside detection
+ * 
+ * Filtering Logic:
+ * - Case-insensitive search on option labels
+ * - Real-time filtering as user types
+ * - Shows "No options found" when filter returns no results
+ * 
+ * Event Handling:
+ * - Click outside detection using mousedown event
+ * - Search input stops propagation to prevent dropdown toggle
+ * - Clear button resets search and maintains dropdown state
+ * - Option selection closes dropdown and clears search
+ * 
+ * @accessibility
+ * - Semantic HTML structure with proper labels
+ * - Disabled state with visual and interaction feedback
+ * - Clear focus states and hover indicators
+ * - Screen reader friendly with descriptive labels
+ */
 const SearchableSelect = ({
   value,
   onChange,

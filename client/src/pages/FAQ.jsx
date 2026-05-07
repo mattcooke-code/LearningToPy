@@ -15,6 +15,66 @@ import {
 } from "lucide-react";
 import { BackToTopButton } from "../components/ui";
 
+/**
+ * Frequently Asked Questions page with searchable content and categorized answers.
+ * This page provides comprehensive help documentation with real-time search filtering,
+ * expandable FAQ items, and support contact options. Features categorized questions,
+ * responsive design, and theme-aware styling for optimal user experience.
+ */
+
+/**
+ * FAQ page component providing searchable help documentation and support resources.
+ * 
+ * This component displays frequently asked questions organized by categories with
+ * real-time search functionality, expandable/collapsible items, and support contact
+ * options. Features categorized content (Getting Started, Progress & Levels, Technical,
+ * Troubleshooting, Account & Privacy), search filtering, and responsive design with
+ * theme-aware styling. Includes contact support CTA and navigation to other help resources.
+ * 
+ * @component
+ * @returns {JSX.Element} Complete FAQ page with search and categorized questions
+ * 
+ * @stateManagement
+ * - searchQuery: Current search term for filtering FAQ items
+ * - openItems: Object tracking which FAQ items are expanded/collapsed
+ * 
+ * @searchFunctionality
+ * - Real-time filtering of FAQ categories and items
+ * - Case-insensitive search across questions and answers
+ * - Dynamic category hiding when no items match
+ * - No results state with helpful messaging
+ * 
+ * @contentCategories
+ * - Getting Started: Platform introduction and basic questions
+ * - Progress & Levels: XP, streaks, and level system explanations
+ * - Technical: Browser support, code execution, and technical details
+ * - Troubleshooting: Password reset, bug reporting, and common issues
+ * - Account & Privacy: Account management and data protection
+ * 
+ * @userInteraction
+ * - Expandable/collapsible FAQ items with smooth transitions
+ * - Search input with icon and placeholder text
+ * - Category icons for visual organization
+ * - Hover effects and interactive elements
+ * 
+ * @supportIntegration
+ * - Contact support CTA with email link
+ * - Navigation to support page
+ * - Quick links to curriculum and FAQ
+ * - Help resources and contact information
+ * 
+ * @responsiveDesign
+ * - Mobile-friendly layout with proper spacing
+ * - Adaptive search bar sizing
+ * - Touch-friendly interactive elements
+ * - Flexible grid layouts for different screen sizes
+ * 
+ * @themeIntegration
+ * - Dark mode support with theme-aware colors
+ * - Consistent styling with platform theme
+ * - Icon color adaptation
+ * - Gradient backgrounds for CTAs
+ */
 const FAQ = () => {
   const { isDarkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
