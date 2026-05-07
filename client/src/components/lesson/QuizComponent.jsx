@@ -1,4 +1,4 @@
-// QuizComponent.jsx - UPDATED with Dark Mode Support
+// QuizComponent.jsx 
 import { useEffect, useState } from "react";
 import {
   CheckCircle,
@@ -18,6 +18,85 @@ import {
   isLessonQuizComplete,
 } from "../../utils/quizUtils";
 
+/**
+ * @fileoverview
+ * Interactive quiz component handling both lesson and module quizzes with comprehensive
+ * progress evaluation and feedback systems. Manages answer submission, attempt tracking,
+ * and completion detection. Features real-time feedback, XP rewards, and adaptive
+ * question states. Integrates with backend APIs for validation and progress tracking.
+ */
+
+/**
+ * Interactive quiz component for lesson and module assessments with progress evaluation.
+ * 
+ * This component handles both individual lesson quizzes and comprehensive module quizzes,
+ * managing the complete quiz lifecycle from answer selection to completion detection.
+ * Features real-time answer validation, attempt tracking, adaptive feedback systems,
+ * and XP reward integration. The component evaluates user progress through server-side
+ * validation and triggers appropriate callbacks for lesson/module completion.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.quizArray - Array of quiz questions with options and correct answers
+ * @param {string} props.lessonId - Lesson ID for API submissions
+ * @param {string} props.moduleId - Module ID for module quiz submissions
+ * @param {Function} [props.onAnswerSubmit] - Callback for answer submission results
+ * @param {boolean} [props.isModuleQuiz=false] - Whether this is a module quiz
+ * @param {Function} [props.onQuizComplete] - Callback when quiz is completed
+ * @returns {JSX.Element} Interactive quiz interface with progress tracking
+ * 
+ * @progressEvaluation
+ * - Lesson quizzes: Individual question validation with immediate feedback
+ * - Module quizzes: Batch submission with comprehensive results processing
+ * - Completion detection through isLessonQuizComplete() utility
+ * - Attempt tracking for each question with progressive feedback
+ * - Server-side validation ensures accuracy and prevents cheating
+ * 
+ * @feedbackSystem
+ * - First attempt: Generic "Try again" message
+ * - Second attempt: Detailed explanation or correct answer reveal
+ * - Correct answers: Server feedback or question explanation
+ * - Visual feedback through color-coded question states
+ * - XP rewards for correct answers with toast notifications
+ * 
+ * @answerSubmissionFlow
+ * 1. User selects answer option
+ * 2. Answer submitted to API with attempt number
+ * 3. Server validates answer and returns results
+ * 4. Local state updated with results and feedback
+ * 5. UI updated to show correct/incorrect status
+ * 6. XP awarded for correct answers
+ * 7. Completion checked and callbacks triggered
+ * 
+ * @stateManagement
+ * - answers: User's selected answers for each question
+ * - results: Validation results and completion status for each question
+ * - attempts: Number of attempts per question
+ * - serverFeedback: Detailed feedback from server for each question
+ * - quizCompleted: Overall quiz completion status
+ * - isSubmitting: Loading state during API calls
+ * 
+ * @questionStates
+ * - Unanswered: Default state with selectable options
+ * - Correct: Green highlighting with checkmark and feedback
+ * - Incorrect (1st attempt): Red highlighting with retry option
+ * - Incorrect (2nd+ attempt): Orange highlighting with correct answer shown
+ * - Completed: Disabled state preventing further changes
+ * 
+ * @apiIntegration
+ * - Lesson quizzes: POST to /content/lessons/{lessonId}/submit
+ * - Module quizzes: POST to /content/modules/{moduleId}/submit-quiz
+ * - Response handling for validation results and XP calculations
+ * - Error handling for network issues and server errors
+ * - Progress tracking through completion callbacks
+ * 
+ * @userExperience
+ * - Immediate feedback on answer selection
+ * - Progressive hint system revealing correct answers after multiple attempts
+ * - Visual progress indicators through color coding
+ * - Smooth transitions and micro-interactions
+ * - Accessibility considerations for screen readers
+ */
 const QuizComponent = ({
   quizArray,
   lessonId,
@@ -30,7 +109,6 @@ const QuizComponent = ({
   const [results, setResults] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverFeedback, setServerFeedback] = useState({});
-  const [quizCompleted, setQuizCompleted] = useState(false);
   const [attempts, setAttempts] = useState({});
 
   const { showToast } = useNotification();

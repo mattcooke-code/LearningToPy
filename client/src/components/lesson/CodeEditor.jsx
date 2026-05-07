@@ -9,6 +9,85 @@ import { usePython, useTheme } from "../../context";
 import { Spinner } from "../ui";
 import { Play, AlertCircle } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Advanced code editor component with Pyodide integration and interactive execution.
+ * This component provides a full-featured code editor with syntax highlighting, line numbers,
+ * and quick run functionality. Integrates with Pyodide for client-side Python execution
+ * and features run-to-line capabilities, syntax checking, and real-time feedback. Handles
+ * WASM environment states and provides comprehensive error handling.
+ */
+
+/**
+ * Advanced code editor component with Pyodide integration and interactive execution features.
+ * 
+ * This component provides a professional code editing experience using CodeMirror with
+ * Python language support, integrated syntax checking, and direct Pyodide execution.
+ * Features include run-to-line functionality, quick run buttons, real-time syntax validation,
+ * and comprehensive error handling. The editor handles the Pyodide WASM environment
+ * loading states and provides visual feedback for execution results.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.value - Current code value
+ * @param {Function} props.onChange - Code change handler
+ * @param {boolean} [props.readOnly=false] - Whether editor is read-only
+ * @param {string} [props.height="200px"] - Editor height
+ * @param {string} [props.className=""] - Additional CSS classes
+ * @param {boolean} [props.showRunButton=false] - Whether to show run button
+ * @param {Function} [props.onRun=null] - Callback when code runs
+ * @param {Function} [props.onRunToLine=null] - Callback for run-to-line functionality
+ * @returns {JSX.Element} Advanced code editor with execution capabilities
+ * 
+ * @pyodideIntegration
+ * - Uses usePython hook for Pyodide WASM environment access
+ * - Handles isReady state for Python engine availability
+ * - Code execution through runCode() method with timeout handling
+ * - Syntax checking through checkSyntax() before execution
+ * - Loading states during code execution with visual feedback
+ * 
+ * @codeExecutionFlow
+ * 1. Syntax validation using Pyodide's checkSyntax() method
+ * 2. If syntax valid, execute code through runCode() method
+ * 3. Process execution results (stdout, output, error handling)
+ * 4. Display results in quick result panel
+ * 5. Trigger onRun callback with execution data
+ * 6. Handle network/execution errors gracefully
+ * 
+ * @runToLineFeature
+ * - Custom CodeMirror gutter extension with hover-activated run buttons
+ * - StateField tracking for hovered line detection
+ * - Mouse event handling for line hover detection
+ * - Code slicing for partial execution up to specific line
+ * - Visual feedback with green play buttons on hover
+ * 
+ * @editorFeatures
+ * - Full CodeMirror setup with Python language support
+ * - Line numbers, bracket matching, and auto-completion
+ * - Lint gutter for syntax error indication
+ * - 4-space indentation for Python compliance
+ * - Theme switching between light and dark modes
+ * 
+ * @stateManagement
+ * - isRunning: Loading state during code execution
+ * - quickResult: Execution result display data
+ * - hoveredLineField: CodeMirror state for line hover tracking
+ * - Dynamic extensions based on run-to-line functionality
+ * 
+ * @errorHandling
+ * - Syntax error detection and display
+ * - Execution error handling with detailed messages
+ * - Pyodide loading state management
+ * - Network error handling for execution failures
+ * - Graceful degradation when Python engine unavailable
+ * 
+ * @responsiveDesign
+ * - Adaptive height configuration
+ * - Mobile-friendly run buttons and controls
+ * - Flexible layout with optional run button
+ * - Touch-friendly interface elements
+ */
+
 // ---------------------------------------------------------------------------
 // Run-to-here gutter marker
 // ---------------------------------------------------------------------------

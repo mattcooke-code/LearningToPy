@@ -21,6 +21,83 @@ import { usePython, useTheme } from "../../context";
 import { PythonSyntaxHighlighter, Spinner } from "../ui";
 import { useFileDownload } from "../../hooks/useFileDownload";
 
+/**
+ * @fileoverview
+ * Interactive Python terminal component using Pyodide for client-side code execution.
+ * This component provides a full-featured terminal experience with command history,
+ * syntax highlighting, and mock library support. Handles Pyodide WASM environment
+ * loading states, code execution with preamble injection, and comprehensive error handling.
+ * Features keyboard shortcuts, session management, and responsive design.
+ */
+
+/**
+ * Interactive Python terminal component powered by Pyodide for client-side execution.
+ * 
+ * This component creates a fully functional Python terminal that runs entirely in the browser
+ * using WebAssembly (Pyodide). It handles the complete lifecycle of the Python environment
+ * including loading states, code execution with mock library injection, command history,
+ * and comprehensive error handling. The terminal provides a REPL-like experience with
+ * syntax highlighting, keyboard shortcuts, and session management capabilities.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} [props.initialCode="print('Hello, Python Terminal!')"] - Initial code to display
+ * @param {string} [props.height="300px"] - Terminal height
+ * @param {Function} [props.onCodeExecute=null] - Callback when code executes
+ * @param {boolean} [props.readOnly=false] - Whether terminal is read-only
+ * @param {Object} ref - Forwarded ref for imperative methods
+ * @returns {JSX.Element} Interactive Python terminal interface
+ * 
+ * @pyodideIntegration
+ * - Uses usePython hook for Pyodide WASM environment access
+ * - Handles loading/ready states of the Python engine
+ * - Code execution through runCode() method with timeout handling
+ * - Mock library injection for browser-incompatible modules (requests, etc.)
+ * - Preamble building for seamless library integration
+ * 
+ * @codeExecutionFlow
+ * 1. Code validation (removes comments, checks for incomplete placeholders)
+ * 2. Preamble injection for mocked libraries
+ * 3. Execution through Pyodide's runCode() method
+ * 4. Result processing (stdout, stderr, output handling)
+ * 5. Terminal output formatting and display
+ * 6. History management and cursor positioning
+ * 
+ * @mockLibrarySystem
+ * - MOCKED_LIBRARIES object defines browser-incompatible modules
+ * - extractImportedModules() parses import statements from user code
+ * - buildPreamble() creates mock code for detected incompatible imports
+ * - Mock libraries provide simulated responses for network operations
+ * - Warning system informs users about simulated functionality
+ * 
+ * @stateManagement
+ * - input: Current user input in terminal
+ * - output: Array of terminal output items (input, output, error, warning)
+ * - history: Command history for navigation with arrow keys
+ * - historyIndex: Current position in command history
+ * - isExecuting: Loading state during code execution
+ * 
+ * @userInteraction
+ * - Enter key executes code, Shift+Enter for new lines
+ * - Arrow keys navigate command history
+ * - Ctrl+L clears terminal, Ctrl+D downloads session
+ * - Click-to-copy and download functionality
+ * - Quick code snippets for common operations
+ * 
+ * @errorHandling
+ * - Pyodide loading failure states with retry options
+ * - Code execution errors with detailed error messages
+ * - Incomplete placeholder detection (??? patterns)
+ * - Network error handling for file operations
+ * - Graceful fallbacks for unsupported operations
+ * 
+ * @responsiveDesign
+ * - Mobile-friendly input area with adaptive sizing
+ * - Touch-friendly buttons and controls
+ * - Flexible layout for different screen sizes
+ * - Accessible keyboard navigation and shortcuts
+ */
+
 // ---------------------------------------------------------------------------
 // Library strategy configuration
 // ---------------------------------------------------------------------------

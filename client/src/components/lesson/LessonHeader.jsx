@@ -7,6 +7,69 @@ import {
   Flag,
 } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Lesson header component displaying lesson metadata, status indicators, and action buttons.
+ * This component provides a comprehensive header section with lesson information, completion
+ * status, review mode toggle, and reporting functionality. Features responsive design,
+ * visual status indicators, and user interaction controls for lesson management.
+ */
+
+/**
+ * Lesson header component displaying lesson metadata and interactive controls.
+ * 
+ * This component creates a comprehensive header section for lessons, displaying essential
+ * metadata including title, description, duration, and XP rewards. Features visual completion
+ * indicators, review mode toggle functionality, and reporting capabilities. The responsive
+ * design adapts to different screen sizes while maintaining accessibility and user-friendly
+ * interactions.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.lesson - Lesson data with metadata and status information
+ * @param {boolean} props.isReviewMode - Whether lesson is in review mode
+ * @param {Function} props.toggleReviewMode - Function to toggle review mode
+ * @param {Function} props.onReport - Function to handle lesson reporting
+ * @returns {JSX.Element} Complete lesson header with metadata and controls
+ * 
+ * @metadataDisplay
+ * - Lesson title with completion status indicator
+ * - Short description for context
+ * - Duration and XP reward information
+ * - Content type classification
+ * - Visual hierarchy and typography
+ * 
+ * @statusIndicators
+ * - Completion checkmark for finished lessons
+ * - Review mode badge with visual styling
+ * - Color-coded status indicators
+ * - Animated icons for enhanced UX
+ * 
+ * @interactiveControls
+ * - Review mode toggle with loading animation
+ * - Report button for content issues
+ * - Practice mode access for completed lessons
+ * - Responsive button layouts
+ * 
+ * @responsiveDesign
+ * - Mobile-first approach with stacked layout
+ * - Adaptive button arrangements
+ * - Flexible typography scaling
+ * - Touch-friendly interaction areas
+ * 
+ * @accessibilityFeatures
+ * - Semantic HTML structure
+ * - Proper ARIA labels and roles
+ * - Keyboard navigation support
+ * - High contrast color schemes
+ * 
+ * @visualDesign
+ * - Consistent spacing and alignment
+ * - Theme-aware color schemes
+ * - Smooth transitions and hover effects
+ * - Professional typography hierarchy
+ */
+
 const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, onReport }) => {
   return (
     <div className="mb-6">

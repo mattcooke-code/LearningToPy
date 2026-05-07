@@ -15,6 +15,85 @@ import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
 import { validateWithPyodide, getErrorMessage } from "../../utils";
 
+/**
+ * @fileoverview
+ * Interactive coding exercise component with Pyodide validation and comprehensive feedback.
+ * This component provides a complete exercise environment with code editor, terminal integration,
+ * real-time validation, and progress tracking. Features dual validation (client-side Pyodide
+ * and server-side), attempt tracking, hint system, and XP rewards. Handles review mode,
+ * file setup, and run-to-line functionality for enhanced learning experience.
+ */
+
+/**
+ * Interactive coding exercise component with Pyodide validation and comprehensive feedback system.
+ * 
+ * This component creates a full-featured coding exercise environment that combines client-side
+ * validation using Pyodide with server-side submission for progress tracking. Features include
+ * a code editor with run-to-line functionality, integrated terminal for testing, comprehensive
+ * validation system, hint management, and XP reward integration. The component handles both
+ * practice mode and review mode, with detailed feedback and progress tracking capabilities.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.exercise - Exercise data with instructions, tests, and metadata
+ * @param {Function} props.onCodeSubmit - Callback for successful code submission
+ * @param {boolean} props.isReviewMode - Whether in review mode (practice without progress)
+ * @param {string} props.solution - Solution code for review mode
+ * @param {string} props.lessonId - Lesson ID for API submissions
+ * @returns {JSX.Element} Complete exercise environment with validation and feedback
+ * 
+ * @correctnessEvaluation
+ * - Dual validation: Client-side Pyodide validation + Server-side submission
+ * - validateWithPyodide() runs tests locally for immediate feedback
+ * - Server submission validates correctness and awards XP/progress
+ * - Test results processed and displayed with detailed feedback
+ * - Attempt tracking for analytics and difficulty assessment
+ * 
+ * @pyodideIntegration
+ * - Uses usePython hook for Pyodide WASM environment access
+ * - Local validation through validateWithPyodide() utility function
+ * - Code execution in terminal through runCode() method
+ * - File setup support for exercises requiring multiple files
+ * - Loading state handling for WASM environment readiness
+ * 
+ * @validationFlow
+ * 1. User submits code through handleSubmit()
+ * 2. Local Pyodide validation with validateWithPyodide()
+ * 3. If validation passes, submit to server for final validation
+ * 4. Server processes submission and returns results with XP
+ * 5. Local state updated with results and feedback displayed
+ * 6. Progress callbacks triggered for lesson/module completion
+ * 
+ * @terminalIntegration
+ * - TerminalComponent ref for imperative code execution
+ * - handleRunToLine() for partial code execution
+ * - File setup code injection for multi-file exercises
+ * - Terminal toggle for workspace management
+ * - Real-time execution feedback and error handling
+ * 
+ * @stateManagement
+ * - userCode: Current code in editor
+ * - testResults: Validation results and feedback
+ * - isRunning: Loading state during validation/submission
+ * - attemptNumber: Tracking submission attempts
+ * - showHints/solution: UI state for hints and solution display
+ * - hasViewedHints: Tracking for XP calculation
+ * 
+ * @feedbackSystem
+ * - Immediate feedback through local validation
+ * - Detailed server feedback with explanations
+ * - XP rewards with toast notifications
+ * - Progressive hint system with tracking
+ * - Visual feedback through color-coded result panels
+ * 
+ * @userExperience
+ * - Run-to-line functionality for step-by-step debugging
+ * - Download code for external IDE practice
+ * - Review mode for unlimited practice without progress impact
+ * - Responsive design for mobile and desktop
+ * - Accessibility considerations for screen readers
+ */
+
 const ExerciseComponent = ({
   exercise,
   onCodeSubmit,
