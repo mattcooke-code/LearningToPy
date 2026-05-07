@@ -1,3 +1,4 @@
+// src/components/ui/index.js
 export { default as BackToTopButton } from "./BackToTopButton";
 export { default as BaseModal } from "./BaseModal";
 export { default as CodeThemeToggle } from "./CodeThemeToggle";
