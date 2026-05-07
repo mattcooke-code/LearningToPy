@@ -1,4 +1,21 @@
 // /components/analytics/UserSegmentation.jsx
+
+/**
+ * Component displaying user segmentation with visual progress bars and statistics.
+ * Shows user segments with counts, percentages, and average metrics per segment.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array<Object>} props.userSegments - Array of user segment data
+ * @param {string} props.userSegments[].segment - Segment name/identifier
+ * @param {number} props.userSegments[].count - Number of users in segment
+ * @param {number} props.userSegments[].avgLevel - Average level for users in segment
+ * @param {number} props.userSegments[].avgXP - Average XP for users in segment
+ * @param {Object} [props.platformMetrics] - Platform metrics for percentage calculation
+ * @param {number} [props.platformMetrics.monthlyActiveUsers] - Total monthly active users
+ * @returns {JSX.Element|null} User segmentation display or null if no data provided
+ */
+
 export const UserSegmentation = ({ userSegments, platformMetrics }) => {
   if (!userSegments?.length) return null;
 

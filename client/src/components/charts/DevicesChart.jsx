@@ -9,6 +9,18 @@ import {
 import { CustomTooltip } from "./CustomTooltip";
 import { CHART_COLORS } from "../../constants/adminConstants";
 
+/**
+ * Pie chart component displaying device usage distribution with percentage labels.
+ * Shows device types with color-coded segments and responsive legend layout.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array<Object>} props.data - Array of device usage data
+ * @param {string} props.data[].device - Device type name (e.g., "Desktop", "Mobile")
+ * @param {number} props.data[].percentage - Percentage of usage for this device type
+ * @returns {JSX.Element} Device usage pie chart with responsive design
+ */
+
 export const DevicesChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (

@@ -1,4 +1,19 @@
 // /components/analytics/QuickStats.jsx
+
+/**
+ * Quick statistics component with gradient cards showing platform performance metrics.
+ * Displays monthly active users, lessons completed, total XP, and average session duration.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Object} props.platformMetrics - Platform metrics data object
+ * @param {number} props.platformMetrics.monthlyActiveUsers - Number of monthly active users
+ * @param {number} props.platformMetrics.totalLessonsCompleted - Total lessons completed
+ * @param {number} props.platformMetrics.totalXP - Total XP earned across platform
+ * @param {number} props.platformMetrics.avgSessionDuration - Average session duration in minutes
+ * @returns {JSX.Element|null} Quick stats grid or null if no data provided
+ */
+
 export const QuickStats = ({ platformMetrics }) => {
   if (!platformMetrics) return null;
 

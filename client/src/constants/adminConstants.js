@@ -21,6 +21,15 @@ import {
   Zap,
 } from "lucide-react";
 
+/**
+ * Configuration constants for admin interface including menu items, status configurations,
+ * and analytics chart settings. Provides centralized management of admin UI elements.
+ */
+
+/**
+ * Admin navigation menu items with paths, labels, icons, and badge configurations.
+ * Used for rendering the admin sidebar navigation with dynamic badge counts.
+ */
 export const ADMIN_MENU_ITEMS = [
   { path: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
   { path: "/admin/users", label: "User Management", icon: Users },
@@ -36,6 +45,10 @@ export const ADMIN_MENU_ITEMS = [
   { path: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
+/**
+ * Configuration for flagged content status with associated colors, icons, and labels.
+ * Used for rendering status badges and determining visual styling of flagged items.
+ */
 export const FLAG_STATUS_CONFIG = {
   PENDING: { color: "yellow", icon: Clock, label: "Pending" },
   IN_REVIEW: { color: "blue", icon: Eye, label: "In Review" },
@@ -44,6 +57,13 @@ export const FLAG_STATUS_CONFIG = {
   XP_ADJUSTED: { color: "purple", icon: Star, label: "XP Adjusted" },
 };
 
+/**
+ * Retrieves status configuration for a given flag status.
+ * Provides fallback configuration for unknown statuses.
+ * 
+ * @param {string} status - The flag status to get configuration for
+ * @returns {Object} Status configuration object with color, icon, and label
+ */
 export const getStatusConfig = (status) => {
   return (
     FLAG_STATUS_CONFIG[status] || {
@@ -54,6 +74,10 @@ export const getStatusConfig = (status) => {
   );
 };
 
+/**
+ * Configuration for flagged content issue types with icons, colors, labels, and descriptions.
+ * Used for categorizing and displaying different types of reported issues.
+ */
 export const ISSUE_TYPE_CONFIG = {
   CONTENT_ERROR: {
     icon: FileText,
@@ -93,11 +117,23 @@ export const ISSUE_TYPE_CONFIG = {
   },
 };
 
+/**
+ * Retrieves issue type configuration for a given issue type.
+ * Provides fallback to OTHER configuration for unknown issue types.
+ * 
+ * @param {string} issueType - The issue type to get configuration for
+ * @returns {Object} Issue type configuration object with icon, color, label, and description
+ */
 export const getIssueTypeConfig = (issueType) => {
   return ISSUE_TYPE_CONFIG[issueType] || ISSUE_TYPE_CONFIG.OTHER;
 };
 
 // ==== ANALYTICS CONSTANTS ====
+
+/**
+ * Analytics chart types with identifiers, labels, icons, and colors.
+ * Used for rendering analytics dashboard chart selection and configuration.
+ */
 export const ANALYTICS_CHARTS = [
   { id: "activity", label: "Activity", icon: TrendingUp, color: "blue" },
   { id: "growth", label: "Growth", icon: Users, color: "green" },
@@ -106,6 +142,10 @@ export const ANALYTICS_CHARTS = [
   { id: "segments", label: "Segments", icon: Target, color: "pink" },
 ];
 
+/**
+ * Color palette for analytics charts with primary array and individual color values.
+ * Used for consistent chart styling across the analytics dashboard.
+ */
 export const CHART_COLORS = {
   primary: ["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EF4444"],
   blue: "#3B82F6",
@@ -115,6 +155,10 @@ export const CHART_COLORS = {
   pink: "#EC4899",
 };
 
+/**
+ * Time range options for analytics data filtering.
+ * Used for date range selection in analytics charts and reports.
+ */
 export const ANALYTICS_TIME_RANGES = [
   { value: "24hr", label: "Last 24 Hours" },
   { value: "7d", label: "Last 7 Days" },
@@ -124,6 +168,10 @@ export const ANALYTICS_TIME_RANGES = [
   { value: "all", label: "All Time" },
 ];
 
+/**
+ * Grouping options for analytics data aggregation.
+ * Used for selecting time-based grouping in analytics charts.
+ */
 export const ANALYTICS_GROUP_BY = [
   { value: "day", label: "Daily" },
   { value: "week", label: "Weekly" },

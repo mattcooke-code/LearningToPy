@@ -1,6 +1,20 @@
 // /components/analytics/MetricsGrid.jsx
 import { Users, TrendingUp, Target, BookOpen } from "lucide-react";
 
+/**
+ * Grid component displaying key platform metrics with icons and trend indicators.
+ * Shows daily active users, session duration, total XP, and lessons completed.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Object} props.platformMetrics - Platform metrics data object
+ * @param {number} props.platformMetrics.dailyActiveUsers - Number of daily active users
+ * @param {number} props.platformMetrics.avgSessionDuration - Average session duration in minutes
+ * @param {number} props.platformMetrics.totalXP - Total XP earned across platform
+ * @param {number} props.platformMetrics.totalLessonsCompleted - Total lessons completed
+ * @returns {JSX.Element|null} Metrics grid or null if no data provided
+ */
+
 export const MetricsGrid = ({ platformMetrics }) => {
   if (!platformMetrics) return null;
 

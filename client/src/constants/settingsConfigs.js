@@ -1,4 +1,10 @@
 // constants/settingsConfigs.js
+
+/**
+ * Comprehensive settings configuration for admin settings panel.
+ * Organized by categories with input types, validation rules, and descriptions.
+ * Used for rendering dynamic settings forms with proper validation and UI controls.
+ */
 export const SETTINGS_CONFIGS = {
   general: [
     {
@@ -207,6 +213,10 @@ export const SETTINGS_CONFIGS = {
   ],
 };
 
+/**
+ * Admin settings panel tab configuration with identifiers, labels, and icons.
+ * Used for rendering the tabbed interface in the admin settings panel.
+ */
 export const ADMIN_TABS = [
   { id: "general", label: "General", icon: "Globe" },
   { id: "theme", label: "Theming", icon: "Palette" },

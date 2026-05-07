@@ -10,6 +10,20 @@ import {
 } from "recharts";
 import { CustomTooltip } from "./CustomTooltip";
 
+/**
+ * Line chart component displaying user activity metrics over time.
+ * Shows active users, lessons completed, and XP earned with interactive tooltips.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array<Object>} props.data - Array of activity data points
+ * @param {string} props.data[].date - Date identifier for the data point
+ * @param {number} props.data[].activeUsers - Number of active users on that date
+ * @param {number} props.data[].lessonsCompleted - Number of lessons completed on that date
+ * @param {number} props.data[].xpEarned - Amount of XP earned on that date
+ * @returns {JSX.Element} Activity line chart with responsive design
+ */
+
 export const ActivityChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (

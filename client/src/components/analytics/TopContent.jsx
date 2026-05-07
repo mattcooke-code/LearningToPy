@@ -1,3 +1,19 @@
+/**
+ * Component displaying top performing content with rankings and performance metrics.
+ * Shows content title, difficulty, starts, completions, and completion rates.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array<Object>} props.contentPerformance - Array of content performance data
+ * @param {string} props.contentPerformance[]._id - Content identifier
+ * @param {string} props.contentPerformance[].title - Content title
+ * @param {string} props.contentPerformance[].difficulty - Content difficulty level
+ * @param {number} props.contentPerformance[].starts - Number of times content was started
+ * @param {number} props.contentPerformance[].completions - Number of times content was completed
+ * @param {number} props.contentPerformance[].completionRate - Completion rate percentage
+ * @returns {JSX.Element|null} Top content list or null if no data provided
+ */
+
 export const TopContent = ({ contentPerformance }) => {
   if (!contentPerformance?.length) return null;
 

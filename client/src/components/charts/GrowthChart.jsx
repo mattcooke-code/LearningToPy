@@ -9,6 +9,19 @@ import {
 } from "recharts";
 import { CustomTooltip } from "./CustomTooltip";
 
+/**
+ * Area chart component displaying user growth metrics over time.
+ * Shows new users and cumulative users with filled area visualization.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array<Object>} props.data - Array of growth data points
+ * @param {string} props.data[]._id - Date identifier for the data point
+ * @param {number} props.data[].newUsers - Number of new users on that date
+ * @param {number} props.data[].cumulativeUsers - Total cumulative users up to that date
+ * @returns {JSX.Element} Growth area chart with responsive design
+ */
+
 export const GrowthChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (

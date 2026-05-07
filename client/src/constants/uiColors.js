@@ -1,5 +1,14 @@
 // /src/constants/uiColors.js
 
+/**
+ * UI color mappings for consistent styling across the application.
+ * Provides Tailwind CSS class combinations for background and text colors with dark mode support.
+ */
+
+/**
+ * Color mapping for statistics and status indicators with dark mode variants.
+ * Used for consistent styling of badges, indicators, and status elements throughout the UI.
+ */
 export const STAT_COLOR_MAP = {
   yellow: {
     bg: "bg-yellow-100 dark:bg-yellow-900",

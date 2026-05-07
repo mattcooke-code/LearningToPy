@@ -14,6 +14,14 @@ import {
   X, // Added Menu and X icons
 } from "lucide-react";
 
+/**
+ * Navigation bar component with theme-aware styling and mobile responsiveness.
+ * Provides user authentication state handling, navigation links, and mobile menu functionality.
+ * 
+ * @component
+ * @returns {JSX.Element} Responsive navigation bar with authentication and theme support
+ */
+
 const Navbar = memo(function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { themeColor, isDarkMode } = useTheme();

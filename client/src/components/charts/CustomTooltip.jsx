@@ -1,3 +1,18 @@
+/**
+ * Custom tooltip component for Recharts with formatted data display.
+ * Provides styled tooltip with label and color-coded data values.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {boolean} props.active - Whether tooltip should be displayed
+ * @param {Array<Object>} props.payload - Array of data entries to display
+ * @param {string} props.payload[].name - Name of the data entry
+ * @param {string|number} props.payload[].value - Value of the data entry
+ * @param {string} props.payload[].color - Color for the data entry
+ * @param {string} props.label - Label to display in tooltip header
+ * @returns {JSX.Element|null} Custom tooltip or null when not active
+ */
+
 export const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (

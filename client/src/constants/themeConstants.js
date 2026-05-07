@@ -1,9 +1,23 @@
 // /constants/themeConstants.js
+
+/**
+ * Theme constants for Python-themed color scheme and styling.
+ * Provides CSS custom properties and color mappings for consistent theming.
+ */
+
+/**
+ * Core Python theme colors using CSS custom properties.
+ * Used throughout the application for consistent Python branding.
+ */
 export const PYTHON_BLUE = "var(--color-python-blue)";
 export const PYTHON_YELLOW = "var(--color-python-yellow)";
 export const PYTHON_DARK = "var(--color-python-dark)";
 export const PYTHON_LIGHT = "var(--color-python-light)";
 
+/**
+ * Theme color palette for progress-based theming with percentage mappings.
+ * Colors correspond to user progress levels (0-100% completion).
+ */
 export const THEME_COLORS = {
   DEFAULT: "var(--color-python-blue)",
   RED: "#ef4444", // 0-25%
@@ -14,6 +28,10 @@ export const THEME_COLORS = {
   GREEN: "#22c55e", // 85-100%
 };
 
+/**
+ * Hover color variants for theme colors with adjusted brightness.
+ * Used for interactive elements and hover states.
+ */
 export const THEME_HOVER_COVERS = {
   DEFAULT: "var(--color-python-yellow)",
   RED: "#d73d3d",
@@ -24,5 +42,14 @@ export const THEME_HOVER_COVERS = {
   GREEN: "#1eab52",
 };
 
+/**
+ * Routes that use default theme styling instead of progress-based theming.
+ * These paths maintain consistent Python blue theming regardless of user progress.
+ */
 export const DEFAULT_THEME_PATHS = ["/", "/login", "/register"];
+
+/**
+ * Path prefix for admin routes to apply special admin theming.
+ * Used to identify admin sections for custom styling.
+ */
 export const ADMIN_PATH_PREFIX = "/admin";

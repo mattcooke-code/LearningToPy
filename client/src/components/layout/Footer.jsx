@@ -1,6 +1,14 @@
 // components/layout/Footer.jsx
 import { Link } from "react-router-dom";
 
+/**
+ * Footer component with navigation links, resources, and brand information.
+ * Provides comprehensive site navigation and legal information with responsive design.
+ * 
+ * @component
+ * @returns {JSX.Element} Site footer with navigation and branding
+ */
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
