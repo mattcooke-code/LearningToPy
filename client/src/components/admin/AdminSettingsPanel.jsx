@@ -31,6 +31,14 @@ import {
 import { AdminTabPreview } from "./AdminTabPreview";
 import { SETTINGS_CONFIGS, ADMIN_TABS } from "../../constants/settingsConfigs";
 
+/**
+ * Settings panel for configuring platform-wide settings with tabbed interface.
+ * Provides comprehensive settings management with real-time preview and validation.
+ * 
+ * @component
+ * @returns {JSX.Element} Settings panel with tabs and configuration options
+ */
+
 const AdminSettingsPanel = () => {
   const [activeTab, setActiveTab] = useState("general");
   const [showAdvanced, setShowAdvanced] = useState(false);

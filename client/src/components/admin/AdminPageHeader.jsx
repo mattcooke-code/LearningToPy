@@ -1,6 +1,19 @@
 // AdminPageHeader.jsx
 import PropTypes from "prop-types";
 
+/**
+ * Header component for admin pages with title, description, and optional action.
+ * Provides consistent page heading structure with responsive layout.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.title - Header title
+ * @param {string} [props.description] - Optional description below the title
+ * @param {React.ReactNode} [props.action] - Optional action component on the right side
+ * @param {string} [props.className=""] - Additional CSS classes to apply
+ * @returns {JSX.Element} Admin page header with title and optional elements
+ */
+
 const AdminPageHeader = ({ title, description, action, className = "" }) => {
   return (
     <div

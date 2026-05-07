@@ -1,9 +1,19 @@
-// PrivacySettings.jsx
 import { useState, useEffect } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
 import { apiClient } from "../../services";
 import { useThemeStyles } from "../../hooks";
 import { getErrorMessage, getSuccessMessage } from "../../utils";
+
+/**
+ * Privacy settings form controlling leaderboard visibility and anonymity options.
+ * Manages interdependent settings: disabling leaderboards automatically hides usernames,
+ * and enabling usernames disables anonymous mode.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Object} props.user - Current user object containing privacySettings
+ * @param {Function} props.onUpdate - Callback fired with updated settings after save
+ */
 
 const PrivacySettings = ({ user, onUpdate }) => {
   const [settings, setSettings] = useState({
@@ -180,12 +190,10 @@ const PrivacySettings = ({ user, onUpdate }) => {
               </label>
             </div>
             {/* Preview */}
-            {/* In PrivacySettings.jsx */}
             <div className="rounded-lg border border-gray-200 p-4">
               <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100">
                 Preview on leaderboard:
               </p>
-              {/* Added 'min-h-[64px]' and 'sm:flex-nowrap' */}
               <div className="flex flex-wrap items-center justify-between gap-y-2 rounded-lg bg-gray-50 dark:bg-gray-300 px-3 py-3 sm:flex-nowrap">
                 <div className="flex min-w-0 flex-1 items-center space-x-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-python-light text-sm font-semibold">
@@ -203,14 +211,13 @@ const PrivacySettings = ({ user, onUpdate }) => {
                   )}
                 </div>
 
-                {/* Explicitly alignment for the XP badge */}
                 <div className="flex shrink-0 items-center justify-end sm:ml-4">
                   <span className="rounded-md bg-white/50 px-2 py-1 text-sm font-bold text-yellow-700 shadow-sm sm:bg-transparent sm:p-0 sm:shadow-none">
                     1,400 XP
                   </span>
                 </div>
               </div>
-            </div>{" "}
+            </div>
           </div>
         </div>
 
@@ -228,7 +235,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
         )}
 
         {/* Save Button */}
-        <div className="flex items-center justify-between border-t border-gray-100 pt-6 ">
+        <div className="flex items-center justify-between border-t border-gray-100 pt-6">
           <p className="text-sm text-gray-700 px-1 dark:text-gray-100">
             Changes apply to all leaderboards immediately
           </p>

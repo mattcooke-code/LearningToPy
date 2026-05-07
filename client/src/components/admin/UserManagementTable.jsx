@@ -25,6 +25,17 @@ import {
 import { LoadingState, Pagination } from "../ui";
 import UserTableFilters from "./UserTableFilters";
 
+/**
+ * User management table with sorting, filtering, and administrative actions.
+ * Supports blocking/unblocking users, toggling admin status, XP adjustment,
+ * progress override, and badge awarding.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} [props.searchQuery=""] - Filters users by username or email
+ * @returns {JSX.Element} User table with pagination or loading state
+ */
+
 const UserManagementTable = ({ searchQuery = "" }) => {
   const { showToast, showConfirm } = useNotification();
   const initialFilters = {

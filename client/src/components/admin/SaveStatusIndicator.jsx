@@ -2,6 +2,16 @@
 import { Save } from "lucide-react";
 import PropTypes from "prop-types";
 
+/**
+ * Floating indicator showing the number of unsaved changes in settings panels.
+ * Provides visual feedback for pending changes with user impact warnings.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {number} props.changesCount - Number of unsaved changes to display
+ * @returns {JSX.Element|null} Floating indicator or null when no changes
+ */
+
 const SaveStatusIndicator = ({ changesCount }) => {
   if (changesCount === 0) return null;
 

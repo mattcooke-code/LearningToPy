@@ -1,6 +1,24 @@
 // AdminStatsCard.jsx
 import { Link } from "react-router-dom";
 
+/**
+ * Stats card component displaying key metrics with optional trend and navigation.
+ * Provides visual representation of administrative statistics with interactive elements.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.title - Statistic title displayed below the value
+ * @param {string|number} props.value - Main statistic value to display
+ * @param {string} props.icon - Icon or emoji to display in the colored badge
+ * @param {string} [props.color="blue"] - Color theme for the icon badge (blue, green, purple, red, yellow)
+ * @param {Object} [props.trend] - Optional trend indicator with value and positive flag
+ * @param {string} props.trend.value - Trend value to display (e.g., "+12%")
+ * @param {boolean} props.trend.positive - Whether trend is positive (green) or negative (red)
+ * @param {string} [props.linkTo] - Optional URL to navigate to when clicked
+ * @param {Function} [props.onClick] - Optional click handler for the card
+ * @returns {JSX.Element} Stats card with icon, value, and optional trend
+ */
+
 const AdminStatsCard = ({
   title,
   value,

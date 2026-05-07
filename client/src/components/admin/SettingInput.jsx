@@ -2,6 +2,27 @@
 import PropTypes from "prop-types";
 import { memo, useMemo } from "react";
 
+/**
+ * Dynamic form input supporting multiple input types for admin settings.
+ * Shows a visual "Changed" indicator when isChanged is true.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.setting - Setting key identifier
+ * @param {string|number|boolean} props.value - Current value (type depends on input type)
+ * @param {Function} props.onChange - Change handler: (setting, value) => void
+ * @param {boolean} [props.isChanged=false] - Whether setting has been modified (shows highlight)
+ * @param {string} [props.type="text"] - Input type: text, number, select, toggle, color, range
+ * @param {Object} [props.options={}] - Type-specific configuration options
+ * @param {Array<{value: any, label: string}>} [props.options.items] - For select type
+ * @param {number} [props.options.min] - For number and range types
+ * @param {number} [props.options.max] - For number and range types
+ * @param {number} [props.options.step=1] - For number and range types
+ * @param {string} [props.options.placeholder] - For text type
+ * @param {string} props.label - Display label for the setting
+ * @param {string} [props.description=""] - Helper text below the label
+ */
+
 // Extract input components for better organization
 const ColorInput = ({ value, onChange, setting }) => (
   <div className="flex items-center space-x-3">

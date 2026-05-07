@@ -5,6 +5,16 @@ import { useAuth } from "../../context/AuthContext";
 import AdminSidebar from "./AdminSidebar";
 import { BackToTopButton, LoadingState } from "../ui";
 
+/**
+ * Layout wrapper for admin pages with sidebar navigation and responsive design.
+ * Provides consistent admin interface structure with mobile responsiveness.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child components to render in the main content area
+ * @returns {JSX.Element} Admin layout with sidebar and main content area
+ */
+
 const AdminLayout = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();

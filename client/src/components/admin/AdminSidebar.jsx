@@ -13,6 +13,17 @@ const useActivePath = (currentPath, menuPath, exact = false) => {
   );
 };
 
+/**
+ * Navigation sidebar for admin interface with menu items and badge counts.
+ * Provides mobile-responsive navigation with real-time notification badges.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Whether the sidebar is currently open
+ * @param {Function} props.onClose - Function to call when closing the sidebar
+ * @returns {JSX.Element} Admin sidebar with navigation menu and badges
+ */
+
 const AdminSidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const currentPath = location.pathname;

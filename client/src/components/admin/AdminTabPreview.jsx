@@ -1,6 +1,17 @@
 // AdminTabPreview.jsx
 import { AlertTriangle, CheckCircle, Users, BarChart3 } from "lucide-react";
 
+/**
+ * Preview component for admin settings tabs showing live configuration effects.
+ * Provides real-time visual feedback for setting changes across different categories.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.tab - Current active tab identifier
+ * @param {Object} props.settings - Current settings object with all configuration values
+ * @returns {JSX.Element} Preview section with tab-specific visual feedback
+ */
+
 export const AdminTabPreview = (tab, settings) => {
   switch (tab) {
     case "theme":

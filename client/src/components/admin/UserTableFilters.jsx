@@ -1,6 +1,22 @@
 import { useState, useEffect } from "react";
 import { Filter, RotateCcw } from "lucide-react";
 
+/**
+ * Filter component for user management table with debounced level inputs.
+ * Provides account status filtering, role-based filtering, and level range selection.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Object} props.filters - Current filter values object
+ * @param {string} props.filters.isBlocked - Account status filter ("", "true", "false")
+ * @param {string} props.filters.isAdmin - Role filter ("", "true", "false")
+ * @param {string} props.filters.levelMin - Minimum level filter
+ * @param {string} props.filters.levelMax - Maximum level filter
+ * @param {Function} props.setFilters - Function to update filter values: (filters) => void
+ * @param {Function} props.onReset - Function to reset all filters to defaults
+ * @returns {JSX.Element} User table filters with debounced inputs
+ */
+
 const UserTableFilters = ({ filters, setFilters, onReset }) => {
   // Local state to handle the input text smoothly before triggering the API
   const [localLevels, setLocalLevels] = useState({

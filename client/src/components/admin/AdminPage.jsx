@@ -2,6 +2,21 @@
 import PropTypes from "prop-types";
 import AdminPageHeader from "./AdminPageHeader";
 
+/**
+ * Wrapper component for admin pages with optional header and consistent layout.
+ * Provides standardized page structure with title, description, and action areas.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Page content to render
+ * @param {string} props.title - Page title displayed in the header
+ * @param {string} [props.description] - Optional description displayed below the title
+ * @param {boolean} [props.showHeader=true] - Whether to show the page header
+ * @param {React.ReactNode} [props.headerAction] - Optional action component for the header
+ * @param {string} [props.className=""] - Additional CSS classes to apply
+ * @returns {JSX.Element} Admin page wrapper with optional header
+ */
+
 const AdminPage = ({
   children,
   title,

@@ -38,6 +38,16 @@ const useDebounce = (value, delay = 500) => {
   return debouncedValue;
 };
 
+/**
+ * List component for displaying and managing flagged content with filtering and quick actions.
+ * Provides status-based filtering, search functionality, and administrative resolution tools.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {number} [props.limit=null] - Optional limit for number of items to display
+ * @returns {JSX.Element} Flagged content list with filtering and quick actions
+ */
+
 const FlaggedContentList = ({ limit = null }) => {
   // 1. State
   const [page, setPage] = useState(1);

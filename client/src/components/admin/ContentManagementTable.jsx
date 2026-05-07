@@ -29,6 +29,14 @@ import {
   Layers,
 } from "lucide-react";
 
+/**
+ * Comprehensive content management interface for lessons and modules with filtering and bulk operations.
+ * Supports table/grid views, bulk actions, content editing, and module organization.
+ * 
+ * @component
+ * @returns {JSX.Element} Content management interface with filtering and actions
+ */
+
 const ContentManagementTable = () => {
   const [content, setContent] = useState([]);
   const [modules, setModules] = useState([]);
