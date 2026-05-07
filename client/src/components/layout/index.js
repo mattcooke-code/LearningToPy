@@ -1,3 +1,4 @@
+// /layout/index.js
 export { default as AdminGuard } from "./AdminGuard";
 export { default as AppLayout } from "./AppLayout";
 export { default as Footer } from "./Footer";
