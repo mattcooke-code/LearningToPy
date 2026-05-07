@@ -1,6 +1,15 @@
-// components/LessonsList.jsx
 import { BookOpen } from "lucide-react";
 import LessonItem from "./LessonItem";
+
+/**
+ * Container component that renders either a list of lessons or an empty state.
+ * @component
+ * @param {Object} props
+ * @param {Array} props.lessons - Array of lesson objects to display
+ * @param {string} props.moduleId - Parent module identifier
+ * @param {string} props.accentColor - Theme color for lesson items
+ * @param {React.ReactNode} [props.emptyState] - Optional custom empty state component
+ */
 
 const LessonsList = ({ lessons, moduleId, accentColor, emptyState }) => {
   if (lessons.length === 0) {
@@ -10,7 +19,7 @@ const LessonsList = ({ lessons, moduleId, accentColor, emptyState }) => {
         <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
           No lessons available yet
         </h3>
-        <p className="text-gray-500 dark:text-gray-400  mb-6">
+        <p className="text-gray-500 dark:text-gray-400 mb-6">
           Lessons for this module are being prepared.
         </p>
         {emptyState}

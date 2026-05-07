@@ -1,6 +1,21 @@
-// QuickActions.jsx
 import { Link } from "react-router-dom";
 import { PlayCircle, Award, CheckCircle } from "lucide-react";
+
+/**
+ * Context-aware action panel showing next steps based on lesson/quiz completion status.
+ * Displays one of three states:
+ * - Continue with next lesson (standard)
+ * - Quiz invitation (lessons complete, quiz pending)
+ * - Module mastery celebration (everything complete)
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array} props.lessons - Array of lesson objects with completion status
+ * @param {string} props.moduleId - Module identifier for quiz routing
+ * @param {string} props.accentColor - Theme color for primary action buttons
+ * @param {Function} props.onBackToModules - Callback to return to modules list
+ * @param {boolean} props.quizCompleted - Whether user has completed the module quiz
+ */
 
 const QuickActions = ({
   lessons,
@@ -12,7 +27,6 @@ const QuickActions = ({
   const nextLesson = lessons.find((lesson) => !lesson.isCompleted);
   const allLessonsDone = lessons.length > 0 && !nextLesson;
 
-  // Reusable button styles to ensure consistency
   const baseBtnClass =
     "flex items-center justify-center space-x-2 py-3 px-8 rounded-xl font-bold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] w-full sm:max-w-xs";
 

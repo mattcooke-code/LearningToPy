@@ -1,6 +1,15 @@
 // components/ModulesStats.jsx
 import { useTheme } from "../../context";
 
+/**
+ * Statistics dashboard displaying a user's course progress and XP.
+ * * @component
+ * @param {Object} props
+ * @param {number} props.totalModules - Total modules available in the curriculum.
+ * @param {number} props.completedModules - Number of modules finished by the user.
+ * @param {number} props.userXP - Total experience points earned.
+ */
+
 const ModulesStats = ({ totalModules, completedModules, userXP }) => {
   const { themeColor } = useTheme();
 

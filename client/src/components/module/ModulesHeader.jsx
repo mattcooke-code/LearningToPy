@@ -1,6 +1,13 @@
-// components/ModulesHeader.jsx
 import { useTheme } from "../../context";
 import { calculateModulesCompletionProgress } from "../../utils";
+
+/**
+ * Header component for the modules page displaying learning path title and progress.
+ * @component
+ * @param {Object} props
+ * @param {number} props.completedModules - Number of modules completed by the user
+ * @param {number} props.totalModules - Total number of modules available
+ */
 
 const ModulesHeader = ({ completedModules, totalModules }) => {
   const { themeColor } = useTheme();
@@ -39,7 +46,7 @@ const ModulesHeader = ({ completedModules, totalModules }) => {
             }}
           ></div>
         </div>
-        <p className="text-xs text-gray-500  dark:text-gray-200 mt-2">
+        <p className="text-xs text-gray-500 dark:text-gray-200 mt-2">
           {completedModules} of {totalModules} modules completed
         </p>
       </div>

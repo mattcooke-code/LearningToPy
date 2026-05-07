@@ -1,13 +1,20 @@
 import ModuleCard from "./ModuleCard";
 import { BookOpen } from "lucide-react";
 
+/**
+ * Responsive grid layout for displaying module cards with empty state fallback.
+ * @component
+ * @param {Object} props
+ * @param {Array} props.modules - Array of module objects to display in the grid
+ */
+
 const ModulesGrid = ({ modules = [] }) => {
   const safeModules = Array.isArray(modules) ? modules : [];
 
   if (safeModules.length === 0) {
     return (
       <div className="text-center py-12">
-        <BookOpen size={64} className="text-gray-300  mx-auto mb-4" />
+        <BookOpen size={64} className="text-gray-300 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-600 mb-2">
           No modules available yet
         </h3>

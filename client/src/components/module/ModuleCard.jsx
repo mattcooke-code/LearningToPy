@@ -1,4 +1,3 @@
-// components/./ModuleCard.jsx
 import { Link } from "react-router-dom";
 import { useTheme } from "../../context";
 import {
@@ -10,11 +9,27 @@ import {
   Star,
 } from "lucide-react";
 
+/**
+ * Interactive card displaying module information, progress tracking, and action buttons.
+ * @component
+ * @param {Object} props
+ * @param {Object} props.module - Module data object
+ * @param {string} props.module.title - Module title
+ * @param {string} props.module.shortDescription - Brief description of module content
+ * @param {number} props.module.moduleLessonProgress - Progress percentage (0-100)
+ * @param {boolean} props.module.isCompleted - Whether module is fully completed
+ * @param {string} props.module._id - Unique module identifier for routing
+ * @param {number} props.module.estimatedHours - Estimated completion time in hours
+ * @param {number} props.module.lessonCount - Number of lessons in the module
+ * @param {number} props.module.xpReward - XP awarded upon completion
+ * @param {string} [props.module.icon] - Optional icon/emoji for the module
+ * @param {boolean} props.isLocked - Whether module is locked due to prerequisites
+ */
+
 const ModuleCard = ({ module, isLocked }) => {
   const { getModuleThemeColor } = useTheme();
 
   const moduleLessonProgress = module.moduleLessonProgress || 0;
-
   const moduleAccentColor = getModuleThemeColor(moduleLessonProgress);
 
   return (

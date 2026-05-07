@@ -1,4 +1,3 @@
-// BackToTopButton.jsx
 import { useState, useEffect, useCallback, memo } from "react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "../../context";
@@ -7,65 +6,15 @@ import { shouldUseThemeColor } from "../../utils";
 import { ArrowUp } from "lucide-react";
 
 /**
- * A floating back-to-top button that appears after scrolling and adapts to theme context.
- * 
- * This component provides smooth scroll-to-top functionality with intelligent
- * theming based on route context and user preferences. It uses performance
- * optimizations and complex color logic for consistent visual integration.
+ * Floating back-to-top button that appears after scrolling past a threshold.
+ * Features route-aware theming and smooth scroll behavior.
  * 
  * @component
- * @example
- * ```jsx
- * <BackToTopButton scrollThreshold={400} className="custom-styles" />
- * ```
- * 
- * @param {Object} props - Component props
- * @param {number} [props.scrollThreshold=600] - Scroll distance (in pixels) after which the button becomes visible
- * @param {string} [props.className="p-4 m-6"] - Additional CSS classes to apply to the button
- * 
- * @returns {JSX.Element|null} Floating button or null when below scroll threshold
- * 
- * @performanceOptimizations
- * - Uses React.memo to prevent unnecessary re-renders
- * - Passive scroll event listener for better performance
- * - useCallback hooks to stabilize function references
- * - Efficient scroll threshold checking
- * 
- * @themeLogic
- * The button color is determined by multiple factors:
- * 1. Route-specific theming via `shouldUseThemeColor()`
- * 2. Dark/light mode preference
- * 3. Fallback to brand colors (PYTHON_BLUE/PYTHON_YELLOW)
- * 
- * Hover behavior includes color swapping and transform effects:
- * - PYTHON_YELLOW ↔ PYTHON_BLUE color swap
- * - Vertical translation on hover (-4px)
- * - Smooth transitions for all interactions
- * 
- * @responsiveDesign
- * - Responsive positioning: bottom/right values change by screen size
- * - Responsive padding: p-3 on mobile, p-4 on tablet, p-5 on desktop
- * - Fixed positioning with high z-index (z-50)
- * - Consistent icon sizing (30px)
- * 
- * @accessibility
- * - Semantic button with aria-label="Back to top"
- * - Smooth scroll behavior for better UX
- * - Keyboard accessible
- * - Clear visual feedback for interactive states
- * 
- * @internalLogic
- * Scroll Detection:
- * - Uses window.scrollY to track scroll position
- * - Compares against scrollThreshold to control visibility
- * - Event listener properly cleaned up on unmount
- * 
- * Color Resolution:
- * - `getButtonColor()` determines base color from theme context
- * - `getHoverColor()` calculates complementary hover color
- * - `getHoverArrow()` determines text color for contrast
- * - Inline styles used for dynamic color changes
+ * @param {Object} props
+ * @param {number} [props.scrollThreshold=600] - Scroll distance in pixels before button appears
+ * @param {string} [props.className="p-4 m-6"] - Additional CSS classes
  */
+
 const BackToTopButton = memo(function BackToTopButton({
   scrollThreshold = 600,
   className = "p-4 m-6",

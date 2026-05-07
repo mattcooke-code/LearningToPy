@@ -1,6 +1,20 @@
-// components/ModuleHeader.jsx
 import { ArrowLeft } from "lucide-react";
 import ProgressCircle from "./ProgressCircle";
+
+/**
+ * Header section for module detail page with back navigation and progress tracking.
+ * @component
+ * @param {Object} props
+ * @param {Object} props.moduleData - Module data object
+ * @param {string} props.moduleData.title - Module title
+ * @param {string} props.moduleData.description - Module description
+ * @param {string} [props.moduleData.icon] - Optional icon/emoji for the module
+ * @param {number} props.completedLessons - Number of lessons completed
+ * @param {number} props.totalLessons - Total number of lessons in module
+ * @param {number} props.moduleLessonProgress - Overall module progress percentage
+ * @param {string} props.accentColor - Theme color for progress indicators
+ * @param {Function} props.onBack - Callback when back button is clicked
+ */
 
 const ModuleHeader = ({
   moduleData,
@@ -22,7 +36,6 @@ const ModuleHeader = ({
 
       {/* Module Header */}
       <div className="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 mb-6">
-        {/* Change: added flex-col and md:flex-row */}
         <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
           <div className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left space-y-4 md:space-y-0 md:space-x-4">
             <div
@@ -40,7 +53,6 @@ const ModuleHeader = ({
               </p>
             </div>
           </div>
-          {/* Progress Circle - center it on mobile */}
           <div className="shrink-0">
             <ProgressCircle
               progress={moduleLessonProgress}
@@ -48,7 +60,7 @@ const ModuleHeader = ({
               totalLessons={totalLessons}
               accentColor={accentColor}
             />
-          </div>{" "}
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -57,7 +69,7 @@ const ModuleHeader = ({
             <span>Module Progress</span>
             <span>{moduleLessonProgress}% Complete</span>
           </div>
-          <div className="w-full bg-gray-200  rounded-full h-3">
+          <div className="w-full bg-gray-200 rounded-full h-3">
             <div
               className="h-3 rounded-full transition-all duration-500"
               style={{

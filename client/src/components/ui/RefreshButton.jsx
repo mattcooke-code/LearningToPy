@@ -32,17 +32,6 @@ import { RefreshCw } from "lucide-react";
  * 
  * @returns {JSX.Element} A button with refresh icon and loading state handling
  * 
- * @loadingBehavior
- * - When isLoading=true: Button is disabled, icon spins continuously, opacity reduced
- * - When isLoading=false: Button is interactive, icon is static, full opacity
- * - Loading state prevents multiple concurrent refresh actions
- * 
- * @visualFeedback
- * - RefreshCw icon from lucide-react (4x4 size)
- * - Icon positioned to the left of text content
- * - Spinning animation using animate-spin utility class
- * - Consistent styling with other form controls
- * 
  * @accessibility
  * - Disabled state prevents interaction during loading
  * - Visual loading indicator provides clear feedback

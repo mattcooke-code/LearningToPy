@@ -1,4 +1,3 @@
-// components/LessonItem.jsx
 import { Link } from "react-router-dom";
 import {
   CheckCircle,
@@ -8,6 +7,23 @@ import {
   Star,
   ChevronRight,
 } from "lucide-react";
+
+/**
+ * Individual lesson row displaying status, metadata, and action button.
+ * @component
+ * @param {Object} props
+ * @param {Object} props.lesson - Lesson data object
+ * @param {string} props.lesson._id - Unique lesson identifier
+ * @param {string} props.lesson.title - Lesson title
+ * @param {string} props.lesson.description - Brief lesson description
+ * @param {number} props.lesson.duration - Lesson duration in minutes
+ * @param {number} props.lesson.xpReward - XP earned upon completion
+ * @param {string} props.lesson.contentType - Type of content (video, text, quiz)
+ * @param {boolean} props.lesson.isCompleted - Whether user has completed this lesson
+ * @param {string} props.moduleId - Parent module identifier
+ * @param {boolean} props.isLocked - Whether lesson is locked by prerequisites
+ * @param {string} [props.accentColor] - Theme color for interactive elements
+ */
 
 const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
   const resolvedAccent = accentColor || "#3776AB";
@@ -72,7 +88,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
                 <span>{lesson.xpReward} XP</span>
               </div>
               <span
-                className="capitalize px-2 py-0.5  text-white font-bold  rounded-full shrink-0"
+                className="capitalize px-2 py-0.5 text-white font-bold rounded-full shrink-0"
                 style={{ backgroundColor: resolvedAccent }}
               >
                 {lesson.contentType}
