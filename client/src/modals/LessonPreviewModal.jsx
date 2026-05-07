@@ -11,6 +11,139 @@ import {
   X,
 } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Lesson preview modal for administrators to review lesson content before publication.
+ * This component provides a comprehensive preview interface that fetches and displays lesson
+ * content including metadata, exercises, quizzes, and code examples. Features loading states,
+ * error handling, and responsive design for optimal administrative review experience.
+ * Integrates seamlessly with lesson editing workflow for content validation.
+ */
+
+/**
+ * Lesson preview modal for administrators to review lesson content before publication.
+ * 
+ * This component creates a dedicated preview interface that allows administrators to review
+ * lesson content in a formatted, user-friendly display before publishing. Fetches complete
+ * lesson data including content, exercises, quizzes, and metadata, then renders it using
+ * the same components as the live lesson view. Features comprehensive error handling,
+ * loading states, and support for custom titles and semantic IDs for context.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {string} props.lessonId - ID of the lesson to preview
+ * @param {string} [props.semanticId] - Semantic identifier for context display
+ * @param {string} [props.title] - Custom title for the preview modal
+ * @returns {JSX.Element} Lesson preview interface with formatted content display
+ * 
+ * @previewLogic
+ * **Integration with LessonEditorModal**:
+ * - Receives lesson._id from LessonEditorModal for preview
+ * - Data flows: LessonEditor → Database → LessonPreviewModal
+ * - Displays current saved state of lesson (not form state)
+ * - Allows administrators to review published content
+ * - Supports preview of both draft and published lessons
+ * 
+ * **Data Fetching Strategy**:
+ * - Single API call to GET /content/lessons/{lessonId}
+ * - Fetches complete lesson object with all nested data
+ * - Includes exercises, quizzes, and metadata
+ * - Error handling with fallback UI states
+ * - Loading indicators for better UX
+ * 
+ * @contentRendering
+ * **Lesson Display**:
+ * - Uses MarkdownRenderer for content formatting
+ * - Displays lesson metadata (title, type, XP, duration)
+ * - Shows exercises and quizzes in formatted layout
+ * - Code examples with syntax highlighting
+ * - Prerequisites and tags display
+ * 
+ * **Visual Organization**:
+ * - Header section with lesson metadata
+ * - Content body with proper typography
+ * - Exercise and quiz sections with clear separation
+ * - Responsive layout for mobile and desktop
+ * - Professional styling consistent with live lessons
+ * 
+ * @stateManagement
+ * - lesson: Complete lesson data object
+ * - loading: Loading state for API operations
+ * - error: Error state for failed requests
+ * - Reactive to lessonId prop changes
+ * - Automatic data refresh on modal open
+ * 
+ * @errorHandling
+ * **Network Errors**:
+ * - API failure detection and user notification
+ * - Graceful fallback to error display
+ * - Retry mechanism through modal reopen
+ * - User-friendly error messages
+ * - Console logging for debugging
+ * 
+ * **Data Validation**:
+ * - Lesson data structure validation
+ * - Missing field handling
+ * - Malformed content recovery
+ * - Safe rendering with fallbacks
+ * - Error boundary protection
+ * 
+ * @userExperience
+ * **Loading States**:
+ * - Animated loading spinner
+ * - Informative loading messages
+ * - Smooth transitions between states
+ * - Professional error displays
+ * - Consistent styling with platform
+ * 
+ * **Navigation**:
+ * - Close button with proper modal behavior
+ * - Escape key support for closing
+ * - Click-outside-to-close disabled (prevents accidental closure)
+ * - Responsive design for all screen sizes
+ * - Touch-friendly interface elements
+ * 
+ * @apiIntegration
+ * **Data Fetching**:
+ * - GET /content/lessons/{lessonId}: Fetch lesson data
+ * - Error handling with try-catch blocks
+ * - Automatic retry on modal reopen
+ * - Response validation and sanitization
+ * - Performance optimization with caching
+ * 
+ * **Error Recovery**:
+ * - Network error handling
+ * - 404 error handling for missing lessons
+ * - Server error graceful degradation
+ * - User notification system integration
+ * - Debugging information logging
+ * 
+ * @performanceOptimizations
+ * **Efficient Rendering**:
+ * - Conditional rendering based on data state
+ * - Optimized markdown processing
+ * - Efficient data structure handling
+ * - Memory leak prevention
+ * - Proper cleanup on unmount
+ * 
+ * **Data Management**:
+ * - Single lesson object state
+ * - Efficient API call timing
+ * - Proper error state management
+ * - Optimized re-rendering triggers
+ * - Memory-efficient data storage
+ * 
+ * @accessibility
+ * - Semantic HTML structure for content
+ * - Proper ARIA labels and roles
+ * - Screen reader compatible content
+ * - Keyboard navigation support
+ * - High contrast support for visual elements
+ * - Focus management for modal interactions
+ */
+
 const LessonPreviewModal = ({
   isOpen,
   onClose,

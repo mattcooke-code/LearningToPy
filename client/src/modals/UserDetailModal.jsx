@@ -36,6 +36,138 @@ const DEFAULT_STAT_COLORS = {
   gray: { bg: "bg-gray-100", text: "text-gray-600" },
 };
 
+/**
+ * @fileoverview
+ * Comprehensive user management modal with aggregated data display and administrative controls.
+ * This component provides a complete user profile interface that aggregates data from multiple
+ * sources including user profile, progress tracking, activity logs, and reports. Features
+ * tabbed organization, statistical dashboards, and integrated administrative tools for
+ * user management and support workflows.
+ */
+
+/**
+ * Comprehensive user management modal with aggregated data display and administrative controls.
+ * 
+ * This component creates a powerful administrative interface for viewing and managing user
+ * profiles with comprehensive data aggregation from multiple system sources. Features include
+ * user profile information, progress statistics, activity logs, badge management, and integrated
+ * administrative tools. The modal provides tabbed organization for efficient data presentation
+ * and serves as a central hub for user management workflows and support operations.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Object} props.user - User object containing basic user information
+ * @returns {JSX.Element} Comprehensive user management interface with aggregated data
+ * 
+ * @securityContext
+ * **Admin/Moderator Permissions Required**:
+ * - Relies on AuthContext for high-level admin role validation
+ * - Uses adminApiClient with elevated permissions
+ * - Validates administrative access before data fetching
+ * - Prevents unauthorized user data access
+ * - Maintains audit trail for all administrative actions
+ * 
+ * **Data Access Control**:
+ * - Role-based access to sensitive user information
+ * - Secure API communication with admin tokens
+ * - Privacy compliance for user data handling
+ * - Protection against data leakage or misuse
+ * - Proper session validation and timeout handling
+ * 
+ * @dataDisplay
+ * **Multi-Source Data Aggregation**:
+ * - User Profile: Basic information, email, registration date
+ * - Progress Tracking: XP, level, streak, completed lessons/modules
+ * - Activity Logs: Recent user actions and system interactions
+ * - Badge System: Earned badges and achievement progress
+ * - Reports: User-submitted reports and moderation history
+ * 
+ * **Data Fetching Strategy**:
+ * - GET /users/{userId}: Complete user profile data
+ * - GET /users/{userId}/activity: Recent activity logs
+ * - Parallel API calls for efficient data loading
+ * - Error handling with fallback to basic user object
+ * - Real-time data refresh on modal open
+ * 
+ * **Statistical Calculations**:
+ * - Level calculation based on XP thresholds
+ * - Progress percentages for courses and modules
+ * - Activity patterns and engagement metrics
+ * - Performance indicators and trends
+ * - Badge completion rates and categories
+ * 
+ * @userExperience
+ * **Tabbed Organization**:
+ * - Overview: Key statistics and quick actions
+ * - Progress: Detailed progress tracking and analytics
+ * - Activity: Recent actions and engagement history
+ * - Settings: Administrative controls and user management
+ * - Reports: User-submitted issues and moderation history
+ * 
+ * **Visual Design**:
+ * - Color-coded statistics with consistent theming
+ * - Icon-based visual indicators for data types
+ * - Responsive layout for mobile and desktop
+ * - Professional admin interface styling
+ * - High contrast support for accessibility
+ * 
+ * @errorHandling
+ * **API Error Handling**:
+ * - Network failure detection and user notification
+ * - Graceful degradation to basic user object
+ * - Retry mechanisms for transient failures
+ * - User-friendly error messages with context
+ * - Fallback data display for partial failures
+ * 
+ * **Data Validation**:
+ * - User data structure validation
+ * - Missing field handling with defaults
+ * - Malformed data recovery procedures
+ * - Safe rendering with null checks
+ * - Error boundary protection
+ * 
+ * @administrativeFeatures
+ * **User Management Tools**:
+ * - XP adjustment capabilities
+ * - Badge awarding and revocation
+ * - Progress override options
+ * - Account status management
+ * - Support ticket integration
+ * 
+ * **Support Workflow Integration**:
+ * - Direct access to user support tools
+ * - Quick actions for common issues
+ * - Integration with moderation system
+ * - Communication tools for user contact
+ * - Escalation procedures for complex cases
+ * 
+ * @performanceOptimizations
+ * **Efficient Data Management**:
+ * - Memoized statistical calculations
+ * - Optimized re-rendering with useCallback
+ * - Parallel API calls for data fetching
+ * - Efficient state updates and caching
+ * - Memory leak prevention and cleanup
+ * 
+ * **UI Performance**:
+ * - Lazy loading for large data sets
+ * - Virtual scrolling for activity logs
+ * - Optimized component rendering
+ * - Smooth transitions and animations
+ * - Responsive design optimization
+ * 
+ * @accessibility
+ * - Semantic HTML structure for user data
+ * - Proper ARIA labels and roles
+ * - Screen reader compatible statistics
+ * - Keyboard navigation support
+ * - High contrast support for visual elements
+ * - Focus management for modal interactions
+ * - Color-blind friendly data visualization
+ */
+
 const UserDetailModal = ({ isOpen, onClose, user }) => {
   const [userDetails, setUserDetails] = useState(null);
   const [activityLogs, setActivityLogs] = useState([]);

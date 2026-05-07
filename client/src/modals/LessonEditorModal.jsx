@@ -32,6 +32,135 @@ const TABS = [
   { id: "advanced", label: "Advanced", icon: Code },
 ];
 
+/**
+ * @fileoverview
+ * Comprehensive lesson editor modal with tabbed interface for content creation and editing.
+ * This component provides a full-featured lesson editing experience with tabbed organization,
+ * form validation, preview functionality, and integration with the lesson preview system.
+ * Handles both creation and editing modes with proper data lifecycle management and
+ * administrative controls for lesson content management.
+ */
+
+/**
+ * Comprehensive lesson editor modal with tabbed interface for content creation and editing.
+ * 
+ * This component creates a powerful lesson editing interface with three distinct tabs:
+ * Content (lesson body and exercises), Settings (metadata and configuration), and
+ * Advanced (prerequisites and technical settings). Features include real-time validation,
+ * preview functionality, tag management, and seamless integration with the lesson preview
+ * system. The modal handles both creation and editing modes with proper data lifecycle
+ * management and comprehensive form validation.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Object|null} props.lesson - Existing lesson data for editing mode, null for creation
+ * @param {Function} props.onSave - Callback function to refresh parent components after save
+ * @returns {JSX.Element} Comprehensive lesson editing interface with tabbed organization
+ * 
+ * @dataLifecycle
+ * **Creation Mode** (lesson is null):
+ * - Initializes with DEFAULT_LESSON_FORM_DATA as clean state
+ * - Provides empty templates for exercises, quizzes, and hints
+ * - Sets default values for XP, duration, and content type
+ * - Ready for new lesson content creation
+ * 
+ * **Editing Mode** (lesson exists):
+ * - Maps existing lesson data using mapLessonToFormData()
+ * - Preserves all existing content, exercises, and settings
+ * - Maintains original lesson ID for API updates
+ * - Allows modification while preserving core structure
+ * 
+ * @previewLogic
+ * **Integration with LessonPreviewModal**:
+ * - Passes lesson._id to LessonPreviewModal for real-time preview
+ * - Data flows through API: LessonEditor → Database → LessonPreviewModal
+ * - Preview reflects current form state before saving
+ * - Allows administrators to review changes before publication
+ * - Semantic ID and custom title support for preview context
+ * 
+ * @validation
+ * **Internal Form Validation**:
+ * - Required field validation (title, content, duration)
+ * - JSON structure validation for exercises and quizzes
+ * - XP reward range validation (0-1000)
+ * - Duration validation (positive integers)
+ * - Tag character limit and uniqueness checking
+ * - Prerequisite circular dependency detection
+ * 
+ * **Content Structure Validation**:
+ * - Markdown content format validation
+ * - Exercise answer key validation
+ * - Quiz option completeness checking
+ * - Hint content relevance validation
+ * - Code example syntax validation
+ * 
+ * @tabOrganization
+ * **Content Tab**:
+ * - Rich text editing for lesson content
+ * - Exercise creation and management
+ * - Quiz question configuration
+ * - Code example integration
+ * - Hint and solution management
+ * 
+ * **Settings Tab**:
+ * - Basic metadata (title, description, duration)
+ * - XP reward configuration
+ * - Content type selection
+ * - Module assignment
+ * - Publication status control
+ * 
+ * **Advanced Tab**:
+ * - Prerequisite lesson selection
+ * - Tag management system
+ * - Technical configuration
+ * - SEO metadata
+ * - Advanced options
+ * 
+ * @stateManagement
+ * - formData: Complete lesson form state with nested objects
+ * - modules: Available modules for assignment
+ * - lessons: Available lessons for prerequisites
+ * - saving: Loading state for save operations
+ * - activeTab: Current tab selection
+ * - newTag/newHint: Temporary input states
+ * 
+ * @apiIntegration
+ * - GET /content/modules: Fetch available modules
+ * - GET /content/lessons: Fetch available lessons for prerequisites
+ * - POST /content/lessons: Create new lesson
+ * - PATCH /content/lessons/{id}: Update existing lesson
+ * - Error handling with toast notifications
+ * 
+ * @userExperience
+ * - Tabbed interface for organized editing
+ * - Auto-save functionality for form data
+ * - Real-time validation feedback
+ * - Preview integration for content review
+ * - Responsive design for mobile and desktop
+ * 
+ * @errorHandling
+ * - Network error handling with user notifications
+ * - Form validation error display
+ * - API response error handling
+ * - Graceful degradation for missing data
+ * - User-friendly error messages
+ * 
+ * @performanceOptimizations
+ * - Debounced form field updates
+ * - Memoized calculations for derived data
+ * - Efficient data fetching with proper caching
+ * - Optimized re-rendering for large forms
+ * 
+ * @accessibility
+ * - Semantic HTML structure for tab navigation
+ * - Proper ARIA labels and roles
+ * - Keyboard navigation support
+ * - Screen reader compatible form elements
+ * - High contrast support for visual elements
+ */
+
 const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
   const isEditing = !!lesson;
   const { showToast, showConfirm } = useNotification();

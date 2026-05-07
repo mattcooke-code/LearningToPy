@@ -9,6 +9,154 @@ import {
   Zap,
 } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Administrative modal for XP adjustment with real-time calculation and validation.
+ * This component provides a secure interface for modifying user XP scores with comprehensive
+ * validation, reason tracking, and audit logging. Features real-time level calculation,
+ * quick adjustment presets, and detailed feedback systems. Designed for administrative
+ * XP management with proper error handling and user impact assessment.
+ */
+
+/**
+ * Administrative modal for XP adjustment with real-time calculation and validation.
+ * 
+ * This component creates a secure administrative interface for modifying user XP scores
+ * with comprehensive validation, reason tracking, and audit logging. Features include real-time
+ * level calculation based on XP changes, quick adjustment presets for common values, and
+ * detailed feedback showing the impact on user level and progression. The modal maintains
+ * strict validation requirements and provides comprehensive error handling for all operations.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Object} props.user - User object containing current XP and level information
+ * @param {Function} props.onSave - Callback function to handle XP adjustment (userId, amount, reason)
+ * @returns {JSX.Element} XP adjustment interface with real-time calculation and validation
+ * 
+ * @securityContext
+ * **Admin/Moderator Permissions Required**:
+ * - Relies on AuthContext for high-level admin role validation
+ * - Uses elevated permissions for XP modification
+ * - Validates administrative access before allowing adjustments
+ * - Maintains audit trail for all XP changes
+ * - Prevents unauthorized XP manipulation
+ * 
+ * **Data Protection**:
+ * - Secure API communication with admin tokens
+ * - Validation of adjustment amounts and reasons
+ * - Protection against malicious XP modifications
+ * - Rate limiting for XP adjustments
+ * - Session validation and timeout handling
+ * 
+ * @sideEffects
+ * **Database Changes**:
+ * - Direct modification of user XP record in database
+ * - Automatic level recalculation based on new XP total
+ * - Updates user progression and achievement systems
+ * - Triggers badge awarding if level thresholds are crossed
+ * - Logs all XP adjustments for audit purposes
+ * 
+ * **User Impact**:
+ * - Immediate XP total update in user profile
+ * - Level progression changes (level = floor(XP / 100) + 1)
+ * - Badge and achievement system updates
+ * - Leaderboard ranking adjustments
+ * - Progress tracking recalculation
+ * 
+ * **Notification Systems**:
+ * - User notification of XP changes (if enabled)
+ * - Admin confirmation of successful adjustments
+ * - Error notifications for failed operations
+ * - Audit trail logging for compliance
+ * - System notifications for level changes
+ * 
+ * @realTimeCalculation
+ * **Level Calculation**:
+ * - Current level: Math.floor(currentXP / 100) + 1
+ * - New level: Math.floor(newXP / 100) + 1
+ * - XP change validation (non-zero, within reasonable bounds)
+ * - Negative XP protection (minimum 0 XP)
+ * - Real-time preview of level changes
+ * 
+ * **Validation Logic**:
+ * - XP amount must be non-zero integer
+ * - Reason must be at least 5 characters
+ * - Maximum XP limits to prevent abuse
+ * - Reason validation for audit compliance
+ * - Input sanitization and type checking
+ * 
+ * @quickAdjustments
+ * **Preset Values**:
+ * - -500, -100, -50: Common penalty amounts
+ * - +50, +100, +500: Common reward amounts
+ * - One-click application with reason requirement
+ * - Visual feedback for positive/negative changes
+ * - Quick action buttons for efficiency
+ * 
+ * **User Experience**:
+ * - Current stats display with XP and level
+ * - Real-time preview of adjustment impact
+ * - Visual indicators for level changes
+ * - Intuitive input validation and feedback
+ * - Professional admin interface styling
+ * 
+ * @errorHandling
+ * **API Request Failures**:
+ * - Network error detection and user notification
+ * - Server validation error handling
+ * - Permission denied error management
+ * - Rate limiting error handling
+ * - Graceful degradation for service failures
+ * 
+ * **Validation Errors**:
+ * - Input validation before API submission
+ * - Clear error messages for invalid inputs
+ * - Field highlighting for validation errors
+ * - Prevention of invalid submissions
+ * - User-friendly error recovery guidance
+ * 
+ * @auditCompliance
+ * **Reason Tracking**:
+ * - Mandatory reason field for all adjustments
+ * - Minimum 5 character requirement for detailed explanations
+ * - Automatic admin attribution and timestamping
+ * - Complete audit trail for compliance
+ * - Searchable reason database for analytics
+ * 
+ * **Logging Requirements**:
+ * - Before/after XP values
+ * - Admin user identification
+ * - Adjustment reason and timestamp
+ * - User impact assessment
+ * - System response and outcome
+ * 
+ * @userExperience
+ * **Visual Design**:
+ * - Current stats ribbon with XP and level display
+ * - Color-coded adjustment indicators (green for positive, red for negative)
+ * - Real-time level change preview
+ * - Professional admin interface styling
+ * - Responsive design for mobile and desktop
+ * 
+ * **Interaction Design**:
+ * - Quick adjustment buttons for common values
+ * - Manual input field for custom amounts
+ * - Reason textarea with character counting
+ * - Real-time validation feedback
+ * - Loading states during submission
+ * 
+ * @accessibility
+ * - Semantic HTML structure for form elements
+ * - Proper ARIA labels and roles
+ * - Screen reader compatible XP information
+ * - Keyboard navigation support
+ * - High contrast support for visual elements
+ * - Focus management for modal interactions
+ * - Error announcement for screen readers
+ */
+
 const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
   const [xpChange, setXpChange] = useState("");
   const [reason, setReason] = useState("");

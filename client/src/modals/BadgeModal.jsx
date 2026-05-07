@@ -2,6 +2,82 @@
 import { BaseModal } from "../components/ui";
 import { BADGE_LIBRARY } from "../data/badges";
 
+/**
+ * @fileoverview
+ * User-facing modal for displaying all available badges with progress tracking.
+ * This component provides a comprehensive badge gallery interface showing earned badges,
+ * in-progress badges, and locked badges with detailed information and visual progress
+ * indicators. Features responsive grid layout, badge categorization, and achievement
+ * requirement descriptions for user motivation and progress visualization.
+ */
+
+/**
+ * User-facing modal for displaying all available badges with progress tracking.
+ * 
+ * This component creates an engaging badge gallery interface that displays the complete
+ * badge collection with visual distinction between earned, in-progress, and locked badges.
+ * Features include detailed badge information, progress tracking with percentage indicators,
+ * requirement descriptions, and category organization. The modal provides users with
+ * a comprehensive view of their achievement progress and motivates continued engagement
+ * through visual goal setting and progress visualization.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Array} [props.earnedBadgeIds=[]] - Array of earned badge IDs
+ * @param {Object} [props.progressMap={}] - Object mapping badge IDs to progress percentages
+ * @returns {JSX.Element} Badge gallery with progress tracking and visual feedback
+ * 
+ * @achievementLogic
+ * - Receives earnedBadgeIds array to determine earned status
+ * - Uses progressMap to display progress percentages for in-progress badges
+ * - BADGE_LIBRARY provides comprehensive badge catalog with metadata
+ * - Visual distinction between earned (100%), in-progress (>0%), and locked (0%) badges
+ * - Progress bars with color-coded visual feedback
+ * 
+ * @badgeDisplay
+ * - Grid layout responsive to screen size (1-3 columns)
+ * - Badge images with fallback to letter-based icons
+ * - Category labels and requirement descriptions
+ * - XP values and achievement criteria
+ * - Visual effects for earned status (color, borders, badges)
+ * 
+ * @progressVisualization
+ * - Percentage-based progress bars for in-progress badges
+ * - Color-coded progress indicators (blue for in-progress, gray for locked)
+ * - Progress text with percentage display
+ * - Visual feedback for completed achievements
+ * - Motivational progress tracking interface
+ * 
+ * @stateManagement
+ * - earnedSet: Set of earned badge IDs for efficient lookup
+ * - No internal state - relies on props for data display
+ * - Reactive to changes in earnedBadgeIds and progressMap
+ * - Optimized rendering with Set-based lookups
+ * 
+ * @userExperience
+ * - Engaging visual design with badge icons and images
+ * - Clear progress indicators for goal setting
+ * - Responsive layout for mobile and desktop viewing
+ * - Smooth transitions and hover effects
+ * - Accessible badge information display
+ * 
+ * @visualDesign
+ * - Color-coded badge states (green=earned, blue=in-progress, gray=locked)
+ * - Professional badge card layout with consistent spacing
+ * - High-quality badge images with fallback icons
+ * - Progress bars with smooth animations
+ * - Category-based organization and filtering
+ * 
+ * @accessibility
+ * - Semantic HTML structure for badge information
+ * - Proper ARIA labels and roles
+ * - Screen reader compatible progress indicators
+ * - Keyboard navigation support
+ * - High contrast support for badge states
+ */
+
 const BadgeModal = ({
   isOpen,
   onClose,

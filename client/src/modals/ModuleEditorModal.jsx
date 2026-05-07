@@ -32,6 +32,134 @@ import {
 // Icons
 import { ICON_MAP } from "../components/icons/ModuleIconMap";
 
+/**
+ * @fileoverview
+ * Comprehensive module editor modal with lesson management and statistics calculation.
+ * This component provides a full-featured module editing experience with lesson ordering,
+ * statistics tracking, tag management, and publication controls. Features efficient data
+ * management with memoized calculations, drag-and-drop lesson reordering, and comprehensive
+ * form validation for module content organization.
+ */
+
+/**
+ * Comprehensive module editor modal with lesson management and statistics calculation.
+ * 
+ * This component creates a powerful module editing interface that manages module metadata,
+ * lesson organization, and statistical calculations. Features include drag-and-drop lesson
+ * reordering, real-time statistics updates, tag management, and publication controls.
+ * The modal handles both creation and editing modes with efficient data management using
+ * memoized calculations and optimized data fetching to prevent N+1 API calls.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Object|null} props.module - Existing module data for editing mode, null for creation
+ * @param {Function} props.onSave - Callback function to refresh parent components after save
+ * @returns {JSX.Element} Comprehensive module editing interface with lesson management
+ * 
+ * @dataLifecycle
+ * **Creation Mode** (module is null):
+ * - Initializes with DEFAULT_MODULE_FORM_DATA as clean state
+ * - Sets order to null and moduleNumber to empty string
+ * - Initializes empty arrays for lessons, tags, and prerequisites
+ * - Sets isPublished to false for draft status
+ * - Ready for new module content creation
+ * 
+ * **Editing Mode** (module exists):
+ * - Maps existing module data using mapModuleToFormData()
+ * - Preserves all existing lessons, tags, and settings
+ * - Maintains original module ID for API updates
+ * - Allows modification while preserving lesson relationships
+ * - Keeps publication status and order intact
+ * 
+ * @validation
+ * **Internal Form Validation**:
+ * - Required field validation (title, description)
+ * - Module number format validation (alphanumeric)
+ * - Order validation (positive integers or null)
+ * - XP bonus range validation (0-1000)
+ * - Tag character limit and uniqueness checking
+ * - Lesson availability validation for assigned lessons
+ * 
+ * **Content Structure Validation**:
+ * - Module description length validation
+ * - Lesson circular dependency detection
+ * - Prerequisite module validation
+ * - Icon selection validation
+ * - Publication status consistency checking
+ * 
+ * @lessonManagement
+ * **Lesson Organization**:
+ * - Drag-and-drop reordering with visual feedback
+ * - Lesson search and filtering functionality
+ * - Bulk lesson addition and removal
+ * - Lesson statistics calculation and display
+ * - Prerequisite relationship validation
+ * 
+ * **Statistics Calculation**:
+ * - Total XP from all lessons
+ * - Estimated completion time
+ * - Lesson count and difficulty distribution
+ * - XP bonus impact on totals
+ * - Real-time updates on lesson changes
+ * 
+ * @stateManagement
+ * - formData: Complete module form state with nested arrays
+ * - allLessons: Available lessons for module assignment
+ * - moduleLessons: Memoized derived lesson objects
+ * - stats: Memoized calculated statistics
+ * - loading/saving: Loading states for operations
+ * 
+ * @performanceOptimizations
+ * **Memoized Calculations**:
+ * - moduleLessons: Derived from formData.lessons and allLessons
+ * - stats: Calculated from moduleLessons and xpBonus
+ * - Prevents N+1 API calls through local lesson library
+ * - Efficient re-rendering with useCallback for handlers
+ * 
+ * **Data Fetching Strategy**:
+ * - Single API call to fetch all lessons (limit: 1000)
+ * - Local filtering and mapping for module lessons
+ * - Eliminates individual lesson API calls
+ * - Optimized for large lesson catalogs
+ * 
+ * @apiIntegration
+ * - GET /content/lessons: Fetch available lessons (single call)
+ * - POST /content/modules: Create new module
+ * - PATCH /content/modules/{id}: Update existing module
+ * - Error handling with toast notifications
+ * - Optimized data payload with normalization
+ * 
+ * @userExperience
+ * - Drag-and-drop interface for lesson ordering
+ * - Real-time statistics updates
+ * - Search functionality for lesson discovery
+ * - Visual feedback for all operations
+ * - Responsive design for mobile and desktop
+ * 
+ * @errorHandling
+ * - Network error handling with user notifications
+ * - Form validation error display
+ * - API response error handling
+ * - Graceful degradation for missing lesson data
+ * - User-friendly error messages with context
+ * 
+ * @visualDesign
+ * - Professional module editing interface
+ * - Color-coded lesson status indicators
+ * - Drag-and-drop visual feedback
+ * - Statistics dashboard with charts
+ * - Consistent spacing and typography
+ * 
+ * @accessibility
+ * - Semantic HTML structure for lesson management
+ * - Proper ARIA labels and roles
+ * - Keyboard navigation support
+ * - Screen reader compatible lesson information
+ * - High contrast support for visual elements
+ */
+
 const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
   const isEditing = !!module;
   const { showToast } = useNotification();

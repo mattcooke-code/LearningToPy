@@ -12,6 +12,191 @@ import {
   Trophy,
 } from "lucide-react";
 
+/**
+ * @fileoverview
+ * Privileged administrative modal for direct user progress modification and database overrides.
+ * This component provides powerful administrative tools to directly modify user progress records,
+ * including lesson completion status, module completion, and XP adjustments. Features comprehensive
+ * search functionality, bulk operations, and audit trail logging for accountability. This is a
+ * high-privilege tool that directly impacts user database records.
+ */
+
+/**
+ * Privileged administrative modal for direct user progress modification and database overrides.
+ * 
+ * This component creates a powerful administrative interface for directly modifying user progress
+ * records in the database. Features include lesson and module completion toggling, progress
+ * search and filtering, bulk operations, and comprehensive audit logging. This is a privileged
+ * action that bypasses normal learning progression and directly modifies user database records
+ * for administrative purposes such as support interventions, testing, or progress corrections.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Object} props.user - User object containing user information and progress data
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Function} props.onSave - Callback function to refresh parent components after changes
+ * @returns {JSX.Element} Administrative progress override interface with direct database modification
+ * 
+ * @privilegedAction
+ * **Database Record Modification**:
+ * - Direct PATCH requests to /users/{userId}/progress endpoint
+ * - Bypasses normal learning progression and validation
+ * - Modifies user.completedLessons and user.completedModules arrays
+ * - Records override reasons for audit trail
+ * - Immediate database persistence without user interaction
+ * 
+ * **Administrative Privileges Required**:
+ * - Admin role validation before modal access
+ * - Elevated permissions for progress modification
+ * - Audit logging for all override actions
+ * - Reason tracking for compliance and accountability
+ * - Reversible operations with proper confirmation
+ * 
+ * @progressOverride
+ * **Lesson Completion Override**:
+ * - Toggle individual lesson completion status
+ * - Direct modification of completedLessons array
+ * - XP calculation and automatic updates
+ * - Prerequisite bypass for testing scenarios
+ * - Bulk lesson completion operations
+ * 
+ * **Module Completion Override**:
+ * - Module-level progress modification
+ * - Automatic lesson completion within modules
+ * - Module quiz completion handling
+ * - Progress dependency management
+ * - Certification and badge awarding
+ * 
+ * @dataLifecycle
+ * **Progress Data Fetching**:
+ * - GET /users/{userId}/progress: Current user progress
+ * - GET /content/lessons: Available lessons catalog
+ * - GET /content/modules: Available modules catalog
+ * - Real-time progress state synchronization
+ * - Efficient data aggregation and display
+ * 
+ * **State Management**:
+ * - userProgress: Current completion arrays
+ * - items: Available lessons and modules
+ * - selectedType: Filter for lessons vs modules
+ * - searchQuery: Text-based filtering
+ * - isSavingId: Individual item loading states
+ * 
+ * @validation
+ * **Internal Validation**:
+ * - User permission validation before operations
+ * - Item existence validation in database
+ * - Progress state consistency checking
+ * - Circular dependency prevention
+ * - Data integrity validation
+ * 
+ * **Business Logic Validation**:
+ * - Prerequisite relationship validation
+ * - Module completion requirements
+ * - XP calculation consistency
+ * - Progress dependency checking
+ * - Audit trail completeness
+ * 
+ * @apiIntegration
+ * **Progress Modification**:
+ * - PATCH /users/{userId}/progress: Direct progress updates
+ * - Payload includes lessonId/moduleId, completed status, and reason
+ * - Immediate database persistence
+ * - Error handling with rollback capabilities
+ * - Response validation and state synchronization
+ * 
+ * **Data Fetching**:
+ * - Parallel API calls for efficiency
+ * - Error handling for individual requests
+ * - Data aggregation and normalization
+ * - Caching strategies for performance
+ * - Retry mechanisms for failed requests
+ * 
+ * @userExperience
+ * **Administrative Interface**:
+ * - Search and filter functionality
+ * - Type switching between lessons and modules
+ * - Visual completion status indicators
+ * - Bulk operation capabilities
+ * - Real-time progress updates
+ * 
+ * **Feedback Systems**:
+ * - Loading indicators for individual operations
+ * - Success notifications with XP impact
+ * - Error messages with context
+ * - Confirmation dialogs for destructive actions
+ * - Progress summary statistics
+ * 
+ * @auditTrail
+ * **Action Logging**:
+ * - Automatic reason tracking for all overrides
+ * - User identification and timestamping
+ * - Action type and item identification
+ * - Before/after state recording
+ * - Compliance reporting capabilities
+ * 
+ * **Accountability Features**:
+ * - Required reason entry for overrides
+ * - Admin user identification
+ * - Action categorization and logging
+ * - Reversibility tracking
+ * - Audit report generation
+ * 
+ * @errorHandling
+ * **Network Error Handling**:
+ * - API failure detection and user notification
+ * - Graceful degradation for partial failures
+ * - Retry mechanisms for transient errors
+ * - State rollback on failed operations
+ * - User-friendly error messages
+ * 
+ * **Data Integrity**:
+ * - Progress state consistency validation
+ * - Database constraint handling
+ * - Concurrent modification detection
+ * - Data validation and sanitization
+ * - Error recovery procedures
+ * 
+ * @securityConsiderations
+ * **Access Control**:
+ * - Admin role validation before modal access
+ * - Permission checking for each operation
+ * - Session validation and timeout handling
+ * - Secure API communication
+ * - Audit trail for compliance
+ * 
+ * **Data Protection**:
+ * - Sensitive user data handling
+ * - Secure progress modification
+ * - Privacy compliance adherence
+ * - Data encryption in transit
+ * - Secure logging practices
+ * 
+ * @performanceOptimizations
+ * **Efficient Data Management**:
+ * - Memoized filtering for search results
+ * - Optimized re-rendering with useCallback
+ * - Efficient state updates for progress changes
+ * - Parallel API calls for data fetching
+ * - Virtual scrolling for large lists
+ * 
+ * **UI Performance**:
+ * - Debounced search input handling
+ * - Optimized list rendering
+ * - Efficient loading state management
+ * - Smooth transitions and animations
+ * - Memory leak prevention
+ * 
+ * @accessibility
+ * - Semantic HTML structure for progress items
+ * - Proper ARIA labels and roles
+ * - Screen reader compatible progress information
+ * - Keyboard navigation support
+ * - High contrast support for visual elements
+ * - Focus management for modal interactions
+ */
+
 const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
   // State
   const [selectedType, setSelectedType] = useState("lesson");

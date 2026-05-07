@@ -5,6 +5,83 @@ import { BaseModal } from "../components/ui";
 import { Search, Award, Loader2, Check, X, Trophy } from "lucide-react";
 import { BADGE_DEFINITIONS_CORE } from "@shared/constants/badgeDefinitions.cjs";
 
+/**
+ * @fileoverview
+ * Admin modal for managing user badges with award and revoke functionality.
+ * This component provides a comprehensive badge management interface for administrators,
+ * featuring search functionality, batch operations, and real-time synchronization with
+ * the user's badge collection. Integrates with the achievement system and provides
+ * detailed badge information with visual feedback for earned status.
+ */
+
+/**
+ * Admin modal for managing user badges with award and revoke functionality.
+ * 
+ * This component creates a powerful badge management interface for administrators to
+ * award or revoke badges from specific users. Features include comprehensive search
+ * across badge names, descriptions, and categories, batch selection for multiple badge
+ * operations, and real-time synchronization with the user's current badge collection.
+ * The modal provides visual feedback for earned badges, XP values, and administrative
+ * actions with proper error handling and user notifications.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether the modal is open
+ * @param {Object} props.user - User object containing user information
+ * @param {Function} props.onClose - Function to close the modal
+ * @param {Function} [props.onSave] - Callback function to refresh parent components after changes
+ * @returns {JSX.Element} Badge management interface with search and batch operations
+ * 
+ * @achievementLogic
+ * - Fetches user's current badges via adminApiClient.get(`/users/${user._id}/badges`)
+ * - Awards badges through adminApiClient.post(`/users/${user._id}/badges/award`)
+ * - Revokes badges through adminApiClient.post(`/users/${user._id}/badges/remove`)
+ * - Uses BADGE_DEFINITIONS_CORE for comprehensive badge catalog
+ * - Real-time synchronization with user's badge collection
+ * 
+ * @badgeManagement
+ * - Search functionality across name, description, and category
+ * - Visual distinction between earned and unearned badges
+ * - Batch selection for multiple badge operations
+ * - Individual badge award/revoke with confirmation
+ * - XP value display for each badge
+ * 
+ * @stateManagement
+ * - searchQuery: Current search filter for badge catalog
+ * - selectedBadges: Array of badges selected for batch awarding
+ * - userBadges: Current badges earned by the user
+ * - loading: Loading state for API operations
+ * - saving: Loading state for award/revoke operations
+ * 
+ * @apiIntegration
+ * - GET /users/{userId}/badges: Fetch user's current badges
+ * - POST /users/{userId}/badges/award: Award selected badges
+ * - POST /users/{userId}/badges/remove: Revoke specific badges
+ * - Error handling with toast notifications
+ * - Automatic parent component refresh on changes
+ * 
+ * @userExperience
+ * - Responsive design for mobile and desktop
+ * - Visual feedback for earned status and selection state
+ * - Loading indicators during API operations
+ * - Confirmation dialogs for destructive actions
+ * - Search placeholder adaptation for screen size
+ * 
+ * @visualDesign
+ * - Color-coded badge status (earned=green, selected=blue, default=gray)
+ * - Badge icons with hover animations
+ * - XP value display with trophy icons
+ * - Grid layout optimized for badge browsing
+ * - Professional admin interface styling
+ * 
+ * @accessibility
+ * - Semantic HTML structure
+ * - Proper ARIA labels and roles
+ * - Keyboard navigation support
+ * - Screen reader compatible badge information
+ * - High contrast support for earned status
+ */
+
 const BadgeAwardModal = ({ isOpen, user, onClose, onSave }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBadges, setSelectedBadges] = useState([]);
