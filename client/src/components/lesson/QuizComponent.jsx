@@ -1,4 +1,4 @@
-// QuizComponent.jsx 
+// QuizComponent.jsx
 import { useEffect, useState } from "react";
 import {
   CheckCircle,
@@ -28,13 +28,13 @@ import {
 
 /**
  * Interactive quiz component for lesson and module assessments with progress evaluation.
- * 
+ *
  * This component handles both individual lesson quizzes and comprehensive module quizzes,
  * managing the complete quiz lifecycle from answer selection to completion detection.
  * Features real-time answer validation, attempt tracking, adaptive feedback systems,
  * and XP reward integration. The component evaluates user progress through server-side
  * validation and triggers appropriate callbacks for lesson/module completion.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {Array} props.quizArray - Array of quiz questions with options and correct answers
@@ -44,21 +44,21 @@ import {
  * @param {boolean} [props.isModuleQuiz=false] - Whether this is a module quiz
  * @param {Function} [props.onQuizComplete] - Callback when quiz is completed
  * @returns {JSX.Element} Interactive quiz interface with progress tracking
- * 
+ *
  * @progressEvaluation
  * - Lesson quizzes: Individual question validation with immediate feedback
  * - Module quizzes: Batch submission with comprehensive results processing
  * - Completion detection through isLessonQuizComplete() utility
  * - Attempt tracking for each question with progressive feedback
  * - Server-side validation ensures accuracy and prevents cheating
- * 
+ *
  * @feedbackSystem
  * - First attempt: Generic "Try again" message
  * - Second attempt: Detailed explanation or correct answer reveal
  * - Correct answers: Server feedback or question explanation
  * - Visual feedback through color-coded question states
  * - XP rewards for correct answers with toast notifications
- * 
+ *
  * @answerSubmissionFlow
  * 1. User selects answer option
  * 2. Answer submitted to API with attempt number
@@ -67,7 +67,7 @@ import {
  * 5. UI updated to show correct/incorrect status
  * 6. XP awarded for correct answers
  * 7. Completion checked and callbacks triggered
- * 
+ *
  * @stateManagement
  * - answers: User's selected answers for each question
  * - results: Validation results and completion status for each question
@@ -75,21 +75,21 @@ import {
  * - serverFeedback: Detailed feedback from server for each question
  * - quizCompleted: Overall quiz completion status
  * - isSubmitting: Loading state during API calls
- * 
+ *
  * @questionStates
  * - Unanswered: Default state with selectable options
  * - Correct: Green highlighting with checkmark and feedback
  * - Incorrect (1st attempt): Red highlighting with retry option
  * - Incorrect (2nd+ attempt): Orange highlighting with correct answer shown
  * - Completed: Disabled state preventing further changes
- * 
+ *
  * @apiIntegration
  * - Lesson quizzes: POST to /content/lessons/{lessonId}/submit
  * - Module quizzes: POST to /content/modules/{moduleId}/submit-quiz
  * - Response handling for validation results and XP calculations
  * - Error handling for network issues and server errors
  * - Progress tracking through completion callbacks
- * 
+ *
  * @userExperience
  * - Immediate feedback on answer selection
  * - Progressive hint system revealing correct answers after multiple attempts
@@ -110,6 +110,7 @@ const QuizComponent = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverFeedback, setServerFeedback] = useState({});
   const [attempts, setAttempts] = useState({});
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   const { showToast } = useNotification();
 
