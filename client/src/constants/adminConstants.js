@@ -60,7 +60,7 @@ export const FLAG_STATUS_CONFIG = {
 /**
  * Retrieves status configuration for a given flag status.
  * Provides fallback configuration for unknown statuses.
- * 
+ *
  * @param {string} status - The flag status to get configuration for
  * @returns {Object} Status configuration object with color, icon, and label
  */
@@ -120,7 +120,7 @@ export const ISSUE_TYPE_CONFIG = {
 /**
  * Retrieves issue type configuration for a given issue type.
  * Provides fallback to OTHER configuration for unknown issue types.
- * 
+ *
  * @param {string} issueType - The issue type to get configuration for
  * @returns {Object} Issue type configuration object with icon, color, label, and description
  */
@@ -147,7 +147,7 @@ export const ANALYTICS_CHARTS = [
  * Used for consistent chart styling across the analytics dashboard.
  */
 export const CHART_COLORS = {
-  primary: ["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EF4444"],
+  primary: ["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899"],
   blue: "#3B82F6",
   green: "#10B981",
   purple: "#8B5CF6",
