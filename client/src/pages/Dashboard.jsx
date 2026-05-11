@@ -1,170 +1,51 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../context";
-import { useStreakNotifications, useThemeStyles } from "../hooks";
+import {
+  useDashboardData,
+  useStreakNotifications,
+  useThemeStyles,
+} from "../hooks";
 import {
   ProgressGauge,
   BackToTopButton,
   SegmentedLevelProgressBar,
   Spinner,
   LeaderboardRow,
+  LoadingState,
 } from "../components/ui";
 import { LeaderboardModal } from "../modals";
-import { apiClient } from "../services";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
 
-/**
- * @fileoverview
- * Comprehensive user dashboard displaying learning progress, achievements, leaderboard position,
- * and personalized learning recommendations. This page aggregates data from multiple API endpoints,
- * manages complex state for progress tracking, and provides interactive elements for navigation
- * and achievement viewing. Features real-time updates, theme integration, and responsive design.
- */
-
-/**
- * User dashboard component providing comprehensive learning progress overview and navigation.
- * 
- * This component serves as the main hub for authenticated users, displaying progress metrics,
- * leaderboard rankings, recent achievements, and personalized learning recommendations. Fetches
- * data from multiple API endpoints, manages complex state for progress and leaderboard data,
- * and provides interactive elements for navigation and detailed views. Features theme integration,
- * streak notifications, and responsive design for optimal user experience.
- * 
- * @component
- * @returns {JSX.Element} Complete dashboard with progress, leaderboard, and recommendations
- * 
- * @stateManagement
- * - userProgress: User's current learning progress and level information
- * - surroundingLeaderboard: Leaderboard data showing user's competitive position
- * - isLeaderboardModalOpen: Modal state for full leaderboard view
- * - leaderboardLoading: Loading state for leaderboard data fetch
- * - progressLoading: Loading state for progress data fetch
- * - fetchError: Error state for failed API calls
- * - nextModule: Predicted next module for learning progression
- * 
- * @dataFetching
- * - Parallel API calls for progress and leaderboard data
- * - Automatic data refresh on route changes
- * - Error handling with graceful fallbacks
- * - Loading states with spinner components
- * - Theme updates based on course progress
- * 
- * @progressDisplay
- * - ProgressGauge component for visual progress representation
- * - SegmentedLevelProgressBar for detailed level progression
- * - XP, streak, and level statistics
- * - Current module progress tracking
- * - Course completion status and congratulations
- * 
- * @leaderboardIntegration
- * - Surrounding leaderboard display for competitive context
- * - LeaderboardModal for full leaderboard view
- * - User position highlighting
- * - Competitive zone with ranking display
- * 
- * @achievementSystem
- * - Recent badges display with images and descriptions
- * - Badge data integration with BADGES_BY_ID
- * - Fallback display for badges without images
- * - Achievement progress tracking
- * 
- * @personalizedRecommendations
- * - Dynamic next module suggestions
- * - Course completion handling with congratulations
- * - Continue learning buttons with proper navigation
- * - Module preview with unlocking information
- * 
- * @themeIntegration
- * - Dynamic theme updates based on course progress
- * - useThemeStyles hook for consistent styling
- * - Hover effects and transitions
- * - Dark mode support throughout
- * 
- * @responsiveDesign
- * - Mobile-first responsive layout
- * - Adaptive grid layouts for different screen sizes
- * - Touch-friendly interactive elements
- * - Flexible card layouts for statistics
- */
 const Dashboard = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { updateThemeFromCourseProgress } = useTheme();
   const { themeColor, hoverHandlers } = useThemeStyles();
-  const [userProgress, setUserProgress] = useState(null);
-  const [surroundingLeaderboard, setSurroundingLeaderboard] = useState(null);
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
-  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
-  const [progressLoading, setProgressLoading] = useState(false);
-  const [fetchError, setFetchError] = useState(null);
-  const [nextModule, setNextModule] = useState(null);
 
   const location = useLocation();
 
-  useEffect(() => {
-    // Wait for auth to be ready before fetching data
-    if (authLoading || !isAuthenticated || !user) {
-      return;
-    }
-
-    const fetchProgress = async () => {
-      try {
-        setProgressLoading(true);
-        setFetchError(null);
-        const progressData = await apiClient.get("/progress/current");
-        setUserProgress(progressData);
-        updateThemeFromCourseProgress(progressData.courseProgressPercentage);
-
-        if (progressData.currentModule) {
-          const nextOrder = progressData.currentModule.order + 1;
-          setNextModule({
-            order: nextOrder,
-            title: `Module ${nextOrder}`,
-          });
-        } else if (progressData.level >= 20) {
-          setNextModule(null);
-        }
-      } catch (err) {
-        console.error("Failed to fetch progress:", err);
-        setFetchError(err);
-        // Don't clear userProgress on error - keep previous data
-      } finally {
-        setProgressLoading(false);
-      }
-    };
-
-    const fetchSurroundingLeaderboard = async () => {
-      try {
-        setLeaderboardLoading(true);
-        const leaderboardData = await apiClient.get(
-          "/progress/leaderboard/around-me",
-        );
-        setSurroundingLeaderboard(leaderboardData);
-      } catch (err) {
-        console.error("Failed to fetch leaderboard:", err);
-        setSurroundingLeaderboard(null);
-      } finally {
-        setLeaderboardLoading(false);
-      }
-    };
-
-    fetchProgress();
-    fetchSurroundingLeaderboard();
-  }, [
-    updateThemeFromCourseProgress,
+  // Use custom hook for all data fetching
+  const {
+    userProgress,
+    surroundingLeaderboard,
+    loading,
+    error: fetchError,
+  } = useDashboardData(
     user,
     isAuthenticated,
     authLoading,
     location.pathname,
-  ]);
+    updateThemeFromCourseProgress,
+  );
 
   // Use user data from auth as fallback when progress hasn't loaded yet
-  // This prevents showing all zeros during initial load
   const progressData = userProgress || {
     xp: user?.xp || 0,
     level: user?.level || 1,
     streak: user?.streak || 0,
-    courseProgressPercentage: progressLoading ? null : 0,
+    courseProgressPercentage: loading ? null : 0,
     progress: {},
     stats: {
       lessonsCompleted: 0,
@@ -174,12 +55,13 @@ const Dashboard = () => {
     currentModule: null,
   };
 
-  // Show loading state if auth is still loading or if we're fetching progress
+  // Show loading state while authentication is being verified
   if (authLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[50vh]">
-        <Spinner size="large" />
-      </div>
+      <LoadingState
+        message="Verifying your identity..."
+        height="min-h-[50vh]"
+      />
     );
   }
 
@@ -217,6 +99,17 @@ const Dashboard = () => {
       };
     });
 
+  // Show loading state while fetching dashboard data for the first time
+  if (loading && !userProgress) {
+    return (
+      <LoadingState
+        message="Loading your dashboard..."
+        height="min-h-[50vh]"
+        spinnerSize="large"
+      />
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Welcome Header */}
@@ -238,7 +131,7 @@ const Dashboard = () => {
             Your Python Progress
           </h2>
           <div className="flex justify-center">
-            {progressLoading ? (
+            {loading ? (
               <Spinner size="large" />
             ) : (
               <ProgressGauge
@@ -259,7 +152,7 @@ const Dashboard = () => {
             Your Competitive Zone
           </h3>
 
-          {leaderboardLoading ? (
+          {loading ? (
             <div className="flex justify-center py-8">
               <Spinner size="medium" />
             </div>
@@ -383,29 +276,30 @@ const Dashboard = () => {
             </p>
 
             {/* Next Module Preview */}
-            {!progressData.currentModule.isComplete && (
-              <div className="mt-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 max-w-md mx-auto">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  After this module, you'll unlock:
-                </p>
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                      <span className="text-purple-600 dark:text-purple-400 font-bold">
-                        {progressData.currentModule.order + 1}
+            {!progressData.currentModule.isComplete &&
+              progressData.currentModule.order < 20 && (
+                <div className="mt-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 max-w-md mx-auto">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    After this module, you'll unlock:
+                  </p>
+                  <div className="flex items-center justify-center space-x-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                        <span className="text-purple-600 dark:text-purple-400 font-bold">
+                          {progressData.currentModule.order + 1}
+                        </span>
+                      </div>
+                      <span className="font-medium text-gray-800 dark:text-gray-200 px-3">
+                        Module {progressData.currentModule.order + 1}
                       </span>
                     </div>
-                    <span className="font-medium text-gray-800 dark:text-gray-200 px-3">
-                      Module {progressData.currentModule.order + 1}
+                    <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      More advanced Python concepts
                     </span>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    More advanced Python concepts
-                  </span>
                 </div>
-              </div>
-            )}
+              )}
 
             <Link
               to={`/modules`}

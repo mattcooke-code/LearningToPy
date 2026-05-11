@@ -1,26 +1,26 @@
 /**
  * A customizable loading spinner component with optional text and multiple styling options.
- * 
+ *
  * This spinner component provides consistent loading indicators across the application
  * with various sizes, colors, and layout options. It can be used standalone or with
  * accompanying text for better user feedback.
- * 
+ *
  * @component
  * @example
  * ```jsx
  * // Basic spinner
  * <Spinner />
- * 
+ *
  * // Large spinner with text
- * <Spinner 
- *   size="lg" 
- *   color="gray" 
- *   showText={true} 
- *   text="Processing..." 
+ * <Spinner
+ *   size="lg"
+ *   color="gray"
+ *   showText={true}
+ *   text="Processing..."
  *   center={false}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} [props.size="md"] - Spinner size preset: "sm" (16px), "md" (48px), or "lg" (64px)
  * @param {string} [props.color="python-blue"] - Color scheme for the spinner: "python-blue", "white", "gray", or "light"
@@ -28,25 +28,25 @@
  * @param {boolean} [props.center=true] - If true, centers the spinner using flexbox. If false, spinner uses inline positioning
  * @param {boolean} [props.showText=false] - If true, displays text alongside the spinner
  * @param {string} [props.text="Loading..."] - Text to display when showText is true
- * 
+ *
  * @returns {JSX.Element} A spinning loader with optional text and centering
- * 
+ *
  * @sizePresets
  * - "sm" - h-4 w-4 (16px × 16px)
- * - "md" - h-12 w-12 (48px × 48px) 
+ * - "md" - h-12 w-12 (48px × 48px)
  * - "lg" - h-16 w-16 (64px × 64px)
- * 
+ *
  * @colorPresets
  * - "python-blue" - Primary brand color with dark mode support
  * - "white" - White/light gray for dark backgrounds
  * - "gray" - Medium gray for neutral contexts
  * - "light" - Light gray for subtle indicators
- * 
+ *
  * @layoutOptions
  * - When center=true: Wrapped in flex container with justify-center
  * - When center=false: Returns spinner element directly for inline use
  * - When showText=true: Spinner and text are horizontally aligned with spacing
- * 
+ *
  * @animation
  * Uses CSS animation with animate-spin utility for continuous rotation
  */
@@ -80,6 +80,7 @@ const Spinner = ({
 
   const spinner = (
     <div
+      role="status"
       className={`animate-spin rounded-full border-2 border-t-transparent ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
     ></div>
   );

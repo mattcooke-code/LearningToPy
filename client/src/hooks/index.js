@@ -3,6 +3,7 @@ export { useAdminMutation } from "./useAdminMutation";
 export { useConfirmActions } from "./useConfirmActions";
 export { useContentFilter } from "./useContentFilter";
 export { useCourseThemeUpdater } from "./useCourseThemeUpdater";
+export { useDashboardData } from "./useDashboardData";
 export { useFileDownload } from "./useFileDownload";
 export { usePageViewTracker } from "./usePageViewTracker";
 export { useSettingsManager } from "./useSettingsManager";

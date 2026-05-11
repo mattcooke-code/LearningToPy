@@ -1,75 +1,69 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
-import { useAuth } from "../context";
-import { useThemeStyles } from "../hooks";
+import { useAuth, useTheme } from "../context";
+import { useDashboardData, useThemeStyles } from "../hooks";
 import {
-  Spinner,
   BackToTopButton,
   SegmentedLevelProgressBar,
+  LoadingState,
 } from "../components/ui";
 import { BadgeModal } from "../modals";
 import PrivacySettings from "../components/settings/PrivacySettings";
-import { apiClient } from "../services";
 import { BADGES_BY_ID } from "../data/badges";
-import { getErrorMessage } from "../utils";
 
 /**
  * @fileoverview
  * Comprehensive user profile page displaying learning progress, achievements, badges, and privacy settings.
- * This page aggregates user data from multiple API endpoints, manages complex state for progress tracking,
- * badge collection, and settings. Features responsive design, theme integration, and modal interactions
- * for detailed badge viewing and privacy management.
+ * This page uses the useDashboardData hook for all data fetching needs, including progress,
+ * achievements, and badge collection. Features responsive design, theme integration, and modal
+ * interactions for detailed badge viewing and privacy management.
  */
 
 /**
  * User profile page component displaying comprehensive learning progress and achievements.
- * 
+ *
  * This component presents a complete overview of user's learning journey including level progress,
- * XP statistics, badge collection, learning metrics, and privacy settings. Fetches data from multiple
- * API endpoints, manages complex state for achievements and progress, and provides interactive elements
- * for badge viewing and settings management. Features responsive design with theme integration.
- * 
+ * XP statistics, badge collection, learning metrics, and privacy settings. All data fetching is
+ * delegated to the useDashboardData hook for consistent state management across the application.
+ * Provides interactive elements for badge viewing and settings management with responsive design.
+ *
  * @component
  * @returns {JSX.Element} Complete user profile with progress, badges, and settings
- * 
+ *
  * @stateManagement
- * - loading: Loading state for achievement data fetch
- * - error: Error state for failed API calls
- * - userProgress: User's current learning progress and level information
- * - earnedBadgeIds: Array of earned badge identifiers
  * - isModalOpen: Modal state for detailed badge viewing
- * 
+ * - All data fetching and loading states managed by useDashboardData hook
+ *
  * @dataFetching
- * - Parallel API calls for achievements and progress data
- * - Error handling with user-friendly messages
- * - Loading states with spinner components
- * - Graceful fallbacks for missing data
- * 
+ * - All API calls delegated to useDashboardData hook
+ * - Fetches progress, leaderboard, and achievements in parallel
+ * - Consistent error handling and loading states
+ *
  * @progressDisplay
  * - Level progress with SegmentedLevelProgressBar component
  * - XP and streak statistics display
  * - Learning metrics (days active, completion rate, etc.)
  * - Theme-aware color styling throughout
- * 
+ *
  * @badgeSystem
  * - Grid layout for earned badges with hover effects
  * - Badge modal for detailed viewing
  * - Fallback display for badges without images
  * - "View more" button for large collections
  * - Accessibility attributes for badge interactions
- * 
+ *
  * @privacyIntegration
  * - PrivacySettings component integration
  * - Real-time updates to user privacy settings
  * - Leaderboard refresh trigger on privacy changes
  * - User context integration for settings persistence
- * 
+ *
  * @themeIntegration
  * - Dynamic theming via useThemeStyles hook
  * - Consistent color application across components
  * - Hover effects and transitions
  * - Dark mode support throughout
- * 
+ *
  * @responsiveDesign
  * - Mobile-first responsive layout
  * - Adaptive grid layouts for badges
@@ -77,48 +71,26 @@ import { getErrorMessage } from "../utils";
  * - Touch-friendly interactive elements
  */
 const Profile = () => {
-  const { user, updateUser, triggerLeaderboardRefresh } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [userProgress, setUserProgress] = useState(null);
-  const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
+  const {
+    user,
+    isAuthenticated,
+    loading: authLoading,
+    updateUser,
+    triggerLeaderboardRefresh,
+  } = useAuth();
+  const { updateThemeFromCourseProgress } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { themeColor, hoverHandlers } = useThemeStyles();
 
-  useEffect(() => {
-    const fetchAchievements = async () => {
-      try {
-        setLoading(true);
-        const data = await apiClient.get("/progress/achievements");
-        setEarnedBadgeIds((data.earnedBadges || []).map((b) => b.id));
-      } catch (err) {
-        console.error("Failed to load achievements:", err);
-        setError(
-          getErrorMessage(
-            err,
-            "We couldn't load your badge progress. Please try again shortly.",
-          ),
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAchievements();
-  }, []);
-
-  useEffect(() => {
-    const fetchProgress = async () => {
-      try {
-        const progressData = await apiClient.get("/progress/current");
-        setUserProgress(progressData);
-      } catch (err) {
-        console.error("Failed to fetch progress:", err);
-      }
-    };
-    fetchProgress();
-  }, []);
+  // Use the shared hook for all data fetching
+  const { userProgress, earnedBadgeIds, loading, error } = useDashboardData(
+    user,
+    isAuthenticated,
+    authLoading,
+    window.location.pathname,
+    updateThemeFromCourseProgress,
+  );
 
   const handlePrivacyUpdate = (newPrivacySettings) => {
     updateUser({ privacySettings: newPrivacySettings });
@@ -129,6 +101,27 @@ const Profile = () => {
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  // Show loading state while authentication is being verified
+  if (authLoading) {
+    return (
+      <LoadingState
+        message="Verifying your identity..."
+        height="min-h-[50vh]"
+      />
+    );
+  }
+
+  // Show message if not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-gray-600 dark:text-gray-400">
+          Please log in to view your profile.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-10">
@@ -153,7 +146,9 @@ const Profile = () => {
               <Sparkles className="mr-2 h-4 w-4" /> Earned Badges
             </p>
             <p className="mt-1 text-4xl font-bold">
-              {earnedBadgeIds.length.toString().padStart(2, "0")}
+              {loading
+                ? "..."
+                : earnedBadgeIds.length.toString().padStart(2, "0")}
             </p>
           </div>
         </div>
@@ -283,13 +278,18 @@ const Profile = () => {
         </button>
       </div>
 
+      {/* Badge Collection Content */}
       {loading ? (
-        <div className="rounded-3xl bg-white dark:bg-gray-800 p-10 shadow-sm">
-          <Spinner />
-        </div>
+        <LoadingState
+          message="Loading your badges..."
+          height="h-48"
+          spinnerSize="md"
+        />
       ) : error ? (
         <div className="rounded-3xl border border-red-100 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-8 text-center shadow-sm">
-          <p className="text-red-700 dark:text-red-400">{error}</p>
+          <p className="text-red-700 dark:text-red-400">
+            We couldn't load your badge progress. Please try again shortly.
+          </p>
         </div>
       ) : earnedBadgeIds.length === 0 ? (
         <div className="rounded-3xl p-8 text-center shadow-sm bg-python-yellow dark:bg-yellow-900/30">
