@@ -3,55 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context";
 import { Spinner } from "../components/ui";
 
-/**
- * User authentication page for login with email/password and remember me functionality.
- * This page handles user authentication with form validation, error display, and automatic
- * redirect after successful login. Includes remember me option for extended sessions.
- */
-
-/**
- * Login page component providing user authentication with email and password credentials.
- * 
- * This component manages the login form with state for email, password, and remember me
- * functionality. Handles authentication through the AuthContext, displays error messages,
- * provides loading states, and automatically redirects authenticated users to the home page.
- * Features form validation, accessibility attributes, and responsive design.
- * 
- * @component
- * @returns {JSX.Element} Login form with authentication functionality
- * 
- * @stateManagement
- * - email: User email address for authentication
- * - password: User password for authentication
- * - rememberMe: Boolean for extended session (30 days)
- * 
- * @authenticationFlow
- * 1. User enters email and password credentials
- * 2. Form validation ensures required fields are filled
- * 3. AuthContext login method handles authentication
- * 4. Success triggers automatic redirect to home page
- * 5. Errors display with user-friendly messages
- * 
- * @userExperience
- * - Loading spinner during authentication process
- * - Error messages for failed login attempts
- * - Remember me checkbox for extended sessions
- * - Responsive design for mobile and desktop
- * - Accessibility attributes for screen readers
- * 
- * @securityFeatures
- * - Auto-complete attributes for password managers
- * - Form validation before submission
- * - Secure password handling through AuthContext
- * - Session management with remember me option
- * 
- * @navigationLogic
- * - Automatic redirect for authenticated users
- * - Links to registration and password reset pages
- * - Prevents access to login page when already logged in
- */
 const Login = () => {
-  // --- STATE MANAGEMENT ---
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -59,7 +11,6 @@ const Login = () => {
   const { login, loading, authError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // --- EFFECTS AND HANDLERS ---
   useEffect(() => {
     if (isAuthenticated && !loading) {
       navigate("/");
@@ -71,7 +22,6 @@ const Login = () => {
     await login(email, password, rememberMe);
   };
 
-  // --- RENDER ---
   return (
     <div className="min-h-screen flex justify-center items-start sm:items-center bg-gray-200 dark:bg-gray-900 pt-10 pb-12 px-6 sm:px-10">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
@@ -87,9 +37,13 @@ const Login = () => {
         <form
           onSubmit={handleSubmit}
           className="mt-6 sm:mt-8 space-y-5 sm:space-y-6"
+          aria-label="Login form"
         >
           {authError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md"
+              role="alert"
+            >
               {authError}
             </div>
           )}
@@ -101,6 +55,7 @@ const Login = () => {
               Email:
             </label>
             <input
+              id="email"
               type="email"
               value={email}
               required
@@ -119,6 +74,7 @@ const Login = () => {
               Password:
             </label>
             <input
+              id="password"
               type="password"
               required
               value={password}
@@ -131,6 +87,7 @@ const Login = () => {
           </div>
           <div className="flex items-center">
             <input
+              id="rememberMe"
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
