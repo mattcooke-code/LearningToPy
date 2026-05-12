@@ -10,25 +10,25 @@ const LessonSchema = new mongoose.Schema(
       minlength: [3, "Lesson title must be at least 3 characters"],
       maxlength: [100, "Lesson title must not exceed 100 characters"],
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Prevent script injection in titles
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Title contains invalid content"
-      }
+        message: "Title contains invalid content",
+      },
     },
-    content: { 
-      type: String, 
+    content: {
+      type: String,
       required: [true, "Lesson content is required"],
       minlength: [10, "Content must be at least 10 characters"],
       maxlength: [50000, "Content must not exceed 50000 characters"],
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Basic XSS prevention for content
           return !/<script[^>]*>.*?<\/script>/gi.test(value);
         },
-        message: "Content contains invalid script tags"
-      }
+        message: "Content contains invalid script tags",
+      },
     },
     shortDescription: { type: String, maxLength: 150 },
     order: { type: Number, required: true, min: 1 },
@@ -38,15 +38,15 @@ const LessonSchema = new mongoose.Schema(
       required: true,
       index: true, // Added for faster queries when loading a module's lessons
     },
-    xpReward: { 
-      type: Number, 
-      default: 25, 
+    xpReward: {
+      type: Number,
+      default: 25,
       min: [0, "XP reward cannot be negative"],
       max: [500, "XP reward cannot exceed 500"],
       validate: {
         validator: Number.isInteger,
-        message: "XP reward must be an integer"
-      }
+        message: "XP reward must be an integer",
+      },
     },
     duration: { type: Number, default: 15, min: 1 },
     contentType: {
@@ -75,12 +75,11 @@ const LessonSchema = new mongoose.Schema(
       solution: String,
       hints: [String],
       testCases: [mongoose.Schema.Types.Mixed],
-      validation: { 
-        type: String, 
+      validation: {
+        type: String,
         enum: ["TESTS", "OUTPUT", "NONE"],
         uppercase: true,
         default: "NONE",
-        required: true,
       },
       tests: [mongoose.Schema.Types.Mixed],
       expectedOutput: String,

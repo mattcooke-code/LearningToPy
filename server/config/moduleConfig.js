@@ -11,7 +11,7 @@
 const MODULE_CONFIGS = {
   M0: {
     folder: "Module0_Tutorial",
-    title: "Interactive Tutorial",
+    title: "Getting Started",
     description:
       "Learn how to use this learning platform and get familiar with the coding environment.",
     lessons: [
@@ -761,7 +761,7 @@ const MODULE_CONFIGS = {
         file: "L1_HTTP_Basics.md",
         quiz: "L1_Quiz.json",
         title: "HTTP Basics and Library Setup",
-        type: "guided-setup",
+        type: "guided_setup",
         ex: "L1_Exercise.json",
       },
       {

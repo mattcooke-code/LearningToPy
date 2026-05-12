@@ -5,30 +5,30 @@ import { useTheme } from "../../context";
 
 /**
  * A sophisticated Markdown renderer with custom container parsing and theme support.
- * 
+ *
  * This component extends standard Markdown rendering with:
  * - Custom container syntax (e.g., :::tip, :::warning, :::note, :::summary)
  * - Automatic image path resolution for module-specific images
  * - Theme-aware styling for both light and dark modes
  * - Comprehensive component overrides for consistent styling
- * 
+ *
  * @component
  * @example
  * ```jsx
- * <MarkdownRenderer 
- *   content="# Hello\n\n:::tip\nThis is a tip!\n:::\n\n![image](./images/example.png)" 
+ * <MarkdownRenderer
+ *   content="# Hello\n\n:::tip\nThis is a tip!\n:::\n\n![image](./images/example.png)"
  *   moduleId="M1"
  *   isDark={false}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.content - The markdown content to render. Supports standard markdown plus custom container syntax.
  * @param {string} [props.moduleId="M0"] - Module identifier used for resolving relative image paths. Images starting with "./images/" will be prefixed with `/api/content/modules/${moduleId}/images/`
  * @param {boolean} [props.isDark] - Explicit theme override. If provided, takes precedence over global theme. If undefined, uses global theme context.
- * 
+ *
  * @returns {JSX.Element} Rendered markdown content with custom styling and containers
- * 
+ *
  * @customContainerSyntax
  * Custom containers use the syntax:
  * ```
@@ -36,23 +36,23 @@ import { useTheme } from "../../context";
  * Content here (supports full markdown)
  * :::
  * ```
- * 
+ *
  * Supported container types:
  * - `summary` - Blue styled container with "What You've Learned" title
- * - `tip` - Yellow styled container with "Pro Tip" title  
+ * - `tip` - Yellow styled container with "Pro Tip" title
  * - `warning` - Red styled container with "Important" title
  * - `note` - Green styled container with "Note" title
- * 
+ *
  * @internalLogic
  * The component uses a two-phase parsing approach:
  * 1. `parseContent()` - Splits content into regular markdown and custom container blocks
  * 2. Renders each section with appropriate components
- * 
+ *
  * Image path resolution:
  * - Relative paths starting with "./images/" are converted to absolute API paths
  * - Other paths are passed through unchanged
  * - Images are wrapped in responsive containers with alt text captions
- * 
+ *
  * Theme handling:
  * - Uses `useTheme()` hook for global theme state
  * - Merges explicit `isDark` prop with global theme
@@ -297,14 +297,47 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         {children}
       </h3>
     ),
+
     p: ({ children, node }) => {
+      // Check if paragraph contains only an image
       if (
         node?.children?.length === 1 &&
         node.children[0].type === "element" &&
         node.children[0].tagName === "img"
       ) {
+        // Don't wrap standalone images in <p> tags
         return <>{children}</>;
       }
+
+      // Check if paragraph contains any block-level elements
+      const hasBlockElement = node?.children?.some((child) => {
+        if (child.type !== "element") return false;
+        const blockTags = [
+          "div",
+          "p",
+          "table",
+          "ul",
+          "ol",
+          "blockquote",
+          "pre",
+          "hr",
+          "img",
+          "figure",
+        ];
+        return blockTags.includes(child.tagName);
+      });
+
+      // Use div for paragraphs containing block elements
+      if (hasBlockElement) {
+        return (
+          <div
+            className={`mb-4 leading-relaxed last:mb-0 ${activeDark ? "text-gray-300" : "text-gray-700"}`}
+          >
+            {children}
+          </div>
+        );
+      }
+
       return (
         <p
           className={`mb-4 leading-relaxed last:mb-0 ${activeDark ? "text-gray-300" : "text-gray-700"}`}
@@ -313,12 +346,13 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         </p>
       );
     },
+
     a: ({ href, children }) => (
       <a
         href={href}
         className={`font-medium underline decoration-2 underline-offset-4 transition-colors ${
           activeDark
-            ? "text-blue-400 hover:text-blue-300 decoration-blue-800 "
+            ? "text-blue-400 hover:text-blue-300 decoration-blue-800"
             : "text-blue-600 hover:text-blue-800 decoration-blue-200"
         }`}
         target="_blank"
@@ -347,7 +381,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       const isInline = inline || !className || !match;
       if (isInline) {
         return (
-          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200 text-red-700  dark:bg-gray-300 border-gray-300 shadow-sm">
+          <code className="px-1.5 py-0.5 rounded border text-[0.9em] font-mono bg-gray-200 text-red-700 dark:bg-gray-300 border-gray-300 shadow-sm">
             {children}
           </code>
         );
@@ -373,35 +407,40 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         {children}
       </em>
     ),
-    img: ({ src, alt }) => {
+
+    img: ({ src, alt, title }) => {
       let imageSrc = src;
       if (src && src.startsWith("./images/")) {
         const imageName = src.replace("./images/", "");
         imageSrc = `/api/content/modules/${moduleId}/images/${imageName}`;
       }
+
       return (
-        <div className="my-8 text-center">
+        <figure className="my-8 text-center">
           <img
             src={imageSrc}
             alt={alt || "Lesson image"}
+            title={title}
             className={`rounded-xl border shadow-lg max-w-full h-auto mx-auto ${activeDark ? "border-gray-700" : "border-gray-300"}`}
             loading="lazy"
           />
           {alt && (
-            <p
+            <figcaption
               className={`text-sm mt-2 italic ${activeDark ? "text-gray-400" : "text-gray-600"}`}
             >
               {alt}
-            </p>
+            </figcaption>
           )}
-        </div>
+        </figure>
       );
     },
+
     hr: () => (
       <hr
         className={`my-8 border-t ${activeDark ? "border-gray-700" : "border-gray-300"}`}
       />
     ),
+
     table: ({ children }) => (
       <div className="overflow-x-auto my-8">
         <table
@@ -411,6 +450,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         </table>
       </div>
     ),
+
     th: ({ children }) => (
       <th
         className={`px-6 py-4 text-left text-sm font-semibold uppercase border-b ${activeDark ? "text-gray-200 bg-gray-900/50 border-gray-700" : "text-gray-900 bg-gray-100 border-gray-300"}`}

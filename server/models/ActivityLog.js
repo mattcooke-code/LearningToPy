@@ -1,5 +1,6 @@
 // models/ActivityLog.js
 const mongoose = require("mongoose");
+const net = require("net");
 
 const activityLogSchema = new mongoose.Schema(
   {
@@ -9,13 +10,16 @@ const activityLogSchema = new mongoose.Schema(
       required: false,
       index: true,
     },
-    sessionId: { 
-      type: String, 
+    sessionId: {
+      type: String,
       required: [true, "Session ID is required"],
       index: true,
       minlength: [10, "Session ID must be at least 10 characters"],
       maxlength: [100, "Session ID must not exceed 100 characters"],
-      match: [/^[a-zA-Z0-9_-]+$/, "Session ID can only contain letters, numbers, underscores, and hyphens"]
+      match: [
+        /^[a-zA-Z0-9_-]+$/,
+        "Session ID can only contain letters, numbers, underscores, and hyphens",
+      ],
     },
     actionType: {
       type: String,
@@ -58,17 +62,15 @@ const activityLogSchema = new mongoose.Schema(
       path: String, // For page views
       completedAt: Date,
     },
-    ipAddress: { 
+    ipAddress: {
       type: String,
       validate: {
-        validator: function(value) {
-          // Basic IP address validation (IPv4 and IPv6)
-          const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-          const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
-          return !value || ipv4Regex.test(value) || ipv6Regex.test(value);
+        validator: function (value) {
+          if (!value) return true;
+          return net.isIP(value) !== 0; // Returns 4 for IPv4, 6 for IPv6, 0 for invalid
         },
-        message: "Invalid IP address format"
-      }
+        message: "Invalid IP address format",
+      },
     },
     timestamp: { type: Date, default: Date.now },
   },

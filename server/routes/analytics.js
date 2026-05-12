@@ -5,7 +5,28 @@ const Activity = require("../models/ActivityLog");
 const { adminOnly } = require("../middleware/adminOnly");
 const { protect } = require("../middleware/auth");
 
-// Session End - can be called without authentication
+/**
+ * Helper to safely extract IP address from request.
+ * Handles IPv4, IPv6, and IPv4-mapped IPv6 addresses.
+ * Falls back gracefully if req.ip is unavailable.
+ */
+const getClientIP = (req) => {
+  // req.ip is set by Express trust proxy
+  if (req.ip) return req.ip;
+
+  // Fallbacks if trust proxy isn't working
+  if (req.connection?.remoteAddress) return req.connection.remoteAddress;
+  if (req.socket?.remoteAddress) return req.socket.remoteAddress;
+
+  return "0.0.0.0"; // Last resort fallback
+};
+
+/**
+ * Session End - can be called without authentication
+ *
+ * IMPORTANT: This is a fire-and-forget analytics endpoint.
+ * Errors here should NEVER affect the user experience or auth flow.
+ */
 router.post(
   "/session-end",
   // Accept both text/plain (sendBeacon default) and application/json
@@ -28,20 +49,32 @@ router.post(
   (req, res) => {
     const { sessionId, duration, actionType, deviceInfo = {} } = req.body;
 
+    // Fire-and-forget: Don't await, don't let errors propagate
     Activity.create({
       ...(req.user?._id && { userId: req.user._id }),
       sessionId,
       actionType: actionType || "SESSION_END",
       metadata: { duration, deviceInfo },
       timestamp: new Date(),
-      ipAddress: req.ip,
-    }).catch((err) => console.error("Session end error:", err));
+      ipAddress: getClientIP(req),
+    }).catch((err) => {
+      // Log for debugging but NEVER crash or affect the response
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("⚠️ Session end logging failed:", err.message);
+      }
+    });
 
+    // Always return success immediately - analytics is non-critical
     res.status(200).json({ received: true });
   },
 );
 
-// Page views - require authentication
+/**
+ * Page views - require authentication
+ *
+ * Protected route that logs page navigation.
+ * Uses fire-and-forget pattern to avoid blocking the response.
+ */
 router.post("/page-view", protect, (req, res) => {
   const { path, sessionId } = req.body;
 
@@ -51,10 +84,13 @@ router.post("/page-view", protect, (req, res) => {
       const decodedHeader = decodeURIComponent(req.headers["x-device-info"]);
       deviceInfo = JSON.parse(decodedHeader);
     }
-  } catch (e) {}
+  } catch (e) {
+    // Silently ignore malformed device info headers
+  }
 
+  // Fire-and-forget: Don't await, don't let errors propagate
   Activity.create({
-    userId: req.user._id, // Now this is safe because protect middleware guarantees user
+    userId: req.user._id,
     sessionId,
     actionType: "PAGE_VIEW",
     metadata: {
@@ -63,13 +99,21 @@ router.post("/page-view", protect, (req, res) => {
       timestamp: new Date().toISOString(),
     },
     timestamp: new Date(),
-    ipAddress: req.ip,
-  }).catch((err) => console.error("Page view error:", err));
+    ipAddress: getClientIP(req),
+  }).catch((err) => {
+    // Log for debugging but NEVER crash or affect the response
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("⚠️ Page view logging failed:", err.message);
+    }
+  });
 
+  // Always return success immediately
   res.status(200).json({ received: true });
 });
 
-// Test headers endpoint (public for debugging)
+/**
+ * Test headers endpoint (public for debugging)
+ */
 router.get("/test-headers", (req, res) => {
   let deviceInfo = null;
   try {
@@ -86,10 +130,14 @@ router.get("/test-headers", (req, res) => {
     },
     parsedDeviceInfo: deviceInfo,
     timestamp: new Date().toISOString(),
+    clientIP: getClientIP(req),
   });
 });
 
-// Debug endpoint - requires admin
+/**
+ * Debug endpoint - requires admin
+ * Provides activity analytics for admin dashboard
+ */
 router.get("/debug/check", protect, adminOnly, async (req, res) => {
   try {
     const [recentSessions, withDeviceInfo, todayActivity, total, actionCounts] =

@@ -93,7 +93,7 @@ const register = catchAsync(async (req, res, next) => {
   );
 
   res.cookie("refreshToken", refreshToken, {
-    ...authUtils.REFRESH_COOKIE_OPTIONS,
+    ...authUtils.getCookieOptions(),
     maxAge: cookieMaxAge,
   });
 
@@ -162,7 +162,7 @@ const login = catchAsync(async (req, res, next) => {
   );
 
   res.cookie("refreshToken", refreshToken, {
-    ...authUtils.REFRESH_COOKIE_OPTIONS,
+    ...authUtils.getCookieOptions(),
     maxAge: cookieMaxAge,
   });
 
@@ -277,7 +277,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
   );
 
   res.cookie("refreshToken", newRefreshToken, {
-    ...authUtils.REFRESH_COOKIE_OPTIONS,
+    ...authUtils.getCookieOptions(),
     maxAge: cookieMaxAge,
   });
 

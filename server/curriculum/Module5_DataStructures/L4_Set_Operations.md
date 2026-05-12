@@ -4,11 +4,11 @@ Sets are unique among Python's data structures because they support mathematical
 
 These operations are often visualized using **Venn Diagrams**.
 
-![How Sets Combine and Compare](./images/Sets_Venn_Diagram.png)
-
 ## 1. Union: Combining Sets
 
 The **Union** of two sets includes all elements that are present in **either** set. Duplicates are automatically removed in the final result.
+
+![The UNION Set](./images/Union_Set.png)
 
 ### Syntax: `set1 | set2` or `set1.union(set2)`
 
@@ -35,6 +35,8 @@ Notice how **Angel** and **Cordelia** appear in both original sets, but only onc
 
 The **Intersection** of two sets includes only the elements that are present in **both** sets.
 
+![The INTERSECTION Set](./images/Intersection_Set.png)
+
 ### Syntax: `set1 & set2` or `set1.intersection(set2)`
 
 ```python
@@ -52,6 +54,8 @@ The intersection gives us only the characters who appeared in both the Sunnydale
 ## 3. Difference: Finding Unique Elements
 
 The **Difference** operation finds elements present in the first set but not in the second set. The order matters!
+
+![The DIFFERENCE Set](./images/Difference_Set.png)
 
 ### Syntax: `set1 - set2` or `set1.difference(set2)`
 
@@ -75,6 +79,8 @@ print(los_angeles_only) # Output: {"Fred", "Gunn", "Doyle", "Wesley"}
 ## 4. Symmetric Difference (Bonus)
 
 The **Symmetric Difference** includes all elements that are in either set, but not in their intersection - essentially, the elements that are unique to each set. Using our data, this gives us the characters who were part of the main cast for one show, but never the other.
+
+![The SYMMETRIC DIFFERENCE Set](./images/Symmetric_Difference_Set.png)
 
 ### Syntax: `set1 ^ set2` or `set1.symmetric_difference(set2)`
 

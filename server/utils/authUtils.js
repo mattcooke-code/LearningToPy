@@ -1,4 +1,4 @@
-// authUtils.js
+// utils/authUtils.js
 const jwt = require("jsonwebtoken");
 const config = require("../config/envConfig");
 const AppError = require("./AppError");
@@ -31,19 +31,37 @@ const COOKIE_MAX_AGE_SESSION = 60 * 60 * 1000;
 const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000;
 
 /**
- * Common cookie options for refresh tokens.
- * - httpOnly: prevents JavaScript access (XSS protection)
- * - secure: HTTPS only in production
- * - sameSite Strict: CSRF protection
- * - partitioned: CHIPS privacy standard
+ * Get the correct cookie options based on environment.
+ *
+ * IMPORTANT: partitioned:true requires secure:true.
+ * In development (localhost), we use Lax sameSite and no partitioned.
+ * In production, we use Strict sameSite with partitioned for CHIPS.
+ *
+ * @returns {Object} Cookie configuration object
  */
-const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: config.isProduction(),
-  sameSite: "Strict",
-  path: "/",
-  partitioned: true,
+const getCookieOptions = () => {
+  const isProduction = config.isProduction();
+
+  const options = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "Strict" : "Lax",
+    path: "/",
+  };
+
+  // partitioned requires secure:true (Chrome's CHIPS standard)
+  if (isProduction) {
+    options.partitioned = true;
+  }
+
+  return options;
 };
+
+/**
+ * Common cookie options for refresh tokens (cached at module load).
+ * Uses getCookieOptions() to build environment-appropriate settings.
+ */
+const REFRESH_COOKIE_OPTIONS = getCookieOptions();
 
 /**
  * Get token lifespan and cookie max age based on "remember me" preference.
@@ -64,15 +82,18 @@ const getRefreshTokenSettings = (rememberMe) => {
 /**
  * Overwrite the refresh token cookie with an expired placeholder.
  * Called on logout, invalid token detection, or account blocking.
+ * Uses environment-appropriate cookie settings to ensure the clear
+ * actually reaches the browser.
+ *
  * @param {Object} res - Express response object
  */
 const clearRefreshTokenCookie = (res) => {
+  const cookieOptions = getCookieOptions();
+
   res.cookie("refreshToken", "loggedout", {
-    httpOnly: true,
-    expires: new Date(Date.now() + 10 * 1000),
-    secure: REFRESH_COOKIE_OPTIONS.secure,
-    sameSite: REFRESH_COOKIE_OPTIONS.sameSite,
-    path: REFRESH_COOKIE_OPTIONS.path,
+    ...cookieOptions,
+    expires: new Date(Date.now() + 10 * 1000), // 10 seconds
+    maxAge: undefined, // Don't set maxAge when using expires
   });
 };
 
@@ -145,6 +166,7 @@ const createPasswordResetEmail = (resetUrl) => {
 module.exports = {
   ACCESS_TOKEN_LIFESPAN,
   REFRESH_COOKIE_OPTIONS,
+  getCookieOptions,
   getRefreshTokenSettings,
   generateToken,
   verifyToken,

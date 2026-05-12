@@ -28,7 +28,10 @@ Other useful methods are:
 | **PUT**    | Update a resource entirely.  |
 | **DELETE** | Remove a specified resource. |
 
-![Fetch Methods](./images/Reqs.png)
+![Fetch Methods: GET](./images/GET_Req.png)
+![Fetch Methods: POST](./images/POST_Req.png)
+![Fetch Methods: PUT/PATCH](./images/PUT_PATCH_Req.png)
+![Fetch Methods: DELETE](./images/DELETE_Req.png)
 
 ## 3. The Importance of HTTP Status Codes
 
