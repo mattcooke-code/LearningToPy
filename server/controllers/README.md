@@ -36,24 +36,38 @@ All results read-through cached (5-min TTL).
 
 ---
 
-## authController.js — 10 endpoints
+## authController.js — 12 endpoints
 
-**Depends on:** `User`, `Lesson`, `FlaggedContent` models,
+**Depends on:** `User`, `Lesson`, `FlaggedContent`, `ActivityLog`, `AdminLog` models,
 `envConfig.js`, `authUtils.js`, `mailer.js`, `responseHelpers.js`,
 `streakManager.js`, `validationHelpers.js`
 
-| Function                | Route                               | Auth   | Description                               |
-| ----------------------- | ----------------------------------- | ------ | ----------------------------------------- |
-| `register`              | POST /api/auth/register             | No     | Create account, return tokens             |
-| `login`                 | POST /api/auth/login                | No     | Authenticate, return tokens, track streak |
-| `getUser`               | GET /api/auth/me                    | Yes    | Current user profile                      |
-| `refreshToken`          | POST /api/auth/refresh-token        | Cookie | Issue new access + refresh tokens         |
-| `logout`                | POST /api/auth/logout               | Yes    | Invalidate all refresh tokens             |
-| `forgotPassword`        | POST /api/auth/forgot-password      | No     | Send reset email (generic response)       |
-| `validateResetToken`    | GET /api/auth/reset-password/:token | No     | Verify token validity                     |
-| `resetPassword`         | POST /api/auth/reset-password       | No     | Set new password, invalidate sessions     |
-| `updatePrivacySettings` | PUT /api/auth/privacy               | Yes    | Update leaderboard/profile visibility     |
-| `createFlag`            | POST /api/auth/flag                 | Yes    | Report content issue                      |
+| Function                | Route                               | Auth   | Description                                    |
+| ----------------------- | ----------------------------------- | ------ | ---------------------------------------------- |
+| `register`              | POST /api/auth/register             | No     | Create account, return tokens                  |
+| `login`                 | POST /api/auth/login                | No     | Authenticate, return tokens, track streak      |
+| `getUser`               | GET /api/auth/me                    | Yes    | Current user profile                           |
+| `refreshToken`          | POST /api/auth/refresh-token        | Cookie | Issue new access + refresh tokens              |
+| `logout`                | POST /api/auth/logout               | Yes    | Invalidate all refresh tokens                  |
+| `forgotPassword`        | POST /api/auth/forgot-password      | No     | Send reset email (generic response)            |
+| `validateResetToken`    | GET /api/auth/reset-password/:token | No     | Verify token validity                          |
+| `resetPassword`         | POST /api/auth/reset-password       | No     | Set new password, invalidate sessions          |
+| `updatePrivacySettings` | PUT /api/auth/privacy               | Yes    | Update leaderboard/profile visibility          |
+| `createFlag`            | POST /api/auth/flag                 | Yes    | Report content issue                           |
+| `changePassword`        | POST /api/auth/change-password      | Yes    | Change password (requires current password)    |
+| `deleteAccount`         | DELETE /api/auth/delete-account     | Yes    | Permanently delete account and associated data |
+
+### Account Deletion Behaviour
+
+When `deleteAccount` is called:
+
+- **User document** — deleted (removes all embedded progress, badges, stats, streaks, xpHistory, quizAttempts, privacySettings)
+- **ActivityLog** — all entries for the user are deleted
+- **FlaggedContent** — all reports by the user are deleted
+- **AdminLog** — if user was an admin, logs are anonymised (adminId set to null) rather than deleted for audit integrity
+- **Auth cookies** — cleared
+
+Password confirmation is required to prevent accidental or CSRF-triggered deletion.
 
 ---
 

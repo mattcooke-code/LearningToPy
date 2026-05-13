@@ -10,6 +10,7 @@ Shared presentational components used across the application. No business logic 
 | `BaseModal`                 | Standardised modal shell: focus trapping, open/close, overlay, footer, size classes. Uses `createPortal()`.                                                                             | All modals in `/modals`              |
 | `CodeThemeToggle`           | Toggles code snippet theme (light/dark) independently of site theme. Uses `useTheme`.                                                                                                   | Lesson pages                         |
 | `ErrorState`                | Standardised error display with message and optional action. Default: "Back to Modules" link.                                                                                           | Pages, data-loading components       |
+| `ImageViewer`               | Full-screen image lightbox with zoom, rotation, and landscape detection. Supports double-tap to rotate, keyboard dismissal (Escape), and mobile-friendly controls.                      | `MarkdownRenderer`, lesson pages     |
 | `LeaderboardRow`            | Formats a single leaderboard entry: ranking (medal emojis), username (privacy-aware), XP/level.                                                                                         | `LeaderboardModal`                   |
 | `LoadingState`              | Standardised loading display using `Spinner` + message text.                                                                                                                            | Pages, data-loading components       |
 | `MarkdownRenderer`          | Renders lesson content from Markdown: code blocks, tables, containers, syntax highlighting.                                                                                             | `LessonContent`, lesson pages        |
@@ -52,3 +53,29 @@ RefreshButton ─────── lucide-react
 SearchableSelect ──── lucide-react
 ErrorState ────────── react-router-dom (Link)
 SegmentedLevelProgressBar ─► context (useTheme)
+
+---
+
+### ImageViewer
+
+**Purpose:** Full-screen image viewer for lesson content images. Opens when user clicks/taps an image in Markdown content.
+
+**Props:**
+
+- `src` — Image URL
+- `alt` — Alt text (displayed as caption)
+- `isOpen` — Boolean controlling visibility
+- `onClose` — Callback to close the viewer
+
+**Features:**
+
+- **Zoom:** +/- buttons with percentage display, reset button
+- **Rotation:** Toggle button + double-tap gesture for landscape images
+- **Auto-detection:** Detects landscape images and shows a rotate hint on mobile
+- **Keyboard:** Escape to close
+- **Touch:** Double-tap to toggle rotation
+- **Accessibility:** ARIA labels, keyboard navigable
+- **Background scroll lock:** Prevents background scrolling when open
+- **z-index:** Uses `z-[100]` for overlay and `z-[110]` for controls to sit above navbar
+
+**Dependencies:** None (self-contained, no external libraries)

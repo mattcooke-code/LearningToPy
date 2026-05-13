@@ -1,10 +1,13 @@
 // authController.js
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const config = require("../config/envConfig");
 const User = require("../models/User");
 const Lesson = require("../models/Lesson");
 const FlaggedContent = require("../models/FlaggedContent");
+const ActivityLog = require("../models/ActivityLog");
+const AdminLog = require("../models/AdminLog");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
@@ -546,14 +549,20 @@ const changePassword = catchAsync(async (req, res, next) => {
 
 /**
  * Delete user account and all associated data.
- * Requires password confirmation for security.
- * Deletes user, progress, activity logs, and clears auth cookies.
+ *
+ * Your data model stores most user data embedded in the User document,
+ * so deleting the user automatically removes:
+ *   - completedLessons, completedModules, quizAttempts
+ *   - xpHistory, badges, stats, streaks
+ *   - privacySettings, lessonQuizProgress
+ *
+ * Separate collections that need explicit cleanup:
+ *   - ActivityLog (analytics)
+ *   - FlaggedContent (user's reports)
  *
  * @route   DELETE /api/auth/delete-account
  * @body    {string} password - Current password for confirmation
  * @returns {Object} 200 - Success message
- * @returns {Object} 400 - Missing password
- * @returns {Object} 401 - Wrong password
  */
 const deleteAccount = catchAsync(async (req, res, next) => {
   const { password } = req.body;
@@ -582,33 +591,44 @@ const deleteAccount = catchAsync(async (req, res, next) => {
 
   const userId = user._id;
 
-  // Delete all user data
-  // Use Promise.allSettled so one failure doesn't block others
+  // Delete all associated data across collections
   const results = await Promise.allSettled([
-    // Delete user
+    // 1. Delete the user document (removes all embedded progress, badges, etc.)
     User.findByIdAndDelete(userId),
 
-    // Delete progress data (adjust model names to match yours)
-    mongoose.model("Progress")?.deleteMany({ userId }),
-    mongoose.model("Submission")?.deleteMany({ userId }),
+    // 2. Delete activity/analytics logs
+    ActivityLog.deleteMany({ userId }),
 
-    // Delete activity logs
-    mongoose.model("ActivityLog")?.deleteMany({ userId }),
+    // 3. Delete content flags reported by this user
+    FlaggedContent.deleteMany({ reporterId: userId }),
 
-    // Delete flagged content reports
-    mongoose.model("FlaggedContent")?.deleteMany({ reporterId: userId }),
-
-    // Add any other user-related collections here
+    // 4. Keep admin logs for audit but anonymise:
+    AdminLog.updateMany(
+      { adminId: userId },
+      { $set: { adminId: null, changes: { note: "Admin account deleted" } } },
+    ),
   ]);
 
-  // Log what was deleted (for audit)
-  const deleted = results.map((r, i) => ({
-    collection: ["User", "Progress", "Submissions", "ActivityLog", "Flags"][i],
+  // Log what was deleted (for audit trail)
+  const labels = [
+    "User (incl. progress/badges/stats)",
+    "ActivityLogs",
+    "FlaggedContent",
+    "AdminLogs",
+  ];
+  const summary = results.map((r, i) => ({
+    collection: labels[i],
     status: r.status,
-    reason: r.reason?.message,
+    details:
+      r.status === "fulfilled"
+        ? r.value?.deletedCount !== undefined
+          ? `${r.value.deletedCount} deleted`
+          : "updated"
+        : r.reason?.message,
   }));
 
-  console.log(`🗑️ Account deleted for user ${userId}`, deleted);
+  console.log(`🗑️ Account deleted for user ${userId}`);
+  console.table(summary);
 
   // Clear auth cookies
   authUtils.clearRefreshTokenCookie(res);

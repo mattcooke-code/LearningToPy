@@ -19,9 +19,37 @@ no database calls, no side effects. Exceptions noted below.
 ## authUtils.js
 
 - **Used by:** `authController`, `auth` middleware
-- **Responsibility:** JWT generation/verification, refresh token cookie config, password reset email template
+- **Responsibility:** JWT generation/verification, refresh token cookie configuration, password reset email template
 - **Design:** Thin wrappers around `jsonwebtoken`. Token secrets come from `envConfig`.
-- **Exports:** `generateToken`, `verifyToken`, `clearRefreshTokenCookie`, `getRefreshTokenSettings`, `createPasswordResetEmail`, `ACCESS_TOKEN_LIFESPAN`, `REFRESH_COOKIE_OPTIONS`
+
+### Exports
+
+| Export                     | Type     | Description                                             |
+| -------------------------- | -------- | ------------------------------------------------------- |
+| `generateToken`            | Function | Sign a JWT with payload, secret, and expiration         |
+| `verifyToken`              | Function | Verify and decode a JWT, throws AppError on failure     |
+| `clearRefreshTokenCookie`  | Function | Overwrite refresh token cookie with expired placeholder |
+| `getRefreshTokenSettings`  | Function | Return token lifespan and cookie maxAge for rememberMe  |
+| `getCookieOptions`         | Function | Build environment-appropriate cookie config             |
+| `createPasswordResetEmail` | Function | Generate HTML email with reset link                     |
+| `ACCESS_TOKEN_LIFESPAN`    | Constant | `"15m"`                                                 |
+| `REFRESH_COOKIE_OPTIONS`   | Constant | Cached cookie options from `getCookieOptions()`         |
+| `getAccessTokenSecret`     | Function | Alias for `config.getAccessTokenSecret`                 |
+| `getRefreshTokenSecret`    | Function | Alias for `config.getRefreshTokenSecret`                |
+
+### Cookie Configuration
+
+`getCookieOptions()` returns environment-appropriate settings:
+
+| Setting       | Development | Production              |
+| ------------- | ----------- | ----------------------- |
+| `httpOnly`    | `true`      | `true`                  |
+| `secure`      | `false`     | `true`                  |
+| `sameSite`    | `"Lax"`     | `"Strict"`              |
+| `path`        | `"/"`       | `"/"`                   |
+| `partitioned` | _not set_   | `true` (CHIPS standard) |
+
+The `partitioned` flag is only applied in production because it requires `secure: true`. This prevents browsers from silently dropping the refresh token cookie in development.
 
 ## catchAsync.js
 

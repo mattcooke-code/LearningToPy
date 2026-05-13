@@ -67,5 +67,21 @@ Express middleware functions. Applied in a specific order in `server.js`.
 ## validation.js
 
 - **Applied:** Per-route before controllers
-- **Responsibility:** Input validation using `validationHelpers.js`. Includes specific validators for registration, login, password reset, profile update, content, flags, and admin actions. Also exports a `createValidator` factory.
-- **Exports:** `validateUserRegistration`, `validateUserLogin`, `validatePasswordReset`, `validatePasswordResetConfirm`, `validateProfileUpdate`, `validateContent`, `validateFlaggedContent`, `validateAdminAction`, `validateIPAddress`, `validateSessionId`, `createValidator`
+- **Responsibility:** Input validation using `validationHelpers.js`. Includes specific validators for registration, login, password reset, profile update, content, flags, admin actions, and password changes. Also exports a `createValidator` factory.
+
+### Exports
+
+| Export                         | Description                                          |
+| ------------------------------ | ---------------------------------------------------- |
+| `validateUserRegistration`     | Username, email, password validation                 |
+| `validateUserLogin`            | Credential format check                              |
+| `validatePasswordReset`        | Email format validation                              |
+| `validatePasswordResetConfirm` | Token presence + new password strength               |
+| `validatePasswordChange`       | Current password + new password strength + mismatch  |
+| `validateProfileUpdate`        | Optional username/email validation                   |
+| `validateContent`              | Title, description, content XSS checks               |
+| `validateFlaggedContent`       | Flag submission: title, description, issueType, etc. |
+| `validateAdminAction`          | Admin action type + reason                           |
+| `validateIPAddress`            | IP format check (logs warning, doesn't block)        |
+| `validateSessionId`            | Session ID format validation                         |
+| `createValidator`              | Factory: build custom validators from rule objects   |
