@@ -53,3 +53,19 @@ html {
 .dark ::-webkit-scrollbar-thumb {
   background-color: #306998;
 }
+
+/* Better image handling for mobile */
+@media (max-width: 640px) {
+  .prose img {
+    max-width: calc(100vw - 2rem);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Ensure code screenshots are legible */
+  .prose img[alt*="code"],
+  .prose img[alt*="screenshot"],
+  .prose img[alt*="terminal"] {
+    min-width: 280px;
+  }
+}

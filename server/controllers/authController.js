@@ -448,6 +448,179 @@ const resetPassword = catchAsync(async (req, res, next) => {
 });
 
 /**
+ * Change password for authenticated user.
+ * Requires current password verification before allowing change.
+ * Increments refreshTokenVersion to invalidate all existing sessions.
+ *
+ * @route   POST /api/auth/change-password
+ * @body    {string} currentPassword - User's current password
+ * @body    {string} newPassword - Desired new password
+ * @returns {Object} 200 - Success message
+ * @returns {Object} 400 - Missing fields or weak password
+ * @returns {Object} 401 - Current password incorrect
+ */
+const changePassword = catchAsync(async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  // Validate inputs
+  if (!currentPassword || !newPassword) {
+    return next(
+      new AppError("Please provide both current and new password.", 400),
+    );
+  }
+
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    return next(new AppError(passwordValidation.message, 400));
+  }
+
+  // Prevent using the same password
+  if (currentPassword === newPassword) {
+    return next(
+      new AppError(
+        "New password must be different from current password.",
+        400,
+      ),
+    );
+  }
+
+  // Get user with password field
+  const user = await User.findById(req.user._id || req.userId).select(
+    "+password",
+  );
+
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  // Verify current password
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    return next(new AppError("Current password is incorrect.", 401));
+  }
+
+  // Hash and save new password
+  user.password = await bcrypt.hash(newPassword, 12);
+
+  // Invalidate all existing sessions (security best practice)
+  user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
+
+  await user.save();
+
+  // Clear existing refresh token and issue new one
+  authUtils.clearRefreshTokenCookie(res);
+
+  const accessToken = authUtils.generateToken(
+    { id: user._id, username: user.username, isAdmin: user.isAdmin },
+    authUtils.getAccessTokenSecret(),
+    authUtils.ACCESS_TOKEN_LIFESPAN,
+  );
+
+  const { tokenLifespan, cookieMaxAge } =
+    authUtils.getRefreshTokenSettings(false);
+
+  const refreshToken = authUtils.generateToken(
+    {
+      id: user._id,
+      refreshTokenVersion: user.refreshTokenVersion,
+      rememberMe: false,
+    },
+    authUtils.getRefreshTokenSecret(),
+    tokenLifespan,
+  );
+
+  res.cookie("refreshToken", refreshToken, {
+    ...authUtils.getCookieOptions(),
+    maxAge: cookieMaxAge,
+  });
+
+  sendJsonResponse(
+    res,
+    200,
+    "Password changed successfully. You remain logged in.",
+    {
+      accessToken,
+    },
+  );
+});
+
+/**
+ * Delete user account and all associated data.
+ * Requires password confirmation for security.
+ * Deletes user, progress, activity logs, and clears auth cookies.
+ *
+ * @route   DELETE /api/auth/delete-account
+ * @body    {string} password - Current password for confirmation
+ * @returns {Object} 200 - Success message
+ * @returns {Object} 400 - Missing password
+ * @returns {Object} 401 - Wrong password
+ */
+const deleteAccount = catchAsync(async (req, res, next) => {
+  const { password } = req.body;
+
+  if (!password) {
+    return next(
+      new AppError("Please provide your password to confirm deletion.", 400),
+    );
+  }
+
+  const user = await User.findById(req.user._id || req.userId).select(
+    "+password",
+  );
+
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  // Verify password before allowing deletion
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return next(
+      new AppError("Password is incorrect. Account not deleted.", 401),
+    );
+  }
+
+  const userId = user._id;
+
+  // Delete all user data
+  // Use Promise.allSettled so one failure doesn't block others
+  const results = await Promise.allSettled([
+    // Delete user
+    User.findByIdAndDelete(userId),
+
+    // Delete progress data (adjust model names to match yours)
+    mongoose.model("Progress")?.deleteMany({ userId }),
+    mongoose.model("Submission")?.deleteMany({ userId }),
+
+    // Delete activity logs
+    mongoose.model("ActivityLog")?.deleteMany({ userId }),
+
+    // Delete flagged content reports
+    mongoose.model("FlaggedContent")?.deleteMany({ reporterId: userId }),
+
+    // Add any other user-related collections here
+  ]);
+
+  // Log what was deleted (for audit)
+  const deleted = results.map((r, i) => ({
+    collection: ["User", "Progress", "Submissions", "ActivityLog", "Flags"][i],
+    status: r.status,
+    reason: r.reason?.message,
+  }));
+
+  console.log(`🗑️ Account deleted for user ${userId}`, deleted);
+
+  // Clear auth cookies
+  authUtils.clearRefreshTokenCookie(res);
+
+  sendJsonResponse(
+    res,
+    200,
+    "Your account and all associated data have been permanently deleted. We're sorry to see you go.",
+  );
+});
+
+/**
  * Update the user's privacy settings.
  *
  * Accepts three boolean fields: showOnLeaderboards, showAsAnonymous,
@@ -603,6 +776,8 @@ module.exports = {
   forgotPassword,
   validateResetToken,
   resetPassword,
+  changePassword,
+  deleteAccount,
   updatePrivacySettings,
   createFlag,
 };

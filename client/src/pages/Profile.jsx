@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
-import { Award, Sparkles, Target, TrendingUp } from "lucide-react";
+import {
+  Award,
+  Settings,
+  Shield,
+  Sparkles,
+  Target,
+  TrendingUp,
+} from "lucide-react";
 import { useAuth, useTheme } from "../context";
 import { useDashboardData, useThemeStyles } from "../hooks";
 import {
@@ -8,68 +15,15 @@ import {
   LoadingState,
 } from "../components/ui";
 import { BadgeModal } from "../modals";
-import PrivacySettings from "../components/settings/PrivacySettings";
+import { PrivacySettings, AccountManagement } from "../components/settings";
 import { BADGES_BY_ID } from "../data/badges";
 
 /**
  * @fileoverview
- * Comprehensive user profile page displaying learning progress, achievements, badges, and privacy settings.
- * This page uses the useDashboardData hook for all data fetching needs, including progress,
- * achievements, and badge collection. Features responsive design, theme integration, and modal
- * interactions for detailed badge viewing and privacy management.
+ * Comprehensive user profile page displaying learning progress, achievements,
+ * badges, privacy settings, and account management.
  */
 
-/**
- * User profile page component displaying comprehensive learning progress and achievements.
- *
- * This component presents a complete overview of user's learning journey including level progress,
- * XP statistics, badge collection, learning metrics, and privacy settings. All data fetching is
- * delegated to the useDashboardData hook for consistent state management across the application.
- * Provides interactive elements for badge viewing and settings management with responsive design.
- *
- * @component
- * @returns {JSX.Element} Complete user profile with progress, badges, and settings
- *
- * @stateManagement
- * - isModalOpen: Modal state for detailed badge viewing
- * - All data fetching and loading states managed by useDashboardData hook
- *
- * @dataFetching
- * - All API calls delegated to useDashboardData hook
- * - Fetches progress, leaderboard, and achievements in parallel
- * - Consistent error handling and loading states
- *
- * @progressDisplay
- * - Level progress with SegmentedLevelProgressBar component
- * - XP and streak statistics display
- * - Learning metrics (days active, completion rate, etc.)
- * - Theme-aware color styling throughout
- *
- * @badgeSystem
- * - Grid layout for earned badges with hover effects
- * - Badge modal for detailed viewing
- * - Fallback display for badges without images
- * - "View more" button for large collections
- * - Accessibility attributes for badge interactions
- *
- * @privacyIntegration
- * - PrivacySettings component integration
- * - Real-time updates to user privacy settings
- * - Leaderboard refresh trigger on privacy changes
- * - User context integration for settings persistence
- *
- * @themeIntegration
- * - Dynamic theming via useThemeStyles hook
- * - Consistent color application across components
- * - Hover effects and transitions
- * - Dark mode support throughout
- *
- * @responsiveDesign
- * - Mobile-first responsive layout
- * - Adaptive grid layouts for badges
- * - Flexible card layouts for statistics
- * - Touch-friendly interactive elements
- */
 const Profile = () => {
   const {
     user,
@@ -80,10 +34,10 @@ const Profile = () => {
   } = useAuth();
   const { updateThemeFromCourseProgress } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeAccountSection, setActiveAccountSection] = useState(null);
 
   const { themeColor, hoverHandlers } = useThemeStyles();
 
-  // Use the shared hook for all data fetching
   const { userProgress, earnedBadgeIds, loading, error } = useDashboardData(
     user,
     isAuthenticated,
@@ -102,7 +56,6 @@ const Profile = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // Show loading state while authentication is being verified
   if (authLoading) {
     return (
       <LoadingState
@@ -112,7 +65,6 @@ const Profile = () => {
     );
   }
 
-  // Show message if not authenticated
   if (!isAuthenticated || !user) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
@@ -126,7 +78,7 @@ const Profile = () => {
   return (
     <div className="container mx-auto px-6 py-10">
       {/* Header Section */}
-      <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-dark p-8 text-white shadow-lg dark:bg-python-blue ">
+      <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-dark p-8 text-white shadow-lg dark:bg-python-blue">
         <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.4em] text-white/80">
@@ -154,9 +106,9 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Progress Stats Section */}
+      {/* Progress Stats Section — now 2×2 grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Level Progress Card */}
+        {/* 1. Level Progress Card */}
         <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
             <Target className="h-5 w-5" style={{ color: themeColor }} />
@@ -199,9 +151,81 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* 2. Privacy Settings Card */}
         <PrivacySettings user={user} onUpdate={handlePrivacyUpdate} />
 
-        {/* Learning Stats Card */}
+        {/* 3. Account Management Card */}
+        <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
+          <div className="mb-4 flex items-center space-x-2">
+            <Shield className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Account Management
+            </h3>
+          </div>
+
+          {activeAccountSection === "password" ? (
+            <AccountManagement
+              section="password"
+              onBack={() => setActiveAccountSection(null)}
+            />
+          ) : activeAccountSection === "delete" ? (
+            <AccountManagement
+              section="delete"
+              onBack={() => setActiveAccountSection(null)}
+            />
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Manage your account security and data
+              </p>
+
+              <button
+                onClick={() => setActiveAccountSection("password")}
+                className="w-full flex items-center justify-between rounded-lg 
+                           bg-gray-50 dark:bg-gray-700/50 p-4 
+                           hover:bg-gray-100 dark:hover:bg-gray-700 
+                           transition-colors text-left"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">🔒</span>
+                  <div>
+                    <p className="font-medium text-gray-800 dark:text-white">
+                      Change Password
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Update your account password
+                    </p>
+                  </div>
+                </div>
+                <Settings className="h-5 w-5 text-gray-400" />
+              </button>
+
+              <button
+                onClick={() => setActiveAccountSection("delete")}
+                className="w-full flex items-center justify-between rounded-lg 
+                           bg-red-50 dark:bg-red-900/20 p-4 
+                           hover:bg-red-100 dark:hover:bg-red-900/30 
+                           transition-colors text-left border border-red-200 
+                           dark:border-red-800"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <p className="font-medium text-red-700 dark:text-red-400">
+                      Delete Account
+                    </p>
+                    <p className="text-sm text-red-600 dark:text-red-400/80">
+                      Permanently remove your account and data
+                    </p>
+                  </div>
+                </div>
+                <Settings className="h-5 w-5 text-red-400" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 4. Learning Stats Card */}
         <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
             <TrendingUp className="h-5 w-5 text-python-blue dark:text-python-blue" />

@@ -109,6 +109,34 @@ exports.validatePasswordResetConfirm = catchAsync(async (req, res, next) => {
 });
 
 /**
+ * Middleware to validate password change
+ */
+exports.validatePasswordChange = catchAsync(async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return next(
+      new AppError("Current password and new password are required", 400),
+    );
+  }
+
+  // Use your existing password validator
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    return next(new AppError(passwordValidation.message, 400));
+  }
+
+  // Prevent same password
+  if (currentPassword === newPassword) {
+    return next(
+      new AppError("New password must be different from current password", 400),
+    );
+  }
+
+  next();
+});
+
+/**
  * Middleware to validate profile update data
  */
 exports.validateProfileUpdate = catchAsync(async (req, res, next) => {

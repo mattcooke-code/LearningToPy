@@ -1,7 +1,9 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useState } from "react";
 import { CodeBlock } from "../lesson";
 import { useTheme } from "../../context";
+import ImageViewer from "./ImageViewer";
 
 /**
  * A sophisticated Markdown renderer with custom container parsing and theme support.
@@ -63,6 +65,9 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
 
   // Determine active theme: Use explicit prop if provided, otherwise fallback to global site theme
   const activeDark = isDark !== undefined ? isDark : globalIsDarkMode;
+
+  // Lightbox for images
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   // Custom component for containers
   const CustomContainer = ({ type, children }) => {
@@ -416,19 +421,75 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       }
 
       return (
-        <figure className="my-8 text-center">
-          <img
-            src={imageSrc}
-            alt={alt || "Lesson image"}
-            title={title}
-            className={`rounded-xl border shadow-lg max-w-full h-auto mx-auto ${activeDark ? "border-gray-700" : "border-gray-300"}`}
-            loading="lazy"
-          />
+        <figure className="my-4 md:my-8 text-center">
+          <div
+            className="relative inline-block max-w-full group cursor-pointer"
+            onClick={() => setLightboxImage({ src: imageSrc, alt })}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setLightboxImage({ src: imageSrc, alt });
+              }
+            }}
+            aria-label={`View larger image: ${alt || "Lesson image"}`}
+          >
+            {/* Hover overlay */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 
+                        transition-opacity bg-black/20 rounded-xl
+                        flex items-center justify-center pointer-events-none"
+            >
+              <div
+                className="bg-black/60 text-white px-3 py-1.5 rounded-full 
+                          text-sm flex items-center gap-1.5"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                  />
+                </svg>
+                View
+              </div>
+            </div>
+
+            <img
+              src={imageSrc}
+              alt={alt || "Lesson image"}
+              title={title}
+              className={`
+            rounded-xl border shadow-lg
+            w-full max-w-full h-auto
+            min-h-[80px] md:min-h-[100px]
+            ${activeDark ? "border-gray-700" : "border-gray-300"}
+            transition-transform duration-200
+            group-hover:scale-[1.01]
+          `}
+              loading="lazy"
+            />
+          </div>
+
           {alt && (
             <figcaption
-              className={`text-sm mt-2 italic ${activeDark ? "text-gray-400" : "text-gray-600"}`}
+              className={`
+            text-xs md:text-sm mt-2 italic px-2
+            ${activeDark ? "text-gray-400" : "text-gray-600"}
+          `}
             >
               {alt}
+              <span className="hidden md:inline"> — Click to view</span>
+              <span className="md:hidden">
+                {" "}
+                — Tap to view & rotate if needed
+              </span>
             </figcaption>
           )}
         </figure>
@@ -495,6 +556,15 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
           );
         }
       })}
+
+      {lightboxImage && (
+        <ImageViewer
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          isOpen={!!lightboxImage}
+          onClose={() => setLightboxImage(null)}
+        />
+      )}
     </div>
   );
 };

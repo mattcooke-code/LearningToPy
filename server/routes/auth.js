@@ -8,6 +8,7 @@ const {
   validatePasswordReset,
   validatePasswordResetConfirm,
   validateProfileUpdate,
+  validatePasswordChange,
 } = require("../middleware/validation");
 const {
   authLimiter,
@@ -16,17 +17,32 @@ const {
 } = require("../middleware/rateLimiter");
 
 // === PUBLIC ROUTES ===
-router.post("/register", authLimiter, validateUserRegistration, authController.register);
+router.post(
+  "/register",
+  authLimiter,
+  validateUserRegistration,
+  authController.register,
+);
 
 router.post("/login", authLimiter, authController.login);
 
 router.post("/refresh-token", authController.refreshToken);
 
-router.post("/forgot-password", passwordResetLimiter, validatePasswordReset, authController.forgotPassword);
+router.post(
+  "/forgot-password",
+  passwordResetLimiter,
+  validatePasswordReset,
+  authController.forgotPassword,
+);
 
 router.get("/validate-reset-token/:token", authController.validateResetToken);
 
-router.post("/reset-password", passwordResetLimiter, validatePasswordResetConfirm, authController.resetPassword);
+router.post(
+  "/reset-password",
+  passwordResetLimiter,
+  validatePasswordResetConfirm,
+  authController.resetPassword,
+);
 
 // === AUTHENTICATED ROUTES ===
 router.post("/logout", protect, authController.logout);
@@ -39,7 +55,16 @@ router.patch(
   authController.updatePrivacySettings,
 );
 
+router.post(
+  "/change-password",
+  protect,
+  validatePasswordChange,
+  authController.changePassword,
+);
+
 router.post("/flags", protect, authController.createFlag);
+
+router.delete("/delete-account", protect, authController.deleteAccount);
 
 // In auth.js routes - add debug route
 router.get("/debug/token", protect, (req, res) => {
