@@ -2,6 +2,7 @@
 import { ArrowLeft } from "lucide-react";
 import ChangePassword from "./ChangePassword";
 import DeleteAccount from "./DeleteAccount";
+import ExportData from "./ExportData";
 
 /**
  * Container component for account management sections.
@@ -26,6 +27,7 @@ const AccountManagement = ({ section, onBack }) => {
       </button>
 
       {section === "password" && <ChangePassword />}
+      {section === "export" && <ExportData />}
       {section === "delete" && <DeleteAccount />}
     </div>
   );

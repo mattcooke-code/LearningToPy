@@ -168,6 +168,11 @@ const Profile = () => {
               section="password"
               onBack={() => setActiveAccountSection(null)}
             />
+          ) : activeAccountSection === "export" ? (
+            <AccountManagement
+              section="export"
+              onBack={() => setActiveAccountSection(null)}
+            />
           ) : activeAccountSection === "delete" ? (
             <AccountManagement
               section="delete"
@@ -199,7 +204,26 @@ const Profile = () => {
                 </div>
                 <Settings className="h-5 w-5 text-gray-400" />
               </button>
-
+              <button
+                onClick={() => setActiveAccountSection("export")}
+                className="w-full flex items-center justify-between rounded-lg 
+             bg-gray-50 dark:bg-gray-700/50 p-4 
+             hover:bg-gray-100 dark:hover:bg-gray-700 
+             transition-colors text-left"
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">📦</span>
+                  <div>
+                    <p className="font-medium text-gray-800 dark:text-white">
+                      Export My Data
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Download all your data as JSON
+                    </p>
+                  </div>
+                </div>
+                <Settings className="h-5 w-5 text-gray-400" />
+              </button>
               <button
                 onClick={() => setActiveAccountSection("delete")}
                 className="w-full flex items-center justify-between rounded-lg 

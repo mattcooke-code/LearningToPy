@@ -32,6 +32,7 @@ import AdminSettings from "./pages/AdminSettings";
 
 import { useCourseThemeUpdater, usePageViewTracker } from "./hooks";
 import { AdminLayout } from "./components/admin";
+import { CookieNotice } from "./components/settings";
 
 import ModalManager from "./modals/ModalManager";
 
@@ -129,6 +130,7 @@ function App() {
       <Footer />
 
       <ModalManager />
+      <CookieNotice />
     </div>
   );
 }

@@ -787,6 +787,70 @@ const createFlag = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Export all user data (GDPR Right of Access).
+ * Returns a JSON object containing all data held about the user.
+ *
+ * @route   GET /api/auth/export-data
+ * @returns {Object} 200 - Complete user data export
+ */
+const exportUserData = catchAsync(async (req, res, next) => {
+  const userId = req.user._id || req.userId;
+
+  const user = await User.findById(userId)
+    .select(
+      "-password -refreshTokenVersion -resetPasswordToken -resetPasswordExpires",
+    )
+    .lean();
+
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  // Fetch associated data from other collections
+  const [activityLogs, flaggedContent] = await Promise.all([
+    ActivityLog.find({ userId }).select("-ipAddress").lean(),
+    FlaggedContent.find({ reporterId: userId }).lean(),
+  ]);
+
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    user: {
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      // Progress
+      xp: user.xp,
+      level: user.level,
+      streak: user.streak,
+      completedLessons: user.completedLessons,
+      completedModules: user.completedModules,
+      badges: user.badges,
+      stats: user.stats,
+      // Privacy
+      privacySettings: user.privacySettings,
+      // Learning history
+      lessonCompletionHistory: user.lessonCompletionHistory,
+      moduleCompletionHistory: user.moduleCompletionHistory,
+      quizAttempts: user.quizAttempts,
+      xpHistory: user.xpHistory,
+    },
+    activityLogs: {
+      count: activityLogs.length,
+      data: activityLogs,
+      note: "IP addresses have been removed for privacy. Activity logs auto-delete after 90 days.",
+    },
+    flaggedContent: {
+      count: flaggedContent.length,
+      data: flaggedContent,
+    },
+  };
+
+  sendJsonResponse(res, 200, "Data export successful.", exportData);
+});
+
 module.exports = {
   register,
   login,
@@ -800,4 +864,5 @@ module.exports = {
   deleteAccount,
   updatePrivacySettings,
   createFlag,
+  exportUserData,
 };
