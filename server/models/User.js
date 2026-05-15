@@ -1,6 +1,6 @@
 // User.js
-
 const mongoose = require("mongoose");
+const { validatePassword } = require("../utils/validationHelpers");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -60,22 +60,31 @@ const UserSchema = new mongoose.Schema(
         message: "Disposable email addresses are not allowed",
       },
     },
+    ageVerified: {
+      type: Boolean,
+      default: false,
+    },
+    ageVerifiedAt: {
+      type: Date,
+      default: null,
+    },
+    ageBracket: {
+      type: String,
+      enum: ["13-15", "16-17", "18+"],
+      required: true,
+      select: false,
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [8, "Password must be at least 8 characters"],
-      maxlength: [128, "Password must not exceed 128 characters"],
-      select: false, // Exclude password from queries by default
+      // Use the helper logic instead of a hardcoded Regex
       validate: {
-        validator: function (value) {
-          // Strong password validation
-          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
-            value,
-          );
+        validator: function (v) {
+          return validatePassword(v).isValid;
         },
-        message:
-          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+        message: (props) => "Password does not meet strength requirements.",
       },
+      select: false,
     },
     // --- AUTHENTICATION FIELD CHANGE START ---
     resetPasswordToken: String,

@@ -366,24 +366,38 @@ export const AuthProvider = ({ children }) => {
    * @param {string} username
    * @param {string} email
    * @param {string} password
+   * @param {string} dateOfBirth - ISO date string (YYYY-MM-DD)
    * @returns {Promise<{ success: boolean }>}
    */
   const register = useCallback(
-    async (username, email, password) => {
+    async (username, email, password, dateOfBirth) => {
       return executeAuthAction(
         "registration",
         () =>
           authApiClient.post("/api/auth/register", {
             username,
             email,
+            dateOfBirth,
             password,
           }),
         (payload) => {
-          const { accessToken: receivedAccessToken, user: userData } = payload;
+          const {
+            accessToken: receivedAccessToken,
+            user: userData,
+            ageNotice,
+            privacyNotice,
+          } = payload;
+
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, false);
             showToast("Registration successful!", "success");
-            return { success: true };
+
+            return {
+              success: true,
+              user: userData,
+              ageNotice,
+              privacyNotice,
+            };
           }
           throw new Error("Invalid response format.");
         },
@@ -391,7 +405,6 @@ export const AuthProvider = ({ children }) => {
     },
     [executeAuthAction, setAuthData, showToast],
   );
-
   /**
    * Fetch the current user's profile from `/api/auth/user`.
    *

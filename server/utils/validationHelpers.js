@@ -8,22 +8,31 @@
  * @param {string} email - Email to validate
  * @returns {boolean} - True if valid
  */
-exports.validateEmail = function(email) {
-  if (!email || typeof email !== 'string') return false;
-  
+exports.validateEmail = function (email) {
+  if (!email || typeof email !== "string") return false;
+
   // RFC 5322 compliant email regex
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) return false;
-  
+
   // Check against common disposable email domains
   const disposableDomains = [
-    'tempmail.com', '10minutemail.com', 'guerrillamail.com', 'mailinator.com',
-    'throwaway.email', 'maildrop.cc', 'yopmail.com', 'temp-mail.org',
-    'getairmail.com', 'mailinator.net', 'spam4.me', '0wnd.net'
+    "tempmail.com",
+    "10minutemail.com",
+    "guerrillamail.com",
+    "mailinator.com",
+    "throwaway.email",
+    "maildrop.cc",
+    "yopmail.com",
+    "temp-mail.org",
+    "getairmail.com",
+    "mailinator.net",
+    "spam4.me",
+    "0wnd.net",
   ];
-  
-  const domain = email.split('@')[1]?.toLowerCase();
-  return !disposableDomains.some(d => domain?.includes(d));
+
+  const domain = email.split("@")[1]?.toLowerCase();
+  return !disposableDomains.some((d) => domain?.includes(d));
 };
 
 /**
@@ -31,39 +40,61 @@ exports.validateEmail = function(email) {
  * @param {string} password - Password to validate
  * @returns {object} - { isValid: boolean, message: string }
  */
-exports.validatePassword = function(password) {
-  if (!password || typeof password !== 'string') {
-    return { isValid: false, message: 'Password is required' };
+exports.validatePassword = function (password) {
+  if (!password || typeof password !== "string") {
+    return { isValid: false, message: "Password is required" };
   }
-  
+
   if (password.length < 8) {
-    return { isValid: false, message: 'Password must be at least 8 characters' };
-  }
-  
-  if (password.length > 128) {
-    return { isValid: false, message: 'Password must not exceed 128 characters' };
-  }
-  
-  // Strong password validation
-  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
-  if (!strongPasswordRegex.test(password)) {
-    return { 
-      isValid: false, 
-      message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)' 
+    return {
+      isValid: false,
+      message: "Password must be at least 8 characters",
     };
   }
-  
+
+  if (password.length > 128) {
+    return {
+      isValid: false,
+      message: "Password must not exceed 128 characters",
+    };
+  }
+
+  // Strong password validation
+
+  const strongPasswordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+  if (!strongPasswordRegex.test(password)) {
+    return {
+      isValid: false,
+      message:
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)",
+    };
+  }
+
   // Check for common weak passwords
   const commonPasswords = [
-    'password', 'password123', '12345678', 'qwerty', 'admin', 'letmein',
-    'welcome', 'monkey', 'dragon', 'master', 'sunshine', 'princess'
+    "password",
+    "password123",
+    "12345678",
+    "qwerty",
+    "admin",
+    "letmein",
+    "welcome",
+    "monkey",
+    "dragon",
+    "master",
+    "sunshine",
+    "princess",
   ];
-  
+
   if (commonPasswords.includes(password.toLowerCase())) {
-    return { isValid: false, message: 'Password is too common. Please choose a stronger password.' };
+    return {
+      isValid: false,
+      message: "Password is too common. Please choose a stronger password.",
+    };
   }
-  
-  return { isValid: true, message: 'Password is valid' };
+
+  return { isValid: true, message: "Password is valid" };
 };
 
 /**
@@ -71,37 +102,64 @@ exports.validatePassword = function(password) {
  * @param {string} username - Username to validate
  * @returns {object} - { isValid: boolean, message: string }
  */
-exports.validateUsername = function(username) {
-  if (!username || typeof username !== 'string') {
-    return { isValid: false, message: 'Username is required' };
+exports.validateUsername = function (username) {
+  if (!username || typeof username !== "string") {
+    return { isValid: false, message: "Username is required" };
   }
-  
+
   if (username.length < 3) {
-    return { isValid: false, message: 'Username must be at least 3 characters' };
+    return {
+      isValid: false,
+      message: "Username must be at least 3 characters",
+    };
   }
-  
+
   if (username.length > 30) {
-    return { isValid: false, message: 'Username must not exceed 30 characters' };
+    return {
+      isValid: false,
+      message: "Username must not exceed 30 characters",
+    };
   }
-  
+
   // Username format validation (letters, numbers, underscores only)
   const usernameRegex = /^[a-zA-Z0-9_]+$/;
   if (!usernameRegex.test(username)) {
-    return { isValid: false, message: 'Username can only contain letters, numbers, and underscores' };
+    return {
+      isValid: false,
+      message: "Username can only contain letters, numbers, and underscores",
+    };
   }
-  
+
   // Check against reserved usernames
   const reserved = [
-    'admin', 'root', 'system', 'api', 'www', 'mail', 'support', 'null', 'undefined',
-    'demo', 'guest', 'anonymous', 'moderator', 'superadmin', 'administrator',
-    'staff', 'security', 'help', 'info', 'contact', 'service'
+    "admin",
+    "root",
+    "system",
+    "api",
+    "www",
+    "mail",
+    "support",
+    "null",
+    "undefined",
+    "demo",
+    "guest",
+    "anonymous",
+    "moderator",
+    "superadmin",
+    "administrator",
+    "staff",
+    "security",
+    "help",
+    "info",
+    "contact",
+    "service",
   ];
-  
+
   if (reserved.includes(username.toLowerCase())) {
-    return { isValid: false, message: 'Username is reserved' };
+    return { isValid: false, message: "Username is reserved" };
   }
-  
-  return { isValid: true, message: 'Username is valid' };
+
+  return { isValid: true, message: "Username is valid" };
 };
 
 /**
@@ -109,15 +167,16 @@ exports.validateUsername = function(username) {
  * @param {string} ip - IP address to validate
  * @returns {boolean} - True if valid
  */
-exports.validateIP = function(ip) {
-  if (!ip || typeof ip !== 'string') return false;
-  
+exports.validateIP = function (ip) {
+  if (!ip || typeof ip !== "string") return false;
+
   // IPv4 regex
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  
+  const ipv4Regex =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
   // IPv6 regex (simplified)
   const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
-  
+
   return ipv4Regex.test(ip) || ipv6Regex.test(ip);
 };
 
@@ -126,11 +185,11 @@ exports.validateIP = function(ip) {
  * @param {string} content - Content to validate
  * @returns {object} - { isValid: boolean, message: string }
  */
-exports.validateContent = function(content) {
-  if (!content || typeof content !== 'string') {
-    return { isValid: false, message: 'Content is required' };
+exports.validateContent = function (content) {
+  if (!content || typeof content !== "string") {
+    return { isValid: false, message: "Content is required" };
   }
-  
+
   // Check for script tags and event handlers
   const xssPatterns = [
     /<script[^>]*>.*?<\/script>/gi,
@@ -138,16 +197,19 @@ exports.validateContent = function(content) {
     /on\w+\s*=/gi,
     /<iframe[^>]*>/gi,
     /<object[^>]*>/gi,
-    /<embed[^>]*>/gi
+    /<embed[^>]*>/gi,
   ];
-  
+
   for (const pattern of xssPatterns) {
     if (pattern.test(content)) {
-      return { isValid: false, message: 'Content contains potentially dangerous script elements' };
+      return {
+        isValid: false,
+        message: "Content contains potentially dangerous script elements",
+      };
     }
   }
-  
-  return { isValid: true, message: 'Content is valid' };
+
+  return { isValid: true, message: "Content is valid" };
 };
 
 /**
@@ -155,11 +217,11 @@ exports.validateContent = function(content) {
  * @param {string} sessionId - Session ID to validate
  * @returns {boolean} - True if valid
  */
-exports.validateSessionId = function(sessionId) {
-  if (!sessionId || typeof sessionId !== 'string') return false;
-  
+exports.validateSessionId = function (sessionId) {
+  if (!sessionId || typeof sessionId !== "string") return false;
+
   if (sessionId.length < 10 || sessionId.length > 100) return false;
-  
+
   // Allow letters, numbers, underscores, and hyphens
   const sessionIdRegex = /^[a-zA-Z0-9_-]+$/;
   return sessionIdRegex.test(sessionId);
@@ -171,26 +233,26 @@ exports.validateSessionId = function(sessionId) {
  * @param {object} options - Validation options
  * @returns {object} - { isValid: boolean, message: string }
  */
-exports.validateXP = function(xp, options = {}) {
+exports.validateXP = function (xp, options = {}) {
   const { min = 0, max = 1000, allowFloat = false } = options;
-  
-  if (typeof xp !== 'number' || isNaN(xp)) {
-    return { isValid: false, message: 'XP must be a valid number' };
+
+  if (typeof xp !== "number" || isNaN(xp)) {
+    return { isValid: false, message: "XP must be a valid number" };
   }
-  
+
   if (xp < min) {
     return { isValid: false, message: `XP cannot be less than ${min}` };
   }
-  
+
   if (xp > max) {
     return { isValid: false, message: `XP cannot exceed ${max}` };
   }
-  
+
   if (!allowFloat && !Number.isInteger(xp)) {
-    return { isValid: false, message: 'XP must be an integer' };
+    return { isValid: false, message: "XP must be an integer" };
   }
-  
-  return { isValid: true, message: 'XP value is valid' };
+
+  return { isValid: true, message: "XP value is valid" };
 };
 
 /**
@@ -198,13 +260,13 @@ exports.validateXP = function(xp, options = {}) {
  * @param {string} input - Input to sanitize
  * @returns {string} - Sanitized string
  */
-exports.sanitizeString = function(input) {
-  if (!input || typeof input !== 'string') return '';
-  
+exports.sanitizeString = function (input) {
+  if (!input || typeof input !== "string") return "";
+
   return input
     .trim()
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-    .replace(/[\r\n\t]/g, ' '); // Replace line breaks and tabs with spaces
+    .replace(/\s+/g, " ") // Replace multiple spaces with single space
+    .replace(/[\r\n\t]/g, " "); // Replace line breaks and tabs with spaces
 };
 
 /**
@@ -213,7 +275,7 @@ exports.sanitizeString = function(input) {
  * @param {array} allowedValues - Array of allowed values
  * @returns {boolean} - True if valid
  */
-exports.validateEnum = function(value, allowedValues) {
+exports.validateEnum = function (value, allowedValues) {
   if (!Array.isArray(allowedValues)) return false;
   return allowedValues.includes(value);
 };
@@ -223,9 +285,9 @@ exports.validateEnum = function(value, allowedValues) {
  * @param {string} id - ObjectId string to validate
  * @returns {boolean} - True if valid ObjectId
  */
-exports.validateObjectId = function(id) {
-  if (!id || typeof id !== 'string') return false;
-  
+exports.validateObjectId = function (id) {
+  if (!id || typeof id !== "string") return false;
+
   // MongoDB ObjectId validation (24 character hex string)
   const objectIdRegex = /^[0-9a-fA-F]{24}$/;
   return objectIdRegex.test(id);
@@ -237,30 +299,36 @@ exports.validateObjectId = function(id) {
  * @param {object} options - Validation options
  * @returns {object} - { isValid: boolean, message: string }
  */
-exports.validateDate = function(date, options = {}) {
+exports.validateDate = function (date, options = {}) {
   const { minDate, maxDate, allowFuture = true, allowPast = true } = options;
-  
+
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    return { isValid: false, message: 'Invalid date format' };
+    return { isValid: false, message: "Invalid date format" };
   }
-  
+
   const now = new Date();
-  
+
   if (!allowFuture && date > now) {
-    return { isValid: false, message: 'Date cannot be in the future' };
+    return { isValid: false, message: "Date cannot be in the future" };
   }
-  
+
   if (!allowPast && date < now) {
-    return { isValid: false, message: 'Date cannot be in the past' };
+    return { isValid: false, message: "Date cannot be in the past" };
   }
-  
+
   if (minDate && date < minDate) {
-    return { isValid: false, message: `Date must be after ${minDate.toDateString()}` };
+    return {
+      isValid: false,
+      message: `Date must be after ${minDate.toDateString()}`,
+    };
   }
-  
+
   if (maxDate && date > maxDate) {
-    return { isValid: false, message: `Date must be before ${maxDate.toDateString()}` };
+    return {
+      isValid: false,
+      message: `Date must be before ${maxDate.toDateString()}`,
+    };
   }
-  
-  return { isValid: true, message: 'Date is valid' };
+
+  return { isValid: true, message: "Date is valid" };
 };

@@ -163,6 +163,28 @@ const createPasswordResetEmail = (resetUrl) => {
   };
 };
 
+// Age Verification GDPR
+const calculateAge = (birthDate) => {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
+
+const getAgeBracket = (age) => {
+  if (age < 16) return "13-15";
+  if (age < 18) return "16-17";
+  return "18+";
+};
+
+module.exports = { calculateAge, getAgeBracket };
+
 module.exports = {
   ACCESS_TOKEN_LIFESPAN,
   REFRESH_COOKIE_OPTIONS,
@@ -174,4 +196,6 @@ module.exports = {
   getAccessTokenSecret: config.getAccessTokenSecret,
   getRefreshTokenSecret: config.getRefreshTokenSecret,
   createPasswordResetEmail,
+  calculateAge,
+  getAgeBracket,
 };

@@ -52,7 +52,102 @@ const register = catchAsync(async (req, res, next) => {
     return next(new AppError(passwordValidation.message, 400));
   }
 
-  // Check for existing users
+  // Age verification for UK compliance
+  if (!req.body.dateOfBirth) {
+    return next(new AppError("Date of birth is required", 400));
+  }
+
+  const birthDate = new Date(req.body.dateOfBirth);
+  if (isNaN(birthDate.getTime())) {
+    return next(new AppError("Invalid date of birth", 400));
+  }
+
+  const age = authUtils.calculateAge(birthDate);
+  if (age < 13 || age > 120) {
+    return next(
+      new AppError(
+        "You must be at least 13 years old to use this service.",
+        400,
+      ),
+    );
+  }
+
+  const ageBracket = authUtils.getAgeBracket(age);
+
+  // Age-appropriate notices and default privacy settings
+  let ageNotice = null;
+  let defaultPrivacySettings = {
+    showOnLeaderboards: true,
+    showAsAnonymous: false,
+    showUsernameOnLeaderboards: false,
+  };
+
+  if (ageBracket === "13-15") {
+    ageNotice = {
+      bracket: "13-15",
+      title: "Welcome! Let's keep you safe online 🛡️",
+      message:
+        "To protect your privacy, your profile is set to private by default. " +
+        "This means other learners won't see your username or progress. " +
+        "You can adjust these settings when you feel ready.",
+      tips: [
+        "Never share personal information in code comments or usernames",
+        "Talk to a parent or guardian if something doesn't feel right",
+        "You can download or delete your data anytime in Settings",
+      ],
+      requiresParentalGuidance: true,
+      defaultPrivacySettings: {
+        showOnLeaderboards: false,
+        showAsAnonymous: true,
+        showUsernameOnLeaderboards: false,
+      },
+      restrictedFeatures: {
+        note: "Some social features are limited to keep you safe. These will unlock when you turn 16.",
+        features: ["public_profile", "community_forums"],
+      },
+    };
+    defaultPrivacySettings = ageNotice.defaultPrivacySettings;
+  } else if (ageBracket === "16-17") {
+    ageNotice = {
+      bracket: "16-17",
+      title: "You're in control of your data 🔐",
+      message:
+        "You have full control over your privacy. Visit Settings anytime to manage " +
+        "what information is visible to others or to download your data.",
+      tips: [
+        "Review your privacy settings regularly",
+        "You can export all your data under Settings > Export Data",
+        "You can delete your account and all associated data permanently",
+      ],
+      defaultPrivacySettings: {
+        showOnLeaderboards: true,
+        showAsAnonymous: false,
+        showUsernameOnLeaderboards: false,
+      },
+    };
+    defaultPrivacySettings = ageNotice.defaultPrivacySettings;
+  } else {
+    // 18+ - no specific age notice needed, but we can still provide a privacy reminder
+    ageNotice = {
+      bracket: "18+",
+      title: "Welcome to the community! 🎉",
+      message:
+        "Your learning journey starts now. You have full control over your data and privacy settings.",
+      tips: [
+        "Complete your profile to get the most out of the platform",
+        "Check out the community guidelines",
+        "You can export or delete your data anytime in Settings",
+      ],
+      defaultPrivacySettings: {
+        showOnLeaderboards: true,
+        showAsAnonymous: false,
+        showUsernameOnLeaderboards: false,
+      },
+    };
+    defaultPrivacySettings = ageNotice.defaultPrivacySettings;
+  }
+
+  // Check for existing users BEFORE creating
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
     return next(new AppError("Email already in use.", 400));
@@ -63,15 +158,22 @@ const register = catchAsync(async (req, res, next) => {
     return next(new AppError("Username already taken", 400));
   }
 
+  // Hash password
   const hashed = await bcrypt.hash(password, 12);
 
+  // Create user ONCE with all required fields
   const newUser = await User.create({
     username,
     email,
     password: hashed,
+    ageBracket,
+    ageVerified: true,
+    ageVerifiedAt: new Date(),
+    privacySettings: defaultPrivacySettings,
     refreshTokenVersion: 0,
   });
 
+  // Generate tokens
   const accessToken = authUtils.generateToken(
     {
       id: newUser._id,
@@ -100,6 +202,29 @@ const register = catchAsync(async (req, res, next) => {
     maxAge: cookieMaxAge,
   });
 
+  // Privacy notice (GDPR transparency)
+  const privacyNotice = {
+    dataCollected: [
+      "Username",
+      "Email address",
+      "Learning progress (XP, levels, completed lessons)",
+      "Quiz and exercise results",
+      "Activity timestamps",
+    ],
+    dataRetention:
+      "Account data is retained until you delete your account. " +
+      "Activity logs are automatically deleted after 90 days.",
+    yourRights: [
+      "Access your data (Settings > Export Data)",
+      "Correct inaccurate data",
+      "Delete your account and all data",
+      "Object to data processing",
+      "Data portability",
+    ],
+    contactEmail: "learning2py@gmail.com", // Update with your actual email
+    lastUpdated: "2026-05-14",
+  };
+
   sendJsonResponse(res, 201, "Signup successful.", {
     accessToken,
     user: {
@@ -107,7 +232,10 @@ const register = catchAsync(async (req, res, next) => {
       username: newUser.username,
       isAdmin: newUser.isAdmin,
       streak: newUser.streak,
+      privacySettings: newUser.privacySettings,
     },
+    ageNotice,
+    privacyNotice,
   });
 });
 
@@ -821,6 +949,14 @@ const exportUserData = catchAsync(async (req, res, next) => {
       isAdmin: user.isAdmin,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      ageVerified: user.ageVerified,
+      ageVerifiedAt: user.ageVerifiedAt,
+      ageBracket: user.ageBracket,
+      // Note: dateOfBirth is not stored, only age verification status
+      dataRetentionNote:
+        "Age verification performed at registration. Date of birth is not stored. " +
+        "Age bracket is retained for legal compliance under GDPR and UK Children's Code.",
+
       // Progress
       xp: user.xp,
       level: user.level,
