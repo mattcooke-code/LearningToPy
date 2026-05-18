@@ -17,10 +17,12 @@ import Login from "./pages/Login";
 import ModuleLessonsPage from "./pages/ModuleLessonsPage";
 import ModulesPage from "./pages/ModulesPage";
 import ModuleQuizPage from "./pages/ModuleQuizPage";
+import Privacy from "./pages/Privacy";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Support from "./pages/Support";
+import Terms from "./pages/terms";
 
 // Import Admin Pages
 import AdminDashboard from "./pages/AdminDashboard";
@@ -58,6 +60,9 @@ function App() {
             <Route path="/curriculum" element={<Curriculum />} />
             <Route path="/support" element={<Support />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+
             {/* PROTECTED */}
             <Route
               path="/dashboard"

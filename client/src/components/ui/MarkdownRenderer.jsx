@@ -60,6 +60,19 @@ import ImageViewer from "./ImageViewer";
  * - Merges explicit `isDark` prop with global theme
  * - Applies theme-specific Tailwind classes throughout
  */
+
+/**
+ * Generates a URL-safe id from a heading string, matching the format used in
+ * anchor links (e.g. "Contact details" → "contact-details").
+ */
+const slugify = (text) => {
+  if (typeof text !== "string") return undefined;
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+};
+
 const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
   const { isDarkMode: globalIsDarkMode } = useTheme();
 
@@ -143,7 +156,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
     };
 
     const style = containerStyles[type] || containerStyles.summary;
-    const colors = activeDark ? style.dark : style.light; // Updated to use activeDark
+    const colors = activeDark ? style.dark : style.light;
 
     return (
       <div className={`my-6 p-4 rounded-r-lg ${colors.bg} ${colors.border}`}>
@@ -175,17 +188,28 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
 
     const dynamicComponents = {
       h1: ({ children }) => (
-        <h2 className={`text-xl font-semibold mb-3 mt-2 ${textColor}`}>
+        <h2
+          id={slugify(children)}
+          className={`text-xl font-semibold mb-3 mt-2 ${textColor}`}
+        >
           {children}
         </h2>
       ),
       h2: ({ children }) => (
-        <h3 className={`text-lg font-semibold mb-2 mt-2 ${textColor}`}>
+        <h3
+          id={slugify(children)}
+          className={`text-lg font-semibold mb-2 mt-2 ${textColor}`}
+        >
           {children}
         </h3>
       ),
       h3: ({ children }) => (
-        <h4 className={`font-semibold mb-1 mt-2 ${textColor}`}>{children}</h4>
+        <h4
+          id={slugify(children)}
+          className={`font-semibold mb-1 mt-2 ${textColor}`}
+        >
+          {children}
+        </h4>
       ),
       p: ({ children }) => (
         <p className={`mb-2 leading-relaxed ${textColor}`}>{children}</p>
@@ -225,16 +249,18 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       em: ({ children }) => (
         <em className={`italic ${textColor}`}>{children}</em>
       ),
-      a: ({ href, children }) => (
-        <a
-          href={href}
-          className={`font-medium underline ${activeDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {children}
-        </a>
-      ),
+      a: ({ href, children }) => {
+        const isAnchor = href?.startsWith("#");
+        return (
+          <a
+            href={href}
+            className={`font-medium underline ${activeDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
+            {...(!isAnchor && { target: "_blank", rel: "noopener noreferrer" })}
+          >
+            {children}
+          </a>
+        );
+      },
     };
 
     return (
@@ -283,6 +309,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
   const markdownComponents = {
     h1: ({ children }) => (
       <h1
+        id={slugify(children)}
         className={`text-2xl font-bold mb-4 mt-6 ${activeDark ? "text-white" : "text-gray-800"}`}
       >
         {children}
@@ -290,6 +317,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
     ),
     h2: ({ children }) => (
       <h2
+        id={slugify(children)}
         className={`text-xl font-semibold mb-3 mt-6 ${activeDark ? "text-gray-100" : "text-gray-800"}`}
       >
         {children}
@@ -297,6 +325,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
     ),
     h3: ({ children }) => (
       <h3
+        id={slugify(children)}
         className={`text-lg font-semibold mb-2 mt-4 ${activeDark ? "text-gray-200" : "text-gray-800"}`}
       >
         {children}
@@ -352,20 +381,23 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       );
     },
 
-    a: ({ href, children }) => (
-      <a
-        href={href}
-        className={`font-medium underline decoration-2 underline-offset-4 transition-colors ${
-          activeDark
-            ? "text-blue-400 hover:text-blue-300 decoration-blue-800"
-            : "text-blue-600 hover:text-blue-800 decoration-blue-200"
-        }`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {children}
-      </a>
-    ),
+    a: ({ href, children }) => {
+      const isAnchor = href?.startsWith("#");
+      return (
+        <a
+          href={href}
+          className={`font-medium underline decoration-2 underline-offset-4 transition-colors ${
+            activeDark
+              ? "text-blue-400 hover:text-blue-300 decoration-blue-800"
+              : "text-blue-600 hover:text-blue-800 decoration-blue-200"
+          }`}
+          {...(!isAnchor && { target: "_blank", rel: "noopener noreferrer" })}
+        >
+          {children}
+        </a>
+      );
+    },
+
     ul: ({ children }) => (
       <ul
         className={`list-disc ml-6 mb-4 space-y-1 ${activeDark ? "text-gray-300" : "text-gray-700"}`}

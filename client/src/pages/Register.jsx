@@ -413,7 +413,14 @@ const Register = () => {
               >
                 Privacy Policy
               </button>{" "}
-              and understand how my data will be used. I confirm I am at least
+              (
+              <a
+                href="/privacy#young-learners"
+                className="text-python-blue dark:text-python-light hover:text-purple-600"
+              >
+                see summary for younger users
+              </a>
+              ) and understand how my data will be used. I confirm I am at least
               13 years old.
             </label>
           </div>
