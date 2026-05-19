@@ -35,7 +35,7 @@ const {
  * @returns {Object} 400 - Validation error, duplicate email, or duplicate username
  */
 const register = catchAsync(async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, parentalConsent } = req.body;
 
   // Validate input using validationHelpers
   const usernameValidation = validateUsername(username);
@@ -63,13 +63,17 @@ const register = catchAsync(async (req, res, next) => {
   }
 
   const age = authUtils.calculateAge(birthDate);
-  if (age < 13 || age > 120) {
+  if (age < 13) {
     return next(
       new AppError(
         "You must be at least 13 years old to use this service.",
         400,
       ),
     );
+  }
+
+  if (age > 120) {
+    return next(new AppError("Please enter a valid date of birth.", 400));
   }
 
   const ageBracket = authUtils.getAgeBracket(age);
@@ -96,6 +100,7 @@ const register = catchAsync(async (req, res, next) => {
         "You can download or delete your data anytime in Settings",
       ],
       requiresParentalGuidance: true,
+      parentalConsentConfirmed: !!parentalConsent,
       defaultPrivacySettings: {
         showOnLeaderboards: false,
         showAsAnonymous: true,
@@ -170,6 +175,8 @@ const register = catchAsync(async (req, res, next) => {
     ageVerified: true,
     ageVerifiedAt: new Date(),
     privacySettings: defaultPrivacySettings,
+    parentalConsentConfirmed:
+      ageBracket == "13-15" ? !!parentalConsent : undefined,
     refreshTokenVersion: 0,
   });
 
@@ -952,6 +959,7 @@ const exportUserData = catchAsync(async (req, res, next) => {
       ageVerified: user.ageVerified,
       ageVerifiedAt: user.ageVerifiedAt,
       ageBracket: user.ageBracket,
+      parentalConsentConfirmed: user.parentalConsentConfirmed,
       // Note: dateOfBirth is not stored, only age verification status
       dataRetentionNote:
         "Age verification performed at registration. Date of birth is not stored. " +

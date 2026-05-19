@@ -27,6 +27,7 @@ This privacy notice tells you what to expect us to do with your personal informa
     - [How we use your data](#how-we-use-your-data)
     - [Dealing with queries, complaints or claims](#dealing-with-queries-complaints-or-claims)
     - [Complying with legal requirements](#complying-with-legal-requirements)
+  - [How we keep your data secure](#how-we-keep-your-data-secure)
   - [Children's privacy](#childrens-privacy)
   - [Cookies](#cookies)
   - [Lawful bases and data protection rights](#lawful-bases-and-data-protection-rights)
@@ -48,6 +49,8 @@ This privacy notice tells you what to expect us to do with your personal informa
 ## Contact details
 
 Learning To Py is the data controller responsible for your personal information.
+
+**ICO Registration Number:** C1936992
 
 If you have any questions about this privacy notice, including any requests to exercise your legal rights, please contact us at:
 
@@ -95,7 +98,7 @@ We collect or use the following personal information for dealing with queries, c
 - Account login or user information
 - Correspondence
 
-When you contact us with a query or complaint, we process your information on the basis of legitimate interests — it is in both our interests to resolve your issue. You can object to this processing at any time.
+When you contact us with a query or complaint, we process your information on the basis of legitimate interests — it is in both our interests to resolve your issue. We have assessed that our legitimate interests are not overridden by your rights and freedoms. You can object to this processing at any time.
 
 ### Complying with legal requirements
 
@@ -106,6 +109,20 @@ We collect or use the following information to comply with legal requirements:
 
 ---
 
+## How we keep your data secure
+
+We take appropriate technical and organisational measures to protect your personal information against unauthorised access, loss, or misuse. These measures include:
+
+- **Password security:** Passwords are hashed before storage using industry-standard algorithms. Your plain-text password is never stored or accessible to us.
+- **Authentication:** Secure tokens are used for session management, with appropriate expiry periods.
+- **Transport security:** All data transmitted between your device and our platform is encrypted in transit.
+- **Input protection:** We apply rate limiting and input validation to protect against common attack vectors.
+- **Access controls:** Administrative access to user data is logged and restricted to authorised personnel only.
+
+We regularly review our security practices and update them as needed. No system is completely immune to security risks, but we take reasonable steps to minimise them.
+
+---
+
 ## Children's privacy
 
 Our platform is designed for learners aged 13 and above. We do not knowingly collect personal information from children under 13. If you are under 13, please do not create an account. If we learn that we have collected data from a child under 13 without verified parental consent, we will delete that data promptly.
@@ -113,8 +130,8 @@ Our platform is designed for learners aged 13 and above. We do not knowingly col
 We take additional measures to protect younger users:
 
 - **Age verification:** We verify age during registration but never store your full date of birth. We only retain your age bracket (13-15, 16-17, or 18+).
-- **Enhanced privacy for under-16s:** Users under 16 automatically receive maximum privacy settings. Their profiles are not visible to other learners, and certain social features are limited until they turn 16.
-- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian. Parents or guardians may contact us at **learning2py@gmail.com** to:
+- **Enhanced privacy for under-16s:** Users under 16 automatically receive maximum privacy settings. Their profiles are not visible to other learners, and community features such as public leaderboard visibility and profile discovery are disabled until they turn 16. These features can only be enabled manually by the user once they reach 16.
+- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** to:
   - Confirm whether their child has an account
   - Request deletion of their child's data
   - Request a copy of their child's data
@@ -152,19 +169,19 @@ Under UK data protection law, we must have a "lawful basis" for collecting and u
 
 Which lawful basis we rely on may affect your data protection rights, which are set out in brief below. You can find out more about your data protection rights and the exemptions which may apply on the ICO's website:
 
-- **Your right of access** — You have the right to ask us for copies of your personal information. You can request other information such as details about where we get personal information from and who we share personal information with. There are some exemptions which means you may not receive all the information you ask for. [Read more about the right of access](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right of access** — You have the right to ask us for copies of your personal information. You can request other information such as details about where we get personal information from and who we share personal information with. There are some exemptions which means you may not receive all the information you ask for.
 
-- **Your right to rectification** — You have the right to ask us to correct or delete personal information you think is inaccurate or incomplete. [Read more about the right to rectification](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right to rectification** — You have the right to ask us to correct or delete personal information you think is inaccurate or incomplete.
 
-- **Your right to erasure** — You have the right to ask us to delete your personal information. [Read more about the right to erasure](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right to erasure** — You have the right to ask us to delete your personal information.
 
-- **Your right to restriction of processing** — You have the right to ask us to limit how we can use your personal information. [Read more about the right to restriction of processing](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right to restriction of processing** — You have the right to ask us to limit how we can use your personal information.
 
-- **Your right to object to processing** — You have the right to object to the processing of your personal data. [Read more about the right to object to processing](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right to object to processing** — You have the right to object to the processing of your personal data.
 
-- **Your right to data portability** — You have the right to ask that we transfer the personal information you gave us to another organisation, or to you. [Read more about the right to data portability](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right to data portability** — You have the right to ask that we transfer the personal information you gave us to another organisation, or to you.
 
-- **Your right to withdraw consent** — When we use consent as our lawful basis you have the right to withdraw your consent at any time. [Read more about the right to withdraw consent](https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/create-your-own-privacy-notice/your-data-protection-rights/).
+- **Your right to withdraw consent** — When we use consent as our lawful basis you have the right to withdraw your consent at any time. You can do this by deleting your account via Account Management, or by contacting us. Note that withdrawing consent does not affect the lawfulness of processing carried out before the withdrawal.
 
 If you make a request, we must respond to you without undue delay and in any event within one month.
 
@@ -176,9 +193,9 @@ To make a data protection rights request, please contact us using the contact de
 
 Our lawful bases for collecting or using personal information for student education and welfare are:
 
-- **Consent** — we have permission from you after we gave you all the relevant information. All of your data protection rights may apply, except the right to object. To be clear, you do have the right to withdraw your consent at any time.
+- **Legitimate interests** — we collect and use your information because it benefits you (by enabling a personalised learning experience) and our organisation, without causing an undue risk of harm to anyone. We have assessed that our legitimate interests are not overridden by your rights and freedoms. All of your data protection rights may apply, except the right to portability. You can object to this processing at any time by contacting us.
 
-- **Legitimate interests** — we're collecting or using your information because it benefits you, our organisation or someone else, without causing an undue risk of harm to anyone. All of your data protection rights may apply, except the right to portability.
+- **Consent** — where we rely on your consent (for example, for optional features), we have permission from you after giving you all relevant information. You have the right to withdraw your consent at any time.
 
 For more information on our use of legitimate interests as a lawful basis you can contact us using the contact details set out above.
 
@@ -187,8 +204,6 @@ For more information on our use of legitimate interests as a lawful basis you ca
 Our lawful bases for collecting or using personal information for dealing with queries, complaints or claims are:
 
 - **Legitimate interests** — we're collecting or using your information because it benefits you, our organisation or someone else, without causing an undue risk of harm to anyone. All of your data protection rights may apply, except the right to portability.
-
-For more information on our use of legitimate interests as a lawful basis you can contact us using the contact details set out above.
 
 **Complying with legal requirements**
 
@@ -204,7 +219,7 @@ You can exercise many of your data protection rights directly through our platfo
 
 | Right                       | How to exercise it                                                                 |
 | :-------------------------- | :--------------------------------------------------------------------------------- |
-| **Access your data**        | Profile → Account Management → Export Data                                         |
+| **Access your data**        | Profile → Account Management → Export Data (downloaded as JSON)                    |
 | **Delete your account**     | Profile → Account Management → Delete Account                                      |
 | **Update your information** | Use the Report Form on any Lesson page, or contact us at **learning2py@gmail.com** |
 | **Manage privacy**          | Profile → Privacy Settings                                                         |
@@ -222,18 +237,21 @@ For all other requests, please contact us at **learning2py@gmail.com**.
 
 ## How long we keep information
 
-| Data type                                            | Retention period                              |
-| ---------------------------------------------------- | --------------------------------------------- |
-| Account data (username, email, password)             | Until you delete your account                 |
-| Learning progress (XP, levels, completed lessons)    | Until you delete your account                 |
-| Quiz and exercise results                            | Until you delete your account                 |
-| Achievements and badges                              | Until you delete your account                 |
-| Activity logs                                        | Automatically deleted after 90 days           |
-| Admin audit logs (including anonymised IP addresses) | Automatically deleted after 365 days (1 year) |
-| Support correspondence                               | 12 months after your query is resolved        |
-| Age bracket (13-15, 16-17, 18+)                      | Until account deletion                        |
+| Data type                                                                   | Retention period                                                                                                                         |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Account data (username, email, password hash)                               | Until you delete your account                                                                                                            |
+| Learning progress (XP, levels, completed lessons)                           | Until you delete your account                                                                                                            |
+| Quiz and exercise results                                                   | Until you delete your account                                                                                                            |
+| Achievements and badges                                                     | Until you delete your account                                                                                                            |
+| Activity logs                                                               | Automatically deleted after 90 days                                                                                                      |
+| Admin audit logs (including anonymised IP addresses)                        | Automatically deleted after 365 days (1 year)                                                                                            |
+| Support correspondence                                                      | 12 months after the query is closed                                                                                                      |
+| Age bracket (13-15, 16-17, 18+)                                             | Until account deletion                                                                                                                   |
+| Data retained following account termination for Terms of Service violations | Handled in accordance with the same retention periods above. You may contact us to request deletion of your data even after termination. |
 
-**Note on IP addresses:** Where IP addresses are logged (for example, in admin audit logs), they are anonymised before storage (the last portion is zeroed out). These anonymised IP addresses are automatically deleted along with their associated logs.
+**Note on IP addresses:** Where IP addresses are logged (for example, in admin audit logs), they are anonymised before storage (the last portion is zeroed out). These anonymised IP addresses are automatically deleted along with their associated logs after 365 days.
+
+**Note on support correspondence:** A query is considered closed when we have sent a final response and no further reply has been received within 30 days, or when both parties have confirmed the matter is resolved.
 
 **Note:** Your full date of birth is never stored on our servers.
 
@@ -301,12 +319,12 @@ For further information or to obtain a copy of the appropriate safeguard for any
 | **Country**               | United States                                                                   |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
-**Placeholder Inc.**
+**Web Hosting Provider**
 
 |                           |                                                                                 |
 | ------------------------- | ------------------------------------------------------------------------------- |
 | **Category of recipient** | Web hosting and content delivery provider (Technology/Infrastructure sector)    |
-| **Country**               | United States                                                                   |
+| **Country**               | [To be confirmed]                                                               |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
 ### Transfers made by our data processors
@@ -329,47 +347,43 @@ Where necessary, our data processors may share personal information outside of t
 | **Country**               | United States (and potentially other regions globally for email delivery)            |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations)      |
 
-**Placeholder Inc. sub-processors** (including content delivery network and edge computing providers)
-
-|                           |                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------- |
-| **Category of recipient** | Content delivery and edge computing providers (Technology/Infrastructure sector) |
-| **Country**               | United States and global edge locations                                          |
-| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations)  |
-
 ---
 
 ## Automated Decision-Making
 
 We use automated processing to calculate and track your gamified learning progress. Specifically, our system automatically tracks:
 
-- Your cumulative XP and account levels.
-- Achievements and badges earned based on performance criteria.
-- Daily learning streaks.
-- Your position on community leaderboards.
+- Your cumulative XP and account levels
+- Achievements and badges earned based on performance criteria
+- Daily learning streaks
+- Your position on community leaderboards
 
-These automated processes are core elements of the learning experience and do not produce legal, financial, or similarly significant effects for you. You can choose to hide your profile from public leaderboards at any time via your Profile → Privacy Settings.
+These automated processes are core elements of the learning experience and do not produce legal, financial, or similarly significant effects for you. You can choose to hide your profile from public leaderboards at any time via Profile → Privacy Settings.
 
 ---
 
 ## How to complain
 
-If you have any concerns about our use of your personal data, you can make a complaint to us using the contact details at the top of this privacy notice.
+If you have any concerns about our use of your personal data, we ask that you contact us first so we can try to resolve the matter informally:
+
+**Email:** learning2py@gmail.com
+
+We will acknowledge your complaint promptly and aim to resolve it within 30 days.
 
 If you remain unhappy with how we've used your data after raising a complaint with us, you can also complain to the ICO.
 
 **The ICO's address:**
 
-Information Commissioner's Office  
-Wycliffe House  
-Water Lane  
-Wilmslow  
-Cheshire  
+Information Commissioner's Office
+Wycliffe House
+Water Lane
+Wilmslow
+Cheshire
 SK9 5AF
 
-**Helpline number:** 0303 123 1113  
-**Website:** [https://www.ico.org.uk/make-a-complaint](https://ico.org.uk/make-a-complaint/)
+**Helpline number:** 0303 123 1113
+**Website:** [https://ico.org.uk/make-a-complaint](https://ico.org.uk/make-a-complaint/)
 
 ---
 
-_Last updated: 15 May 2026_
+_Last updated: 18 May 2026_

@@ -74,6 +74,7 @@ const UserSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
+    parentalConsentConfirmed: { type: Boolean, default: undefined },
     password: {
       type: String,
       required: [true, "Password is required"],

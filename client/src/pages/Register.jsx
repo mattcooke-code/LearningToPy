@@ -7,15 +7,21 @@ import { Spinner } from "../components/ui";
  * User registration page with comprehensive form validation and password confirmation.
  * This page handles new user account creation with username, email, and password fields,
  * including real-time password matching validation and automatic redirect after successful registration.
+ *
+ * Age-appropriate features include:
+ * - Conditional parental consent checkbox for users aged 13-15
+ * - Dynamic age bracket information panel
+ * - Privacy policy summary link tailored for younger users
  */
 
 /**
  * Registration page component for creating new user accounts with comprehensive validation.
  *
  * This component manages user registration with form fields for username, email, password,
- * and password confirmation. Features real-time password validation, character limits,
- * accessibility attributes, and automatic redirect for authenticated users. Includes
- * error handling, loading states, and responsive design for optimal user experience.
+ * password confirmation, and date of birth. Features real-time password validation,
+ * character limits, accessibility attributes, and automatic redirect for authenticated users.
+ * Includes error handling, loading states, responsive design, and age-appropriate UX
+ * such as a conditional parental consent checkbox for users under 16.
  *
  * @component
  * @returns {JSX.Element} Registration form with validation and user creation
@@ -32,7 +38,8 @@ import { Spinner } from "../components/ui";
  * - Username length validation (3-30 characters)
  * - Email format validation through HTML5 input type
  * - Password matching validation in real-time
- * - Age verification > 13 years old (GDPR)
+ * - Age verification > 13 years old (GDPR/Children's Code)
+ * - Parental consent checkbox for users aged 13-15
  * - Form validation before submission
  * - Disabled submit button when validation fails
  *
@@ -41,6 +48,9 @@ import { Spinner } from "../components/ui";
  * - Loading spinner during registration process
  * - Error messages for failed registration attempts
  * - Auto-complete attributes for better UX
+ * - Age-appropriate information panel
+ * - Age information hover tooltip for DOB field
+ * - Conditional parental consent checkbox (13-15 age bracket only)
  * - Responsive design for all screen sizes
  *
  * @securityFeatures
@@ -62,9 +72,6 @@ const Register = () => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showAgeInfo, setShowAgeInfo] = useState(false);
-  const [showPrivacyInfo, setShowPrivacyInfo] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
-  const [registrationData, setRegistrationData] = useState(null);
 
   const { register, loading, authError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -120,21 +127,14 @@ const Register = () => {
       return;
     }
 
-    const result = await register(username, email, password, dateOfBirth);
-
-    if (result?.success) {
-      setRegistrationData(result);
-      setRegistrationSuccess(true);
-    }
-  };
-
-  const handleContinue = () => {
-    navigate("/");
-  };
-
-  const handleStartLearning = () => {
-    // Navigate to dashboard, modals will appear on profile page
-    navigate("/");
+    await register(
+      username,
+      email,
+      password,
+      dateOfBirth,
+      ageBracket === "13-15",
+    );
+    // Navigation is handled by the useEffect when isAuthenticated becomes true
   };
 
   // Age-appropriate information based on selected DOB
@@ -406,24 +406,51 @@ const Register = () => {
               className="text-xs text-gray-600 dark:text-gray-300"
             >
               I agree to the{" "}
-              <button
-                type="button"
-                onClick={() => setShowPrivacyInfo(true)}
+              <Link
+                to="/privacy"
+                target="_blank"
                 className="text-python-blue dark:text-python-yellow hover:underline font-medium"
               >
                 Privacy Policy
-              </button>{" "}
+              </Link>{" "}
               (
-              <a
-                href="/privacy#young-learners"
+              <Link
+                to="/privacy#young-learners"
+                target="_blank"
                 className="text-python-blue dark:text-python-light hover:text-purple-600"
               >
-                see summary for younger users
-              </a>
-              ) and understand how my data will be used. I confirm I am at least
-              13 years old.
+                summary for younger users
+              </Link>
+              ) and confirm I am at least 13 years old.
             </label>
           </div>
+
+          {/* Parental Consent Checkbox — only for 13-15 age bracket */}
+          {ageBracket === "13-15" && (
+            <div className="flex items-start space-x-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+              <input
+                id="parentalConsent"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 text-python-blue focus:ring-python-blue border-gray-300 rounded"
+              />
+              <label
+                htmlFor="parentalConsent"
+                className="text-xs text-gray-600 dark:text-gray-300"
+              >
+                I confirm that I have discussed creating this account with a
+                parent or guardian, and they are aware of and agree to my use of
+                this learning platform. They understand they can contact{" "}
+                <a
+                  href="mailto:learning2py@gmail.com"
+                  className="text-python-blue dark:text-python-yellow hover:underline font-medium"
+                >
+                  learning2py@gmail.com
+                </a>{" "}
+                to request information or deletion of my data at any time.
+              </label>
+            </div>
+          )}
 
           <button
             type="submit"
@@ -456,113 +483,6 @@ const Register = () => {
           </div>
         </form>
       </div>
-
-      {/* Privacy Policy Modal */}
-      {showPrivacyInfo && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
-            <div className="text-center mb-6">
-              <div className="text-4xl mb-4">🔒</div>
-              <h3 className="text-2xl font-bold text-python-blue dark:text-python-yellow mb-2">
-                Privacy Policy
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Last updated: May 2026
-              </p>
-            </div>
-
-            <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
-              <section>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  What We Collect
-                </h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Username and email address</li>
-                  <li>Age bracket (13-15, 16-17, or 18+)</li>
-                  <li>Learning progress and achievements</li>
-                  <li>Quiz and exercise results</li>
-                  <li>Activity timestamps for streaks</li>
-                </ul>
-                <p className="mt-2 text-xs italic">
-                  Note: Your date of birth is verified but NEVER stored.
-                </p>
-              </section>
-
-              <section>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  How We Use Your Data
-                </h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>To provide personalized learning experiences</li>
-                  <li>To track your progress and award achievements</li>
-                  <li>To maintain learning streaks and leaderboards</li>
-                  <li>To improve our platform and fix bugs</li>
-                  <li>To comply with UK GDPR and children's privacy laws</li>
-                </ul>
-              </section>
-
-              <section>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Your Rights Under GDPR
-                </h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Access your data anytime (Settings → Export Data)</li>
-                  <li>Correct inaccurate information</li>
-                  <li>Delete your account and all data permanently</li>
-                  <li>Object to data processing</li>
-                  <li>Data portability (receive your data in JSON format)</li>
-                </ul>
-              </section>
-
-              <section>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Data Retention
-                </h4>
-                <p>
-                  Your account data is retained until you delete your account.
-                  Activity logs are automatically deleted after 90 days. You can
-                  request immediate deletion at any time.
-                </p>
-              </section>
-
-              <section>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Special Protections for Under-16s
-                </h4>
-                <p>
-                  If you're under 16, we automatically enable enhanced privacy
-                  settings. Your profile won't be visible to other users, and
-                  certain social features are limited. These protections follow
-                  the UK Age Appropriate Design Code.
-                </p>
-              </section>
-
-              <section>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Contact Us
-                </h4>
-                <p>
-                  For privacy-related questions or to exercise your data rights,
-                  contact us at:{" "}
-                  <a
-                    href="mailto:learning2py@gmail.com"
-                    className="text-python-blue dark:text-python-yellow underline"
-                  >
-                    learning2py@gmail.com
-                  </a>
-                </p>
-              </section>
-            </div>
-
-            <button
-              onClick={() => setShowPrivacyInfo(false)}
-              className="mt-6 w-full py-3 px-4 bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light text-white dark:text-python-dark font-bold rounded-lg transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

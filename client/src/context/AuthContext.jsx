@@ -370,7 +370,7 @@ export const AuthProvider = ({ children }) => {
    * @returns {Promise<{ success: boolean }>}
    */
   const register = useCallback(
-    async (username, email, password, dateOfBirth) => {
+    async (username, email, password, dateOfBirth, parentalConsent) => {
       return executeAuthAction(
         "registration",
         () =>
@@ -379,6 +379,7 @@ export const AuthProvider = ({ children }) => {
             email,
             dateOfBirth,
             password,
+            parentalConsent,
           }),
         (payload) => {
           const {

@@ -1,6 +1,6 @@
 # Learning To Py — Terms of Service
 
-_Last updated: 15 May 2026_
+_Last updated: 18 May 2026_
 
 ---
 
@@ -14,11 +14,9 @@ _Last updated: 15 May 2026_
 > - The code you write is yours. We won't publish it without asking
 > - If you find a bug, tell us! We love bug reports
 > - If you break the rules, we might suspend your account, but you can appeal
-> - If you're under 16, talk to a parent or guardian about the platform
+> - If you're under 16, talk to a parent or guardian before signing up
 >
 > The full legal version is below (it says the same thing but takes longer!)
-
----
 
 ---
 
@@ -54,7 +52,11 @@ any prior or contemporaneous agreements, communications, or representations
 
 You must be at least **13 years old** to create an account and use the Platform.
 
-If you are between 13 and 16 years old, we encourage you to review these Terms and our Privacy Policy with a parent or guardian. By using the Platform, you confirm that you meet the minimum age requirement.
+During registration, we verify your age to ensure you meet this requirement and to apply appropriate privacy settings. Your full date of birth is never stored — see our Privacy Policy for details.
+
+If you are between 13 and 15 years old, we encourage you to review these Terms and our Privacy Policy with a parent or guardian before registering. By creating an account, you confirm that you meet the minimum age requirement.
+
+If you are between 16 and 17 years old, you may register independently, though we still encourage you to discuss the Platform with a trusted adult.
 
 We do not knowingly collect personal information from children under 13. If we learn that a user is under 13, we will delete their account and associated data promptly.
 
@@ -135,7 +137,7 @@ is the intellectual property of Learning To Py and is protected by copyright law
 You retain ownership of any code you write and submit through the Platform's exercises and challenges. By submitting code, you grant Learning To Py a non-exclusive, royalty-free licence to:
 
 - Store your code for the purpose of providing the Platform's services
-- Use anonymised code submissions to improve exercises and lesson content
+- Use anonymised code submissions (in a form that cannot be used to identify you) to improve exercises and lesson content
 - Display your code to you within the Platform
 
 We do not claim ownership of your code and will not publish or share your code publicly without your consent.
@@ -181,7 +183,11 @@ Learning To Py is provided on an "as is" and "as available" basis. While we stri
 
 We make reasonable efforts to ensure lessons are accurate and up-to-date, but programming languages, libraries, and best practices evolve. Code examples may become outdated over time.
 
-### 8.2 No Liability for Damages
+### 8.2 Service Availability and Streaks
+
+We make reasonable efforts to keep the Platform available. Where downtime or technical issues on our side cause a user to lose a learning streak or result in XP being incorrectly awarded or withheld, you can report this using the **Report Form** available at the top of any Lesson page. Alternatively, contact us directly at **learning2py@gmail**.com. We will review requests on a case-by-case basis.
+
+### 8.3 No Liability for Damages
 
 Nothing in these Terms shall limit or exclude our liability for:
 
@@ -197,7 +203,7 @@ from your use of the Platform, including but not limited to:
 - Errors in code written on or for the Platform
 - Issues arising from third-party services linked from the Platform
 
-### 8.3 Learning Outcomes
+### 8.4 Learning Outcomes
 
 Learning To Py provides educational resources but makes no guarantees about learning outcomes, skill acquisition, or career prospects. Progress depends on individual effort and engagement.
 
@@ -217,7 +223,7 @@ We reserve the right to suspend or terminate accounts that violate these Terms, 
 
 If your account is suspended or terminated, you may contact us at **learning2py@gmail.com** to discuss the decision. We will review appeals on a case-by-case basis.
 
-If your account is terminated for violating these Terms, we may retain your data for a reasonable period to enforce these Terms and comply with legal obligations. Our Privacy Policy explains how long we keep different types of data. You can contact us to request deletion of your data even after termination.
+If your account is terminated for violating these Terms, your data will be handled in accordance with our Privacy Policy. You may contact us to request deletion of your data even after termination.
 
 ### 9.2 No Waiver
 
@@ -231,15 +237,15 @@ We are continually improving the Platform and may:
 
 - Add, modify, or remove features
 - Update lessons, exercises, or curriculum content
-- Adjust XP values, badge requirements, or streak mechanics
+- Adjust XP values, badge requirements, or streak mechanics for new activity
 
-We will make reasonable efforts to notify users of significant changes that affect their progress or experience.
+Where we adjust XP values or badge requirements, existing earned progress and previously awarded badges will not be retroactively affected. We will make reasonable efforts to notify users of any significant changes that affect their experience.
 
 ---
 
-## 11. Governing Law
+## 11. Disputes
 
-These Terms are governed by the laws of England and Wales. Any disputes arising from these Terms or your use of the Platform shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+If you have a dispute, please contact us at **learning2py@gmail.com** so we can resolve it informally. If we are unable to resolve it, these Terms are governed by the laws of England and Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of England and Wales.
 
 ---
 
@@ -253,16 +259,18 @@ If you have questions about these Terms, please contact us at:
 
 ## Quick Summary
 
-| Topic                | Key Point                                                   |
-| -------------------- | ----------------------------------------------------------- |
-| **Age**              | You must be 13+ to use the Platform                         |
-| **Accounts**         | One account per person, keep your password safe             |
-| **Behaviour**        | Be respectful, don't cheat, don't exploit                   |
-| **Our Content**      | We own the lessons and exercises                            |
-| **Your Code**        | You own your code, we don't publish it                      |
-| **Your Submissions** | You retain ownership, we can use to improve the Platform    |
-| **Privacy**          | See our [Privacy Policy](/privacy)                          |
-| **Data Rights**      | Export or delete your data anytime                          |
-| **Liability**        | Platform provided as-is, we're not liable for damages       |
-| **Termination**      | You can appeal, and request data deletion after termination |
-| **Contact**          | learning2py@gmail.com                                       |
+| Topic                | Key Point                                                        |
+| -------------------- | ---------------------------------------------------------------- |
+| **Age**              | You must be 13+ to use the Platform                              |
+| **Accounts**         | One account per person, keep your password safe                  |
+| **Behaviour**        | Be respectful, don't cheat, don't exploit                        |
+| **Our Content**      | We own the lessons and exercises                                 |
+| **Your Code**        | You own your code, we don't publish it                           |
+| **Your Submissions** | You retain ownership, we can use to improve the Platform         |
+| **Privacy**          | See our [Privacy Policy](/privacy)                               |
+| **Data Rights**      | Export or delete your data anytime                               |
+| **Streaks**          | Contact us if a platform outage affects your streak              |
+| **Liability**        | Platform provided as-is, we're not liable for indirect damages   |
+| **Termination**      | You can appeal, and request data deletion after termination      |
+| **Disputes**         | Contact us first — we'll always try to resolve things informally |
+| **Contact**          | learning2py@gmail.com                                            |
