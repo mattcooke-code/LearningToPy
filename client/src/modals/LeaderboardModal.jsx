@@ -4,7 +4,6 @@ import { useNotification } from "../context";
 import { apiClient } from "../services";
 import { getErrorMessage } from "../utils";
 import { BaseModal, LeaderboardRow, Spinner } from "../components/ui";
-import { data } from "react-router-dom";
 
 /**
  * @fileoverview
@@ -17,14 +16,14 @@ import { data } from "react-router-dom";
 
 /**
  * Gamification modal displaying competitive leaderboards for global and module rankings.
- * 
+ *
  * This component creates an engaging leaderboard interface that displays competitive
  * rankings for both global platform-wide leaderboards and module-specific leaderboards.
  * Features include top users display, user position highlighting, surrounding user context
  * for global rankings, and adaptive data fetching based on leaderboard type. The modal
  * provides visual feedback for user rankings, loading states, and comprehensive error
  * handling to ensure a smooth competitive experience.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Whether the modal is open
@@ -34,56 +33,56 @@ import { data } from "react-router-dom";
  * @param {Object|null} [props.userRank=null] - User's current rank (for global leaderboards)
  * @param {Array} [props.surroundingUsers=[]] - Users surrounding current user (for global leaderboards)
  * @returns {JSX.Element} Leaderboard interface with rankings and user context
- * 
+ *
  * @leaderboardTypes
  * - Global Leaderboard: Platform-wide rankings with top 10 users
  * - Module Leaderboard: Module-specific rankings with all participants
  * - Adaptive title and subtitle based on leaderboard type
  * - Different modal sizes and styling for each type
  * - Contextual data fetching based on type
- * 
+ *
  * @dataFetching
  * - Global: GET /progress/leaderboard/top?limit=10
  * - Module: GET /progress/leaderboard/module/{moduleId}
  * - Automatic data refresh on modal open
  * - Error handling with toast notifications
  * - Loading states with visual indicators
- * 
+ *
  * @userPositioning
  * - Current user highlighting in rankings
  * - Surrounding users display for global leaderboards
  * - Rank display for module leaderboards when not in top list
  * - Visual distinction for current user entries
  * - Contextual ranking information
- * 
+ *
  * @stateManagement
  * - topUsers: Array of top-ranked users
  * - currentUserRank: User's current ranking position
  * - surroundingUsers: Users around current user (global only)
  * - loading: Loading state for API operations
  * - Reactive to prop changes for initial data
- * 
+ *
  * @userExperience
  * - Responsive design for mobile and desktop
  * - Loading indicators during data fetching
  * - Clear visual hierarchy for rankings
  * - Smooth transitions and hover effects
  * - Accessible ranking information
- * 
+ *
  * @visualDesign
  * - Professional leaderboard styling
  * - User avatars and ranking badges
  * - Color-coded user highlighting
  * - Consistent spacing and typography
  * - Modal size adaptation for content
- * 
+ *
  * @errorHandling
  * - Network error handling with user notifications
  * - Graceful fallbacks for missing data
  * - Loading state management
  * - User-friendly error messages
  * - Automatic retry mechanisms
- * 
+ *
  * @accessibility
  * - Semantic HTML structure for rankings
  * - Proper ARIA labels and roles
