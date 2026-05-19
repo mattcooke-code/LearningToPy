@@ -22,7 +22,7 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Support from "./pages/Support";
-import Terms from "./pages/terms";
+import Terms from "./pages/Terms";
 
 // Import Admin Pages
 import AdminDashboard from "./pages/AdminDashboard";
