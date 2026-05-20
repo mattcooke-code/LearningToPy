@@ -1,6 +1,6 @@
 # Learning To Py — Terms of Service
 
-_Last updated: 18 May 2026_
+_Last updated: 20 May 2026_
 
 ---
 
@@ -12,7 +12,7 @@ _Last updated: 18 May 2026_
 > - Don't cheat — no scripts, bots, or exploits to get unfair XP or badges
 > - Don't share your password with anyone
 > - The code you write is yours. We won't publish it without asking
-> - If you find a bug, tell us! We love bug reports
+> - If you find a bug, tell us! We love bug reports (use the Contact Us page)
 > - If you break the rules, we might suspend your account, but you can appeal
 > - If you're under 16, talk to a parent or guardian before signing up
 >
@@ -72,7 +72,7 @@ You are responsible for:
 - Keeping your password and login credentials secure
 - All activity that occurs under your account
 
-If you believe your account has been compromised, please contact us immediately at **learning2py@gmail.com**.
+If you believe your account has been compromised, please contact us immediately via our **Contact Us** page or at **learning2py@gmail.com**.
 
 ### 3.2 One Account Per Person
 
@@ -90,7 +90,7 @@ You may stop using the Platform and delete your account at any time. There is no
 
 - Use the Platform for its intended purpose: learning Python programming
 - Treat other learners with respect and courtesy
-- Report bugs, errors, or inappropriate content through the Platform's flagging system
+- Report bugs, errors, or inappropriate content through the Platform's flagging system or our **Contact Us** page
 - Respect the intellectual property rights of Learning To Py and other users
 
 ### 4.2 You agree NOT to:
@@ -134,7 +134,7 @@ is the intellectual property of Learning To Py and is protected by copyright law
 
 ### 5.2 Your Code
 
-You retain ownership of any code you write and submit through the Platform's exercises and challenges. By submitting code, you grant Learning To Py a non-exclusive, royalty-free licence to:
+You retain ownership of any code you write and submit through the Platform's exercises and challenges. By submitting code, you grant Learning To Py a worldwide, non-exclusive, royalty-free, sub-licensable licence to:
 
 - Store your code for the purpose of providing the Platform's services
 - Use anonymised code submissions (in a form that cannot be used to identify you) to improve exercises and lesson content
@@ -185,7 +185,7 @@ We make reasonable efforts to ensure lessons are accurate and up-to-date, but pr
 
 ### 8.2 Service Availability and Streaks
 
-We make reasonable efforts to keep the Platform available. Where downtime or technical issues on our side cause a user to lose a learning streak or result in XP being incorrectly awarded or withheld, you can report this using the **Report Form** available at the top of any Lesson page. Alternatively, contact us directly at **learning2py@gmail**.com. We will review requests on a case-by-case basis.
+We make reasonable efforts to keep the Platform available. Where downtime or technical issues on our side cause a user to lose a learning streak or result in XP being incorrectly awarded or withheld, you can report this using the **Report Form** available at the top of any Lesson page, or via our **Contact Us** page. We will review requests on a case-by-case basis.
 
 ### 8.3 No Liability for Damages
 
@@ -195,13 +195,13 @@ Nothing in these Terms shall limit or exclude our liability for:
 - Fraud or fraudulent misrepresentation
 - Any other liability that cannot be lawfully limited or excluded under English law
 
-To the fullest extent permitted by UK law, Learning To Py and its operators shall
-not be liable for any indirect, incidental, special, or consequential damages arising
-from your use of the Platform, including but not limited to:
+To the fullest extent permitted by UK law, Learning To Py and its operators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Platform, including but not limited to:
 
 - Loss of data or learning progress
 - Errors in code written on or for the Platform
 - Issues arising from third-party services linked from the Platform
+
+**If you are a consumer (using the Platform for personal learning purposes), nothing in this Section 8 affects your statutory rights, including your right to a reasonable standard of service and to remedy for faults.**
 
 ### 8.4 Learning Outcomes
 
@@ -221,7 +221,9 @@ We reserve the right to suspend or terminate accounts that violate these Terms, 
 - Attempting to compromise Platform security
 - Any illegal activity
 
-If your account is suspended or terminated, you may contact us at **learning2py@gmail.com** to discuss the decision. We will review appeals on a case-by-case basis.
+**For minor first-time violations (such as unintentional rule breaking or posting inappropriate content without malicious intent), we will generally issue a warning before suspending your account.** Repeated or deliberate violations may result in immediate suspension.
+
+If your account is suspended or terminated, you may contact us via our **Contact Us** page to discuss the decision. We will review appeals on a case-by-case basis.
 
 If your account is terminated for violating these Terms, your data will be handled in accordance with our Privacy Policy. You may contact us to request deletion of your data even after termination.
 
@@ -245,15 +247,16 @@ Where we adjust XP values or badge requirements, existing earned progress and pr
 
 ## 11. Disputes
 
-If you have a dispute, please contact us at **learning2py@gmail.com** so we can resolve it informally. If we are unable to resolve it, these Terms are governed by the laws of England and Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+If you have a dispute, please contact us via our **Contact Us** page so we can resolve it informally. If we are unable to resolve it, these Terms are governed by the laws of England and Wales. Any disputes shall be subject to the **non-exclusive** jurisdiction of the courts of England and Wales (meaning you may also bring proceedings in the courts of your home country if you are a consumer).
 
 ---
 
 ## 12. Contact Us
 
-If you have questions about these Terms, please contact us at:
+If you have questions about these Terms, please contact us:
 
 **Email:** learning2py@gmail.com
+**Contact Us page:** [Link to your Contact Us page]
 
 ---
 
@@ -273,4 +276,4 @@ If you have questions about these Terms, please contact us at:
 | **Liability**        | Platform provided as-is, we're not liable for indirect damages   |
 | **Termination**      | You can appeal, and request data deletion after termination      |
 | **Disputes**         | Contact us first — we'll always try to resolve things informally |
-| **Contact**          | learning2py@gmail.com                                            |
+| **Contact**          | Email or our Contact Us page                                     |

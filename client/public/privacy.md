@@ -1,18 +1,16 @@
 # Learning To Py — Privacy Notice
 
----
-
 > **👋 For our younger users (13-17):**
 >
 > Here's a quick summary of the important stuff:
 >
 > - We only collect information we need to help you learn Python
-> - We **never** store your date of birth — just your age group
+> - We **never store** your date of birth — just your age group (calculated at registration and then discarded)
 > - Your profile is set to private if you're under 16
 > - You can see all your data in Profile → Export Data
 > - You can delete your account and all your data anytime
 > - If something worries you, talk to a parent, guardian, or teacher
-> - You can email us anytime: **learning2py@gmail.com**
+> - You can email us anytime: **learning2py@gmail.com** or use our **Contact Us** page
 >
 > The full details are below, but that's the important stuff!
 
@@ -55,6 +53,7 @@ Learning To Py is the data controller responsible for your personal information.
 If you have any questions about this privacy notice, including any requests to exercise your legal rights, please contact us at:
 
 **Email:** learning2py@gmail.com
+**Contact Us page:** [Link to your Contact Us page]
 
 ---
 
@@ -69,7 +68,7 @@ We collect or use the following information for student education and welfare:
 - Account access information
 - Progress reports
 
-**Note on date of birth:** We verify your age during registration to ensure you are 13 or older and to apply appropriate privacy settings. Your full date of birth is **never stored** — we only keep your age bracket (13-15, 16-17, or 18+).
+**Note on date of birth:** We verify your age during registration to ensure you are 13 or older and to apply appropriate privacy settings. Your full date of birth is **never stored** — we calculate your age bracket (13-15, 16-17, or 18+) at the moment of registration and then immediately discard your precise date of birth. Only the age bracket is retained.
 
 ### How we use your data
 
@@ -129,13 +128,13 @@ Our platform is designed for learners aged 13 and above. We do not knowingly col
 
 We take additional measures to protect younger users:
 
-- **Age verification:** We verify age during registration but never store your full date of birth. We only retain your age bracket (13-15, 16-17, or 18+).
+- **Age verification:** We verify age during registration but **never store your full date of birth**. Your precise date of birth is used only to calculate your age bracket (13-15, 16-17, or 18+) and is then immediately discarded. Only the age bracket is retained.
 - **Enhanced privacy for under-16s:** Users under 16 automatically receive maximum privacy settings. Their profiles are not visible to other learners, and community features such as public leaderboard visibility and profile discovery are disabled until they turn 16. These features can only be enabled manually by the user once they reach 16.
-- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** to:
+- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** or via our **Contact Us** page to:
   - Confirm whether their child has an account
   - Request deletion of their child's data
   - Request a copy of their child's data
-- **No date of birth storage:** Your exact date of birth is never saved to our servers. It is used only at the point of registration to verify your age and assign the correct privacy settings. The age bracket we store (13-15, 16-17, or 18+) cannot be used to identify your specific birth date.
+- **No date of birth storage:** Because your exact date of birth is never saved to our servers, it cannot be accessed, leaked, or misused. The age bracket we store (13-15, 16-17, or 18+) cannot be used to identify your specific birth date.
 
 These protections follow the UK Age Appropriate Design Code (Children's Code).
 
@@ -217,15 +216,15 @@ Our lawful bases for collecting or using personal information to comply with leg
 
 You can exercise many of your data protection rights directly through our platform:
 
-| Right                       | How to exercise it                                                                 |
-| :-------------------------- | :--------------------------------------------------------------------------------- |
-| **Access your data**        | Profile → Account Management → Export Data (downloaded as JSON)                    |
-| **Delete your account**     | Profile → Account Management → Delete Account                                      |
-| **Update your information** | Use the Report Form on any Lesson page, or contact us at **learning2py@gmail.com** |
-| **Manage privacy**          | Profile → Privacy Settings                                                         |
-| **Withdraw consent**        | Delete your account via Account Management, or contact us                          |
+| Right                       | How to exercise it                                                           |
+| :-------------------------- | :--------------------------------------------------------------------------- |
+| **Access your data**        | Profile → Account Management → Export Data (downloaded as JSON)              |
+| **Delete your account**     | Profile → Account Management → Delete Account                                |
+| **Update your information** | Use the Report Form on any Lesson page, our **Contact Us** page, or email us |
+| **Manage privacy**          | Profile → Privacy Settings                                                   |
+| **Withdraw consent**        | Delete your account via Account Management, or contact us                    |
 
-For all other requests, please contact us at **learning2py@gmail.com**.
+For all other requests, please contact us via our **Contact Us** page or at **learning2py@gmail.com**.
 
 ---
 
@@ -269,7 +268,23 @@ You can request deletion of your data at any time through your account settings 
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **Name of processor** | MongoDB Atlas (MongoDB, Inc.)                                                                                                |
 | **What they do**      | Cloud database hosting — stores and manages all user account data, learning progress, and activity records for our platform. |
-| **Location**          | United States (services may be hosted in various global regions)                                                             |
+| **Location**          | eu-west-1 (Ireland) — AWS European region                                                                                    |
+
+**Vercel**
+
+|                       |                                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Name of processor** | Vercel Inc.                                                                                                                 |
+| **What they do**      | Frontend hosting — serves our web application and processes user requests including IP addresses and authentication tokens. |
+| **Location**          | United States (with global CDN including European edge locations)                                                           |
+
+**Render**
+
+|                       |                                                                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Name of processor** | Render Holdings, Inc.                                                                                                                    |
+| **What they do**      | Backend hosting — runs our API server and processes user requests including authentication, data queries, and learning progress updates. |
+| **Location**          | Frankfurt, Germany                                                                                                                       |
 
 **Gmail (Google) for Nodemailer**
 
@@ -278,16 +293,6 @@ You can request deletion of your data at any time through your account settings 
 | **Name of processor** | Google LLC (Gmail/Google Workspace)                                                                                                       |
 | **What they do**      | Email delivery service — processes email addresses to send transactional emails including password reset links and account notifications. |
 | **Location**          | United States                                                                                                                             |
-
-**Web Hosting Provider**
-
-|                       |                                                                                                                                             |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Name of processor** | [To be confirmed — hosting provider]                                                                                                        |
-| **What they do**      | Web hosting and cloud infrastructure — serves our application and processes user requests including IP addresses and authentication tokens. |
-| **Location**          | [To be confirmed]                                                                                                                           |
-
-_This notice will be updated when our hosting provider is finalised._
 
 ### Others we share personal information with
 
@@ -299,6 +304,12 @@ _This notice will be updated when our hosting provider is finalised._
 
 Where necessary, we will transfer personal information outside of the UK. When doing so, we comply with the UK GDPR, making sure appropriate safeguards are in place.
 
+**Important note on our hosting locations:** Your personal data is stored in the **European Union** (MongoDB Atlas in Ireland, Render in Germany). This means your data does not leave the EEA for storage purposes — significantly simplifying compliance with UK GDPR. The only international transfers that occur are:
+
+1. Administrative access by US-based parent companies (MongoDB Inc., Render Holdings, Vercel Inc.) — covered by the UK-US Data Bridge adequacy arrangement
+2. Email processing via Google (US-based) — also covered by the UK-US Data Bridge
+3. Vercel's global CDN (which may cache frontend assets at edge locations worldwide, but does not store personal data)
+
 For further information or to obtain a copy of the appropriate safeguard for any of the transfers below, please contact us using the contact information provided above.
 
 ### Transfers made directly by us
@@ -308,7 +319,23 @@ For further information or to obtain a copy of the appropriate safeguard for any
 |                           |                                                                                 |
 | ------------------------- | ------------------------------------------------------------------------------- |
 | **Category of recipient** | Cloud database hosting provider (Technology/Infrastructure sector)              |
+| **Country**               | United States (data hosted in Ireland)                                          |
+| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
+
+**Vercel Inc.**
+
+|                           |                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| **Category of recipient** | Frontend hosting provider (Technology/Infrastructure sector)                    |
 | **Country**               | United States                                                                   |
+| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
+
+**Render Holdings, Inc.**
+
+|                           |                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| **Category of recipient** | Backend hosting provider (Technology/Infrastructure sector)                     |
+| **Country**               | United States (data hosted in Germany)                                          |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
 **Google LLC**
@@ -319,25 +346,17 @@ For further information or to obtain a copy of the appropriate safeguard for any
 | **Country**               | United States                                                                   |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
-**Web Hosting Provider**
-
-|                           |                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------- |
-| **Category of recipient** | Web hosting and content delivery provider (Technology/Infrastructure sector)    |
-| **Country**               | [To be confirmed]                                                               |
-| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
-
 ### Transfers made by our data processors
 
 Where necessary, our data processors may share personal information outside of the UK. When doing so, they comply with the UK GDPR, making sure appropriate safeguards are in place.
 
 **MongoDB, Inc. sub-processors** (including Amazon Web Services, Google Cloud Platform, Microsoft Azure)
 
-|                           |                                                                                             |
-| ------------------------- | ------------------------------------------------------------------------------------------- |
-| **Category of recipient** | Cloud infrastructure providers (Technology/Infrastructure sector)                           |
-| **Country**               | United States (and potentially other regions depending on your Atlas cluster configuration) |
-| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations)             |
+|                           |                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| **Category of recipient** | Cloud infrastructure providers (Technology/Infrastructure sector)               |
+| **Country**               | United States and globally (data storage remains in Ireland)                    |
+| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
 **Google LLC sub-processors** (including cloud infrastructure and email delivery providers)
 
@@ -346,6 +365,22 @@ Where necessary, our data processors may share personal information outside of t
 | **Category of recipient** | Cloud infrastructure and email delivery providers (Technology/Communications sector) |
 | **Country**               | United States (and potentially other regions globally for email delivery)            |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations)      |
+
+**Vercel Inc. sub-processors** (including AWS and Cloudflare)
+
+|                           |                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| **Category of recipient** | Cloud infrastructure and CDN providers (Technology/Infrastructure sector)       |
+| **Country**               | United States and global (CDN edge locations)                                   |
+| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
+
+**Render Holdings, Inc. sub-processors** (including AWS and Google Cloud Platform)
+
+|                           |                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| **Category of recipient** | Cloud infrastructure providers (Technology/Infrastructure sector)               |
+| **Country**               | United States and Germany                                                       |
+| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
 ---
 
@@ -367,6 +402,7 @@ These automated processes are core elements of the learning experience and do no
 If you have any concerns about our use of your personal data, we ask that you contact us first so we can try to resolve the matter informally:
 
 **Email:** learning2py@gmail.com
+**Contact Us page:** [Link to your Contact Us page]
 
 We will acknowledge your complaint promptly and aim to resolve it within 30 days.
 
@@ -386,4 +422,4 @@ SK9 5AF
 
 ---
 
-_Last updated: 18 May 2026_
+_Last updated: 20 May 2026_
