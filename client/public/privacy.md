@@ -53,7 +53,7 @@ Learning To Py is the data controller responsible for your personal information.
 If you have any questions about this privacy notice, including any requests to exercise your legal rights, please contact us at:
 
 **Email:** learning2py@gmail.com
-**Contact Us page:** [Link to your Contact Us page]
+**Contact Us page:** [Support](/support)
 
 ---
 
@@ -130,7 +130,7 @@ We take additional measures to protect younger users:
 
 - **Age verification:** We verify age during registration but **never store your full date of birth**. Your precise date of birth is used only to calculate your age bracket (13-15, 16-17, or 18+) and is then immediately discarded. Only the age bracket is retained.
 - **Enhanced privacy for under-16s:** Users under 16 automatically receive maximum privacy settings. Their profiles are not visible to other learners, and community features such as public leaderboard visibility and profile discovery are disabled until they turn 16. These features can only be enabled manually by the user once they reach 16.
-- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** or via our **Contact Us** page to:
+- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** or via our [Support page](/support) page to:
   - Confirm whether their child has an account
   - Request deletion of their child's data
   - Request a copy of their child's data
@@ -402,7 +402,7 @@ These automated processes are core elements of the learning experience and do no
 If you have any concerns about our use of your personal data, we ask that you contact us first so we can try to resolve the matter informally:
 
 **Email:** learning2py@gmail.com
-**Contact Us page:** [Link to your Contact Us page]
+**Contact Us page:** [Support](/support)
 
 We will acknowledge your complaint promptly and aim to resolve it within 30 days.
 

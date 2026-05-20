@@ -72,7 +72,7 @@ You are responsible for:
 - Keeping your password and login credentials secure
 - All activity that occurs under your account
 
-If you believe your account has been compromised, please contact us immediately via our **Contact Us** page or at **learning2py@gmail.com**.
+If you believe your account has been compromised, please contact us immediately via our [Support page](/support) or at **learning2py@gmail.com**.
 
 ### 3.2 One Account Per Person
 
@@ -223,7 +223,7 @@ We reserve the right to suspend or terminate accounts that violate these Terms, 
 
 **For minor first-time violations (such as unintentional rule breaking or posting inappropriate content without malicious intent), we will generally issue a warning before suspending your account.** Repeated or deliberate violations may result in immediate suspension.
 
-If your account is suspended or terminated, you may contact us via our **Contact Us** page to discuss the decision. We will review appeals on a case-by-case basis.
+If your account is suspended or terminated, you may contact us via our [Support page](/support) to discuss the decision. We will review appeals on a case-by-case basis.
 
 If your account is terminated for violating these Terms, your data will be handled in accordance with our Privacy Policy. You may contact us to request deletion of your data even after termination.
 
@@ -247,7 +247,7 @@ Where we adjust XP values or badge requirements, existing earned progress and pr
 
 ## 11. Disputes
 
-If you have a dispute, please contact us via our **Contact Us** page so we can resolve it informally. If we are unable to resolve it, these Terms are governed by the laws of England and Wales. Any disputes shall be subject to the **non-exclusive** jurisdiction of the courts of England and Wales (meaning you may also bring proceedings in the courts of your home country if you are a consumer).
+If you have a dispute, please contact us via our [Support page](/support) so we can resolve it informally. If we are unable to resolve it, these Terms are governed by the laws of England and Wales. Any disputes shall be subject to the **non-exclusive** jurisdiction of the courts of England and Wales (meaning you may also bring proceedings in the courts of your home country if you are a consumer).
 
 ---
 
@@ -256,7 +256,7 @@ If you have a dispute, please contact us via our **Contact Us** page so we can r
 If you have questions about these Terms, please contact us:
 
 **Email:** learning2py@gmail.com
-**Contact Us page:** [Link to your Contact Us page]
+**Support page:** [Support](/support)
 
 ---
 

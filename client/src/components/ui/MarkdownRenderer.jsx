@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { CodeBlock } from "../lesson";
 import { useTheme } from "../../context";
 import ImageViewer from "./ImageViewer";
@@ -251,6 +252,19 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       ),
       a: ({ href, children }) => {
         const isAnchor = href?.startsWith("#");
+        const isInternal = href?.startsWith("/") && !isAnchor;
+
+        if (isInternal) {
+          return (
+            <Link
+              to={href}
+              className={`font-medium underline ${activeDark ? "text-blue-300 hover:text-blue-200" : "text-blue-700 hover:text-blue-900"}`}
+            >
+              {children}
+            </Link>
+          );
+        }
+
         return (
           <a
             href={href}
@@ -383,6 +397,24 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
 
     a: ({ href, children }) => {
       const isAnchor = href?.startsWith("#");
+      const isInternal = href?.startsWith("/") && !isAnchor;
+
+      if (isInternal) {
+        return (
+          <Link
+            to={href}
+            className={`font-medium underline decoration-2 underline-offset-4 transition-colors ${
+              activeDark
+                ? "text-blue-400 hover:text-blue-300 decoration-blue-800"
+                : "text-blue-600 hover:text-blue-800 decoration-blue-200"
+            }`}
+          >
+            {children}
+          </Link>
+        );
+      }
+
+      // External links or anchor links
       return (
         <a
           href={href}
