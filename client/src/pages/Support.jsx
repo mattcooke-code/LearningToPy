@@ -25,55 +25,55 @@ import { BackToTopButton } from "../components/ui";
 
 /**
  * Support page component providing comprehensive help and feedback functionality.
- * 
+ *
  * This component offers multiple support channels including a detailed contact form with
  * category-specific fields (bug reports include module/lesson numbers), quick links to
  * help resources, and contextual support information. Features form validation, success
  * states with confirmation messaging, error handling with toast notifications, and
  * responsive design. Includes direct contact information and helpful tips for different
  * support scenarios.
- * 
+ *
  * @component
  * @returns {JSX.Element} Complete support page with form and resources
- * 
+ *
  * @stateManagement
  * - formData: Form data including name, email, category, subject, message
  * - submitting: Loading state during form submission
  * - isSubmitted: Success state for confirmation display
- * 
+ *
  * @formFeatures
  * - Dynamic form fields based on category selection
  * - Bug-specific fields for module and lesson numbers
  * - Category selection with dropdown styling
  * - Form validation with required field indicators
  * - Success state with confirmation messaging
- * 
+ *
  * @supportCategories
  * - Technical Help: General assistance requests
  * - Course Feedback: Feedback on learning content
  * - Report a Bug: Error reporting with specific fields
  * - Feature Request: Suggestions for improvements
  * - Other: Miscellaneous inquiries
- * 
+ *
  * @quickLinks
  * - Direct navigation to curriculum page
  * - Link to FAQ for common questions
  * - Visual icons and descriptions for each resource
  * - Hover effects and transitions
- * 
+ *
  * @contactInformation
  * - Direct email contact: hello@learningtopy.com
  * - Response time expectations (24-48 hours)
  * - Contextual tips for different support needs
  * - Bug reporting guidance with specific instructions
- * 
+ *
  * @userExperience
  * - Loading states during form submission
  * - Success confirmation with email display
  * - Error handling with toast notifications
  * - Form reset functionality for multiple submissions
  * - Responsive design for mobile and desktop
- * 
+ *
  * @visualDesign
  * - Theme-aware styling throughout
  * - Icon integration for visual hierarchy
@@ -226,10 +226,10 @@ const Support = () => {
                   Email us directly at:
                 </p>
                 <a
-                  href="mailto:hello@learningtopy.com"
+                  href="mailto:learning2py@gmail.com"
                   className="text-python-blue dark:text-python-yellow hover:underline font-mono text-sm"
                 >
-                  hello@learningtopy.com
+                  learning2py@gmail.com
                 </a>
                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                   We typically respond within 24-48 hours.

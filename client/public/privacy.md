@@ -10,7 +10,7 @@
 > - You can see all your data in Profile → Export Data
 > - You can delete your account and all your data anytime
 > - If something worries you, talk to a parent, guardian, or teacher
-> - You can email us anytime: **learning2py@gmail.com** or use our **Contact Us** page
+> - You can email us anytime: **learning2py@gmail.com** or use our [Support page](/support)
 >
 > The full details are below, but that's the important stuff!
 
@@ -20,6 +20,7 @@ This privacy notice tells you what to expect us to do with your personal informa
 
 - [Learning To Py — Privacy Notice](#learning-to-py--privacy-notice)
   - [Contact details](#contact-details)
+  - [Geographic scope](#geographic-scope)
   - [What information we collect, use, and why](#what-information-we-collect-use-and-why)
     - [Student education and welfare](#student-education-and-welfare)
     - [How we use your data](#how-we-use-your-data)
@@ -53,7 +54,20 @@ Learning To Py is the data controller responsible for your personal information.
 If you have any questions about this privacy notice, including any requests to exercise your legal rights, please contact us at:
 
 **Email:** learning2py@gmail.com
+
 **Contact Us page:** [Support](/support)
+
+---
+
+## Geographic scope
+
+Our platform is available globally, but we are based in the United Kingdom and comply with UK data protection law (UK GDPR).
+
+**If you are in the European Union:** We also comply with the EU GDPR. Your data protection rights under the EU GDPR are the same as those described in this notice. For EU-specific queries, you may contact us via our [Support page](/support) to request details of our EU representative.
+
+**If you are outside the UK and EU:** Data protection laws vary by country. We process your data as described in this notice. Depending on your location, you may have additional rights under your local laws. Please contact us if you have questions.
+
+**If you are in California, USA:** Under the California Consumer Privacy Act (CCPA), you have the right to know what personal information we collect, request deletion, and opt out of "sales" of your data. We do not sell your data. For CCPA requests, please contact us via our [Support page](/support).
 
 ---
 
@@ -130,7 +144,7 @@ We take additional measures to protect younger users:
 
 - **Age verification:** We verify age during registration but **never store your full date of birth**. Your precise date of birth is used only to calculate your age bracket (13-15, 16-17, or 18+) and is then immediately discarded. Only the age bracket is retained.
 - **Enhanced privacy for under-16s:** Users under 16 automatically receive maximum privacy settings. Their profiles are not visible to other learners, and community features such as public leaderboard visibility and profile discovery are disabled until they turn 16. These features can only be enabled manually by the user once they reach 16.
-- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** or via our [Support page](/support) page to:
+- **Parental guidance:** We encourage users under 16 to discuss their use of the platform with a parent or guardian before registering. Parents or guardians may contact us at **learning2py@gmail.com** or via our [Support page](/support) to:
   - Confirm whether their child has an account
   - Request deletion of their child's data
   - Request a copy of their child's data
@@ -165,6 +179,8 @@ If this changes in the future, we will update this notice and ask for your conse
 ## Lawful bases and data protection rights
 
 Under UK data protection law, we must have a "lawful basis" for collecting and using your personal information. There is a list of possible [lawful bases](https://ico.org.uk/for-organisations/advice-for-small-organisations/getting-started-with-gdpr/data-protection-principles-definitions-and-key-terms/) in the UK GDPR. You can find out more about lawful bases on the ICO's website.
+
+**Note for non-UK users:** The lawful bases described below are those required under UK GDPR. If you are in the EU, these same bases apply under EU GDPR. If you are in a jurisdiction with different requirements (such as certain US states), we process your data in accordance with this notice and applicable local laws.
 
 Which lawful basis we rely on may affect your data protection rights, which are set out in brief below. You can find out more about your data protection rights and the exemptions which may apply on the ICO's website:
 
@@ -224,7 +240,7 @@ You can exercise many of your data protection rights directly through our platfo
 | **Manage privacy**          | Profile → Privacy Settings                                                   |
 | **Withdraw consent**        | Delete your account via Account Management, or contact us                    |
 
-For all other requests, please contact us via our **Contact Us** page or at **learning2py@gmail.com**.
+For all other requests, please contact us via our **Support page:** [Support](/support) or at **learning2py@gmail.com**.
 
 ---
 
@@ -402,11 +418,16 @@ These automated processes are core elements of the learning experience and do no
 If you have any concerns about our use of your personal data, we ask that you contact us first so we can try to resolve the matter informally:
 
 **Email:** learning2py@gmail.com
+
 **Contact Us page:** [Support](/support)
 
 We will acknowledge your complaint promptly and aim to resolve it within 30 days.
 
-If you remain unhappy with how we've used your data after raising a complaint with us, you can also complain to the ICO.
+**UK users:** If you remain unhappy after raising a complaint with us, you can complain to the ICO.
+
+**EU users:** You also have the right to lodge a complaint with your local EU data protection authority (for example, the Irish DPC if you are in Ireland, or the CNIL if you are in France).
+
+**Other locations:** Please contact us first, and we will provide information about relevant local supervisory authorities where available.
 
 **The ICO's address:**
 
@@ -418,6 +439,7 @@ Cheshire
 SK9 5AF
 
 **Helpline number:** 0303 123 1113
+
 **Website:** [https://ico.org.uk/make-a-complaint](https://ico.org.uk/make-a-complaint/)
 
 ---
