@@ -64,6 +64,10 @@ const serveModuleImage = catchAsync(async (req, res) => {
     imageName,
   );
 
+  console.log(
+    `DEBUG PATH LOOKUP: Looking for image at absolute path: ${imagePath}`,
+  );
+
   // Check if file exists
   try {
     await fs.access(imagePath);
