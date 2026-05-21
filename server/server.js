@@ -173,49 +173,15 @@ const connectDB = async () => {
 
 connectDB();
 
-// TEMPORARY DEBUG ROUTE - Remove after fixing
-app.get("/api/debug/image-paths", (req, res) => {
-  const path = require("path");
-  const fs = require("fs");
-
-  const debugInfo = {
-    cwd: process.cwd(),
-    dirname: __dirname,
-    env: process.env.NODE_ENV,
-    renderEnv: !!process.env.RENDER,
-    testPaths: {},
-  };
-
-  // Test if curriculum folder exists
-  const curriculumPath = path.join(__dirname, "curriculum");
-  try {
-    const curriculumExists = fs.existsSync(curriculumPath);
-    debugInfo.curriculumExists = curriculumExists;
-
-    if (curriculumExists) {
-      const modules = fs.readdirSync(curriculumPath);
-      debugInfo.modules = modules;
-
-      // Check first module's images
-      if (modules.length > 0) {
-        const firstModulePath = path.join(curriculumPath, modules[0]);
-        const moduleContents = fs.readdirSync(firstModulePath);
-        debugInfo.moduleContents = moduleContents;
-
-        const imagesPath = path.join(firstModulePath, "images");
-        if (fs.existsSync(imagesPath)) {
-          debugInfo.testPaths[modules[0]] = {
-            imagesPath,
-            files: fs.readdirSync(imagesPath),
-          };
-        }
-      }
-    }
-  } catch (error) {
-    debugInfo.error = error.message;
-  }
-
-  res.json(debugInfo);
+// Even simpler test - add to server.js
+app.get("/api/test-deploy", (req, res) => {
+  res.json({
+    message: "New code deployed!",
+    time: new Date().toISOString(),
+    hasCurriculum: require("fs").existsSync(
+      require("path").join(__dirname, "curriculum"),
+    ),
+  });
 });
 
 // Routes
