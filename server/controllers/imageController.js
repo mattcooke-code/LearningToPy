@@ -55,31 +55,68 @@ const serveModuleImage = catchAsync(async (req, res) => {
     return res.status(404).json({ error: "Module not found" });
   }
 
-  const imagePath = path.join(
-    __dirname,
-    "..",
-    "curriculum",
-    folder,
-    "images",
-    imageName,
-  );
+  // Try multiple possible base paths
+  const possiblePaths = [
+    path.join(__dirname, "..", "curriculum", folder, "images", imageName),
+    path.join(process.cwd(), "curriculum", folder, "images", imageName),
+    path.join(
+      process.cwd(),
+      "server",
+      "curriculum",
+      folder,
+      "images",
+      imageName,
+    ),
+    path.join(
+      "/opt/render/project/src",
+      "curriculum",
+      folder,
+      "images",
+      imageName,
+    ),
+    path.join(
+      "/opt/render/project/src",
+      "server",
+      "curriculum",
+      folder,
+      "images",
+      imageName,
+    ),
+  ];
 
-  console.log(
-    `DEBUG PATH LOOKUP: Looking for image at absolute path: ${imagePath}`,
-  );
+  console.log(`DEBUG: Trying to find image for module ${moduleId}`);
+  console.log(`DEBUG: CWD: ${process.cwd()}`);
+  console.log(`DEBUG: __dirname: ${__dirname}`);
 
-  // Check if file exists
-  try {
-    await fs.access(imagePath);
-  } catch (error) {
-    return res.status(404).json({ error: "Image not found" });
+  let imagePath = null;
+
+  for (const testPath of possiblePaths) {
+    console.log(`DEBUG: Testing: ${testPath}`);
+    try {
+      await fs.access(testPath);
+      imagePath = testPath;
+      console.log(`DEBUG: FOUND at: ${testPath}`);
+      break;
+    } catch (error) {
+      // Continue to next path
+    }
+  }
+
+  if (!imagePath) {
+    console.error(`Image not found for module ${moduleId}/${imageName}`);
+    console.error(`Tried paths:`, possiblePaths);
+    return res.status(404).json({
+      error: "Image not found",
+      debug:
+        process.env.NODE_ENV === "development" ? { possiblePaths } : undefined,
+    });
   }
 
   // Set Content-Type based on extension
   const ext = path.extname(imageName).toLowerCase();
   const contentType = mimeTypes[ext] || "application/octet-stream";
 
-  // Set caching headers (1 day)
+  // Set caching headers
   res.setHeader("Cache-Control", "public, max-age=86400");
   res.setHeader("Content-Type", contentType);
 
