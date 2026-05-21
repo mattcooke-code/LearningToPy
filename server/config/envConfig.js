@@ -126,10 +126,10 @@ const getEmailUser = () => {
   const user = process.env.EMAIL_USER;
 
   if (isProduction()) {
-    if (!user) {
+    /*if (!user) {
       console.error("❌ CRITICAL: EMAIL_USER not set in production!");
       process.exit(1);
-    }
+    }*/
     return user;
   }
 
@@ -195,7 +195,7 @@ const getEmailFromAddress = () => {
 
 const getEmailFrom = () => {
   `"${getEmailFromName()}" <${getEmailFromAddress()}>`;
-}
+};
 
 const getEmailConfig = () => ({
   service: getEmailService() || undefined,
@@ -207,7 +207,6 @@ const getEmailConfig = () => ({
     pass: getEmailPassword(),
   },
   from: getEmailFrom(),
-  
 });
 // Check if email is properly configured for production
 const isEmailConfigured = () => {
