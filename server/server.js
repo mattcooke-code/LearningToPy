@@ -68,6 +68,18 @@ const supportRoutes = require("./routes/support");
 
 const app = express();
 
+// ⚠️ TEMPORARY DEBUG - Remove after fixing
+app.get("/api/debug-alive", (req, res) => {
+  res.json({
+    alive: true,
+    time: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    cwd: process.cwd(),
+    dirname: __dirname,
+  });
+});
+console.log("✅ Debug route registered");
+
 // Trust proxy (required for secure cookies behind reverse proxy)
 app.set("trust proxy", 1);
 
@@ -203,6 +215,29 @@ app.get("/api/health", (req, res) => {
 
 // Favicon
 app.get("/favicon.ico", (req, res) => res.status(204).end());
+
+// TEMPORARY - Show all registered routes
+app.get("/api/routes", (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: middleware.route.methods,
+      });
+    } else if (middleware.name === "router") {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          routes.push({
+            path: handler.route.path,
+            methods: handler.route.methods,
+          });
+        }
+      });
+    }
+  });
+  res.json({ routes, total: routes.length });
+});
 
 // 404 handler
 app.all("*", (req, res, next) => {
