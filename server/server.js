@@ -10,6 +10,9 @@
  * 6. HPP — HTTP parameter pollution protection
  * 7. Rate limiting — IP blocker → abuse detector → API limiter
  *
+ * **Static assets:**
+ * - /curriculum  → server/curriculum (lesson images)
+ *
  * **Route mounting:**
  * - /api/admin      → admin routes (adminOnly middleware applied)
  * - /api/analytics  → analytics routes (adminOnly)
@@ -32,6 +35,7 @@ if (process.env.NODE_ENV === "production") {
   require("dotenv").config({ path: ".env.development" });
 }
 
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -48,9 +52,6 @@ const AppError = require("./utils/AppError");
 const { sendJsonResponse } = require("./utils/responseHelpers");
 const errorHandler = require("./middleware/errorHandler");
 
-// Security configuration
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
-
 // Rate limiting
 const {
   apiLimiter,
@@ -66,25 +67,16 @@ const progressRoutes = require("./routes/progress");
 const contentRoutes = require("./routes/content");
 const supportRoutes = require("./routes/support");
 
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
 const app = express();
 
-// ⚠️ TEMPORARY DEBUG - Remove after fixing
-app.get("/api/debug-alive", (req, res) => {
-  res.json({
-    alive: true,
-    time: new Date().toISOString(),
-    env: process.env.NODE_ENV,
-    cwd: process.cwd(),
-    dirname: __dirname,
-  });
-});
-console.log("✅ Debug route registered");
-
-// Trust proxy (required for secure cookies behind reverse proxy)
+// Trust proxy (required for secure cookies behind Render's reverse proxy)
 app.set("trust proxy", 1);
 
-// Security Middleware - Order matters!
-// 1. Helmet - Set security headers
+// ─── Security Middleware (order matters) ────────────────────────────────────
+
+// 1. Helmet — security headers
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -92,7 +84,7 @@ app.use(
         defaultSrc: ["'self'"],
         connectSrc: ["'self'", config.getFrontendUrl()],
         scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for development
+        styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:", config.getFrontendUrl()],
         fontSrc: ["'self'", config.getFrontendUrl()],
         objectSrc: ["'none'"],
@@ -100,18 +92,14 @@ app.use(
         frameSrc: ["'none'"],
       },
     },
-    crossOriginEmbedderPolicy: false, // Disable for development
+    crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
     dnsPrefetchControl: { allow: false },
     frameguard: { action: "deny" },
     hidePoweredBy: true,
     hsts: IS_PRODUCTION
-      ? {
-          maxAge: 31536000, // 1 year
-          includeSubDomains: true,
-          preload: true,
-        }
-      : false, // Disable HSTS in development
+      ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+      : false,
     ieNoOpen: true,
     noSniff: true,
     originAgentCluster: true,
@@ -121,7 +109,7 @@ app.use(
   }),
 );
 
-// 2. CORS configuration
+// 2. CORS
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -131,10 +119,10 @@ app.use(
       "Content-Type",
       "Authorization",
       "X-Requested-With",
-      "x-session-id", // ✅ Add this - the missing header
-      "x-device-info", // Match the error message exactly
-      "x-page-path", // Safe to lowercase this too
-      "X-Device-Info", // Keeping the uppercase version doesn't hurt
+      "x-session-id",
+      "x-device-info",
+      "x-page-path",
+      "X-Device-Info",
     ],
   }),
 );
@@ -142,37 +130,34 @@ app.use(
 // 3. Body parsing
 app.use(express.json({ limit: "10mb" }));
 
-// 4. Cookie parsing with secure defaults
+// 4. Cookie parsing
 app.use(cookieParser());
 
-// 5. Data sanitization against NoSQL query injection
+// 5. NoSQL injection prevention
 app.use(
   mongoSanitize({
-    replaceWith: "_", // Replace prohibited characters with underscore
+    replaceWith: "_",
     onSanitize: ({ req, key }) => {
       console.warn(`Sanitized key: ${key} from IP: ${req.ip}`);
     },
   }),
 );
 
-// 6. Prevent parameter pollution
-app.use(
-  hpp({
-    whitelist: [
-      // Add any parameters that are allowed to be arrays
-      "sort",
-      "fields",
-      "tags",
-    ],
-  }),
-);
+// 6. HTTP parameter pollution protection
+app.use(hpp({ whitelist: ["sort", "fields", "tags"] }));
 
 // 7. Rate limiting
-app.use(ipBlocker); // Check if IP is blocked first
-app.use(abuseDetector); // Detect suspicious patterns
-app.use("/api/", apiLimiter); // Apply general API rate limiting
+app.use(ipBlocker);
+app.use(abuseDetector);
+app.use("/api/", apiLimiter);
 
-// Database
+// ─── Static Assets ───────────────────────────────────────────────────────────
+
+// Serve curriculum images (e.g. /curriculum/Module0_Tutorial/images/foo.png)
+app.use("/curriculum", express.static(path.join(__dirname, "curriculum")));
+
+// ─── Database ────────────────────────────────────────────────────────────────
+
 const connectDB = async () => {
   try {
     await mongoose.connect(config.getDatabaseUri());
@@ -185,18 +170,8 @@ const connectDB = async () => {
 
 connectDB();
 
-// Even simpler test - add to server.js
-app.get("/api/test-deploy", (req, res) => {
-  res.json({
-    message: "New code deployed!",
-    time: new Date().toISOString(),
-    hasCurriculum: require("fs").existsSync(
-      require("path").join(__dirname, "curriculum"),
-    ),
-  });
-});
+// ─── API Routes ──────────────────────────────────────────────────────────────
 
-// Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/auth", authRoutes);
@@ -213,48 +188,27 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Favicon
+// Suppress browser favicon requests
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-// TEMPORARY - Show all registered routes
-app.get("/api/routes", (req, res) => {
-  const routes = [];
-  app._router.stack.forEach((middleware) => {
-    if (middleware.route) {
-      routes.push({
-        path: middleware.route.path,
-        methods: middleware.route.methods,
-      });
-    } else if (middleware.name === "router") {
-      middleware.handle.stack.forEach((handler) => {
-        if (handler.route) {
-          routes.push({
-            path: handler.route.path,
-            methods: handler.route.methods,
-          });
-        }
-      });
-    }
-  });
-  res.json({ routes, total: routes.length });
-});
+// ─── Error Handling ──────────────────────────────────────────────────────────
 
-// 404 handler
+// 404 catch-all
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Global error handler (MUST be last)
+// Global error handler (must be last)
 app.use(errorHandler);
 
-// Start server
+// ─── Server Startup ──────────────────────────────────────────────────────────
+
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📝 Environment: ${config.getNodeEnv()}`);
 });
 
-// Handle process-level errors
 process.on("unhandledRejection", (err) => {
   console.error("❌ Unhandled Promise Rejection:", err);
   server.close(() => process.exit(1));

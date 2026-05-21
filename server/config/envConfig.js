@@ -1,21 +1,154 @@
 // server/config/envConfig.js
+
+// ─── Environment ─────────────────────────────────────────────────────────────
+
 const getNodeEnv = () => process.env.NODE_ENV || "development";
 const isProduction = () => getNodeEnv() === "production";
 const isDevelopment = () => getNodeEnv() === "development";
 const isTest = () => getNodeEnv() === "test";
 
-// --- Seeding Configuration ---
+// ─── Validation ──────────────────────────────────────────────────────────────
+
+/**
+ * Warns about missing required environment variables in production.
+ * Does NOT call process.exit — a missing var should surface in logs,
+ * not take down the whole server on startup.
+ */
+const validateSecrets = () => {
+  if (!isProduction()) return true;
+
+  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET", "MONGODB_URI"];
+  const missing = required.filter((key) => !process.env[key]);
+
+  if (missing.length > 0) {
+    console.warn(
+      `⚠️  WARNING: Missing environment variables: ${missing.join(", ")}`,
+    );
+  }
+
+  return missing.length === 0;
+};
+
+// Run validation on module load so it appears near the top of startup logs
+validateSecrets();
+
+// ─── Server ──────────────────────────────────────────────────────────────────
+
+const getFrontendUrl = () =>
+  process.env.FRONTEND_URL || "http://localhost:5173";
+
+const getPort = () => process.env.PORT || 5000;
+
+const getDatabaseUri = () =>
+  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/learning-to-py";
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+const getAccessTokenSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret && !isProduction()) {
+    console.warn("⚠️  JWT_SECRET not set, using development fallback.");
+    return "super-secret-fallback";
+  }
+  return secret;
+};
+
+const getRefreshTokenSecret = () => {
+  const secret = process.env.REFRESH_TOKEN_SECRET;
+  if (!secret && !isProduction()) {
+    console.warn(
+      "⚠️  REFRESH_TOKEN_SECRET not set, using development fallback.",
+    );
+    return "super_secret_refresh_token_fallback";
+  }
+  return secret;
+};
+
+// ─── Email ───────────────────────────────────────────────────────────────────
+
+const getEmailUser = () => {
+  const user = process.env.EMAIL_USER;
+  if (!user && isProduction()) {
+    console.warn("⚠️  EMAIL_USER not set in production.");
+  }
+  return user || (isDevelopment() ? "dev@example.com" : undefined);
+};
+
+const getEmailPassword = () => {
+  const password = process.env.EMAIL_PASS;
+  if (!password && isProduction()) {
+    console.warn("⚠️  EMAIL_PASS not set in production.");
+  }
+  return password || (isDevelopment() ? "dev-password-123" : undefined);
+};
+
+/**
+ * Returns the nodemailer service alias (e.g. "gmail") if EMAIL_SERVICE is set,
+ * otherwise null (fall back to host/port config).
+ */
+const getEmailService = () => process.env.EMAIL_SERVICE || null;
+
+const getEmailHost = () => {
+  const service = getEmailService();
+  if (service) return service; // nodemailer uses this as a service alias
+  return process.env.EMAIL_HOST || "smtp.gmail.com";
+};
+
+const getEmailPort = () => parseInt(process.env.EMAIL_PORT) || 587;
+
+const getEmailSecure = () => {
+  if (process.env.EMAIL_SECURE !== undefined) {
+    return process.env.EMAIL_SECURE === "true";
+  }
+  return getEmailPort() === 465;
+};
+
+const getEmailFromName = () => process.env.EMAIL_FROM_NAME || "Learning To Py";
+
+const getEmailFromAddress = () =>
+  process.env.EMAIL_FROM_ADDRESS || getEmailUser();
+
+// Note: previously this function was missing a `return` statement — fixed here.
+const getEmailFrom = () => `"${getEmailFromName()}" <${getEmailFromAddress()}>`;
+
+const getEmailConfig = () => {
+  const service = getEmailService();
+  return {
+    ...(service
+      ? { service }
+      : {
+          host: getEmailHost(),
+          port: getEmailPort(),
+          secure: getEmailSecure(),
+        }),
+    auth: {
+      user: getEmailUser(),
+      pass: getEmailPassword(),
+    },
+    from: getEmailFrom(),
+  };
+};
+
+const isEmailConfigured = () => {
+  if (!isProduction()) return true;
+  return !!(
+    process.env.EMAIL_HOST &&
+    process.env.EMAIL_USER &&
+    process.env.EMAIL_PASS
+  );
+};
+
+// ─── Seeding ─────────────────────────────────────────────────────────────────
+
 const getSeedConfig = () => {
-  // Default configuration
   const defaults = {
-    clearData: isDevelopment(), // Clear in dev, keep in prod by default
+    clearData: isDevelopment(), // Safe default: only clear in dev
     batchSize: 5,
     modules: null, // null = all modules
     dryRun: false,
     maxExecutionTime: 300000, // 5 minutes
   };
 
-  // Override with environment variables if present
   return {
     clearData:
       process.env.SEED_CLEAR_DATA !== undefined
@@ -42,188 +175,19 @@ const getSeedConfig = () => {
       : defaults.modules,
 
     dryRun: process.env.SEED_DRY_RUN === "true",
+
     maxExecutionTime: process.env.SEED_MAX_TIME
       ? parseInt(process.env.SEED_MAX_TIME)
       : defaults.maxExecutionTime,
   };
 };
 
-// --- Validation (Enhanced for Seeding) ---
-const validateSecrets = () => {
-  if (!isProduction()) return true;
-
-  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET", "MONGODB_URI"];
-  const missing = required.filter((key) => !process.env[key]);
-
-  /*if (missing.length > 0) {
-    console.error(
-      `CRITICAL: Missing required environment variables: ${missing.join(", ")}`,
-    );
-    process.exit(1);
-  }*/
-
-  // Check for weak secrets in production
-  /*  if (isProduction()) {
-    const weakSecrets = [];
-    if (process.env.JWT_SECRET === "your-super-secret-production-jwt-key") {
-      weakSecrets.push("JWT_SECRET");
-    }
-    if (process.env.REFRESH_TOKEN_SECRET === "super_secret_refresh_token_key") {
-      weakSecrets.push("REFRESH_TOKEN_SECRET");
-    }
-    if (weakSecrets.length > 0) {
-      console.error(
-        `❌ SECURITY: Default secrets detected: ${weakSecrets.join(", ")}`,
-      );
-      process.exit(1);
-    }
-  }*/
-
-  // Additional production seeding safety
-  /* if (isProduction() && process.env.SEED_CLEAR_DATA === "true") {
-    console.error(
-      "❌ SAFETY: Cannot clear data in production without explicit override",
-    );
-    console.error("   Use: SEED_CLEAR_OVERRIDE=true npm run seed");
-    process.exit(1);
-  }*/
-
-  return true;
-};
-
-// Initialize validation
-//validateSecrets();
-
-// --- Existing Getters ---
-const getAccessTokenSecret = () => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret && !isProduction()) {
-    console.warn("⚠️ WARNING: JWT_SECRET not set, using fallback.");
-    return "super-secret-fallback";
-  }
-  return secret;
-};
-
-const getRefreshTokenSecret = () => {
-  const secret = process.env.REFRESH_TOKEN_SECRET;
-  if (!secret && !isProduction()) {
-    console.warn("⚠️ WARNING: REFRESH_TOKEN_SECRET not set, using fallback.");
-    return "super_secret_refresh_token_fallback";
-  }
-  return secret;
-};
-
-const getFrontendUrl = () =>
-  process.env.FRONTEND_URL || "http://localhost:5173";
-
-const getPort = () => process.env.PORT || 5000;
-
-const getDatabaseUri = () =>
-  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/learning-to-py";
-
-// --- EMAIL CONFIGURATION (NEW) ---
-const getEmailUser = () => {
-  const user = process.env.EMAIL_USER;
-
-  if (isProduction()) {
-    /*if (!user) {
-      console.error("❌ CRITICAL: EMAIL_USER not set in production!");
-      process.exit(1);
-    }*/
-    return user;
-  }
-
-  return user || "dev@example.com";
-};
-
-const getEmailPassword = () => {
-  const password = process.env.EMAIL_PASS;
-
-  if (isProduction()) {
-    /* if (!password) {
-      console.error("❌ CRITICAL: EMAIL_PASS not set in production!");
-      process.exit(1);
-    }*/
-    return password;
-  }
-
-  return password || "dev-password-123";
-};
-
-const getEmailService = () => {
-  const service = process.env.EMAIL_SERVICE;
-
-  // If service is provided (like 'gmail', 'outlook'), use it
-  if (service) {
-    return service;
-  }
-
-  // Otherwise return host
-  return null;
-};
-
-const getEmailHost = () => {
-  // If EMAIL_SERVICE is provided, nodemailer will use it as a service alias
-  const service = getEmailService();
-  if (service) {
-    return service;
-  }
-  return process.env.EMAIL_HOST || "smtp.gmail.com";
-};
-
-const getEmailPort = () => {
-  return parseInt(process.env.EMAIL_PORT) || 587;
-};
-
-const getEmailSecure = () => {
-  // true for port 465, false for other ports
-  if (process.env.EMAIL_SECURE !== undefined) {
-    return process.env.EMAIL_SECURE === "true";
-  }
-  // Default: secure false for 587, true for 465
-  const port = getEmailPort();
-  return port === 465;
-};
-
-const getEmailFromName = () => {
-  return process.env.EMAIL_FROM_NAME || "Learning To Py";
-};
-
-const getEmailFromAddress = () => {
-  return process.env.EMAIL_FROM_ADDRESS || getEmailUser();
-};
-
-const getEmailFrom = () => {
-  `"${getEmailFromName()}" <${getEmailFromAddress()}>`;
-};
-
-const getEmailConfig = () => ({
-  service: getEmailService() || undefined,
-  host: getEmailService() ? undefined : getEmailHost(),
-  port: getEmailService() ? undefined : getEmailPort(),
-  secure: getEmailService() ? undefined : getEmailSecure(),
-  auth: {
-    user: getEmailUser(),
-    pass: getEmailPassword(),
-  },
-  from: getEmailFrom(),
-});
-// Check if email is properly configured for production
-const isEmailConfigured = () => {
-  if (!isProduction()) return true;
-
-  return !!(
-    process.env.EMAIL_HOST &&
-    process.env.EMAIL_USER &&
-    process.env.EMAIL_PASS
-  );
-};
-
-// --- Convenience getters for common seeding scenarios ---
 const shouldClearDataOnSeed = () => getSeedConfig().clearData;
 const getSeedBatchSize = () => getSeedConfig().batchSize;
 const getModulesToSeed = () => getSeedConfig().modules;
 const isDryRun = () => getSeedConfig().dryRun;
+
+// ─── Exports ─────────────────────────────────────────────────────────────────
 
 module.exports = {
   // Environment
@@ -241,7 +205,7 @@ module.exports = {
   getAccessTokenSecret,
   getRefreshTokenSecret,
 
-  // Email (NEW)
+  // Email
   getEmailUser,
   getEmailPassword,
   getEmailHost,
