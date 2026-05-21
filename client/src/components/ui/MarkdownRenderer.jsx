@@ -478,10 +478,34 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
     ),
 
     img: ({ src, alt, title }) => {
+      // 1. Determine your backend API domain (handles both local dev and production domain matching)
+      const API_BASE_URL = window.location.origin;
+      // Note: If your frontend and backend run on different ports locally (e.g. 5173 vs 5000),
+      // you should use your environment variable here instead: import.meta.env.VITE_API_URL
+
       let imageSrc = src;
-      if (src && src.startsWith("./images/")) {
-        const imageName = src.replace("./images/", "");
-        imageSrc = `/api/content/modules/${moduleId}/images/${imageName}`;
+
+      if (src) {
+        // Clean up the filename to find out what the image is actually named
+        const imageName = src.split("/").pop();
+
+        // Map your module IDs safely to the EXACT literal folder names on your server filesystem
+        const folderMapping = {
+          M0: "Module0_Tutorial",
+          M1: "Module1_Fundamentals",
+          M2: "Module2_DataStructures",
+          M3: "Module3_ControlFlow",
+          M4: "Module4_Iteration",
+          M5: "Module5_DataStructures",
+          M12: "Module12_OOP2",
+          M15: "Module15_Tooling",
+          M16: "Module16_API",
+        };
+
+        const targetFolder = folderMapping[moduleId] || "Module0_Tutorial";
+
+        // Reconstruct a bulletproof path directly targeting your Express static asset folder
+        imageSrc = `${API_BASE_URL}/curriculum/${targetFolder}/images/${imageName}`;
       }
 
       return (
@@ -498,16 +522,12 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
             }}
             aria-label={`View larger image: ${alt || "Lesson image"}`}
           >
-            {/* Hover overlay */}
             <div
               className="absolute inset-0 opacity-0 group-hover:opacity-100 
-                        transition-opacity bg-black/20 rounded-xl
-                        flex items-center justify-center pointer-events-none"
+                    transition-opacity bg-black/20 rounded-xl
+                    flex items-center justify-center pointer-events-none"
             >
-              <div
-                className="bg-black/60 text-white px-3 py-1.5 rounded-full 
-                          text-sm flex items-center gap-1.5"
-              >
+              <div className="bg-black/60 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5">
                 <svg
                   className="w-4 h-4"
                   fill="none"
@@ -529,31 +549,17 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
               src={imageSrc}
               alt={alt || "Lesson image"}
               title={title}
-              className={`
-            rounded-xl border shadow-lg
-            w-full max-w-full h-auto
-            min-h-[80px] md:min-h-[100px]
-            ${activeDark ? "border-gray-700" : "border-gray-300"}
-            transition-transform duration-200
-            group-hover:scale-[1.01]
-          `}
+              className={`rounded-xl border shadow-lg w-full max-w-full h-auto min-h-[80px] md:min-h-[100px] ${activeDark ? "border-gray-700" : "border-gray-300"} transition-transform duration-200 group-hover:scale-[1.01]`}
               loading="lazy"
             />
           </div>
 
           {alt && (
             <figcaption
-              className={`
-            text-xs md:text-sm mt-2 italic px-2
-            ${activeDark ? "text-gray-400" : "text-gray-600"}
-          `}
+              className={`text-xs md:text-sm mt-2 italic px-2 ${activeDark ? "text-gray-400" : "text-gray-600"}`}
             >
               {alt}
               <span className="hidden md:inline"> — Click to view</span>
-              <span className="md:hidden">
-                {" "}
-                — Tap to view & rotate if needed
-              </span>
             </figcaption>
           )}
         </figure>
