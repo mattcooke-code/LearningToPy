@@ -4,7 +4,7 @@ Welcome to your Python playground! The code editor is where you'll write, edit, 
 
 ## Editor Layout
 
-![Code Editor: Light Mode](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/CodeEditorLightMode.png)
+![Code Editor: Light Mode](/curriculum/Module0_Tutorial/images/CodeEditorLightMode.png)
 
 ### Key Components:
 

@@ -27,17 +27,6 @@ const catchAsync = require("../utils/catchAsync");
 exports.validateUserRegistration = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
-  console.log("Raw password:", password);
-  console.log("Password type:", typeof password);
-  console.log("Password length:", password?.length);
-  console.log(
-    "Password chars:",
-    password
-      ?.split("")
-      .map((c) => `${c}(${c.charCodeAt(0)})`)
-      .join(" "),
-  );
-
   // Validate username
   const usernameValidation = validateUsername(username);
   if (!usernameValidation.isValid) {

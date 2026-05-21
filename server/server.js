@@ -191,37 +191,6 @@ app.get("/api/health", (req, res) => {
 // Suppress browser favicon requests
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-// ─── TEMPORARY DEBUG ROUTE (remove after debugging) ─────────────────────────
-app.get("/api/debug-fs", (req, res) => {
-  const fs = require("fs");
-  const path = require("path"); // Ensure path is required if not already at top
-  const curriculumPath = path.join(__dirname, "curriculum");
-  const exists = fs.existsSync(curriculumPath);
-  let contents = [];
-
-  if (exists) {
-    try {
-      contents = fs.readdirSync(curriculumPath, { withFileTypes: true });
-      // Format for readability
-      contents = contents.map((item) => ({
-        name: item.name,
-        isDirectory: item.isDirectory(),
-        isFile: item.isFile(),
-      }));
-    } catch (err) {
-      contents = [`Error reading directory: ${err.message}`];
-    }
-  }
-
-  res.json({
-    curriculumPath,
-    exists,
-    contents,
-    nodeEnv: process.env.NODE_ENV,
-    renderUrl: process.env.RENDER_EXTERNAL_URL || "not set",
-  });
-});
-
 // ─── Error Handling ──────────────────────────────────────────────────────────
 
 // 404 catch-all
