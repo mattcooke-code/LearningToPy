@@ -161,7 +161,11 @@ app.use("/api/", apiLimiter);
 
 // Serve curriculum images (e.g. /curriculum/Module0_Tutorial/images/foo.png)
 app.use("/curriculum", express.static(path.join(__dirname, "curriculum")));
-console.log("Serving static files from:", path.join(__dirname, "curriculum"));
+
+const fs = require("fs");
+const curriculmPath = path.join(__dirname, "curriculum");
+console.log("Curriculum folder exists:", fs.existsSync(curriculmPath));
+console.log("Curriculum contents:", fs.readdirSync(curriculmPath));
 
 // ─── Database ────────────────────────────────────────────────────────────────
 
