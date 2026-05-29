@@ -215,6 +215,10 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       p: ({ children }) => (
         <p className={`mb-2 leading-relaxed ${textColor}`}>{children}</p>
       ),
+      img: ({ src, alt }) => {
+        console.log("img inside container:", src);
+        return <img src={src} alt={alt} />;
+      },
       ul: ({ children }) => (
         <ul className={`list-disc ml-6 mb-3 space-y-1 ${textColor}`}>
           {children}
@@ -348,7 +352,6 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
 
     p: ({ children, node }) => {
       // Check if paragraph contains only an image
-      console.log("p node children:", node?.children);
       if (
         node?.children?.length === 1 &&
         node.children[0].type === "element" &&
@@ -479,13 +482,16 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
     ),
 
     img: ({ src, alt, title }) => {
-      console.log("img component called with src:", src);
       let imageSrc = src;
+
+      const API_BASE = import.meta.env.VITE_BACKEND_URL;
+
       if (src && src.startsWith("./images/")) {
         const imageName = src.replace("./images/", "");
-        imageSrc = `/api/content/modules/${moduleId}/images/${imageName}`;
+        imageSrc = `${API_BASE}/curriculum/Module${moduleId}/images/${imageName}`;
+      } else if (src && src.startsWith("/curriculum/")) {
+        imageSrc = `${API_BASE}${src}`;
       }
-
       return (
         <figure className="my-4 md:my-8 text-center">
           <div
