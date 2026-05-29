@@ -348,6 +348,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
 
     p: ({ children, node }) => {
       // Check if paragraph contains only an image
+      console.log("p node children:", node?.children);
       if (
         node?.children?.length === 1 &&
         node.children[0].type === "element" &&
@@ -478,6 +479,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
     ),
 
     img: ({ src, alt, title }) => {
+      console.log("img component called with src:", src);
       let imageSrc = src;
       if (src && src.startsWith("./images/")) {
         const imageName = src.replace("./images/", "");
