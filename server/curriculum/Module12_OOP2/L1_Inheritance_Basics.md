@@ -64,7 +64,7 @@ This ensures that all Python objects inherit fundamental behaviors like `__init_
 
 Inheritance is often used to build a hierarchy, moving from general concepts to more specific ones.
 
-![Inheritance Model](./images/M12L1Inheritance.png)
+![Inheritance Model](https://learningtopy.onrender.com/curriculum/Module12_OOP2/images/M12L1Inheritance.png)
 
 Inheritance allows `ElectricCar` to use methods defined in both `Car` and `Vehicle`, while only needing to define what makes it specifically "Electric" (like battery capacity).
 

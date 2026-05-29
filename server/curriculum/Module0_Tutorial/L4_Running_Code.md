@@ -70,7 +70,7 @@ print("Hello World"  # Missing a closing parenthesis!
 
 Running this will show:
 
-![Terminal: Error Message](./images/TerminalError.PNG)
+![Terminal: Error Message](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/TerminalError.png)
 
 **How to handle errors:**
 

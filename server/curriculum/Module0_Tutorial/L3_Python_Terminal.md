@@ -4,7 +4,7 @@ The terminal is where your code comes to life! It's an interactive Python enviro
 
 ## What the Terminal Shows
 
-![Terminal](./images/Terminal.PNG)
+![Terminal](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/Terminal.png)
 
 ### Terminal Sections:
 

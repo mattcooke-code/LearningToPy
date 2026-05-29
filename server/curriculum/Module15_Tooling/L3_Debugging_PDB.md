@@ -38,7 +38,7 @@ Once inside the `Pdb` shell, you use short commands to control the execution flo
 
 A typical debugging session using `pdb` involves:
 
-![Debugging Model](./images/DebugModel.png)
+![Debugging Model](https://learningtopy.onrender.com/curriculum/Module15_Tooling/images/DebugModel.png)
 
 ### Example 1: Finding a Division by Zero
 

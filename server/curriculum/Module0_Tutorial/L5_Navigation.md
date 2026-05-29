@@ -48,7 +48,7 @@ The platform uses three distinct systems to help you track where you are and wha
 
 ### 1. Module Progress Bar
 
-![Progress Bar](./images/ProgressBar.PNG)
+![Progress Bar](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/ProgressBar.png)
 
 _Location:_ Top of every Module page
 
@@ -76,7 +76,7 @@ _Icon meanings:_
 
 **Lesson Page Icons**
 
-![Lesson Progress](./images/LessonList.PNG)
+![Lesson Progress](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/LessonList.png)
 
 _Location:_ Lesson list within each Module page
 

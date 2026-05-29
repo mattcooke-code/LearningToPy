@@ -9,7 +9,7 @@ HTTP is the protocol used for communication between a **client** (like your brow
 1.  **Client** sends an **HTTP Request** (e.g., "Give me the data for this URL").
 2.  **Server** processes the request and sends back an **HTTP Response** (e.g., the HTML page, JSON data, or an error message).
 
-![HTTP Model](./images/HTTP_req_res.png)
+![HTTP Model](https://learningtopy.onrender.com/curriculum/Module16_API/images/HTTP_req_res.png)
 
 ## 2. Key HTTP Methods (Verbs)
 
@@ -28,10 +28,10 @@ Other useful methods are:
 | **PUT**    | Update a resource entirely.  |
 | **DELETE** | Remove a specified resource. |
 
-![Fetch Methods: GET](./images/GET_Req.png)
-![Fetch Methods: POST](./images/POST_Req.png)
-![Fetch Methods: PUT/PATCH](./images/PUT_PATCH_Req.png)
-![Fetch Methods: DELETE](./images/DELETE_Req.png)
+![Fetch Methods: GET](https://learningtopy.onrender.com/curriculum/Module16_API/images/GET_Req.png)
+![Fetch Methods: POST](https://learningtopy.onrender.com/curriculum/Module16_API/images/POST_Req.png)
+![Fetch Methods: PUT/PATCH](https://learningtopy.onrender.com/curriculum/Module16_API/images/PUT_PATCH_Req.png)
+![Fetch Methods: DELETE](https://learningtopy.onrender.com/curriculum/Module16_API/images/DELETE_Req.png)
 
 ## 3. The Importance of HTTP Status Codes
 

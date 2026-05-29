@@ -6,7 +6,7 @@ While our in-browser editor is perfect for learning, professional developers use
 
 On every lesson, you'll see a Download button. This allows you to take the lesson code off our platform and run it on your own computer.
 
-![Code Editor: Download Button](./images/CodeEditorDarkMode.png)
+![Code Editor: Download Button](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/CodeEditorDarkMode.png)
 
 ## Why code locally?
 
