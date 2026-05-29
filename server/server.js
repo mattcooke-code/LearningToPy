@@ -164,8 +164,18 @@ app.use("/curriculum", express.static(path.join(__dirname, "curriculum")));
 
 const fs = require("fs");
 const curriculmPath = path.join(__dirname, "curriculum");
-console.log("Curriculum folder exists:", fs.existsSync(curriculmPath));
-console.log("Curriculum contents:", fs.readdirSync(curriculmPath));
+
+const module0Path = path.join(__dirname, "curriculum", "Module0_Tutorial");
+console.log("Module0 contents:", fs.readdirSync(module0Path));
+
+const imagesPath = path.join(
+  __dirname,
+  "curriculum",
+  "Module0_Tutorial",
+  "images",
+);
+console.log("Images folder exists:", fs.existsSync(imagesPath));
+console.log("Images contents:", fs.readdirSync(imagesPath));
 
 // ─── Database ────────────────────────────────────────────────────────────────
 
