@@ -56,7 +56,7 @@ for item in collection:  # Creates a complete loop template
 
 If you have a long block of code, you can "fold" it to keep your workspace clean:
 
-![Code Folding](./images/CodeFolding.png)
+![Code Folding](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/CodeFolding.png)
 
 1. Click the `v` next to the line number to collapse the code.
 2. Click the `>` next to the line number to expand it again.
