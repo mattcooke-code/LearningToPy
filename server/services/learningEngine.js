@@ -1,10 +1,7 @@
 // learningEngine.js
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
-const {
-  findNextLesson,
-  findNextModule,
-} = require("../utils/navigation");
+const { findNextLesson, findNextModule } = require("../utils/navigation");
 const { normalizeTags } = require("../utils/generalUtils");
 const {
   XP,
@@ -26,17 +23,17 @@ const {
 
 /**
  * Validates a user's code submission against the exercise requirements.
- * 
+ *
  * @param {string} userCode - The code submitted by the user
  * @param {Object} exercise - The exercise document with starterCode
  * @param {string} exercise.starterCode - The initial code template
  * @returns {{ isCorrect: boolean, feedback: string }} Validation result
- * 
+ *
  * @example
  * // Returns true for modified code
  * validateCodeSubmission("print('hello')", { starterCode: "# your code" })
  * // => { isCorrect: true, feedback: "Code accepted (validated in frontend)" }
- * 
+ *
  * @example
  * // Returns false for empty or unchanged code
  * validateCodeSubmission("", { starterCode: "# template" })
@@ -64,7 +61,7 @@ const validateCodeSubmission = (userCode, exercise) => {
  * Increments user statistics based on lesson completion performance.
  * Tracks speed, accuracy, and tag-based challenge categories.
  * Mutates the user object directly.
- * 
+ *
  * @param {Object} user - The user document (mutated in place)
  * @param {Object} lessonRecord - The lesson completion record
  * @param {Object} submissionBody - Submission metadata from the frontend
@@ -119,7 +116,7 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
 
 /**
  * Creates a standardized lesson completion record for history tracking.
- * 
+ *
  * @param {Object} lesson - The lesson document
  * @param {Object} submissionBody - Submission metadata
  * @param {Date} timestamp - Completion timestamp
@@ -140,18 +137,17 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
   };
 };
 
-
 /**
  * Main Orchestrator for Lesson Completion.
  */
 
 /**
  * Orchestrates the complete lesson completion workflow.
- * 
+ *
  * Handles XP calculation across multiple sources (exercise, quiz, bonuses),
  * auto-completes quiz-less modules when all lessons are done (e.g., Module 20 capstone),
  * updates user XP/level/stats/history, and returns navigation info.
- * 
+ *
  * **XP Sources (awarded in order):**
  * 1. Exercise submission XP (if lesson has coding exercise, skipped for M0)
  * 2. Lesson quiz XP (per-question + passing bonus, skipped for M0)
@@ -160,12 +156,12 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
  * 5. Capstone project bonus (if Module 20 project lesson)
  * 6. Module config reward (if provided in submissionBody)
  * 7. Auto-completed module bonus (if all lessons done and module has no quiz)
- * 
+ *
  * **Auto-completion behavior:**
  * For modules without a quiz (e.g., Module 20 capstone), completing the final
  * lesson triggers automatic module completion. This awards the module completion
  * bonus, phase bonus, and any special module bonuses (M20 capstone).
- * 
+ *
  * @param {Object} user - The user document (mutated with new XP, level, history)
  * @param {Object} lesson - The lesson being completed
  * @param {Object} submissionBody - Submission data from the frontend
@@ -175,14 +171,14 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
  * @param {boolean} [submissionBody.isCorrect] - Whether solution is correct
  * @param {number} [submissionBody.moduleConfigReward] - Additional XP from module config
  * @param {Object} [submissionBody] - Additional metadata for stats tracking
- * 
+ *
  * @returns {Promise<{
  *   xpIncrease: number,
  *   newlyCompleted: boolean,
  *   nextLessonId: string|null,
  *   xpBreakdown: Array<{amount: number, source: string, meta: Object}>
  * }>} Completion result with XP breakdown and navigation
- * 
+ *
  * @example
  * // Completing a coding exercise lesson in Module 5
  * const result = await processLessonCompletion(user, lesson, {
@@ -193,7 +189,7 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
  *   elapsedSeconds: 45
  * });
  * // => { xpIncrease: 35, newlyCompleted: true, nextLessonId: "...", ... }
- * 
+ *
  * @throws {Error} If Module.findById fails (module not found)
  */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
@@ -327,10 +323,12 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     const moduleLessons = await Lesson.find({
       moduleId: lesson.moduleId,
       isPublished: true,
-    }).select("_id").lean();
+    })
+      .select("_id")
+      .lean();
 
-    const allLessonsComplete = moduleLessons.every(
-      (l) => user.completedLessons.includes(l._id.toString()),
+    const allLessonsComplete = moduleLessons.every((l) =>
+      user.completedLessons.includes(l._id.toString()),
     );
 
     if (allLessonsComplete) {
@@ -408,17 +406,17 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
 /**
  * Orchestrates the complete module completion workflow.
- * 
+ *
  * Awards XP for module quiz performance, module completion, phase bonuses,
  * and special module bonuses (M0 tutorial, M20 capstone). Updates user
  * XP/level and adds to moduleCompletionHistory.
- * 
+ *
  * @param {Object} user - The user document (mutated with new XP, level, history)
  * @param {Object} module - The module being completed
  * @param {number|null} quizScore - The quiz score (0-100), or null if no quiz
  * @param {Array} [quizResults=[]] - Individual quiz question results
  * @param {boolean} quizResults[].isCorrect - Whether the answer was correct
- * 
+ *
  * @returns {Promise<{
  *   xpIncrease: number,
  *   newlyCompleted: boolean,
@@ -554,13 +552,13 @@ const processModuleCompletion = async (
 
 /**
  * Determines if a lesson is fully completed based on its content type and required components.
- * 
+ *
  * A lesson is complete when all its interactive components are satisfied:
  * - Theory-only lessons: always complete
  * - Exercise lessons: code must be correct
  * - Quiz lessons: all quiz questions answered
  * - Exercise + Quiz lessons: both must be satisfied
- * 
+ *
  * @param {Object} lesson - The lesson document
  * @param {Object} quizProgress - User's quiz progress for this lesson
  * @param {boolean} isCorrect - Whether the exercise solution is correct
@@ -578,18 +576,29 @@ const isLessonFullyCompleted = (
 
   if (forceComplete) return true;
 
-  if (lesson.contentType === "THEORY" && !lessonHasQuiz && !lessonHasExercise) {
-    return true;
+  // THEORY Lessons: quiz only (no exercise)
+  if (lesson.contentType === "THEORY") {
+    if (lessonHasQuiz && !lessonHasExercise) {
+      return isQuizCompleted(quizProgress, lesson);
+    }
+
+    // Theory with no quiz
+    if (!lessonHasQuiz && !lessonHasExercise) {
+      return true;
+    }
   }
 
+  // PROJECT (exercise only, no quiz)
   if (lessonHasExercise && !lessonHasQuiz && isCorrect) {
     return true;
   }
 
+  // Quiz only (catch-all for lessons without exercise not marked as Theory)
   if (!lessonHasExercise && lessonHasQuiz) {
     return isQuizCompleted(quizProgress, lesson);
   }
 
+  // EXERCISE (coding exercise AND quiz)
   if (lessonHasExercise && lessonHasQuiz) {
     return isCorrect && isQuizCompleted(quizProgress, lesson);
   }
