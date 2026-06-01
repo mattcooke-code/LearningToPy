@@ -150,33 +150,50 @@ const QuizComponent = ({
         attemptNumber: (attempts[questionId] || 0) + 1,
       });
 
-      // Update attempts counter
       setAttempts((prev) => ({
         ...prev,
         [questionId]: (prev[questionId] || 0) + 1,
       }));
 
-      // Update results for this question
-      setResults((prev) => ({
-        ...prev,
-        [questionId]: {
-          show: true,
-          isCorrect: data.isCorrect,
-          completed: data.isCorrect,
-        },
-      }));
+      // Update results
+      const newResult = {
+        show: true,
+        isCorrect: data.isCorrect,
+        completed: data.isCorrect,
+      };
+
+      setResults((prev) => {
+        const updated = {
+          ...prev,
+          [questionId]: newResult,
+        };
+
+        // Check completion with the NEW results object
+        const allCorrect = quizArray.every((q) => {
+          const qKey = q._id || q.id;
+          return updated[qKey]?.isCorrect === true;
+        });
+
+        if (allCorrect && !quizCompleted && onQuizComplete) {
+          // Use setTimeout to avoid state update during render
+          setTimeout(() => {
+            setQuizCompleted(true);
+            onQuizComplete(true);
+          }, 0);
+        }
+
+        return updated;
+      });
 
       if (data.isCorrect && data.xpEarned > 0) {
         showToast(`+${data.xpEarned} XP earned! 🎯`, "success");
       }
 
-      // Store server feedback
       setServerFeedback((prev) => ({
         ...prev,
         [questionId]: data.feedback,
       }));
 
-      // If the backend says the lesson is completed, trigger callback
       if (data.completed && onQuizComplete) {
         setQuizCompleted(true);
         onQuizComplete(true);
