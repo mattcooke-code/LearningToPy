@@ -1,3 +1,4 @@
+// LessonPage.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth, useNotification, useTheme } from "../context";
@@ -16,7 +17,7 @@ import { getErrorMessage, calculateNextLessonManually } from "../utils";
  * Individual lesson page component with comprehensive state management for lesson completion,
  * exercise submission, quiz handling, and navigation. This is the most complex learning page
  * with multiple interaction modes, progress tracking, theme integration, and content reporting.
- * 
+ *
  * Implements sophisticated completion logic with automatic progression, review mode toggling,
  * and real-time UI updates based on user interactions. Handles both theory and practical lesson
  * types with different completion criteria and submission flows.
@@ -24,15 +25,15 @@ import { getErrorMessage, calculateNextLessonManually } from "../utils";
 
 /**
  * Individual lesson page component with comprehensive learning interaction capabilities.
- * 
+ *
  * This component manages lesson content display, exercise submissions, quiz completion,
  * progress tracking, and navigation. Features review mode, automatic theme updates,
  * completion state management, and content reporting functionality. Handles both
  * theory and practical lesson types with different interaction patterns.
- * 
+ *
  * @component
  * @returns {JSX.Element} Complete lesson page with header, content, navigation, and modals
- * 
+ *
  * @stateManagement
  * - lesson: Current lesson data with content and completion status
  * - module: Parent module information for navigation context
@@ -42,33 +43,33 @@ import { getErrorMessage, calculateNextLessonManually } from "../utils";
  * - exerciseCompleted: Exercise completion state for practical lessons
  * - quizCompleted: Quiz completion state for theory lessons
  * - showReportModal: Modal state for content reporting
- * 
+ *
  * @completionLogic
  * - Theory lessons: Require quiz completion + manual completion
  * - Practical lessons: Require exercise completion + manual completion
  * - Review mode: Disables completion and submission actions
  * - Automatic progression: Fetches next lesson on completion
  * - Theme updates: Updates theme based on course progress
- * 
+ *
  * @dataFlow
  * 1. Fetches lesson data with module context
  * 2. Determines review mode based on completion status
  * 3. Fetches next lesson data for navigation
  * 4. Handles various submission types (code, quiz, manual)
  * 5. Updates UI state and theme on completion
- * 
+ *
  * @interactionHandlers
  * - markLessonComplete: Manual completion with server sync
  * - handleCodeSubmit: Exercise submission with validation
  * - handleQuizComplete: Quiz completion tracking
  * - toggleReviewMode: Switches between learning/review modes
- * 
+ *
  * @navigationLogic
  * - Calculates next lesson using API or manual fallback
  * - Handles last lesson detection for completion flow
  * - Provides module-level navigation context
  * - Updates theme colors based on progress
- * 
+ *
  * @errorHandling
  * - Comprehensive error states for all API calls
  * - Graceful fallback for missing lesson data
@@ -200,8 +201,15 @@ const LessonPage = () => {
   // --- 5. Interaction Handlers ---
   const handleQuizComplete = useCallback(
     (isCompleted) => {
+      console.log(
+        "Quiz completed:",
+        isCompleted,
+        "ContentType:",
+        lesson?.contentType,
+      );
       setQuizCompleted(isCompleted);
       if (isCompleted && lesson?.contentType === "theory") {
+        console.log("Calling markLessonComplete for theory lesson");
         markLessonComplete();
       }
     },
