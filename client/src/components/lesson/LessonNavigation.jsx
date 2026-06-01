@@ -134,7 +134,6 @@ const LessonNavigation = ({
           </Link>
         )}
 
-        {/* Completion Indicators */}
         {(moduleQuizCompleted ||
           (!nextLesson && !moduleQuizExists && lessonFullyCompleted)) && (
           <div className="flex items-center justify-center sm:justify-end space-x-2 text-green-600 font-bold py-2">

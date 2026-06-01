@@ -120,7 +120,7 @@ const LessonPage = () => {
 
   // --- 2. Helper: Handle UI Updates on Completion ---
   const handleLessonCompletionUI = useCallback(
-    (responseData) => {
+    async (responseData) => {
       const { xpEarned, moduleCompleted, progress, nextLessonId } =
         responseData;
 
@@ -129,6 +129,16 @@ const LessonPage = () => {
         : `🎉 Lesson completed! +${xpEarned} XP`;
 
       showToast(message, "success");
+
+      if (nextLessonId) {
+        try {
+          const data = await apiClient.get(`/content/lessons/${nextLessonId}`);
+          setNextLesson(data);
+        } catch (err) {
+          console.log("Next lesson not found");
+        }
+      }
+
       setLesson((prev) => ({ ...prev, isCompleted: true }));
 
       if (progress?.courseProgressPercentage !== undefined) {
@@ -155,7 +165,6 @@ const LessonPage = () => {
         `/content/lessons/${lessonId}/submit`,
         { manualCompletion: true },
       );
-      console.log("Server Response:", result);
 
       if (result.completed) {
         handleLessonCompletionUI(result);
@@ -182,7 +191,6 @@ const LessonPage = () => {
         const moduleData = await apiClient.get(
           `/content/modules/${lessonData.moduleId}`,
         );
-        console.log("Module data:", moduleData);
         setModule(moduleData);
       }
 
@@ -201,15 +209,8 @@ const LessonPage = () => {
   // --- 5. Interaction Handlers ---
   const handleQuizComplete = useCallback(
     (isCompleted) => {
-      console.log(
-        "Quiz completed:",
-        isCompleted,
-        "ContentType:",
-        lesson?.contentType,
-      );
       setQuizCompleted(isCompleted);
-      if (isCompleted && lesson?.contentType === "theory") {
-        console.log("Calling markLessonComplete for theory lesson");
+      if (isCompleted && lesson?.contentType === "THEORY") {
         markLessonComplete();
       }
     },

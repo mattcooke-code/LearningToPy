@@ -66,7 +66,6 @@ export const calculateNextLessonManually = async (
 
     if (currentIndex < moduleLessons.length - 1) {
       const nextLessonData = moduleLessons[currentIndex + 1];
-      console.log("➡️ Next lesson found manually:", nextLessonData.title);
       return nextLessonData;
     } else {
       console.log("🏁 No next lesson - this is the last lesson in module");

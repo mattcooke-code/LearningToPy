@@ -148,7 +148,7 @@ const MODULE_CONFIGS = {
         file: "L5_Tuples_Immutable.md",
         quiz: "L5_Quiz.json",
         title: "Tuples: The Immutable List",
-        type: "theory",
+        type: "exercise",
         ex: "L5_Exercise.json",
       },
       {
