@@ -23,7 +23,12 @@ const hasQuiz = (lesson) => {
  * @returns {boolean} True if exercise object exists
  */
 const hasExercise = (lesson) => {
-  return !!lesson.exercise;
+  return !!(
+    lesson.exercise &&
+    (lesson.exercise.starterCode ||
+      (lesson.exercise.steps && lesson.exercise.steps.length > 0) ||
+      (lesson.exercise.testCases && lesson.exercise.testCases.length > 0))
+  );
 };
 
 /**
