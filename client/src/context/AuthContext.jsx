@@ -418,45 +418,44 @@ export const AuthProvider = ({ children }) => {
    */
   const fetchUserProfile = useCallback(async () => {
     const token = getStoredAccessToken();
+
     if (!token) {
       setUser(null);
       setLoading(false);
       return;
     }
 
-    // Ensure the API client has the auth header set
-    if (token && isTokenValid(token)) {
+    if (!isTokenValid(token)) {
+      try {
+        await refreshAuthToken();
+
+        const freshToken = getStoredAccessToken();
+        if (!freshToken) {
+          setLoading(false);
+          return;
+        }
+        const authHeader = `Bearer ${freshToken}`;
+        apiClient.defaults.headers.common["Authorization"] = authHeader;
+        authApiClient.defaults.headers.common["Authorization"] = authHeader;
+        adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+      } catch {
+        setAuthData(null, null);
+        setLoading(false);
+        return;
+      }
+    } else {
       const authHeader = `Bearer ${token}`;
       apiClient.defaults.headers.common["Authorization"] = authHeader;
       authApiClient.defaults.headers.common["Authorization"] = authHeader;
       adminApiClient.defaults.headers.common["Authorization"] = authHeader;
     }
 
-    if (!isTokenValid(token)) {
-      try {
-        await refreshAuthToken();
-        // After successful refresh the token will be set by setAuthData —
-        // the effect will re-run
-        return;
-      } catch {
-        setAuthData(null, null);
-        setLoading(false);
-        return;
-      }
-    }
-
-    // If we already have user data and token is valid, no need to refetch
-    if (user && isTokenValid(token)) {
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       const payload = await apiClient.get("/auth/user");
       const userData = payload.user || payload;
-
-      setAuthData(userData, token, !!localStorage.getItem("accessToken"));
+      const storedToken = getStoredAccessToken();
+      setAuthData(userData, storedToken, !!localStorage.getItem("accessToken"));
     } catch (err) {
       if (err.response?.status === 401) {
         try {
@@ -470,7 +469,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [setAuthData, user, refreshAuthToken]);
+  }, [setAuthData, refreshAuthToken]);
 
   // ---------------------------------------------------------------------------
   // Effects
