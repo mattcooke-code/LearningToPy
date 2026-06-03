@@ -1,5 +1,8 @@
 # 🐍 Python Learning Platform
 
+[![Live Site](https://img.shields.io/badge/Live_Demo-Online-brightgreen)](https://learningtopy.com)
+[![GitHub Code](https://img.shields.io/badge/Repository-Open_Source-blue)](https://github.com/mattcooke-code/LearningToPy)
+
 An interactive MERN application designed to teach Python through live coding exercises, real-time validation, and a dynamic progress-based theming system.
 
 ## ✨ Features
@@ -58,13 +61,19 @@ To ensure a consistent UI/UX, all components must use the core utility patterns:
 ### 1. Installation
 
 ```bash
+# Install root dependencies (including backend)
 npm install
+
+# Install frontend dependencies
 cd client && npm install
+
+# Return to root to run the application
+cd ..
 ```
 
 ### 2. Environment Setup
 
-Do not commit .env files.
+⚠️ Security Note: Never commit `.env` files to version control. Ensure `.env` is added to `.gitignore` before pushing changes.
 
 1. Create a `.env` file in the root.
 2. Refer to `.env.example` for the required keys (DATABASE_URL, JWT_SECRET, etc.).
@@ -87,3 +96,11 @@ npm run dev
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+## 🧠 Technical Challenges & Architecture Decisions
+
+### 1. Robust Progress & Prerequisite Validation
+
+- **Context:** The platform relies heavily on linear module progression, dynamic unlocking mechanics, and real-time frontend visualization (e.g., the progressive theme engine and SVG pressure gauge).
+- **The Challenge:** Loose data validation or handling raw database ObjectIds incorrectly across asynchronous state updates could lead to breaking UI states, accidental module locking, or bypassed quizzes.
+- **The Engineering Solution:** Core business logic functions (`checkPrerequisites`, `hasPassedModuleQuiz`, and `getModuleLessonCompletion`) were isolated into pure, side-effect-free utility services. A robust unit testing suite was built using Vitest to enforce absolute predictability.

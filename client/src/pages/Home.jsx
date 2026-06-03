@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+// Home.jsx
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth, useTheme } from "../context";
+import { StickyNavbar } from "../components/layout";
 import { BackToTopButton } from "../components/ui";
 import {
   Rocket,
@@ -26,67 +28,67 @@ import {
 
 /**
  * Landing page component showcasing the Learning To Py platform and its features.
- * 
+ *
  * This component serves as the main landing page for the platform, featuring a hero section
  * with interactive dashboard preview, gamification highlights, learning methodology explanations,
  * problem/solution sections, how-it-works steps, and curriculum highlights. Includes dynamic
  * theming, responsive design, and contextual CTAs that change based on authentication status.
  * Features rich visual design with gradients, icons, and interactive elements.
- * 
+ *
  * @component
  * @returns {JSX.Element} Complete landing page with hero, features, and CTAs
- * 
+ *
  * @dynamicContent
  * - ctaLink: Routes to /dashboard for authenticated users, /register for guests
  * - ctaLabel: Changes text based on authentication status
  * - Theme-aware styling throughout the component
  * - Interactive dashboard preview with sample data
- * 
+ *
  * @heroSection
  * - Eye-catching headline with gradient text effects
  * - Interactive dashboard preview showing gamified elements
  * - Sample streak, XP, and leaderboard data
  * - Responsive layout with side-by-side content
  * - Dynamic theming based on dark/light mode
- * 
+ *
  * @gamificationHighlights
  * - Four key features: Leaderboards, Points & XP, Badges & Achievements, Mastery Paths
  * - Icon-based visual presentation
  * - Hover effects and transitions
  * - Grid layout for responsive design
- * 
+ *
  * @learningMethodology
  * - Three-step process explanation
  * - Interactive coding environment preview
  * - Terminal output simulation
  * - Feature highlights with icons
  * - Side-by-side layout with visual elements
- * 
+ *
  * @problemSolutionSection
  * - Traditional learning pain points addressed
  * - Winning formula explanation
  * - Feature comparison grid
  * - Dark theme section for visual contrast
- * 
+ *
  * @howItWorks
  * - Three-step process with numbered steps
  * - Contextual navigation links
  * - Hover effects and transitions
  * - Progress indicators
- * 
+ *
  * @curriculumHighlights
  * - Three main curriculum phases overview
  * - Module highlights with key topics
  * - Statistics display (20 modules, 100+ exercises, etc.)
  * - Capstone project section with code preview
- * 
+ *
  * @visualDesign
  * - Gradient backgrounds and overlays
  * - Icon integration throughout
  * - Hover effects and micro-interactions
  * - Responsive grid layouts
  * - Dark mode support with theme-aware colors
- * 
+ *
  * @userExperience
  * - Smooth scrolling and transitions
  * - Mobile-responsive design
@@ -97,9 +99,19 @@ import {
 const Home = () => {
   const { setDefaultTheme, isDarkMode } = useTheme();
   const { isAuthenticated } = useAuth();
+  const [isPinned, setIsPinned] = useState(false);
 
   useEffect(() => {
     setDefaultTheme();
+
+    const handleScroll = () => {
+      // 80px = h-20 (main Navbar height). StickyNavbar pins once the
+      // main Navbar has fully scrolled off screen on mobile.
+      setIsPinned(window.scrollY > 80);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [setDefaultTheme]);
 
   const ctaLink = isAuthenticated ? "/dashboard" : "/register";
@@ -109,8 +121,21 @@ const Home = () => {
 
   return (
     <div className="bg-white dark:bg-slate-900 min-h-screen">
+      <div
+        className={`
+          fixed top-0 left-0 right-0 z-40 lg:hidden
+          transition-transform duration-300 ease-in-out
+          ${isPinned ? "translate-y-0" : "-translate-y-full"}
+        `}
+      >
+        <StickyNavbar isScrolled={isPinned} />
+      </div>
+
       {/* Hero Section */}
-      <header className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
+      <header
+        id="hero"
+        className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800"
+      >
         <div className="absolute inset-0 pointer-events-none"></div>
 
         <div className="container mx-auto px-6 sm:px-10 py-12 lg:py-32 relative z-10">
@@ -237,7 +262,10 @@ const Home = () => {
       </header>
 
       {/* Gamification & Feature Highlights - Warm Gray for subtle separation */}
-      <section className="py-16 md:py-24 lg:py-32 px-6 bg-gray-50 dark:bg-slate-800/50">
+      <section
+        id="features"
+        className="py-16 md:py-24 lg:py-32 px-6 bg-gray-50 dark:bg-slate-800/50"
+      >
         <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-python-dark dark:text-python-light mb-4">
@@ -298,7 +326,10 @@ const Home = () => {
       </section>
 
       {/* Learning Methodology - Blue accent for visual interest */}
-      <section className="py-16 md:py-24 lg:py-32 px-6 bg-blue-50 dark:bg-slate-950">
+      <section
+        id="methodology"
+        className="py-16 md:py-24 lg:py-32 px-6 bg-blue-50 dark:bg-slate-950"
+      >
         <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -402,9 +433,9 @@ const Home = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-slate-300">
                   {[
-                    "Live unit tests",
+                    "Output validation",
                     "Hints & explanations",
-                    "Concept references",
+                    "Step-by-step guidance",
                     "Error decoding practice",
                   ].map((item) => (
                     <div
@@ -525,7 +556,10 @@ const Home = () => {
       </section>
 
       {/* How it Works  */}
-      <section className="py-16 md:py-24 lg:py-32 px-6 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800">
+      <section
+        id="how-it-works"
+        className="py-16 md:py-24 lg:py-32 px-6 bg-white dark:bg-slate-950 border-b border-gray-100 dark:border-gray-800"
+      >
         <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
@@ -610,7 +644,10 @@ const Home = () => {
       </section>
 
       {/* Curriculum Highlights - Soft gray for final section */}
-      <section className="py-16 md:py-24 lg:py-32 px-6 bg-blue-50 dark:bg-gray-900">
+      <section
+        id="curriculum"
+        className="py-16 md:py-24 lg:py-32 px-6 bg-blue-50 dark:bg-gray-900"
+      >
         <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-4">
@@ -628,17 +665,17 @@ const Home = () => {
               {
                 title: "Python Fundamentals",
                 description:
-                  "Variables, data types, control flow, functions, modules, testing, and best practices.",
+                  "Variables, data types, control flow, functions, file I/O, error handling, and comprehensions.",
               },
               {
-                title: "Data Structures & Algorithms",
+                title: "Intermediate Python",
                 description:
-                  "Lists, dictionaries, sets, recursion, sorting, searching, and complexity analysis.",
+                  "Advanced functions, object-oriented programming, dates & time, regular expressions, and professional tooling.",
               },
               {
-                title: "Automation & Real Projects",
+                title: "Advanced Python",
                 description:
-                  "File handling, APIs, web scraping, automation scripts, and capstone challenges.",
+                  "APIs, web scraping, data science with NumPy & Pandas, database integration, and a capstone project.",
               },
             ].map((item) => (
               <div

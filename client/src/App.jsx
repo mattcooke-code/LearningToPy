@@ -6,6 +6,7 @@ import {
   Footer,
   Navbar,
   ProtectedRoute,
+  ScrollToHashElement,
 } from "./components/layout";
 import Curriculum from "./pages/Curriculum";
 import Dashboard from "./pages/Dashboard";
@@ -46,6 +47,7 @@ function App() {
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex flex-col">
       <Navbar />
       <main className="grow">
+        <ScrollToHashElement />
         <Routes>
           {/* PUBLIC */}
           <Route element={<AppLayout />}>

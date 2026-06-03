@@ -17,7 +17,7 @@ import {
 /**
  * Navigation bar component with theme-aware styling and mobile responsiveness.
  * Provides user authentication state handling, navigation links, and mobile menu functionality.
- * 
+ *
  * @component
  * @returns {JSX.Element} Responsive navigation bar with authentication and theme support
  */
@@ -49,7 +49,7 @@ const Navbar = memo(function Navbar() {
   return (
     <nav
       style={getNavbarBg()}
-      className={`${getNavbarText()} shadow-lg transition-colors duration-500 sticky top-0 z-[100]`}
+      className={`${getNavbarText()} shadow-lg transition-colors duration-500 relative lg:sticky lg:top-0 z-[100]`}
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-20">

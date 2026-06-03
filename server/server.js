@@ -162,21 +162,6 @@ app.use("/api/", apiLimiter);
 // Serve curriculum images (e.g. /curriculum/Module0_Tutorial/images/foo.png)
 app.use("/curriculum", express.static(path.join(__dirname, "curriculum")));
 
-const fs = require("fs");
-const curriculmPath = path.join(__dirname, "curriculum");
-
-const module0Path = path.join(__dirname, "curriculum", "Module0_Tutorial");
-console.log("Module0 contents:", fs.readdirSync(module0Path));
-
-const imagesPath = path.join(
-  __dirname,
-  "curriculum",
-  "Module0_Tutorial",
-  "images",
-);
-console.log("Images folder exists:", fs.existsSync(imagesPath));
-console.log("Images contents:", fs.readdirSync(imagesPath));
-
 // ─── Database ────────────────────────────────────────────────────────────────
 
 const connectDB = async () => {
