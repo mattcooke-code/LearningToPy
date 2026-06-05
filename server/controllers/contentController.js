@@ -377,9 +377,16 @@ const submitLesson = catchAsync(async (req, res, next) => {
 
   // 3. Process Full Completion
   if (completed) {
+    // Fetch fresh quiz progress for XP calculation
+    const freshQuizProgress = await LessonQuizProgress.findOne({
+      userId,
+      lessonId,
+    });
+
     const submissionData = {
       ...req.body,
       moduleConfigReward,
+      quizProgress: freshQuizProgress,
     };
 
     const completionResult = await processLessonCompletion(

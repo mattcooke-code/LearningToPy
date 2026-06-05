@@ -1,5 +1,5 @@
 // LessonPage.jsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth, useNotification, useTheme } from "../context";
 import { LoadingState, ErrorState, BackToTopButton } from "../components/ui";
@@ -82,6 +82,7 @@ const LessonPage = () => {
   const { user } = useAuth();
   const { themeColor, updateThemeFromCourseProgress } = useTheme();
   const { showToast } = useNotification();
+  const isCompletingRef = useRef(false);
 
   // --- State ---
   const [lesson, setLesson] = useState(null);
@@ -121,8 +122,15 @@ const LessonPage = () => {
   // --- 2. Helper: Handle UI Updates on Completion ---
   const handleLessonCompletionUI = useCallback(
     async (responseData) => {
-      const { xpEarned, moduleCompleted, progress, nextLessonId } =
-        responseData;
+      const {
+        xpEarned,
+        moduleCompleted,
+        progress,
+        nextLessonId,
+        newlyCompleted,
+      } = responseData;
+
+      if (newlyCompleted === false) return;
 
       const message = moduleCompleted
         ? `🎊 Module completed! +${xpEarned} XP`
@@ -157,16 +165,24 @@ const LessonPage = () => {
 
   // --- 3. Core Action: Submit Completion ---
   const markLessonComplete = useCallback(async () => {
-    if (!lesson || isReviewMode || lesson.isCompleted) return;
+    if (
+      !lesson ||
+      isReviewMode ||
+      lesson.isCompleted ||
+      isCompletingRef.current
+    )
+      return;
 
+    isCompletingRef.current = true;
     setIsSubmitting(true);
+
     try {
       const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
         { manualCompletion: true },
       );
 
-      if (result.completed) {
+      if (result.completed && result.newlyCompleted !== false) {
         handleLessonCompletionUI(result);
       } else {
         showToast("Lesson not fully finished yet.", "warning");
@@ -175,6 +191,7 @@ const LessonPage = () => {
       console.error("Completion call failed:", err);
     } finally {
       setIsSubmitting(false);
+      isCompletingRef.current = false;
     }
   }, [lesson, lessonId, isReviewMode, handleLessonCompletionUI]);
 
@@ -207,20 +224,20 @@ const LessonPage = () => {
   }, [lessonId, fetchNextLessonData]);
 
   // --- 5. Interaction Handlers ---
-  const handleQuizComplete = useCallback(
-    (isCompleted) => {
-      setQuizCompleted(isCompleted);
-      if (isCompleted && lesson?.contentType === "THEORY") {
-        markLessonComplete();
-      }
-    },
-    [lesson?.contentType, markLessonComplete],
-  );
+  const handleQuizComplete = useCallback((isCompleted) => {
+    setQuizCompleted(isCompleted);
+  }, []);
 
   const handleCodeSubmit = useCallback(
     async (content) => {
       if (!lesson || isReviewMode) return;
       setIsSubmitting(true);
+
+      if (content && content.completed && content.xpEarned !== undefined) {
+        handleLessonCompletionUI(content);
+        setIsSubmitting(false);
+        return;
+      }
 
       const payload =
         typeof content === "string" ? { code: content } : { answer: content };
@@ -255,7 +272,8 @@ const LessonPage = () => {
       exerciseCompleted &&
       quizCompleted &&
       !lesson?.isCompleted &&
-      !isReviewMode
+      !isReviewMode &&
+      lesson?.contentType !== "THEORY"
     ) {
       markLessonComplete();
     }
@@ -263,6 +281,7 @@ const LessonPage = () => {
     exerciseCompleted,
     quizCompleted,
     lesson?.isCompleted,
+    lesson?.contentType,
     isReviewMode,
     markLessonComplete,
   ]);

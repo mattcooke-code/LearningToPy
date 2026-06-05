@@ -662,25 +662,52 @@ const deleteAccount = catchAsync(async (req, res, next) => {
 
   const userId = user._id;
 
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
+  // Use transactions only in production (Atlas supports replica sets)
+  // In development, run sequentially without transaction guarantees
+  if (config.isProduction()) {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-    // Delete user document
-    await User.findByIdAndDelete(userId).session(session);
+      await User.findByIdAndDelete(userId).session(session);
+      await Promise.all([
+        ActivityLog.deleteMany({ userId }).session(session),
+        FlaggedContent.deleteMany({ reporterId: userId }).session(session),
+        LessonCompletion.deleteMany({ userId }).session(session),
+        ModuleCompletion.deleteMany({ userId }).session(session),
+        QuizAttempt.deleteMany({ userId }).session(session),
+        XpTransaction.deleteMany({ userId }).session(session),
+        LessonQuizProgress.deleteMany({ userId }).session(session),
+      ]);
+      await AdminLog.updateMany(
+        { adminId: userId },
+        {
+          $set: {
+            adminId: null,
+            changes: { note: "Admin account deleted" },
+          },
+        },
+      ).session(session);
 
-    // Delete all associated data from extracted collections
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  } else {
+    // Development: run without transactions
+    await User.findByIdAndDelete(userId);
     await Promise.all([
-      ActivityLog.deleteMany({ userId }).session(session),
-      FlaggedContent.deleteMany({ reporterId: userId }).session(session),
-      LessonCompletion.deleteMany({ userId }).session(session),
-      ModuleCompletion.deleteMany({ userId }).session(session),
-      QuizAttempt.deleteMany({ userId }).session(session),
-      XpTransaction.deleteMany({ userId }).session(session),
-      LessonQuizProgress.deleteMany({ userId }).session(session),
+      ActivityLog.deleteMany({ userId }),
+      FlaggedContent.deleteMany({ reporterId: userId }),
+      LessonCompletion.deleteMany({ userId }),
+      ModuleCompletion.deleteMany({ userId }),
+      QuizAttempt.deleteMany({ userId }),
+      XpTransaction.deleteMany({ userId }),
+      LessonQuizProgress.deleteMany({ userId }),
     ]);
-
-    // Anonymise admin logs (preserve audit trail)
     await AdminLog.updateMany(
       { adminId: userId },
       {
@@ -689,14 +716,7 @@ const deleteAccount = catchAsync(async (req, res, next) => {
           changes: { note: "Admin account deleted" },
         },
       },
-    ).session(session);
-
-    await session.commitTransaction();
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
+    );
   }
 
   authUtils.clearRefreshTokenCookie(res);

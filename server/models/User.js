@@ -223,10 +223,6 @@ const UserSchema = new mongoose.Schema(
 );
 
 // ── Indexes ───────────────────────────────────────────
-// Unique indexes (created automatically by `unique: true` above)
-// Explicitly redefined here for clarity in migration scripts
-UserSchema.index({ email: 1 }, { unique: true });
-UserSchema.index({ username: 1 }, { unique: true });
 
 // Compound indexes for actual query patterns
 UserSchema.index({ level: -1, xp: -1 }); // Leaderboards

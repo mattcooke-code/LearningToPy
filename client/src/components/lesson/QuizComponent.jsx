@@ -194,9 +194,16 @@ const QuizComponent = ({
         [questionId]: data.feedback,
       }));
 
-      if (data.completed && onQuizComplete) {
+      // When the lesson is fully completed by this answer, pass data up
+      if (data.completed) {
         setQuizCompleted(true);
-        onQuizComplete(true);
+        if (onQuizComplete) {
+          onQuizComplete(true);
+        }
+        // If there's an onAnswerSubmit callback, pass the full completion data
+        if (onAnswerSubmit) {
+          onAnswerSubmit(data);
+        }
       }
     } catch (err) {
       console.error("Submission error:", err);

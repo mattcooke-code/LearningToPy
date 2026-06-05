@@ -123,6 +123,7 @@ import sys, io
 ${fileCreationCode}
 
 student_code = ${safeUserCode}
+code = student_code
 
 old_stdout = sys.stdout
 captured_output = io.StringIO()

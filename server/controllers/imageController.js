@@ -84,14 +84,9 @@ const serveModuleImage = catchAsync(async (req, res) => {
     ),
   ];
 
-  console.log(`DEBUG: Trying to find image for module ${moduleId}`);
-  console.log(`DEBUG: CWD: ${process.cwd()}`);
-  console.log(`DEBUG: __dirname: ${__dirname}`);
-
   let imagePath = null;
 
   for (const testPath of possiblePaths) {
-    console.log(`DEBUG: Testing: ${testPath}`);
     try {
       await fs.access(testPath);
       imagePath = testPath;
@@ -103,8 +98,6 @@ const serveModuleImage = catchAsync(async (req, res) => {
   }
 
   if (!imagePath) {
-    console.error(`Image not found for module ${moduleId}/${imageName}`);
-    console.error(`Tried paths:`, possiblePaths);
     return res.status(404).json({
       error: "Image not found",
       debug:

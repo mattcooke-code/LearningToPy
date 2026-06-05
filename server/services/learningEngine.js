@@ -225,9 +225,11 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
   // 2. Lesson Quiz XP
   if (hasQuiz(lesson) && !isM0) {
-    const quizProgress = user.lessonQuizProgress?.find(
-      (qp) => qp.lessonId?.toString() === lessonId,
-    );
+    const quizProgress =
+      submissionBody.quizProgress ||
+      user.lessonQuizProgress?.find(
+        (qp) => qp.lessonId?.toString() === lessonId,
+      );
 
     if (quizProgress) {
       const results = getQuizResultsForXP(quizProgress, lesson);
