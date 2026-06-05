@@ -1,3 +1,4 @@
+// middleware/validation.js
 const {
   validateEmail,
   validatePassword,
@@ -7,7 +8,6 @@ const {
   validateSessionId,
 } = require("../utils/validationHelpers");
 const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
 
 /**
  * Validation Middleware
@@ -15,67 +15,83 @@ const catchAsync = require("../utils/catchAsync");
  * Thin wrappers around `validationHelpers.js` for use as Express middleware.
  * Each function validates specific request shapes and passes or returns 400 errors.
  *
+ * All validators are synchronous — no database calls, no side effects.
+ *
  * Also exports a `createValidator` factory for building custom validators from
  * rule definitions.
  *
  * @middleware Applied per-route before controller functions
  */
 
+// ── Helper ──────────────────────────────────────────────────────
 /**
- * Middleware to validate user registration data
+ * Run a validation function and forward the error to Express if it fails.
+ * Returns true if validation passed (or value was absent), false if an error was sent.
  */
-exports.validateUserRegistration = catchAsync(async (req, res, next) => {
+const validateOrFail = (value, validatorFn, next) => {
+  if (value === undefined || value === null) return true;
+  const result = validatorFn(value);
+  if (!result.isValid) {
+    next(new AppError(result.message, 400));
+    return false;
+  }
+  return true;
+};
+
+// ── Middleware ───────────────────────────────────────────────────
+
+/**
+ * Validate user registration data
+ */
+const validateUserRegistration = (req, res, next) => {
   const { username, email, password } = req.body;
 
-  // Validate username
-  const usernameValidation = validateUsername(username);
-  if (!usernameValidation.isValid) {
-    return next(new AppError(usernameValidation.message, 400));
-  }
-
-  // Validate email
-  if (!validateEmail(email)) {
-    return next(new AppError("Please provide a valid email address", 400));
-  }
-
-  // Validate password
-  const passwordValidation = validatePassword(password);
-  if (!passwordValidation.isValid) {
-    return next(new AppError(passwordValidation.message, 400));
-  }
+  if (!validateOrFail(username, validateUsername, next)) return;
+  if (
+    !validateOrFail(
+      email,
+      (v) => ({
+        isValid: validateEmail(v),
+        message: "Please provide a valid email address",
+      }),
+      next,
+    )
+  )
+    return;
+  if (!validateOrFail(password, validatePassword, next)) return;
 
   next();
-});
+};
 
 /**
- * Middleware to validate user login data
+ * Validate user login data
+ * Accepts either 'email' or 'credential' as the identifier field
  */
-exports.validateUserLogin = catchAsync(async (req, res, next) => {
-  const { credential, password } = req.body;
+const validateUserLogin = (req, res, next) => {
+  const { email, credential, password } = req.body;
+  const identifier = email || credential;
 
-  if (!credential || !password) {
+  if (!identifier || !password) {
     return next(
       new AppError("Please provide email/username and password", 400),
     );
   }
 
-  // Basic credential validation (more detailed validation happens in User.findByCredential)
-  if (typeof credential !== "string" || credential.trim().length < 3) {
+  if (typeof identifier !== "string" || identifier.trim().length < 3) {
     return next(new AppError("Invalid credential format", 400));
   }
 
-  // Basic password validation (strength check happens at registration)
   if (typeof password !== "string" || password.length < 1) {
     return next(new AppError("Password is required", 400));
   }
 
   next();
-});
+};
 
 /**
- * Middleware to validate password reset request
+ * Validate password reset request
  */
-exports.validatePasswordReset = catchAsync(async (req, res, next) => {
+const validatePasswordReset = (req, res, next) => {
   const { email } = req.body;
 
   if (!email) {
@@ -87,31 +103,29 @@ exports.validatePasswordReset = catchAsync(async (req, res, next) => {
   }
 
   next();
-});
+};
 
 /**
- * Middleware to validate password reset confirmation
+ * Validate password reset confirmation
  */
-exports.validatePasswordResetConfirm = catchAsync(async (req, res, next) => {
+const validatePasswordResetConfirm = (req, res, next) => {
   const { token, password } = req.body;
 
   if (!token || !password) {
     return next(new AppError("Reset token and password are required", 400));
   }
 
-  // Validate new password strength
-  const passwordValidation = validatePassword(password);
-  if (!passwordValidation.isValid) {
-    return next(new AppError(passwordValidation.message, 400));
-  }
+  if (!validateOrFail(password, validatePassword, next)) return;
 
   next();
-});
+};
 
 /**
- * Middleware to validate password change
+ * Validate password change
+ * Also checks new password differs from current — controller duplicates this
+ * but middleware catches it earlier (fail-fast).
  */
-exports.validatePasswordChange = catchAsync(async (req, res, next) => {
+const validatePasswordChange = (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
@@ -120,13 +134,8 @@ exports.validatePasswordChange = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Use your existing password validator
-  const passwordValidation = validatePassword(newPassword);
-  if (!passwordValidation.isValid) {
-    return next(new AppError(passwordValidation.message, 400));
-  }
+  if (!validateOrFail(newPassword, validatePassword, next)) return;
 
-  // Prevent same password
   if (currentPassword === newPassword) {
     return next(
       new AppError("New password must be different from current password", 400),
@@ -134,23 +143,20 @@ exports.validatePasswordChange = catchAsync(async (req, res, next) => {
   }
 
   next();
-});
+};
 
 /**
- * Middleware to validate profile update data
+ * Validate profile update data
  */
-exports.validateProfileUpdate = catchAsync(async (req, res, next) => {
+const validateProfileUpdate = (req, res, next) => {
   const { username, email } = req.body;
 
-  // Validate username if provided
-  if (username !== undefined) {
-    const usernameValidation = validateUsername(username);
-    if (!usernameValidation.isValid) {
-      return next(new AppError(usernameValidation.message, 400));
-    }
-  }
+  if (
+    username !== undefined &&
+    !validateOrFail(username, validateUsername, next)
+  )
+    return;
 
-  // Validate email if provided
   if (email !== undefined && email !== "") {
     if (!validateEmail(email)) {
       return next(new AppError("Please provide a valid email address", 400));
@@ -158,66 +164,50 @@ exports.validateProfileUpdate = catchAsync(async (req, res, next) => {
   }
 
   next();
-});
+};
 
 /**
- * Middleware to validate content creation/update data
+ * Validate content creation/update data
  */
-exports.validateContent = catchAsync(async (req, res, next) => {
+const validateContent = (req, res, next) => {
   const { title, description, content } = req.body;
 
-  // Validate title if provided
   if (title !== undefined) {
     if (typeof title !== "string" || title.trim().length < 3) {
       return next(
         new AppError("Title must be at least 3 characters long", 400),
       );
     }
-
-    const titleValidation = validateContent(title);
-    if (!titleValidation.isValid) {
-      return next(new AppError(titleValidation.message, 400));
-    }
+    if (!validateOrFail(title, validateContent, next)) return;
   }
 
-  // Validate description if provided
   if (description !== undefined) {
     if (typeof description !== "string" || description.trim().length < 10) {
       return next(
         new AppError("Description must be at least 10 characters long", 400),
       );
     }
-
-    const descriptionValidation = validateContent(description);
-    if (!descriptionValidation.isValid) {
-      return next(new AppError(descriptionValidation.message, 400));
-    }
+    if (!validateOrFail(description, validateContent, next)) return;
   }
 
-  // Validate content if provided
   if (content !== undefined) {
     if (typeof content !== "string" || content.trim().length < 10) {
       return next(
         new AppError("Content must be at least 10 characters long", 400),
       );
     }
-
-    const contentValidation = validateContent(content);
-    if (!contentValidation.isValid) {
-      return next(new AppError(contentValidation.message, 400));
-    }
+    if (!validateOrFail(content, validateContent, next)) return;
   }
 
   next();
-});
+};
 
 /**
- * Middleware to validate flagged content submission
+ * Validate flagged content submission
  */
-exports.validateFlaggedContent = catchAsync(async (req, res, next) => {
+const validateFlaggedContent = (req, res, next) => {
   const { title, description, issueType, targetType, targetId } = req.body;
 
-  // Validate required fields
   if (!title || !description || !issueType || !targetType || !targetId) {
     return next(
       new AppError(
@@ -227,7 +217,6 @@ exports.validateFlaggedContent = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Validate title
   if (
     typeof title !== "string" ||
     title.trim().length < 5 ||
@@ -237,13 +226,8 @@ exports.validateFlaggedContent = catchAsync(async (req, res, next) => {
       new AppError("Title must be between 5 and 200 characters", 400),
     );
   }
+  if (!validateOrFail(title, validateContent, next)) return;
 
-  const titleValidation = validateContent(title);
-  if (!titleValidation.isValid) {
-    return next(new AppError(titleValidation.message, 400));
-  }
-
-  // Validate description
   if (
     typeof description !== "string" ||
     description.trim().length < 10 ||
@@ -253,13 +237,8 @@ exports.validateFlaggedContent = catchAsync(async (req, res, next) => {
       new AppError("Description must be between 10 and 2000 characters", 400),
     );
   }
+  if (!validateOrFail(description, validateContent, next)) return;
 
-  const descriptionValidation = validateContent(description);
-  if (!descriptionValidation.isValid) {
-    return next(new AppError(descriptionValidation.message, 400));
-  }
-
-  // Validate suggested fix if provided
   if (req.body.suggestedFix) {
     if (
       typeof req.body.suggestedFix !== "string" ||
@@ -269,63 +248,52 @@ exports.validateFlaggedContent = catchAsync(async (req, res, next) => {
         new AppError("Suggested fix must not exceed 1000 characters", 400),
       );
     }
-
-    const suggestedFixValidation = validateContent(req.body.suggestedFix);
-    if (!suggestedFixValidation.isValid) {
-      return next(new AppError(suggestedFixValidation.message, 400));
-    }
+    if (!validateOrFail(req.body.suggestedFix, validateContent, next)) return;
   }
 
   next();
-});
+};
 
 /**
- * Middleware to validate admin action data
+ * Validate admin action data
  */
-exports.validateAdminAction = catchAsync(async (req, res, next) => {
-  const { action, targetType, targetId, reason } = req.body;
+const validateAdminAction = (req, res, next) => {
+  const { action, targetType, reason } = req.body;
 
-  // Validate required fields
   if (!action || !targetType) {
     return next(new AppError("Action and target type are required", 400));
   }
 
-  // Validate reason if provided
   if (reason !== undefined) {
     if (typeof reason !== "string" || reason.trim().length > 1000) {
       return next(new AppError("Reason must not exceed 1000 characters", 400));
     }
-
-    const reasonValidation = validateContent(reason);
-    if (!reasonValidation.isValid) {
-      return next(new AppError(reasonValidation.message, 400));
-    }
+    if (!validateOrFail(reason, validateContent, next)) return;
   }
 
   next();
-});
+};
 
 /**
- * Middleware to sanitize and validate IP addresses
+ * Sanitize and validate IP addresses
+ * Non-blocking — invalid IPs are logged but requests proceed.
  */
-exports.validateIPAddress = catchAsync(async (req, res, next) => {
+const validateIPAddress = (req, res, next) => {
   const ipAddress =
     req.ip || req.connection.remoteAddress || req.headers["x-forwarded-for"];
 
   if (ipAddress && !validateIP(ipAddress)) {
-    // Don't block the request, but log the invalid IP
     console.warn(`Invalid IP address detected: ${ipAddress}`);
   }
 
-  // Store validated IP for logging
   req.validatedIP = ipAddress;
   next();
-});
+};
 
 /**
- * Middleware to validate session IDs
+ * Validate session IDs
  */
-exports.validateSessionId = catchAsync(async (req, res, next) => {
+const validateSessionId = (req, res, next) => {
   const sessionId = req.sessionID || req.headers["x-session-id"];
 
   if (sessionId && !validateSessionId(sessionId)) {
@@ -333,21 +301,20 @@ exports.validateSessionId = catchAsync(async (req, res, next) => {
   }
 
   next();
-});
+};
 
 /**
  * Generic validation middleware factory
  * @param {Object} validationRules - Object containing field validation rules
  * @returns {Function} - Express middleware function
  */
-exports.createValidator = (validationRules) => {
-  return catchAsync(async (req, res, next) => {
+const createValidator = (validationRules) => {
+  return (req, res, next) => {
     const errors = [];
 
     Object.entries(validationRules).forEach(([field, rules]) => {
       const value = req.body[field];
 
-      // Check if field is required
       if (
         rules.required &&
         (value === undefined || value === null || value === "")
@@ -356,12 +323,10 @@ exports.createValidator = (validationRules) => {
         return;
       }
 
-      // Skip validation if field is not provided and not required
       if (value === undefined || value === null || value === "") {
         return;
       }
 
-      // Apply validation functions
       if (rules.validate && typeof rules.validate === "function") {
         const result = rules.validate(value);
         if (!result.isValid) {
@@ -369,7 +334,6 @@ exports.createValidator = (validationRules) => {
         }
       }
 
-      // Apply custom validation
       if (rules.custom && typeof rules.custom === "function") {
         const customResult = rules.custom(value, req.body);
         if (customResult !== true) {
@@ -383,5 +347,20 @@ exports.createValidator = (validationRules) => {
     }
 
     next();
-  });
+  };
+};
+
+module.exports = {
+  validateUserRegistration,
+  validateUserLogin,
+  validatePasswordReset,
+  validatePasswordResetConfirm,
+  validatePasswordChange,
+  validateProfileUpdate,
+  validateContent,
+  validateFlaggedContent,
+  validateAdminAction,
+  validateIPAddress,
+  validateSessionId,
+  createValidator,
 };

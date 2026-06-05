@@ -1,3 +1,7 @@
+// middleware/rateLimiter.js
+const rateLimit = require("express-rate-limit");
+const config = require("../config/envConfig");
+
 /**
  * Rate Limiting Middleware
  *
@@ -7,7 +11,7 @@
  * - `apiLimiter`:              100 req / 1 min  — general API; keyed by user ID when authenticated
  * - `authLimiter`:             10 attempts / 15 min — login, register (keyed by IP+email)
  * - `passwordResetLimiter`:    5 attempts / 1 hour
- * - `contentCreationLimiter`:  20 submissions / 1 hour — exercise/quiz submissions
+ * - `contentCreationLimiter`:  60 submissions / 1 hour — exercise/quiz submissions (bumped from 20)
  * - `adminActionLimiter`:      200 actions / 1 min — safety net for admin routes
  * - `lessonInteractionLimiter`:120 req / 1 min — quiz answers, progress saves, lesson nav
  *
@@ -24,16 +28,23 @@
  *
  * NOTE: Ensure your auth middleware runs BEFORE these limiters so that
  * req.user is populated when the admin-skip checks execute.
+ *
+ * LIMITATION: blockedIPs and requestTracker are stored in process memory.
+ * In a multi-process deployment (PM2 cluster, multiple dynos), each process
+ * maintains its own state. For single-instance deployments (current), this
+ * works correctly. For horizontal scaling, migrate to Redis.
  */
 
-const rateLimit = require("express-rate-limit");
-const config = require("../config/envConfig");
-
+// ── In-Memory Stores ──────────────────────────────────────────
+// NOTE: Replace with Redis for multi-process deployments
 const blockedIPs = new Map();
+const requestTracker = new Map();
 
-/**
- * Check if an IP address is currently blocked.
- */
+// Maximum tracked IPs before eviction (prevents memory exhaustion under DDoS)
+const MAX_TRACKED_IPS = 10000;
+
+// ── Helpers ────────────────────────────────────────────────────
+
 const isIPBlocked = (ip) => {
   const blockData = blockedIPs.get(ip);
   if (!blockData) return false;
@@ -46,9 +57,6 @@ const isIPBlocked = (ip) => {
   return true;
 };
 
-/**
- * Block an IP address for a specified duration.
- */
 const blockIP = (ip, durationMinutes = 60) => {
   blockedIPs.set(ip, {
     blockedAt: Date.now(),
@@ -56,22 +64,27 @@ const blockIP = (ip, durationMinutes = 60) => {
   });
 };
 
-/**
- * Check if the requesting user is an admin.
- * Relies on auth middleware having run first.
- */
 const isAdmin = (req) => {
   return req.user?.isAdmin === true;
 };
 
 /**
- * General API rate limiter
- *
- * 100 requests per minute is generous for human browsing (even a busy lesson
- * page with 20 concurrent API calls on load leaves 80 in reserve). Keyed by
- * user ID for authenticated users so shared IPs (schools, offices) don't
- * cause false positives.
+ * Evict oldest entries from requestTracker if it exceeds the size cap.
+ * Called before inserting new entries to prevent unbounded growth.
  */
+const evictOldestIfNeeded = () => {
+  if (requestTracker.size >= MAX_TRACKED_IPS) {
+    const entries = [...requestTracker.entries()].sort(
+      (a, b) => a[1].lastRequest - b[1].lastRequest,
+    );
+    // Remove oldest 25%
+    const removeCount = Math.floor(MAX_TRACKED_IPS * 0.25);
+    entries.slice(0, removeCount).forEach(([ip]) => requestTracker.delete(ip));
+  }
+};
+
+// ── Rate Limiters ──────────────────────────────────────────────
+
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100,
@@ -86,7 +99,6 @@ const apiLimiter = rateLimit({
     res.status(429).json(options.message);
   },
   keyGenerator: (req) => {
-    // Authenticated users keyed by user ID — more accurate than IP alone
     return req.user?._id?.toString() || req.ip;
   },
   skip: (req) => {
@@ -96,14 +108,6 @@ const apiLimiter = rateLimit({
   },
 });
 
-/**
- * Lesson interaction rate limiter
- *
- * Covers quiz answers, exercise submissions, progress saves, and lesson
- * navigation events. 120/min gives a 15-question quiz plus generous room
- * for rapid re-submissions and page fetches without ever being the
- * bottleneck for a legitimate user session.
- */
 const lessonInteractionLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 120,
@@ -126,14 +130,6 @@ const lessonInteractionLimiter = rateLimit({
   },
 });
 
-/**
- * Authentication rate limiter
- *
- * 10 attempts per 15 minutes, keyed by IP+email so that a single IP
- * brute-forcing multiple accounts is still caught, while a user on a
- * shared IP isn't penalised for other people's failed attempts.
- * Successful logins do not count toward the limit.
- */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -155,12 +151,6 @@ const authLimiter = rateLimit({
   },
 });
 
-/**
- * Password reset rate limiter
- *
- * 5 per hour is intentionally strict — password reset is a common
- * account-takeover vector. Users rarely need more than 2 genuine attempts.
- */
 const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
@@ -176,17 +166,9 @@ const passwordResetLimiter = rateLimit({
   },
 });
 
-/**
- * Content / submission rate limiter
- *
- * Covers exercise submissions and quiz completions. 20 per hour is enough
- * for a productive learning session (a module quiz is 15 questions, leaving
- * 5 for retries or other submissions) while preventing automated flooding.
- * Keyed by user ID so it's per-learner, not per-IP.
- */
 const contentCreationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 20,
+  max: 60, // Bumped from 20 — 15-question quiz + retries shouldn't hit this
   message: {
     success: false,
     message:
@@ -207,13 +189,6 @@ const contentCreationLimiter = rateLimit({
   },
 });
 
-/**
- * Admin action rate limiter
- *
- * 200 actions per minute gives the admin dashboard plenty of headroom for
- * bulk operations. This is the one limiter that admins are NOT exempt from —
- * it acts as a safety net against accidental runaway scripts on admin routes.
- */
 const adminActionLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 200,
@@ -233,10 +208,8 @@ const adminActionLimiter = rateLimit({
   },
 });
 
-/**
- * IP blocker middleware
- * Always runs first. Never blocks authenticated admins.
- */
+// ── IP Blocker ─────────────────────────────────────────────────
+
 const ipBlocker = (req, res, next) => {
   if (isAdmin(req)) return next();
 
@@ -250,31 +223,21 @@ const ipBlocker = (req, res, next) => {
   next();
 };
 
-/**
- * Abuse detector middleware
- *
- * Tracks request counts per IP over a 1-minute sliding window. If a single
- * IP exceeds 300 requests in that window it is blocked for 1 hour. 300 is
- * well above any realistic human session (even a heavy lesson page with 20
- * concurrent API calls on load = ~20 req/page visit) while still catching
- * bots and scrapers. Admins are always exempt.
- */
+// ── Abuse Detector ─────────────────────────────────────────────
+
 const abuseDetector = (req, res, next) => {
   if (isAdmin(req)) return next();
 
   const ip = req.ip;
   const now = Date.now();
 
-  if (!global.requestTracker) {
-    global.requestTracker = new Map();
-  }
-
-  const tracker = global.requestTracker.get(ip) || {
+  const tracker = requestTracker.get(ip) || {
     count: 0,
     firstRequest: now,
     lastRequest: now,
   };
 
+  // Reset window if expired
   if (now - tracker.firstRequest > 60 * 1000) {
     tracker.count = 0;
     tracker.firstRequest = now;
@@ -282,7 +245,12 @@ const abuseDetector = (req, res, next) => {
 
   tracker.count++;
   tracker.lastRequest = now;
-  global.requestTracker.set(ip, tracker);
+
+  // Evict before inserting to prevent unbounded growth
+  if (!requestTracker.has(ip)) {
+    evictOldestIfNeeded();
+  }
+  requestTracker.set(ip, tracker);
 
   if (tracker.count > 300) {
     blockIP(ip, 60);
@@ -298,9 +266,8 @@ const abuseDetector = (req, res, next) => {
   next();
 };
 
-/**
- * Factory for creating one-off rate limiters on specific routes.
- */
+// ── Factory ────────────────────────────────────────────────────
+
 const createRateLimiter = (options) => {
   const defaultOptions = {
     windowMs: 60 * 1000,
@@ -320,15 +287,21 @@ const createRateLimiter = (options) => {
   return rateLimit({ ...defaultOptions, ...options });
 };
 
-// Clean up stale request tracker entries every 5 minutes
+// ── Cleanup ────────────────────────────────────────────────────
+
+// Clean up stale entries every 5 minutes
 setInterval(
   () => {
-    if (global.requestTracker) {
-      const now = Date.now();
-      for (const [ip, data] of global.requestTracker.entries()) {
-        if (now - data.lastRequest > 5 * 60 * 1000) {
-          global.requestTracker.delete(ip);
-        }
+    const now = Date.now();
+    for (const [ip, data] of requestTracker.entries()) {
+      if (now - data.lastRequest > 5 * 60 * 1000) {
+        requestTracker.delete(ip);
+      }
+    }
+    // Also clean expired blocks
+    for (const [ip, data] of blockedIPs.entries()) {
+      if (now > data.expiresAt) {
+        blockedIPs.delete(ip);
       }
     }
   },

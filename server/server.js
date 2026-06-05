@@ -4,7 +4,7 @@
  * **Middleware order (security-first):**
  * 1. Helmet — security headers (CSP, HSTS, clickjacking protection)
  * 2. CORS — cross-origin requests from frontend
- * 3. Body parser — JSON (10mb limit)
+ * 3. Body parser — JSON (2mb limit)
  * 4. Cookie parser — signed/unsigned cookies
  * 5. Mongo sanitize — NoSQL injection prevention
  * 6. HPP — HTTP parameter pollution protection
@@ -25,7 +25,8 @@
  * **Error handling:**
  * - 404 catch-all for unmatched routes
  * - Global error handler (must be registered last)
- * - Unhandled rejection + uncaught exception handlers for process-level crashes
+ * - Graceful shutdown on SIGTERM/SIGINT
+ * - Unhandled rejection + uncaught exception handlers with server close
  *
  * @module server
  */
@@ -85,13 +86,7 @@ app.use(
         connectSrc: ["'self'", config.getFrontendUrl()],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: [
-          "'self'",
-          "data:",
-          "https:",
-          config.getFrontendUrl(),
-          "https://learningtopy.onrender.com",
-        ],
+        imgSrc: ["'self'", "data:", "https:", config.getFrontendUrl()],
         fontSrc: ["'self'", config.getFrontendUrl()],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
@@ -133,8 +128,8 @@ app.use(
   }),
 );
 
-// 3. Body parsing
-app.use(express.json({ limit: "10mb" }));
+// 3. Body parsing — 2MB limit sufficient for API payloads
+app.use(express.json({ limit: "2mb" }));
 
 // 4. Cookie parsing
 app.use(cookieParser());
@@ -150,7 +145,7 @@ app.use(
 );
 
 // 6. HTTP parameter pollution protection
-app.use(hpp({ whitelist: ["sort", "fields", "tags"] }));
+app.use(hpp({ allowlist: ["sort", "fields", "tags"] }));
 
 // 7. Rate limiting
 app.use(ipBlocker);
@@ -161,20 +156,6 @@ app.use("/api/", apiLimiter);
 
 // Serve curriculum images (e.g. /curriculum/Module0_Tutorial/images/foo.png)
 app.use("/curriculum", express.static(path.join(__dirname, "curriculum")));
-
-// ─── Database ────────────────────────────────────────────────────────────────
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(config.getDatabaseUri());
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ MongoDB connection error:", err.message);
-    console.log("⚠️  Continuing without database connection...");
-  }
-};
-
-connectDB();
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
 
@@ -207,20 +188,63 @@ app.all("*", (req, res, next) => {
 // Global error handler (must be last)
 app.use(errorHandler);
 
-// ─── Server Startup ──────────────────────────────────────────────────────────
+// ─── Server Startup (DB-first) ───────────────────────────────────────────────
 
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📝 Environment: ${config.getNodeEnv()}`);
-});
 
-process.on("unhandledRejection", (err) => {
-  console.error("❌ Unhandled Promise Rejection:", err);
-  server.close(() => process.exit(1));
-});
+const startServer = async () => {
+  try {
+    await mongoose.connect(config.getDatabaseUri());
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1); // Cannot operate without database
+  }
 
-process.on("uncaughtException", (err) => {
-  console.error("❌ Uncaught Exception:", err);
-  process.exit(1);
-});
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📝 Environment: ${config.getNodeEnv()}`);
+  });
+
+  // ─── Graceful Shutdown ─────────────────────────────────────────────────
+
+  const gracefulShutdown = (signal) => {
+    console.log(`\n${signal} received. Shutting down gracefully...`);
+    server.close(() => {
+      console.log("HTTP server closed");
+      mongoose.connection.close(false).then(() => {
+        console.log("MongoDB connection closed");
+        process.exit(0);
+      });
+    });
+
+    // Force exit if graceful shutdown takes too long
+    setTimeout(() => {
+      console.error("Forced shutdown after timeout");
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+  process.on("unhandledRejection", (err) => {
+    console.error("❌ Unhandled Promise Rejection:", err);
+    server.close(() => process.exit(1));
+  });
+
+  process.on("uncaughtException", (err) => {
+    console.error("❌ Uncaught Exception:", err);
+    server.close(() => {
+      console.log("Server closed due to uncaught exception");
+      process.exit(1);
+    });
+
+    setTimeout(() => {
+      console.error("Forced shutdown after timeout");
+      process.exit(1);
+    }, 10000);
+  });
+};
+
+startServer();

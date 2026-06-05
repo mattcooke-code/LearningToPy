@@ -278,6 +278,52 @@ Functions operate on whatever `completedModules` array they receive. All callers
 
 ---
 
+## Phase 2b: Technical Debt & DS&A Review — Backend
+
+### middleware/auth.js — JWT Verification Deduplication
+
+- **Changed `protect` (Token Verification):** Replaced direct `jwt.verify()` call with `authUtils.verifyToken()`. Eliminates duplicate error handling logic that existed in both files. `authUtils.verifyToken` already throws `AppError` for invalid/expired tokens with proper status codes. Reduced function from 38 to 34 lines.
+- **Changed `protect` (Token Extraction):** Replaced `authHeader.split(" ")[1]` with regex `authHeader.replace(/^Bearer\s+/i, "")` for case-insensitive, whitespace-tolerant token extraction per RFC 7235.
+- **Changed `protect` (`req.userId`):** Set from `user._id` instead of `user.id` for consistency with codebase conventions and explicit ObjectId handling.
+- **Removed Import:** `jsonwebtoken` — no longer needed; verification delegated to `authUtils`.
+
+### middleware/validation.js — Sync Optimisation & DRY Refactor
+
+- **Removed `catchAsync`/`async` Wrappers:** All validation functions are synchronous (no DB calls, no I/O). Removed unnecessary promise wrapper overhead from 10 functions. Each request saves micro-allocations from avoided promise creation.
+- **Added `validateOrFail()` Helper:** Extracted repeated `if (!validation.isValid) { return next(new AppError(...)) }` pattern (appeared 15+ times) into a shared helper. Reduces file size ~40% and ensures consistent error formatting.
+- **Fixed `validateUserLogin`:** Now accepts both `email` and `credential` fields. Previously only checked `credential`, but `authController.login` destructures `email` — middleware would reject all valid logins if applied.
+- **Changed Exports:** Switched from `exports.fn = catchAsync(async ...)` to `const fn = (req, res, next) => ...` + `module.exports = { ... }`. Cleaner, no async wrapper allocation.
+- **Changed `createValidator`:** Also de-async'd (factory returns sync middleware).
+
+### middleware/sessionTracker.js — Header Mutation Fix
+
+- **Changed Session ID Storage:** Moved from `req.headers["x-session-id"]` to `req.sessionId`. No longer mutates the request headers object (Express anti-pattern). Server now sends new session IDs back to client via `x-session-id` response header.
+- **Changed Error Logging:** Improved log message format for fire-and-forget ActivityLog failures. Noted that structured logging should replace `console.error` before production scale.
+
+### middleware/rateLimiter.js — Memory Safety & Production Readiness
+
+- **Changed `requestTracker` Storage:** Moved from `global.requestTracker` to module-level `const requestTracker = new Map()`. Eliminates global namespace pollution and prevents state leakage in test environments.
+- **Added `MAX_TRACKED_IPS` Cap (10,000):** New `evictOldestIfNeeded()` function evicts the oldest 25% of entries when the cap is reached. Prevents unbounded memory growth under DDoS with random IPs.
+- **Added Cleanup for `blockedIPs`:** The 5-minute cleanup interval now also clears expired block entries (previously only cleaned `requestTracker`).
+- **Changed `contentCreationLimiter`:** Bumped from 20 to 60 submissions/hour. Old limit was too restrictive — a 15-question quiz with 3 retries would exhaust it.
+- **Changed `authLimiter` Key Generator:** Now also checks `req.body.credential` (in addition to `email`/`username`) for consistent rate limiting regardless of login field name.
+- **Added Documentation:** Header comment now documents the single-process limitation of in-memory stores and recommends Redis for horizontal scaling.
+- **Changed `hpp` Option:** `whitelist` → `allowlist` (v10+ compatible naming).
+
+### server.js — Startup Order & Graceful Shutdown
+
+- **Changed Server Startup:** Server now awaits database connection before listening. Previously `connectDB()` was fire-and-forget — requests arriving before the connection completed would fail. DB connection failure now calls `process.exit(1)` instead of logging "Continuing without database connection" (which was misleading — every route needs the DB).
+- **Added Graceful Shutdown Handlers:** `SIGTERM` and `SIGINT` handlers close the HTTP server first, then close the MongoDB connection, then exit. Prevents in-flight request abortion on Render deploys or Ctrl+C. Includes 10-second forced exit timeout.
+- **Changed `uncaughtException` Handler:** Now calls `server.close()` before `process.exit(1)` instead of immediate exit. Includes 10-second forced exit timeout. Matches the `unhandledRejection` handler pattern.
+- **Changed Body Parser Limit:** Reduced from 10MB to 2MB. 10MB is a DoS vector for a JSON API; 2MB is sufficient for all current payloads. Route-specific higher limits can be applied if needed later.
+- **Removed Duplicate CSP Entry:** Hardcoded `"https://learningtopy.onrender.com"` in `imgSrc` was redundant with `config.getFrontendUrl()`. Single source of truth for frontend URL.
+
+### controllers/authController.js — Duplicate Validation Removal
+
+- **Removed Duplicate Password Check:** `changePassword` controller no longer checks `currentPassword === newPassword`. This is now handled earlier in the middleware chain by `validatePasswordChange` middleware (fail-fast principle).
+
+---
+
 ## Deployment Checklist (for when ready)
 
 - [ ] Drop existing `users` collection in Atlas (zero production users)

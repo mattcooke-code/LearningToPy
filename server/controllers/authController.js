@@ -549,16 +549,6 @@ const changePassword = catchAsync(async (req, res, next) => {
     return next(new AppError(passwordValidation.message, 400));
   }
 
-  // Prevent using the same password
-  if (currentPassword === newPassword) {
-    return next(
-      new AppError(
-        "New password must be different from current password.",
-        400,
-      ),
-    );
-  }
-
   // Get user with password field
   const user = await User.findById(req.user._id || req.userId).select(
     "+password",
