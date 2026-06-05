@@ -20,8 +20,11 @@
 const AdminLog = require("../models/AdminLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
+const LessonCompletion = require("../models/LessonCompletion");
 const Module = require("../models/Module");
+const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
+const XpTransaction = require("../models/XpTransaction");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const {
@@ -29,8 +32,9 @@ const {
   getUserWithLevel,
   getModuleOrderMap,
 } = require("../utils/levelUtils");
-const { sendJsonResponse } = require("../utils/responseHelpers");
 const { anonymiseIp } = require("../utils/parseDeviceInfo");
+const { sendJsonResponse } = require("../utils/responseHelpers");
+
 const mongoose = require("mongoose");
 
 // ======= HELPER FUNCTION =======
@@ -202,7 +206,6 @@ const searchUsers = catchAsync(async (req, res, next) => {
 
   const searchFilter = {};
 
-  // Text search
   if (query) {
     searchFilter.$or = [
       { username: { $regex: query, $options: "i" } },
@@ -220,34 +223,50 @@ const searchUsers = catchAsync(async (req, res, next) => {
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
-  // Parse sort parameter
   let sortOption = {};
   if (sort.startsWith("-")) {
-    const field = sort.substring(1);
-    sortOption[field] = -1;
+    sortOption[sort.substring(1)] = -1;
   } else {
     sortOption[sort] = 1;
   }
 
-  // Default sort if not provided
   if (Object.keys(sortOption).length === 0) {
     sortOption = { createdAt: -1 };
   }
 
   const users = await User.find(searchFilter)
     .select(
-      "username email xp streak badgeCount lastActive isBlocked isAdmin createdAt completedModules",
+      "username email xp streak badges lastActive isBlocked isAdmin createdAt completedModulesCount",
     )
     .sort(sortOption)
     .skip(skip)
     .limit(parseInt(limit))
     .lean();
 
+  // Fetch module completions for level calculation
+  const userIds = users.map((u) => u._id);
+  const moduleCompletions = await ModuleCompletion.find({
+    userId: { $in: userIds },
+  }).lean();
+
+  const completionMap = {};
+  moduleCompletions.forEach((mc) => {
+    const uid = mc.userId.toString();
+    if (!completionMap[uid]) completionMap[uid] = [];
+    completionMap[uid].push(mc.moduleId);
+  });
+
+  const usersWithModules = users.map((user) => ({
+    ...user,
+    completedModules: completionMap[user._id.toString()] || [],
+  }));
+
   const moduleOrderMap = await getModuleOrderMap();
+  const usersWithLevel = await addLevelToUsers(
+    usersWithModules,
+    moduleOrderMap,
+  );
 
-  const usersWithLevel = await addLevelToUsers(users, moduleOrderMap);
-
-  // Apply level filters after calculation
   let filteredUsers = usersWithLevel;
   if (levelMin) {
     filteredUsers = filteredUsers.filter((u) => u.level >= parseInt(levelMin));
@@ -256,10 +275,14 @@ const searchUsers = catchAsync(async (req, res, next) => {
     filteredUsers = filteredUsers.filter((u) => u.level <= parseInt(levelMax));
   }
 
+  const sanitizedUsers = filteredUsers.map(
+    ({ completedModules, ...rest }) => rest,
+  );
+
   const total = await User.countDocuments(searchFilter);
 
   sendJsonResponse(res, 200, "Users retrieved", {
-    users: filteredUsers,
+    users: sanitizedUsers,
     pagination: {
       page: parseInt(page),
       limit: parseInt(limit),
@@ -284,7 +307,6 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { xpChange, reason } = req.body;
 
-  // Prevent self-modification
   if (userId === req.userId.toString()) {
     return next(new AppError("Cannot modify your own XP", 400));
   }
@@ -300,9 +322,14 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
   user.xp += parseInt(xpChange);
   await user.save();
 
-  const userWithLevel = await getUserWithLevel(user);
+  // Fetch module completions for level calculation
+  const moduleCompletions = await ModuleCompletion.find({ userId }).lean();
+  const userWithModules = {
+    ...user.toObject(),
+    completedModules: moduleCompletions.map((mc) => mc.moduleId),
+  };
+  const userWithLevel = await getUserWithLevel(userWithModules);
 
-  // Get fresh user to see updated level
   const updatedUser = {
     _id: user._id,
     username: user.username,
@@ -324,6 +351,14 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
     reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
     req,
   );
+
+  // Create XP transaction record for audit trail
+  await XpTransaction.create({
+    userId,
+    amount: parseInt(xpChange),
+    source: "BONUS",
+    meta: { reason: reason || "Admin adjustment", adminId: req.userId },
+  });
 
   sendJsonResponse(res, 200, "XP adjusted successfully", {
     user: updatedUser,
@@ -548,32 +583,45 @@ const getUserDetails = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 
   const user = await User.findById(userId)
-    .select("-password -refreshToken")
-    .populate("badges", "name icon description")
-    .populate("completedLessons", "title moduleId")
-    .populate("completedModules", "title order")
+    .select(
+      "-password -refreshTokenVersion -resetPasswordToken -resetPasswordExpires",
+    )
     .lean();
 
   if (!user) {
     return next(new AppError("User not found", 404));
   }
 
-  const userWithLevel = await getUserWithLevel(user);
+  const [lessonCompletions, moduleCompletions, totalLessons] =
+    await Promise.all([
+      LessonCompletion.find({ userId })
+        .populate("lessonId", "title moduleId")
+        .lean(),
+      ModuleCompletion.find({ userId })
+        .populate("moduleId", "title order")
+        .lean(),
+      Lesson.countDocuments({ isPublished: true }),
+    ]);
 
-  // Calculate completion rate
-  const totalLessons = await Lesson.countDocuments({ isPublished: true });
   const completionRate =
     totalLessons > 0
-      ? Math.round(((user.completedLessons?.length || 0) / totalLessons) * 100)
+      ? Math.round((lessonCompletions.length / totalLessons) * 100)
       : 0;
+
+  const userWithLevel = await getUserWithLevel({
+    ...user,
+    completedModules: moduleCompletions.map(
+      (mc) => mc.moduleId?._id || mc.moduleId,
+    ),
+  });
 
   const stats = {
     totalLearningTime: user.totalLearningTime || 0,
-    totalSessionTime: user.totalSessionTime || 0, // in minutes
+    totalSessionTime: user.totalSessionTime || 0,
     loginCount: user.loginCount || 0,
     badgesCount: user.badges?.length || 0,
-    completedLessonsCount: user.completedLessons?.length || 0,
-    completedModulesCount: user.completedModules?.length || 0,
+    completedLessonsCount: lessonCompletions.length,
+    completedModulesCount: moduleCompletions.length,
     streak: user.streak || 0,
     completionRate,
   };
@@ -581,6 +629,17 @@ const getUserDetails = catchAsync(async (req, res, next) => {
   const userData = {
     ...userWithLevel,
     stats,
+    completedLessons: lessonCompletions.map((lc) => ({
+      _id: lc.lessonId?._id,
+      title: lc.lessonId?.title,
+      completedAt: lc.completedAt,
+    })),
+    completedModules: moduleCompletions.map((mc) => ({
+      _id: mc.moduleId?._id,
+      title: mc.moduleId?.title,
+      order: mc.moduleId?.order,
+      completedAt: mc.completedAt,
+    })),
     totalXP: user.xp || 0,
     currentLevel: userWithLevel.level,
     isAdmin: user.isAdmin || false,
@@ -613,22 +672,22 @@ const getUserActivity = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found", 404));
   }
 
-  // User's Lesson Completion History
-  const activity = user.lessonCompletionHistory
-    .sort((a, b) => b.completedAt - a.completedAt)
-    .slice(0, parseInt(limit));
-
-  // User's Admin Activity Logs (Note: Changed this to AdminLog for consistency)
-  const adminActions = await AdminLog.find({ targetId: userId })
-    .sort({ createdAt: -1 })
-    .limit(parseInt(limit));
+  const [activity, adminActions] = await Promise.all([
+    LessonCompletion.find({ userId })
+      .sort({ completedAt: -1 })
+      .limit(parseInt(limit))
+      .populate("lessonId", "title")
+      .lean(),
+    AdminLog.find({ targetId: userId })
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit)),
+  ]);
 
   sendJsonResponse(res, 200, "User activity retrieved", {
     userActivity: activity,
     adminActions,
   });
 });
-
 /**
  * Get a user's earned badge IDs.
  *
@@ -739,17 +798,20 @@ const removeBadges = catchAsync(async (req, res, next) => {
 const getUserProgress = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 
-  const user = await User.findById(userId)
-    .select("completedLessons completedModules")
-    .lean();
-
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
+  const [lessonCompletions, moduleCompletions] = await Promise.all([
+    LessonCompletion.find({ userId }).select("lessonId completedAt").lean(),
+    ModuleCompletion.find({ userId }).select("moduleId completedAt").lean(),
+  ]);
 
   sendJsonResponse(res, 200, "User progress retrieved", {
-    completedLessons: user.completedLessons || [],
-    completedModules: user.completedModules || [],
+    completedLessons: lessonCompletions.map((lc) => ({
+      lessonId: lc.lessonId,
+      completedAt: lc.completedAt,
+    })),
+    completedModules: moduleCompletions.map((mc) => ({
+      moduleId: mc.moduleId,
+      completedAt: mc.completedAt,
+    })),
   });
 });
 
@@ -782,39 +844,53 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
   let oldValue, newValue, actionType;
 
   if (lessonId) {
-    // Override Lesson Completion
-    oldValue = { lessonCompleted: user.completedLessons.includes(lessonId) };
+    const existingCompletion = await LessonCompletion.findOne({
+      userId,
+      lessonId,
+    });
 
-    if (completed) {
-      if (!user.completedLessons.includes(lessonId)) {
-        user.completedLessons.push(lessonId);
-      }
-    } else {
-      user.completedLessons = user.completedLessons.filter(
-        (id) => id.toString() !== lessonId,
-      );
+    oldValue = { lessonCompleted: !!existingCompletion };
+
+    if (completed && !existingCompletion) {
+      await LessonCompletion.create({ userId, lessonId });
+      await User.findByIdAndUpdate(userId, {
+        $inc: { completedLessonsCount: 1 },
+      });
+    } else if (!completed && existingCompletion) {
+      await LessonCompletion.deleteOne({ userId, lessonId });
+      await User.findByIdAndUpdate(userId, {
+        $inc: { completedLessonsCount: -1 },
+      });
     }
 
-    newValue = { lessonCompleted: user.completedLessons.includes(lessonId) };
+    const updatedExists = await LessonCompletion.findOne({ userId, lessonId });
+    newValue = { lessonCompleted: !!updatedExists };
 
     actionType = completed
       ? "LESSON_COMPLETED_OVERRIDE"
       : "LESSON_INCOMPLETE_OVERRIDE";
   } else if (moduleId) {
-    // Override Module Completion
-    oldValue = { moduleCompleted: user.completedModules.includes(moduleId) };
+    const existingCompletion = await ModuleCompletion.findOne({
+      userId,
+      moduleId,
+    });
 
-    if (completed) {
-      if (!user.completedModules.includes(moduleId)) {
-        user.completedModules.push(moduleId);
-      }
-    } else {
-      user.completedModules = user.completedModules.filter(
-        (id) => id.toString() !== moduleId,
-      );
+    oldValue = { moduleCompleted: !!existingCompletion };
+
+    if (completed && !existingCompletion) {
+      await ModuleCompletion.create({ userId, moduleId });
+      await User.findByIdAndUpdate(userId, {
+        $inc: { completedModulesCount: 1 },
+      });
+    } else if (!completed && existingCompletion) {
+      await ModuleCompletion.deleteOne({ userId, moduleId });
+      await User.findByIdAndUpdate(userId, {
+        $inc: { completedModulesCount: -1 },
+      });
     }
 
-    newValue = { moduleId: user.completedModules.includes(moduleId) };
+    const updatedExists = await ModuleCompletion.findOne({ userId, moduleId });
+    newValue = { moduleCompleted: !!updatedExists };
 
     actionType = completed
       ? "MODULE_COMPLETED_OVERRIDE"
@@ -823,7 +899,11 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
     return next(new AppError("Either lessonId or moduleId is required", 400));
   }
 
-  await user.save();
+  // Fetch updated counts
+  const [lessonCount, moduleCount] = await Promise.all([
+    LessonCompletion.countDocuments({ userId }),
+    ModuleCompletion.countDocuments({ userId }),
+  ]);
 
   await createAdminLog(
     req.userId,
@@ -838,8 +918,9 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Progress updated successfully", {
     user: {
-      completedLessons: user.completedLessons,
-      completedModules: user.completedModules,
+      _id: userId,
+      completedLessonsCount: lessonCount,
+      completedModulesCount: moduleCount,
     },
   });
 });

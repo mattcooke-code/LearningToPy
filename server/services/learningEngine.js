@@ -1,6 +1,9 @@
 // learningEngine.js
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
+const LessonCompletion = require("../models/LessonCompletion");
+const ModuleCompletion = require("../models/ModuleCompletion");
+const XpTransaction = require("../models/XpTransaction");
 const { findNextLesson, findNextModule } = require("../utils/navigation");
 const { normalizeTags } = require("../utils/generalUtils");
 const {
@@ -28,16 +31,6 @@ const {
  * @param {Object} exercise - The exercise document with starterCode
  * @param {string} exercise.starterCode - The initial code template
  * @returns {{ isCorrect: boolean, feedback: string }} Validation result
- *
- * @example
- * // Returns true for modified code
- * validateCodeSubmission("print('hello')", { starterCode: "# your code" })
- * // => { isCorrect: true, feedback: "Code accepted (validated in frontend)" }
- *
- * @example
- * // Returns false for empty or unchanged code
- * validateCodeSubmission("", { starterCode: "# template" })
- * // => { isCorrect: false, feedback: "No code submitted" }
  */
 const validateCodeSubmission = (userCode, exercise) => {
   if (!userCode || userCode.trim() === "") {
@@ -65,10 +58,6 @@ const validateCodeSubmission = (userCode, exercise) => {
  * @param {Object} user - The user document (mutated in place)
  * @param {Object} lessonRecord - The lesson completion record
  * @param {Object} submissionBody - Submission metadata from the frontend
- * @param {number} [submissionBody.elapsedSeconds] - Time taken to complete
- * @param {number} [submissionBody.attemptNumber] - Number of attempts
- * @param {boolean} [submissionBody.usedHints] - Whether hints were used
- * @param {boolean} [submissionBody.wasOptimalSolution] - Whether solution was optimal
  */
 const updateUserStats = (user, lessonRecord, submissionBody) => {
   user.stats = user.stats || {};
@@ -120,11 +109,11 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
  * @param {Object} lesson - The lesson document
  * @param {Object} submissionBody - Submission metadata
  * @param {Date} timestamp - Completion timestamp
- * @returns {Object} Formatted completion record with normalized tags and metadata
+ * @returns {Object} Formatted completion record
  */
 const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
   return {
-    lessonId: lesson._id.toString(),
+    lessonId: lesson._id,
     completedAt: timestamp,
     tags: normalizeTags(lesson.tags),
     contentType: lesson.contentType,
@@ -133,70 +122,68 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
     elapsedSeconds: submissionBody.elapsedSeconds,
     attemptNumber: submissionBody.attemptNumber,
     usedHints: !!submissionBody.usedHints,
+    linesOfCode: submissionBody.linesOfCode,
     wasOptimal: !!submissionBody.wasOptimalSolution,
   };
 };
 
 /**
- * Main Orchestrator for Lesson Completion.
+ * Bulk-insert XP transactions for a completion event.
+ *
+ * @param {string} userId - The user's ID
+ * @param {Array} xpLog - Array of { amount, source, meta } objects
+ * @returns {Promise<Array>} The created XpTransaction documents
  */
+const createXpTransactions = async (userId, xpLog) => {
+  if (xpLog.length === 0) return [];
+
+  const transactions = xpLog.map((log) => ({
+    userId,
+    amount: log.amount,
+    source: log.source,
+    meta: log.meta,
+    awardedAt: new Date(),
+  }));
+
+  return XpTransaction.insertMany(transactions);
+};
 
 /**
- * Orchestrates the complete lesson completion workflow.
+ * Main Orchestrator for Lesson Completion.
  *
- * Handles XP calculation across multiple sources (exercise, quiz, bonuses),
- * auto-completes quiz-less modules when all lessons are done (e.g., Module 20 capstone),
- * updates user XP/level/stats/history, and returns navigation info.
+ * Handles XP calculation across multiple sources, writes to the new
+ * LessonCompletion, ModuleCompletion, and XpTransaction collections,
+ * and updates the User document (xp, level, stats, counters) in place.
  *
  * **XP Sources (awarded in order):**
- * 1. Exercise submission XP (if lesson has coding exercise, skipped for M0)
- * 2. Lesson quiz XP (per-question + passing bonus, skipped for M0)
- * 3. Base lesson completion XP (always awarded)
- * 4. Project lesson bonus (if contentType === "PROJECT")
- * 5. Capstone project bonus (if Module 20 project lesson)
- * 6. Module config reward (if provided in submissionBody)
- * 7. Auto-completed module bonus (if all lessons done and module has no quiz)
+ * 1. Exercise submission XP
+ * 2. Lesson quiz XP (per-question + passing bonus)
+ * 3. Base lesson completion XP
+ * 4. Project lesson bonus
+ * 5. Capstone project bonus (Module 20)
+ * 6. Module config reward
+ * 7. Auto-completed module bonus (quiz-less modules)
  *
- * **Auto-completion behavior:**
- * For modules without a quiz (e.g., Module 20 capstone), completing the final
- * lesson triggers automatic module completion. This awards the module completion
- * bonus, phase bonus, and any special module bonuses (M20 capstone).
- *
- * @param {Object} user - The user document (mutated with new XP, level, history)
+ * @param {Object} user - The user document (mutated: xp, level, stats)
  * @param {Object} lesson - The lesson being completed
  * @param {Object} submissionBody - Submission data from the frontend
- * @param {Array} [submissionBody.submissionHistory] - Array of previous code submissions
- * @param {number} [submissionBody.attemptNumber] - Attempt count
- * @param {boolean} [submissionBody.testsPassed] - Whether all tests passed
- * @param {boolean} [submissionBody.isCorrect] - Whether solution is correct
- * @param {number} [submissionBody.moduleConfigReward] - Additional XP from module config
- * @param {Object} [submissionBody] - Additional metadata for stats tracking
- *
  * @returns {Promise<{
  *   xpIncrease: number,
  *   newlyCompleted: boolean,
  *   nextLessonId: string|null,
- *   xpBreakdown: Array<{amount: number, source: string, meta: Object}>
- * }>} Completion result with XP breakdown and navigation
- *
- * @example
- * // Completing a coding exercise lesson in Module 5
- * const result = await processLessonCompletion(user, lesson, {
- *   submissionHistory: [{ code: "print('hello')" }],
- *   attemptNumber: 1,
- *   testsPassed: true,
- *   isCorrect: true,
- *   elapsedSeconds: 45
- * });
- * // => { xpIncrease: 35, newlyCompleted: true, nextLessonId: "...", ... }
- *
- * @throws {Error} If Module.findById fails (module not found)
+ *   xpBreakdown: Array
+ * }>}
  */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
   const lessonId = lesson._id.toString();
+  const userId = user._id.toString();
 
   // Prevent duplicate completion
-  if (user.completedLessons.includes(lessonId)) {
+  const existingCompletion = await LessonCompletion.findOne({
+    userId,
+    lessonId,
+  });
+  if (existingCompletion) {
     return {
       xpIncrease: 0,
       newlyCompleted: false,
@@ -239,7 +226,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   // 2. Lesson Quiz XP
   if (hasQuiz(lesson) && !isM0) {
     const quizProgress = user.lessonQuizProgress?.find(
-      (qp) => qp.lessonId.toString() === lessonId,
+      (qp) => qp.lessonId?.toString() === lessonId,
     );
 
     if (quizProgress) {
@@ -304,7 +291,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // 6. Add Module Specific XP (moduleConfig.js)
+  // 6. Add Module Specific XP
   if (submissionBody.moduleConfigReward && !isM0) {
     totalXP += submissionBody.moduleConfigReward;
     xpLog.push({
@@ -314,11 +301,19 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // Mark lesson as completed
-  user.completedLessons.push(lessonId);
+  // Mark lesson as completed in the new collection
+  const now = new Date();
+  const record = createLessonCompletionRecord(lesson, submissionBody, now);
+  await LessonCompletion.create({
+    userId,
+    ...record,
+  });
+
+  // Increment counter on User
+  user.completedLessonsCount = (user.completedLessonsCount || 0) + 1;
 
   // Auto-complete quiz-less modules (e.g., Module 20 capstone)
-  // This must happen BEFORE awarding XP so all XP is counted correctly
+  let autoCompletedModule = false;
   if (!isM0 && !hasQuiz(lesson)) {
     const moduleLessons = await Lesson.find({
       moduleId: lesson.moduleId,
@@ -327,18 +322,40 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
       .select("_id")
       .lean();
 
-    const allLessonsComplete = moduleLessons.every((l) =>
-      user.completedLessons.includes(l._id.toString()),
+    const moduleLessonIds = moduleLessons.map((l) => l._id.toString());
+
+    // Check if all lessons in this module are now completed
+    const completedLessonRecords = await LessonCompletion.find({
+      userId,
+      lessonId: { $in: moduleLessonIds },
+    }).lean();
+
+    const completedLessonIds = completedLessonRecords.map((lc) =>
+      lc.lessonId.toString(),
+    );
+    const allLessonsComplete = moduleLessonIds.every((id) =>
+      completedLessonIds.includes(id),
     );
 
     if (allLessonsComplete) {
       const fullModule = await Module.findById(lesson.moduleId);
-      const moduleQuiz = hasQuiz(fullModule);
+      const moduleHasQuiz = hasQuiz(fullModule);
 
-      if (!moduleQuiz) {
-        // Module has no quiz - mark it complete now
-        if (!user.completedModules.includes(fullModule._id.toString())) {
-          user.completedModules.push(fullModule._id.toString());
+      if (!moduleHasQuiz) {
+        // Module has no quiz - auto-complete it
+        const existingModuleCompletion = await ModuleCompletion.findOne({
+          userId,
+          moduleId: fullModule._id,
+        });
+
+        if (!existingModuleCompletion) {
+          await ModuleCompletion.create({
+            userId,
+            moduleId: fullModule._id,
+            completedAt: now,
+          });
+
+          user.completedModulesCount = (user.completedModulesCount || 0) + 1;
 
           // Award module completion XP
           const modulePhase = fullModule.phase || 1;
@@ -362,34 +379,20 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
             meta: { moduleId: fullModule._id.toString(), phase: modulePhase },
           });
 
-          // Add to module completion history
-          if (!Array.isArray(user.moduleCompletionHistory)) {
-            user.moduleCompletionHistory = [];
-          }
-          user.moduleCompletionHistory.push({
-            moduleId: fullModule._id,
-            completedAt: new Date(),
-            quizScore: null,
-          });
+          autoCompletedModule = true;
         }
       }
     }
   }
 
-  // Award and Log XP (now includes lesson + any auto-completed module XP)
+  // Award XP and update level (on User document only)
   user.xp = (user.xp || 0) + totalXP;
   user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
 
-  if (Array.isArray(user.xpHistory)) {
-    user.xpHistory.push(
-      ...xpLog.map((log) => ({ ...log, awardedAt: new Date() })),
-    );
-  }
+  // Write XP transactions to the new collection
+  await createXpTransactions(userId, xpLog);
 
-  // Create history & update stats
-  const now = new Date();
-  const record = createLessonCompletionRecord(lesson, submissionBody, now);
-  user.lessonCompletionHistory.push(record);
+  // Update stats (mutates user.stats in place)
   updateUserStats(user, record, submissionBody);
 
   return {
@@ -397,32 +400,27 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     newlyCompleted: true,
     nextLessonId: await findNextLesson(lesson),
     xpBreakdown: xpLog,
+    autoCompletedModule,
   };
 };
 
 /**
  * Main Orchestrator for Module Completion.
- */
-
-/**
- * Orchestrates the complete module completion workflow.
  *
  * Awards XP for module quiz performance, module completion, phase bonuses,
- * and special module bonuses (M0 tutorial, M20 capstone). Updates user
- * XP/level and adds to moduleCompletionHistory.
+ * and special module bonuses. Writes to ModuleCompletion and XpTransaction
+ * collections, updates User (xp, level, counter).
  *
- * @param {Object} user - The user document (mutated with new XP, level, history)
+ * @param {Object} user - The user document (mutated: xp, level, completedModulesCount)
  * @param {Object} module - The module being completed
  * @param {number|null} quizScore - The quiz score (0-100), or null if no quiz
  * @param {Array} [quizResults=[]] - Individual quiz question results
- * @param {boolean} quizResults[].isCorrect - Whether the answer was correct
- *
  * @returns {Promise<{
  *   xpIncrease: number,
  *   newlyCompleted: boolean,
  *   nextModuleId: string|null,
- *   xpBreakdown: Array<{amount: number, source: string, meta: Object}>
- * }>} Completion result with XP breakdown and navigation
+ *   xpBreakdown: Array
+ * }>}
  */
 const processModuleCompletion = async (
   user,
@@ -431,9 +429,14 @@ const processModuleCompletion = async (
   quizResults = [],
 ) => {
   const moduleId = module._id.toString();
+  const userId = user._id.toString();
 
   // Prevent Duplicate Completion
-  if (user.completedModules.includes(moduleId)) {
+  const existingCompletion = await ModuleCompletion.findOne({
+    userId,
+    moduleId,
+  });
+  if (existingCompletion) {
     return {
       xpIncrease: 0,
       newlyCompleted: false,
@@ -509,7 +512,7 @@ const processModuleCompletion = async (
     });
   }
 
-  // Add Module Specific XP (moduleConfig.js)
+  // Add Module Specific XP
   if (module.xpReward && !isM0) {
     totalXP += module.xpReward;
     xpLog.push({
@@ -519,24 +522,22 @@ const processModuleCompletion = async (
     });
   }
 
-  // Award XP and log history
+  // Write module completion to new collection
+  await ModuleCompletion.create({
+    userId,
+    moduleId: module._id,
+    completedAt: new Date(),
+  });
+
+  // Increment counter on User
+  user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+
+  // Award XP and update level
   user.xp = (user.xp || 0) + totalXP;
   user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
 
-  if (!Array.isArray(user.moduleCompletionHistory)) {
-    user.moduleCompletionHistory = [];
-  }
-
-  user.moduleCompletionHistory.push({
-    moduleId: module._id,
-    completedAt: new Date(),
-    quizScore,
-  });
-
-  // CRITICAL: Add module to completedModules array
-  if (!user.completedModules.includes(moduleId)) {
-    user.completedModules.push(moduleId);
-  }
+  // Write XP transactions
+  await createXpTransactions(userId, xpLog);
 
   return {
     xpIncrease: totalXP,
@@ -547,22 +548,12 @@ const processModuleCompletion = async (
 };
 
 /**
- * Check if lesson is fully completed based on its components
- */
-
-/**
- * Determines if a lesson is fully completed based on its content type and required components.
- *
- * A lesson is complete when all its interactive components are satisfied:
- * - Theory-only lessons: always complete
- * - Exercise lessons: code must be correct
- * - Quiz lessons: all quiz questions answered
- * - Exercise + Quiz lessons: both must be satisfied
+ * Determines if a lesson is fully completed based on its content type.
  *
  * @param {Object} lesson - The lesson document
  * @param {Object} quizProgress - User's quiz progress for this lesson
  * @param {boolean} isCorrect - Whether the exercise solution is correct
- * @param {boolean}  - Skip all checks and mark complete
+ * @param {boolean} [forceComplete=false] - Skip all checks and mark complete
  * @returns {boolean} Whether the lesson is fully completed
  */
 const isLessonFullyCompleted = (
@@ -576,29 +567,23 @@ const isLessonFullyCompleted = (
 
   if (forceComplete) return true;
 
-  // THEORY Lessons: quiz only (no exercise)
   if (lesson.contentType === "THEORY") {
     if (lessonHasQuiz && !lessonHasExercise) {
       return isQuizCompleted(quizProgress, lesson);
     }
-
-    // Theory with no quiz
     if (!lessonHasQuiz && !lessonHasExercise) {
       return true;
     }
   }
 
-  // PROJECT (exercise only, no quiz)
   if (lessonHasExercise && !lessonHasQuiz && isCorrect) {
     return true;
   }
 
-  // Quiz only (catch-all for lessons without exercise not marked as Theory)
   if (!lessonHasExercise && lessonHasQuiz) {
     return isQuizCompleted(quizProgress, lesson);
   }
 
-  // EXERCISE (coding exercise AND quiz)
   if (lessonHasExercise && lessonHasQuiz) {
     return isCorrect && isQuizCompleted(quizProgress, lesson);
   }
@@ -608,7 +593,9 @@ const isLessonFullyCompleted = (
 
 /**
  * Calculates the current curriculum progress for a user.
- * @param {Object} user - The Mongoose user document
+ * Now queries LessonCompletion collection instead of user.completedLessons array.
+ *
+ * @param {Object} user - The user document (requires _id)
  * @param {Object} models - Object containing Lesson and Module models
  * @returns {Object} { totalCurriculumLessons, completedCurriculumCount }
  */
@@ -625,8 +612,19 @@ const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
     moduleId: { $in: curriculumModuleIds },
   });
 
+  // Query LessonCompletion for completed lessons in curriculum modules
+  const completedLessonIds = await LessonCompletion.find({
+    userId: user._id,
+  })
+    .select("lessonId")
+    .lean();
+
+  const completedIdSet = new Set(
+    completedLessonIds.map((lc) => lc.lessonId.toString()),
+  );
+
   const completedCurriculumCount = await Lesson.countDocuments({
-    _id: { $in: user.completedLessons },
+    _id: { $in: Array.from(completedIdSet) },
     isPublished: true,
     moduleId: { $in: curriculumModuleIds },
   });

@@ -8,6 +8,7 @@
  */
 const Activity = require("../models/ActivityLog");
 const Lesson = require("../models/Lesson");
+const LessonCompletion = require("../models/LessonCompletion");
 const Module = require("../models/Module");
 const User = require("../models/User");
 const { withCache, invalidatePrefix } = require("../utils/analyticsCache");
@@ -198,32 +199,28 @@ const fetchUserStats = async (start, end) => {
  * @returns {Object} { totalLessons, totalModules, lessonsCompleted, totalXP, completionRate }
  */
 const fetchContentStats = async (start) => {
-  const [
-    totalLessons,
-    totalModules,
-    lessonsCompleted,
-    totalXP,
-    totalStarts,
-    totalCompletes,
-  ] = await Promise.all([
-    Lesson.countDocuments({ isPublished: true }),
-    Module.countDocuments({ isPublished: true }),
-    User.aggregate([{ $unwind: "$completedLessons" }, { $count: "total" }]),
-    User.aggregate([{ $group: { _id: null, total: { $sum: "$xp" } } }]),
-    Activity.countDocuments({
-      actionType: "LESSON_START",
-      timestamp: { $gte: start },
-    }),
-    Activity.countDocuments({
-      actionType: "LESSON_COMPLETE",
-      timestamp: { $gte: start },
-    }),
-  ]);
+  const [totalLessons, totalModules, totalXP, totalStarts, totalCompletes] =
+    await Promise.all([
+      Lesson.countDocuments({ isPublished: true }),
+      Module.countDocuments({ isPublished: true }),
+      User.aggregate([{ $group: { _id: null, total: { $sum: "$xp" } } }]),
+      Activity.countDocuments({
+        actionType: "LESSON_START",
+        timestamp: { $gte: start },
+      }),
+      Activity.countDocuments({
+        actionType: "LESSON_COMPLETE",
+        timestamp: { $gte: start },
+      }),
+    ]);
+
+  // Count total lesson completions from the new LessonCompletion collection
+  const lessonsCompleted = await LessonCompletion.countDocuments();
 
   return {
     totalLessons,
     totalModules,
-    lessonsCompleted: lessonsCompleted[0]?.total || 0,
+    lessonsCompleted,
     totalXP: totalXP[0]?.total || 0,
     completionRate:
       totalStarts > 0
@@ -489,7 +486,6 @@ const fetchDemographicStats = async (start) => {
           count: { $sum: 1 },
           avgLevel: { $avg: "$level" },
           avgXP: { $avg: "$xp" },
-          totalLessonsCompleted: { $sum: { $size: "$completedLessons" } },
         },
       },
       {
@@ -498,20 +494,13 @@ const fetchDemographicStats = async (start) => {
           count: 1,
           avgLevel: { $round: ["$avgLevel", 1] },
           avgXP: { $round: ["$avgXP", 0] },
-          avgLessonsCompleted: {
-            $cond: [
-              { $gt: ["$count", 0] },
-              { $divide: ["$totalLessonsCompleted", "$count"] },
-              0,
-            ],
-          },
         },
       },
       { $sort: { avgLevel: 1 } },
     ]),
   ]);
 
-  // Compute device percentages in JS once total is known
+  // Compute device percentages
   const deviceTotal = rawDeviceStats.reduce((sum, d) => sum + d.count, 0);
   const devices = rawDeviceStats.map((d) => ({
     device: d._id,
@@ -520,7 +509,58 @@ const fetchDemographicStats = async (start) => {
       deviceTotal > 0 ? Math.round((d.count / deviceTotal) * 10000) / 100 : 0,
   }));
 
-  return { devices, userSegments };
+  // Fetch average lesson completions per segment using LessonCompletion collection
+  // We need to get user IDs per segment, then count their completions
+  const usersBySegment = await User.aggregate([
+    {
+      $group: {
+        _id: {
+          $switch: {
+            branches: [
+              { case: { $lte: ["$level", 2] }, then: "BEGINNER" },
+              { case: { $lte: ["$level", 5] }, then: "INTERMEDIATE" },
+              { case: { $lte: ["$level", 8] }, then: "ADVANCED" },
+            ],
+            default: "Expert",
+          },
+        },
+        userIds: { $push: "$_id" },
+      },
+    },
+  ]);
+
+  // For each segment, count completions
+  const segmentCompletions = await Promise.all(
+    usersBySegment.map(async (seg) => {
+      const count = await LessonCompletion.countDocuments({
+        userId: { $in: seg.userIds },
+      });
+      return {
+        segment: seg._id,
+        totalCompletions: count,
+        userCount: seg.userIds.length,
+      };
+    }),
+  );
+
+  // Merge avgLessonsCompleted into userSegments
+  const completionMap = new Map(
+    segmentCompletions.map((sc) => [sc.segment, sc]),
+  );
+
+  const userSegmentsWithCompletions = userSegments.map((seg) => {
+    const compData = completionMap.get(seg.segment);
+    return {
+      ...seg,
+      avgLessonsCompleted: compData
+        ? compData.userCount > 0
+          ? Math.round(compData.totalCompletions / compData.userCount)
+          : 0
+        : 0,
+    };
+  });
+
+  return { devices, userSegments: userSegmentsWithCompletions };
 };
 
 /**

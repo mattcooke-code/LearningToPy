@@ -1,8 +1,11 @@
 // progressController.js
+const Lesson = require("../models/Lesson");
+const LessonCompletion = require("../models/LessonCompletion");
+const Module = require("../models/Module");
+const ModuleCompletion = require("../models/ModuleCompletion");
+const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
-const Lesson = require("../models/Lesson");
-const Module = require("../models/Module");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
@@ -49,6 +52,19 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new AppError("User not found.", 404));
 
+  // Fetch completions from new collections
+  const [lessonCompletions, moduleCompletions] = await Promise.all([
+    LessonCompletion.find({ userId: user._id }).select("lessonId").lean(),
+    ModuleCompletion.find({ userId: user._id }).select("moduleId").lean(),
+  ]);
+
+  const completedLessonIds = lessonCompletions.map((lc) =>
+    lc.lessonId.toString(),
+  );
+  const completedModuleIds = moduleCompletions.map((mc) =>
+    mc.moduleId.toString(),
+  );
+
   // Get all published modules with order
   const modules = await Module.find({ isPublished: true })
     .select("_id order title")
@@ -65,9 +81,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   for (const module of modules) {
     if (module.order === 0) continue; // Skip M0
 
-    const isCompleted = (user.completedModules || []).includes(
-      module._id.toString(),
-    );
+    const isCompleted = completedModuleIds.includes(module._id.toString());
     if (!isCompleted) {
       // Found current module - get lesson progress
       const lessons = await Lesson.find({
@@ -79,7 +93,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
 
       totalLessons = lessons.length;
       lessonsCompleted = lessons.filter((lesson) =>
-        user.completedLessons?.includes(lesson._id.toString()),
+        completedLessonIds.includes(lesson._id.toString()),
       ).length;
 
       currentModuleData = {
@@ -93,15 +107,24 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   }
 
   // If all modules complete
-  if (!currentModuleData && (user.completedModules?.length || 0) >= 20) {
+  if (!currentModuleData && completedModuleIds.length >= 20) {
     currentModuleData = null; // Signals course complete
   }
 
+  // Build user object with arrays for the analytics service
+  const userWithArrays = {
+    ...user,
+    completedLessons: completedLessonIds,
+    completedModules: completedModuleIds,
+    completedLessonsCount: lessonCompletions.length,
+    completedModulesCount: moduleCompletions.length,
+  };
+
   const { totalCurriculumLessons, completedCurriculumCount } =
-    await getCurriculumProgressStats(user, { Lesson, Module });
+    await getCurriculumProgressStats(userWithArrays, { Lesson, Module });
 
   const progressData = formatProgressResponse(
-    user,
+    userWithArrays,
     totalCurriculumLessons,
     completedCurriculumCount,
     currentModuleData,
@@ -131,7 +154,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const user = await User.findById(userId)
     .select(
-      "username completedLessons completedModules badges streak createdAt moduleCompletionHistory lessonCompletionHistory quizAttempts privacySettings stats",
+      "username badges streak createdAt privacySettings stats completedLessonsCount completedModulesCount",
     )
     .lean({ virtuals: true });
 
@@ -139,16 +162,36 @@ const getAchievements = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
-  const { newlyUnlocked } = await evaluateBadges(user);
+  // Fetch completion data from new collections
+  const [lessonCompletions, moduleCompletions, quizAttempts] =
+    await Promise.all([
+      LessonCompletion.find({ userId }).lean(),
+      ModuleCompletion.find({ userId }).lean(),
+      QuizAttempt.find({ userId }).lean(),
+    ]);
+
+  // Build enriched user object matching what evaluateBadges expects
+  const enrichedUser = {
+    ...user,
+    completedLessons: lessonCompletions.map((lc) => lc.lessonId.toString()),
+    completedModules: moduleCompletions.map((mc) => mc.moduleId.toString()),
+    lessonCompletionHistory: lessonCompletions,
+    moduleCompletionHistory: moduleCompletions,
+    quizAttempts: quizAttempts,
+  };
+
+  const { newlyUnlocked } = await evaluateBadges(enrichedUser);
 
   if (newlyUnlocked.length > 0) {
     await User.findByIdAndUpdate(userId, {
       $addToSet: { badges: { $each: newlyUnlocked } },
     });
-    user.badges = [...new Set([...(user.badges || []), ...newlyUnlocked])];
+    enrichedUser.badges = [
+      ...new Set([...(user.badges || []), ...newlyUnlocked]),
+    ];
   }
 
-  const badgeProgress = await getBadgeProgress(user);
+  const badgeProgress = await getBadgeProgress(enrichedUser);
 
   const earned = [];
   const inProgress = [];
@@ -161,7 +204,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
     ]),
   );
 
-  const earnedSet = new Set(user.badges || []);
+  const earnedSet = new Set(enrichedUser.badges || []);
 
   BADGE_DEFINITIONS_CORE.forEach((badge) => {
     const baseDetails = {
@@ -319,8 +362,15 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
 
+  // Find users who completed this module via ModuleCompletion collection
+  const moduleCompletions = await ModuleCompletion.find({ moduleId })
+    .select("userId")
+    .lean();
+
+  const completedUserIds = moduleCompletions.map((mc) => mc.userId);
+
   const moduleUsers = await User.find({
-    completedModules: moduleId,
+    _id: { $in: completedUserIds },
     "privacySettings.showOnLeaderboards": true,
   })
     .select("username xp privacySettings")
@@ -342,7 +392,7 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const currentUser = await User.findById(userId).select("xp");
   const rank =
     (await User.countDocuments({
-      completedModules: moduleId,
+      _id: { $in: completedUserIds },
       "privacySettings.showOnLeaderboards": true,
       xp: { $gt: currentUser.xp },
     })) + 1;
@@ -405,9 +455,7 @@ const completeLesson = catchAsync(async (req, res, next) => {
 
   const result = await processLessonCompletion(user, lesson, submissionData);
 
-  // Pass the already-fetched user document
   const streakResult = await trackCompletion(user);
-
   await user.save();
 
   // Trigger leaderboard badge check after XP is persisted
@@ -449,8 +497,10 @@ const completeModule = catchAsync(async (req, res, next) => {
 
   const result = await processModuleCompletion(user, module, quizScore);
 
+  // Record quiz attempt in the new QuizAttempt collection
   if (answers && quizScore !== undefined) {
-    user.quizAttempts.push({
+    await QuizAttempt.create({
+      userId: user._id,
       moduleId: module._id,
       attemptedAt: new Date(),
       score: quizScore,
@@ -459,9 +509,7 @@ const completeModule = catchAsync(async (req, res, next) => {
     });
   }
 
-  // Pass the already-fetched user document — avoids a second DB read
   const streakResult = await trackCompletion(user);
-
   await user.save();
 
   // Trigger leaderboard badge check after XP is persisted

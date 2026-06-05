@@ -1,29 +1,18 @@
 // analytics.js
 const { XP } = require("../../shared/constants/progress.cjs");
 const { calculateLevelFromModules } = require("../utils/levelUtils");
+const LessonCompletion = require("../models/LessonCompletion");
+const ModuleCompletion = require("../models/ModuleCompletion");
 
 /**
  * --- PERCENTAGE CALCULATORS ---
  */
 
-/**
- * Calculate percentage progress, capped at 100.
- * @param {number} count - Completed items
- * @param {number} total - Total items
- * @returns {number} Progress percentage (0-100)
- */
 const calculateProgress = (count, total) => {
   if (!total || total === 0) return 0;
   return Math.min(100, Math.round((count / total) * 100));
 };
 
-/**
- * Determine if a module is fully completed by comparing user's completed
- * lessons against the module's published lesson list.
- * @param {string[]} userCompletedLessonIds - Array of completed lesson IDs
- * @param {Object[]} moduleLessons - Published lessons in the module
- * @returns {boolean} True if all module lessons are completed
- */
 const isModuleFinished = (userCompletedLessonIds, moduleLessons) => {
   if (!moduleLessons || moduleLessons.length === 0) return false;
 
@@ -35,12 +24,6 @@ const isModuleFinished = (userCompletedLessonIds, moduleLessons) => {
   );
 };
 
-/**
- * Calculate module lesson progress percentage
- * @param {number} completedLessonsInModule - Number of completed lessons in module
- * @param {number} totalLessonsInModule - Total lessons in module
- * @returns {number} Progress percentage (0-100)
- */
 const calculateModuleLessonProgress = (
   completedLessonsInModule,
   totalLessonsInModule,
@@ -55,13 +38,18 @@ const calculateModuleLessonProgress = (
 
 /**
  * Formats a comprehensive progress object for the API response.
- * Consolidates data from the user doc and course totals.
+ * Now accepts pre-fetched completion data rather than reading from user arrays.
  *
- * @param {Object} user - User object with completion data
+ * @param {Object} user - User object (requires _id, xp, username, streak, etc.)
  * @param {number} totalCourseLessons - Total curriculum lessons
- * @param {number} completedCurriculumCount - User's completed curriculum lessons If null, calculated from user.completedLessons (less accurate, deduplicates IDs).
- * @param {Object} currentModuleData - Current module data { order, title, lessonCount, lessonsCompleted }
- * @param {Map} moduleOrderCache - Map of module ID to order number for level calculation
+ * @param {number} completedCurriculumCount - User's completed curriculum lessons
+ * @param {Object} currentModuleData - Current module data
+ * @param {Map} moduleOrderCache - Map of module ID to order number
+ * @param {Object} [completionData] - Pre-fetched completion data (optional)
+ * @param {Array}  [completionData.completedModules] - Array of completed module IDs (strings)
+ * @param {Array}  [completionData.completedLessons] - Array of completed lesson IDs (strings)
+ * @param {Array}  [completionData.lessonCompletions] - Full LessonCompletion documents
+ * @param {Array}  [completionData.moduleCompletions] - Full ModuleCompletion documents
  */
 const formatProgressResponse = (
   user,
@@ -69,22 +57,30 @@ const formatProgressResponse = (
   completedCurriculumCount = null,
   currentModuleData = null,
   moduleOrderCache = null,
+  completionData = {},
 ) => {
+  // Use provided completion data or fall back to user arrays (backward compat)
+  const completedModules =
+    completionData.completedModules || user.completedModules || [];
+  const completedLessons =
+    completionData.completedLessons || user.completedLessons || [];
+
   // Calculate level based on completed modules (exclude M0)
   let currentLevel = 1;
-  if (moduleOrderCache && user.completedModules) {
+  if (moduleOrderCache && completedModules.length > 0) {
     currentLevel = calculateLevelFromModules(
-      user.completedModules,
+      completedModules,
       moduleOrderCache,
     );
+  } else if (user.completedModulesCount !== undefined) {
+    currentLevel = Math.min(20, Math.max(1, user.completedModulesCount));
   } else if (user.level) {
-    // Fallback to stored level if no cache provided
     currentLevel = user.level;
   }
 
   // Course progress
   const uniqueLessons = [
-    ...new Set((user.completedLessons || []).map((id) => id?.toString())),
+    ...new Set(completedLessons.map((id) => id?.toString())),
   ].filter(Boolean);
 
   const curriculumCompletedCount =
@@ -97,7 +93,15 @@ const formatProgressResponse = (
     totalCourseLessons,
   );
 
-  const daysActive = calculateDaysActive(user);
+  // Calculate days active from pre-fetched data if available
+  const daysActive =
+    completionData.lessonCompletions || completionData.moduleCompletions
+      ? calculateDaysActiveFromCompletions(
+          completionData.lessonCompletions,
+          completionData.moduleCompletions,
+          user.lastActiveDate,
+        )
+      : calculateDaysActive(user); // Fallback to old method
 
   return {
     username: user.username,
@@ -109,7 +113,7 @@ const formatProgressResponse = (
     weeklyProgress: user.weeklyProgress || null,
     stats: {
       lessonsCompleted: uniqueLessons.length,
-      modulesCompleted: currentLevel, // Level = modules completed (M1-M20)
+      modulesCompleted: currentLevel,
       totalLearningTime: user.totalLearningTime || 0,
       daysActive,
     },
@@ -117,26 +121,26 @@ const formatProgressResponse = (
     progress: {
       coursePercentage: courseProgressPercentage,
       levelPercentage: (currentLevel / 20) * 100,
-      // Removed xpToNextLevel since level is now based on modules
     },
-    // Current module progress for SegmentedLevelProgressBar
     currentModule: currentModuleData,
     badges: user.badges || [],
   };
 };
 
 /**
- * Get count of completed lessons by tag
- * @param {Array} lessonHistory - User's lesson completion history
+ * Get count of completed lessons by tag.
+ * Now accepts pre-fetched LessonCompletion array.
+ *
+ * @param {Array} lessonCompletions - LessonCompletion documents
  * @param {string} tag - Tag to search for (will be lowercased)
  * @returns {number} Count of lessons with this tag
  */
-const getLessonCompletionCountByTag = (lessonHistory, tag) => {
-  if (!tag || !Array.isArray(lessonHistory)) return 0;
+const getLessonCompletionCountByTag = (lessonCompletions, tag) => {
+  if (!tag || !Array.isArray(lessonCompletions)) return 0;
 
   const normalizedTag = tag.toLowerCase();
 
-  return lessonHistory.filter((entry) =>
+  return lessonCompletions.filter((entry) =>
     Array.isArray(entry.tags)
       ? entry.tags.map((t) => (t || "").toLowerCase()).includes(normalizedTag)
       : false,
@@ -144,17 +148,19 @@ const getLessonCompletionCountByTag = (lessonHistory, tag) => {
 };
 
 /**
- * Check if user has completed a specific challenge group
- * @param {Array} lessonHistory - User's lesson completion history
+ * Check if user has completed a specific challenge group.
+ * Now accepts pre-fetched LessonCompletion array.
+ *
+ * @param {Array} lessonCompletions - LessonCompletion documents
  * @param {string} groupId - Challenge group ID to check
  * @returns {boolean} True if challenge group is completed
  */
-const hasCompletedChallengeGroup = (lessonHistory, groupId) => {
-  if (!groupId || !Array.isArray(lessonHistory)) return false;
+const hasCompletedChallengeGroup = (lessonCompletions, groupId) => {
+  if (!groupId || !Array.isArray(lessonCompletions)) return false;
 
   const normalizedGroupId = groupId.toLowerCase();
 
-  return lessonHistory.some(
+  return lessonCompletions.some(
     (entry) =>
       typeof entry.challengeGroup === "string" &&
       entry.challengeGroup.toLowerCase() === normalizedGroupId,
@@ -162,9 +168,11 @@ const hasCompletedChallengeGroup = (lessonHistory, groupId) => {
 };
 
 /**
- * Calculate unique active days from completion history
+ * Calculate unique active days from user's embedded arrays (legacy).
+ * Used as fallback when pre-fetched completion data is not available.
+ *
  * @param {Object} user - User document with completion histories
- * @returns {number} - Number of unique days user has been active
+ * @returns {number} Number of unique days
  */
 const calculateDaysActive = (user) => {
   const uniqueDays = new Set();
@@ -172,25 +180,62 @@ const calculateDaysActive = (user) => {
   if (user.lessonCompletionHistory) {
     user.lessonCompletionHistory.forEach((entry) => {
       if (entry.completedAt) {
-        const dateKey = entry.completedAt.toISOString().split("T")[0];
+        const dateKey = new Date(entry.completedAt).toISOString().split("T")[0];
         uniqueDays.add(dateKey);
       }
     });
   }
 
   if (user.lastActiveDate) {
-  const dateKey = user.lastActiveDate.toISOString().split("T")[0];
-  uniqueDays.add(dateKey);
-}
+    const dateKey = new Date(user.lastActiveDate).toISOString().split("T")[0];
+    uniqueDays.add(dateKey);
+  }
 
-  // Add days from module completions
   if (user.moduleCompletionHistory) {
     user.moduleCompletionHistory.forEach((entry) => {
       if (entry.completedAt) {
-        const dateKey = entry.completedAt.toISOString().split("T")[0];
+        const dateKey = new Date(entry.completedAt).toISOString().split("T")[0];
         uniqueDays.add(dateKey);
       }
     });
+  }
+
+  return uniqueDays.size;
+};
+
+/**
+ * Calculate unique active days from pre-fetched completion collections.
+ * Preferred method when LessonCompletion and ModuleCompletion data is available.
+ *
+ * @param {Array} lessonCompletions - LessonCompletion documents
+ * @param {Array} moduleCompletions - ModuleCompletion documents
+ * @param {Date} lastActiveDate - User's lastActiveDate
+ * @returns {number} Number of unique days
+ */
+const calculateDaysActiveFromCompletions = (
+  lessonCompletions = [],
+  moduleCompletions = [],
+  lastActiveDate = null,
+) => {
+  const uniqueDays = new Set();
+
+  lessonCompletions.forEach((entry) => {
+    if (entry.completedAt) {
+      const dateKey = new Date(entry.completedAt).toISOString().split("T")[0];
+      uniqueDays.add(dateKey);
+    }
+  });
+
+  moduleCompletions.forEach((entry) => {
+    if (entry.completedAt) {
+      const dateKey = new Date(entry.completedAt).toISOString().split("T")[0];
+      uniqueDays.add(dateKey);
+    }
+  });
+
+  if (lastActiveDate) {
+    const dateKey = new Date(lastActiveDate).toISOString().split("T")[0];
+    uniqueDays.add(dateKey);
   }
 
   return uniqueDays.size;

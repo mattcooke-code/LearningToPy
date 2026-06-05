@@ -7,6 +7,9 @@ const { XP } = require("../../shared/constants/progress.cjs");
 const { toStringId } = require("../utils/generalUtils");
 const Module = require("../models/Module");
 const Lesson = require("../models/Lesson");
+const LessonCompletion = require("../models/LessonCompletion");
+const ModuleCompletion = require("../models/ModuleCompletion");
+const QuizAttempt = require("../models/QuizAttempt");
 
 // --- CONSTANTS ---
 const XP_PER_LEVEL = XP.PER_LEVEL;
@@ -14,12 +17,6 @@ const TOTAL_CURRICULUM_MODULES = 20; // M1–M20, excluding M0
 
 // --- XP & LEVELING ---
 
-/**
- * Calculates level and progress based on total XP.
- * NOTE: Level is now also derivable from completedModules.length on the
- * frontend. This function is retained for XP-based display in the
- * SegmentedLevelProgressBar and leaderboard contexts.
- */
 const calculateLevelProgress = (xp) => {
   const currentLevel = Math.floor(xp / XP_PER_LEVEL) + 1;
   const xpInCurrentLevel = xp % XP_PER_LEVEL;
@@ -35,10 +32,6 @@ const calculateLevelProgress = (xp) => {
 
 // --- DB HELPERS ---
 
-/**
- * Cache of order → moduleId to avoid repeated DB queries
- * within a single badge evaluation run.
- */
 const buildModuleOrderCache = async () => {
   const modules = await Module.find({ isPublished: true })
     .select("_id order")
@@ -48,23 +41,41 @@ const buildModuleOrderCache = async () => {
   return cache;
 };
 
-/**
- * Returns the total published lesson count for a given moduleId.
- * Used for clean sweep badge checks.
- */
 const getTotalLessonsInModule = async (moduleId) => {
   return Lesson.countDocuments({ moduleId, isPublished: true });
 };
 
 // --- BADGE EVALUATION HELPERS ---
 
+/**
+ * Creates the helpers object used by BADGE_LOGIC_MAP checks.
+ * Now queries ModuleCompletion, LessonCompletion, and QuizAttempt
+ * collections instead of reading embedded User arrays.
+ *
+ * @param {Object} user - The user document (requires _id)
+ * @returns {Promise<Object>} Helpers object with check functions
+ */
 const createBadgeHelpers = async (user) => {
+  const userId = user._id;
+
+  // Fetch completion data from new collections
+  const [moduleCompletions, lessonCompletions, quizAttempts] =
+    await Promise.all([
+      ModuleCompletion.find({ userId }).select("moduleId").lean(),
+      LessonCompletion.find({ userId }).select("lessonId contentType").lean(),
+      QuizAttempt.find({ userId }).select("_id").lean(),
+    ]);
+
   const completedModuleSet = new Set(
-    (user.completedModules || []).map((id) => toStringId(id)).filter(Boolean),
+    moduleCompletions.map((mc) => toStringId(mc.moduleId)).filter(Boolean),
   );
+
   const completedLessonSet = new Set(
-    (user.completedLessons || []).map((id) => toStringId(id)).filter(Boolean),
+    lessonCompletions.map((lc) => toStringId(lc.lessonId)).filter(Boolean),
   );
+
+  // Store lesson completions for engagement badge checks
+  const lessonCompletionHistory = lessonCompletions;
 
   // Single DB call — cache order → moduleId for the entire evaluation run
   const moduleOrderCache = await buildModuleOrderCache();
@@ -74,11 +85,6 @@ const createBadgeHelpers = async (user) => {
     return moduleId ? completedModuleSet.has(moduleId) : false;
   };
 
-  /**
-   * Clean sweep: all published lessons in a module completed.
-   * Requires one DB count query per check — results are not cached
-   * since this is called selectively, not for every module.
-   */
   const hasSweptModule = async (order) => {
     const moduleId = moduleOrderCache.get(order);
     if (!moduleId) return false;
@@ -95,7 +101,6 @@ const createBadgeHelpers = async (user) => {
 
   const completedCurriculumModuleCount = () =>
     [...completedModuleSet].filter((id) => {
-      // Only count modules with order > 0 (exclude M0)
       for (const [order, moduleId] of moduleOrderCache.entries()) {
         if (moduleId === id && order > 0) return true;
       }
@@ -109,25 +114,15 @@ const createBadgeHelpers = async (user) => {
     completedModuleSet,
     completedLessonSet,
     moduleOrderCache,
+    // Pass through for engagement badge checks
+    quizAttempts,
+    lessonCompletionHistory,
   };
 };
 
 // --- BADGE LOGIC MAP ---
+// (Unchanged — logic references are the same, just data source changed)
 
-/**
- * Each entry maps a badge id to:
- *   check(h, user)    → boolean — has the badge been earned?
- *   progress(h, user) → number  — 0–100 percentage towards earning it
- *
- * Convention:
- *   Module badges:      check if module N is in completedModules
- *   Clean sweep badges: check if all lessons in module N are completed
- *   Phase badges:       check if last module in phase is completed (same
- *                       event that fires the module badge — awarded together)
- *   Milestone badges:   check against completedModules count or course state
- *   Engagement badges:  check lessonCompletionHistory / quizAttempts
- *   Leaderboard badges: evaluated separately at point of XP gain, not here
- */
 const BADGE_LOGIC_MAP = {
   // ─── M0 ───────────────────────────────────────────────────────
   "orientation-complete": {
@@ -174,10 +169,8 @@ const BADGE_LOGIC_MAP = {
 
   // ─── PHASE 1 COMPLETION ───────────────────────────────────────
   "phase-1-complete": {
-    // Fires alongside module-9-complete
     check: (h) => h.hasCompletedModuleByOrder(9),
     progress: (h) => {
-      // Show progress through Phase 1 as modules completed out of 9
       let count = 0;
       for (let i = 1; i <= 9; i++) {
         if (h.hasCompletedModuleByOrder(i)) count++;
@@ -286,19 +279,19 @@ const BADGE_LOGIC_MAP = {
 
   // ─── ENGAGEMENT BADGES ────────────────────────────────────────
   "first-quiz": {
-    // Awarded when user has at least one entry in quizAttempts
-    check: (h, user) => (user.quizAttempts || []).length > 0,
-    progress: (h, user) => ((user.quizAttempts || []).length > 0 ? 100 : 0),
+    // Now reads from the quizAttempts array fetched by createBadgeHelpers
+    check: (h) => (h.quizAttempts || []).length > 0,
+    progress: (h) => ((h.quizAttempts || []).length > 0 ? 100 : 0),
   },
   "first-challenge": {
-    // Awarded when lessonCompletionHistory contains at least one exercise/project
-    check: (h, user) =>
-      (user.lessonCompletionHistory || []).some(
+    // Now reads from lessonCompletionHistory fetched by createBadgeHelpers
+    check: (h) =>
+      (h.lessonCompletionHistory || []).some(
         (entry) =>
           entry.contentType === "EXERCISE" || entry.contentType === "PROJECT",
       ),
-    progress: (h, user) =>
-      (user.lessonCompletionHistory || []).some(
+    progress: (h) =>
+      (h.lessonCompletionHistory || []).some(
         (entry) =>
           entry.contentType === "EXERCISE" || entry.contentType === "PROJECT",
       )
@@ -307,10 +300,6 @@ const BADGE_LOGIC_MAP = {
   },
 
   // ─── LEADERBOARD BADGES ───────────────────────────────────────
-  // These are NOT evaluated by evaluateBadges() — they are awarded
-  // directly by the leaderboard controller at the point of XP gain.
-  // The entries here exist only so getBadgeProgress() can return
-  // a display state for them (always 0 until awarded).
   "reached-the-summit": {
     check: () => false,
     progress: () => 0,
@@ -323,10 +312,6 @@ const BADGE_LOGIC_MAP = {
 
 // --- PUBLIC API ---
 
-/**
- * Evaluate all badges and return newly unlocked ones.
- * Call this after any state-changing event (lesson/module completion).
- */
 const evaluateBadges = async (user, context = {}) => {
   const helpers = await createBadgeHelpers(user);
   const newlyUnlocked = [];
@@ -348,13 +333,6 @@ const evaluateBadges = async (user, context = {}) => {
   return { newlyUnlocked, unlockedDetails };
 };
 
-/**
- * Return progress percentage (0–100) for every badge.
- * Used by the achievements page to show in-progress and locked badges.
- * 
- * NOTE: Leaderboard badges always return 0% until awarded externally
- * by checkLeaderboardBadges(). They cannot be progressed through normal play.
- */
 const getBadgeProgress = async (user) => {
   const helpers = await createBadgeHelpers(user);
   const results = [];
@@ -380,31 +358,15 @@ const getBadgeProgress = async (user) => {
   return results;
 };
 
-// --- LEADERBOARD BADGE TRIGGER ---
-
-/**
- * Checks whether a user's current XP has crossed the top-10 or top-1
- * threshold and awards the relevant leaderboard badge if so.
- *
- * Only runs if:
- *   - The user has showOnLeaderboards: true
- *   - At least one leaderboard badge has not yet been earned
- *
- * Two lightweight DB queries at most — skipped entirely once both
- * badges are awarded.
- */
 const checkLeaderboardBadges = async (user, User) => {
   const hasSummit = user.badges?.includes("reached-the-summit");
   const hasTopTen = user.badges?.includes("top-ten");
 
-  // Both already awarded — nothing to do
   if (hasSummit && hasTopTen) return;
 
-  // User has opted out of leaderboard display — ineligible
   if (!user.privacySettings?.showOnLeaderboards) return;
 
   if (!hasTopTen) {
-    // Get the XP of the current 10th place user
     const tenthPlace = await User.findOne({
       "privacySettings.showOnLeaderboards": true,
       _id: { $ne: user._id },
@@ -414,14 +376,12 @@ const checkLeaderboardBadges = async (user, User) => {
       .select("xp")
       .lean();
 
-    // Award if user is in top 10, or fewer than 10 users exist on leaderboard
     if (!tenthPlace || user.xp >= tenthPlace.xp) {
       await awardLeaderboardBadge(user, "top-ten");
     }
   }
 
   if (!hasSummit) {
-    // Get the XP of the current 1st place user (excluding self)
     const firstPlace = await User.findOne({
       "privacySettings.showOnLeaderboards": true,
       _id: { $ne: user._id },
@@ -430,18 +390,12 @@ const checkLeaderboardBadges = async (user, User) => {
       .select("xp")
       .lean();
 
-    // Award if no other users exist, or user has more XP than current leader
     if (!firstPlace || user.xp >= firstPlace.xp) {
       await awardLeaderboardBadge(user, "reached-the-summit");
     }
   }
 };
 
-/**
- * Award a leaderboard badge directly — bypasses evaluateBadges()
- * since rank is not stored on the user document.
- * Call this from the leaderboard controller after an XP update.
- */
 const awardLeaderboardBadge = async (user, badgeId) => {
   if (!["reached-the-summit", "top-ten"].includes(badgeId)) return false;
   if (user.badges?.includes(badgeId)) return false;
@@ -450,7 +404,6 @@ const awardLeaderboardBadge = async (user, badgeId) => {
   await user.save();
   return true;
 };
-
 
 module.exports = {
   evaluateBadges,

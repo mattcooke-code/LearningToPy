@@ -2,6 +2,11 @@
 const Module = require("../models/Module");
 const Lesson = require("../models/Lesson");
 const User = require("../models/User");
+const LessonCompletion = require("../models/LessonCompletion");
+const ModuleCompletion = require("../models/ModuleCompletion");
+const QuizAttempt = require("../models/QuizAttempt");
+const LessonQuizProgress = require("../models/LessonQuizProgress");
+const XpTransaction = require("../models/XpTransaction");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { validateContent, validateEnum } = require("../utils/validationHelpers");
@@ -45,16 +50,34 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackCompletion } = require("../services/streakManager");
 const { calculateExerciseXP } = require("../../shared/constants/progress.cjs");
 
-// ====== CONTROLLER FUNCTIONS ======
+// ─── HELPER: Fetch completion data for a user ────────────────
+/**
+ * Fetches all completion data from the new collections for a given user.
+ * Returns arrays that match the old embedded structure for backward
+ * compatibility with existing helper functions.
+ */
+const fetchUserCompletionData = async (userId) => {
+  const [lessonCompletions, moduleCompletions, quizAttempts] =
+    await Promise.all([
+      LessonCompletion.find({ userId }).select("lessonId").lean(),
+      ModuleCompletion.find({ userId }).select("moduleId").lean(),
+      QuizAttempt.find({ userId }).select("moduleId score passed").lean(),
+    ]);
+
+  return {
+    completedLessons: lessonCompletions.map((lc) => lc.lessonId.toString()),
+    completedModules: moduleCompletions.map((mc) => mc.moduleId.toString()),
+    quizAttempts: quizAttempts,
+  };
+};
+
+// ─── CONTROLLER FUNCTIONS ────────────────────────────────────
+
 /**
  * Fetch all published modules with user progress metadata.
  *
- * For each module, calculates lesson completion %, quiz status,
- * prerequisite lock state, and overall completion.
- *
  * @route   GET /api/content/modules
  * @returns {Object} 200 - Array of modules with progress fields
- * @returns {Object} 401 - Unauthorized
  */
 const getAllModules = catchAsync(async (req, res, next) => {
   const userId = req.userId;
@@ -64,9 +87,8 @@ const getAllModules = catchAsync(async (req, res, next) => {
     .sort("order")
     .lean();
 
-  const user = await User.findById(userId).select(
-    "completedLessons completedModules quizAttempts",
-  );
+  const { completedLessons, completedModules, quizAttempts } =
+    await fetchUserCompletionData(userId);
 
   const modulesWithProgress = await Promise.all(
     modules.map(async (module) => {
@@ -77,7 +99,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
 
       const completedLessonsInModule = getModuleLessonCompletion(
         lessons,
-        user.completedLessons,
+        completedLessons,
       );
 
       const moduleLessonProgress = calculateProgress(
@@ -85,15 +107,11 @@ const getAllModules = catchAsync(async (req, res, next) => {
         lessons.length,
       );
 
-      const isCompleted = user.completedModules.includes(module._id.toString());
-      const quizCompleted = hasPassedModuleQuiz(user, module._id);
-      const allLessonsComplete = isModuleFinished(
-        user.completedLessons,
-        lessons,
-      );
+      const isCompleted = completedModules.includes(module._id.toString());
+      const quizCompleted = hasPassedModuleQuiz({ quizAttempts }, module._id);
+      const allLessonsComplete = isModuleFinished(completedLessons, lessons);
 
-      // Check if module is locked based on prerequisites
-      const { isLocked } = checkPrerequisites(module, user.completedModules);
+      const { isLocked } = checkPrerequisites(module, completedModules);
 
       return {
         ...module,
@@ -118,39 +136,32 @@ const getAllModules = catchAsync(async (req, res, next) => {
 /**
  * Fetch a single module with detailed user progress.
  *
- * Includes lesson completion count, quiz attempt history,
- * best quiz score, and whether module is fully complete.
- *
  * @route   GET /api/content/modules/:moduleId
- * @param   {string} moduleId - Module ID
  * @returns {Object} 200 - Module with progress details
- * @returns {Object} 404 - Module not found
  */
 const getModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
 
   const module = await Module.findById(moduleId).lean();
-
   if (!module) {
     return next(new AppError("Module not found.", 404));
   }
 
-  const user = await User.findById(userId).select(
-    "completedLessons completedModules quizAttempts",
-  );
+  const { completedLessons, completedModules, quizAttempts } =
+    await fetchUserCompletionData(userId);
 
   const lessons = await Lesson.find({ moduleId: moduleId, isPublished: true });
 
   const completedLessonsInModule = getModuleLessonCompletion(
     lessons,
-    user.completedLessons,
+    completedLessons,
   );
 
-  const allLessonsComplete = isModuleFinished(user.completedLessons, lessons);
-  const isModuleComplete = user.completedModules.includes(moduleId.toString());
+  const allLessonsComplete = isModuleFinished(completedLessons, lessons);
+  const isModuleComplete = completedModules.includes(moduleId.toString());
 
-  const moduleQuizAttempts = user.quizAttempts.filter(
+  const moduleQuizAttempts = quizAttempts.filter(
     (attempt) => attempt.moduleId.toString() === moduleId.toString(),
   );
 
@@ -161,7 +172,7 @@ const getModule = catchAsync(async (req, res, next) => {
         )
       : null;
 
-  const quizCompleted = hasPassedModuleQuiz(user, moduleId);
+  const quizCompleted = hasPassedModuleQuiz({ quizAttempts }, moduleId);
 
   sendJsonResponse(res, 200, "Module fetched successfully.", {
     ...module,
@@ -178,13 +189,8 @@ const getModule = catchAsync(async (req, res, next) => {
 /**
  * Fetch all published lessons for a module with completion status.
  *
- * Strips exercise solutions and quiz answers from response.
- * Each lesson includes an `isCompleted` flag.
- *
  * @route   GET /api/content/modules/:moduleId/lessons
- * @param   {string} moduleId - Module ID
  * @returns {Object} 200 - Module header + lessons array with progress
- * @returns {Object} 404 - Module not found
  */
 const getModuleLessons = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
@@ -200,15 +206,18 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
     .select("-exercise.solution -quiz.correctAnswer")
     .lean();
 
-  const user = await User.findById(userId).select("completedLessons");
+  const lessonCompletions = await LessonCompletion.find({ userId })
+    .select("lessonId")
+    .lean();
+  const completedLessonIds = new Set(
+    lessonCompletions.map((lc) => lc.lessonId.toString()),
+  );
 
-  const getModuleNumber = (order) => {
-    return `M${order}`;
-  };
+  const getModuleNumber = (order) => `M${order}`;
 
   const lessonsWithProgress = lessons.map((lesson) => ({
     ...lesson,
-    isCompleted: user.completedLessons.includes(lesson._id.toString()),
+    isCompleted: completedLessonIds.has(lesson._id.toString()),
     isLocked: false,
     moduleNumber: getModuleNumber(module.order),
   }));
@@ -228,14 +237,8 @@ const getModuleLessons = catchAsync(async (req, res, next) => {
 /**
  * Fetch full lesson content, conditionally including answers.
  *
- * If the user has NOT completed the lesson, exercise solutions
- * and quiz correct answers are stripped. If completed, they are included
- * so the user can review.
- *
  * @route   GET /api/content/lessons/:lessonId
- * @param   {string} lessonId - Lesson ID
  * @returns {Object} 200 - Lesson content with quiz/exercise progress
- * @returns {Object} 404 - Lesson not found
  */
 const getLessonContent = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
@@ -249,17 +252,18 @@ const getLessonContent = catchAsync(async (req, res, next) => {
     return next(new AppError("Lesson not found", 404));
   }
 
-  const moduleId = lesson.moduleId._id;
-  const moduleOrder = lesson.moduleId.order;
+  // Check if lesson is completed via new collection
+  const lessonCompletion = await LessonCompletion.findOne({
+    userId,
+    lessonId,
+  });
+  const isCompleted = !!lessonCompletion;
 
-  const user = await User.findById(userId).select(
-    "completedLessons lessonQuizProgress",
-  );
-  const isCompleted = user.completedLessons.includes(lessonId);
-
-  const quizProgress = user.lessonQuizProgress?.find(
-    (qp) => qp.lessonId.toString() === lessonId,
-  );
+  // Fetch quiz progress from new collection
+  const quizProgress = await LessonQuizProgress.findOne({
+    userId,
+    lessonId,
+  }).lean();
 
   // Omit answers ONLY if the user hasn't finished the lesson yet
   if (!isCompleted) {
@@ -274,14 +278,14 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Lesson content fetched successfully", {
     ...lesson,
-    moduleId: moduleId.toString(),
+    moduleId: lesson.moduleId._id.toString(),
     moduleNumber: `M${lesson.moduleId.order}`,
     isCompleted,
     quizProgress: quizProgress
       ? {
           correctAnswers: quizProgress.correctAnswers,
           completed: quizProgress.completed,
-          progress: quizProgress.correctAnswers.length,
+          progress: quizProgress.correctAnswers?.length || 0,
           totalQuestions: lesson.quiz?.length || 0,
         }
       : null,
@@ -291,34 +295,7 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 /**
  * Submit a lesson attempt — handles exercises, quizzes, and theory lessons.
  *
- * **Submission types:**
- * - EXERCISE: Validates code via `validationResult` or `hasExercise`/`isCorrect`
- * - QUIZ: Checks answer against correctAnswer, tracks attempts per question
- * - THEORY / manual completion: Marked complete immediately
- *
- * **Partial vs full completion:**
- * - If the lesson is fully done (`isLessonFullyCompleted`), delegates to
- *   `processLessonCompletion` for full XP award, badge evaluation, streak tracking
- * - If only a quiz question or exercise attempt is submitted, awards partial XP
- *   via `calculateExerciseXP` or `calculateQuizAnswerXP`
- *
  * @route   POST /api/content/lessons/:lessonId/submit
- * @param   {string} lessonId - Lesson ID
- * @body    {string} [code] - User's code submission (exercise lessons)
- * @body    {number} [answer] - Answer index (quiz lessons)
- * @body    {number} [questionIndex=0] - Quiz question being answered
- * @body    {Object} [validationResult] - Frontend validation output
- * @body    {boolean} [isCorrect] - Whether the solution is correct
- * @body    {boolean} [testsPassed] - Whether all tests passed
- * @body    {Array}  [submissionHistory] - Previous code submissions
- * @body    {number} [attemptNumber] - Attempt count
- * @body    {boolean} [usedHints] - Whether hints were used
- * @body    {number} [elapsedSeconds] - Time taken
- * @body    {boolean} [wasOptimalSolution] - Whether optimal solution was reached
- * @body    {number} [moduleConfigReward] - Bonus XP from module config
- * @returns {Object} 200 - { isCorrect, feedback, completed, xpEarned, progress, badgesUnlocked, nextLessonId }
- * @returns {Object} 400 - Invalid question index or no code submitted
- * @returns {Object} 404 - Lesson or user not found
  */
 const submitLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
@@ -349,7 +326,8 @@ const submitLesson = catchAsync(async (req, res, next) => {
   if (!user) return next(new AppError("User not found", 404));
 
   let feedback = validationResult?.feedback || "Great job!";
-  const quizProgress = getOrCreateQuizProgress(user, lessonId, lesson);
+  // Updated: async call, passes userId instead of user object
+  const quizProgress = await getOrCreateQuizProgress(userId, lessonId, lesson);
 
   let isCorrectValue = false;
 
@@ -369,10 +347,10 @@ const submitLesson = catchAsync(async (req, res, next) => {
 
     if (isCorrectValue) {
       feedback = `Correct! ${currentQuestion.explanation || ""}`;
-      updateQuizProgress(quizProgress, questionIndex, isCorrectValue);
+      await updateQuizProgress(quizProgress, questionIndex, isCorrectValue);
     } else {
       feedback = `Try again! ${currentQuestion.explanation || ""}`;
-      updateQuizProgress(quizProgress, questionIndex, false);
+      await updateQuizProgress(quizProgress, questionIndex, false);
     }
   } else if (
     (code === undefined && answer === undefined) ||
@@ -380,7 +358,13 @@ const submitLesson = catchAsync(async (req, res, next) => {
   ) {
     isCorrectValue = true;
     feedback = "Status checked/Theory completed!";
-    if (quizProgress) quizProgress.completed = true;
+    if (quizProgress) {
+      quizProgress.completed = true;
+      await LessonQuizProgress.findByIdAndUpdate(quizProgress._id, {
+        completed: true,
+        lastAttempt: new Date(),
+      });
+    }
   }
 
   const isManualCompletion = code === undefined && answer === undefined;
@@ -391,12 +375,11 @@ const submitLesson = catchAsync(async (req, res, next) => {
     isManualCompletion,
   );
 
-  // 3. Process Full Completion (delegated to learningEngine)
+  // 3. Process Full Completion
   if (completed) {
-    // Prepare submission data for XP calculation
     const submissionData = {
       ...req.body,
-      moduleConfigReward, // Pass hardcoded bonus if provided
+      moduleConfigReward,
     };
 
     const completionResult = await processLessonCompletion(
@@ -405,7 +388,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
       submissionData,
     );
 
-    // Evaluate badges (still needed here)
+    // Evaluate badges
     const { newlyUnlocked, unlockedDetails } = await evaluateBadges(user, {
       type: "lesson_completion",
       lessonId,
@@ -417,7 +400,6 @@ const submitLesson = catchAsync(async (req, res, next) => {
       });
     }
 
-    // Track streak & save
     await trackCompletion(user);
     await user.save();
 
@@ -428,10 +410,28 @@ const submitLesson = catchAsync(async (req, res, next) => {
     const { totalCurriculumLessons, completedCurriculumCount } =
       await getCurriculumProgressStats(user, { Lesson, Module });
 
+    // Fetch completions for the progress response
+    const { completedLessons, completedModules } =
+      await fetchUserCompletionData(userId);
+    const lessonCompletionsForAnalytics = await LessonCompletion.find({
+      userId,
+    }).lean();
+    const moduleCompletionsForAnalytics = await ModuleCompletion.find({
+      userId,
+    }).lean();
+
     const progressData = formatProgressResponse(
       user.toObject(),
       totalCurriculumLessons,
       completedCurriculumCount,
+      null,
+      null,
+      {
+        completedModules,
+        completedLessons,
+        lessonCompletions: lessonCompletionsForAnalytics,
+        moduleCompletions: moduleCompletionsForAnalytics,
+      },
     );
 
     return sendJsonResponse(res, 200, "Success!", {
@@ -446,7 +446,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     });
   }
 
-  // 4. Partial Success (answer correct but lesson not fully done)
+  // 4. Partial Success
   let partialXPEarned = 0;
 
   if (hasExercise(lesson) && code !== undefined && isCorrectValue) {
@@ -482,21 +482,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
 /**
  * Submit a module quiz after all lessons are completed.
  *
- * **Flow:**
- * 1. Verifies all lessons in the module are completed
- * 2. Grades each answer against correctAnswer
- * 3. Calculates score and determines pass/fail (passingScore from module config or 70)
- * 4. Records quiz attempt in user.quizAttempts
- * 5. If passed, delegates to `processModuleCompletion` for XP, badge evaluation,
- *    streak tracking, and leaderboard check
- * 6. Returns updated progress via `formatProgressResponse`
- *
  * @route   POST /api/content/modules/:moduleId/quiz
- * @param   {string} moduleId - Module ID
- * @body    {Object} answers - Map of questionId → selected answer index
- * @returns {Object} 200 - { passed, score, correctAnswers, totalQuestions, results, xpEarned, moduleCompleted, progress, badgesUnlocked, nextModuleId }
- * @returns {Object} 403 - Not all lessons completed
- * @returns {Object} 404 - Module or quiz not found
  */
 const submitModuleQuiz = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
@@ -513,7 +499,10 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   const user = await User.findById(userId);
   if (!user) return next(new AppError("User not found.", 404));
 
-  // Verify all lessons are completed
+  // Fetch completion data to verify all lessons are done
+  const { completedLessons, completedModules } =
+    await fetchUserCompletionData(userId);
+
   const moduleLessons = await Lesson.find({
     moduleId: moduleId,
     isPublished: true,
@@ -521,7 +510,7 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
   const completedLessonsInModule = getModuleLessonCompletion(
     moduleLessons,
-    user.completedLessons,
+    completedLessons,
   );
 
   if (completedLessonsInModule !== moduleLessons.length) {
@@ -555,19 +544,17 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   const passingScore = module.moduleQuiz.settings?.passingScore || 70;
   const passed = score >= passingScore;
 
-  // Record quiz attempt
-  const quizAttempt = {
+  // Record quiz attempt in new collection
+  await QuizAttempt.create({
+    userId,
     moduleId: module._id,
     attemptedAt: new Date(),
     score,
     passed,
     answers: results,
-  };
+  });
 
-  if (!user.quizAttempts) user.quizAttempts = [];
-  user.quizAttempts.push(quizAttempt);
-
-  // Process module completion if passed (delegated to learningEngine)
+  // Process module completion if passed
   let xpIncrease = 0;
   let moduleCompletedNow = false;
   let nextModuleId = null;
@@ -605,17 +592,33 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  // Trigger leaderboard badge check after XP is persisted
+  // Trigger leaderboard badge check
   if (passed) await checkLeaderboardBadges(user, User);
 
   // Get updated progress stats
   const { totalCurriculumLessons, completedCurriculumCount } =
     await getCurriculumProgressStats(user, { Lesson, Module });
 
+  const lessonCompletionsForAnalytics = await LessonCompletion.find({
+    userId,
+  }).lean();
+  const moduleCompletionsForAnalytics = await ModuleCompletion.find({
+    userId,
+  }).lean();
+  const updatedCompletionData = await fetchUserCompletionData(userId);
+
   const progressData = formatProgressResponse(
     user.toObject(),
     totalCurriculumLessons,
     completedCurriculumCount,
+    null,
+    null,
+    {
+      completedModules: updatedCompletionData.completedModules,
+      completedLessons: updatedCompletionData.completedLessons,
+      lessonCompletions: lessonCompletionsForAnalytics,
+      moduleCompletions: moduleCompletionsForAnalytics,
+    },
   );
 
   return sendJsonResponse(
@@ -641,19 +644,9 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
 /**
  * Fix module completion state for admin users.
- *
- * Scans all published modules and auto-completes any where:
- * - All lessons are completed (`isModuleFinished`)
- * - Module quiz is passed (`hasPassedModuleQuiz`)
- * - Module is not already in `completedModules`
- *
- * Awards base module XP and records completion in history.
- * Admin-only — returns 403 for non-admin users.
+ * Now uses new collections for both reading and writing.
  *
  * @route   POST /api/content/modules/fix-progress
- * @returns {Object} 200 - { fixedCount, modules: [...] }
- * @returns {Object} 403 - Not an admin
- * @returns {Object} 404 - User not found
  */
 const fixModuleProgress = catchAsync(async (req, res, next) => {
   const userId = req.userId;
@@ -666,12 +659,16 @@ const fixModuleProgress = catchAsync(async (req, res, next) => {
   }
 
   const modules = await Module.find({ isPublished: true }).lean();
+  const { completedLessons, completedModules } =
+    await fetchUserCompletionData(userId);
+  const quizAttempts = await QuizAttempt.find({ userId }).lean();
+
   let modulesFixed = [];
 
   for (const module of modules) {
     const moduleIdString = module._id.toString();
 
-    if (user.completedModules.includes(moduleIdString)) continue;
+    if (completedModules.includes(moduleIdString)) continue;
 
     const lessons = await Lesson.find({
       moduleId: module._id,
@@ -679,17 +676,18 @@ const fixModuleProgress = catchAsync(async (req, res, next) => {
     });
     if (lessons.length === 0) continue;
 
-    const allLessonsDone = isModuleFinished(user.completedLessons, lessons);
-    const quizPassed = hasPassedModuleQuiz(user, module._id);
+    const allLessonsDone = isModuleFinished(completedLessons, lessons);
+    const quizPassed = hasPassedModuleQuiz({ quizAttempts }, module._id);
 
     if (allLessonsDone && quizPassed) {
-      user.completedModules.push(moduleIdString);
-      user.xp += module.xpReward || 100;
-
-      user.moduleCompletionHistory.push({
+      await ModuleCompletion.create({
+        userId,
         moduleId: module._id,
         completedAt: new Date(),
       });
+
+      user.xp += module.xpReward || 100;
+      user.completedModulesCount = (user.completedModulesCount || 0) + 1;
 
       modulesFixed.push(module.title);
     }

@@ -1,19 +1,153 @@
 # Models
 
-Mongoose schema definitions. All models use `timestamps: true` (createdAt/updatedAt).
+Mongoose schema definitions. All models use `timestamps: true` (createdAt/updatedAt)
+unless otherwise noted.
+
+## Design Principle
+
+User progress data that grows unbounded (lesson completions, quiz attempts,
+XP transactions) is stored in **separate collections** rather than embedded
+arrays. This prevents any single document from approaching MongoDB's 16MB
+limit and enables efficient pagination and TTL indexes.
+
+---
+
+## User.js
+
+The core user document — auth, counters, gamification, privacy, and status.
+All unbounded arrays have been extracted to dedicated collections.
+
+| Category             | Fields                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Auth**             | `username`, `email`, `password` (select:false), `resetPasswordToken`, `resetPasswordExpires`, `refreshTokenVersion` |
+| **Age verification** | `ageVerified`, `ageVerifiedAt`, `ageBracket` (select:false), `parentalConsentConfirmed`                             |
+| **Progress**         | `level`, `xp`, `completedLessonsCount`, `completedModulesCount` (denormalised counters)                             |
+| **Streak**           | `streak`, `streakStatus`, `lastActiveDate`, `lastCompletionDate`, `weeklyProgress`                                  |
+| **Gamification**     | `badges[]`, `stats` (20+ tracked stats)                                                                             |
+| **Activity**         | `lastActive`, `totalLearningTime`, `totalSessionTime`, `loginCount`                                                 |
+| **Admin/Status**     | `isAdmin`, `isBlocked`, `suspensionEnd`, `suspensionReason`                                                         |
+| **Privacy**          | `privacySettings` (showOnLeaderboards, showUsernameOnLeaderboards, showAsAnonymous)                                 |
+
+**Indexes:** `email` (unique), `username` (unique), `{ level:-1, xp:-1 }` (leaderboards),
+`{ isAdmin:1, lastActive:-1 }`, `{ isBlocked:1, createdAt:-1 }`,
+`lastActiveDate`, `weeklyProgress.weekStartDate`
+
+**Related collections** (query these instead of embedded arrays):
+
+- `LessonCompletion` — full lesson completion history
+- `ModuleCompletion` — module completion records
+- `QuizAttempt` — module quiz attempts with answers
+- `XpTransaction` — detailed XP award history (TTL: 365 days)
+- `LessonQuizProgress` — per-lesson quiz state
+
+---
+
+## LessonCompletion.js
+
+One document per lesson completed by a user. Replaces the embedded
+`lessonCompletionHistory[]` and `completedLessons[]` arrays.
+
+| Field            | Type              | Notes                             |
+| ---------------- | ----------------- | --------------------------------- |
+| `userId`         | ObjectId → User   | Required                          |
+| `lessonId`       | ObjectId → Lesson | Required                          |
+| `completedAt`    | Date              | Default: now                      |
+| `tags`           | [String]          | Lesson tags at time of completion |
+| `contentType`    | String            | THEORY, EXERCISE, QUIZ, etc.      |
+| `difficulty`     | String            | BEGINNER, INTERMEDIATE, ADVANCED  |
+| `challengeGroup` | String            | Challenge category                |
+| `elapsedSeconds` | Number            | Time spent on lesson              |
+| `attemptNumber`  | Number            | Which attempt this was            |
+| `usedHints`      | Boolean           | Whether hints were used           |
+| `linesOfCode`    | Number            | Code submitted (exercise lessons) |
+| `wasOptimal`     | Boolean           | Solution matched optimal criteria |
+
+**Indexes:** `{ userId:1, lessonId:1 }` (unique), `{ userId:1, completedAt:-1 }`,
+`{ lessonId:1, completedAt:-1 }`
+
+---
+
+## ModuleCompletion.js
+
+One document per module completed. Replaces `completedModules[]` and
+`moduleCompletionHistory[]`.
+
+| Field         | Type              | Notes        |
+| ------------- | ----------------- | ------------ |
+| `userId`      | ObjectId → User   | Required     |
+| `moduleId`    | ObjectId → Module | Required     |
+| `completedAt` | Date              | Default: now |
+
+**Indexes:** `{ userId:1, moduleId:1 }` (unique), `{ userId:1, completedAt:-1 }`,
+`{ userId:1 }`
+
+---
+
+## QuizAttempt.js
+
+One document per module quiz submission. Replaces `quizAttempts[]`.
+
+| Field         | Type              | Notes                                                                   |
+| ------------- | ----------------- | ----------------------------------------------------------------------- |
+| `userId`      | ObjectId → User   | Required                                                                |
+| `moduleId`    | ObjectId → Module | Required                                                                |
+| `attemptedAt` | Date              | Default: now                                                            |
+| `score`       | Number            | 0–100                                                                   |
+| `passed`      | Boolean           | Whether passing threshold was met                                       |
+| `answers`     | [Object]          | questionId, question, userAnswer, correctAnswer, isCorrect, explanation |
+
+**Indexes:** `{ userId:1, moduleId:1, attemptedAt:-1 }`,
+`{ moduleId:1, attemptedAt:-1 }`, `{ userId:1, moduleId:1, passed:1 }`
+
+---
+
+## XpTransaction.js
+
+Immutable XP award log. Replaces `xpHistory[]`.
+Auto-deleted after 365 days via TTL index (XP total is preserved on User.xp).
+
+| Field       | Type            | Notes                                                 |
+| ----------- | --------------- | ----------------------------------------------------- |
+| `userId`    | ObjectId → User | Required                                              |
+| `amount`    | Number          | XP awarded                                            |
+| `source`    | String (enum)   | LESSON_COMPLETION, EXERCISE, MODULE_QUIZ, BONUS, etc. |
+| `meta`      | Mixed           | { lessonId, moduleId, attempts, etc. }                |
+| `awardedAt` | Date            | Default: now                                          |
+
+**Indexes:** `{ userId:1, awardedAt:-1 }`, `{ userId:1, source:1 }`,
+`{ awardedAt:1 }` (TTL: 365 days)
+
+---
+
+## LessonQuizProgress.js
+
+Per-lesson quiz state tracking. Replaces `lessonQuizProgress[]`.
+
+| Field              | Type              | Notes                                   |
+| ------------------ | ----------------- | --------------------------------------- |
+| `userId`           | ObjectId → User   | Required                                |
+| `lessonId`         | ObjectId → Lesson | Required                                |
+| `questionAttempts` | [Object]          | questionIndex, attempts, correct        |
+| `correctAnswers`   | [Number]          | Indices of correctly answered questions |
+| `completed`        | Boolean           | All questions answered correctly        |
+| `lastAttempt`      | Date              | Default: now                            |
+
+**Indexes:** `{ userId:1, lessonId:1 }` (unique), `{ userId:1, completed:1 }`
+
+---
 
 ## ActivityLog.js
 
 Tracks user activity for analytics and session monitoring.
 
-| Field        | Type            | Notes                                                                                              |
-| ------------ | --------------- | -------------------------------------------------------------------------------------------------- |
-| `userId`     | ObjectId → User | Optional (anonymous activity supported)                                                            |
-| `sessionId`  | String          | Required, indexed                                                                                  |
-| `actionType` | String (enum)   | PAGE_VIEW, LESSON_START, LESSON_COMPLETE, QUIZ_ATTEMPT, CODE_RUN, SESSION_START, SESSION_END, etc. |
-| `metadata`   | Mixed           | lessonId, moduleId, duration, xpEarned, deviceInfo, path                                           |
-| `ipAddress`  | String          | Anonymised before storage                                                                          |
-| `timestamp`  | Date            | Default: now                                                                                       |
+| Field        | Type            | Notes                                                                                        |
+| ------------ | --------------- | -------------------------------------------------------------------------------------------- |
+| `userId`     | ObjectId → User | Optional (anonymous activity supported)                                                      |
+| `sessionId`  | String          | Required, indexed                                                                            |
+| `actionType` | String (enum)   | PAGE_VIEW, LESSON_START, LESSON_COMPLETE, QUIZ_ATTEMPT, CODE_RUN, SESSION_START, SESSION_END |
+| `metadata`   | Mixed           | lessonId, moduleId, duration, xpEarned, deviceInfo, path                                     |
+| `ipAddress`  | String          | Anonymised before storage                                                                    |
+| `timestamp`  | Date            | Default: now                                                                                 |
 
 ---
 
@@ -21,16 +155,16 @@ Tracks user activity for analytics and session monitoring.
 
 Audit trail for all admin actions. Every admin controller function writes here.
 
-| Field        | Type            | Notes                                                                    |
-| ------------ | --------------- | ------------------------------------------------------------------------ |
-| `adminId`    | ObjectId → User | Required                                                                 |
-| `action`     | String (enum)   | 25+ action types covering user management, content CRUD, flags, settings |
-| `targetType` | String (enum)   | USER, LESSON, MODULE, BADGE, FLAG, SETTINGS                              |
-| `targetId`   | ObjectId        | Optional (null for SETTINGS actions)                                     |
-| `changes`    | Mixed           | `{ old, new }` diff                                                      |
-| `reason`     | String          | Max 1000 chars, XSS-sanitised                                            |
-| `ipAddress`  | String          | Anonymised                                                               |
-| `userAgent`  | String          | Browser user-agent                                                       |
+| Field        | Type            | Notes                                                       |
+| ------------ | --------------- | ----------------------------------------------------------- |
+| `adminId`    | ObjectId → User | Required                                                    |
+| `action`     | String (enum)   | 25+ action types (user mgmt, content CRUD, flags, settings) |
+| `targetType` | String (enum)   | USER, LESSON, MODULE, BADGE, FLAG, SETTINGS                 |
+| `targetId`   | ObjectId        | Optional (null for SETTINGS actions)                        |
+| `changes`    | Mixed           | `{ old, new }` diff                                         |
+| `reason`     | String          | Max 1000 chars, XSS-sanitised                               |
+| `ipAddress`  | String          | Anonymised                                                  |
+| `userAgent`  | String          | Browser user-agent                                          |
 
 ---
 
@@ -91,25 +225,3 @@ Curriculum modules containing lessons. M0 is the tutorial (excluded from level c
 | `moduleQuiz`    | Object              | { title, description, settings, questions[] } — quiz that gates module completion |
 | `isPublished`   | Boolean             | Default false                                                                     |
 | `slug`          | String              | Unique, indexed                                                                   |
-
----
-
-## User.js
-
-The core user document. Largest model — handles auth, progress, gamification, and privacy.
-
-**Auth fields:** `email`, `password` (select: false), `resetPasswordToken`, `resetPasswordExpires`, `refreshTokenVersion`
-
-**Progress fields:** `xp`, `level`, `completedLessons[]`, `completedModules[]`, `lessonCompletionHistory[]`, `moduleCompletionHistory[]`, `quizAttempts[]`, `lessonQuizProgress[]`, `xpHistory[]`
-
-**Streak fields:** `streak`, `streakStatus` (ACTIVE/WARNING/AT_RISK/RESETTING), `lastActiveDate`, `lastCompletionDate`, `weeklyProgress`
-
-**Gamification fields:** `badges[]`, `stats` (20+ tracked stats for badge criteria)
-
-**Admin/status fields:** `isAdmin`, `isBlocked`, `suspensionEnd`, `suspensionReason`
-
-**Privacy fields:** `privacySettings` (showOnLeaderboards, showUsernameOnLeaderboards, showAsAnonymous)
-
-**Other:** `loginCount`, `totalLearningTime`, `totalSessionTime`
-
-Indexes: `username` (unique), `email` (unique)

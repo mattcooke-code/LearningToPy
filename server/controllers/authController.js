@@ -1,21 +1,30 @@
 // authController.js
+// CONFIGURATION
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 const config = require("../config/envConfig");
-const User = require("../models/User");
-const Lesson = require("../models/Lesson");
-const FlaggedContent = require("../models/FlaggedContent");
+// MODELS
 const ActivityLog = require("../models/ActivityLog");
 const AdminLog = require("../models/AdminLog");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
-const authUtils = require("../utils/authUtils");
-const emailTemplates = require("../utils/emailTemplates");
-const userUtils = require("../utils/userUtils");
+const FlaggedContent = require("../models/FlaggedContent");
+const Lesson = require("../models/Lesson");
+const LessonCompletion = require("../models/LessonCompletion");
+const LessonQuizProgress = require("../models/LessonQuizProgress");
+const ModuleCompletion = require("../models/ModuleCompletion");
+const QuizAttempt = require("../models/QuizAttempt");
+const User = require("../models/User");
+const XpTransaction = require("../models/XpTransaction");
+// SERVICES
 const { sendEmail } = require("../services/mailer");
-const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackLessonView } = require("../services/streakManager");
+// UTILS
+const AppError = require("../utils/AppError");
+const authUtils = require("../utils/authUtils");
+const catchAsync = require("../utils/catchAsync");
+const emailTemplates = require("../utils/emailTemplates");
+const { sendJsonResponse } = require("../utils/responseHelpers");
+const userUtils = require("../utils/userUtils");
 const {
   validateEmail,
   validateUsername,
@@ -644,7 +653,6 @@ const deleteAccount = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
-  // Verify password before allowing deletion
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return next(
@@ -658,19 +666,35 @@ const deleteAccount = catchAsync(async (req, res, next) => {
   try {
     session.startTransaction();
 
+    // Delete user document
     await User.findByIdAndDelete(userId).session(session);
-    await ActivityLog.deleteMany({ userId }).session(session);
-    await FlaggedContent.deleteMany({ reporterId: userId }).session(session);
+
+    // Delete all associated data from extracted collections
+    await Promise.all([
+      ActivityLog.deleteMany({ userId }).session(session),
+      FlaggedContent.deleteMany({ reporterId: userId }).session(session),
+      LessonCompletion.deleteMany({ userId }).session(session),
+      ModuleCompletion.deleteMany({ userId }).session(session),
+      QuizAttempt.deleteMany({ userId }).session(session),
+      XpTransaction.deleteMany({ userId }).session(session),
+      LessonQuizProgress.deleteMany({ userId }).session(session),
+    ]);
+
+    // Anonymise admin logs (preserve audit trail)
     await AdminLog.updateMany(
       { adminId: userId },
-      { $set: { adminId: null, changes: { note: "Admin account deleted" } } },
+      {
+        $set: {
+          adminId: null,
+          changes: { note: "Admin account deleted" },
+        },
+      },
     ).session(session);
 
     await session.commitTransaction();
   } catch (error) {
     await session.abortTransaction();
-
-    return next(new AppError("Account deletion failed. Try again later.", 500));
+    throw error;
   } finally {
     session.endSession();
   }
@@ -846,10 +870,23 @@ const exportUserData = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
-  // Fetch associated data from other collections
-  const [activityLogs, flaggedContent] = await Promise.all([
+  // Fetch all associated data from separate collections
+  const [
+    activityLogs,
+    flaggedContent,
+    lessonCompletions,
+    moduleCompletions,
+    quizAttempts,
+    xpTransactions,
+    lessonQuizProgress,
+  ] = await Promise.all([
     ActivityLog.find({ userId }).select("-ipAddress").lean(),
     FlaggedContent.find({ reporterId: userId }).lean(),
+    LessonCompletion.find({ userId }).sort({ completedAt: -1 }).lean(),
+    ModuleCompletion.find({ userId }).sort({ completedAt: -1 }).lean(),
+    QuizAttempt.find({ userId }).sort({ attemptedAt: -1 }).lean(),
+    XpTransaction.find({ userId }).sort({ awardedAt: -1 }).lean(),
+    LessonQuizProgress.find({ userId }).lean(),
   ]);
 
   const exportData = {
@@ -864,26 +901,41 @@ const exportUserData = catchAsync(async (req, res, next) => {
       ageVerifiedAt: user.ageVerifiedAt,
       ageBracket: user.ageBracket,
       parentalConsentConfirmed: user.parentalConsentConfirmed,
-      // Note: dateOfBirth is not stored, only age verification status
       dataRetentionNote:
         "Age verification performed at registration. Date of birth is not stored. " +
         "Age bracket is retained for legal compliance under GDPR and UK Children's Code.",
 
-      // Progress
+      // Progress (counters)
       xp: user.xp,
       level: user.level,
       streak: user.streak,
-      completedLessons: user.completedLessons,
-      completedModules: user.completedModules,
+      completedLessonsCount: user.completedLessonsCount,
+      completedModulesCount: user.completedModulesCount,
       badges: user.badges,
       stats: user.stats,
+
       // Privacy
       privacySettings: user.privacySettings,
-      // Learning history
-      lessonCompletionHistory: user.lessonCompletionHistory,
-      moduleCompletionHistory: user.moduleCompletionHistory,
-      quizAttempts: user.quizAttempts,
-      xpHistory: user.xpHistory,
+    },
+    lessonCompletions: {
+      count: lessonCompletions.length,
+      data: lessonCompletions,
+    },
+    moduleCompletions: {
+      count: moduleCompletions.length,
+      data: moduleCompletions,
+    },
+    quizAttempts: {
+      count: quizAttempts.length,
+      data: quizAttempts,
+    },
+    xpHistory: {
+      count: xpTransactions.length,
+      data: xpTransactions,
+    },
+    lessonQuizProgress: {
+      count: lessonQuizProgress.length,
+      data: lessonQuizProgress,
     },
     activityLogs: {
       count: activityLogs.length,
