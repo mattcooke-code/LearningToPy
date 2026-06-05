@@ -11,6 +11,8 @@ const AdminLog = require("../models/AdminLog");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const authUtils = require("../utils/authUtils");
+const emailTemplates = require("../utils/emailTemplates");
+const userUtils = require("../utils/userUtils");
 const { sendEmail } = require("../services/mailer");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackLessonView } = require("../services/streakManager");
@@ -62,7 +64,7 @@ const register = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid date of birth", 400));
   }
 
-  const age = authUtils.calculateAge(birthDate);
+  const age = userUtils.calculateAge(birthDate);
   if (age < 13) {
     return next(
       new AppError(
@@ -76,92 +78,18 @@ const register = catchAsync(async (req, res, next) => {
     return next(new AppError("Please enter a valid date of birth.", 400));
   }
 
-  const ageBracket = authUtils.getAgeBracket(age);
+  const compliance = userUtils.getAgeCompliancePackage(age, parentalConsent);
+  const { ageBracket, privacySettings, ageNotice } = compliance;
 
-  // Age-appropriate notices and default privacy settings
-  let ageNotice = null;
-  let defaultPrivacySettings = {
-    showOnLeaderboards: true,
-    showAsAnonymous: false,
-    showUsernameOnLeaderboards: false,
-  };
+  // Check for both simultaneously (Parallelized Execution)
+  const [existingEmail, existingUsername] = await Promise.all([
+    User.findOne({ email }),
+    User.findOne({ username }),
+  ]);
 
-  if (ageBracket === "13-15") {
-    ageNotice = {
-      bracket: "13-15",
-      title: "Welcome! Let's keep you safe online 🛡️",
-      message:
-        "To protect your privacy, your profile is set to private by default. " +
-        "This means other learners won't see your username or progress. " +
-        "You can adjust these settings when you feel ready.",
-      tips: [
-        "Never share personal information in code comments or usernames",
-        "Talk to a parent or guardian if something doesn't feel right",
-        "You can download or delete your data anytime in Settings",
-      ],
-      requiresParentalGuidance: true,
-      parentalConsentConfirmed: !!parentalConsent,
-      defaultPrivacySettings: {
-        showOnLeaderboards: false,
-        showAsAnonymous: true,
-        showUsernameOnLeaderboards: false,
-      },
-      restrictedFeatures: {
-        note: "Some social features are limited to keep you safe. These will unlock when you turn 16.",
-        features: ["public_profile", "community_forums"],
-      },
-    };
-    defaultPrivacySettings = ageNotice.defaultPrivacySettings;
-  } else if (ageBracket === "16-17") {
-    ageNotice = {
-      bracket: "16-17",
-      title: "You're in control of your data 🔐",
-      message:
-        "You have full control over your privacy. Visit Settings anytime to manage " +
-        "what information is visible to others or to download your data.",
-      tips: [
-        "Review your privacy settings regularly",
-        "You can export all your data under Settings > Export Data",
-        "You can delete your account and all associated data permanently",
-      ],
-      defaultPrivacySettings: {
-        showOnLeaderboards: true,
-        showAsAnonymous: false,
-        showUsernameOnLeaderboards: false,
-      },
-    };
-    defaultPrivacySettings = ageNotice.defaultPrivacySettings;
-  } else {
-    // 18+ - no specific age notice needed, but we can still provide a privacy reminder
-    ageNotice = {
-      bracket: "18+",
-      title: "Welcome to the community! 🎉",
-      message:
-        "Your learning journey starts now. You have full control over your data and privacy settings.",
-      tips: [
-        "Complete your profile to get the most out of the platform",
-        "Check out the community guidelines",
-        "You can export or delete your data anytime in Settings",
-      ],
-      defaultPrivacySettings: {
-        showOnLeaderboards: true,
-        showAsAnonymous: false,
-        showUsernameOnLeaderboards: false,
-      },
-    };
-    defaultPrivacySettings = ageNotice.defaultPrivacySettings;
-  }
-
-  // Check for existing users BEFORE creating
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail) {
-    return next(new AppError("Email already in use.", 400));
-  }
-
-  const existingUsername = await User.findOne({ username });
-  if (existingUsername) {
+  if (existingEmail) return next(new AppError("Email already in use.", 400));
+  if (existingUsername)
     return next(new AppError("Username already taken", 400));
-  }
 
   // Hash password
   const hashed = await bcrypt.hash(password, 12);
@@ -174,7 +102,7 @@ const register = catchAsync(async (req, res, next) => {
     ageBracket,
     ageVerified: true,
     ageVerifiedAt: new Date(),
-    privacySettings: defaultPrivacySettings,
+    privacySettings: privacySettings,
     parentalConsentConfirmed:
       ageBracket == "13-15" ? !!parentalConsent : undefined,
     refreshTokenVersion: 0,
@@ -499,7 +427,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
   const resetUrl = `${config.getFrontendUrl()}/reset-password/${resetToken}`;
 
-  const emailContent = authUtils.createPasswordResetEmail(resetUrl);
+  const emailContent = emailTemplates.createPasswordResetEmail(resetUrl);
 
   const emailResult = await sendEmail(
     user.email,
@@ -726,53 +654,29 @@ const deleteAccount = catchAsync(async (req, res, next) => {
 
   const userId = user._id;
 
-  // Delete all associated data across collections
-  const results = await Promise.allSettled([
-    // 1. Delete the user document (removes all embedded progress, badges, etc.)
-    User.findByIdAndDelete(userId),
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-    // 2. Delete activity/analytics logs
-    ActivityLog.deleteMany({ userId }),
-
-    // 3. Delete content flags reported by this user
-    FlaggedContent.deleteMany({ reporterId: userId }),
-
-    // 4. Keep admin logs for audit but anonymise:
-    AdminLog.updateMany(
+    await User.findByIdAndDelete(userId).session(session);
+    await ActivityLog.deleteMany({ userId }).session(session);
+    await FlaggedContent.deleteMany({ reporterId: userId }).session(session);
+    await AdminLog.updateMany(
       { adminId: userId },
       { $set: { adminId: null, changes: { note: "Admin account deleted" } } },
-    ),
-  ]);
+    ).session(session);
 
-  // Log what was deleted (for audit trail)
-  const labels = [
-    "User (incl. progress/badges/stats)",
-    "ActivityLogs",
-    "FlaggedContent",
-    "AdminLogs",
-  ];
-  const summary = results.map((r, i) => ({
-    collection: labels[i],
-    status: r.status,
-    details:
-      r.status === "fulfilled"
-        ? r.value?.deletedCount !== undefined
-          ? `${r.value.deletedCount} deleted`
-          : "updated"
-        : r.reason?.message,
-  }));
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
 
-  console.log(`🗑️ Account deleted for user ${userId}`);
-  console.table(summary);
+    return next(new AppError("Account deletion failed. Try again later.", 500));
+  } finally {
+    session.endSession();
+  }
 
-  // Clear auth cookies
   authUtils.clearRefreshTokenCookie(res);
-
-  sendJsonResponse(
-    res,
-    200,
-    "Your account and all associated data have been permanently deleted. We're sorry to see you go.",
-  );
+  sendJsonResponse(res, 200, "Account permanently deleted.");
 });
 
 /**

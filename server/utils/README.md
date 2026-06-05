@@ -19,23 +19,29 @@ no database calls, no side effects. Exceptions noted below.
 ## authUtils.js
 
 - **Used by:** `authController`, `auth` middleware
-- **Responsibility:** JWT generation/verification, refresh token cookie configuration, password reset email template
-- **Design:** Thin wrappers around `jsonwebtoken`. Token secrets come from `envConfig`.
+- **Responsibility:** JWT generation/verification, refresh token cookie configuration, and session management
+- **Design:** Thin wrappers around `jsonwebtoken`. Token secrets come from `envConfig`. Cookie options adapt to environment (development vs production).
 
 ### Exports
 
-| Export                     | Type     | Description                                             |
-| -------------------------- | -------- | ------------------------------------------------------- |
-| `generateToken`            | Function | Sign a JWT with payload, secret, and expiration         |
-| `verifyToken`              | Function | Verify and decode a JWT, throws AppError on failure     |
-| `clearRefreshTokenCookie`  | Function | Overwrite refresh token cookie with expired placeholder |
-| `getRefreshTokenSettings`  | Function | Return token lifespan and cookie maxAge for rememberMe  |
-| `getCookieOptions`         | Function | Build environment-appropriate cookie config             |
-| `createPasswordResetEmail` | Function | Generate HTML email with reset link                     |
-| `ACCESS_TOKEN_LIFESPAN`    | Constant | `"15m"`                                                 |
-| `REFRESH_COOKIE_OPTIONS`   | Constant | Cached cookie options from `getCookieOptions()`         |
-| `getAccessTokenSecret`     | Function | Alias for `config.getAccessTokenSecret`                 |
-| `getRefreshTokenSecret`    | Function | Alias for `config.getRefreshTokenSecret`                |
+| Export                    | Type     | Description                                                          |
+| ------------------------- | -------- | -------------------------------------------------------------------- |
+| `generateToken`           | Function | Sign a JWT with payload, secret, and expiration                      |
+| `verifyToken`             | Function | Verify and decode a JWT, throws AppError on failure                  |
+| `clearRefreshTokenCookie` | Function | Overwrite refresh token cookie with expired placeholder              |
+| `getRefreshTokenSettings` | Function | Return token lifespan and cookie maxAge based on rememberMe flag     |
+| `getCookieOptions`        | Function | Build environment-appropriate cookie config (httpOnly, secure, etc.) |
+| `ACCESS_TOKEN_LIFESPAN`   | Constant | `"15m"`                                                              |
+| `getAccessTokenSecret`    | Function | Alias for `config.getAccessTokenSecret`                              |
+| `getRefreshTokenSecret`   | Function | Alias for `config.getRefreshTokenSecret`                             |
+
+### Token Lifespan Configuration
+
+| Mode         | Refresh Token Lifespan | Cookie Max Age             |
+| ------------ | ---------------------- | -------------------------- |
+| Session      | `1h`                   | 1 hour (3,600,000ms)       |
+| Remember Me  | `30d`                  | 30 days (2,592,000,000ms)  |
+| Access Token | `15m` (always)         | N/A (not stored in cookie) |
 
 ### Cookie Configuration
 
@@ -56,6 +62,13 @@ The `partitioned` flag is only applied in production because it requires `secure
 - **Used by:** Every controller
 - **Responsibility:** Wraps async route handlers so rejected promises are forwarded to Express error middleware
 - **Design:** One-liner higher-order function. Eliminates try/catch in controllers.
+
+## emailTemplates.js
+
+- **Used by:** `authController` (`forgotPassword`)
+- **Responsibility:** Generates standardised HTML email templates. Currently provides `createPasswordResetEmail()` which produces the password reset email with reset link, expiry notice, and security guidance.
+- **Design:** Pure template function — accepts a reset URL and returns `{ subject, html }`. No side effects or external dependencies. Separated from `authUtils.js` to isolate presentation logic from authentication logic.
+- **Exports:** `createPasswordResetEmail`
 
 ## generalUtils.js
 
@@ -103,6 +116,25 @@ The `partitioned` flag is only applied in production because it requires `secure
 - **Responsibility:** Normalise quiz/exercise data from JSON files into Mongoose-compatible formats
 - **Design:** Handles multiple input formats. `loadLessonAsset` orchestrates file loading + formatting.
 - **Exports:** `prepareQuizData`, `loadLessonAsset`
+
+## userUtils.js
+
+- **Used by:** `authController` (`register`)
+- **Responsibility:** Age verification for GDPR and UK Children's Code (Age Appropriate Design Code) compliance
+- **Design:** Three functions:
+  - `calculateAge(birthDate)` — Calculates precise age from a Date object. Pure function.
+  - `getAgeBracket(age)` — Maps numeric age to bracket string (`"13-15"`, `"16-17"`, `"18+"`). Pure function.
+  - `getAgeCompliancePackage(age, parentalConsent)` — Returns the age bracket, default privacy settings appropriate for that bracket, and an age-specific notice with safety tips and feature restrictions. This is the primary export used during registration.
+- **Privacy:** The user's date of birth is never stored. Only `ageVerified`, `ageVerifiedAt`, and `ageBracket` are persisted — sufficient for legal compliance without retaining unnecessary personal data.
+- **Exports:** `calculateAge`, `getAgeBracket`, `getAgeCompliancePackage`
+
+### Age Bracket Defaults
+
+| Bracket | Leaderboards | Anonymous | Username Visible | Notes                                                              |
+| ------- | ------------ | --------- | ---------------- | ------------------------------------------------------------------ |
+| 13-15   | Off          | Yes       | No               | Requires parental consent confirmation; social features restricted |
+| 16-17   | On           | No        | No               | Full control over settings; GDPR right to access/delete            |
+| 18+     | On           | No        | No               | Full access to all features                                        |
 
 ## validationHelpers.js
 

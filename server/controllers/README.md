@@ -36,11 +36,11 @@ All results read-through cached (5-min TTL).
 
 ---
 
-## authController.js — 12 endpoints
+## authController.js — 13 endpoints
 
 **Depends on:** `User`, `Lesson`, `FlaggedContent`, `ActivityLog`, `AdminLog` models,
-`envConfig.js`, `authUtils.js`, `mailer.js`, `responseHelpers.js`,
-`streakManager.js`, `validationHelpers.js`
+`envConfig.js`, `authUtils.js`, `userUtils.js`, `emailTemplates.js`, `mailer.js`,
+`responseHelpers.js`, `streakManager.js`, `validationHelpers.js`
 
 | Function                | Route                               | Auth   | Description                                    |
 | ----------------------- | ----------------------------------- | ------ | ---------------------------------------------- |
@@ -52,14 +52,17 @@ All results read-through cached (5-min TTL).
 | `forgotPassword`        | POST /api/auth/forgot-password      | No     | Send reset email (generic response)            |
 | `validateResetToken`    | GET /api/auth/reset-password/:token | No     | Verify token validity                          |
 | `resetPassword`         | POST /api/auth/reset-password       | No     | Set new password, invalidate sessions          |
-| `updatePrivacySettings` | PUT /api/auth/privacy               | Yes    | Update leaderboard/profile visibility          |
-| `createFlag`            | POST /api/auth/flag                 | Yes    | Report content issue                           |
 | `changePassword`        | POST /api/auth/change-password      | Yes    | Change password (requires current password)    |
 | `deleteAccount`         | DELETE /api/auth/delete-account     | Yes    | Permanently delete account and associated data |
+| `updatePrivacySettings` | PUT /api/auth/privacy               | Yes    | Update leaderboard/profile visibility          |
+| `createFlag`            | POST /api/auth/flag                 | Yes    | Report content issue                           |
+| `exportUserData`        | GET /api/auth/export-data           | Yes    | Export all user data (GDPR Right of Access)    |
 
-### Account Deletion Behaviour
+### Key Behaviour Notes
 
-When `deleteAccount` is called:
+**Registration** — Age verification is performed via `userUtils.calculateAge()` and `userUtils.getAgeCompliancePackage()`, which assigns an age bracket and appropriate default privacy settings. The date of birth itself is never stored — only the verification status and bracket are persisted for GDPR/UK Children's Code compliance.
+
+**Account Deletion** — Uses a MongoDB session/transaction for atomicity:
 
 - **User document** — deleted (removes all embedded progress, badges, stats, streaks, xpHistory, quizAttempts, privacySettings)
 - **ActivityLog** — all entries for the user are deleted
@@ -68,6 +71,8 @@ When `deleteAccount` is called:
 - **Auth cookies** — cleared
 
 Password confirmation is required to prevent accidental or CSRF-triggered deletion.
+
+**Email/Username Duplicate Check** — Both queries run in parallel via `Promise.all()` to reduce registration latency.
 
 ---
 
