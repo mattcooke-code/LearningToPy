@@ -1,4 +1,3 @@
-// AuthContext.jsx
 /**
  * @fileoverview Authentication context provider and hooks.
  *
@@ -30,6 +29,7 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import { useNotification } from "../context/NotificationContext";
 import {
@@ -56,39 +56,30 @@ export { apiClient, authApiClient, adminApiClient };
 // Configuration
 // ---------------------------------------------------------------------------
 
-/** Base URL for all API requests, read from Vite env or defaulted to localhost. */
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 // ---------------------------------------------------------------------------
 // Context Definition
 // ---------------------------------------------------------------------------
 
-/**
- * React Context holding all authentication state and actions.
- *
- * @type {React.Context<object|null>}
- */
 const AuthContext = createContext(null);
 
 // ---------------------------------------------------------------------------
 // AuthProvider Component
 // ---------------------------------------------------------------------------
 
-/**
- * Top-level provider that wraps the application with authentication state.
- *
- * @param {{ children: React.ReactNode }} props
- * @returns {JSX.Element}
- */
 export const AuthProvider = ({ children }) => {
   const { showToast } = useNotification();
 
   // ---- State ----
   const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null); // never seeded from storage
+  const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
   const [leaderboardVersion, setLeaderboardVersion] = useState(0);
+  const [sessionId] = useState(() =>
+    typeof window !== "undefined" ? getSessionId() : null,
+  );
 
   // ---- Refs for token refresh queue ----
   const isRefreshing = useRef(false);
@@ -97,11 +88,25 @@ export const AuthProvider = ({ children }) => {
   const logoutInitiated = useRef(false);
 
   /**
+   * Set the Authorization header on all three API client instances.
+   * @param {string|null} token - The access token, or null to clear the header
+   */
+  const setAuthHeader = useCallback((token) => {
+    if (token) {
+      const authHeader = `Bearer ${token}`;
+      apiClient.defaults.headers.common["Authorization"] = authHeader;
+      authApiClient.defaults.headers.common["Authorization"] = authHeader;
+      adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+    } else {
+      delete apiClient.defaults.headers.common["Authorization"];
+      delete authApiClient.defaults.headers.common["Authorization"];
+      delete adminApiClient.defaults.headers.common["Authorization"];
+    }
+  }, []);
+
+  /**
    * Resolve or reject every promise that was queued while a token refresh
    * was in flight.
-   *
-   * @param {Error|null} error
-   * @param {string|null} token
    */
   const processQueue = useCallback((error, token = null) => {
     failedQueue.current.forEach((promise) => {
@@ -118,29 +123,27 @@ export const AuthProvider = ({ children }) => {
    * Persist user data and token in memory, update Axios default headers,
    * and clear any existing auth error.
    *
-   * The token is stored via setTokenMemory (module variable) — never written
-   * to localStorage or sessionStorage.
-   *
-   * @param {object|null} userData
-   * @param {string|null} newAccessToken
-   * @param {boolean} [isRememberMe=false] - Stored as a plain boolean
-   *   preference in localStorage (not a credential).
+   * ✅ Uses shallow field comparison instead of JSON.stringify (O(1) vs O(n))
    */
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
-      // Only update user state if the object has actually changed
-      setUser((prevUser) =>
-        JSON.stringify(prevUser) === JSON.stringify(userData)
-          ? prevUser
-          : userData,
-      );
+      setUser((prevUser) => {
+        if (
+          prevUser &&
+          userData &&
+          prevUser._id === userData._id &&
+          prevUser.xp === userData.xp &&
+          prevUser.level === userData.level &&
+          prevUser.streak === userData.streak
+        ) {
+          return prevUser;
+        }
+        return userData;
+      });
 
       setAccessToken(newAccessToken);
-
-      // ✅ Token lives in memory only — no localStorage / sessionStorage writes
       setTokenMemory(newAccessToken);
 
-      // Persist only the remember-me preference (not the token itself)
       if (newAccessToken) {
         if (isRememberMe) {
           localStorage.setItem("rememberMe", "true");
@@ -149,45 +152,22 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      if (newAccessToken && isTokenValid(newAccessToken)) {
-        const authHeader = `Bearer ${newAccessToken}`;
-        apiClient.defaults.headers.common["Authorization"] = authHeader;
-        authApiClient.defaults.headers.common["Authorization"] = authHeader;
-        adminApiClient.defaults.headers.common["Authorization"] = authHeader;
-      } else {
-        delete apiClient.defaults.headers.common["Authorization"];
-        delete authApiClient.defaults.headers.common["Authorization"];
-        delete adminApiClient.defaults.headers.common["Authorization"];
-      }
-
+      setAuthHeader(
+        newAccessToken && isTokenValid(newAccessToken) ? newAccessToken : null,
+      );
       setAuthError(null);
     },
-    [],
+    [setAuthHeader],
   );
 
-  /**
-   * Merge partial user data into the current user object without a full fetch.
-   *
-   * @param {object} newUserData
-   */
   const updateUser = useCallback((newUserData) => {
     setUser((prevUser) =>
       prevUser ? { ...prevUser, ...newUserData } : newUserData,
     );
   }, []);
 
-  /**
-   * Check whether the currently authenticated user has admin privileges.
-   *
-   * @returns {boolean}
-   */
   const isUserAdmin = useCallback(() => user?.isAdmin === true, [user]);
 
-  /**
-   * Log the current user out.
-   *
-   * @param {string|null} [message=null]
-   */
   const logout = useCallback(
     async (message = null) => {
       if (logoutInitiated.current) return;
@@ -207,12 +187,9 @@ export const AuthProvider = ({ children }) => {
       } catch {
         // Silent fail — client-side cleanup is what matters
       } finally {
-        delete authApiClient.defaults.headers.common["Authorization"];
-
-        // ✅ Clear memory token and remember-me preference only
+        setAuthHeader(null);
         setTokenMemory(null);
         localStorage.removeItem("rememberMe");
-
         setAuthData(null, null);
         showToast(message || "You have been logged out", "info");
         setLoading(false);
@@ -225,15 +202,6 @@ export const AuthProvider = ({ children }) => {
     [setAuthData, showToast],
   );
 
-  /**
-   * Obtain a fresh access token using the refresh-token cookie.
-   *
-   * Implements request deduplication: if a refresh is already in flight,
-   * concurrent callers receive the same promise (or queue behind it).
-   *
-   * @returns {Promise<string>} The new access token.
-   * @throws {Error} If the refresh request fails or the response is malformed.
-   */
   const refreshAuthToken = useCallback(async () => {
     if (isRefreshing.current) {
       return new Promise((resolve, reject) => {
@@ -252,7 +220,6 @@ export const AuthProvider = ({ children }) => {
         if (!newAccessToken || !newUserData)
           throw new Error("Invalid refresh response");
 
-        // ✅ Determine remember-me from the preference flag, not storage token
         const isRememberMe = !!localStorage.getItem("rememberMe");
         setAuthData(newUserData, newAccessToken, isRememberMe);
         processQueue(null, newAccessToken);
@@ -275,14 +242,6 @@ export const AuthProvider = ({ children }) => {
     return refreshP;
   }, [setAuthData, showToast, processQueue]);
 
-  /**
-   * Generic wrapper for auth actions (login, register).
-   *
-   * @param {string} actionName
-   * @param {Function} apiCall
-   * @param {Function} successHandler
-   * @returns {Promise<*>}
-   */
   const executeAuthAction = useCallback(
     async (actionName, apiCall, successHandler) => {
       setLoading(true);
@@ -302,14 +261,6 @@ export const AuthProvider = ({ children }) => {
     [showToast],
   );
 
-  /**
-   * Authenticate with email/password.
-   *
-   * @param {string} email
-   * @param {string} password
-   * @param {boolean} rememberMe
-   * @returns {Promise<{ success: boolean }>}
-   */
   const login = useCallback(
     async (email, password, rememberMe) => {
       return executeAuthAction(
@@ -334,16 +285,6 @@ export const AuthProvider = ({ children }) => {
     [executeAuthAction, setAuthData, showToast],
   );
 
-  /**
-   * Register a new account.
-   *
-   * @param {string} username
-   * @param {string} email
-   * @param {string} password
-   * @param {string} dateOfBirth
-   * @param {boolean} parentalConsent
-   * @returns {Promise<{ success: boolean }>}
-   */
   const register = useCallback(
     async (username, email, password, dateOfBirth, parentalConsent) => {
       return executeAuthAction(
@@ -363,9 +304,7 @@ export const AuthProvider = ({ children }) => {
             ageNotice,
             privacyNotice,
           } = payload;
-
           if (receivedAccessToken && userData) {
-            // Registration never sets remember-me
             setAuthData(userData, receivedAccessToken, false);
             showToast("Registration successful!", "success");
             return { success: true, user: userData, ageNotice, privacyNotice };
@@ -379,39 +318,26 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Fetch the current user's profile from /api/auth/user.
-   *
-   * On mount, the memory token will be null (page refresh), so this
-   * immediately attempts a silent token refresh via the httpOnly cookie
-   * before fetching the profile.
    */
   const fetchUserProfile = useCallback(async () => {
-    const token = getStoredAccessToken(); // reads from memory
+    const token = getStoredAccessToken();
 
-    // No token in memory — attempt silent refresh via httpOnly cookie
     if (!token || !isTokenValid(token)) {
       try {
         await refreshAuthToken();
-
         const freshToken = getStoredAccessToken();
         if (!freshToken) {
           setLoading(false);
           return;
         }
-        const authHeader = `Bearer ${freshToken}`;
-        apiClient.defaults.headers.common["Authorization"] = authHeader;
-        authApiClient.defaults.headers.common["Authorization"] = authHeader;
-        adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+        setAuthHeader(freshToken);
       } catch {
-        // No valid refresh token cookie — user is logged out
         setAuthData(null, null);
         setLoading(false);
         return;
       }
     } else {
-      const authHeader = `Bearer ${token}`;
-      apiClient.defaults.headers.common["Authorization"] = authHeader;
-      authApiClient.defaults.headers.common["Authorization"] = authHeader;
-      adminApiClient.defaults.headers.common["Authorization"] = authHeader;
+      setAuthHeader(token);
     }
 
     try {
@@ -419,23 +345,14 @@ export const AuthProvider = ({ children }) => {
       const payload = await apiClient.get("/auth/user");
       const userData = payload.user || payload;
       const storedToken = getStoredAccessToken();
-      // ✅ Determine remember-me from preference flag, not storage token presence
       const isRememberMe = !!localStorage.getItem("rememberMe");
       setAuthData(userData, storedToken, isRememberMe);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        try {
-          await refreshAuthToken();
-        } catch {
-          setAuthData(null, null);
-        }
-      } else {
-        setAuthData(null, null);
-      }
+    } catch {
+      setAuthData(null, null);
     } finally {
       setLoading(false);
     }
-  }, [setAuthData, refreshAuthToken]);
+  }, [setAuthData, refreshAuthToken, setAuthHeader]);
 
   // ---------------------------------------------------------------------------
   // Effects
@@ -450,7 +367,7 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * On mount: attempt to restore auth state via the httpOnly refresh cookie.
-   * No storage reads needed — the cookie is sent automatically.
+   * Safe to run once — refreshAuthToken reads from refs, not stale state.
    */
   useEffect(() => {
     let isMounted = true;
@@ -466,9 +383,12 @@ export const AuthProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * One-time interceptor setup.
+   * Safe to run once — refreshAuthToken reads from refs, logoutInitiated is a ref.
+   */
   useEffect(() => {
     const cleanup = setupInterceptors(
       refreshAuthToken,
@@ -476,29 +396,44 @@ export const AuthProvider = ({ children }) => {
       logoutInitiated,
     );
     return cleanup;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Context Value
+  // Context Value — ✅ Memoized to prevent unnecessary consumer re-renders
   // ---------------------------------------------------------------------------
 
-  const authContextValue = {
-    user,
-    accessToken,
-    loading,
-    authError,
-    isAuthenticated: !!user || !!accessToken,
-    login,
-    register,
-    logout,
-    refreshAuthToken,
-    updateUser,
-    leaderboardVersion,
-    triggerLeaderboardRefresh: () => setLeaderboardVersion((v) => v + 1),
-    isUserAdmin,
-    sessionId: typeof window !== "undefined" ? getSessionId() : null,
-  };
+  const authContextValue = useMemo(
+    () => ({
+      user,
+      accessToken,
+      loading,
+      authError,
+      isAuthenticated: !!user || !!accessToken,
+      login,
+      register,
+      logout,
+      refreshAuthToken,
+      updateUser,
+      leaderboardVersion,
+      triggerLeaderboardRefresh: () => setLeaderboardVersion((v) => v + 1),
+      isUserAdmin,
+      sessionId,
+    }),
+    [
+      user,
+      accessToken,
+      loading,
+      authError,
+      login,
+      register,
+      logout,
+      refreshAuthToken,
+      updateUser,
+      leaderboardVersion,
+      isUserAdmin,
+      sessionId,
+    ],
+  );
 
   return (
     <AuthContext.Provider value={authContextValue}>
@@ -511,13 +446,6 @@ export const AuthProvider = ({ children }) => {
 // Consumer Hook
 // ---------------------------------------------------------------------------
 
-/**
- * Access the auth context. Must be called from a component wrapped in
- * <AuthProvider>.
- *
- * @returns {object}
- * @throws {Error} If called outside of an AuthProvider.
- */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
