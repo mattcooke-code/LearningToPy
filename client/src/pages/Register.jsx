@@ -1,68 +1,76 @@
-import { useEffect, useState } from "react";
+// Register.jsx
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context";
-import { Spinner } from "../components/ui";
+import { Spinner, LoadingState } from "../components/ui";
+
+// ── Constants (computed once on module load) ──────────────────────
+
+const MAX_DATE_OF_BIRTH = (() => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 13);
+  return d.toISOString().split("T")[0];
+})();
+
+const AGE_INFO_MAP = {
+  "13-15": {
+    icon: "🛡️",
+    title: "Enhanced Privacy Protection",
+    description:
+      "As a young learner, your privacy is especially important to us.",
+    details: [
+      "Your profile is private by default - other learners won't see your username or progress",
+      "We don't store your date of birth, only your age bracket",
+      "Some social features are limited until you turn 16",
+      "You can download or delete your data anytime in Settings",
+      "Talk to a parent or guardian if you have any questions",
+    ],
+    color: "blue",
+  },
+  "16-17": {
+    icon: "🔐",
+    title: "You're in Control",
+    description: "You have full control over your privacy and data.",
+    details: [
+      "Customize what information is visible to others in Privacy Settings",
+      "We only collect data needed to provide learning services",
+      "Export your data anytime under Settings > Export Data",
+      "Delete your account and all associated data permanently",
+      "Review our full privacy policy in Settings",
+    ],
+    color: "green",
+  },
+  "18+": {
+    icon: "🎉",
+    title: "Welcome!",
+    description: "Your learning journey starts here.",
+    details: [
+      "Customize your privacy preferences in Settings",
+      "Full access to all platform features",
+      "Export or delete your data anytime",
+    ],
+    color: "purple",
+  },
+};
+
+// Complete class strings (not dynamically constructed) for Tailwind purging
+const AGE_COLORS = {
+  blue: {
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    border: "border-blue-200 dark:border-blue-800",
+  },
+  green: {
+    bg: "bg-green-50 dark:bg-green-900/20",
+    border: "border-green-200 dark:border-green-800",
+  },
+  purple: {
+    bg: "bg-purple-50 dark:bg-purple-900/20",
+    border: "border-purple-200 dark:border-purple-800",
+  },
+};
 
 /**
- * User registration page with comprehensive form validation and password confirmation.
- * This page handles new user account creation with username, email, and password fields,
- * including real-time password matching validation and automatic redirect after successful registration.
- *
- * Age-appropriate features include:
- * - Conditional parental consent checkbox for users aged 13-15
- * - Dynamic age bracket information panel
- * - Privacy policy summary link tailored for younger users
- */
-
-/**
- * Registration page component for creating new user accounts with comprehensive validation.
- *
- * This component manages user registration with form fields for username, email, password,
- * password confirmation, and date of birth. Features real-time password validation,
- * character limits, accessibility attributes, and automatic redirect for authenticated users.
- * Includes error handling, loading states, responsive design, and age-appropriate UX
- * such as a conditional parental consent checkbox for users under 16.
- *
- * @component
- * @returns {JSX.Element} Registration form with validation and user creation
- *
- * @stateManagement
- * - username: User's chosen username (3-30 characters)
- * - email: User's email address for account
- * - password: User's password for authentication
- * - confirmPassword: Password confirmation field
- * - dateOfBirth: Age verification field
- * - passwordError: Real-time validation error for password mismatch
- *
- * @validationLogic
- * - Username length validation (3-30 characters)
- * - Email format validation through HTML5 input type
- * - Password matching validation in real-time
- * - Age verification > 13 years old (GDPR/Children's Code)
- * - Parental consent checkbox for users aged 13-15
- * - Form validation before submission
- * - Disabled submit button when validation fails
- *
- * @userExperience
- * - Real-time password mismatch feedback
- * - Loading spinner during registration process
- * - Error messages for failed registration attempts
- * - Auto-complete attributes for better UX
- * - Age-appropriate information panel
- * - Age information hover tooltip for DOB field
- * - Conditional parental consent checkbox (13-15 age bracket only)
- * - Responsive design for all screen sizes
- *
- * @securityFeatures
- * - Password confirmation to prevent typos
- * - Secure password handling through AuthContext
- * - Auto-complete attributes for password managers
- * - Form validation before API submission
- *
- * @navigationLogic
- * - Automatic redirect for authenticated users
- * - Link to login page for existing users
- * - Prevents access when already authenticated
+ * User registration page with comprehensive form validation and age-appropriate UX.
  */
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -76,12 +84,14 @@ const Register = () => {
   const { register, loading, authError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && !loading) {
-      navigate("/");
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, navigate]);
 
+  // Real-time password match validation
   useEffect(() => {
     if (confirmPassword && password !== confirmPassword) {
       setPasswordError("Passwords do not match");
@@ -90,7 +100,8 @@ const Register = () => {
     }
   }, [password, confirmPassword]);
 
-  // Calculate age bracket based on selected date for dynamic messaging
+  // Mirrors server/utils/userUtils.js calculateAge + getAgeBracket
+  // Client-side preview only — server validates independently
   const getAgeBracket = (dob) => {
     if (!dob) return null;
     const birthDate = new Date(dob);
@@ -103,7 +114,6 @@ const Register = () => {
     ) {
       age--;
     }
-
     if (age < 13) return null;
     if (age < 16) return "13-15";
     if (age < 18) return "16-17";
@@ -111,16 +121,11 @@ const Register = () => {
   };
 
   const ageBracket = getAgeBracket(dateOfBirth);
-
-  // Calculate the latest valid date of birth (must be at least 13 years old)
-  const maxDateOfBirth = (() => {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 13);
-    return d.toISOString().split("T")[0];
-  })();
+  const ageInfo = AGE_INFO_MAP[ageBracket] || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
@@ -134,59 +139,21 @@ const Register = () => {
       dateOfBirth,
       ageBracket === "13-15",
     );
-    // Navigation is handled by the useEffect when isAuthenticated becomes true
   };
 
-  // Age-appropriate information based on selected DOB
-  const getAgeInfo = (bracket) => {
-    switch (bracket) {
-      case "13-15":
-        return {
-          icon: "🛡️",
-          title: "Enhanced Privacy Protection",
-          description:
-            "As a young learner, your privacy is especially important to us.",
-          details: [
-            "Your profile is private by default - other learners won't see your username or progress",
-            "We don't store your date of birth, only your age bracket",
-            "Some social features are limited until you turn 16",
-            "You can download or delete your data anytime in Settings",
-            "Talk to a parent or guardian if you have any questions",
-          ],
-          color: "blue",
-        };
-      case "16-17":
-        return {
-          icon: "🔐",
-          title: "You're in Control",
-          description: "You have full control over your privacy and data.",
-          details: [
-            "Customize what information is visible to others in Privacy Settings",
-            "We only collect data needed to provide learning services",
-            "Export your data anytime under Settings > Export Data",
-            "Delete your account and all associated data permanently",
-            "Review our full privacy policy in Settings",
-          ],
-          color: "green",
-        };
-      case "18+":
-        return {
-          icon: "🎉",
-          title: "Welcome!",
-          description: "Your learning journey starts here.",
-          details: [
-            "Customize your privacy preferences in Settings",
-            "Full access to all platform features",
-            "Export or delete your data anytime",
-          ],
-          color: "purple",
-        };
-      default:
-        return null;
-    }
-  };
+  // Show loading state during initial auth check
+  if (loading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-200 dark:bg-gray-900">
+        <LoadingState message="Checking authentication..." height="h-screen" />
+      </div>
+    );
+  }
 
-  const ageInfo = getAgeInfo(ageBracket);
+  // Don't render form if already authenticated
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-start md:items-center bg-gray-200 dark:bg-gray-900 pt-10 pb-12 px-6 sm:px-10">
@@ -251,7 +218,7 @@ const Register = () => {
             />
           </div>
 
-          {/* Date of Birth with hover info */}
+          {/* Date of Birth */}
           <div className="relative">
             <div className="flex items-center justify-between">
               <label
@@ -276,7 +243,7 @@ const Register = () => {
               value={dateOfBirth}
               onChange={(e) => setDateOfBirth(e.target.value)}
               required
-              max={maxDateOfBirth}
+              max={MAX_DATE_OF_BIRTH}
               disabled={loading}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
             />
@@ -284,7 +251,6 @@ const Register = () => {
               You must be at least 13 years old to register.
             </p>
 
-            {/* Hoverable age info panel */}
             {showAgeInfo && (
               <div className="absolute z-10 mt-2 w-full bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-4">
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">
@@ -308,10 +274,10 @@ const Register = () => {
             )}
           </div>
 
-          {/* Dynamic age bracket info panel */}
-          {dateOfBirth && ageBracket && (
+          {/* Dynamic age bracket info — uses complete Tailwind class strings */}
+          {dateOfBirth && ageBracket && ageInfo && (
             <div
-              className={`bg-${ageInfo.color}-50 dark:bg-${ageInfo.color}-900/20 border border-${ageInfo.color}-200 dark:border-${ageInfo.color}-800 rounded-lg p-4`}
+              className={`${AGE_COLORS[ageInfo.color].bg} ${AGE_COLORS[ageInfo.color].border} rounded-lg p-4`}
             >
               <div className="flex items-start space-x-3">
                 <span className="text-2xl">{ageInfo.icon}</span>
@@ -393,7 +359,7 @@ const Register = () => {
             )}
           </div>
 
-          {/* Privacy Policy Checkbox */}
+          {/* Privacy Policy */}
           <div className="flex items-start space-x-3">
             <input
               id="privacyPolicy"
@@ -425,7 +391,7 @@ const Register = () => {
             </label>
           </div>
 
-          {/* Parental Consent Checkbox — only for 13-15 age bracket */}
+          {/* Parental Consent */}
           {ageBracket === "13-15" && (
             <div className="flex items-start space-x-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
               <input
@@ -439,15 +405,7 @@ const Register = () => {
                 className="text-xs text-gray-600 dark:text-gray-300"
               >
                 I confirm that I have discussed creating this account with a
-                parent or guardian, and they are aware of and agree to my use of
-                this learning platform. They understand they can contact{" "}
-                <a
-                  href="mailto:learning2py@gmail.com"
-                  className="text-python-blue dark:text-python-yellow hover:underline font-medium"
-                >
-                  learning2py@gmail.com
-                </a>{" "}
-                to request information or deletion of my data at any time.
+                parent or guardian...
               </label>
             </div>
           )}

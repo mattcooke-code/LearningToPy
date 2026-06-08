@@ -1,7 +1,8 @@
+// Login.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context";
-import { Spinner } from "../components/ui";
+import { LoadingState, Spinner } from "../components/ui";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,16 +12,30 @@ const Login = () => {
   const { login, loading, authError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && !loading) {
-      navigate("/");
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, navigate]);
+
+  if (loading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-200 dark:bg-gray-900">
+        <LoadingState message="Checking authentication..." height="h-screen" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; // Prevent double submit
     await login(email, password, rememberMe);
   };
+
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-start sm:items-center bg-gray-200 dark:bg-gray-900 pt-10 pb-12 px-6 sm:px-10">
@@ -104,7 +119,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm  rounded-md text-white hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-extrabold"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm rounded-md text-white hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-extrabold"
           >
             {loading ? (
               <Spinner
@@ -131,12 +146,12 @@ const Login = () => {
             </p>
           </div>
           <div className="text-center">
-            <p className="text-sm ">
+            <p className="text-sm">
               <Link
                 to="/forgot-password"
                 className="font-medium text-python-blue hover:text-python-dark dark:hover:text-purple-400 dark:text-python-yellow transition-colors"
               >
-                Forgot your password?{" "}
+                Forgot your password?
               </Link>
             </p>
           </div>

@@ -1,7 +1,8 @@
 # Frontend Code Optimisation Log
 
 Documenting frontend performance improvements, refactoring decisions, and
-bug fixes. Use this to trace issues back to specific changes.
+bug fixes taking into account technical debt and data structures and algorithms
+(Big O Notation). Use this to trace issues back to specific changes.
 
 **Date started:** 2026-06-08
 **Related:** Backend schema refactor tracking document (separate file)
@@ -16,6 +17,8 @@ Frontend optimisation pass focused on:
 - Eliminating redundant API calls and allocations
 - Removing the `uuid` dependency (replaced by native `crypto.randomUUID()`)
 - Security: access tokens moved to memory-only (not localStorage/sessionStorage)
+- Fixing dynamic Tailwind classes (broken in production builds)
+- Preventing flash-of-login-form for already-authenticated users
 
 ---
 
@@ -30,10 +33,10 @@ Frontend optimisation pass focused on:
   page refresh (refresh cookie may not be sent).
 
 - **Changed `setAuthData` — Shallow Field Comparison:** Replaced `JSON.stringify()`
-  deep equality check with O(1) field comparison (`_id`, `xp`, `level`, `streak`).
-  Avoids serializing the entire user object on every auth state change (login,
-  register, token refresh, profile fetch). Look here if user state updates are not
-  triggering re-renders when they should.
+  deep equality check (O(n) serialization) with O(1) field comparison (`_id`, `xp`,
+  `level`, `streak`). Avoids serializing the entire user object on every auth state
+  change (login, register, token refresh, profile fetch). Look here if user state
+  updates are not triggering re-renders when they should.
 
 - **Changed `authContextValue` — Memoized:** Wrapped in `useMemo` to prevent all
   `useAuth()` consumers from re-rendering when unrelated context values change.
@@ -105,6 +108,97 @@ significant change, implemented via `setTokenMemory()` / `getStoredAccessToken()
 
 ---
 
+## components/layout/ProtectedRoute.jsx — Redirect State & Unused Import
+
+- **Changed Redirect — Preserves Intended Destination:** Now passes
+  `state={{ from: location.pathname }}` to the `/login` redirect so the login page
+  can send the user back to their intended page after authentication.
+- **Removed Unused `useLocation` Import:** Now used for the redirect state above.
+  Previously imported but never called.
+
+## components/layout/AdminGuard.jsx — Redirect Target & Dead Code
+
+- **Changed Default Redirect:** Changed from `redirectTo="/"` to
+  `redirectTo="/dashboard"`. Non-admin users are now sent to their dashboard rather
+  than the public landing page (where an "admin blocked" message would be confusing).
+- **Removed Dead `if (showToast)` Guard:** `showToast` is always defined from
+  `useNotification()`. The condition was always truthy — dead code.
+- **Removed Unused `useNotification` Import:** No longer needed after removing the
+  dead guard.
+
+## pages/Home.jsx — Scroll Listener Optimisation
+
+- **Changed Scroll Listener — Guarded State Updates:** Added `pinned` variable to
+  track current state and skip `setIsPinned()` calls when the value hasn't changed.
+  Previously called `setIsPinned(true)` on every scroll frame past 80px (~60 calls/sec).
+  Now only calls on transition. Also added `{ passive: true }` for better scroll
+  performance.
+- **Changed `useEffect` — Split Concerns:** Separated the theme initialisation effect
+  from the scroll listener effect. Previously both were in a single effect with
+  `setDefaultTheme` as a dependency, causing the scroll listener to re-register if
+  the theme function reference changed.
+
+## pages/Login.jsx — Auth Check & Redirect Optimisation
+
+- **Changed Auth Check — Prevents Form Flash:** Added loading spinner during initial
+  authentication check (`loading && !isAuthenticated`). Previously the login form
+  rendered briefly before the redirect fired for already-authenticated users. Also
+  returns `null` when authenticated to prevent any form render.
+- **Changed Redirect — Added `replace: true`:** Prevents the login page from
+  appearing in browser history. Without this, pressing Back after login returns to
+  the login page which immediately redirects again (annoying loop).
+- **Added Double-Submit Guard:** `if (loading) return` in `handleSubmit` prevents
+  duplicate requests on rapid double-click or double-Enter.
+- **Changed Loading State — Uses `LoadingState` Component:** Replaced manual
+  `Spinner` + container div with the standardised `LoadingState` component for
+  consistency with the rest of the app.
+
+## pages/Register.jsx — Dynamic Tailwind Fix & Static Data Extraction
+
+- **Fixed Dynamic Tailwind Classes — Production Build Safety:** Replaced
+  ``bg-`${ageInfo.color}`-50`` pattern with complete class strings via `AGE_COLORS`
+  map. Dynamic class names are not detected by Tailwind's build-time scanner and
+  would silently fail in production with purged CSS. Look here if age bracket info
+  panels have no background color in production.
+- **Extracted `AGE_INFO_MAP` and `AGE_COLORS` to Module Scope:** Previously defined
+  inside the component via `getAgeInfo()` function, recreating objects on every render.
+  Now static constants outside the component. O(1) lookup instead of switch statement
+  on every keystroke.
+- **Extracted `MAX_DATE_OF_BIRTH` to Module Scope:** Previously an IIFE inside the
+  component that recalculated on every render. Value only changes once per day.
+  Now computed once on module load.
+- **Changed Redirect — Same Fixes as Login.jsx:** Added `LoadingState` during auth
+  check, `replace: true` on navigate, `if (loading) return` guard.
+- **Added Comment — Duplicate Age Logic:** Documented that `getAgeBracket` mirrors
+  `server/utils/userUtils.js` and is for client-side preview only. Server validates
+  independently.
+
+## pages/ForgotPasswordPage.jsx — Dead Code Removal
+
+- **Removed `useAuth` Import and `authError` Display Block:** `authError` is set
+  during login/register actions, never during password reset. The display block was
+  dead code that would never render.
+- **Added Double-Submit Guard:** `if (loading) return` in `handleSubmit`.
+
+## pages/ResetPasswordPage.jsx — Effect Cleanup & Validation Simplification
+
+- **Added Cleanup Flag to `useEffect`:** `cancelled` variable prevents state updates
+  after component unmount (user navigates away during token validation API call).
+  Previously could set state on unmounted component.
+- **Removed `showToast` from Effect Dependencies:** Changed dependency array to `[]`
+  (runs once on mount — token from URL params won't change). Previously `showToast`
+  in deps could cause re-validation if NotificationContext re-rendered.
+- **Removed Redundant Toast on Valid Token:** The form appearing is confirmation
+  enough. Previously showed a toast on every page load/refresh.
+- **Removed Weak Frontend Password Validation:** Removed `password.length < 6` check.
+  The backend enforces stronger requirements (uppercase, lowercase, number, special
+  char). Frontend check was misleading — a password could pass frontend but fail
+  backend. The `minLength={6}` attribute on the input provides a hint; server
+  validation provides the authoritative error.
+- **Added Double-Submit Guard:** `if (loading) return` in `handleSubmit`.
+
+---
+
 ## Related: Auth Bug Fixes (During This Pass)
 
 - **`getSurroundingLeaderboard` — Missing `.toString()`:** `req.userId` was an
@@ -121,19 +215,25 @@ significant change, implemented via `setTokenMemory()` / `getStoredAccessToken()
 
 ## Bundle Size Impact
 
-| Change                                               | Saving                                        |
-| ---------------------------------------------------- | --------------------------------------------- |
-| Removed `uuid` package                               | ~3KB gzipped                                  |
-| Removed `jwt-decode` from tokenUtils (if applicable) | ~1.5KB gzipped                                |
-| Total                                                | ~4.5KB less JavaScript to parse on first load |
+| Change                 | Saving                                      |
+| ---------------------- | ------------------------------------------- |
+| Removed `uuid` package | ~3KB gzipped                                |
+| Total                  | ~3KB less JavaScript to parse on first load |
 
 ---
 
 ## Files Changed
 
-| File              | Type of Change                                                             |
-| ----------------- | -------------------------------------------------------------------------- |
-| `AuthContext.jsx` | Performance (memo, field comparison, helper), Security (memory-only token) |
-| `tokenUtils.js`   | No changes (already well-structured)                                       |
-| `session.js`      | Performance (caching), Dependency removal (`uuid`)                         |
-| `api.js`          | Performance (cached device info header), Cleanup (removed no-op)           |
+| File                                   | Type of Change                                                             |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `context/AuthContext.jsx`              | Performance (memo, field comparison, helper), Security (memory-only token) |
+| `utils/tokenUtils.js`                  | No changes (already well-structured)                                       |
+| `services/session.js`                  | Performance (caching), Dependency removal (`uuid`)                         |
+| `services/api.js`                      | Performance (cached device info header), Cleanup (removed no-op)           |
+| `components/layout/ProtectedRoute.jsx` | Redirect state preservation, unused import fix                             |
+| `components/layout/AdminGuard.jsx`     | Redirect target, dead code removal                                         |
+| `pages/Home.jsx`                       | Scroll listener optimisation, effect separation                            |
+| `pages/Login.jsx`                      | Auth check flash prevention, redirect replace, double-submit guard         |
+| `pages/Register.jsx`                   | Dynamic Tailwind fix, static data extraction, auth check fixes             |
+| `pages/ForgotPasswordPage.jsx`         | Dead code removal, double-submit guard                                     |
+| `pages/ResetPasswordPage.jsx`          | Effect cleanup, validation simplification, double-submit guard             |
