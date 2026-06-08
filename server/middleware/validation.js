@@ -3,9 +3,9 @@ const {
   validateEmail,
   validatePassword,
   validateUsername,
-  validateContent,
-  validateIP,
-  validateSessionId,
+  validateContent: validateContentField,
+  validateIP: validatedIPField,
+  validateSessionId: validateSessionIdField,
 } = require("../utils/validationHelpers");
 const AppError = require("../utils/AppError");
 
@@ -178,7 +178,7 @@ const validateContent = (req, res, next) => {
         new AppError("Title must be at least 3 characters long", 400),
       );
     }
-    if (!validateOrFail(title, validateContent, next)) return;
+    if (!validateOrFail(title, validateContentField, next)) return;
   }
 
   if (description !== undefined) {
@@ -187,7 +187,7 @@ const validateContent = (req, res, next) => {
         new AppError("Description must be at least 10 characters long", 400),
       );
     }
-    if (!validateOrFail(description, validateContent, next)) return;
+    if (!validateOrFail(description, validateContentField, next)) return;
   }
 
   if (content !== undefined) {
@@ -196,7 +196,7 @@ const validateContent = (req, res, next) => {
         new AppError("Content must be at least 10 characters long", 400),
       );
     }
-    if (!validateOrFail(content, validateContent, next)) return;
+    if (!validateOrFail(content, validateContentField, next)) return;
   }
 
   next();
@@ -226,7 +226,7 @@ const validateFlaggedContent = (req, res, next) => {
       new AppError("Title must be between 5 and 200 characters", 400),
     );
   }
-  if (!validateOrFail(title, validateContent, next)) return;
+  if (!validateOrFail(title, validateContentField, next)) return;
 
   if (
     typeof description !== "string" ||
@@ -237,7 +237,7 @@ const validateFlaggedContent = (req, res, next) => {
       new AppError("Description must be between 10 and 2000 characters", 400),
     );
   }
-  if (!validateOrFail(description, validateContent, next)) return;
+  if (!validateOrFail(description, validateContentField, next)) return;
 
   if (req.body.suggestedFix) {
     if (
@@ -248,7 +248,8 @@ const validateFlaggedContent = (req, res, next) => {
         new AppError("Suggested fix must not exceed 1000 characters", 400),
       );
     }
-    if (!validateOrFail(req.body.suggestedFix, validateContent, next)) return;
+    if (!validateOrFail(req.body.suggestedFix, validateContentField, next))
+      return;
   }
 
   next();
@@ -268,7 +269,7 @@ const validateAdminAction = (req, res, next) => {
     if (typeof reason !== "string" || reason.trim().length > 1000) {
       return next(new AppError("Reason must not exceed 1000 characters", 400));
     }
-    if (!validateOrFail(reason, validateContent, next)) return;
+    if (!validateOrFail(reason, validateContentField, next)) return;
   }
 
   next();
@@ -282,7 +283,7 @@ const validateIPAddress = (req, res, next) => {
   const ipAddress =
     req.ip || req.connection.remoteAddress || req.headers["x-forwarded-for"];
 
-  if (ipAddress && !validateIP(ipAddress)) {
+  if (ipAddress && !validateIPField(ipAddress)) {
     console.warn(`Invalid IP address detected: ${ipAddress}`);
   }
 
@@ -296,7 +297,7 @@ const validateIPAddress = (req, res, next) => {
 const validateSessionId = (req, res, next) => {
   const sessionId = req.sessionID || req.headers["x-session-id"];
 
-  if (sessionId && !validateSessionId(sessionId)) {
+  if (sessionId && !validateSessionIdField(sessionId)) {
     return next(new AppError("Invalid session format", 400));
   }
 

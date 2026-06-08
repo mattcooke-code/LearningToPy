@@ -5,10 +5,14 @@
  * Manages the full auth lifecycle: login, register, logout, token refresh,
  * user profile fetching, and automatic Authorization header injection.
  *
- * Delegates API client management and interceptor setup to
- * `/client/src/services/api.js`, session tracking to
- * `/client/src/services/session.js`, and token validation to
- * `/client/src/utils/tokenUtils.js`.
+ * Access tokens are held in memory only (via tokenUtils.setTokenMemory) —
+ * never written to localStorage or sessionStorage. On page refresh the
+ * httpOnly refresh token cookie is used to silently restore a fresh access
+ * token via refreshAuthToken().
+ *
+ * The only auth-related item in localStorage is the "rememberMe" boolean
+ * preference (not a credential), used to determine the refresh token lifespan
+ * on the next token refresh.
  *
  * @module AuthContext
  * @requires react
@@ -28,7 +32,12 @@ import {
   useRef,
 } from "react";
 import { useNotification } from "../context/NotificationContext";
-import { getErrorMessage, getStoredAccessToken, isTokenValid } from "../utils";
+import {
+  getErrorMessage,
+  getStoredAccessToken,
+  isTokenValid,
+  setTokenMemory,
+} from "../utils";
 import {
   apiClient,
   authApiClient,
@@ -68,23 +77,6 @@ const AuthContext = createContext(null);
 /**
  * Top-level provider that wraps the application with authentication state.
  *
- * **State managed:**
- * - `user` — the current user object (or null)
- * - `accessToken` — the current JWT (or null)
- * - `loading` — true during initial auth check and auth actions
- * - `authError` — the most recent auth-related error message
- * - `leaderboardVersion` — a monotonically increasing number used to
- *   invalidate leaderboard caches
- *
- * **Key actions exposed via context:**
- * - `login(email, password, rememberMe)`
- * - `register(username, email, password)`
- * - `logout([message])`
- * - `refreshAuthToken()`
- * - `updateUser(newUserData)`
- * - `isUserAdmin()`
- * - `triggerLeaderboardRefresh()`
- *
  * @param {{ children: React.ReactNode }} props
  * @returns {JSX.Element}
  */
@@ -93,7 +85,7 @@ export const AuthProvider = ({ children }) => {
 
   // ---- State ----
   const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(getStoredAccessToken());
+  const [accessToken, setAccessToken] = useState(null); // never seeded from storage
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
   const [leaderboardVersion, setLeaderboardVersion] = useState(0);
@@ -108,10 +100,8 @@ export const AuthProvider = ({ children }) => {
    * Resolve or reject every promise that was queued while a token refresh
    * was in flight.
    *
-   * @param {Error|null} error - If provided, all queued promises reject with
-   *   this error.
-   * @param {string|null} token - If provided, all queued promises resolve
-   *   with this new token.
+   * @param {Error|null} error
+   * @param {string|null} token
    */
   const processQueue = useCallback((error, token = null) => {
     failedQueue.current.forEach((promise) => {
@@ -125,16 +115,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /**
-   * Persist user data and token, update Axios default headers, and clear any
-   * existing auth error.
+   * Persist user data and token in memory, update Axios default headers,
+   * and clear any existing auth error.
    *
-   * Avoids unnecessary re-renders by performing a deep equality check on the
-   * user object before calling `setUser`.
+   * The token is stored via setTokenMemory (module variable) — never written
+   * to localStorage or sessionStorage.
    *
-   * @param {object|null} userData - The user object to persist (or null to clear).
-   * @param {string|null} newAccessToken - The JWT to persist (or null to clear).
-   * @param {boolean} [isRememberMe=false] - If true, store the token in
-   *   localStorage; otherwise sessionStorage.
+   * @param {object|null} userData
+   * @param {string|null} newAccessToken
+   * @param {boolean} [isRememberMe=false] - Stored as a plain boolean
+   *   preference in localStorage (not a credential).
    */
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
@@ -147,17 +137,19 @@ export const AuthProvider = ({ children }) => {
 
       setAccessToken(newAccessToken);
 
-      // Clear previous tokens from both storages
-      localStorage.removeItem("accessToken");
-      sessionStorage.removeItem("accessToken");
+      // ✅ Token lives in memory only — no localStorage / sessionStorage writes
+      setTokenMemory(newAccessToken);
+
+      // Persist only the remember-me preference (not the token itself)
+      if (newAccessToken) {
+        if (isRememberMe) {
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberMe");
+        }
+      }
 
       if (newAccessToken && isTokenValid(newAccessToken)) {
-        if (isRememberMe) {
-          localStorage.setItem("accessToken", newAccessToken);
-        } else {
-          sessionStorage.setItem("accessToken", newAccessToken);
-        }
-
         const authHeader = `Bearer ${newAccessToken}`;
         apiClient.defaults.headers.common["Authorization"] = authHeader;
         authApiClient.defaults.headers.common["Authorization"] = authHeader;
@@ -167,17 +159,16 @@ export const AuthProvider = ({ children }) => {
         delete authApiClient.defaults.headers.common["Authorization"];
         delete adminApiClient.defaults.headers.common["Authorization"];
       }
+
       setAuthError(null);
     },
     [],
   );
 
   /**
-   * Merge partial user data into the current user object without a full
-   * fetch. Useful for optimistically updating profile fields or XP/level
-   * changes received via WebSocket or after a mutation.
+   * Merge partial user data into the current user object without a full fetch.
    *
-   * @param {object} newUserData - Partial user fields to merge.
+   * @param {object} newUserData
    */
   const updateUser = useCallback((newUserData) => {
     setUser((prevUser) =>
@@ -195,14 +186,7 @@ export const AuthProvider = ({ children }) => {
   /**
    * Log the current user out.
    *
-   * 1. Sets a guard ref to prevent concurrent logouts and token refresh races.
-   * 2. Calls the global `window.resetTheme` if available.
-   * 3. POSTs to `/api/auth/logout` (best-effort; failures are swallowed).
-   * 4. Clears all stored tokens and auth state.
-   * 5. Displays a toast notification.
-   *
-   * @param {string|null} [message=null] - Optional custom toast message.
-   *   Defaults to "You have been logged out".
+   * @param {string|null} [message=null]
    */
   const logout = useCallback(
     async (message = null) => {
@@ -221,12 +205,14 @@ export const AuthProvider = ({ children }) => {
         }
         await authApiClient.post("/api/auth/logout");
       } catch {
-        // Silent fail — the client-side cleanup is what matters
+        // Silent fail — client-side cleanup is what matters
       } finally {
         delete authApiClient.defaults.headers.common["Authorization"];
-        localStorage.removeItem("accessToken");
-        sessionStorage.removeItem("accessToken");
-        localStorage.removeItem("sessionId");
+
+        // ✅ Clear memory token and remember-me preference only
+        setTokenMemory(null);
+        localStorage.removeItem("rememberMe");
+
         setAuthData(null, null);
         showToast(message || "You have been logged out", "info");
         setLoading(false);
@@ -245,20 +231,16 @@ export const AuthProvider = ({ children }) => {
    * Implements request deduplication: if a refresh is already in flight,
    * concurrent callers receive the same promise (or queue behind it).
    *
-   * On failure the user is logged out and an error toast is shown.
-   *
    * @returns {Promise<string>} The new access token.
    * @throws {Error} If the refresh request fails or the response is malformed.
    */
   const refreshAuthToken = useCallback(async () => {
-    // If a refresh is already in flight, queue this caller
     if (isRefreshing.current) {
       return new Promise((resolve, reject) => {
         failedQueue.current.push({ resolve, reject });
       });
     }
 
-    // Return the existing promise if available (dedup within the same tick)
     if (refreshPromise.current) return refreshPromise.current;
 
     isRefreshing.current = true;
@@ -270,7 +252,8 @@ export const AuthProvider = ({ children }) => {
         if (!newAccessToken || !newUserData)
           throw new Error("Invalid refresh response");
 
-        const isRememberMe = !!localStorage.getItem("accessToken");
+        // ✅ Determine remember-me from the preference flag, not storage token
+        const isRememberMe = !!localStorage.getItem("rememberMe");
         setAuthData(newUserData, newAccessToken, isRememberMe);
         processQueue(null, newAccessToken);
         return newAccessToken;
@@ -293,17 +276,12 @@ export const AuthProvider = ({ children }) => {
   }, [setAuthData, showToast, processQueue]);
 
   /**
-   * Generic wrapper for auth actions (login, register) that manages loading
-   * state, error extraction, and toast notifications.
+   * Generic wrapper for auth actions (login, register).
    *
-   * @param {string} actionName - Human-readable name used in error messages
-   *   (e.g. "login", "registration").
-   * @param {Function} apiCall - Async function that performs the API request
-   *   and returns the unwrapped payload.
-   * @param {Function} successHandler - Async function that receives the
-   *   payload and processes it (calls setAuthData, shows success toast, etc.).
-   * @returns {Promise<*>} The return value of `successHandler`.
-   * @throws {Error} Re-throws with a user-friendly message on failure.
+   * @param {string} actionName
+   * @param {Function} apiCall
+   * @param {Function} successHandler
+   * @returns {Promise<*>}
    */
   const executeAuthAction = useCallback(
     async (actionName, apiCall, successHandler) => {
@@ -329,8 +307,7 @@ export const AuthProvider = ({ children }) => {
    *
    * @param {string} email
    * @param {string} password
-   * @param {boolean} rememberMe - If true, persist token in localStorage;
-   *   otherwise sessionStorage.
+   * @param {boolean} rememberMe
    * @returns {Promise<{ success: boolean }>}
    */
   const login = useCallback(
@@ -360,13 +337,11 @@ export const AuthProvider = ({ children }) => {
   /**
    * Register a new account.
    *
-   * On success the user is immediately authenticated (token stored in
-   * sessionStorage, not localStorage).
-   *
    * @param {string} username
    * @param {string} email
    * @param {string} password
-   * @param {string} dateOfBirth - ISO date string (YYYY-MM-DD)
+   * @param {string} dateOfBirth
+   * @param {boolean} parentalConsent
    * @returns {Promise<{ success: boolean }>}
    */
   const register = useCallback(
@@ -390,15 +365,10 @@ export const AuthProvider = ({ children }) => {
           } = payload;
 
           if (receivedAccessToken && userData) {
+            // Registration never sets remember-me
             setAuthData(userData, receivedAccessToken, false);
             showToast("Registration successful!", "success");
-
-            return {
-              success: true,
-              user: userData,
-              ageNotice,
-              privacyNotice,
-            };
+            return { success: true, user: userData, ageNotice, privacyNotice };
           }
           throw new Error("Invalid response format.");
         },
@@ -406,26 +376,19 @@ export const AuthProvider = ({ children }) => {
     },
     [executeAuthAction, setAuthData, showToast],
   );
+
   /**
-   * Fetch the current user's profile from `/api/auth/user`.
+   * Fetch the current user's profile from /api/auth/user.
    *
-   * Handles several edge cases:
-   * - No stored token → clears user and loading.
-   * - Valid token with existing user object → skips fetch.
-   * - Expired token → attempts a refresh first; on failure logs out.
-   * - 401 during fetch → attempts a refresh; on failure logs out.
-   * - Any other error → logs out.
+   * On mount, the memory token will be null (page refresh), so this
+   * immediately attempts a silent token refresh via the httpOnly cookie
+   * before fetching the profile.
    */
   const fetchUserProfile = useCallback(async () => {
-    const token = getStoredAccessToken();
+    const token = getStoredAccessToken(); // reads from memory
 
-    if (!token) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
-    if (!isTokenValid(token)) {
+    // No token in memory — attempt silent refresh via httpOnly cookie
+    if (!token || !isTokenValid(token)) {
       try {
         await refreshAuthToken();
 
@@ -439,6 +402,7 @@ export const AuthProvider = ({ children }) => {
         authApiClient.defaults.headers.common["Authorization"] = authHeader;
         adminApiClient.defaults.headers.common["Authorization"] = authHeader;
       } catch {
+        // No valid refresh token cookie — user is logged out
         setAuthData(null, null);
         setLoading(false);
         return;
@@ -455,7 +419,9 @@ export const AuthProvider = ({ children }) => {
       const payload = await apiClient.get("/auth/user");
       const userData = payload.user || payload;
       const storedToken = getStoredAccessToken();
-      setAuthData(userData, storedToken, !!localStorage.getItem("accessToken"));
+      // ✅ Determine remember-me from preference flag, not storage token presence
+      const isRememberMe = !!localStorage.getItem("rememberMe");
+      setAuthData(userData, storedToken, isRememberMe);
     } catch (err) {
       if (err.response?.status === 401) {
         try {
@@ -475,11 +441,6 @@ export const AuthProvider = ({ children }) => {
   // Effects
   // ---------------------------------------------------------------------------
 
-  /**
-   * When the user object changes from null → authenticated, register the
-   * beforeunload session-end beacon via the session service. Remove it when
-   * the user logs out.
-   */
   useEffect(() => {
     if (user) {
       const cleanup = setupSessionEndTracking(BACKEND_URL);
@@ -488,23 +449,13 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   /**
-   * One-time initialisation on mount:
-   * 1. Read any stored token and pre-set Authorization headers.
-   * 2. Fetch the user profile (or refresh if the stored token is expired).
+   * On mount: attempt to restore auth state via the httpOnly refresh cookie.
+   * No storage reads needed — the cookie is sent automatically.
    */
   useEffect(() => {
     let isMounted = true;
 
     const initAuth = async () => {
-      const token = getStoredAccessToken();
-
-      if (token && isTokenValid(token)) {
-        const authHeader = `Bearer ${token}`;
-        apiClient.defaults.headers.common["Authorization"] = authHeader;
-        authApiClient.defaults.headers.common["Authorization"] = authHeader;
-        adminApiClient.defaults.headers.common["Authorization"] = authHeader;
-      }
-
       if (isMounted) {
         await fetchUserProfile();
       }
@@ -518,10 +469,6 @@ export const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * One-time setup of Axios request/response interceptors via the API
-   * service. The cleanup function ejects them on unmount.
-   */
   useEffect(() => {
     const cleanup = setupInterceptors(
       refreshAuthToken,
@@ -536,40 +483,20 @@ export const AuthProvider = ({ children }) => {
   // Context Value
   // ---------------------------------------------------------------------------
 
-  /**
-   * The complete set of values and functions exposed to consumers via
-   * `useAuth()`.
-   *
-   * @type {object}
-   */
   const authContextValue = {
-    /** @type {object|null} Current authenticated user */
     user,
-    /** @type {string|null} Current JWT access token */
     accessToken,
-    /** @type {boolean} True during initial auth check and auth actions */
     loading,
-    /** @type {string|null} Most recent auth error message */
     authError,
-    /** @type {boolean} Convenience flag: true when user or token exists */
     isAuthenticated: !!user || !!accessToken,
-    /** @type {Function} login(email, password, rememberMe) */
     login,
-    /** @type {Function} register(username, email, password) */
     register,
-    /** @type {Function} logout([message]) */
     logout,
-    /** @type {Function} refreshAuthToken() */
     refreshAuthToken,
-    /** @type {Function} updateUser(partialUser) */
     updateUser,
-    /** @type {number} Monotonically increasing version for leaderboard invalidation */
     leaderboardVersion,
-    /** @type {Function} Increments leaderboardVersion by 1 */
     triggerLeaderboardRefresh: () => setLeaderboardVersion((v) => v + 1),
-    /** @type {Function} isUserAdmin() */
     isUserAdmin,
-    /** @type {string|null} Current analytics session ID */
     sessionId: typeof window !== "undefined" ? getSessionId() : null,
   };
 
@@ -586,9 +513,9 @@ export const AuthProvider = ({ children }) => {
 
 /**
  * Access the auth context. Must be called from a component wrapped in
- * `<AuthProvider>`.
+ * <AuthProvider>.
  *
- * @returns {object} The auth context value (see `authContextValue` above).
+ * @returns {object}
  * @throws {Error} If called outside of an AuthProvider.
  */
 export const useAuth = () => {

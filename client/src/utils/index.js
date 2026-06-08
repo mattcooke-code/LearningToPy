@@ -42,6 +42,10 @@ export {
   calculateModuleEditorStats,
   calculateUserDashboardStats,
 } from "./statsManagement";
-export { getStoredAccessToken, isTokenValid } from "./tokenUtils";
+export {
+  getStoredAccessToken,
+  isTokenValid,
+  setTokenMemory,
+} from "./tokenUtils";
 export { normalizeUserData } from "./userUtils";
 export { validateWithPyodide } from "./validationUtils";

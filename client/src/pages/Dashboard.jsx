@@ -160,7 +160,7 @@ const Dashboard = () => {
             <div className="space-y-3">
               {surroundingLeaderboard.users?.map((player) => (
                 <LeaderboardRow
-                  key={player.rank}
+                  key={player._id}
                   rank={player.rank}
                   user={player}
                   isCurrent={player.isCurrent}

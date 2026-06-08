@@ -262,20 +262,34 @@ const getAchievements = catchAsync(async (req, res, next) => {
  * @returns {Object} 404 - User not found or not on leaderboard
  */
 const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
-  const userId = req.userId;
+  const userId = req.userId.toString();
   const range = 2;
 
-  const currentUser = await User.findById(userId);
+  const currentUser = await User.findById(userId)
+    .select("username xp privacySettings")
+    .lean();
   if (!currentUser) {
     return next(new AppError("User not found", 404));
   }
 
+  // Fetch all opted-in users for the ranked list
   const allUsers = await User.find({
     "privacySettings.showOnLeaderboards": true,
   })
     .select("username xp privacySettings")
     .sort({ xp: -1 })
     .lean();
+
+  const isCurrentUserInList = allUsers.some((u) => u._id.toString() === userId);
+
+  if (!isCurrentUserInList) {
+    const insertAt = allUsers.findIndex((u) => u.xp <= currentUser.xp);
+    if (insertAt === -1) {
+      allUsers.push(currentUser);
+    } else {
+      allUsers.splice(insertAt, 0, currentUser);
+    }
+  }
 
   const usersWithPrivacy = allUsers.map((user) => ({
     ...user,
@@ -289,10 +303,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
     (user) => user._id.toString() === userId,
   );
 
-  if (currentUserIndex === -1) {
-    return next(new AppError("User not found on leaderboard", 404));
-  }
-
+  // currentUserIndex can no longer be -1 here
   const startIndex = Math.max(0, currentUserIndex - range);
   const endIndex = Math.min(
     usersWithPrivacy.length - 1,
@@ -310,10 +321,13 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
       isAnonymous: user.isAnonymous,
     }));
 
+  const ids = surroundingUsers.map((u) => u._id.toString());
+  const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
+
   sendJsonResponse(res, 200, "User's leaderboard placement found", {
     users: surroundingUsers,
     currentUserRank: currentUserIndex + 1,
-    totalUsers: usersWithPrivacy.length,
+    totalUsers: allUsers.length,
   });
 });
 
@@ -335,7 +349,16 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
     .limit(limit)
     .lean();
 
-  const topUsersWithPrivacy = topUsers.map((user, index) => ({
+  // Deduplicate by _id in case of index inconsistency after schema refactor
+  const seen = new Set();
+  const dedupedUsers = topUsers.filter((u) => {
+    const id = u._id.toString();
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+
+  const topUsersWithPrivacy = dedupedUsers.map((user, index) => ({
     ...user,
     rank: index + 1,
     displayName: user.privacySettings?.showUsernameOnLeaderboards
