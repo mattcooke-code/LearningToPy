@@ -103,16 +103,22 @@ const Home = () => {
 
   useEffect(() => {
     setDefaultTheme();
+  }, []);
+
+  useEffect(() => {
+    let pinned = false;
 
     const handleScroll = () => {
-      // 80px = h-20 (main Navbar height). StickyNavbar pins once the
-      // main Navbar has fully scrolled off screen on mobile.
-      setIsPinned(window.scrollY > 80);
+      const shouldPin = window.scrollY > 80;
+      if (shouldPin !== pinned) {
+        pinned = shouldPin;
+        setIsPinned(pinned);
+      }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [setDefaultTheme]);
+  }, []);
 
   const ctaLink = isAuthenticated ? "/dashboard" : "/register";
   const ctaLabel = isAuthenticated
