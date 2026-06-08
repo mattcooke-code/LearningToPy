@@ -6,4 +6,8 @@ export {
   adminApiClient,
   setupInterceptors,
 } from "./api";
-export { getSessionId, setupSessionEndTracking } from "./session";
+export {
+  getSessionId,
+  setupSessionEndTracking,
+  clearSessionId,
+} from "./session";

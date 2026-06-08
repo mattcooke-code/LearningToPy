@@ -45,6 +45,7 @@ import {
   setupInterceptors,
   getSessionId,
   setupSessionEndTracking,
+  clearSessionId,
 } from "../services";
 
 // ---------------------------------------------------------------------------
@@ -193,6 +194,7 @@ export const AuthProvider = ({ children }) => {
         setAuthData(null, null);
         showToast(message || "You have been logged out", "info");
         setLoading(false);
+        clearSessionId();
         refreshPromise.current = null;
         failedQueue.current = [];
         isRefreshing.current = false;

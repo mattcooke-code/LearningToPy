@@ -3,73 +3,64 @@
  * @fileoverview Client-side session management utilities.
  *
  * Provides:
- * - Session ID generation and retrieval (persisted to localStorage).
+ * - Session ID generation and retrieval (memory-cached, persisted to localStorage).
  * - Device/browser info collection.
  * - Session-end beacon tracking via `navigator.sendBeacon`.
  *
- * These utilities are consumed by the API layer (for attaching analytics
- * headers) and by AuthContext (for session-end tracking on logout/tab close).
- *
  * @module services/session
- * @requires uuid
  * @requires ../utils/deviceInfo
  */
 
-import { v4 as uuidv4 } from "uuid";
 import { getDeviceInfo } from "../utils/deviceInfo";
 
+// Memory cache to avoid repeated localStorage reads on every API request
+let cachedSessionId = null;
+
 /**
- * Retrieve the current session ID from localStorage, or generate a new one
- * (UUID v4) and persist it.
- *
- * A session persists across page reloads but is cleared on logout.
+ * Retrieve the current session ID. Uses memory cache after first read.
+ * Falls back to localStorage, then generates a new UUID if neither has one.
  *
  * @returns {string} The session ID.
  */
 export const getSessionId = () => {
-  let sessionId = localStorage.getItem("sessionId");
-  if (!sessionId) {
-    sessionId = uuidv4();
-    localStorage.setItem("sessionId", sessionId);
+  if (cachedSessionId) return cachedSessionId;
+
+  cachedSessionId = localStorage.getItem("sessionId");
+  if (!cachedSessionId) {
+    cachedSessionId = crypto.randomUUID();
+    localStorage.setItem("sessionId", cachedSessionId);
   }
-  return sessionId;
+  return cachedSessionId;
+};
+
+/**
+ * Clear the cached session ID and remove it from localStorage.
+ * Called on logout so the next login starts a fresh session.
+ */
+export const clearSessionId = () => {
+  cachedSessionId = null;
+  localStorage.removeItem("sessionId");
 };
 
 /**
  * Register a `beforeunload` listener that fires a SESSION_END analytics
- * beacon via `navigator.sendBeacon` when the user closes the tab or
- * navigates away.
+ * beacon via `navigator.sendBeacon`.
  *
- * The beacon payload includes:
- * - `sessionId` — the current session identifier
- * - `duration` — seconds elapsed since `setupSessionEndTracking` was called
- * - `actionType` — always `"SESSION_END"`
- * - `deviceInfo` — full device info snapshot from `getDeviceInfo()`
+ * Device info is captured at setup time (not at unload) to avoid heavy
+ * operations during browser teardown.
  *
- * **Usage:**
- * ```js
- * useEffect(() => {
- *   if (user) {
- *     const cleanup = setupSessionEndTracking(BACKEND_URL);
- *     return cleanup;
- *   }
- * }, [user]);
- * ```
- *
- * @param {string} backendUrl - The base URL of the backend (used to construct
- *   the analytics endpoint).
- * @returns {Function|undefined} A cleanup function that removes the listener,
- *   or undefined when called in a non-browser environment (SSR safety).
+ * @param {string} backendUrl - The base URL of the backend.
+ * @returns {Function|undefined} A cleanup function, or undefined in SSR.
  */
 export const setupSessionEndTracking = (backendUrl) => {
   if (typeof window === "undefined") return;
 
   const startTime = Date.now();
   const sessionId = getSessionId();
+  const deviceInfo = getDeviceInfo(); // Captured once at setup
 
   const handleBeforeUnload = () => {
     const duration = Math.round((Date.now() - startTime) / 1000);
-    const deviceInfo = getDeviceInfo();
 
     const data = JSON.stringify({
       sessionId,
