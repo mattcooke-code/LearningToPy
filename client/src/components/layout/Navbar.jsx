@@ -1,59 +1,42 @@
-import { memo, useState } from "react"; // Added useState
+import { memo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../../context";
 import { PYTHON_BLUE, PYTHON_DARK } from "../../constants/themeConstants";
 import { shouldUseThemeColor } from "../../utils";
 import { ThemeToggle } from "../ui";
-import {
-  BookOpen,
-  User,
-  LogOut,
-  Home,
-  Shield,
-  Menu,
-  X, // Added Menu and X icons
-} from "lucide-react";
-
-/**
- * Navigation bar component with theme-aware styling and mobile responsiveness.
- * Provides user authentication state handling, navigation links, and mobile menu functionality.
- *
- * @component
- * @returns {JSX.Element} Responsive navigation bar with authentication and theme support
- */
+import { BookOpen, User, LogOut, Home, Shield, Menu, X } from "lucide-react";
 
 const Navbar = memo(function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { themeColor, isDarkMode } = useTheme();
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false); // Mobile state
+  const [isOpen, setIsOpen] = useState(false);
 
-  const getNavbarBg = () => {
-    if (shouldUseThemeColor(location.pathname))
-      return { backgroundColor: themeColor };
-    return isDarkMode
-      ? { backgroundColor: PYTHON_DARK }
-      : { backgroundColor: PYTHON_BLUE };
-  };
+  // Resolve navbar background — theme on learning pages, static Python colours elsewhere
+  const navbarBg = shouldUseThemeColor(location.pathname)
+    ? "var(--theme-color)"
+    : isDarkMode
+      ? PYTHON_DARK
+      : PYTHON_BLUE;
 
-  const getNavbarText = () => {
-    if (shouldUseThemeColor(location.pathname)) return "text-white";
-    return isDarkMode ? "text-python-light" : "text-white";
-  };
+  const navbarText = shouldUseThemeColor(location.pathname)
+    ? "text-white"
+    : isDarkMode
+      ? "text-python-light"
+      : "text-white";
 
-  const getHoverClass = () =>
-    "hover:text-python-yellow hover:bg-black hover:bg-opacity-10 transition px-3 py-2 rounded-md";
+  const linkHoverClass =
+    "hover:text-python-yellow hover:bg-black/10 transition px-3 py-2 rounded-md";
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
     <nav
-      style={getNavbarBg()}
-      className={`${getNavbarText()} shadow-lg transition-colors duration-500 relative lg:sticky lg:top-0 z-[100]`}
+      style={{ backgroundColor: navbarBg }}
+      className={`${navbarText} shadow-lg transition-colors duration-500 relative lg:sticky lg:top-0 z-100`}
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          {/* Logo & Theme Toggle Group */}
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <Link to="/" className="flex items-center space-x-2 shrink-0">
@@ -64,27 +47,26 @@ const Navbar = memo(function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Nav Links (Hidden on Mobile) */}
           <div className="hidden lg:flex items-center space-x-2">
             {isAuthenticated ? (
               <>
                 <Link
                   to="/dashboard"
-                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                  className={`flex items-center space-x-1 ${linkHoverClass}`}
                 >
                   <Home className="w-5 h-5" />
                   <span>Dashboard</span>
                 </Link>
                 <Link
                   to="/modules"
-                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                  className={`flex items-center space-x-1 ${linkHoverClass}`}
                 >
                   <BookOpen className="w-5 h-5" />
                   <span>Learn</span>
                 </Link>
                 <Link
                   to="/profile"
-                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                  className={`flex items-center space-x-1 ${linkHoverClass}`}
                 >
                   <User className="w-5 h-5" />
                   <span>Profile</span>
@@ -92,7 +74,7 @@ const Navbar = memo(function Navbar() {
                 {user?.isAdmin && (
                   <Link
                     to="/admin"
-                    className={`flex items-center space-x-1 ${getHoverClass()}`}
+                    className={`flex items-center space-x-1 ${linkHoverClass}`}
                   >
                     <Shield className="w-5 h-5" />
                     <span>Admin</span>
@@ -100,7 +82,7 @@ const Navbar = memo(function Navbar() {
                 )}
                 <button
                   onClick={() => logout()}
-                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                  className={`flex items-center space-x-1 ${linkHoverClass}`}
                 >
                   <LogOut className="w-5 h-5" />
                   <span>Logout</span>
@@ -108,7 +90,7 @@ const Navbar = memo(function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className={getHoverClass()}>
+                <Link to="/login" className={linkHoverClass}>
                   Login
                 </Link>
                 <Link
@@ -121,41 +103,39 @@ const Navbar = memo(function Navbar() {
             )}
           </div>
 
-          {/* Hamburger Button (Hidden on Desktop) */}
           <button
             onClick={toggleMenu}
-            className="lg:hidden p-2 rounded-md hover:bg-black hover:bg-opacity-10 focus:outline-none"
+            className="lg:hidden p-2 rounded-md hover:bg-black/10 focus:outline-none"
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
       <div
-        className={`lg:hidden transition-all duration-300 overflow-hidden ${isOpen ? "max-h-[500px] border-t border-black border-opacity-10" : "max-h-0"}`}
+        className={`lg:hidden transition-all duration-300 overflow-hidden ${isOpen ? "max-h-500px border-t border-black/10" : "max-h-0"}`}
       >
-        <div className="px-4 pt-2 pb-6 space-y-2 bg-black bg-opacity-5">
+        <div className="px-4 pt-2 pb-6 space-y-2 bg-black/5">
           {isAuthenticated ? (
             <>
               <Link
                 to="/dashboard"
                 onClick={toggleMenu}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black hover:bg-opacity-10"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black/10"
               >
                 <Home size={20} /> <span>Dashboard</span>
               </Link>
               <Link
                 to="/modules"
                 onClick={toggleMenu}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black hover:bg-opacity-10"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black/10"
               >
                 <BookOpen size={20} /> <span>Learn</span>
               </Link>
               <Link
                 to="/profile"
                 onClick={toggleMenu}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black hover:bg-opacity-10"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black/10"
               >
                 <User size={20} /> <span>Profile</span>
               </Link>
@@ -163,7 +143,7 @@ const Navbar = memo(function Navbar() {
                 <Link
                   to="/admin"
                   onClick={toggleMenu}
-                  className={`flex items-center space-x-1 ${getHoverClass()}`}
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-black/10"
                 >
                   <Shield className="w-5 h-5" />
                   <span>Admin</span>
@@ -174,7 +154,7 @@ const Navbar = memo(function Navbar() {
                   logout();
                   toggleMenu();
                 }}
-                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-black hover:bg-opacity-10 text-left"
+                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-black/10 text-left"
               >
                 <LogOut size={20} /> <span>Logout</span>
               </button>
@@ -184,7 +164,7 @@ const Navbar = memo(function Navbar() {
               <Link
                 to="/login"
                 onClick={toggleMenu}
-                className="p-3 text-center rounded-lg border border-white border-opacity-20"
+                className="p-3 text-center rounded-lg border border-white/20"
               >
                 Login
               </Link>

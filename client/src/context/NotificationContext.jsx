@@ -66,7 +66,7 @@ const Toast = ({ id, message, type, onClose }) => {
 
   return (
     <div
-      className={`flex items-center justify-between p-4 mb-2 rounded-lg border-l-4 text-white shadow-lg transform transition-all duration-300 animate-in slide-in-from-bottom-8 ${typeStyles[type]} min-w-[300px] max-w-md`}
+      className={`flex items-center justify-between p-4 mb-2 rounded-lg border-l-4 text-white shadow-lg transform transition-all duration-300 animate-in slide-in-from-bottom-8 ${typeStyles[type]} min-w-300px max-w-md`}
     >
       <span className="flex-1">{message}</span>
       <button
@@ -135,7 +135,7 @@ const ConfirmationModal = ({
         <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
           {title}
         </h3>
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 max-w-[280px] leading-relaxed">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 max-w-280px leading-relaxed">
           {message}
         </p>
 

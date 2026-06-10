@@ -5,16 +5,6 @@ import { PYTHON_BLUE, PYTHON_YELLOW } from "../../constants/themeConstants";
 import { shouldUseThemeColor } from "../../utils";
 import { ArrowUp } from "lucide-react";
 
-/**
- * Floating back-to-top button that appears after scrolling past a threshold.
- * Features route-aware theming and smooth scroll behavior.
- * 
- * @component
- * @param {Object} props
- * @param {number} [props.scrollThreshold=600] - Scroll distance in pixels before button appears
- * @param {string} [props.className="p-4 m-6"] - Additional CSS classes
- */
-
 const BackToTopButton = memo(function BackToTopButton({
   scrollThreshold = 600,
   className = "p-4 m-6",
@@ -33,66 +23,62 @@ const BackToTopButton = memo(function BackToTopButton({
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  const getButtonColor = () => {
-    if (shouldUseThemeColor(location.pathname)) {
-      return themeColor;
-    }
-    if (isDarkMode) {
-      return PYTHON_YELLOW;
-    }
-    return PYTHON_BLUE;
-  };
+  const useThemeColor = shouldUseThemeColor(location.pathname);
 
-  const getHoverColor = (baseColor) => {
-    if (baseColor === PYTHON_YELLOW) return PYTHON_BLUE;
-    if (baseColor === PYTHON_BLUE) return PYTHON_YELLOW;
-    return baseColor;
-  };
+  // Background colours
+  const baseColor = useThemeColor
+    ? themeColor
+    : isDarkMode
+      ? PYTHON_YELLOW
+      : PYTHON_BLUE;
 
-  const getHoverArrow = () => {
-    if (shouldUseThemeColor(location.pathname)) {
-      return "text-white";
-    }
-    return isDarkMode
-      ? "text-black hover:text-white"
-      : "text-white hover:text-black";
-  };
+  const hoverColor = useThemeColor
+    ? getComputedStyle(document.documentElement)
+        .getPropertyValue("--theme-hover-color")
+        .trim() || themeColor
+    : isDarkMode
+      ? PYTHON_BLUE
+      : PYTHON_YELLOW;
 
-  const buttonColor = getButtonColor();
-  const hoverColor = getHoverColor(buttonColor);
+  // Arrow colours — swap with background for contrast
+  const baseArrow = useThemeColor
+    ? "white"
+    : isDarkMode
+      ? "#1e415e" // python-dark on yellow bg
+      : "white"; // white on blue bg
 
-  if (!showButton) {
-    return null;
-  }
+  const hoverArrow = useThemeColor
+    ? "white"
+    : isDarkMode
+      ? "white" // white on blue bg
+      : "#1e415e"; // python-dark on yellow bg
+
+  if (!showButton) return null;
 
   return (
     <button
       onClick={scrollToTop}
       style={{
-        backgroundColor: buttonColor,
-        transition: "all 0.3s ease-in-out",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = hoverColor;
-        e.currentTarget.style.transform = "translateY(-4px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = buttonColor;
-        e.currentTarget.style.transform = "translateY(0)";
+        "--btn-bg": baseColor,
+        "--btn-hover-bg": hoverColor,
+        "--btn-arrow": baseArrow,
+        "--btn-hover-arrow": hoverArrow,
       }}
       className={`
-        fixed z-50 bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 rounded-full
-        flex items-center justify-center
-        transition-all duration-300 ease-in-out
-        hover:shadow-xl ${getHoverArrow()}
-        p-3 sm:p-4 md:p-5
-        ${className}
-      `}
+  fixed z-50 bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8
+  rounded-full flex items-center justify-center
+  transition-all duration-300 ease-in-out
+  hover:shadow-xl hover:-translate-y-1
+  p-3 sm:p-4 md:p-5
+  ${className}
+  bg-(--btn-bg)
+  hover:bg-(--btn-hover-bg)
+  text-(--btn-arrow)
+  hover:text-(--btn-hover-arrow)
+`}
       aria-label="Back to top"
     >
       <ArrowUp size={30} />
