@@ -6,7 +6,7 @@ import { apiClient } from "../../services";
 import { getErrorMessage } from "../../utils";
 import { LoadingState } from "../ui";
 
-const DeleteAccount = () => {
+const DeleteAccount = ({ onBack }) => {
   const [step, setStep] = useState(1); // 1: warning, 2: confirmation text, 3: password
   const [password, setPassword] = useState("");
   const [confirmText, setConfirmText] = useState("");
@@ -22,10 +22,10 @@ const DeleteAccount = () => {
       return;
     }
 
+    if (loading) return;
     setLoading(true);
 
     try {
-      // ✅ Uses apiClient — DELETE with body needs data property in axios
       await apiClient.delete("/auth/delete-account", {
         data: { password },
       });
@@ -33,7 +33,7 @@ const DeleteAccount = () => {
       await logout("Your account has been permanently deleted.");
 
       // Navigate to goodbye/confirmation page
-      navigate("/account-deleted", { replace: true });
+      navigate("/login", { replace: true });
     } catch (err) {
       showToast(getErrorMessage(err), "error");
       setLoading(false);
@@ -41,7 +41,7 @@ const DeleteAccount = () => {
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    onBack?.();
   };
 
   if (loading) {

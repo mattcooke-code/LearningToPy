@@ -12,13 +12,6 @@ vi.mock("../../../services", () => ({
   apiClient: { patch: vi.fn() },
 }));
 
-vi.mock("../../../hooks", () => ({
-  useThemeStyles: vi.fn(() => ({
-    themeColor: "#007BFF",
-    hoverHandlers: { onMouseEnter: vi.fn(), onMouseLeave: vi.fn() },
-  })),
-}));
-
 vi.mock("../../../utils", () => ({
   getErrorMessage: vi.fn((_, defaultMsg) => defaultMsg),
   getSuccessMessage: vi.fn(

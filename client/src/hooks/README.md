@@ -16,7 +16,6 @@ Custom React hooks. Encapsulate reusable stateful logic, side effects, and conte
 | `usePageViewTracker.js`     | Side effect     | POSTs page view analytics on authenticated route changes                                     | ❌     |
 | `useSettingsManager.js`     | State           | Editable settings with dirty-change tracking against server originals                        | ✅     |
 | `useStreakNotifications.js` | Side effect     | Toast/confirm notifications for streak WARNING, AT_RISK, RESETTING states                    | ❌     |
-| `useThemeStyles.js`         | Context wrapper | Theme colour and hover event handlers for interactive elements                               | ❌     |
 | `index.js`                  | Barrel          | Re-exports all public hooks                                                                  | —      |
 
 ## Dependency Graph
@@ -43,13 +42,10 @@ useSettingsManager ────► utils (PLATFORM_DEFAULTS)
 
 useStreakNotifications ► context (useNotification)
 
-useThemeStyles ────────► context (useTheme)
-└─► utils (getHoverColor)
-
 useContentFilter ────── (no external dependencies — pure React state)
 
 ## Testing Notes
 
 - **Tested hooks** use `@testing-library/react` with `renderHook` and mock React state.
 - **Skipped hooks** are integration-level (multiple contexts, API calls, side effects) and should be exercised through component integration tests or E2E tests.
-- **Context-wrapping hooks** (`useConfirmActions`, `useThemeStyles`) return values derived from context but contain no complex logic themselves — their correctness is verified by testing the context providers.
+- **Context-wrapping hooks** `useConfirmActions`, return values derived from context but contain no complex logic themselves — their correctness is verified by testing the context providers.

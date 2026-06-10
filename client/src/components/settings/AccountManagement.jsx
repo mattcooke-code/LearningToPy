@@ -28,7 +28,7 @@ const AccountManagement = ({ section, onBack }) => {
 
       {section === "password" && <ChangePassword />}
       {section === "export" && <ExportData />}
-      {section === "delete" && <DeleteAccount />}
+      {section === "delete" && <DeleteAccount onBack={onBack} />}
     </div>
   );
 };

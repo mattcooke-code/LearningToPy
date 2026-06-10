@@ -10,12 +10,13 @@ const ExportData = () => {
   const { showToast } = useNotification();
 
   const handleExport = async () => {
+    if (loading) return;
     setLoading(true);
     try {
       const data = await apiClient.get("/auth/export-data");
 
       // Create downloadable JSON file
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
+      const blob = new Blob([JSON.stringify(data)], {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
@@ -23,9 +24,7 @@ const ExportData = () => {
       const link = document.createElement("a");
       link.href = url;
       link.download = `my-data-${new Date().toISOString().split("T")[0]}.json`;
-      document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
       showToast("Your data has been downloaded.", "success");

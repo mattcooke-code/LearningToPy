@@ -117,7 +117,7 @@ import AccountManagement from "../components/settings/AccountManagement";
 
 ## Dependencies
 
-- **PrivacySettings:** `useThemeStyles`, `getErrorMessage`, `apiClient`, `lucide-react`
+- **PrivacySettings:** `getErrorMessage`, `apiClient`, `lucide-react`
 - **ChangePassword:** `useNotification`, `LoadingState`, `authApiClient`
 - **DeleteAccount:** `useAuth`, `useNotification`, `LoadingState`, `apiClient`
 - **AccountManagement:** `ChangePassword`, `DeleteAccount`, `lucide-react`

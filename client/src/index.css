@@ -8,6 +8,10 @@
   --color-python-dark: #1e415e;
   --color-python-light: #ffe873;
 
+  /* Theme colors driven by JavaScript CSS variables */
+  --color-theme: var(--theme-color);
+  --color-theme-hover: var(--theme-hover-color);
+
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Segoe UI", Roboto;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }

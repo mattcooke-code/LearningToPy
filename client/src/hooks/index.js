@@ -8,4 +8,3 @@ export { useFileDownload } from "./useFileDownload";
 export { usePageViewTracker } from "./usePageViewTracker";
 export { useSettingsManager } from "./useSettingsManager";
 export { useStreakNotifications } from "./useStreakNotifications";
-export { useThemeStyles } from "./useThemeStyles";

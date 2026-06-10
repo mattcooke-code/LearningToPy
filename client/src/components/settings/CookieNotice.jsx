@@ -1,16 +1,11 @@
 // components/settings/CookieNotice.jsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 
 const CookieNotice = () => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const dismissed = localStorage.getItem("cookie-notice-dismissed");
-    if (!dismissed) {
-      setVisible(true);
-    }
-  }, []);
+  const [visible, setVisible] = useState(() => {
+    return !localStorage.getItem("cookie-notice-dismissed");
+  });
 
   const dismiss = () => {
     localStorage.setItem("cookie-notice-dismissed", "true");

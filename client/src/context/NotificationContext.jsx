@@ -25,8 +25,8 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
-import { v4 as uuidv4 } from "uuid";
 import BaseModal from "../components/ui/BaseModal";
 
 // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ export const NotificationProvider = ({ children }) => {
   /**
    * Display a toast notification.
    *
-   * Each toast receives a unique ID (UUID v4) and is automatically removed
+   * Each toast receives a unique ID (crypto.randomUUID) and is automatically removed
    * after `duration` milliseconds.
    *
    * @param {string} message - The text to display.
@@ -205,21 +205,32 @@ export const NotificationProvider = ({ children }) => {
    *   controlling colour.
    * @param {number} [duration=5000] - Auto-dismiss delay in ms.
    */
+
+  const timersRef = useRef(new Map());
+
   const showToast = useCallback((message, type = "info", duration = 5000) => {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, message, type, duration }]);
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      timersRef.current.delete(id);
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, duration);
+
+    timersRef.current.set(id, timer);
   }, []);
 
   /**
    * Remove a toast immediately by ID (used by the close button).
    *
-   * @param {string} id - The UUID of the toast to dismiss.
+   * @param {string} id - The crypto.randomUUID of the toast to dismiss.
    */
   const removeToast = useCallback((id) => {
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 

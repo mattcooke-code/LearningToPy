@@ -16,6 +16,7 @@ const ChangePassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
     // Lightweight client-side check — real validation is on the backend
     if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {

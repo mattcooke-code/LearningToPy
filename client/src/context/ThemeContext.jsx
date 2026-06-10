@@ -36,7 +36,7 @@ import {
   useEffect,
 } from "react";
 import { THEME_COLORS } from "../constants/themeConstants";
-import { resolveCourseThemeColor } from "../utils";
+import { resolveCourseThemeColor, getHoverColor } from "../utils";
 
 // ---------------------------------------------------------------------------
 // Context Definition
@@ -234,6 +234,22 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("codeTheme", codeTheme);
   }, [codeTheme]);
 
+  /**
+   * Update CSS custom properties on the root element whenever themeColor
+   * changes. This allows Tailwind classes like bg-theme / hover:bg-theme-hover
+   * to work without JavaScript hover handlers.
+   */
+  useEffect(() => {
+    console.log(
+      "Setting theme CSS variables:",
+      themeColor,
+      getHoverColor(themeColor),
+    );
+    const root = document.documentElement;
+    root.style.setProperty("--theme-color", themeColor);
+    root.style.setProperty("--theme-hover-color", getHoverColor(themeColor));
+  }, [themeColor]);
+
   // ---------------------------------------------------------------------------
   // Public API — Theme Color
   // ---------------------------------------------------------------------------
@@ -286,6 +302,8 @@ export const ThemeProvider = ({ children }) => {
    */
   const setDefaultTheme = useCallback(() => {
     setThemeColor(THEME_COLORS.DEFAULT);
+    document.documentElement.style.removeProperty("--theme-color");
+    document.documentElement.style.removeProperty("--theme-hover-color");
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -361,6 +379,8 @@ export const ThemeProvider = ({ children }) => {
     localStorage.removeItem("themeColor");
     localStorage.removeItem("codeTheme");
     localStorage.removeItem("uiTheme");
+    document.documentElement.style.removeProperty("--theme-color");
+    document.documentElement.style.removeProperty("--theme-hover-color");
   }, []);
 
   /**

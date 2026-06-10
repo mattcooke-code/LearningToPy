@@ -19,10 +19,11 @@ Frontend optimisation pass focused on:
 - Security: access tokens moved to memory-only (not localStorage/sessionStorage)
 - Fixing dynamic Tailwind classes (broken in production builds)
 - Preventing flash-of-login-form for already-authenticated users
+- Replacing JavaScript hover handlers with CSS custom properties + Tailwind `hover:`
 
 ---
 
-## AuthContext.jsx — Performance & Security
+## context/AuthContext.jsx — Performance & Security
 
 - **Security Fix — Token Storage:** Access tokens are now held in memory only via
   `setTokenMemory()` (module-level variable in `tokenUtils.js`). Previously stored in
@@ -105,6 +106,43 @@ significant change, implemented via `setTokenMemory()` / `getStoredAccessToken()
 - **Documented Request Interceptor:** Added comment explaining the interceptor is a
   fallback for requests made before AuthProvider finishes initializing. Default
   headers are set by `setAuthHeader()` once auth is ready.
+
+---
+
+## context/ThemeContext.jsx — CSS Custom Properties for Theme Colours
+
+- **Added CSS Variable Effect:** New `useEffect` sets `--theme-color` and
+  `--theme-hover-color` on `document.documentElement` whenever `themeColor` changes.
+  Enables Tailwind classes like `bg-theme` / `hover:bg-theme-hover` to work without
+  JavaScript hover handlers. Look here if theme colours are not applying to elements
+  using `bg-theme`.
+- **Added Cleanup in `resetTheme` and `setDefaultTheme`:** CSS custom properties
+  are removed on theme reset to prevent stale colour values.
+
+## context/NotificationContext.jsx — Dependency Removal & Timer Cleanup
+
+- **Removed `uuid` Dependency:** Replaced `uuidv4()` with `crypto.randomUUID()` —
+  the last remaining `uuid` import in the project. Package can now be uninstalled.
+- **Fixed Timer Memory Leak:** `removeToast` now clears the auto-dismiss `setTimeout`
+  via a `timersRef` Map. Previously, manually dismissing a toast left a pending
+  timeout that would call `setToasts` unnecessarily. Pending timers on unmount are
+  also tracked.
+
+## hooks/useThemeStyles.js — Replaced by CSS Approach
+
+- **Removed JavaScript Hover Handlers:** The `hoverHandlers` object (which used
+  `onMouseEnter`/`onMouseLeave` to set `style.backgroundColor`) has been replaced
+  by CSS custom properties + Tailwind `hover:bg-theme-hover`. Components using
+  `useThemeStyles` should now use `bg-theme hover:bg-theme-hover transition-colors`
+  instead. The hook still exports `themeColor` for components that need the raw value.
+
+## index.css — Tailwind v4 Theme Configuration
+
+- **Added `--color-theme` and `--color-theme-hover` to `@theme`:** These CSS
+  variables bridge JavaScript-driven theme colours (`--theme-color` set by
+  ThemeContext) to Tailwind utility classes (`bg-theme`, `hover:bg-theme-hover`).
+  Required because Tailwind v4 uses CSS-based `@theme` configuration — the
+  `tailwind.config.js` file is ignored in v4.
 
 ---
 
@@ -197,6 +235,59 @@ significant change, implemented via `setTokenMemory()` / `getStoredAccessToken()
   validation provides the authoritative error.
 - **Added Double-Submit Guard:** `if (loading) return` in `handleSubmit`.
 
+## pages/Profile.jsx — Nested Ternary Simplification
+
+- **Changed Account Section Rendering:** Replaced triple nested ternary
+  (`section === "password" ? ... : section === "export" ? ... : section === "delete" ? ...`)
+  with a single conditional + `<AccountManagement section={activeAccountSection}>`.
+  Eliminates O(n) conditional chain and makes adding new sections trivial.
+
+## components/settings/AccountManagement.jsx — ✅ No Changes Needed
+
+Pure routing component — renders one of three sub-components based on prop.
+No state, no effects, no loops. O(1).
+
+## components/settings/CookieNotice.jsx — Double Render Fix
+
+- **Changed Visibility State — Lazy Initializer:** Replaced `useState(false)` +
+  `useEffect` pattern with `useState(() => !localStorage.getItem(...))`. Previously
+  rendered `null` on first pass, then the effect fired and triggered a second render.
+  Now resolves correctly on the initial render.
+
+## components/settings/ChangePassword.jsx — Double-Submit Guard
+
+- **Added Double-Submit Guard:** `if (loading) return` in `handleSubmit`.
+
+## components/settings/DeleteAccount.jsx — Navigation & Guards
+
+- **Changed Cancel Navigation:** Replaced `navigate(-1)` with `onBack?.()` prop
+  (passed from `AccountManagement`). Prevents leaving the app if the user navigated
+  directly to the delete section with no browser history.
+- **Changed Success Navigation:** Replaced `navigate("/account-deleted")` with
+  `navigate("/login", { replace: true })`. Explicit destination rather than relying
+  on a page that may not exist.
+- **Added Double-Submit Guard:** `if (loading) return` in `handleDelete`.
+- **Added Comment — Intentional `setLoading` Skip:** Documented why `setLoading(false)`
+  is only called in the catch block (success path unmounts the component).
+
+## components/settings/ExportData.jsx — Download Simplification
+
+- **Removed Unnecessary DOM Operations:** Removed `document.body.appendChild(link)`
+  and `document.body.removeChild(link)` from the download flow. Modern browsers
+  support clicking detached elements — the DOM insertion was only needed for
+  Firefox < 75.
+- **Added Double-Click Guard:** `if (loading) return` in `handleExport`.
+
+## components/settings/PrivacySettings.jsx — Props-to-State Sync Fix
+
+- **Removed `useEffect` Props Sync:** Replaced `useState(defaults)` + `useEffect`
+  (which synced `user.privacySettings` into local state on every `user` change)
+  with `useState(() => user?.privacySettings ?? defaults)`. Eliminates double
+  render on user prop changes and prevents local state from being overwritten by
+  parent re-renders.
+- **Fixed `setTimeout` Without Cleanup:** Added `timerRef` to clear the success
+  message timeout if the component unmounts before 3 seconds.
+
 ---
 
 ## Related: Auth Bug Fixes (During This Pass)
@@ -224,16 +315,27 @@ significant change, implemented via `setTokenMemory()` / `getStoredAccessToken()
 
 ## Files Changed
 
-| File                                   | Type of Change                                                             |
-| -------------------------------------- | -------------------------------------------------------------------------- |
-| `context/AuthContext.jsx`              | Performance (memo, field comparison, helper), Security (memory-only token) |
-| `utils/tokenUtils.js`                  | No changes (already well-structured)                                       |
-| `services/session.js`                  | Performance (caching), Dependency removal (`uuid`)                         |
-| `services/api.js`                      | Performance (cached device info header), Cleanup (removed no-op)           |
-| `components/layout/ProtectedRoute.jsx` | Redirect state preservation, unused import fix                             |
-| `components/layout/AdminGuard.jsx`     | Redirect target, dead code removal                                         |
-| `pages/Home.jsx`                       | Scroll listener optimisation, effect separation                            |
-| `pages/Login.jsx`                      | Auth check flash prevention, redirect replace, double-submit guard         |
-| `pages/Register.jsx`                   | Dynamic Tailwind fix, static data extraction, auth check fixes             |
-| `pages/ForgotPasswordPage.jsx`         | Dead code removal, double-submit guard                                     |
-| `pages/ResetPasswordPage.jsx`          | Effect cleanup, validation simplification, double-submit guard             |
+| File                                        | Type of Change                                                             |
+| ------------------------------------------- | -------------------------------------------------------------------------- |
+| `context/AuthContext.jsx`                   | Performance (memo, field comparison, helper), Security (memory-only token) |
+| `context/ThemeContext.jsx`                  | CSS custom properties for theme colours                                    |
+| `context/NotificationContext.jsx`           | Dependency removal (`uuid`), timer cleanup                                 |
+| `hooks/useThemeStyles.js`                   | Replaced by CSS approach (kept for `themeColor` export)                    |
+| `index.css`                                 | Tailwind v4 `@theme` entries for `bg-theme` / `hover:bg-theme-hover`       |
+| `utils/tokenUtils.js`                       | No changes (already well-structured)                                       |
+| `services/session.js`                       | Performance (caching), Dependency removal (`uuid`)                         |
+| `services/api.js`                           | Performance (cached device info header), Cleanup (removed no-op)           |
+| `components/layout/ProtectedRoute.jsx`      | Redirect state preservation                                                |
+| `components/layout/AdminGuard.jsx`          | Redirect target, dead code removal                                         |
+| `components/settings/AccountManagement.jsx` | No changes needed                                                          |
+| `components/settings/CookieNotice.jsx`      | Double render fix                                                          |
+| `components/settings/ChangePassword.jsx`    | Double-submit guard                                                        |
+| `components/settings/DeleteAccount.jsx`     | Navigation fix, double-submit guard                                        |
+| `components/settings/ExportData.jsx`        | Download simplification, double-click guard                                |
+| `components/settings/PrivacySettings.jsx`   | Props sync fix, timer cleanup                                              |
+| `pages/Home.jsx`                            | Scroll listener optimisation, effect separation                            |
+| `pages/Login.jsx`                           | Auth check flash prevention, redirect replace, double-submit guard         |
+| `pages/Register.jsx`                        | Dynamic Tailwind fix, static data extraction, auth check fixes             |
+| `pages/ForgotPasswordPage.jsx`              | Dead code removal, double-submit guard                                     |
+| `pages/ResetPasswordPage.jsx`               | Effect cleanup, validation simplification, double-submit guard             |
+| `pages/Profile.jsx`                         | Nested ternary simplification                                              |

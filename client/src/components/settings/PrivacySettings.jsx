@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
 import { apiClient } from "../../services";
-import { useThemeStyles } from "../../hooks";
 import { getErrorMessage, getSuccessMessage } from "../../utils";
 
 /**
  * Privacy settings form controlling leaderboard visibility and anonymity options.
  * Manages interdependent settings: disabling leaderboards automatically hides usernames,
  * and enabling usernames disables anonymous mode.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {Object} props.user - Current user object containing privacySettings
@@ -17,26 +16,14 @@ import { getErrorMessage, getSuccessMessage } from "../../utils";
 
 const PrivacySettings = ({ user, onUpdate }) => {
   const [settings, setSettings] = useState({
-    showOnLeaderboards: true,
-    showAsAnonymous: false,
-    showUsernameOnLeaderboards: true,
+    showOnLeaderboards: user?.privacySettings?.showOnLeaderboards ?? true,
+    showAsAnonymous: user?.privacySettings?.showAsAnonymous ?? false,
+    showUsernameOnLeaderboards:
+      user?.privacySettings?.showUsernameOnLeaderboards ?? true,
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-
-  const { themeColor, hoverHandlers } = useThemeStyles();
-
-  // Initialize with user's current settings
-  useEffect(() => {
-    if (user?.privacySettings) {
-      setSettings({
-        showOnLeaderboards: user.privacySettings.showOnLeaderboards ?? true,
-        showAsAnonymous: user.privacySettings.showAsAnonymous ?? false,
-        showUsernameOnLeaderboards:
-          user.privacySettings.showUsernameOnLeaderboards ?? true,
-      });
-    }
-  }, [user]);
+  const timerRef = useRef(null);
 
   const handleSave = async () => {
     try {
@@ -56,10 +43,11 @@ const PrivacySettings = ({ user, onUpdate }) => {
         text: getSuccessMessage("update", "Privacy settings"),
       });
 
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 3000);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(
+        () => setMessage({ type: "", text: "" }),
+        3000,
+      );
     } catch (err) {
       console.error("Failed to update privacy settings:", err);
       setMessage({
@@ -138,14 +126,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
                 onChange={(e) => handleToggleLeaderboard(e.target.checked)}
                 className="peer sr-only"
               />
-              <div
-                className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-                style={{
-                  backgroundColor: settings.showOnLeaderboards
-                    ? themeColor
-                    : undefined,
-                }}
-              ></div>
+              <div className="bg-theme peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
             </label>
           </div>
 
@@ -176,16 +157,11 @@ const PrivacySettings = ({ user, onUpdate }) => {
                   className="peer sr-only"
                 />
                 <div
-                  className={`peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white ${
+                  className={`bg-theme peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white ${
                     !settings.showOnLeaderboards
                       ? "cursor-not-allowed opacity-50"
                       : ""
                   }`}
-                  style={{
-                    backgroundColor: settings.showUsernameOnLeaderboards
-                      ? themeColor
-                      : undefined,
-                  }}
                 ></div>
               </label>
             </div>
@@ -243,9 +219,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-lg px-8 py-2 font-semibold text-white disabled:opacity-50"
-            style={{ backgroundColor: themeColor }}
-            {...hoverHandlers}
+            className="rounded-lg px-8 py-2 font-semibold text-white disabled:opacity-50 bg-theme hover:bg-theme-hover transition-colors"
           >
             {saving ? "Saving..." : "Save Settings"}
           </button>

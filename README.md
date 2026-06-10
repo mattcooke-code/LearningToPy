@@ -90,7 +90,7 @@ npm run dev
 /client/src
 ├── components # Reusable UI (Modals, Toggles, etc.)
 ├── context # Theme, Auth, and Python execution state
-├── hooks # Custom logic (useThemeStyles, etc.)
+├── hooks # Custom logic (useDashboardData, etc.)
 └── utils # JSDoc-documented helper functions
 
 ## 📄 License

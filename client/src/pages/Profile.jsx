@@ -1,3 +1,4 @@
+// Profile.jsx
 import { useMemo, useState } from "react";
 import {
   Award,
@@ -8,7 +9,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useAuth, useTheme } from "../context";
-import { useDashboardData, useThemeStyles } from "../hooks";
+import { useDashboardData } from "../hooks";
 import {
   BackToTopButton,
   SegmentedLevelProgressBar,
@@ -35,8 +36,6 @@ const Profile = () => {
   const { updateThemeFromCourseProgress } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeAccountSection, setActiveAccountSection] = useState(null);
-
-  const { themeColor, hoverHandlers } = useThemeStyles();
 
   const { userProgress, earnedBadgeIds, loading, error } = useDashboardData(
     user,
@@ -111,8 +110,8 @@ const Profile = () => {
         {/* 1. Level Progress Card */}
         <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
-            <Target className="h-5 w-5" style={{ color: themeColor }} />
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <Target className="h-5 w-5 text-theme" />
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white ">
               Level Progress
             </h3>
           </div>
@@ -121,7 +120,7 @@ const Profile = () => {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Current Level
               </p>
-              <p className="text-5xl font-bold" style={{ color: themeColor }}>
+              <p className="text-5xl font-bold text-theme">
                 {userProgress?.level || user?.level || 1}
               </p>
             </div>
@@ -317,9 +316,7 @@ const Profile = () => {
         </h2>
         <button
           onClick={openModal}
-          className="inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-sm transition"
-          style={{ backgroundColor: themeColor }}
-          {...hoverHandlers}
+          className="inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-sm transition bg-theme hover:bg-theme-hover"
         >
           <Award className="mr-2 h-4 w-4" />
           View All Badges
