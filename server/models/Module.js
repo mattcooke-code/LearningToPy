@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { generateUniqueSlug } = require("../utils/generalUtils");
 
 const ModuleSchema = new mongoose.Schema(
   {
@@ -9,12 +10,12 @@ const ModuleSchema = new mongoose.Schema(
       minlength: [3, "Module title must be at least 3 characters"],
       maxlength: [100, "Module title must not exceed 100 characters"],
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Prevent script injection in titles
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Title contains invalid content"
-      }
+        message: "Title contains invalid content",
+      },
     },
     description: {
       type: String,
@@ -22,12 +23,12 @@ const ModuleSchema = new mongoose.Schema(
       minlength: [10, "Description must be at least 10 characters"],
       maxlength: [2000, "Description must not exceed 2000 characters"],
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Basic XSS prevention
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Description contains invalid content"
-      }
+        message: "Description contains invalid content",
+      },
     },
     shortDescription: { type: String, maxLength: 150 },
     order: { type: Number, min: 0 },
@@ -45,15 +46,15 @@ const ModuleSchema = new mongoose.Schema(
     learningObjectives: [String],
     icon: { type: String, default: "📚" },
     slug: { type: String, unique: true, index: true, trim: true },
-    xpReward: { 
-      type: Number, 
-      default: 100, 
+    xpReward: {
+      type: Number,
+      default: 100,
       min: [0, "XP reward cannot be negative"],
       max: [1000, "XP reward cannot exceed 1000"],
       validate: {
         validator: Number.isInteger,
-        message: "XP reward must be an integer"
-      }
+        message: "XP reward must be an integer",
+      },
     },
     lessonCount: { type: Number, default: 0 },
     // Updated to handle the nested JSON structure from seeders
@@ -99,30 +100,8 @@ ModuleSchema.set("toObject", { virtuals: true });
 
 // --- Slug Generation Middleware ---
 ModuleSchema.pre("save", async function (next) {
-  if (!this.isModified("title") && this.slug) {
-    return next();
-  }
-
-  const baseSlug = this.title
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-
-  let candidate = baseSlug;
-  let suffix = 1;
-  const ModuleModel = this.constructor;
-
-  while (
-    await ModuleModel.exists({
-      slug: candidate,
-      _id: { $ne: this._id },
-    })
-  ) {
-    candidate = `${baseSlug}-${suffix++}`;
-  }
-
-  this.slug = candidate;
+  if (!this.isModified("title") && this.slug) return next();
+  this.slug = await generateUniqueSlug(this.constructor, this.title, this._id);
   next();
 });
 

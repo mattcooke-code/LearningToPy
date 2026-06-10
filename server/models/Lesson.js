@@ -1,5 +1,6 @@
 // server/models/Lesson.js
 const mongoose = require("mongoose");
+const { generateUniqueSlug } = require("../utils/generalUtils");
 
 const LessonSchema = new mongoose.Schema(
   {
@@ -107,30 +108,9 @@ const LessonSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Improved slug middleware with uniqueness check (consistent with Module.js)
 LessonSchema.pre("save", async function (next) {
-  if (!this.isModified("title") && this.slug) {
-    return next();
-  }
-
-  const baseSlug = this.title
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-
-  let candidate = baseSlug;
-  let suffix = 1;
-  const LessonModel = this.constructor;
-
-  // Check for uniqueness across the whole collection
-  while (
-    await LessonModel.exists({ slug: candidate, _id: { $ne: this._id } })
-  ) {
-    candidate = `${baseSlug}-${suffix++}`;
-  }
-
-  this.slug = candidate;
+  if (!this.isModified("title") && this.slug) return next();
+  this.slug = await generateUniqueSlug(this.constructor, this.title, this._id);
   next();
 });
 

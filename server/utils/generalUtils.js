@@ -14,6 +14,43 @@ const slugify = (value) =>
     .replace(/-+/g, "-");
 
 /**
+ * Generate a URL-friendly slug that is guaranteed unique within the given
+ * Mongoose model's collection.
+ *
+ * Uses a single database query to fetch all existing matching slugs, then
+ * appends a numeric suffix (`-2`, `-3`, etc.) if the base slug is taken.
+ * Avoids the O(k) sequential-query pattern where k is the collision count.
+ *
+ * @param {import('mongoose').Model} Model - The Mongoose model to check against
+ * @param {string} title - The title to derive the slug from
+ * @param {*} [existingId] - The document's own _id (excluded from uniqueness check)
+ * @returns {Promise<string>} A unique slug string
+ */
+const generateUniqueSlug = async (Model, title, existingId) => {
+  const baseSlug = slugify(title);
+
+  const escaped = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const slugPattern = new RegExp(`^${escaped}(-\\d+)?$`);
+
+  const existingSlugs = await Model.find(
+    { slug: slugPattern, _id: { $ne: existingId } },
+    { slug: 1, _id: 0 },
+  ).lean();
+
+  const existingSet = new Set(existingSlugs.map((doc) => doc.slug));
+
+  if (!existingSet.has(baseSlug)) return baseSlug;
+
+  let suffix = 1;
+  let candidate;
+  do {
+    candidate = `${baseSlug}-${suffix++}`;
+  } while (existingSet.has(candidate));
+
+  return candidate;
+};
+
+/**
  * Convert various ID formats to string
  * @param {*} value - MongoDB ObjectId, string, or other value
  * @returns {string|null} String ID or null
@@ -95,6 +132,7 @@ const normalizeTags = (tags) => {
 
 module.exports = {
   slugify,
+  generateUniqueSlug,
   toStringId,
   normalizeDate,
   normalizeTags,
