@@ -68,8 +68,6 @@ const progressRoutes = require("./routes/progress");
 const contentRoutes = require("./routes/content");
 const supportRoutes = require("./routes/support");
 
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
-
 const app = express();
 
 // Trust proxy (required for secure cookies behind Render's reverse proxy)
@@ -98,7 +96,7 @@ app.use(
     dnsPrefetchControl: { allow: false },
     frameguard: { action: "deny" },
     hidePoweredBy: true,
-    hsts: IS_PRODUCTION
+    hsts: config.isProduction()
       ? { maxAge: 31536000, includeSubDomains: true, preload: true }
       : false,
     ieNoOpen: true,
@@ -113,7 +111,7 @@ app.use(
 // 2. CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: config.getFrontendUrl(),
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -190,7 +188,7 @@ app.use(errorHandler);
 
 // ─── Server Startup (DB-first) ───────────────────────────────────────────────
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.getPort();
 
 const startServer = async () => {
   try {

@@ -45,13 +45,6 @@ Express middleware functions. Applied in a specific order in `server.js`.
 - **Responsibility:** Formats errors via `sendJsonResponse`. Shows debug details in development, generic messages in production. Distinguishes operational errors from programming bugs.
 - **Exports:** `globalErrorHandler` (default export)
 
-## pythonSandbox.js
-
-- **Applied:** On terminal/practice routes
-- **Responsibility:** Creates a `vm2` VM with 5s timeout, restricted modules, no eval/fs/wasm
-- **Attaches:** `req.pythonVM`
-- **Exports:** `pythonSandbox`
-
 ## rateLimiter.js
 
 - **Applied:** `ipBlocker` and `abuseDetector` globally; specific limiters per route

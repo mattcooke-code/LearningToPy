@@ -10,6 +10,12 @@ document bloat, improve write performance, and enable efficient pagination/TTL i
 
 ---
 
+==========================================================================================
+
+# AUTH
+
+==========================================================================================
+
 ## utils/authUtils.js (Refactored & Slimmed Down)
 
 - **Function Removal (`createPasswordResetEmail`):** Moved to `utils/emailTemplates.js`. Look here if password reset emails fail to generate or display HTML.
@@ -324,15 +330,84 @@ Functions operate on whatever `completedModules` array they receive. All callers
 
 ---
 
-## Deployment Checklist (for when ready)
+==========================================================================================
 
-- [ ] Drop existing `users` collection in Atlas (zero production users)
-- [ ] Deploy all new model files
-- [ ] Deploy updated User.js
-- [ ] Deploy updated controllers (auth, admin, progress)
-- [ ] Deploy updated services (learningEngine)
-- [ ] Verify Mongoose creates all indexes (`db.collection.getIndexes()` in Compass)
-- [ ] Run a test registration → lesson completion → module completion flow
-- [ ] Verify GDPR export returns all data from new collections
-- [ ] Verify account deletion cascades to all new collections
-- [ ] Update README.md files for `/models`, `/controllers`, `/utils`
+# CONTENT
+
+==========================================================================================
+
+## models/Lesson.js — Slug Optimisation & Schema Hardening
+
+- **Changed Slug Generation — Single Query:** Replaced O(k) sequential `while (await exists(...))`
+  pattern with a single `Model.find({ slug: pattern })` query + `Set` lookup. Previously
+  each slug collision triggered a separate database round-trip. Now all matching slugs are
+  fetched in one query and checked in-memory. Look here if duplicate slugs appear after
+  creating lessons with identical titles.
+- **Delegated to `generalUtils.generateUniqueSlug()`:** Slug logic extracted to shared utility
+  alongside existing `slugify()`. Both `Lesson.js` and `Module.js` now use the same function.
+- **Noted `quiz` array unbounded:** No `maxlength` validation on quiz questions. A seeder bug
+  could create thousands of questions. Documented for future hardening.
+- **Noted `codeExample` field:** Possibly unused — verify with frontend before removing.
+
+## models/Module.js — Slug Optimisation & Redundancy Removal
+
+- **Changed Slug Generation:** Same O(k) → O(1) fix as Lesson.js via `generalUtils.generateUniqueSlug()`.
+- **Documented Pre-Save Hook Ordering:** Two separate `pre('save')` hooks (slug + order/moduleNumber)
+  have implicit execution order dependency. Added comment warning that slug hook must run before
+  the order hook.
+- **Noted `lessonCount` Redundancy:** Both a stored `lessonCount` field and a `calculatedLessonCount`
+  virtual exist. The virtual queries the Lesson collection; the field requires manual maintenance.
+  Having both risks inconsistency. Documented for future cleanup.
+- **Noted `prerequisites` and `learningObjectives` validation gaps:** No array length limits or
+  string trimming. Documented for future hardening.
+
+## utils/generalUtils.js — Shared Slug Generator
+
+- **Added `generateUniqueSlug(Model, title, existingId)`:** New async function that generates a
+  URL-friendly slug guaranteed unique within a Mongoose model's collection. Uses a single
+  database query to fetch all existing matching slugs, then appends numeric suffixes in-memory.
+  Complements the existing synchronous `slugify()` function (used by `navigation.js` for fuzzy
+  matching). Look here if slug generation fails or produces unexpected results.
+
+## controllers/contentController.js — Query Consolidation (Big O)
+
+- **Changed `getAllModules()` — O(m) → O(1) Lesson Queries:** Previously fetched lessons
+  per-module in a loop (m queries for m modules). Now fetches all lessons for all published
+  modules in a single `{ moduleId: { $in: moduleIds } }` query and groups by moduleId
+  client-side. For 20 modules, reduced from 20 queries to 1. Look here if module progress
+  data is missing or incorrect.
+- **Added `fetchLessonsByModule()` Helper:** Shared helper that fetches all published lessons
+  for a set of module IDs and returns a `Map<moduleId, lessons[]>` for O(1) lookup per module.
+- **Changed `getModuleLessons()` — Scoped Completion Query:** Now filters `LessonCompletion`
+  by the module's lesson IDs (`{ lessonId: { $in: lessonIds } }`) instead of fetching all
+  user completions. For a user with 500 completed lessons viewing a 10-lesson module, reduced
+  from 500 documents scanned to 10.
+- **Changed `getLessonContent()` — Parallel Queries:** `LessonCompletion` and
+  `LessonQuizProgress` lookups now run via `Promise.all` instead of sequentially. Saves one
+  round-trip (~5ms).
+- **Changed `fetchUserCompletionData()` — Added `fullDocs` Option:** When `{ fullDocs: true }`
+  is passed, returns full `LessonCompletion` and `ModuleCompletion` documents alongside the
+  ID arrays. Eliminates duplicate queries in `submitLesson` and `submitModuleQuiz` where the
+  same data was fetched twice (once by the helper, once directly).
+- **Changed `submitLesson()` & `submitModuleQuiz()` — Reuse Completion Data:** Progress response
+  construction now uses `fetchUserCompletionData(userId, { fullDocs: true })` instead of
+  fetching completions separately. Eliminates 2 redundant queries per submission.
+- **Changed `fixModuleProgress()` — Single Lesson Query:** Uses `fetchLessonsByModule()`
+  instead of querying lessons per-module in a loop. Same O(m) → O(1) improvement as
+  `getAllModules`.
+
+## controllers/imageController.js — Startup Resolution & Path Hardening
+
+- **Changed Base Path Resolution — Startup Instead of Per-Request:** Previously tried up to
+  5 file paths sequentially via `fs.access` on every image request. Now resolves the correct
+  base path once at module load time via `fsSync.existsSync`. Per-request path is a single
+  `path.join`. For a page with 20 badge images, reduced from up to 100 system calls to 20.
+  Look here if module images 404 after deployment (base path may need updating for new
+  environments).
+- **Completed `moduleFolders` Map:** Added all 21 module entries (M0–M20). Previously only
+  8 modules were mapped — any unmapped module would 404.
+- **Added `sendFile` Error Callback:** Handles the edge case where a file is deleted between
+  `fs.access` and `res.sendFile`. Previously would throw an unhandled error.
+- **Added Windows Path Traversal Protection:** Added `\\` to the security check alongside
+  `..` and `/`.
+- **Removed Debug Log:** Leftover `console.log` on every successful image find removed.

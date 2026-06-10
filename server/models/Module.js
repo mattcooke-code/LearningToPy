@@ -43,7 +43,7 @@ const ModuleSchema = new mongoose.Schema(
     estimatedHours: { type: Number, default: 2, min: 0.5 },
     isPublished: { type: Boolean, default: false },
     prerequisites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Module" }],
-    learningObjectives: [String],
+    learningObjectives: [{ type: String, trim: true, minlength: 5 }],
     icon: { type: String, default: "📚" },
     slug: { type: String, unique: true, index: true, trim: true },
     xpReward: {
