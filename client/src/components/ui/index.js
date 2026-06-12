@@ -8,6 +8,7 @@ export { default as LeaderboardRow } from "./LeaderboardRow";
 export { default as LoadingState } from "./LoadingState";
 export { default as MarkdownRenderer } from "./MarkdownRenderer";
 export { default as Pagination } from "./Pagination";
+export { default as ProgressCircle } from "./ProgressCircle";
 export { default as ProgressGauge } from "./ProgressGauge";
 export { default as PythonSyntaxHighlighter } from "./PythonSyntaxHighlighter";
 export { default as RefreshButton } from "./RefreshButton";

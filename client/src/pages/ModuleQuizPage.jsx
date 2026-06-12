@@ -1,3 +1,4 @@
+// ModuleQuizPage.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth, useNotification, useTheme } from "../context";
@@ -8,7 +9,13 @@ import {
   MarkdownRenderer,
 } from "../components/ui";
 import { apiClient } from "../services";
-import { getErrorMessage } from "../utils";
+import {
+  getErrorMessage,
+  shuffleArray,
+  buildShuffledOptions,
+  getShuffledOptions,
+  getActualIndex,
+} from "../utils";
 import {
   Trophy,
   CheckCircle,
@@ -25,7 +32,7 @@ import {
  * Comprehensive module quiz page with shuffled questions, immediate feedback, review mode,
  * and detailed results analysis. This is the most complex quiz component implementing Fisher-Yates
  * shuffling, answer tracking, progress management, and post-quiz review functionality.
- * 
+ *
  * Features linear question progression, mandatory answer requirements, and sophisticated
  * state management for quiz flow control. Includes comprehensive error handling and
  * theme integration with progress-based updates.
@@ -33,15 +40,15 @@ import {
 
 /**
  * Module quiz page component with interactive quiz functionality and comprehensive feedback.
- * 
+ *
  * This component implements a full-featured quiz system with question shuffling,
  * immediate feedback, progress tracking, and detailed results analysis. Features linear
  * progression through questions, mandatory answering, review mode for incorrect answers,
  * and automatic theme updates based on quiz performance.
- * 
+ *
  * @component
  * @returns {JSX.Element} Complete quiz interface with questions, feedback, and results
- * 
+ *
  * @stateManagement
  * - module: Module data with quiz content and completion status
  * - currentQuestionIndex: Current position in question sequence
@@ -53,41 +60,41 @@ import {
  * - shuffledOptions: Randomized answer options with correct answer tracking
  * - reviewMode: Toggle for reviewing incorrect answers
  * - selectedReviewQuestion: Currently selected question for detailed review
- * 
+ *
  * @quizFlow
  * - Linear progression: Must answer current question before proceeding
  * - Immediate feedback: Shows correctness and explanation after each answer
  * - Shuffling: Randomizes both questions and answer options
  * - Progress tracking: Visual progress bar and question grid
  * - Mandatory completion: All questions must be answered before submission
- * 
+ *
  * @dataProcessing
  * - Fisher-Yates shuffle algorithm for randomization
  * - Answer mapping between shuffled and original indices
  * - Score calculation with passing threshold evaluation
  * - XP calculation based on performance
  * - Theme updates based on course progress
- * 
+ *
  * @interactionHandlers
  * - handleAnswerSelect: Processes answer selection with immediate feedback
  * - handleNext: Advances to next question (only if current answered)
  * - handleSubmitQuiz: Submits all answers for scoring
  * - handleRetakeQuiz: Resets all state for quiz retake
  * - openReviewQuestion: Opens detailed review for specific question
- * 
+ *
  * @feedbackSystem
  * - Immediate correctness feedback with visual indicators
  * - Toast notifications for answer validation
  * - Detailed explanations for incorrect answers
  * - Post-quiz review modal for incorrect questions
  * - Comprehensive results display with XP rewards
- * 
+ *
  * @errorHandling
  * - Prerequisite checking (all lessons must be complete)
  * - API error handling with user feedback
  * - Graceful fallback for missing quiz data
  * - Navigation fallbacks on failures
- * 
+ *
  * @securityFeatures
  * - Server-side answer validation
  * - Question order tracking for integrity
@@ -145,57 +152,28 @@ const ModuleQuizPage = () => {
     fetchModule();
   }, [fetchModule]);
 
-  // Shuffle helper (Fisher-Yates)
-  const shuffleArray = (array) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
   // Initialize shuffled questions/options
   useEffect(() => {
     if (module?.moduleQuiz?.questions) {
       const shuffledQs = shuffleArray([...module.moduleQuiz.questions]);
       setShuffledQuestions(shuffledQs);
       setCurrentQuestionIndex(0);
-
-      // Shuffle answer options while tracking correct answer index
-      const optionsMap = {};
-      shuffledQs.forEach((question) => {
-        if (question.options && Array.isArray(question.options)) {
-          const indices = question.options.map((_, i) => i);
-          const shuffledIndices = shuffleArray(indices);
-          optionsMap[question._id] = {
-            shuffledIndices,
-            originalOptions: question.options,
-            correctAnswer: question.correctAnswer,
-          };
-        }
-      });
-      setShuffledOptions(optionsMap);
+      setShuffledOptions(buildShuffledOptions(shuffledQs));
     }
   }, [module]);
 
   // Handle answer selection with immediate feedback
   const handleAnswerSelect = (questionId, displayIndex, question) => {
-    const optionsMapping = shuffledOptions[questionId];
-    let actualIndex;
-    if (optionsMapping?.shuffledIndices) {
-      actualIndex = optionsMapping.shuffledIndices[displayIndex];
-    } else {
-      actualIndex = displayIndex;
-    }
+    const actualIndex = getActualIndex(
+      shuffledOptions,
+      questionId,
+      displayIndex,
+    );
 
-    // Check if answer is correct
     const isCorrect = actualIndex === question.correctAnswer;
 
-    // Update user answers
     setUserAnswers((prev) => ({ ...prev, [questionId]: actualIndex }));
 
-    // Store feedback for this question
     setQuestionFeedback((prev) => ({
       ...prev,
       [questionId]: {
@@ -207,7 +185,6 @@ const ModuleQuizPage = () => {
       },
     }));
 
-    // Show toast for immediate feedback
     if (isCorrect) {
       showToast("✓ Correct! Great job!", "success", 2000);
     } else {
@@ -243,16 +220,10 @@ const ModuleQuizPage = () => {
 
     setIsSubmitting(true);
     try {
-      const numericAnswers = {};
-      Object.entries(userAnswers).forEach(([questionId, answer]) => {
-        numericAnswers[questionId] =
-          typeof answer === "string" ? answer.charCodeAt(0) - 65 : answer;
-      });
-
       const result = await apiClient.post(
         `/content/modules/${moduleId}/submit-quiz`,
         {
-          answers: numericAnswers,
+          answers: userAnswers,
           questionOrder: shuffledQuestions.map((q) => q._id),
         },
       );
@@ -304,7 +275,6 @@ const ModuleQuizPage = () => {
       navigate(`/modules/${quizResults.nextModuleId}/lessons`);
     } else {
       navigate("/modules", { replace: true });
-      window.location.reload();
     }
   };
 
@@ -651,11 +621,11 @@ const ModuleQuizPage = () => {
           {(() => {
             const questionId = currentQuestion._id;
             const optionsMapping = shuffledOptions[questionId];
-            const optionsToDisplay = optionsMapping?.shuffledIndices
-              ? optionsMapping.shuffledIndices.map(
-                  (idx) => currentQuestion.options[idx],
-                )
-              : currentQuestion.options;
+            const optionsToDisplay = getShuffledOptions(
+              shuffledOptions,
+              questionId,
+              currentQuestion.options,
+            );
 
             return optionsToDisplay.map((option, displayIndex) => {
               const optionKey = String.fromCharCode(65 + displayIndex);

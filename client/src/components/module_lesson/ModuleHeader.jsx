@@ -1,5 +1,6 @@
+// ModuleHeader.jsx
 import { ArrowLeft } from "lucide-react";
-import ProgressCircle from "./ProgressCircle";
+import { ProgressCircle } from "../ui";
 
 /**
  * Header section for module detail page with back navigation and progress tracking.

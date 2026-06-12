@@ -298,24 +298,18 @@ const QuizComponent = ({
         const currentAttempts = attempts[qKey] || 0;
         const isCorrect = result?.isCorrect;
 
-        // Determine question card background based on state
-        const getQuestionCardClass = () => {
-          if (!result?.show) {
-            return "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm";
-          }
-          if (isCorrect) {
-            return "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800";
-          }
-          if (currentAttempts >= 2) {
-            return "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800";
-          }
-          return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800";
-        };
+        const questionCardClass = !result?.show
+          ? "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm"
+          : isCorrect
+            ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+            : currentAttempts >= 2
+              ? "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800";
 
         return (
           <div
             key={qKey}
-            className={`p-6 rounded-xl border transition-all ${getQuestionCardClass()}`}
+            className={`p-6 rounded-xl border transition-all ${questionCardClass}`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-3">

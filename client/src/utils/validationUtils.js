@@ -180,6 +180,12 @@ ${test.code}
 };
 
 /**
+ *   Convert to lowercase, trim whitespace, and unify line endings
+ */
+const normalizeOutput = (str) =>
+  (str || "").toLowerCase().replace(/\r\n/g, "\n").trim();
+
+/**
  * Validate output matches expected with normalization
  */
 export const validateOutputWithPyodide = async (
@@ -191,9 +197,6 @@ export const validateOutputWithPyodide = async (
     const result = await runCode(userCode, 10000);
     if (!result.success)
       return { success: false, feedback: `Runtime error: ${result.error}` };
-
-    // NORMALIZATION: Convert to lowercase, trim whitespace, and unify line endings
-    const normalize = (str) => str.toLowerCase().replace(/\r\n/g, "\n").trim();
 
     const actual = normalize(result.stdout || "");
     const expected = normalize(expectedOutput || "");

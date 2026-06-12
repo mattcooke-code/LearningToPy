@@ -20,13 +20,13 @@ import { CheckCircle } from "lucide-react";
 
 /**
  * Comprehensive lesson content renderer with interactive components integration.
- * 
+ *
  * This component serves as the main container for lesson content, rendering markdown
  * content, integrating interactive exercises and quizzes, and managing completion states.
  * Handles theory lessons with manual completion marking and practical lessons with
  * automatic progress tracking. Features responsive design, theme integration, and
  * comprehensive state management for optimal user experience.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {Object} props.lesson - Lesson data with content, exercises, and quizzes
@@ -42,37 +42,37 @@ import { CheckCircle } from "lucide-react";
  * @param {boolean} props.quizCompleted - Quiz completion state
  * @param {Function} props.setQuizCompleted - Quiz completion setter
  * @returns {JSX.Element} Complete lesson content with interactive components
- * 
+ *
  * @contentRendering
  * - MarkdownRenderer for lesson content display
  * - Module number integration for contextual rendering
  * - Responsive typography and layout
  * - Theme-aware styling throughout
- * 
+ *
  * @interactiveIntegration
  * - ExerciseComponent for coding exercises
  * - QuizComponent for knowledge assessments
  * - CodeBlock for code examples
  * - Seamless component composition
- * 
+ *
  * @completionTracking
  * - Automatic completion for exercises/quizzes
  * - Manual completion for theory lessons
  * - Visual completion indicators
  * - XP reward display and tracking
- * 
+ *
  * @theoryLessonHandling
  * - Manual completion button for theory content
  * - XP reward preview before completion
  * - Loading states during completion marking
  * - Visual feedback for completed theory lessons
- * 
+ *
  * @responsiveDesign
  * - Mobile-friendly layout and interactions
  * - Adaptive component sizing
  * - Touch-friendly buttons and controls
  * - Flexible content flow
- * 
+ *
  * @stateManagement
  * - Integration with parent component states
  * - Completion state propagation
@@ -96,28 +96,14 @@ const LessonContent = ({
 }) => {
   const { isCodeDark } = useTheme();
 
-  const getModuleNumber = () => {
-    if (lesson.moduleNumber) {
-      return lesson.moduleNumber;
-    }
-
-    if (lesson.module?.order !== undefined) {
-      return `M${lesson.module.order}`;
-    }
-
-    console.warn(
-      `Module order not found for lesson: ${lesson}, defaulting to M0`,
-    );
-    return "M0";
-  };
+  const moduleNumber =
+    lesson.moduleNumber ||
+    (lesson.module?.order !== undefined ? `M${lesson.module.order}` : "M0");
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-6">
       <div className="prose prose-lg max-w-none">
-        <MarkdownRenderer
-          content={lesson.content}
-          moduleId={getModuleNumber()}
-        />
+        <MarkdownRenderer content={lesson.content} moduleId={moduleNumber} />
       </div>
 
       {/* Code Example */}

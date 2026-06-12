@@ -1,5 +1,5 @@
 // CodeEditor.jsx
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { lintGutter } from "@codemirror/lint";
@@ -20,13 +20,13 @@ import { Play, AlertCircle } from "lucide-react";
 
 /**
  * Advanced code editor component with Pyodide integration and interactive execution features.
- * 
+ *
  * This component provides a professional code editing experience using CodeMirror with
  * Python language support, integrated syntax checking, and direct Pyodide execution.
  * Features include run-to-line functionality, quick run buttons, real-time syntax validation,
  * and comprehensive error handling. The editor handles the Pyodide WASM environment
  * loading states and provides visual feedback for execution results.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {string} props.value - Current code value
@@ -38,14 +38,14 @@ import { Play, AlertCircle } from "lucide-react";
  * @param {Function} [props.onRun=null] - Callback when code runs
  * @param {Function} [props.onRunToLine=null] - Callback for run-to-line functionality
  * @returns {JSX.Element} Advanced code editor with execution capabilities
- * 
+ *
  * @pyodideIntegration
  * - Uses usePython hook for Pyodide WASM environment access
  * - Handles isReady state for Python engine availability
  * - Code execution through runCode() method with timeout handling
  * - Syntax checking through checkSyntax() before execution
  * - Loading states during code execution with visual feedback
- * 
+ *
  * @codeExecutionFlow
  * 1. Syntax validation using Pyodide's checkSyntax() method
  * 2. If syntax valid, execute code through runCode() method
@@ -53,34 +53,34 @@ import { Play, AlertCircle } from "lucide-react";
  * 4. Display results in quick result panel
  * 5. Trigger onRun callback with execution data
  * 6. Handle network/execution errors gracefully
- * 
+ *
  * @runToLineFeature
  * - Custom CodeMirror gutter extension with hover-activated run buttons
  * - StateField tracking for hovered line detection
  * - Mouse event handling for line hover detection
  * - Code slicing for partial execution up to specific line
  * - Visual feedback with green play buttons on hover
- * 
+ *
  * @editorFeatures
  * - Full CodeMirror setup with Python language support
  * - Line numbers, bracket matching, and auto-completion
  * - Lint gutter for syntax error indication
  * - 4-space indentation for Python compliance
  * - Theme switching between light and dark modes
- * 
+ *
  * @stateManagement
  * - isRunning: Loading state during code execution
  * - quickResult: Execution result display data
  * - hoveredLineField: CodeMirror state for line hover tracking
  * - Dynamic extensions based on run-to-line functionality
- * 
+ *
  * @errorHandling
  * - Syntax error detection and display
  * - Execution error handling with detailed messages
  * - Pyodide loading state management
  * - Network error handling for execution failures
  * - Graceful degradation when Python engine unavailable
- * 
+ *
  * @responsiveDesign
  * - Adaptive height configuration
  * - Mobile-friendly run buttons and controls
@@ -193,14 +193,17 @@ const CodeEditor = ({
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
 
-  const extensions = [
-    python(),
-    lintGutter(),
-    indentUnit.of("    "),
-    ...(onRunToLine
-      ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
-      : []),
-  ];
+  const extensions = useMemo(
+    () => [
+      python(),
+      lintGutter(),
+      indentUnit.of("    "),
+      ...(onRunToLine
+        ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
+        : []),
+    ],
+    [onRunToLine],
+  );
 
   const handleQuickRun = async () => {
     if (!isReady || isRunning) return;

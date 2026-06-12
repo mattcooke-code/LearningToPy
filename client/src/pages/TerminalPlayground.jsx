@@ -1,5 +1,5 @@
 // pages/TerminalPlayground.jsx
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Terminal as TerminalIcon, BookOpen, Code } from "lucide-react";
 import TerminalComponent from "../components/lesson/TerminalComponent";
 import { useTheme } from "../context";
@@ -13,52 +13,52 @@ import { useTheme } from "../context";
 
 /**
  * Terminal playground component providing interactive Python coding environment.
- * 
+ *
  * This component offers a comprehensive Python learning experience with an integrated
  * terminal, pre-built learning examples, and educational content. Features theme-aware
  * styling, example-based learning, and direct integration with the Python code runner
  * for real-time code execution and feedback.
- * 
+ *
  * @component
  * @returns {JSX.Element} Interactive playground with terminal and learning examples
- * 
+ *
  * @stateManagement
  * - activeTab: Currently selected example or terminal mode
- * 
+ *
  * @pythonRunnerIntegration
  * - TerminalComponent handles all Python code execution
  * - Real-time code execution with immediate output
  * - Session state management for variable persistence
  * - Command history navigation with arrow keys
  * - Multi-line code support for complex structures
- * 
+ *
  * @learningContent
  * - Structured examples progressing from basic to advanced
  * - Basic Output: print statements and string formatting
  * - Variables: data storage and f-string formatting
  * - Math Operations: arithmetic and exponentiation
  * - Each example includes multiple code snippets for exploration
- * 
+ *
  * @userInteraction
  * - Click examples to load code into terminal
  * - Direct code editing in terminal interface
  * - Execute code with Enter key
  * - Navigate command history with arrow keys
  * - Session restart with exit() command
- * 
+ *
  * @themeIntegration
  * - Uses isCodeDark theme context for terminal styling
  * - Consistent theming across all components
  * - Adaptive color schemes for code display
  * - Theme-aware example presentation
- * 
+ *
  * @educationalFeatures
  * - Progressive difficulty in examples
  * - Clear descriptions for each concept
  * - Multiple code examples per topic
  * - Interactive tips for terminal usage
  * - Safe sandboxed environment for experimentation
- * 
+ *
  * @terminalCapabilities
  * - Full Python syntax support
  * - Variable persistence between commands
@@ -66,40 +66,49 @@ import { useTheme } from "../context";
  * - Error handling and display
  * - Session management and restart
  */
+
+const LESSONS = [
+  {
+    title: "Basic Output",
+    description: "Learn how to print to the terminal",
+    examples: [
+      'print("Hello World")',
+      "print(42)",
+      'print("The answer is", 42)',
+    ],
+  },
+  {
+    title: "Variables",
+    description: "Store and use data",
+    examples: [
+      'name = "Alice"',
+      "age = 30",
+      'print(f"My name is {name} and I am {age} years old")',
+    ],
+  },
+  {
+    title: "Math Operations",
+    description: "Basic arithmetic in Python",
+    examples: [
+      "5 + 3",
+      "10 * 2",
+      "15 / 3",
+      "2 ** 3", // Exponentiation
+    ],
+  },
+];
+
 const TerminalPlayground = () => {
   const { isCodeDark } = useTheme();
   const [activeTab, setActiveTab] = useState("terminal");
 
-  const lessons = [
-    {
-      title: "Basic Output",
-      description: "Learn how to print to the terminal",
-      examples: [
-        'print("Hello World")',
-        "print(42)",
-        'print("The answer is", 42)',
-      ],
-    },
-    {
-      title: "Variables",
-      description: "Store and use data",
-      examples: [
-        'name = "Alice"',
-        "age = 30",
-        'print(f"My name is {name} and I am {age} years old")',
-      ],
-    },
-    {
-      title: "Math Operations",
-      description: "Basic arithmetic in Python",
-      examples: [
-        "5 + 3",
-        "10 * 2",
-        "15 / 3",
-        "2 ** 3", // Exponentiation
-      ],
-    },
-  ];
+  const initialCode = useMemo(() => {
+    if (!activeTab.startsWith("lesson-")) {
+      return 'print("Welcome to the Python Playground!")';
+    }
+    const idx = parseInt(activeTab.split("-")[1]);
+    return LESSONS[idx]?.examples?.[0] || 'print("Hello!")';
+  }, [activeTab]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -129,7 +138,7 @@ const TerminalPlayground = () => {
             </div>
 
             <div className="space-y-4">
-              {lessons.map((lesson, index) => (
+              {LESSONS.map((lesson, index) => (
                 <div
                   key={index}
                   className={`p-4 rounded cursor-pointer transition ${
@@ -138,8 +147,8 @@ const TerminalPlayground = () => {
                         ? "bg-gray-700"
                         : "bg-blue-50"
                       : isCodeDark
-                      ? "hover:bg-gray-700"
-                      : "hover:bg-gray-100"
+                        ? "hover:bg-gray-700"
+                        : "hover:bg-gray-100"
                   }`}
                   onClick={() => setActiveTab(`lesson-${index}`)}
                 >
@@ -174,14 +183,7 @@ const TerminalPlayground = () => {
                 : "bg-white border-gray-300"
             }`}
           >
-            <TerminalComponent
-              height="500px"
-              initialCode={
-                activeTab.startsWith("lesson-")
-                  ? lessons[parseInt(activeTab.split("-")[1])].examples[0]
-                  : 'print("Welcome to the Python Playground!")'
-              }
-            />
+            <TerminalComponent height="500px" initialCode={initialCode} />
           </div>
 
           {/* Tips Section */}

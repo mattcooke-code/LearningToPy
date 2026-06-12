@@ -38,6 +38,12 @@ export {
   calculateLevelProgress,
 } from "./progressCalculations";
 export {
+  shuffleArray,
+  buildShuffledOptions,
+  getShuffledOptions,
+  getActualIndex,
+} from "./quizUtils";
+export {
   calculateContentStats,
   calculateModuleEditorStats,
   calculateUserDashboardStats,

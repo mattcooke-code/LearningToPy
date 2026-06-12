@@ -1,3 +1,4 @@
+// QuickActions.jsx
 import { Link } from "react-router-dom";
 import { PlayCircle, Award, CheckCircle } from "lucide-react";
 
@@ -17,6 +18,12 @@ import { PlayCircle, Award, CheckCircle } from "lucide-react";
  * @param {boolean} props.quizCompleted - Whether user has completed the module quiz
  */
 
+const BASE_BTN_CLASS =
+  "flex items-center justify-center space-x-2 py-3 px-8 rounded-xl font-bold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] w-full sm:max-w-xs";
+
+const NEUTRAL_BTN_CLASS =
+  "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900";
+
 const QuickActions = ({
   lessons,
   moduleId,
@@ -27,12 +34,6 @@ const QuickActions = ({
   const nextLesson = lessons.find((lesson) => !lesson.isCompleted);
   const allLessonsDone = lessons.length > 0 && !nextLesson;
   const courseComplete = lessons.length === 1 && !nextLesson;
-
-  const baseBtnClass =
-    "flex items-center justify-center space-x-2 py-3 px-8 rounded-xl font-bold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] w-full sm:max-w-xs";
-
-  const neutralBtnClass =
-    "bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900";
 
   // State 1: Module fully completed (Lessons + Quiz)
   if (allLessonsDone && quizCompleted) {
@@ -50,7 +51,7 @@ const QuickActions = ({
         <div className="flex flex-col items-center justify-center">
           <button
             onClick={onBackToModules}
-            className={`${baseBtnClass} bg-green-600 text-white hover:bg-green-700`}
+            className={`${BASE_BTN_CLASS} bg-green-600 text-white hover:bg-green-700`}
           >
             <span>Return to Modules</span>
           </button>
@@ -75,7 +76,7 @@ const QuickActions = ({
         <div className="flex flex-col items-center justify-center">
           <button
             onClick={onBackToModules}
-            className={`${baseBtnClass} bg-green-600 text-white hover:bg-green-700`}
+            className={`${BASE_BTN_CLASS} bg-green-600 text-white hover:bg-green-700`}
           >
             <span>Return to Modules</span>
           </button>
@@ -101,14 +102,14 @@ const QuickActions = ({
         <div className="flex flex-col items-center gap-4">
           <Link
             to={`/modules/${moduleId}/quiz`}
-            className={`${baseBtnClass} text-white`}
+            className={`${BASE_BTN_CLASS} text-white`}
             style={{ backgroundColor: accentColor }}
           >
             <span>Take Final Quiz</span>
           </Link>
           <button
             onClick={onBackToModules}
-            className={`${baseBtnClass} ${neutralBtnClass}`}
+            className={`${BASE_BTN_CLASS} ${NEUTRAL_BTN_CLASS}`}
           >
             <span>Maybe Later</span>
           </button>
@@ -127,7 +128,7 @@ const QuickActions = ({
         {nextLesson && (
           <Link
             to={`/lessons/${nextLesson._id}`}
-            className={`${baseBtnClass} text-white`}
+            className={`${BASE_BTN_CLASS} text-white`}
             style={{ backgroundColor: accentColor }}
           >
             <PlayCircle size={20} className="shrink-0" />
@@ -136,7 +137,7 @@ const QuickActions = ({
         )}
         <button
           onClick={onBackToModules}
-          className={`${baseBtnClass} ${neutralBtnClass}`}
+          className={`${BASE_BTN_CLASS} ${NEUTRAL_BTN_CLASS}`}
         >
           <span>Maybe Later</span>
         </button>

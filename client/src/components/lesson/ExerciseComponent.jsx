@@ -26,13 +26,13 @@ import { validateWithPyodide, getErrorMessage } from "../../utils";
 
 /**
  * Interactive coding exercise component with Pyodide validation and comprehensive feedback system.
- * 
+ *
  * This component creates a full-featured coding exercise environment that combines client-side
  * validation using Pyodide with server-side submission for progress tracking. Features include
  * a code editor with run-to-line functionality, integrated terminal for testing, comprehensive
  * validation system, hint management, and XP reward integration. The component handles both
  * practice mode and review mode, with detailed feedback and progress tracking capabilities.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {Object} props.exercise - Exercise data with instructions, tests, and metadata
@@ -41,21 +41,21 @@ import { validateWithPyodide, getErrorMessage } from "../../utils";
  * @param {string} props.solution - Solution code for review mode
  * @param {string} props.lessonId - Lesson ID for API submissions
  * @returns {JSX.Element} Complete exercise environment with validation and feedback
- * 
+ *
  * @correctnessEvaluation
  * - Dual validation: Client-side Pyodide validation + Server-side submission
  * - validateWithPyodide() runs tests locally for immediate feedback
  * - Server submission validates correctness and awards XP/progress
  * - Test results processed and displayed with detailed feedback
  * - Attempt tracking for analytics and difficulty assessment
- * 
+ *
  * @pyodideIntegration
  * - Uses usePython hook for Pyodide WASM environment access
  * - Local validation through validateWithPyodide() utility function
  * - Code execution in terminal through runCode() method
  * - File setup support for exercises requiring multiple files
  * - Loading state handling for WASM environment readiness
- * 
+ *
  * @validationFlow
  * 1. User submits code through handleSubmit()
  * 2. Local Pyodide validation with validateWithPyodide()
@@ -63,14 +63,14 @@ import { validateWithPyodide, getErrorMessage } from "../../utils";
  * 4. Server processes submission and returns results with XP
  * 5. Local state updated with results and feedback displayed
  * 6. Progress callbacks triggered for lesson/module completion
- * 
+ *
  * @terminalIntegration
  * - TerminalComponent ref for imperative code execution
  * - handleRunToLine() for partial code execution
  * - File setup code injection for multi-file exercises
  * - Terminal toggle for workspace management
  * - Real-time execution feedback and error handling
- * 
+ *
  * @stateManagement
  * - userCode: Current code in editor
  * - testResults: Validation results and feedback
@@ -78,14 +78,14 @@ import { validateWithPyodide, getErrorMessage } from "../../utils";
  * - attemptNumber: Tracking submission attempts
  * - showHints/solution: UI state for hints and solution display
  * - hasViewedHints: Tracking for XP calculation
- * 
+ *
  * @feedbackSystem
  * - Immediate feedback through local validation
  * - Detailed server feedback with explanations
  * - XP rewards with toast notifications
  * - Progressive hint system with tracking
  * - Visual feedback through color-coded result panels
- * 
+ *
  * @userExperience
  * - Run-to-line functionality for step-by-step debugging
  * - Download code for external IDE practice
@@ -121,10 +121,6 @@ const ExerciseComponent = ({
 
   const handleRunToLine = useCallback(
     (lineNumber) => {
-      console.log("▶ handleRunToLine called, line:", lineNumber);
-      console.log("terminalRef.current:", terminalRef.current);
-      console.log("showTerminal:", showTerminal);
-
       const lines = userCode.split("\n").slice(0, lineNumber);
       const slicedCode = lines.join("\n");
 
@@ -142,17 +138,12 @@ const ExerciseComponent = ({
   );
 
   const handleSubmit = async () => {
-    console.log("🔍 handleSubmit called");
-    console.log("runCode from hook:", runCode);
-    console.log("isReady:", isReady);
-
     if (isReviewMode) {
       setShowSolution(true);
       return;
     }
 
     if (!isReady) {
-      console.log("❌ Python not ready");
       setTestResults({
         success: false,
         error: "Python Engine Loading",
@@ -187,7 +178,7 @@ const ExerciseComponent = ({
       // If local validation passes, send to backend
       const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
 
-      const response = await apiClient.post(
+      const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
         {
           code: userCode,
@@ -203,8 +194,6 @@ const ExerciseComponent = ({
           ],
         },
       );
-
-      const result = response.data || response;
 
       if (result.isCorrect && result.xpEarned > 0) {
         showToast(`💻 +${result.xpEarned} XP earned!`, "success");
@@ -271,11 +260,15 @@ const ExerciseComponent = ({
       }
 
       // Execute the combined code
-      runCode(fullTerminalCode).then((result) => {
-        if (!result.success) {
-          console.error("Terminal execution error:", result.error);
-        }
-      });
+      runCode(fullTerminalCode)
+        .then((result) => {
+          if (!result.success) {
+            console.error("Terminal execution error:", result.error);
+          }
+        })
+        .catch((err) => {
+          console.error("Terminal execution failed:", err);
+        });
     },
     [exercise.fileSetup, runCode],
   );

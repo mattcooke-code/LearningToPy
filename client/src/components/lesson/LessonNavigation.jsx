@@ -91,7 +91,7 @@ const LessonNavigation = ({
     <div className="mt-8 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 gap-4">
       {/* Back Button */}
       <Link
-        to={`/modules/${module._id}/lessons`}
+        to={`/modules/${module?._id}/lessons`}
         style={{ backgroundColor: themeColor }}
         className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
       >

@@ -19,36 +19,36 @@ import { getErrorMessage, calculateModuleLessonProgress } from "../utils";
 
 /**
  * Module lessons page component displaying individual lesson listings within a module context.
- * 
+ *
  * This component fetches module and lesson data, calculates progress metrics, applies
  * theme-based styling, and provides navigation between lessons. Includes authentication
  * checks, error handling with navigation fallbacks, and progress-based theming.
- * 
+ *
  * @component
  * @returns {JSX.Element} Module lessons page with header, lesson list, and quick actions
- * 
+ *
  * @stateManagement
  * - moduleData: Module information including title and completion status
  * - lessons: Array of lessons within the module
  * - loading: Loading state during data fetch
  * - error: Error state for failed API calls
- * 
+ *
  * @authenticationFlow
  * - Checks authentication status before data fetching
  * - Redirects to login page if not authenticated
  * - Prevents data fetches during auth loading state
- * 
+ *
  * @dataProcessing
  * - Calculates lesson completion metrics using calculateModuleLessonProgress
  * - Determines module accent color based on progress using getModuleThemeColor
  * - Processes module quiz completion status for quick actions
- * 
+ *
  * @errorHandling
  * - Redirects to login if not authenticated
  * - Shows error state with back navigation to modules page
  * - Handles module not found scenario gracefully
  * - Provides empty state button for navigation fallback
- * 
+ *
  * @theming
  * - Applies dynamic module accent colors based on progress
  * - Uses theme context for consistent styling
@@ -97,7 +97,7 @@ const ModuleLessonsPage = () => {
     if (moduleId) {
       fetchModuleLessons();
     }
-  }, [moduleId, isAuthenticated, authLoading, navigate]);
+  }, [moduleId]);
 
   const { completedLessons, totalLessons, moduleLessonProgress } =
     calculateModuleLessonProgress(lessons);

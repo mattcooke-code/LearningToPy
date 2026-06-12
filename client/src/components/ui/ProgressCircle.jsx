@@ -1,3 +1,4 @@
+// ProgressCircle.jsx
 /**
  * Circular progress indicator showing lesson completion percentage.
  * @component
@@ -8,15 +9,15 @@
  * @param {string} props.accentColor - Color for the progress circle stroke
  */
 
+const CIRCUMFERENCE = 2 * Math.PI * 36; // r=36, ~226.2
+
 const ProgressCircle = ({
   progress,
   completedLessons,
   totalLessons,
   accentColor,
 }) => {
-  // SVG circumference: 2 * π * 36 ≈ 226.2
-  const circumference = 2 * Math.PI * 36;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const strokeDashoffset = CIRCUMFERENCE - (progress / 100) * CIRCUMFERENCE;
 
   return (
     <div className="text-center">
@@ -37,7 +38,7 @@ const ProgressCircle = ({
             stroke={accentColor}
             strokeWidth="8"
             fill="none"
-            strokeDasharray={circumference}
+            strokeDasharray={CIRCUMFERENCE}
             strokeDashoffset={strokeDashoffset}
             className="transition-all duration-500"
           />

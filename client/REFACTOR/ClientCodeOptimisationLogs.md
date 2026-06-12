@@ -23,6 +23,12 @@ Frontend optimisation pass focused on:
 
 ---
 
+==========================================================================================
+
+# AUTH
+
+==========================================================================================
+
 ## context/AuthContext.jsx — Performance & Security
 
 - **Security Fix — Token Storage:** Access tokens are now held in memory only via
@@ -339,3 +345,233 @@ No state, no effects, no loops. O(1).
 | `pages/ForgotPasswordPage.jsx`              | Dead code removal, double-submit guard                                     |
 | `pages/ResetPasswordPage.jsx`               | Effect cleanup, validation simplification, double-submit guard             |
 | `pages/Profile.jsx`                         | Nested ternary simplification                                              |
+
+==========================================================================================
+
+# CONTENT
+
+==========================================================================================
+
+## pages/ModulesPage.jsx — Parallel Data Fetching
+
+- **Changed Data Fetching — Sequential → Parallel:** Replaced two sequential `apiClient.get()` calls
+  (modules + progress) with `Promise.allSettled`. Previously modules rendered first without
+  progress data, then updated when progress arrived — causing a layout shift. Now both resolve
+  together with partial-failure tolerance (modules can display even if progress fetch fails).
+  Look here if modules page shows loading indefinitely or progress data is missing.
+- **Removed Redundant `setLoading(true)`:** Initial state already starts as `true` — the first
+  `setLoading(true)` in the fetch function was a no-op.
+
+## pages/ModuleLessonsPage.jsx — Effect Dependency Narrowing
+
+- **Changed `useEffect` Dependencies — `[moduleId]` Only:** Previously depended on
+  `[moduleId, isAuthenticated, authLoading, navigate]`. Auth state changes (e.g., token
+  refresh) would re-trigger the lesson fetch unnecessarily. Now only refetches when
+  navigating to a different module. Auth guard still handled by early return.
+  Look here if lessons don't load after login or token refresh.
+
+## components/module/ModuleCard.jsx — ✅ No Changes Needed
+
+Clean display component. Dynamic accent color via inline style — correct for per-module
+progress-based theming. No state, no effects, no loops.
+
+## components/module/ModulesGrid.jsx — ✅ No Changes Needed
+
+Simple grid with empty state. `Array.isArray` guard is defensive and correct.
+
+## components/module/ModulesHeader.jsx — ✅ No Changes Needed
+
+Progress bar with dynamic theme color. Delegates to `calculateModulesCompletionProgress`
+utility which safely handles `totalModules === 0`.
+
+## components/module/ModulesStats.jsx — ✅ No Changes Needed
+
+Pure display — three stat cards. Zero logic.
+
+## components/module_lesson/LessonItem.jsx — ✅ No Changes Needed
+
+Responsive lesson row with dynamic accent color. Clean conditional rendering for
+locked/completed/available states.
+
+## components/module_lesson/LessonsList.jsx — ✅ No Changes Needed
+
+Container with empty state fallback. `lesson._id` as key — stable and unique.
+
+## components/module_lesson/ModuleHeader.jsx — ✅ No Changes Needed
+
+Delegates to `ProgressCircle` for circular progress. Back navigation and progress bar
+use dynamic accent color correctly.
+
+## components/module_lesson/ProgressCircle.jsx — Constant Extraction
+
+- **Moved `circumference` to Module Scope:** `2 * Math.PI * 36` (~226.2) is a constant
+  — previously recalculated on every render. Now `CIRCUMFERENCE` at module level.
+- **Noted Location:** Should be in `/components/ui/` — reusable, not module-specific.
+  Currently only used by `ModuleHeader`.
+
+## components/module_lesson/QuickActions.jsx — Constant Extraction
+
+- **Extracted `BASE_BTN_CLASS` and `NEUTRAL_BTN_CLASS` to Module Scope:** Long Tailwind
+  class strings were recreated on every render. Now static constants.
+- **Four-State Conditional:** Module mastered, course complete, quiz ready, standard
+  continue — handled with clear early returns. Readable and maintainable.
+
+## pages/LessonPage.jsx — Previously Optimised (Triple Toast Fix)
+
+- **Added `isCompletingRef` Guard:** Prevents concurrent completion requests.
+- **Added `newlyCompleted` Check:** Silently ignores duplicate completion responses.
+- **Fixed `handleQuizComplete`:** Removed redundant `markLessonComplete()` call — quiz
+  submission response drives completion directly.
+- **Fixed `useEffect` for Theory Lessons:** Excluded `contentType === "THEORY"` from
+  the `exerciseCompleted && quizCompleted` trigger to prevent double-completion.
+- **Sequential Lesson → Module Fetch:** Inherent data dependency — lesson must load
+  first to get `moduleId`. Backend could embed module data to save a round-trip.
+  Noted for future optimisation.
+
+## components/lesson/LessonContent.jsx — Function Extraction
+
+- **Changed `getModuleNumber` — Function → Direct Computation:** Previously defined
+  as a function recreated every render. Now a simple ternary expression.
+- **Noted `console.warn` in Production:** Logs full lesson object if module order
+  not found. Guard with env check if it triggers frequently.
+
+## components/lesson/LessonHeader.jsx — ✅ No Changes Needed
+
+Pure display component. Conditional rendering for completed/review states. Responsive
+layout with mobile-first design.
+
+## components/lesson/LessonNavigation.jsx — Null Safety
+
+- **Added Optional Chaining:** `module?._id` prevents crash if module fetch fails
+  silently and `module` is null. Link would still be broken but the page won't crash.
+
+## components/lesson/ExerciseComponent.jsx — Debug Cleanup & Error Handling
+
+- **Removed 7 Debug `console.log` Statements:** Logs firing on every exercise
+  interaction (run-to-line, submit, Python ready checks). Wasted CPU and cluttered
+  console in production.
+- **Removed Redundant `response.data || response` Fallback:** `apiClient` interceptor
+  already unwraps the response envelope. The `response.data` path was never reached.
+- **Noted `setTimeout` Without Cleanup in `handleRunToLine`:** 50ms timeout for
+  terminal mount — no cleanup on unmount. Optional chaining prevents crash but
+  work is wasted. Low priority (50ms window is tiny).
+- **Added `.catch()` to Terminal Execution Promise:** `handleTerminalExecute` used
+  `.then()` without `.catch()` — unhandled promise rejection if Pyodide crashes.
+
+## components/lesson/CodeBlock.jsx — Minor Cleanup
+
+- **Noted `isUserCode` Prop Unused:** Destructured but never referenced. Remove or
+  implement conditional styling.
+- **Noted `setTimeout` Without Cleanup:** Copy feedback timer (2s) not cleared on
+  unmount. Low priority — component rarely unmounts during the 2s window.
+
+## components/lesson/CodeEditor.jsx — Extension Memoization
+
+- **Changed `extensions` Array — Wrapped in `useMemo`:** `python()`, `lintGutter()`,
+  and `createRunToHereGutter()` were creating new extension instances on every render.
+  CodeMirror compares extensions by reference — new instances cause editor reconfiguration.
+  Now only recreated when `onRunToLine` changes (which is stable — a `useCallback` from
+  the parent). Look here if the code editor flickers or loses cursor position.
+
+## components/lesson/TerminalComponent.jsx — Dependency Cleanup
+
+- **Removed Unused `initialCode` from `executeCode` Dependencies:** `initialCode` was
+  in the dependency array but never used inside the callback. Caused `executeCode`
+  (and transitively `handleKeyDown`) to be recreated on every code change.
+- **Changed `history` State Update — Functional Form:** `executeCode` used `history`
+  directly to compute `newHistory`, making `history` a dependency. Now uses
+  `setHistory((prev) => [...prev, code])` — removes `history` from the dependency
+  array, preventing cascading re-creation of `executeCode` and `handleKeyDown` on
+  every command execution.
+- **Extracted `SNIPPETS` to Module Scope:** Array of 4 snippet objects was recreated
+  on every render. Now a static constant outside the component.
+
+## components/lesson/QuizComponent.jsx — Function Extraction
+
+- **Extracted `getQuestionCardClass` and `getFeedbackContent` from `.map()`:** Both
+  functions were redefined for every question on every render. For a 10-question quiz,
+  that's 10 function definitions per render. Now defined at component level.
+- **Noted `handleFinalSubmit` API Path:** Submits to `/content/modules/:id/submit-quiz`
+  — verify this matches the actual backend route definition. Mismatch would silently
+  fail module quiz submissions.
+
+## utils/progressCalculations.js — ✅ No Changes Needed
+
+All functions are pure, O(1) or O(n) where n is bounded (lessons per module).
+`calculateModulesCompletionProgress` safely handles `totalModules === 0`.
+
+## pages/ModuleQuizPage.jsx — API Path Fix & Logic Extraction
+
+- **Fixed API Path — `/submit-quiz` → `/quiz`:** The frontend was posting to
+  `/content/modules/:id/submit-quiz` but the backend route is
+  `POST /api/content/modules/:moduleId/quiz`. Module quiz submissions would
+  fail with 404. Look here if module quizzes fail to submit.
+- **Extracted `shuffleArray` to `quizUtils.js`:** Fisher-Yates shuffle moved
+  from component to shared utility. Added `buildShuffledOptions`,
+  `getShuffledOptions`, and `getActualIndex` helpers for consistent shuffled
+  option handling.
+- **Moved `shuffleArray` Definition Outside Component:** Previously recreated
+  on every render. Now imported from `quizUtils.js`.
+- **Simplified `handleAnswerSelect` — `getActualIndex` Utility:** Replaced
+  inline shuffled-index resolution (5 lines) with single utility call.
+- **Removed `window.location.reload()` from `handleContinue`:** Full page
+  reload was heavy-handed. Now relies on React Router navigation — the
+  modules page refetches data via its `useEffect`.
+- **Simplified Answer Submission — Removed `charCodeAt` Encoding:** `userAnswers`
+  already stores numeric indices. The `charCodeAt` conversion was fragile and
+  likely never executed. Now passes `userAnswers` directly to the API.
+- **Noted IIFE in Render — Future Extraction:** The 30+ line IIFE computing
+  shuffled option display and button classes should be extracted to a
+  `useMemo` or helper. Noted for future cleanup.
+
+## utils/quizUtils.js — New Shuffle & Option Utilities
+
+- **Added `shuffleArray(array)`:** Fisher-Yates shuffle returning a new array.
+  O(n) time, O(n) space.
+- **Added `buildShuffledOptions(questions)`:** Builds a map of questionId →
+  shuffled option indices for all questions in a quiz.
+- **Added `getShuffledOptions(optionsMap, questionId, originalOptions)`:**
+  Resolves display-order options from the shuffled map.
+- **Added `getActualIndex(optionsMap, questionId, displayIndex)`:** Converts
+  a display index back to the original option index.
+
+## pages/TerminalPlayground.jsx — Constant Extraction
+
+- **Extracted `LESSONS` Array to Module Scope:** Previously recreated on every
+  render. Now a static constant outside the component.
+- **Added `useMemo` for `initialCode`:** The `activeTab.split("-")` parsing
+  was running on every render. Now computed only when `activeTab` changes.
+
+## utils/validationUtils.js — Function Extraction
+
+- **Extracted `normalizeOutput` to Module Scope:** The `normalize` function was
+  redefined inside `validateOutputWithPyodide` on every call. Now a module-level
+  pure function.
+
+---
+
+## Files Changed (Content Section)
+
+| File                                          | Type of Change                                                   |
+| --------------------------------------------- | ---------------------------------------------------------------- |
+| `pages/ModulesPage.jsx`                       | Parallel data fetching, redundant state call                     |
+| `pages/ModuleLessonsPage.jsx`                 | Effect dependency narrowing                                      |
+| `pages/LessonPage.jsx`                        | Previously optimised (triple toast fix)                          |
+| `components/module/ModuleCard.jsx`            | No changes needed                                                |
+| `components/module/ModulesGrid.jsx`           | No changes needed                                                |
+| `components/module/ModulesHeader.jsx`         | No changes needed                                                |
+| `components/module/ModulesStats.jsx`          | No changes needed                                                |
+| `components/module_lesson/LessonItem.jsx`     | No changes needed                                                |
+| `components/module_lesson/LessonsList.jsx`    | No changes needed                                                |
+| `components/module_lesson/ModuleHeader.jsx`   | No changes needed                                                |
+| `components/module_lesson/ProgressCircle.jsx` | Constant extraction                                              |
+| `components/module_lesson/QuickActions.jsx`   | Constant extraction                                              |
+| `components/lesson/LessonContent.jsx`         | Function → direct computation                                    |
+| `components/lesson/LessonHeader.jsx`          | No changes needed                                                |
+| `components/lesson/LessonNavigation.jsx`      | Null safety (`module?._id`)                                      |
+| `components/lesson/ExerciseComponent.jsx`     | Debug cleanup, error handling, redundant code removal            |
+| `components/lesson/CodeBlock.jsx`             | Noted unused prop, timer cleanup                                 |
+| `components/lesson/CodeEditor.jsx`            | Extension memoization (`useMemo`)                                |
+| `components/lesson/TerminalComponent.jsx`     | Dependency cleanup, functional state update, constant extraction |
+| `components/lesson/QuizComponent.jsx`         | Function extraction from `.map()`                                |
+| `utils/progressCalculations.js`               | No changes needed                                                |

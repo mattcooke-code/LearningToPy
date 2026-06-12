@@ -159,3 +159,79 @@ export const isLessonQuizComplete = (quizArray, results) => {
   if (!quizArray || quizArray.length === 0) return false;
   return areAllQuestionsCorrect(quizArray, results);
 };
+
+/**
+ * Fisher-Yates shuffle — returns a new shuffled array without mutating the original.
+ * O(n) time, O(n) space.
+ *
+ * @param {any[]} array - The array to shuffle.
+ * @returns {any[]} A new array with elements in random order.
+ */
+export const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+/**
+ * Build a map of shuffled answer options for each question.
+ *
+ * For each question, shuffles the option indices and tracks the mapping
+ * between display indices and original indices, along with the correct
+ * answer index.
+ *
+ * @param {object[]} questions - Array of question objects with `_id`,
+ *   `options`, and `correctAnswer`.
+ * @returns {object} Map of questionId → { shuffledIndices, originalOptions, correctAnswer }
+ */
+export const buildShuffledOptions = (questions) => {
+  const optionsMap = {};
+  questions.forEach((question) => {
+    if (question.options && Array.isArray(question.options)) {
+      const indices = question.options.map((_, i) => i);
+      const shuffledIndices = shuffleArray(indices);
+      optionsMap[question._id] = {
+        shuffledIndices,
+        originalOptions: question.options,
+        correctAnswer: question.correctAnswer,
+      };
+    }
+  });
+  return optionsMap;
+};
+
+/**
+ * Get the display-order options for a question from the shuffled options map.
+ *
+ * @param {object} optionsMap - The map from buildShuffledOptions.
+ * @param {string} questionId - The question's ID.
+ * @param {string[]} originalOptions - The original (unshuffled) options array.
+ * @returns {string[]} Options in shuffled display order.
+ */
+export const getShuffledOptions = (optionsMap, questionId, originalOptions) => {
+  const mapping = optionsMap[questionId];
+  if (mapping?.shuffledIndices) {
+    return mapping.shuffledIndices.map((idx) => originalOptions[idx]);
+  }
+  return originalOptions;
+};
+
+/**
+ * Convert a display index to the original option index using the shuffled
+ * options map.
+ *
+ * @param {object} optionsMap - The map from buildShuffledOptions.
+ * @param {string} questionId - The question's ID.
+ * @param {number} displayIndex - The index as shown to the user.
+ * @returns {number} The original option index.
+ */
+export const getActualIndex = (optionsMap, questionId, displayIndex) => {
+  const mapping = optionsMap[questionId];
+  if (mapping?.shuffledIndices) {
+    return mapping.shuffledIndices[displayIndex];
+  }
+  return displayIndex;
+};

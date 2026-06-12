@@ -1,3 +1,4 @@
+// ModulesHeader.jsx
 import { useTheme } from "../../context";
 import { calculateModulesCompletionProgress } from "../../utils";
 

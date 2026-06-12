@@ -32,13 +32,13 @@ import { useFileDownload } from "../../hooks/useFileDownload";
 
 /**
  * Interactive Python terminal component powered by Pyodide for client-side execution.
- * 
+ *
  * This component creates a fully functional Python terminal that runs entirely in the browser
  * using WebAssembly (Pyodide). It handles the complete lifecycle of the Python environment
  * including loading states, code execution with mock library injection, command history,
  * and comprehensive error handling. The terminal provides a REPL-like experience with
  * syntax highlighting, keyboard shortcuts, and session management capabilities.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {string} [props.initialCode="print('Hello, Python Terminal!')"] - Initial code to display
@@ -47,14 +47,14 @@ import { useFileDownload } from "../../hooks/useFileDownload";
  * @param {boolean} [props.readOnly=false] - Whether terminal is read-only
  * @param {Object} ref - Forwarded ref for imperative methods
  * @returns {JSX.Element} Interactive Python terminal interface
- * 
+ *
  * @pyodideIntegration
  * - Uses usePython hook for Pyodide WASM environment access
  * - Handles loading/ready states of the Python engine
  * - Code execution through runCode() method with timeout handling
  * - Mock library injection for browser-incompatible modules (requests, etc.)
  * - Preamble building for seamless library integration
- * 
+ *
  * @codeExecutionFlow
  * 1. Code validation (removes comments, checks for incomplete placeholders)
  * 2. Preamble injection for mocked libraries
@@ -62,35 +62,35 @@ import { useFileDownload } from "../../hooks/useFileDownload";
  * 4. Result processing (stdout, stderr, output handling)
  * 5. Terminal output formatting and display
  * 6. History management and cursor positioning
- * 
+ *
  * @mockLibrarySystem
  * - MOCKED_LIBRARIES object defines browser-incompatible modules
  * - extractImportedModules() parses import statements from user code
  * - buildPreamble() creates mock code for detected incompatible imports
  * - Mock libraries provide simulated responses for network operations
  * - Warning system informs users about simulated functionality
- * 
+ *
  * @stateManagement
  * - input: Current user input in terminal
  * - output: Array of terminal output items (input, output, error, warning)
  * - history: Command history for navigation with arrow keys
  * - historyIndex: Current position in command history
  * - isExecuting: Loading state during code execution
- * 
+ *
  * @userInteraction
  * - Enter key executes code, Shift+Enter for new lines
  * - Arrow keys navigate command history
  * - Ctrl+L clears terminal, Ctrl+D downloads session
  * - Click-to-copy and download functionality
  * - Quick code snippets for common operations
- * 
+ *
  * @errorHandling
  * - Pyodide loading failure states with retry options
  * - Code execution errors with detailed error messages
  * - Incomplete placeholder detection (??? patterns)
  * - Network error handling for file operations
  * - Graceful fallbacks for unsupported operations
- * 
+ *
  * @responsiveDesign
  * - Mobile-friendly input area with adaptive sizing
  * - Touch-friendly buttons and controls
@@ -143,6 +143,16 @@ class _MockRequests:
 sys.modules['requests'] = _MockRequests()
 `.trim(),
 };
+
+const SNIPPETS = [
+  { name: "Hello World", code: 'print("Hello, World!")' },
+  { name: "Calculate", code: "print(5 + 3)\nprint(10 / 2)" },
+  {
+    name: "Variables",
+    code: 'name = "Python Learner"\nprint(f"Hello, {name}!")',
+  },
+  { name: "Loop", code: "for i in range(3):\n    print(f'Count: {i}')" },
+];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -228,16 +238,6 @@ const TerminalComponent = forwardRef(
       }
     };
 
-    const snippets = [
-      { name: "Hello World", code: 'print("Hello, World!")' },
-      { name: "Calculate", code: "print(5 + 3)\nprint(10 / 2)" },
-      {
-        name: "Variables",
-        code: 'name = "Python Learner"\nprint(f"Hello, {name}!")',
-      },
-      { name: "Loop", code: "for i in range(3):\n    print(f'Count: {i}')" },
-    ];
-
     const terminalContent = useMemo(() => {
       return output
         .map((item) => {
@@ -286,9 +286,11 @@ const TerminalComponent = forwardRef(
         }
 
         setIsExecuting(true);
-        const newHistory = [...history, code];
-        setHistory(newHistory);
-        setHistoryIndex(newHistory.length);
+        setHistory((prev) => {
+          const newHistory = [...prev, code];
+          setHistoryIndex(newHistory.length);
+          return newHistory;
+        });
         setInput("");
 
         try {
@@ -352,15 +354,7 @@ const TerminalComponent = forwardRef(
           setIsExecuting(false);
         }
       },
-      [
-        input,
-        isExecuting,
-        history,
-        onCodeExecute,
-        isReady,
-        runCode,
-        initialCode,
-      ],
+      [input, isExecuting, onCodeExecute, isReady, runCode],
     );
 
     const clearTerminal = () => {
@@ -737,7 +731,7 @@ const TerminalComponent = forwardRef(
                   Quick examples:
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {snippets.map((snippet, index) => (
+                  {SNIPPETS.map((snippet, index) => (
                     <button
                       key={index}
                       onClick={() => loadSnippet(snippet.code)}
