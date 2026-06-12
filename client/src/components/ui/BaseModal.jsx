@@ -5,20 +5,20 @@ import { X } from "lucide-react";
 
 /**
  * A comprehensive, accessible modal component with advanced focus management and customization options.
- * 
+ *
  * This modal implements full accessibility standards including:
  * - Focus trapping within the modal
  * - Focus restoration on close
  * - Escape key handling
  * - Screen reader support with proper ARIA attributes
  * - Body scroll prevention when open
- * 
+ *
  * @component
  * @example
  * ```jsx
  * const [isOpen, setIsOpen] = useState(false);
  * const inputRef = useRef(null);
- * 
+ *
  * <BaseModal
  *   isOpen={isOpen}
  *   onClose={() => setIsOpen(false)}
@@ -32,7 +32,7 @@ import { X } from "lucide-react";
  *   <p>Are you sure you want to continue?</p>
  * </BaseModal>
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Controls modal visibility. When false, modal is not rendered.
  * @param {Function} props.onClose - Callback function triggered when modal should close (overlay click, escape key, close button)
@@ -51,44 +51,33 @@ import { X } from "lucide-react";
  * @param {Function} [props.onAfterClose] - Callback function triggered after modal closes and focus is restored
  * @param {string} [props.closeButtonPosition="header"] - Position of close button: "header" or "corner"
  * @param {boolean} [props.backdropBlur=false] - If true, applies backdrop blur effect to overlay
- * 
+ *
  * @returns {JSX.Element|null} Modal rendered via React Portal, or null when closed
- * 
- * @sizeOptions
- * Available size presets:
- * - "xs" - max-w-xs (320px)
- * - "sm" - max-w-sm (384px) 
- * - "md" - max-w-md (448px)
- * - "lg" - max-w-lg (512px)
- * - "xl" - max-w-xl (576px)
- * - "2xl" - max-w-2xl (672px)
- * - "3xl" - max-w-3xl (768px)
- * - "4xl" - max-w-4xl (896px)
- * - "5xl" - max-w-5xl (1024px)
- * - "6xl" - max-w-6xl (1152px)
- * - "full" - max-w-full with horizontal margins
- * 
- * @accessibilityFeatures
- * - Focus trapping: Tab navigation stays within modal bounds
- * - Focus restoration: Previous focused element is restored on close
- * - Escape handling: Standard accessibility pattern
- * - ARIA attributes: role="dialog", aria-modal="true", proper labeling
- * - Keyboard navigation: Full keyboard support
- * - Screen reader friendly: Semantic HTML structure
- * 
- * @internalLogic
- * Focus Management:
- * 1. Stores current focused element when modal opens
- * 2. Attempts to focus initialFocusRef or modal itself
- * 3. Traps focus using Tab key detection and boundary handling
- * 4. Restores focus to stored element on close (with timeout for DOM updates)
- * 
- * Event Handling:
- * - Escape key listener added/removed based on isOpen state
- * - Body scroll lock/unlock for prevent background scrolling
- * - Click outside detection for overlay closing
- * - Cleanup functions properly remove all event listeners
+ *
  */
+
+// Outside component:
+const SIZE_CLASSES = {
+  xs: "max-w-xs",
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
+  "5xl": "max-w-5xl",
+  "6xl": "max-w-6xl",
+  full: "max-w-full mx-4",
+};
+
+const FOOTER_ALIGN_CLASSES = {
+  left: "justify-start",
+  center: "justify-center",
+  right: "justify-end",
+  between: "justify-between",
+};
+
 const BaseModal = ({
   isOpen,
   onClose,
@@ -198,27 +187,6 @@ const BaseModal = ({
 
   if (!isOpen) return null;
 
-  const sizeClasses = {
-    xs: "max-w-xs",
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-    "2xl": "max-w-2xl",
-    "3xl": "max-w-3xl",
-    "4xl": "max-w-4xl",
-    "5xl": "max-w-5xl",
-    "6xl": "max-w-6xl",
-    full: "max-w-full mx-4",
-  };
-
-  const footerAlignClasses = {
-    left: "justify-start",
-    center: "justify-center",
-    right: "justify-end",
-    between: "justify-between",
-  };
-
   const modalContent = (
     <>
       {/* Overlay */}
@@ -243,7 +211,7 @@ const BaseModal = ({
           {/* Modal Panel */}
           <div
             ref={modalRef}
-            className={`relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 w-full ${sizeClasses[size]} ${className}`}
+            className={`relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 w-full ${SIZE_CLASSES[size]} ${className}`}
             tabIndex={-1}
           >
             {/* Close Button in Corner (Optional) */}
@@ -289,7 +257,7 @@ const BaseModal = ({
             {/* Footer */}
             {footer && (
               <div
-                className={`flex ${footerAlignClasses[footerAlign]} gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-2xl`}
+                className={`flex ${FOOTER_ALIGN_CLASSES[footerAlign]} gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-2xl`}
               >
                 {footer}
               </div>

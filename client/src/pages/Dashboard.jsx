@@ -9,10 +9,22 @@ import {
   Spinner,
   LeaderboardRow,
   LoadingState,
+  ErrorState,
 } from "../components/ui";
 import { LeaderboardModal } from "../modals";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
+
+const FALLBACK_PROGRESS = {
+  xp: 0,
+  level: 1,
+  streak: 0,
+  courseProgressPercentage: 0,
+  progress: {},
+  stats: { lessonsCompleted: 0, modulesCompleted: 0 },
+  badges: [],
+  currentModule: null,
+};
 
 const Dashboard = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -37,17 +49,10 @@ const Dashboard = () => {
 
   // Use user data from auth as fallback when progress hasn't loaded yet
   const progressData = userProgress || {
+    ...FALLBACK_PROGRESS,
     xp: user?.xp || 0,
     level: user?.level || 1,
     streak: user?.streak || 0,
-    courseProgressPercentage: loading ? null : 0,
-    progress: {},
-    stats: {
-      lessonsCompleted: 0,
-      modulesCompleted: 0,
-    },
-    badges: [],
-    currentModule: null,
   };
 
   // Show loading state while authentication is being verified
@@ -80,10 +85,9 @@ const Dashboard = () => {
   );
 
   const recentBadges = (progressData.badges || [])
-    .slice()
-    .reverse()
     .filter(Boolean)
-    .slice(0, 3)
+    .slice(-3)
+    .reverse()
     .map((badgeId) => {
       const libraryBadge = BADGES_BY_ID[badgeId];
       return {
@@ -93,6 +97,12 @@ const Dashboard = () => {
         image: libraryBadge?.image,
       };
     });
+
+  if (fetchError) {
+    return (
+      <ErrorState error={fetchError} onRetry={() => window.location.reload()} />
+    );
+  }
 
   // Show loading state while fetching dashboard data for the first time
   if (loading && !userProgress) {

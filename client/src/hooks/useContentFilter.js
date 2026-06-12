@@ -10,7 +10,7 @@
  * @requires react
  */
 
-import { useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 /**
  * Create filter/sort state and a memoised filtered result for a content array.
@@ -41,7 +41,7 @@ export const useContentFilter = (initialContent) => {
   });
 
   const filteredContent = useMemo(() => {
-    let result = [...initialContent];
+    let result = [initialContent];
 
     if (filters.type !== "all") {
       result = result.filter((item) => item.type === filters.type);
@@ -83,7 +83,7 @@ export const useContentFilter = (initialContent) => {
     return result;
   }, [initialContent, filters, sortConfig]);
 
-  const handleSort = (field) => {
+  const handleSort = useCallback((field) => {
     setSortConfig((prev) => ({
       field,
       direction:
@@ -91,7 +91,11 @@ export const useContentFilter = (initialContent) => {
           ? "ascend"
           : "descend",
     }));
-  };
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({ type: "all", status: "all", difficulty: "all", search: "" });
+  }, []);
 
   return {
     filters,
@@ -99,7 +103,6 @@ export const useContentFilter = (initialContent) => {
     sortConfig,
     handleSort,
     filteredContent,
-    clearFilters: () =>
-      setFilters({ type: "all", status: "all", difficulty: "all", search: "" }),
+    clearFilters,
   };
 };

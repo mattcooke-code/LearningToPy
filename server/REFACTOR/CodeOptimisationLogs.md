@@ -411,3 +411,75 @@ Functions operate on whatever `completedModules` array they receive. All callers
 - **Added Windows Path Traversal Protection:** Added `\\` to the security check alongside
   `..` and `/`.
 - **Removed Debug Log:** Leftover `console.log` on every successful image find removed.
+
+==========================================================================================
+
+# PROGRESS
+
+==========================================================================================
+
+## controllers/progressController.js — Leaderboard & Query Optimisation
+
+- **Changed `getCurrentProgress` — O(k) → O(1) Lesson Queries:** Previously queried
+  lessons for the first incomplete module in a loop (k queries where k = position of
+  first incomplete module). Now fetches all module lessons in a single
+  `{ moduleId: { $in: moduleIds } }` query and groups by moduleId client-side.
+  Also added `completedModuleIds` Set for O(1) lookup instead of O(n) `.includes()`
+  on every iteration. Look here if current module data is missing or incorrect.
+- **Changed `getSurroundingLeaderboard` — O(n) → O(1) User Fetch:** Previously
+  fetched ALL opted-in users (potentially thousands) into memory, found the current
+  user's position via `findIndex`, then sliced a ±2 window. Now uses two targeted
+  queries (`xp: { $gt }` + `xp: { $lt }`) limited to 2 results each, plus a
+  `countDocuments` for rank calculation. Transfers at most 5 documents instead of
+  potentially thousands. Look here if leaderboard rank is incorrect or surrounding
+  users are missing.
+- **Removed Dead Debug Variables:** `ids` and `dupes` arrays were leftover from
+  debugging the duplicate leaderboard entries bug. Removed.
+- **Changed `getModuleLeaderboard` — Removed Redundant User Fetch:** Previously
+  fetched the current user separately via `User.findById` just to get `xp` for rank
+  calculation. Now uses `req.user.xp` from the auth middleware — saves one database
+  round-trip.
+- **Deduplication in `getTopLeaderboard`:** Added `Set`-based deduplication of
+  leaderboard results to handle potential index inconsistency after schema refactor.
+
+---
+
+==========================================================================================
+
+# MIDDLEWARE (Additional Reviews)
+
+==========================================================================================
+
+## middleware/errorHandler.js — Config Consistency & PII Protection
+
+- **Changed Environment Check — `process.env` → `config.isDevelopment()`:** Aligned
+  with `server.js` and the rest of the codebase. Single source of truth for
+  environment detection.
+- **Changed Production Error Logging — Full Error → Message + Stack:** Previously
+  logged the full error object in production, potentially leaking PII (email
+  addresses, usernames) to logs. Now logs only `err.message` and `err.stack`.
+
+## middleware/adminOnly.js — Sync Optimisation
+
+- **Removed `catchAsync`/`async` Wrappers:** Function contains no async operations
+  (no DB calls, no I/O). Removed unnecessary promise wrapper overhead. Same pattern
+  applied to `validation.js` earlier.
+- **Removed `catchAsync` Import:** No longer needed.
+
+## middleware/activityTracker.js — Monkey-Patch Replacement
+
+- **Changed Activity Logging — `res.json` Monkey-Patch → `res.on("finish")` Event:**
+  Previously overwrote `res.json` to intercept successful responses. Fragile pattern
+  — conflicts with other middleware, depends on implicit `this` binding. Now listens
+  to the standard Express `finish` event which fires after the response is sent.
+  Look here if activity tracking stops recording user actions.
+- **Removed Unnecessary `async` Wrapper:** The returned middleware function was
+  `async` but contained no `await` calls. Removed.
+
+## middleware/pythonSandbox.js — Removed (Dead Code)
+
+- **Deleted File:** `vm2` VM was created on every request to terminal routes but
+  never used — Pyodide handles all Python execution client-side via WebAssembly.
+  Removed the middleware, its registration in `server.js`, and the `vm2` dependency
+  from `package.json`. Look here if terminal code execution breaks (shouldn't —
+  Pyodide runs entirely in the browser).

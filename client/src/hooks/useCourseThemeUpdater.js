@@ -69,7 +69,6 @@ export const useCourseThemeUpdater = () => {
           }
         } catch (err) {
           console.error("Could not fetch progress for theme:", err);
-          setDefaultTheme();
         }
       }
       fetchAndUpdateTheme();
@@ -77,10 +76,9 @@ export const useCourseThemeUpdater = () => {
       setDefaultTheme();
     }
   }, [
-    location.pathname,
+    loading,
     isAuthenticated,
     updateThemeFromCourseProgress,
     setDefaultTheme,
-    apiClient,
   ]);
 };

@@ -1,4 +1,5 @@
 // errorHandler.js
+const config = require("../config/envConfig");
 const AppError = require("../utils/AppError");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
@@ -26,7 +27,7 @@ const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (process.env.NODE_ENV === "development") {
+  if (config.isDevelopment()) {
     // In development: log full error + send debug details
     console.error("Error 💥", err);
 
@@ -36,7 +37,7 @@ const globalErrorHandler = (err, req, res, next) => {
     if (err.isOperational) {
       sendJsonResponse(res, err.statusCode, err.message, {});
     } else {
-      console.error("CRITICAL ERROR 💥", err);
+      console.error("CRITICAL ERROR 💥", err.message, err.stack);
 
       sendJsonResponse(res, 500, "Something went wrong!", {});
     }

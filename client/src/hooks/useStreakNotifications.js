@@ -29,7 +29,7 @@ export const useStreakNotifications = (
   streakStatus,
   weeklyProgress,
 ) => {
-  const { showToast, showConfirm } = useNotification();
+  const { showToast } = useNotification();
   const notifiedStatus = useRef(null);
 
   useEffect(() => {
@@ -55,16 +55,13 @@ export const useStreakNotifications = (
     }
 
     if (streakStatus === "RESETTING") {
-      showConfirm({
-        title: "Streak Lost",
-        message: `Your ${streak}-day streak has reset. Complete a lesson today to start a new one!`,
-        type: "warning",
-        confirmText: "Let's go",
-        cancelText: "Dismiss",
-        onConfirm: () => {},
-      });
+      showToast(
+        `Streak Lost! Your ${streak}-day streak has reset`,
+        "warning",
+        8000,
+      );
     }
 
     notifiedStatus.current = streakStatus;
-  }, [streakStatus]);
+  }, [streakStatus, streak, weeklyProgress, showToast]);
 };

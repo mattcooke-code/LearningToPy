@@ -30,14 +30,23 @@ export const usePageViewTracker = () => {
   useEffect(() => {
     if (!isAuthenticated || !apiClient) return;
 
-    // Track page view
+    const controller = new AbortController();
+
     apiClient
-      .post("/analytics/page-view", {
-        path: location.pathname,
-        timestamp: new Date().toISOString(),
-      })
+      .post(
+        "/analytics/page-view",
+        {
+          path: location.pathname,
+          timestamp: new Date().toISOString(),
+        },
+        { signal: controller.signal },
+      )
       .catch((err) => {
-        console.debug("Page view tracking failed:", err.message);
+        if (err.name !== "AbortError") {
+          console.debug("Page view tracking failed:", err.message);
+        }
       });
-  }, [location.pathname, isAuthenticated]);
+
+    return () => controller.abort();
+  }, [location.pathname, isAuthenticated, apiClient]);
 };

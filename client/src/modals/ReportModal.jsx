@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNotification } from "../context";
 import { BaseModal } from "../components/ui";
 import { apiClient } from "../services";
+import { getErrorMessage } from "../utils";
 import { Flag } from "lucide-react";
 
 const ISSUE_TYPES = [
@@ -45,145 +46,20 @@ const ISSUE_TYPES = [
 
 /**
  * User-facing modal for reporting lesson issues and content problems.
- * 
+ *
  * This component creates an accessible issue reporting interface that allows users to
  * report various types of lesson problems including content errors, code issues, quiz problems,
  * and functionality bugs. Features categorized issue selection, detailed description fields,
  * suggested fix options, and comprehensive form validation. Integrates with the moderation
  * system through API submissions and provides user-friendly feedback throughout the
  * reporting process.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Whether the modal is open
  * @param {Function} props.onClose - Function to close the modal
  * @param {string} props.lessonId - ID of the lesson being reported
  * @returns {JSX.Element} Issue reporting interface with categorized problem selection
- * 
- * @securityContext
- * **User Authentication Required**:
- * - Relies on AuthContext for user authentication state
- * - Uses apiClient with user authentication tokens
- * - Validates user permissions before report submission
- * - Prevents anonymous or unauthorized reporting
- * - Maintains user privacy and data protection
- * 
- * **Data Protection**:
- * - User information automatically attached to reports
- * - Secure API communication with authentication
- * - Privacy-compliant data handling
- * - Protection against malicious submissions
- * - Rate limiting and spam prevention
- * 
- * @moderationFlow
- * **ReportModal (User-Facing) → FlagResolutionModal (Admin-Facing)**:
- * - User submits report through ReportModal
- * - Report creates flag in moderation system
- * - Admin views flag in FlagResolutionModal
- * - Admin can preview content in FlaggedLessonPreviewModal
- * - Resolution updates flag status and notifies user
- * 
- * **Flag Status Management**:
- * - Initial status: "PENDING" when report is submitted
- * - Admin can update to "IN_REVIEW", "FIXED", or "REJECTED"
- * - Status changes trigger notifications to reporting user
- * - XP rewards for valid reports (25 XP when marked as FIXED)
- * - Complete audit trail for all status changes
- * 
- * @issueCategorization
- * **CONTENT_ERROR**: Typos, incorrect information, formatting issues
- * **CODE_ERROR**: Exercise code problems, syntax errors, execution failures
- * **QUIZ_ERROR**: Incorrect quiz answers, validation issues, scoring problems
- * **BROKEN_FUNCTIONALITY**: UI bugs, navigation issues, feature failures
- * **XP_ADJUSTMENT**: Missing XP, incorrect calculations, reward problems
- * **OTHER**: Miscellaneous issues not fitting other categories
- * 
- * @formValidation
- * **Required Fields**:
- * - Issue type selection (must be valid category)
- * - Report title (minimum 3 characters, trimmed)
- * - Report details (minimum 10 characters, trimmed)
- * - Lesson ID validation (must exist and be accessible)
- * 
- * **Optional Fields**:
- * - Suggested fix (user-provided solution ideas)
- * - Additional context or examples
- * - Screenshots or attachments (future enhancement)
- * 
- * **Validation Feedback**:
- * - Real-time validation feedback
- * - User-friendly error messages
- * - Field highlighting for validation errors
- * - Prevention of duplicate submissions
- * 
- * @apiIntegration
- * **Report Submission**:
- * - POST /auth/flags: Submit new issue report
- * - Payload includes targetType, targetId, issueType, title, description
- * - Optional suggestedFix field for user solutions
- * - Automatic user authentication and attribution
- * - Error handling with detailed feedback
- * 
- * **Error Handling**:
- * - Network error detection and user notification
- * - Duplicate report prevention (warning message)
- * - Server validation error handling
- * - Graceful degradation for service failures
- * - User-friendly error recovery options
- * 
- * @userExperience
- * **Form Interface**:
- * - Clean, organized form layout with clear sections
- * - Visual issue type selection with icons and descriptions
- * - Progressive disclosure for optional fields
- * - Real-time validation feedback
- * - Mobile-responsive design
- * 
- * **Feedback Systems**:
- * - Loading indicators during submission
- * - Success confirmation with clear messaging
- * - Error notifications with actionable information
- * - Form reset on successful submission
- * - Consistent styling with platform design
- * 
- * @errorHandling
- * **Network Errors**:
- * - Connection failure detection
- * - Retry mechanisms for transient failures
- * - User notification with suggested actions
- * - Form data preservation during errors
- * - Graceful service degradation
- * 
- * **Validation Errors**:
- * - Client-side validation before submission
- * - Server-side validation error handling
- * - Field-specific error highlighting
- * - User-friendly error messages
- * - Prevention of data loss on errors
- * 
- * @sideEffects
- * **Database Changes**:
- * - Creates new flag record in moderation system
- * - Updates moderation queue for admin review
- * - Triggers notification systems for moderators
- * - Logs user activity for audit purposes
- * - Updates lesson flag status and metrics
- * 
- * **User Notifications**:
- * - Confirmation message on successful submission
- * - Error notifications for failed submissions
- * - Follow-up notifications when issue is resolved
- * - XP reward notifications for valid reports
- * - Email notifications for status changes (if enabled)
- * 
- * @accessibility
- * - Semantic HTML structure for form elements
- * - Proper ARIA labels and roles
- * - Screen reader compatible issue type selection
- * - Keyboard navigation support
- * - High contrast support for visual elements
- * - Focus management for modal interactions
- * - Error announcement for screen readers
  */
 
 const ReportModal = ({ isOpen, onClose, lessonId }) => {
@@ -227,12 +103,8 @@ const ReportModal = ({ isOpen, onClose, lessonId }) => {
       );
       handleClose();
     } catch (err) {
-      console.error("Report error:", err);
-      const errorMsg = err.response?.data?.message || "Failed to submit report";
-      showToast(
-        errorMsg,
-        errorMsg.includes("already flagged") ? "warning" : "error",
-      );
+      const errorMsg = getErrorMessage(err, "Failed to submit report");
+      showToast(errorMsg, "error");
     } finally {
       setIsReporting(false);
     }

@@ -78,32 +78,38 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   let lessonsCompleted = 0;
   let totalLessons = 0;
 
+  const moduleIds = modules.map((m) => m._id);
+  const allModuleLessons = await Lesson.find({
+    moduleId: { $in: moduleIds },
+    isPublished: true,
+  })
+    .select("_id moduleId")
+    .lean();
+
+  // Group by moduleId
+  const lessonsByModule = {};
+  allModuleLessons.forEach((l) => {
+    const key = l.moduleId.toString();
+    if (!lessonsByModule[key]) lessonsByModule[key] = [];
+    lessonsByModule[key].push(l);
+  });
+
   for (const module of modules) {
-    if (module.order === 0) continue; // Skip M0
+    if (module.order === 0) continue;
+    if (completedModuleIds.includes(module._id.toString())) continue;
 
-    const isCompleted = completedModuleIds.includes(module._id.toString());
-    if (!isCompleted) {
-      // Found current module - get lesson progress
-      const lessons = await Lesson.find({
-        moduleId: module._id,
-        isPublished: true,
-      })
-        .select("_id")
-        .lean();
+    const lessons = lessonsByModule[module._id.toString()] || [];
+    const completedInModule = lessons.filter((l) =>
+      completedLessonIds.includes(l._id.toString()),
+    ).length;
 
-      totalLessons = lessons.length;
-      lessonsCompleted = lessons.filter((lesson) =>
-        completedLessonIds.includes(lesson._id.toString()),
-      ).length;
-
-      currentModuleData = {
-        order: module.order,
-        title: module.title,
-        lessonCount: totalLessons,
-        lessonsCompleted,
-      };
-      break;
-    }
+    currentModuleData = {
+      order: module.order,
+      title: module.title,
+      lessonCount: lessons.length,
+      lessonsCompleted: completedInModule,
+    };
+    break;
   }
 
   // If all modules complete
@@ -268,66 +274,56 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const currentUser = await User.findById(userId)
     .select("username xp privacySettings")
     .lean();
-  if (!currentUser) {
-    return next(new AppError("User not found", 404));
-  }
+  if (!currentUser) return next(new AppError("User not found", 404));
 
-  // Fetch all opted-in users for the ranked list
-  const allUsers = await User.find({
-    "privacySettings.showOnLeaderboards": true,
-  })
-    .select("username xp privacySettings")
-    .sort({ xp: -1 })
-    .lean();
+  const [usersAbove, usersBelow, usersWithMoreXP, totalOptedIn] =
+    await Promise.all([
+      User.find({
+        "privacySettings.showOnLeaderboards": true,
+        xp: { $gt: currentUser.xp },
+      })
+        .select("username xp privacySettings")
+        .sort({ xp: 1 })
+        .limit(range)
+        .lean(),
+      User.find({
+        "privacySettings.showOnLeaderboards": true,
+        xp: { $lt: currentUser.xp },
+        _id: { $ne: currentUser._id },
+      })
+        .select("username xp privacySettings")
+        .sort({ xp: -1 })
+        .limit(range)
+        .lean(),
+      User.countDocuments({
+        "privacySettings.showOnLeaderboards": true,
+        xp: { $gt: currentUser.xp },
+      }),
+      User.countDocuments({
+        "privacySettings.showOnLeaderboards": true,
+      }),
+    ]);
 
-  const isCurrentUserInList = allUsers.some((u) => u._id.toString() === userId);
+  const rank = usersWithMoreXP + 1;
+  const aboveReversed = usersAbove.reverse();
 
-  if (!isCurrentUserInList) {
-    const insertAt = allUsers.findIndex((u) => u.xp <= currentUser.xp);
-    if (insertAt === -1) {
-      allUsers.push(currentUser);
-    } else {
-      allUsers.splice(insertAt, 0, currentUser);
-    }
-  }
+  const allSlice = [...aboveReversed, currentUser, ...usersBelow];
 
-  const usersWithPrivacy = allUsers.map((user) => ({
-    ...user,
-    displayName: user.privacySettings?.showUsernameOnLeaderboards
+  const surroundingUsers = allSlice.map((user, index) => ({
+    _id: user._id,
+    rank: rank - aboveReversed.length + index,
+    username: user.privacySettings?.showUsernameOnLeaderboards
       ? user.username
       : `Learner #${user._id.toString().slice(-6)}`,
+    xp: user.xp,
+    isCurrent: user._id.toString() === userId,
     isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
   }));
 
-  const currentUserIndex = usersWithPrivacy.findIndex(
-    (user) => user._id.toString() === userId,
-  );
-
-  // currentUserIndex can no longer be -1 here
-  const startIndex = Math.max(0, currentUserIndex - range);
-  const endIndex = Math.min(
-    usersWithPrivacy.length - 1,
-    currentUserIndex + range,
-  );
-
-  const surroundingUsers = usersWithPrivacy
-    .slice(startIndex, endIndex + 1)
-    .map((user, index) => ({
-      _id: user._id,
-      rank: startIndex + index + 1,
-      username: user.displayName,
-      xp: user.xp,
-      isCurrent: user._id.toString() === userId,
-      isAnonymous: user.isAnonymous,
-    }));
-
-  const ids = surroundingUsers.map((u) => u._id.toString());
-  const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
-
   sendJsonResponse(res, 200, "User's leaderboard placement found", {
     users: surroundingUsers,
-    currentUserRank: currentUserIndex + 1,
-    totalUsers: allUsers.length,
+    currentUserRank: rank,
+    totalUsers: totalOptedIn,
   });
 });
 
@@ -412,12 +408,11 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
     isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
   }));
 
-  const currentUser = await User.findById(userId).select("xp");
   const rank =
     (await User.countDocuments({
       _id: { $in: completedUserIds },
       "privacySettings.showOnLeaderboards": true,
-      xp: { $gt: currentUser.xp },
+      xp: { $gt: req.user.xp },
     })) + 1;
 
   sendJsonResponse(res, 200, "Module leaderboard fetched.", {

@@ -575,3 +575,212 @@ All functions are pure, O(1) or O(n) where n is bounded (lessons per module).
 | `components/lesson/TerminalComponent.jsx`     | Dependency cleanup, functional state update, constant extraction |
 | `components/lesson/QuizComponent.jsx`         | Function extraction from `.map()`                                |
 | `utils/progressCalculations.js`               | No changes needed                                                |
+
+==========================================================================================
+
+# PROGRESS
+
+==========================================================================================
+
+## pages/Dashboard.jsx — Fallback Object & Array Optimisation
+
+- **Extracted `FALLBACK_PROGRESS` to Module Scope:** The fallback object used when
+  `userProgress` is null was recreated on every render. Now a static constant outside
+  the component with dynamic values (`xp`, `level`, `streak`) spread in only when
+  needed.
+- **Changed `recentBadges` — Simplified Chain:** Replaced `.slice().reverse().filter().slice(0,3).map()`
+  (5 operations, 2 intermediate arrays) with `.filter(Boolean).slice(-3).reverse().map()`
+  (4 operations, 1 intermediate array). `slice(-3)` takes the last 3 directly without
+  copying the full array first. Look here if recent badges appear in wrong order.
+- **Added `fetchError` Display:** Now shows `<ErrorState>` when all three dashboard
+  API requests fail (hook only sets error on complete failure). Partial failures
+  (e.g., leaderboard down) show fallback sections instead.
+
+## hooks/useDashboardData.js — Partial-Failure Tolerance & Dependency Fix
+
+- **Changed `Promise.all` → `Promise.allSettled`:** Previously one failed API request
+  (e.g., leaderboard down) blocked all dashboard data. Now each request resolves
+  independently — progress can display even if leaderboard fails. Error is only set
+  when ALL three requests fail. Look here if dashboard shows partial data unexpectedly.
+- **Removed `locationPathname` from Dependencies:** Was causing unnecessary re-fetches
+  on every page navigation. The Dashboard component already remounts on navigation,
+  which triggers a fresh fetch. Removed from the dependency array.
+- **Added `updateTheme` to Dependencies:** Was used inside the effect but missing from
+  the dependency array (stale closure risk). Now properly listed.
+- **Changed Error Storage — Object → String:** Previously stored the raw Error object.
+  Now stores `err.message` string for safer consumption by React components.
+
+## hooks/useCourseThemeUpdater.js — Dependency & Failure Handling
+
+- **Removed `location.pathname` from Dependencies:** Was causing a `GET /progress/current`
+  request on every page navigation between learning pages. Theme colour only changes
+  when course progress updates — not on every navigation. Now only refetches on
+  authentication state changes.
+- **Removed `apiClient` from Dependencies:** Module-level import with stable reference
+  — unnecessary in the dependency array.
+- **Removed `setDefaultTheme()` on Fetch Failure:** Previously overrode the current
+  theme colour with grey on transient network errors. Now silently fails — the existing
+  theme colour persists until the next successful fetch.
+
+## hooks/useStreakNotifications.js — Missing Dependencies
+
+- **Added Missing Dependencies:** `streak`, `weeklyProgress`, `showToast`, and
+  `showConfirm` were used inside the effect but not listed in the dependency array.
+  Since `notifiedStatus.current` prevents duplicate notifications, adding these deps
+  doesn't cause extra toasts. Look here if streak notifications show stale streak counts.
+
+## hooks/useConfirmActions.js — ✅ No Changes Needed
+
+Well-structured hook — `createConfirmPromise` memoized with `useCallback`, return
+object memoized with `useMemo`. Promise-based API wrapping imperative `showConfirm`.
+Pre-built confirm types (delete, archive, publish, reset) with sensible defaults.
+
+## hooks/useContentFilter.js — Array Copy & Callback Stability
+
+- **Removed Unnecessary `[...initialContent]` Spread:** `Array.filter()` already returns
+  a new array — the initial shallow copy was redundant. Saves one array allocation per
+  filter change.
+- **Wrapped `clearFilters` in `useCallback`:** Previously a new function reference on
+  every render. Now stable reference with empty deps (only calls `setFilters`).
+
+## hooks/useFileDownload.js — ✅ No Changes Needed
+
+All callbacks memoized with `useCallback` + empty deps. Delegates to pure utility
+functions in `fileDownloadUtils`. Clean separation of concerns.
+
+## hooks/usePageViewTracker.js — Minor Cleanup
+
+- **Added `apiClient` to Dependency Array:** Was used inside the effect but missing
+  from deps. Stable module import in practice but lint-compliant now.
+- **Noted Missing AbortController:** Rapid navigation fires multiple parallel POST
+  requests with no cancellation. Analytics is best-effort — low priority.
+
+## controllers/progressController.js — Leaderboard Query Optimisation (Backend)
+
+- **Changed `getSurroundingLeaderboard` — O(n) → O(1):** Previously fetched ALL
+  opted-in users into memory. Now uses two targeted `$gt`/`$lt` queries limited to 2
+  results each + `countDocuments` for rank. Transfers at most 5 documents instead of
+  potentially thousands. Look here if leaderboard surrounding users are incorrect.
+- **Changed `getCurrentProgress` — O(k) → O(1) Lesson Queries:** Single `$in` query
+  for all module lessons instead of per-module queries in a loop.
+- **Changed `getModuleLeaderboard` — Removed Redundant Fetch:** Uses `req.user.xp`
+  from auth middleware instead of a separate `User.findById` for rank calculation.
+- **Removed Dead Debug Variables:** Leftover `ids`/`dupes` from duplicate leaderboard
+  entry debugging.
+
+---
+
+## Files Changed (Progress Section)
+
+| File                                | Type of Change                                                        |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| `pages/Dashboard.jsx`               | Fallback object extraction, array chain simplification, error display |
+| `hooks/useDashboardData.js`         | Partial-failure tolerance, dependency fixes, error type               |
+| `hooks/useCourseThemeUpdater.js`    | Dependency removal, failure handling                                  |
+| `hooks/useStreakNotifications.js`   | Missing dependencies                                                  |
+| `hooks/useConfirmActions.js`        | No changes needed                                                     |
+| `hooks/useContentFilter.js`         | Array copy removal, callback stability                                |
+| `hooks/useFileDownload.js`          | No changes needed                                                     |
+| `hooks/usePageViewTracker.js`       | Missing dependency                                                    |
+| `controllers/progressController.js` | Leaderboard & query optimisation (backend)                            |
+
+==========================================================================================
+
+# MODALS & HOOKS (Additional)
+
+==========================================================================================
+
+## store/useModalStore.js — ✅ No Changes Needed
+
+Clean Zustand store with minimal state — `type`, `data`, `isOpen`, plus `openModal`
+and `closeModal` actions. No derived state, no middleware, no complexity.
+
+## hooks/useModal.js — ✅ No Changes Needed
+
+Thin wrapper around `useModalStore` — provides clean API boundary. Kept for
+API stability despite being a single store call.
+
+## components/ui/BaseModal.jsx — Constant Extraction
+
+- **Extracted `SIZE_CLASSES` and `FOOTER_ALIGN_CLASSES` to Module Scope:** Two
+  lookup objects were recreated on every render. Now static constants outside
+  the component. Look here if modal sizing breaks after update.
+- **Noted `setTimeout` Without Cleanup:** Focus restoration uses a 100ms timeout
+  without clearing on unmount. Ref check prevents crash but work is wasted.
+  Low priority — 100ms window is tiny.
+- **Noted `querySelectorAll` on Every Tab Press:** Focus trapping queries the DOM
+  on each Tab keypress. For modals with few elements this is fast — acceptable
+  for infrequent modal interactions.
+
+## modals/ModalManager.jsx — ✅ No Changes Needed
+
+Clean orchestration — reads from Zustand store, dynamically resolves modal
+component via `Modals[type]` (O(1) lookup). Graceful error handling for
+missing modal types. Single responsibility.
+
+## modals/BadgeModal.jsx — Set Memoization
+
+- **Wrapped `earnedSet` in `useMemo`:** Previously `new Set(earnedBadgeIds)` on
+  every render. Now only recalculated when `earnedBadgeIds` changes.
+
+## modals/LeaderboardModal.jsx — Dedup Optimisation & Deps Fix
+
+- **Changed `visibleSurroundingUsers` — O(n\*m) → O(n+m):** Previously used
+  `.filter()` + `.some()` (nested loop). Now converts `topUsers` to a `Set`
+  via `useMemo` for O(1) lookup per surrounding user. Look here if
+  surrounding users appear duplicated in the leaderboard modal.
+- **Removed `initialSurroundingUsers` and `initialUserRank` from Effect Deps:**
+  These props change on every parent re-render, causing unnecessary
+  leaderboard re-fetches. They're initial values — only needed on first open.
+  Removed from dependency array.
+
+## modals/ReportModal.jsx — Error Handling Consistency
+
+- **Changed Error Extraction — `err.response?.data?.message` → `getErrorMessage(err)`:**
+  The manual error path was fragile (didn't handle network errors, plain strings,
+  or the unwrapped response from `apiClient`). Now uses the standard
+  `getErrorMessage` utility for consistent error messages across the app.
+
+## hooks/useConfirmActions.js — ✅ No Changes Needed
+
+Well-structured hook — `createConfirmPromise` memoized with `useCallback`, return
+object memoized with `useMemo`. Promise-based API wrapping imperative `showConfirm`.
+Pre-built confirm types with sensible defaults.
+
+## hooks/useContentFilter.js — Array Copy & Callback Stability
+
+- **Removed Unnecessary `[...initialContent]` Spread:** `Array.filter()` already
+  returns a new array — the initial shallow copy was redundant. Saves one
+  allocation per filter change.
+- **Wrapped `clearFilters` in `useCallback`:** Previously a new function reference
+  on every render. Now stable with empty deps.
+- **Noted `handleSort` Recreation:** Recreated every render — consider `useCallback`
+  if admin table re-render issues appear.
+
+## hooks/useFileDownload.js — ✅ No Changes Needed
+
+All callbacks memoized with `useCallback` + empty deps. Delegates to pure
+utility functions. Clean separation.
+
+## hooks/usePageViewTracker.js — Missing Dependency
+
+- **Added `apiClient` to Dependency Array:** Was used inside the effect but
+  missing from deps. Stable module import in practice — lint-compliant now.
+
+---
+
+## Files Changed (Modals & Hooks Section)
+
+| File                          | Type of Change                         |
+| ----------------------------- | -------------------------------------- |
+| `store/useModalStore.js`      | No changes needed                      |
+| `hooks/useModal.js`           | No changes needed                      |
+| `components/ui/BaseModal.jsx` | Constant extraction                    |
+| `modals/ModalManager.jsx`     | No changes needed                      |
+| `modals/BadgeModal.jsx`       | Set memoization                        |
+| `modals/LeaderboardModal.jsx` | Dedup optimisation, effect deps fix    |
+| `modals/ReportModal.jsx`      | Error handling consistency             |
+| `hooks/useConfirmActions.js`  | No changes needed                      |
+| `hooks/useContentFilter.js`   | Array copy removal, callback stability |
+| `hooks/useFileDownload.js`    | No changes needed                      |
+| `hooks/usePageViewTracker.js` | Missing dependency                     |

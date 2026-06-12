@@ -1,40 +1,11 @@
-//useDashboardData.js
 import { useState, useEffect } from "react";
 import { apiClient } from "../services";
-
-/**
- * @fileoverview
- * Custom hook for aggregating and managing user dashboard data.
- * Handles concurrent API requests for progress, leaderboard, and achievements.
- */
-
-/**
- * A custom hook that fetches and manages a user's dashboard-related data.
- * * This hook synchronizes multiple data streams (Current Progress, Leaderboard, and Badges)
- * and updates the application theme based on the user's course progress percentage.
- *
- * @hook
- * @param {Object} user - The current authenticated user object.
- * @param {boolean} isAuthenticated - Flag indicating if the user is currently logged in.
- * @param {boolean} authLoading - Flag indicating if the authentication state is still being resolved.
- * @param {string} locationPathname - The current URL path, used to trigger re-fetches on navigation.
- * @param {Function} updateTheme - Callback function that accepts a percentage (0-100) to update global styles.
- * * @returns {Object} dashboardData
- * @returns {Object|null} dashboardData.userProgress - Object containing XP, level, and module progress.
- * @returns {Object|null} dashboardData.surroundingLeaderboard - Object containing user's relative rank and neighbors.
- * @returns {string[]} dashboardData.earnedBadgeIds - Array of strings representing the IDs of unlocked badges.
- * @returns {boolean} dashboardData.loading - True if any of the API requests are currently in flight.
- * @returns {Error|null} dashboardData.error - Contains the error object if any API request fails.
- *
- * @example
- * const { userProgress, loading } = useDashboardData(user, true, false, '/profile', setProgressTheme);
- */
 
 export const useDashboardData = (
   user,
   isAuthenticated,
   authLoading,
-  locationPathname,
+  _locationPathname, // Accepted but unused — remount handles refresh
   updateTheme,
 ) => {
   const [data, setData] = useState({
@@ -50,28 +21,45 @@ export const useDashboardData = (
 
     const fetchData = async () => {
       setData((prev) => ({ ...prev, loading: true, error: null }));
-      try {
-        const [progress, leaderboard, achievements] = await Promise.all([
+
+      const [progressResult, leaderboardResult, achievementsResult] =
+        await Promise.allSettled([
           apiClient.get("/progress/current"),
           apiClient.get("/progress/leaderboard/around-me"),
           apiClient.get("/progress/achievements"),
         ]);
 
+      const progress =
+        progressResult.status === "fulfilled" ? progressResult.value : null;
+      const leaderboard =
+        leaderboardResult.status === "fulfilled"
+          ? leaderboardResult.value
+          : null;
+      const achievements =
+        achievementsResult.status === "fulfilled"
+          ? achievementsResult.value
+          : null;
+
+      if (progress?.courseProgressPercentage !== undefined) {
         updateTheme(progress.courseProgressPercentage);
-        setData({
-          userProgress: progress,
-          surroundingLeaderboard: leaderboard,
-          earnedBadgeIds: (achievements.earnedBadges || []).map((b) => b.id),
-          loading: false,
-          error: null,
-        });
-      } catch (err) {
-        setData((prev) => ({ ...prev, loading: false, error: err }));
       }
+
+      setData({
+        userProgress: progress,
+        surroundingLeaderboard: leaderboard,
+        earnedBadgeIds: achievements
+          ? (achievements.earnedBadges || []).map((b) => b.id)
+          : [],
+        loading: false,
+        error:
+          !progress && !leaderboard && !achievements
+            ? "Failed to load dashboard data"
+            : null,
+      });
     };
 
     fetchData();
-  }, [user, isAuthenticated, authLoading, locationPathname]);
+  }, [user, isAuthenticated, authLoading, updateTheme]);
 
   return data;
 };

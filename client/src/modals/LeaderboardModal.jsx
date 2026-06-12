@@ -1,5 +1,5 @@
 // LeaderboardModal.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNotification } from "../context";
 import { apiClient } from "../services";
 import { getErrorMessage } from "../utils";
@@ -35,10 +35,12 @@ const LeaderboardModal = ({
 
   const isModule = type === "module";
 
-  // Derived — always computed fresh so it stays in sync with topUsers,
-  // even when surroundingUsers is reset from props.
+  const topUserIds = useMemo(
+    () => new Set(topUsers.map((t) => t._id)),
+    [topUsers],
+  );
   const visibleSurroundingUsers = surroundingUsers.filter(
-    (u) => !topUsers.some((t) => t._id === u._id),
+    (u) => !topUserIds.has(u._id),
   );
 
   const isUserInTopList = topUsers.some((u) => u.isCurrent);
@@ -78,7 +80,7 @@ const LeaderboardModal = ({
     };
 
     fetchLeaderboard();
-  }, [isOpen, isModule, moduleId, initialSurroundingUsers, initialUserRank]);
+  }, [isOpen, isModule, moduleId]);
 
   const title = isModule ? "Module Leaderboard" : "🏆 Full Leaderboard";
   const subtitle = isModule
