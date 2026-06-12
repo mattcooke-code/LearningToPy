@@ -53,7 +53,6 @@ const AGE_INFO_MAP = {
   },
 };
 
-// Complete class strings (not dynamically constructed) for Tailwind purging
 const AGE_COLORS = {
   blue: {
     bg: "bg-blue-50 dark:bg-blue-900/20",

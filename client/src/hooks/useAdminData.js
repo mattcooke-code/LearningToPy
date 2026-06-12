@@ -1,18 +1,4 @@
-// /client/src/hooks/useAdminData.js
-/**
- * @fileoverview Generic admin data fetching hook with error handling, auto-retry,
- * and toast notifications.
- *
- * Wraps any async fetcher function with loading/error state, optional toast
- * alerts on failure, and configurable retry logic for network and server errors.
- *
- * @module hooks/useAdminData
- * @requires react
- * @requires ../context (useNotification)
- * @requires ../utils/getErrorMessage
- */
-
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNotification } from "../context";
 import {
   getAdminErrorMessage,
@@ -20,11 +6,23 @@ import {
 } from "../utils/getErrorMessage";
 
 /**
- * Custom hook for fetching admin data with standardized error handling
+ * Custom hook for fetching admin data with standardized error handling,
+ * auto-retry, and toast notifications.
+ *
+ * **Important:** The `fetcher` function MUST be wrapped in `useCallback` by
+ * the caller to prevent infinite re-fetch loops. The hook includes `fetcher`
+ * in its effect dependencies.
  *
  * @param {Function} fetcher - Async function that returns Axios responses
- * @param {Array} dependencies - Effect dependencies
+ *   (must be stable — wrap in useCallback).
+ * @param {Array} dependencies - Effect dependencies (typically [dateRange, groupBy]).
  * @param {Object} options - Configuration options
+ * @param {string} [options.defaultErrorMessage="Failed to fetch data"]
+ * @param {boolean} [options.showToastOnError=false]
+ * @param {boolean} [options.autoRetry=false]
+ * @param {number} [options.maxRetries=3]
+ * @param {number} [options.retryDelay=1000]
+ * @param {string} [options.context="admin"]
  * @returns {Object} { data, loading, error, refetch, setData, clearError }
  */
 export const useAdminData = (fetcher, dependencies = [], options = {}) => {
@@ -32,6 +30,7 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { showToast } = useNotification();
+  const mountedRef = useRef(true);
 
   const {
     defaultErrorMessage = "Failed to fetch data",
@@ -42,24 +41,39 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
     context = "admin",
   } = options;
 
+  // Cleanup on unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const fetchData = useCallback(
     async (retryCount = 0) => {
+      if (!mountedRef.current) return;
+
       try {
-        setLoading(true);
+        // Only set loading on initial fetch, not retries (avoids flash)
+        if (retryCount === 0) {
+          setLoading(true);
+        }
         setError(null);
 
         const result = await fetcher();
 
-        setData(result);
+        if (mountedRef.current) {
+          setData(result);
+        }
       } catch (err) {
+        if (!mountedRef.current) return;
+
         console.error("Data fetch error:", err);
 
         const errorMessage =
           context === "admin"
             ? getAdminErrorMessage(err, defaultErrorMessage)
             : getErrorMessage(err, defaultErrorMessage);
-
-        setError(errorMessage);
 
         // Auto-retry logic for network/server errors
         if (autoRetry && retryCount < maxRetries) {
@@ -68,20 +82,31 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
 
           if (isNetworkError || isServerError) {
             setTimeout(() => {
-              fetchData(retryCount + 1);
+              if (mountedRef.current) {
+                fetchData(retryCount + 1);
+              }
             }, retryDelay);
-            return;
+            return; // Don't set error or loading=false during retry window
           }
         }
+
+        setError(errorMessage);
 
         // Optional toast notification
         if (showToastOnError) {
           showToast(errorMessage, "error");
         }
       } finally {
-        setLoading(false);
+        if (mountedRef.current && retryCount === 0) {
+          setLoading(false);
+        }
+        // On retries, loading stays true until final attempt
+        if (mountedRef.current && retryCount >= maxRetries) {
+          setLoading(false);
+        }
       }
     },
+
     [
       fetcher,
       showToast,
@@ -96,15 +121,15 @@ export const useAdminData = (fetcher, dependencies = [], options = {}) => {
 
   useEffect(() => {
     fetchData();
-  }, dependencies);
+  }, [fetchData, ...dependencies]);
 
-  const refetch = () => {
+  const refetch = useCallback(() => {
     return fetchData();
-  };
+  }, [fetchData]);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     setError(null);
-  };
+  }, []);
 
   return { data, loading, error, refetch, setData, clearError };
 };

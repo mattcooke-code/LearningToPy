@@ -50,11 +50,54 @@ export const ADMIN_MENU_ITEMS = [
  * Used for rendering status badges and determining visual styling of flagged items.
  */
 export const FLAG_STATUS_CONFIG = {
-  PENDING: { color: "yellow", icon: Clock, label: "Pending" },
-  IN_REVIEW: { color: "blue", icon: Eye, label: "In Review" },
-  FIXED: { color: "green", icon: CheckCircle, label: "Fixed" },
-  REJECTED: { color: "red", icon: XCircle, label: "Rejected" },
-  XP_ADJUSTED: { color: "purple", icon: Star, label: "XP Adjusted" },
+  PENDING: {
+    color: "yellow",
+    icon: Clock,
+    label: "Pending",
+    bg: "bg-yellow-100 dark:bg-yellow-900/30",
+    text: "text-yellow-700 dark:text-yellow-300",
+    iconBg: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600",
+    badge:
+      "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+  },
+  IN_REVIEW: {
+    color: "blue",
+    icon: Eye,
+    label: "In Review",
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-700 dark:text-blue-300",
+    iconBg: "bg-blue-100 dark:bg-blue-900/30 text-blue-600",
+    badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  },
+  FIXED: {
+    color: "green",
+    icon: CheckCircle,
+    label: "Fixed",
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-700 dark:text-green-300",
+    iconBg: "bg-green-100 dark:bg-green-900/30 text-green-600",
+    badge:
+      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  },
+  REJECTED: {
+    color: "red",
+    icon: XCircle,
+    label: "Rejected",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-700 dark:text-red-300",
+    iconBg: "bg-red-100 dark:bg-red-900/30 text-red-600",
+    badge: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+  },
+  XP_ADJUSTED: {
+    color: "purple",
+    icon: Star,
+    label: "XP Adjusted",
+    bg: "bg-purple-100 dark:bg-purple-900/30",
+    text: "text-purple-700 dark:text-purple-300",
+    iconBg: "bg-purple-100 dark:bg-purple-900/30 text-purple-600",
+    badge:
+      "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  },
 };
 
 /**
@@ -70,13 +113,20 @@ export const getStatusConfig = (status) => {
       color: "gray",
       icon: Flag,
       label: status || "Unknown",
+      bg: "bg-gray-100 dark:bg-gray-900/30",
+      text: "text-gray-700 dark:text-gray-300",
+      iconBg: "bg-gray-100 dark:bg-gray-900/30 text-gray-600",
+      badge: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
     }
   );
 };
 
 /**
- * Configuration for flagged content issue types with icons, colors, labels, and descriptions.
- * Used for categorizing and displaying different types of reported issues.
+ * Retrieves issue type configuration for a given issue type.
+ * Provides fallback to OTHER configuration for unknown issue types.
+ *
+ * @param {string} issueType - The issue type to get configuration for
+ * @returns {Object} Issue type configuration object with icon, color, label, and description
  */
 export const ISSUE_TYPE_CONFIG = {
   CONTENT_ERROR: {
@@ -84,36 +134,45 @@ export const ISSUE_TYPE_CONFIG = {
     color: "blue",
     label: "Content Error",
     description: "Typo, incorrect information",
+    badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
   },
   CODE_ERROR: {
     icon: Code,
     color: "purple",
     label: "Code Error",
     description: "Exercise code not working",
+    badge:
+      "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
   },
   QUIZ_ERROR: {
     icon: HelpCircle,
     color: "orange",
     label: "Quiz Error",
     description: "Quiz marked incorrectly",
+    badge:
+      "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
   },
   BROKEN_FUNCTIONALITY: {
     icon: Wrench,
     color: "red",
     label: "Broken Functionality",
     description: "Validation not working",
+    badge: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
   },
   XP_ADJUSTMENT: {
     icon: Star,
     color: "yellow",
     label: "XP Adjustment",
     description: "XP not awarded correctly",
+    badge:
+      "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
   },
   OTHER: {
     icon: AlertCircle,
     color: "gray",
     label: "Other",
     description: "Other issue",
+    badge: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
   },
 };
 

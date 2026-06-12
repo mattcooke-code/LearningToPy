@@ -23,26 +23,26 @@ import { BadgeAwardModal } from "../modals";
 
 /**
  * Main administrative dashboard component providing platform oversight and management tools.
- * 
+ *
  * This component displays comprehensive platform statistics, recent user activity, quick action
  * buttons for common admin tasks, and flagged content monitoring. Features user badge awarding
  * functionality, navigation to detailed admin sections, and real-time data refresh capabilities.
- * 
+ *
  * @component
  * @returns {JSX.Element} Admin dashboard with stats, users, actions, and flagged content
- * 
+ *
  * @dataManagement
  * - Fetches dashboard stats and recent users via parallel API calls
  * - Transforms raw stats data using calculateAdminDashboardStats utility
  * - Manages modal states for user selection and badge awarding
  * - Handles loading states with skeleton UI components
- * 
+ *
  * @userInteractions
  * - Badge awarding with user search and selection modal
  * - Quick navigation to user management, content creation, and reports
  * - Real-time data refresh with loading indicators
  * - Individual user actions (view details, grant badges)
- * 
+ *
  * @conditionalFeatures
  * - Shows pending flags count badge on "View Reports" button
  * - Displays skeleton loading state during data fetch
@@ -58,13 +58,13 @@ const AdminDashboard = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [userSearchQuery, setUserSearchQuery] = useState("");
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     const [stats, users] = await Promise.all([
       adminApiClient.get("/stats"),
       adminApiClient.get("/users/search?limit=5"),
     ]);
     return [stats, users];
-  };
+  }, []);
 
   const { data, loading, error, refetch } = useAdminData(
     fetchDashboardData,
@@ -95,6 +95,16 @@ const AdminDashboard = () => {
   const handleViewReports = () => {
     navigate("/admin/flagged");
   };
+
+  const filteredUsers = useMemo(() => {
+    if (!userSearchQuery) return allUsers;
+    const query = userSearchQuery.toLowerCase();
+    return allUsers.filter(
+      (user) =>
+        user.username.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query),
+    );
+  }, [allUsers, userSearchQuery]);
 
   if (loading) {
     return (
@@ -284,34 +294,25 @@ const AdminDashboard = () => {
 
         {/* Flagged Content */}
         <FlaggedContentList limit={3} />
-      </div>
-      {showUserSelector && (
-        <BaseModal
-          isOpen={showUserSelector}
-          onClose={() => setShowUserSelector(false)}
-          title="Select User to Award Badge"
-          size="lg"
-        >
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Search users by name or email..."
-              value={userSearchQuery}
-              onChange={(e) => setUserSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-yellow-500 outline-none"
-            />
-            <div className="max-h-96 overflow-y-auto space-y-2">
-              {allUsers
-                .filter(
-                  (user) =>
-                    user.username
-                      .toLowerCase()
-                      .includes(userSearchQuery.toLowerCase()) ||
-                    user.email
-                      .toLowerCase()
-                      .includes(userSearchQuery.toLowerCase()),
-                )
-                .map((user) => (
+
+        {/* User Selector Modal */}
+        {showUserSelector && (
+          <BaseModal
+            isOpen={showUserSelector}
+            onClose={() => setShowUserSelector(false)}
+            title="Select User to Award Badge"
+            size="lg"
+          >
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Search users by name or email..."
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-yellow-500 outline-none"
+              />
+              <div className="max-h-96 overflow-y-auto space-y-2">
+                {filteredUsers.map((user) => (
                   <button
                     key={user._id}
                     onClick={() => {
@@ -335,31 +336,34 @@ const AdminDashboard = () => {
                     </div>
                   </button>
                 ))}
-              {allUsers.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No users found
-                </div>
-              )}
+                {filteredUsers.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    {allUsers.length === 0
+                      ? "No users found"
+                      : "No users match your search"}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </BaseModal>
-      )}
+          </BaseModal>
+        )}
 
-      {/* Badge Award Modal */}
-      {showBadgeModal && selectedUserForBadge && (
-        <BadgeAwardModal
-          isOpen={showBadgeModal}
-          user={selectedUserForBadge}
-          onClose={() => {
-            setShowBadgeModal(false);
-            setSelectedUserForBadge(null);
-          }}
-          onSave={() => {
-            refetch();
-            showToast("Badges updated successfully", "success");
-          }}
-        />
-      )}
+        {/* Badge Award Modal */}
+        {showBadgeModal && selectedUserForBadge && (
+          <BadgeAwardModal
+            isOpen={showBadgeModal}
+            user={selectedUserForBadge}
+            onClose={() => {
+              setShowBadgeModal(false);
+              setSelectedUserForBadge(null);
+            }}
+            onSave={() => {
+              refetch();
+              showToast("Badges updated successfully", "success");
+            }}
+          />
+        )}
+      </div>
     </AdminPage>
   );
 };

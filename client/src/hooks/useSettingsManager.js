@@ -48,21 +48,21 @@ export const useSettingsManager = () => {
     setChanges({});
   }, []);
 
-  const updateSetting = (key, value) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-
-    setChanges((prev) => {
-      const newChanges = { ...prev };
-      // If the new value is the same as the original server value,
-      // remove it from the changes object!
-      if (value === originalSettings[key]) {
-        delete newChanges[key];
-      } else {
-        newChanges[key] = value;
-      }
-      return newChanges;
-    });
-  };
+  const updateSetting = useCallback(
+    (key, value) => {
+      setSettings((prev) => ({ ...prev, [key]: value }));
+      setChanges((prev) => {
+        const newChanges = { ...prev };
+        if (value === originalSettings[key]) {
+          delete newChanges[key];
+        } else {
+          newChanges[key] = value;
+        }
+        return newChanges;
+      });
+    },
+    [originalSettings],
+  );
 
   const resetChanges = () => {
     setSettings(originalSettings);
@@ -89,6 +89,6 @@ export const useSettingsManager = () => {
     loadSettings,
     resetToDefaults,
     hasChanges: Object.keys(changes).length > 0,
-    getChangedSettings: () => changes,
+    getChangedSettings: () => ({ ...changes }),
   };
 };

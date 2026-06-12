@@ -1,17 +1,3 @@
-// /client/src/hooks/useAdminMutation.js
-/**
- * @fileoverview Generic admin mutation hook with confirmation dialogs, pre-mutation
- * checks, loading/error state, and success/error toast notifications.
- *
- * Wraps any async mutation function with optional confirmation prompts,
- * pre-mutation validation hooks, and standardised admin error extraction.
- *
- * @module hooks/useAdminMutation
- * @requires react
- * @requires ../context (useNotification)
- * @requires ../utils (getAdminErrorMessage, getSuccessMessage)
- */
-
 import { useState, useCallback } from "react";
 import { useNotification } from "../context";
 import { getAdminErrorMessage, getSuccessMessage } from "../utils";
@@ -35,7 +21,7 @@ import { getAdminErrorMessage, getSuccessMessage } from "../utils";
  * @param {boolean} [options.requireConfirmation=false] - Show a confirmation
  *   dialog before executing.
  * @param {object} [options.confirmationOptions={}] - Overrides for the
- *   confirmation dialog (title, message, confirmText, cancelText).
+ *   confirmation dialog (title, message, confirmText, cancelText, type).
  * @returns {{ mutate: Function, loading: boolean, error: string|null,
  *   data: any, reset: Function, isError: boolean, isSuccess: boolean,
  *   isLoading: boolean }}
@@ -57,17 +43,25 @@ export const useAdminMutation = (mutationFn, options = {}) => {
     confirmationOptions = {},
   } = options;
 
+  // Destructure confirmation options for stable dependency references
+  const {
+    title: confirmTitle = "Confirm Action",
+    message: confirmMessage = "Are you sure you want to perform this action?",
+    confirmText = "Confirm",
+    cancelText = "Cancel",
+    type: confirmType = "info",
+  } = confirmationOptions;
+
   const mutate = useCallback(
     async (variables) => {
       if (requireConfirmation) {
         const confirmed = await new Promise((resolve) => {
           showConfirm({
-            title: confirmationOptions.title || "Confirm Action",
-            message:
-              confirmationOptions.message ||
-              "Are you sure you want to perform this action?",
-            confirmText: confirmationOptions.confirmText || "Confirm",
-            cancelText: confirmationOptions.cancelText || "Cancel",
+            title: confirmTitle,
+            message: confirmMessage,
+            confirmText,
+            cancelText,
+            type: confirmType,
             onConfirm: () => resolve(true),
             onCancel: () => resolve(false),
           });
@@ -120,6 +114,7 @@ export const useAdminMutation = (mutationFn, options = {}) => {
     [
       mutationFn,
       showToast,
+      showConfirm,
       defaultErrorMessage,
       showToastOnError,
       showToastOnSuccess,
@@ -127,10 +122,11 @@ export const useAdminMutation = (mutationFn, options = {}) => {
       successResource,
       onBeforeMutate,
       requireConfirmation,
-      confirmationOptions.title,
-      confirmationOptions.message,
-      confirmationOptions.confirmText,
-      confirmationOptions.cancelText,
+      confirmTitle,
+      confirmMessage,
+      confirmText,
+      cancelText,
+      confirmType,
     ],
   );
 

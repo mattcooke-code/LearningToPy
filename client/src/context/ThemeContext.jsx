@@ -240,11 +240,6 @@ export const ThemeProvider = ({ children }) => {
    * to work without JavaScript hover handlers.
    */
   useEffect(() => {
-    console.log(
-      "Setting theme CSS variables:",
-      themeColor,
-      getHoverColor(themeColor),
-    );
     const root = document.documentElement;
     root.style.setProperty("--theme-color", themeColor);
     root.style.setProperty("--theme-hover-color", getHoverColor(themeColor));

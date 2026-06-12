@@ -1,9 +1,17 @@
 // /components/analytics/UserSegmentation.jsx
 
+// HELPERS
+const SEGMENT_COLORS = [
+  "bg-blue-500",
+  "bg-green-500",
+  "bg-purple-500",
+  "bg-orange-500",
+];
+
 /**
  * Component displaying user segmentation with visual progress bars and statistics.
  * Shows user segments with counts, percentages, and average metrics per segment.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {Array<Object>} props.userSegments - Array of user segment data
@@ -19,12 +27,6 @@
 export const UserSegmentation = ({ userSegments, platformMetrics }) => {
   if (!userSegments?.length) return null;
 
-  const COLORS = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-orange-500",
-  ];
   const totalUsers =
     platformMetrics?.monthlyActiveUsers ||
     userSegments.reduce((sum, s) => sum + s.count, 0);
@@ -52,7 +54,7 @@ export const UserSegmentation = ({ userSegments, platformMetrics }) => {
               </div>
               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
-                  className={`h-full ${COLORS[index % COLORS.length]} rounded-full transition-all duration-500`}
+                  className={`h-full ${SEGMENT_COLORS[index % SEGMENT_COLORS.length]} rounded-full transition-all duration-500`}
                   style={{ width: `${percentage}%` }}
                 ></div>
               </div>

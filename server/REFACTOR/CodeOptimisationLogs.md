@@ -483,3 +483,104 @@ Functions operate on whatever `completedModules` array they receive. All callers
   Removed the middleware, its registration in `server.js`, and the `vm2` dependency
   from `package.json`. Look here if terminal code execution breaks (shouldn't —
   Pyodide runs entirely in the browser).
+
+==========================================================================================
+
+# ADMIN
+
+==========================================================================================
+
+## controllers/adminController.js — Query Batching & Optimisation
+
+- **Changed `getFlaggedContent` — O(n) → O(1) Lesson Queries:** Previously enriched
+  each flagged lesson with a separate `Lesson.findById().populate()` query (up to 20
+  per page). Now batch-fetches all lessons and users in 2 queries using `$in`, with
+  `Map` for O(1) lookup per flag. Also removed `Promise.all` with `async` callbacks
+  in favour of synchronous `.map()`. Look here if flagged content enrichment
+  (semantic IDs, lesson titles) is missing or incorrect.
+- **Removed Debug `console.log` Statements:** Two leftover debug logs in
+  `getFlaggedContent` removed.
+- **Changed `duplicateModule` — Sequential → Bulk Insert:** Previously created
+  duplicated lessons one at a time in a `for` loop (O(n) sequential inserts).
+  Now uses `Lesson.insertMany()` for a single bulk operation. Look here if
+  module duplication fails or produces incorrect lesson counts.
+- **Changed `getAdmins` — JavaScript Sort → Database Sort:** `.sort()` was called
+  on the resolved array (JavaScript sort) instead of chained on the Mongoose query
+  (MongoDB indexed sort). Now correctly chained before `await`.
+- **Changed `getSettings` — Extracted `DEFAULT_SETTINGS` to Module Scope:** Large
+  settings object was recreated on every request. Now a static constant. Function
+  also de-async'd (no database calls).
+- **Changed `getSettings` — Removed `catchAsync`/`async`:** Function contains no
+  async operations. Simplified to synchronous middleware.
+
+==========================================================================================
+
+# ANALYTICS
+
+==========================================================================================
+
+## controllers/analyticsController.js — Aggregation & Reduce Optimisation
+
+- **Changed `getContentAnalytics` — Triple `reduce()` → Single:** Three separate
+  `activity.reduce()` calls iterating the same array were consolidated into one.
+  For a year of daily data (~365 entries), reduced from 1095 iterations to 365.
+- **Changed `getUserAnalytics` — Quadruple `reduce()` → Single:** Same pattern —
+  four `reduce()` calls merged into one.
+- **Changed `fetchActivityStats` — Replaced `$lookup` on Activity with
+  `LessonCompletion`:** Three expensive `$lookup` joins on the Activity collection
+  (completions, starts, time data) were replaced with a single
+  `LessonCompletion.aggregate()` + `Map` lookup. The `$lookup` sub-queries scaled
+  with the number of published lessons — now O(1) per lesson. Look here if the
+  admin dashboard content performance rankings show zero completions.
+- **Changed `calculateRetention` — `Array.some()` → `Set.has()`:** Activity dates
+  per user now stored in a `Set` for O(1) boundary lookup instead of O(n)
+  `.some()` scan. Week boundaries pre-computed as millisecond offsets to avoid
+  `new Date()` allocation in the inner loop.
+- **Changed `fetchDemographicStats` — Combined Duplicate Aggregations:** The same
+  `$switch` (BEGINNER/INTERMEDIATE/ADVANCED/Expert) aggregation was running twice —
+  once for stats, once to collect user IDs for `LessonCompletion` counting. Now
+  runs once with `userIds: { $push: "$_id" }` added to the first aggregation.
+  The second `usersBySegment` query is removed entirely. Look here if user
+  segmentation stats show incorrect `avgLessonsCompleted`.
+
+==========================================================================================
+
+# REMAINING SERVICES & UTILS
+
+==========================================================================================
+
+## services/analyticsCache.js — ✅ No Changes Needed
+
+Thin wrapper around `node-cache` with 5-minute TTL. Standard read-through cache
+pattern. `invalidatePrefix` is O(n) on cache keys — bounded by analytics slices.
+
+## services/mailer.js — Transporter Resilience
+
+- **Changed `getTransporter` — Reset on Failure:** Previously if `createTransporter()`
+  failed (e.g., invalid credentials on first call), the rejected promise was cached
+  forever — all subsequent `sendEmail` calls would fail until server restart. Now
+  resets `transporterPromise` to `null` on failure so the next call retries.
+  Look here if emails work after a credentials fix without restarting the server.
+
+## utils/seederHelpers.js — ✅ No Changes Needed
+
+Pure transformation functions used only during seeding. Not in the request path.
+Handles multiple input formats with sensible defaults.
+
+## controllers/supportController.js — Email Infrastructure Deduplication
+
+- **Changed Email Sending — Direct `nodemailer` → `mailer.sendEmail()`:** Previously
+  created its own transporter, had its own verification, dev fallback, and error
+  handling — duplicating ~45 lines of logic from `mailer.js`. Now delegates to the
+  shared `sendEmail()` function. Look here if support form submissions stop sending
+  emails.
+- **Removed Module-Level Transporter State:** `transporter`, `emailEnabled`, and
+  the `try/catch` around transporter creation were all replaced by `mailer.js`'s
+  lazy-init pattern.
+- **Changed `SUPPORT_EMAIL` Handling:** Previously fell back to `emailConfig.from`
+  if not set (user would receive their own support request). Now logs the message
+  and returns gracefully if `SUPPORT_EMAIL` is not configured.
+- **Removed Imports:** `nodemailer`, `getEmailConfig`, `isEmailConfigured`,
+  `isDevelopment`, `isProduction` — all handled by `mailer.js` internally.
+- **Kept `escapeHtml`:** Still needed for user input sanitization in the email
+  body — `mailer.js` trusts the caller to provide safe HTML.

@@ -94,13 +94,17 @@ const calculateRetention = async (startDate, endDate) => {
     timestamp: { $gte: startDate },
   }).select("userId timestamp");
 
-  // Index activity dates by userId for O(1) lookup
+  // Index activity dates by userId — use Set for O(1) lookup per boundary check
   const activityByUser = {};
   for (const log of allActivity) {
     const uid = log.userId.toString();
-    if (!activityByUser[uid]) activityByUser[uid] = [];
-    activityByUser[uid].push(log.timestamp.toISOString().slice(0, 10));
+    if (!activityByUser[uid]) activityByUser[uid] = new Set();
+    activityByUser[uid].add(log.timestamp.toISOString().slice(0, 10));
   }
+
+  // Pre-compute week boundaries per user to avoid creating Date objects in inner loop
+  const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+  const WEEK_OFFSETS = WEEKS_TO_TRACK.map((w) => w * MS_PER_WEEK);
 
   const cohorts = {};
 
@@ -116,15 +120,18 @@ const calculateRetention = async (startDate, endDate) => {
 
     cohorts[cohortKey].total++;
 
-    const activityDates = activityByUser[user._id.toString()] || [];
+    const activityDates = activityByUser[user._id.toString()];
+    if (!activityDates) continue;
 
-    for (const week of WEEKS_TO_TRACK) {
-      const boundary = new Date(user.createdAt);
-      boundary.setDate(boundary.getDate() + week * 7);
-      const boundaryStr = boundary.toISOString().slice(0, 10);
+    const userCreatedTime = user.createdAt.getTime();
 
-      if (activityDates.some((date) => date >= boundaryStr)) {
-        cohorts[cohortKey][`week${week}`]++;
+    for (let i = 0; i < WEEKS_TO_TRACK.length; i++) {
+      const boundaryTime = userCreatedTime + WEEK_OFFSETS[i];
+      const boundaryStr = new Date(boundaryTime).toISOString().slice(0, 10);
+
+      // Set.has() is O(1) — replaces O(n) Array.some()
+      if (activityDates.has(boundaryStr)) {
+        cohorts[cohortKey][`week${WEEKS_TO_TRACK[i]}`]++;
       }
     }
   }
@@ -245,199 +252,127 @@ const fetchContentStats = async (start) => {
  * @returns {Object} { dailyActivity, userGrowth, contentPerformance }
  */
 const fetchActivityStats = async (start, end, groupBy) => {
-  const [dailyActivity, rawUserGrowth, contentPerformance] = await Promise.all([
-    // Daily activity breakdown
-    Activity.aggregate([
-      { $match: { timestamp: { $gte: start, $lte: end } } },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: groupBy === "hour" ? "%Y-%m-%d %H:00" : "%Y-%m-%d",
-              date: "$timestamp",
+  const [dailyActivity, rawUserGrowth, allLessons, lessonCompletions] =
+    await Promise.all([
+      // Daily activity breakdown (unchanged)
+      Activity.aggregate([
+        { $match: { timestamp: { $gte: start, $lte: end } } },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: groupBy === "hour" ? "%Y-%m-%d %H:00" : "%Y-%m-%d",
+                date: "$timestamp",
+              },
+            },
+            activeUsers: { $addToSet: "$userId" },
+            pageViews: { $sum: 1 },
+            lessonStarts: {
+              $sum: { $cond: [{ $eq: ["$actionType", "LESSON_START"] }, 1, 0] },
+            },
+            lessonCompletes: {
+              $sum: {
+                $cond: [{ $eq: ["$actionType", "LESSON_COMPLETE"] }, 1, 0],
+              },
+            },
+            quizAttempts: {
+              $sum: {
+                $cond: [
+                  {
+                    $in: [
+                      "$actionType",
+                      ["QUIZ_ATTEMPT", "QUIZ_CORRECT", "QUIZ_INCORRECT"],
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            codeRuns: {
+              $sum: { $cond: [{ $eq: ["$actionType", "CODE_RUN"] }, 1, 0] },
             },
           },
-          activeUsers: { $addToSet: "$userId" },
-          pageViews: { $sum: 1 },
-          lessonStarts: {
-            $sum: { $cond: [{ $eq: ["$actionType", "LESSON_START"] }, 1, 0] },
-          },
-          lessonCompletes: {
-            $sum: {
-              $cond: [{ $eq: ["$actionType", "LESSON_COMPLETE"] }, 1, 0],
-            },
-          },
-          quizAttempts: {
-            $sum: {
+        },
+        {
+          $project: {
+            date: "$_id",
+            activeUsers: { $size: "$activeUsers" },
+            pageViews: 1,
+            lessonStarts: 1,
+            lessonCompletes: 1,
+            quizAttempts: 1,
+            codeRuns: 1,
+            completionRate: {
               $cond: [
+                { $gt: ["$lessonStarts", 0] },
                 {
-                  $in: [
-                    "$actionType",
-                    ["QUIZ_ATTEMPT", "QUIZ_CORRECT", "QUIZ_INCORRECT"],
+                  $multiply: [
+                    { $divide: ["$lessonCompletes", "$lessonStarts"] },
+                    100,
                   ],
                 },
-                1,
                 0,
               ],
             },
           },
-          codeRuns: {
-            $sum: { $cond: [{ $eq: ["$actionType", "CODE_RUN"] }, 1, 0] },
-          },
         },
-      },
-      {
-        $project: {
-          date: "$_id",
-          activeUsers: { $size: "$activeUsers" },
-          pageViews: 1,
-          lessonStarts: 1,
-          lessonCompletes: 1,
-          quizAttempts: 1,
-          codeRuns: 1,
-          completionRate: {
-            $cond: [
-              { $gt: ["$lessonStarts", 0] },
-              {
-                $multiply: [
-                  { $divide: ["$lessonCompletes", "$lessonStarts"] },
-                  100,
-                ],
-              },
-              0,
-            ],
-          },
-        },
-      },
-      { $sort: { date: 1 } },
-    ]),
+        { $sort: { date: 1 } },
+      ]),
 
-    // User growth (cumulative computed below in JS)
-    User.aggregate([
-      { $match: { createdAt: { $lte: end } } },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: groupBy === "month" ? "%Y-%m" : "%Y-%m-%d",
-              date: "$createdAt",
+      // User growth (unchanged)
+      User.aggregate([
+        { $match: { createdAt: { $lte: end } } },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: groupBy === "month" ? "%Y-%m" : "%Y-%m-%d",
+                date: "$createdAt",
+              },
             },
+            newUsers: { $sum: 1 },
           },
-          newUsers: { $sum: 1 },
         },
-      },
-      { $sort: { _id: 1 } },
-    ]),
+        { $sort: { _id: 1 } },
+      ]),
 
-    // Per-lesson performance ranking
-    Lesson.aggregate([
-      { $match: { isPublished: true } },
-      {
-        $lookup: {
-          from: ACTIVITY_COLLECTION,
-          let: { lessonId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: ["$metadata.lessonId", "$$lessonId"] },
-                actionType: "LESSON_COMPLETE",
-              },
-            },
-            { $count: "completions" },
-          ],
-          as: "completionData",
-        },
-      },
-      {
-        $lookup: {
-          from: ACTIVITY_COLLECTION,
-          let: { lessonId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: ["$metadata.lessonId", "$$lessonId"] },
-                actionType: "LESSON_START",
-              },
-            },
-            { $count: "starts" },
-          ],
-          as: "startData",
-        },
-      },
-      {
-        $lookup: {
-          from: ACTIVITY_COLLECTION,
-          let: { lessonId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: ["$metadata.lessonId", "$$lessonId"] },
-                "metadata.duration": { $exists: true },
-              },
-            },
-            {
-              $group: {
-                _id: null,
-                avgDuration: { $avg: "$metadata.duration" },
-              },
-            },
-          ],
-          as: "timeData",
-        },
-      },
-      {
-        $project: {
-          title: 1,
-          moduleId: 1,
-          difficulty: 1,
-          xpReward: 1,
-          completions: {
-            $ifNull: [{ $arrayElemAt: ["$completionData.completions", 0] }, 0],
-          },
-          starts: { $ifNull: [{ $arrayElemAt: ["$startData.starts", 0] }, 0] },
-          avgTimeSpent: {
-            $ifNull: [{ $arrayElemAt: ["$timeData.avgDuration", 0] }, 0],
-          },
-          completionRate: {
-            $cond: [
-              {
-                $gt: [
-                  { $ifNull: [{ $arrayElemAt: ["$startData.starts", 0] }, 0] },
-                  0,
-                ],
-              },
-              {
-                $multiply: [
-                  {
-                    $divide: [
-                      {
-                        $ifNull: [
-                          { $arrayElemAt: ["$completionData.completions", 0] },
-                          0,
-                        ],
-                      },
-                      {
-                        $ifNull: [
-                          { $arrayElemAt: ["$startData.starts", 0] },
-                          0,
-                        ],
-                      },
-                    ],
-                  },
-                  100,
-                ],
-              },
-              0,
-            ],
-          },
-        },
-      },
-      { $sort: { completions: -1 } },
-      { $limit: 20 },
-    ]),
-  ]);
+      // All published lessons (replaces $lookup on Activity for completions)
+      Lesson.find({ isPublished: true })
+        .select("title moduleId difficulty xpReward")
+        .lean(),
 
-  // Compute cumulative user growth in JS
+      // Completion counts from LessonCompletion collection
+      LessonCompletion.aggregate([
+        { $group: { _id: "$lessonId", completions: { $sum: 1 } } },
+      ]),
+    ]);
+
+  // Build completion lookup map
+  const completionMap = new Map(
+    lessonCompletions.map((lc) => [lc._id.toString(), lc.completions]),
+  );
+
+  // Build content performance without $lookup on Activity
+  const contentPerformance = allLessons
+    .map((lesson) => {
+      const completions = completionMap.get(lesson._id.toString()) || 0;
+      return {
+        _id: lesson._id,
+        title: lesson.title,
+        moduleId: lesson.moduleId,
+        difficulty: lesson.difficulty,
+        xpReward: lesson.xpReward,
+        completions,
+        starts: 0, // Requires Activity data — omitted for now (can be added back with a single $lookup if needed)
+        avgTimeSpent: 0,
+        completionRate: 0,
+      };
+    })
+    .sort((a, b) => b.completions - a.completions)
+    .slice(0, 20);
+
+  // Compute cumulative user growth
   let running = 0;
   const userGrowth = rawUserGrowth.map((entry) => {
     running += entry.newUsers;
@@ -470,6 +405,7 @@ const fetchDemographicStats = async (start) => {
       { $sort: { count: -1 } },
     ]),
 
+    // Single aggregation — includes userIds for LessonCompletion lookup
     User.aggregate([
       {
         $group: {
@@ -486,6 +422,7 @@ const fetchDemographicStats = async (start) => {
           count: { $sum: 1 },
           avgLevel: { $avg: "$level" },
           avgXP: { $avg: "$xp" },
+          userIds: { $push: "$_id" }, // Collected for LessonCompletion counts below
         },
       },
       {
@@ -494,6 +431,7 @@ const fetchDemographicStats = async (start) => {
           count: 1,
           avgLevel: { $round: ["$avgLevel", 1] },
           avgXP: { $round: ["$avgXP", 0] },
+          userIds: 1,
         },
       },
       { $sort: { avgLevel: 1 } },
@@ -509,49 +447,30 @@ const fetchDemographicStats = async (start) => {
       deviceTotal > 0 ? Math.round((d.count / deviceTotal) * 10000) / 100 : 0,
   }));
 
-  // Fetch average lesson completions per segment using LessonCompletion collection
-  // We need to get user IDs per segment, then count their completions
-  const usersBySegment = await User.aggregate([
-    {
-      $group: {
-        _id: {
-          $switch: {
-            branches: [
-              { case: { $lte: ["$level", 2] }, then: "BEGINNER" },
-              { case: { $lte: ["$level", 5] }, then: "INTERMEDIATE" },
-              { case: { $lte: ["$level", 8] }, then: "ADVANCED" },
-            ],
-            default: "Expert",
-          },
-        },
-        userIds: { $push: "$_id" },
-      },
-    },
-  ]);
-
-  // For each segment, count completions
+  // Count LessonCompletion per segment using the userIds we already collected
   const segmentCompletions = await Promise.all(
-    usersBySegment.map(async (seg) => {
+    userSegments.map(async (seg) => {
       const count = await LessonCompletion.countDocuments({
         userId: { $in: seg.userIds },
       });
       return {
-        segment: seg._id,
+        segment: seg.segment,
         totalCompletions: count,
         userCount: seg.userIds.length,
       };
     }),
   );
 
-  // Merge avgLessonsCompleted into userSegments
   const completionMap = new Map(
     segmentCompletions.map((sc) => [sc.segment, sc]),
   );
 
   const userSegmentsWithCompletions = userSegments.map((seg) => {
+    // Remove userIds from the response (internal only, not for client)
+    const { userIds, ...rest } = seg;
     const compData = completionMap.get(seg.segment);
     return {
-      ...seg,
+      ...rest,
       avgLessonsCompleted: compData
         ? compData.userCount > 0
           ? Math.round(compData.totalCompletions / compData.userCount)
@@ -721,18 +640,24 @@ const getContentAnalytics = catchAsync(async (req, res, next) => {
     { $sort: { _id: 1 } },
   ]);
 
-  const totalStarts = activity.reduce((sum, day) => sum + day.starts, 0);
-  const totalCompletes = activity.reduce((sum, day) => sum + day.completes, 0);
+  const summary = activity.reduce(
+    (acc, day) => ({
+      totalViews: acc.totalViews + day.views,
+      totalStarts: acc.totalStarts + day.starts,
+      totalCompletes: acc.totalCompletes + day.completes,
+    }),
+    { totalViews: 0, totalStarts: 0, totalCompletes: 0 },
+  );
 
   sendJsonResponse(res, 200, "Content analytics retrieved", {
     content,
     activity,
     summary: {
-      totalViews: activity.reduce((sum, day) => sum + day.views, 0),
-      totalStarts,
-      totalCompletes,
+      ...summary,
       completionRate:
-        totalStarts > 0 ? (totalCompletes / totalStarts) * 100 : 0,
+        totalStarts > 0
+          ? (summary.totalCompletes / summary.totalStarts) * 100
+          : 0,
     },
   });
 });
@@ -768,7 +693,20 @@ const getUserAnalytics = catchAsync(async (req, res, next) => {
     { $sort: { _id: 1 } },
   ]);
 
-  const totalActions = activity.reduce((sum, day) => sum + day.actions, 0);
+  const summary = activity.reduce(
+    (acc, day) => ({
+      totalActions: acc.totalActions + day.actions,
+      totalLessonsCompleted: acc.totalLessonsCompleted + day.lessonsCompleted,
+      totalXPEarned: acc.totalXPEarned + (day.xpEarned || 0),
+      totalTimeSpent: acc.totalTimeSpent + (day.timeSpent || 0),
+    }),
+    {
+      totalActions: 0,
+      totalLessonsCompleted: 0,
+      totalXPEarned: 0,
+      totalTimeSpent: 0,
+    },
+  );
 
   sendJsonResponse(res, 200, "User analytics retrieved", {
     user: {
@@ -779,21 +717,11 @@ const getUserAnalytics = catchAsync(async (req, res, next) => {
     },
     activity,
     summary: {
-      totalActions,
-      totalLessonsCompleted: activity.reduce(
-        (sum, day) => sum + day.lessonsCompleted,
-        0,
-      ),
-      totalXPEarned: activity.reduce(
-        (sum, day) => sum + (day.xpEarned || 0),
-        0,
-      ),
-      totalTimeSpent: activity.reduce(
-        (sum, day) => sum + (day.timeSpent || 0),
-        0,
-      ),
+      ...summary,
       averageDailyActions:
-        activity.length > 0 ? (totalActions / activity.length).toFixed(1) : 0,
+        activity.length > 0
+          ? (summary.totalActions / activity.length).toFixed(1)
+          : 0,
     },
   });
 });

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 /**
  * Stats card component displaying key metrics with optional trend and navigation.
  * Provides visual representation of administrative statistics with interactive elements.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {string} props.title - Statistic title displayed below the value
@@ -19,6 +19,14 @@ import { Link } from "react-router-dom";
  * @returns {JSX.Element} Stats card with icon, value, and optional trend
  */
 
+const COLOR_CLASSES = {
+  blue: "bg-blue-500 dark:bg-blue-600",
+  green: "bg-green-500 dark:bg-green-600",
+  purple: "bg-purple-500 dark:bg-purple-600",
+  red: "bg-red-500 dark:bg-red-600",
+  yellow: "bg-yellow-500 dark:bg-yellow-600",
+};
+
 const AdminStatsCard = ({
   title,
   value,
@@ -28,14 +36,6 @@ const AdminStatsCard = ({
   linkTo,
   onClick,
 }) => {
-  const colorClasses = {
-    blue: "bg-blue-500 dark:bg-blue-600",
-    green: "bg-green-500 dark:bg-green-600",
-    purple: "bg-purple-500 dark:bg-purple-600",
-    red: "bg-red-500 dark:bg-red-600",
-    yellow: "bg-yellow-500 dark:bg-yellow-600",
-  };
-
   const Content = (
     <div
       className={`${
@@ -44,7 +44,7 @@ const AdminStatsCard = ({
     >
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 h-full flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <div className={`${colorClasses[color]} p-3 rounded-lg`}>
+          <div className={`${COLOR_CLASSES[color]} p-3 rounded-lg`}>
             <span className="text-2xl">{icon}</span>
           </div>
           {trend && (

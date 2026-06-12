@@ -896,3 +896,310 @@ Clean, simple component. Single responsibility, proper accessibility.
 | `components/ui/SearchableSelect.jsx`          | Filter memoization                                    |
 | `components/ui/SegmentedLevelProgressBar.jsx` | Function extraction, unused import removal            |
 | `components/ui/ThemeToggle.jsx`               | No changes needed                                     |
+
+==========================================================================================
+
+# ADMIN
+
+==========================================================================================
+
+## pages/AdminAnalytics.jsx — Fetch Stability
+
+- **Wrapped `fetchAnalytics` in `useCallback`:** Previously recreated on every
+  render, causing `useAdminData` to receive a new function reference each time.
+  Now stable with `[dateRange, groupBy]` dependencies. Look here if analytics
+  dashboard re-fetches data on every render.
+- **Three `useMemo` Hooks — Kept Separate:** `chartData`, `growthData`, and
+  `deviceData` each depend on `data` and do simple `.map()` transformations.
+  Could be combined but separation is cleaner and arrays are small (~30 entries).
+
+## pages/AdminDashboard.jsx — Fetch & Filter Stability
+
+- **Wrapped `fetchDashboardData` in `useCallback` with `[]`:** No external
+  dependencies — fetches the same two endpoints every time. Stable reference
+  prevents unnecessary re-renders in `useAdminData`.
+- **Extracted `filteredUsers` to `useMemo`:** Previously computed inline in JSX
+  with `.filter()` on every keystroke (calling `toLowerCase()` twice per user).
+  Now only recalculates when `allUsers` or `userSearchQuery` change.
+- **Improved Empty State Messaging:** User selector modal now distinguishes
+  between "No users found" (no users loaded) and "No users match your search"
+  (filter returned empty).
+
+## pages/AdminContentPage.jsx — ✅ No Changes Needed
+
+Pure wrapper — delegates to `ContentManagementTable`.
+
+## pages/AdminFlagged.jsx — ✅ No Changes Needed
+
+Pure wrapper — delegates to `FlaggedContentList`.
+
+## pages/AdminSettings.jsx — ✅ No Changes Needed
+
+Pure wrapper — delegates to `AdminSettingsPanel`.
+
+## pages/AdminUsers.jsx — ✅ No Changes Needed
+
+Pure wrapper — delegates to `UserManagementTable`.
+
+## hooks/useAdminData.js — Retry & Unmount Safety
+
+- **Added `mountedRef` Cleanup:** Prevents state updates after component
+  unmount. Previously retry `setTimeout` could fire `setState` on an unmounted
+  component. Look here if you see "Can't perform a React state update on an
+  unmounted component" warnings.
+- **Changed Retry Loading State:** `loading` now stays `true` during the retry
+  window instead of flashing `false` between attempts. Eliminates content flash
+  during auto-retry sequences.
+- **Retry `setTimeout` Checks `mountedRef`:** Prevents retry execution after
+  unmount.
+- **Added `fetchData` to Effect Dependencies:** Previously missing from the
+  dependency array (stale closure risk). Now properly listed. Callers documented
+  as needing `useCallback`-wrapped `fetcher` functions.
+- **Added JSDoc Warning:** `fetcher` MUST be wrapped in `useCallback` by the
+  caller to prevent infinite re-fetch loops.
+
+## hooks/useAdminMutation.js — Dependency Stability
+
+- **Destructured `confirmationOptions` at Top with Defaults:** Previously
+  individual properties (`confirmationOptions.title`, `.message`, etc.) were
+  listed separately in the dependency array — fragile and verbose. Now
+  destructured once with fallback values, providing stable primitive
+  dependencies. Added `type` support for confirmation dialogs (was missing).
+- **Added `showConfirm` and `confirmType` to Dependency Array:** Previously
+  missing — `showConfirm` is stable from `NotificationContext` in practice but
+  now properly listed for lint compliance.
+
+---
+
+## Files Changed (Admin Section)
+
+| File                         | Type of Change                                        |
+| ---------------------------- | ----------------------------------------------------- |
+| `pages/AdminAnalytics.jsx`   | `useCallback` for fetch function                      |
+| `pages/AdminDashboard.jsx`   | `useCallback` for fetch, `useMemo` for filtered users |
+| `pages/AdminContentPage.jsx` | No changes needed                                     |
+| `pages/AdminFlagged.jsx`     | No changes needed                                     |
+| `pages/AdminSettings.jsx`    | No changes needed                                     |
+| `pages/AdminUsers.jsx`       | No changes needed                                     |
+| `hooks/useAdminData.js`      | Unmount safety, retry loading fix, dependency fix     |
+| `hooks/useAdminMutation.js`  | Dependency stability, missing deps                    |
+
+==========================================================================================
+
+# ADMIN COMPONENTS
+
+==========================================================================================
+
+## components/admin/AdminLayout.jsx — ✅ No Changes Needed
+
+Clean layout wrapper. Sidebar closes on mobile navigation via `location.pathname`
+effect. Minor: `window.innerWidth` only read once on mount (no resize listener)
+but sidebar is manually toggled via hamburger button. Inline SVG icon noted for
+future lucide-react migration.
+
+## components/admin/AdminPage.jsx — ✅ No Changes Needed
+
+Pure wrapper — delegates to `AdminPageHeader`. PropTypes included for dev validation.
+
+## components/admin/AdminPageHeader.jsx — ✅ No Changes Needed
+
+Simple presentational component. Title, description, optional action slot.
+Responsive layout.
+
+## components/admin/AdminSidebar.jsx — Fetch Stability
+
+- **Wrapped `fetchStats` in `useCallback`:** Inline `async () => adminApiClient.get("/stats")`
+  was recreated every render, causing `useAdminData` to re-fetch on every render.
+  Now stable with `[]` dependencies. Look here if sidebar badge counts flicker or
+  re-fetch constantly.
+- **Noted Stats Re-fetch on Navigation:** Sidebar fetches `/admin/stats` on every
+  mount. Acceptable for admin pages (low traffic). Could be moved to context for
+  cross-page caching.
+
+## components/admin/AdminStatsCard.jsx — Constant Extraction
+
+- **Extracted `COLOR_CLASSES` to Module Scope:** Previously recreated on every render
+  of every stat card. Now a static constant outside the component.
+- **Noted Inline SVG Arrow:** Could use `ChevronRight` from lucide-react for consistency.
+
+## components/admin/ContentManagementTable.jsx — Dynamic Tailwind Fix
+
+- **Fixed `getDifficultyBadge` — Dynamic Tailwind Classes:** Replaced
+  `bg-${config.color}-100` pattern with `DIFFICULTY_STYLES` map containing
+  complete class strings. Dynamic classes are not detected by Tailwind's JIT
+  scanner and would silently fail in production. Look here if difficulty badges
+  have no background color in production.
+- **Extracted `SortIcon` to Module Scope:** Previously defined as an inline
+  component inside `ContentManagementTable`, recreated on every render. Now
+  accepts `sortConfig` as a prop instead of closing over component state.
+- **Extracted `TYPE_ICON` Map to Module Scope:** Replaced `getTypeIcon` function
+  with a static lookup object.
+- **Noted `Promise.all` on Bulk Operations:** Selecting 50+ items and bulk
+  deleting fires 50 parallel API requests. Acceptable for admin (infrequent).
+
+## components/admin/FlaggedContentList.jsx — Dynamic Tailwind Fix & Mutation Callback
+
+- **Fixed `StatCard` — Dynamic Tailwind Classes:** Replaced
+  `bg-${config.color}-100` with `STATUS_ICON_COLORS` map. Same JIT issue.
+- **Fixed `FlagCard` — Dynamic Tailwind Classes:** Status and issue type badges
+  now use complete class strings from updated config.
+- **Fixed `onSuccess` Callback — Not Supported by `useAdminMutation`:** The
+  `resolveFlag` mutation passed `onSuccess` in options, but `useAdminMutation`
+  doesn't support it. Callbacks were silently ignored — flags wouldn't refresh
+  after resolution. Now calls refresh functions manually after mutate.
+- **Noted `useDebounce` Location:** Defined in component file. Should be moved
+  to `/hooks/useDebounce.js` for reuse.
+
+## constants/adminConstants.js — Tailwind Class String Migration
+
+- **Added `bg`, `text`, `iconBg`, `badge` Properties to `FLAG_STATUS_CONFIG`:**
+  Each status now includes complete Tailwind class strings for backgrounds,
+  text colors, icon containers, and badges. The `color` property is retained
+  for non-Tailwind uses (charts, inline styles). Look here if status badges
+  or stat cards lose their coloring.
+- **Added `badge` Property to `ISSUE_TYPE_CONFIG`:** Each issue type now includes
+  a complete class string for badge rendering.
+- **Added Class Strings to `getStatusConfig` Fallback:** Unknown statuses now
+  get complete gray-themed class strings instead of just a color name.
+
+## hooks/useAdminData.js — Retry & Unmount Safety (Previously Documented)
+
+Already covered in the ADMIN section above.
+
+## hooks/useAdminMutation.js — Dependency Stability (Previously Documented)
+
+Already covered in the ADMIN section above.
+
+## hooks/useSettingsManager.js — Callback Stability & Return Safety
+
+- **Wrapped `updateSetting` in `useCallback`:** Previously recreated every render,
+  passed as `onChange` to every `SettingInput`. Now stable with `[originalSettings]`
+  dependency. Look here if settings inputs feel laggy or re-render excessively.
+- **Changed `getChangedSettings` — Returns Copy:** Previously returned the raw
+  `changes` state object by reference. Now returns `{ ...changes }` to prevent
+  accidental mutation by callers.
+
+## hooks/useConfirmActions.js — ✅ No Changes Needed
+
+Already reviewed in MODALS & HOOKS section. Well-structured with proper memoization.
+
+## components/admin/AdminSettingsPanel.jsx — Theme Change Detection Fix
+
+- **Fixed Theme Change Check — Reading `changes` After `resetChanges()`:** Previously
+  called `settingsManager.resetChanges()` BEFORE checking if theme settings had
+  changed, so the check always saw an empty object. Now reads `changedSettings`
+  before resetting. Look here if "Theme changes may require a page refresh" toast
+  never appears.
+- **Extracted `ICON_MAP` to Module Scope:** Previously recreated every render.
+
+## components/admin/AdminTabPreview.jsx — Props Destructuring Bug Fix
+
+- **Fixed Props Destructuring — `(tab, settings)` → `({ tab, settings })`:** React
+  components receive a single props object, not separate arguments. The component
+  was treating the props object as `tab` and `settings` as `undefined`, causing
+  all switch cases to fail silently and the component to always return `null`.
+  The theme preview, gamification calculator, platform status, and security
+  recommendations have likely never been visible. Look here if the settings
+  preview panel is always empty.
+
+## components/admin/SaveStatusIndicator.jsx — ✅ No Changes Needed
+
+Clean presentational component. Returns `null` when no changes, shows floating
+indicator with count otherwise. PropTypes included.
+
+## components/admin/SettingInput.jsx — Memo Comparator Simplification
+
+- **Removed Custom `memo` Comparator with `JSON.stringify`:** The custom comparator
+  called `JSON.stringify` on `options` objects on every props comparison. For 30
+  settings inputs, that's up to 60 `JSON.stringify` calls per parent render.
+  Replaced with React's default shallow comparison — `options` comes from static
+  config (`SETTINGS_CONFIGS`) so references are stable. Look here if settings
+  inputs don't update when options change.
+- **Sub-Components at Module Scope:** `ColorInput`, `SelectInput`, `ToggleInput`,
+  `NumberInput`, `RangeInput`, `TextInput` all defined outside the component —
+  no closure dependencies, stable references. Correct pattern.
+
+## components/admin/UserManagementTable.jsx — Callback & Constant Extraction
+
+- **Wrapped `handleXPAdjust` in `useCallback`:** Previously recreated every render,
+  passed as `onSave` to `XPAdjustmentModal`. Now stable with `[showToast, refresh]`.
+- **Wrapped `handleSort` in `useCallback`:** Recreated every render, passed to every
+  column header button. Now stable with `[]`.
+- **Extracted `INITIAL_FILTERS` and `TABLE_COLUMNS` to Module Scope:** Previously
+  recreated on every render.
+
+## components/admin/UserTableFilters.jsx — Debounce & Callback Fix
+
+- **Fixed Debounce Effect — Skipped Initial Mount:** The debounce `useEffect` was
+  firing on mount with empty level values, triggering an unnecessary API call after
+  500ms. Now uses a `useRef` flag to skip the initial mount. Look here if level
+  filters don't apply on first use.
+- **Wrapped `handleSelectChange` and `handleNumericChange` in `useCallback`:**
+  Previously recreated every render. Now stable with `[]` dependencies.
+
+---
+
+## Files Changed (Admin Components Section)
+
+| File                                          | Type of Change                                  |
+| --------------------------------------------- | ----------------------------------------------- |
+| `components/admin/AdminLayout.jsx`            | No changes needed                               |
+| `components/admin/AdminPage.jsx`              | No changes needed                               |
+| `components/admin/AdminPageHeader.jsx`        | No changes needed                               |
+| `components/admin/AdminSidebar.jsx`           | `useCallback` for fetch                         |
+| `components/admin/AdminStatsCard.jsx`         | Constant extraction                             |
+| `components/admin/ContentManagementTable.jsx` | Dynamic Tailwind fix, function extraction       |
+| `components/admin/FlaggedContentList.jsx`     | Dynamic Tailwind fix, mutation callback fix     |
+| `components/admin/AdminSettingsPanel.jsx`     | Theme change detection fix, constant extraction |
+| `components/admin/AdminTabPreview.jsx`        | Props destructuring bug fix                     |
+| `components/admin/SaveStatusIndicator.jsx`    | No changes needed                               |
+| `components/admin/SettingInput.jsx`           | Memo comparator simplification                  |
+| `components/admin/UserManagementTable.jsx`    | Callback & constant extraction                  |
+| `components/admin/UserTableFilters.jsx`       | Debounce fix, callback stability                |
+| `constants/adminConstants.js`                 | Tailwind class string migration                 |
+| `hooks/useAdminData.js`                       | Previously documented                           |
+| `hooks/useAdminMutation.js`                   | Previously documented                           |
+| `hooks/useSettingsManager.js`                 | Callback stability, return safety               |
+| `hooks/useConfirmActions.js`                  | No changes needed                               |
+
+==========================================================================================
+
+# ANALYTICS COMPONENTS
+
+==========================================================================================
+
+## components/analytics/MetricsGrid.jsx — Dynamic Tailwind Fix
+
+- **Fixed Dynamic Tailwind Classes — `METRIC_COLORS` Map:** Replaced
+  `bg-${metric.color}-100` and `text-${metric.color}-600` with static
+  `METRIC_COLORS` lookup object containing complete class strings. Same JIT
+  issue as other admin components. Look here if metric icon backgrounds or
+  colors are missing in production.
+- **Noted `metrics` Array Recreation:** Array of 4 metric objects recreated
+  every render. Low priority — 4 elements is trivial.
+
+## components/analytics/QuickStats.jsx — Minor
+
+- **Noted `stats` Array Recreation:** Array of 4 stat objects recreated every
+  render. Gradient classes are hardcoded strings (`"from-blue-500"`) so Tailwind
+  detects them correctly. Low priority.
+
+## components/analytics/TopContent.jsx — ✅ No Changes Needed
+
+Clean presentational component. Static display with no state or effects.
+
+## components/analytics/UserSegmentation.jsx — Constant Extraction
+
+- **Extracted `COLORS` to Module Scope as `SEGMENT_COLORS`:** Previously
+  recreated on every render.
+
+---
+
+## Files Changed (Analytics Section)
+
+| File                                        | Type of Change       |
+| ------------------------------------------- | -------------------- |
+| `components/analytics/MetricsGrid.jsx`      | Dynamic Tailwind fix |
+| `components/analytics/QuickStats.jsx`       | Minor (noted)        |
+| `components/analytics/TopContent.jsx`       | No changes needed    |
+| `components/analytics/UserSegmentation.jsx` | Constant extraction  |

@@ -1,4 +1,5 @@
 // AdminSidebar.jsx
+import { useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { X, ShieldCheck, ChevronRight } from "lucide-react";
 import { ADMIN_MENU_ITEMS } from "../../constants/adminConstants";
@@ -16,7 +17,7 @@ const useActivePath = (currentPath, menuPath, exact = false) => {
 /**
  * Navigation sidebar for admin interface with menu items and badge counts.
  * Provides mobile-responsive navigation with real-time notification badges.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {boolean} props.isOpen - Whether the sidebar is currently open
@@ -28,15 +29,11 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Fetch admin stats for badge counts
-  const { data: stats } = useAdminData(
-    async () => adminApiClient.get("/stats"),
-    [],
-    {
-      autoRetry: false, // Don't auto-retry sidebar requests
-      showToastOnError: false, // Don't show toasts for sidebar errors
-    },
-  );
+  const fetchStats = useCallback(() => adminApiClient.get("/stats"), []);
+  const { data: stats } = useAdminData(fetchStats, [], {
+    autoRetry: false,
+    showToastOnError: false,
+  });
 
   return (
     <>

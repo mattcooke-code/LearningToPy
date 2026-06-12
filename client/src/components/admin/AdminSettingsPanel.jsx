@@ -34,10 +34,19 @@ import { SETTINGS_CONFIGS, ADMIN_TABS } from "../../constants/settingsConfigs";
 /**
  * Settings panel for configuring platform-wide settings with tabbed interface.
  * Provides comprehensive settings management with real-time preview and validation.
- * 
+ *
  * @component
  * @returns {JSX.Element} Settings panel with tabs and configuration options
  */
+
+const ICON_MAP = {
+  Globe,
+  Palette,
+  Trophy,
+  Shield,
+  Zap,
+  Code,
+};
 
 const AdminSettingsPanel = () => {
   const [activeTab, setActiveTab] = useState("general");
@@ -78,7 +87,6 @@ const AdminSettingsPanel = () => {
   const handleSave = async () => {
     if (!settingsManager.hasChanges) return;
 
-    // Validation
     const validationErrors = [];
     if (settingsManager.changes.xpPerLevel <= 0) {
       validationErrors.push("XP per level must be greater than 0.");
@@ -96,12 +104,15 @@ const AdminSettingsPanel = () => {
       const changedSettings = settingsManager.getChangedSettings();
       await saveMutation.mutate(changedSettings);
 
+      // Check for theme changes BEFORE resetting
+      const hasThemeChanges =
+        changedSettings.themeColor ||
+        changedSettings.codeTheme ||
+        changedSettings.defaultTheme;
+
       settingsManager.resetChanges();
 
-      // Notify about theme changes
-      const { changes } = settingsManager;
-
-      if (changes.themeColor || changes.codeTheme || changes.defaultTheme) {
+      if (hasThemeChanges) {
         showToast(
           "Theme changes may require a page refresh to take effect",
           "info",
@@ -129,15 +140,6 @@ const AdminSettingsPanel = () => {
       settingsManager.resetToDefaults();
       showToast("Settings reset to defaults (not yet saved).", "info");
     }
-  };
-
-  const iconMap = {
-    Globe,
-    Palette,
-    Trophy,
-    Shield,
-    Zap,
-    Code,
   };
 
   if (loading) {
@@ -196,7 +198,7 @@ const AdminSettingsPanel = () => {
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8 overflow-x-auto pb-5">
           {ADMIN_TABS.map((tab) => {
-            const Icon = iconMap[tab.icon];
+            const Icon = ICON_MAP[tab.icon];
             return (
               <button
                 key={tab.id}

@@ -3,12 +3,11 @@ const nodemailer = require("nodemailer");
 const config = require("../config/envConfig");
 const AppError = require("../utils/AppError");
 
-
 /**
  * Creates a Nodemailer transporter instance.
  * Uses Ethereal (test account) in development when no email credentials are set,
  * otherwise uses the configured SMTP settings from envConfig.
- * 
+ *
  * @returns {Promise<nodemailer.Transporter>} Configured mail transporter
  */
 const createTransporter = async () => {
@@ -17,7 +16,6 @@ const createTransporter = async () => {
     const testAccount = await nodemailer.createTestAccount();
     console.log("\n📧 Using Ethereal Email for testing:");
     console.log(`   Preview URL: ${testAccount.web}`);
-  
 
     return nodemailer.createTransport({
       host: "smtp.ethereal.email",
@@ -48,16 +46,18 @@ const createTransporter = async () => {
 
 let transporterPromise = null;
 
-
 /**
  * Lazily initializes and caches the email transporter.
  * Reuses the same transporter across all email sends.
- * 
+ *
  * @returns {Promise<nodemailer.Transporter>} The cached transporter instance
  */
-const getTransporter = () => {
+const getTransporter = async () => {
   if (!transporterPromise) {
-    transporterPromise = createTransporter();
+    transporterPromise = createTransporter().catch((err) => {
+      transporterPromise = null; // Reset so next call retries
+      throw err;
+    });
   }
   return transporterPromise;
 };
@@ -65,7 +65,7 @@ const getTransporter = () => {
 /**
  * Send an email through the configured transporter.
  * In development without credentials, logs to console instead.
- * 
+ *
  * @param {string} to - Recipient email address
  * @param {string} subject - Email subject line
  * @param {string} htmlContent - HTML body of the email
@@ -133,8 +133,6 @@ const sendEmail = async (to, subject, htmlContent, options = {}) => {
     );
   }
 };
-
-
 
 module.exports = {
   sendEmail,

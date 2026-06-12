@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle, Users, BarChart3 } from "lucide-react";
 /**
  * Preview component for admin settings tabs showing live configuration effects.
  * Provides real-time visual feedback for setting changes across different categories.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {string} props.tab - Current active tab identifier
@@ -12,7 +12,7 @@ import { AlertTriangle, CheckCircle, Users, BarChart3 } from "lucide-react";
  * @returns {JSX.Element} Preview section with tab-specific visual feedback
  */
 
-export const AdminTabPreview = (tab, settings) => {
+export const AdminTabPreview = ({ tab, settings }) => {
   switch (tab) {
     case "theme":
       return (
@@ -48,8 +48,8 @@ export const AdminTabPreview = (tab, settings) => {
                 settings.defaultTheme === "dark"
                   ? "bg-gray-900 text-white"
                   : settings.defaultTheme === "light"
-                  ? "bg-white text-gray-900"
-                  : "bg-gray-100 text-gray-900"
+                    ? "bg-white text-gray-900"
+                    : "bg-gray-100 text-gray-900"
               }`}
             >
               <p className="font-medium">UI Theme</p>
@@ -91,7 +91,7 @@ export const AdminTabPreview = (tab, settings) => {
                   {settings.dailyStreakReward} ×{" "}
                   {settings.streakBonusMultiplier} ={" "}
                   {Math.round(
-                    settings.dailyStreakReward * settings.streakBonusMultiplier
+                    settings.dailyStreakReward * settings.streakBonusMultiplier,
                   )}{" "}
                   XP/day
                 </span>

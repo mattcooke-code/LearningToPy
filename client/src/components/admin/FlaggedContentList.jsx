@@ -41,7 +41,7 @@ const useDebounce = (value, delay = 500) => {
 /**
  * List component for displaying and managing flagged content with filtering and quick actions.
  * Provides status-based filtering, search functionality, and administrative resolution tools.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {number} [props.limit=null] - Optional limit for number of items to display
@@ -99,18 +99,18 @@ const FlaggedContentList = ({ limit = null }) => {
   );
 
   // 3. Mutations
-  const { mutate: resolveFlag } = useAdminMutation(
+  const { mutate: resolveFlagMutation, loading: resolving } = useAdminMutation(
     (vars) => adminApiClient.patch(`/flagged/${vars.id}/resolve`, vars.body),
-    {
-      successResource: "Flag",
-      onSuccess: () => {
-        refreshFlags();
-        refreshStats();
-        setShowResolutionModal(false);
-        setSelectedFlag(null);
-      },
-    },
+    { successResource: "Flag" },
   );
+
+  const resolveFlag = async (vars) => {
+    await resolveFlagMutation(vars);
+    refreshFlags();
+    refreshStats();
+    setShowResolutionModal(false);
+    setSelectedFlag(null);
+  };
 
   const flags = data?.flaggedContent || [];
   const totalPages = data?.pagination?.totalPages || 1;
@@ -307,9 +307,7 @@ const StatCard = ({ label, value, status }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
       <div className="flex flex-col items-center text-center">
-        <div
-          className={`p-2 rounded-lg bg-${config.color}-100 dark:bg-${config.color}-900/30 text-${config.color}-600 mb-2`}
-        >
+        <div className={`p-2 rounded-lg ${config.badge} mb-2`}>
           <Icon size={20} />
         </div>
         <p className="text-2xl font-bold dark:text-white">{value}</p>
@@ -339,12 +337,12 @@ const FlagCard = ({ flag, onReview, onQuickAction }) => {
           {/* Status and Issue Type Badges */}
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-${config.color}-100 text-${config.color}-700`}
+              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${config.badge}`}
             >
               <StatusIcon size={10} className="mr-1" /> {config.label}
             </span>
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-${issueConfig.color}-100 text-${issueConfig.color}-700`}
+              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${config.badge}`}
             >
               <IssueIcon size={10} className="mr-1" /> {issueConfig.label}
             </span>

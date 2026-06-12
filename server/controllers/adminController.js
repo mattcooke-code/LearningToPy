@@ -37,7 +37,7 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
 
 const mongoose = require("mongoose");
 
-// ======= HELPER FUNCTION =======
+// ======= HELPER FUNCTIONs =======
 /**
  * Create an audit log entry for admin actions.
  *
@@ -78,6 +78,39 @@ const createAdminLog = async (
   } catch (logError) {
     console.error("Failed to create admin log:", logError);
   }
+};
+
+/**
+ * getSettings() - default settings object
+ */
+const DEFAULT_SETTINGS = {
+  themeColor: "#3b82f6",
+  codeTheme: "dark",
+  defaultTheme: "system",
+  xpPerLevel: 100,
+  moduleXpBonus: 500,
+  streakBonusMultiplier: 1.5,
+  dailyStreakReward: 50,
+  weeklyChallengeBonus: 1000,
+  maxFileSize: 10,
+  maxAvatarSize: 2,
+  sessionTimeout: 60,
+  maxLoginAttempts: 5,
+  enableLeaderboards: true,
+  enableBadges: true,
+  enableStreaks: true,
+  enableChallenges: true,
+  enableComments: true,
+  maintenanceMode: false,
+  allowRegistrations: true,
+  defaultDifficulty: "BEGINNER",
+  maxLessonsPerModule: 20,
+  previewMode: false,
+  autoPublishNewContent: false,
+  requireEmailVerification: false,
+  requireStrongPassword: true,
+  enable2FA: false,
+  logIpAddresses: true,
 };
 
 /**
@@ -134,11 +167,9 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - { admins: [...] }
  */
 const getAdmins = catchAsync(async (req, res, next) => {
-  const admins = (
-    await User.find({ isAdmin: true }).select(
-      "username email level xp lastActive createdAt",
-    )
-  ).sort({ createdAt: -1 });
+  const admins = await User.find({ isAdmin: true })
+    .select("username email level xp lastActive createdAt")
+    .sort({ createdAt: -1 });
 
   sendJsonResponse(res, 200, "Admins retrieved", { admins });
 });
@@ -386,11 +417,9 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
   if (status && status !== "ALL") {
     filter.status = status;
   }
-
   if (issueType && issueType !== "") {
     filter.issueType = issueType;
   }
-
   if (search) {
     filter.$or = [
       { title: { $regex: search, $options: "i" } },
@@ -398,8 +427,6 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
       { suggestedFix: { $regex: search, $options: "i" } },
     ];
   }
-
-  console.log("Flag filter:", filter); // Debug log
 
   const [flaggedContent, total] = await Promise.all([
     FlaggedContent.find(filter)
@@ -412,46 +439,61 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
     FlaggedContent.countDocuments(filter),
   ]);
 
-  console.log(
-    `Found ${flaggedContent.length} flagged items out of ${total} total`,
-  ); // Debug log
+  // ── Batch-fetch lessons for enrichment ──────────────────────
+  const lessonIds = flaggedContent
+    .filter((f) => f.targetType === "LESSON" && f.targetId)
+    .map((f) => f.targetId);
 
-  // Apply semantic IDs for lessons
-  const enrichedContent = await Promise.all(
-    flaggedContent.map(async (flag) => {
-      const enrichedFlag = { ...flag };
+  const userFlagIds = flaggedContent
+    .filter((f) => f.targetType === "USER_PROFILE" && f.targetId)
+    .map((f) => f.targetId);
 
-      if (flag.targetType === "LESSON" && flag.targetId) {
-        try {
-          const lesson = await Lesson.findById(flag.targetId)
-            .populate("moduleId", "order")
-            .lean();
-
-          if (lesson && lesson.moduleId) {
-            const moduleOrder = lesson.moduleId.order;
-            const lessonOrder = lesson.order || 0;
-            enrichedFlag.semanticId = `M${moduleOrder}L${lessonOrder}`;
-            enrichedFlag.lessonTitle = lesson.title;
-            enrichedFlag.moduleTitle = lesson.moduleId.title;
-            enrichedFlag.contentPreview = lesson.description?.substring(0, 200);
-          } else {
-            enrichedFlag.semanticId = `Lesson ${flag.targetId.slice(-6)}`;
-          }
-        } catch (err) {
-          console.error(`Error enriching flag ${flag._id}:`, err);
-          enrichedFlag.semanticId = `Lesson ${flag.targetId.slice(-6)}`;
-        }
-      } else if (flag.targetType === "USER_PROFILE") {
-        const user = await User.findById(flag.targetId)
+  const [lessons, users] = await Promise.all([
+    lessonIds.length > 0
+      ? Lesson.find({ _id: { $in: lessonIds } })
+          .populate("moduleId", "order title")
+          .lean()
+      : [],
+    userFlagIds.length > 0
+      ? User.find({ _id: { $in: userFlagIds } })
           .select("username email")
-          .lean();
-        enrichedFlag.semanticId = `User: ${user?.username || "Unknown"}`;
-        enrichedFlag.contentPreview = `Email: ${user?.email || "N/A"}`;
-      }
+          .lean()
+      : [],
+  ]);
 
-      return enrichedFlag;
-    }),
-  );
+  const lessonMap = new Map(lessons.map((l) => [l._id.toString(), l]));
+  const userMap = new Map(users.map((u) => [u._id.toString(), u]));
+
+  // ── Enrich flags with semantic data ─────────────────────────
+  const enrichedContent = flaggedContent.map((flag) => {
+    if (flag.targetType === "LESSON" && flag.targetId) {
+      const lesson = lessonMap.get(flag.targetId.toString());
+      if (lesson && lesson.moduleId) {
+        return {
+          ...flag,
+          semanticId: `M${lesson.moduleId.order}L${lesson.order || 0}`,
+          lessonTitle: lesson.title,
+          moduleTitle: lesson.moduleId.title,
+          contentPreview: lesson.description?.substring(0, 200),
+        };
+      }
+      return {
+        ...flag,
+        semanticId: `Lesson ${flag.targetId.slice(-6)}`,
+      };
+    }
+
+    if (flag.targetType === "USER_PROFILE" && flag.targetId) {
+      const user = userMap.get(flag.targetId.toString());
+      return {
+        ...flag,
+        semanticId: `User: ${user?.username || "Unknown"}`,
+        contentPreview: `Email: ${user?.email || "N/A"}`,
+      };
+    }
+
+    return flag;
+  });
 
   sendJsonResponse(res, 200, "Flagged content retrieved", {
     flaggedContent: enrichedContent,
@@ -1069,37 +1111,7 @@ const resolveFlag = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - Default platform settings
  */
 const getSettings = catchAsync(async (req, res, next) => {
-  const defaultSettings = {
-    themeColor: "#3b82f6",
-    codeTheme: "dark",
-    defaultTheme: "system",
-    xpPerLevel: 100,
-    moduleXpBonus: 500,
-    streakBonusMultiplier: 1.5,
-    dailyStreakReward: 50,
-    weeklyChallengeBonus: 1000,
-    maxFileSize: 10,
-    maxAvatarSize: 2,
-    sessionTimeout: 60,
-    maxLoginAttempts: 5,
-    enableLeaderboards: true,
-    enableBadges: true,
-    enableStreaks: true,
-    enableChallenges: true,
-    enableComments: true,
-    maintenanceMode: false,
-    allowRegistrations: true,
-    defaultDifficulty: "BEGINNER",
-    maxLessonsPerModule: 20,
-    previewMode: false,
-    autoPublishNewContent: false,
-    requireEmailVerification: false,
-    requireStrongPassword: true,
-    enable2FA: false,
-    logIpAddresses: true,
-  };
-
-  sendJsonResponse(res, 200, "Settings retrieved.", defaultSettings);
+  sendJsonResponse(res, 200, "Settings retrieved.", DEFAULT_SETTINGS);
 });
 
 /**
@@ -1581,9 +1593,8 @@ const duplicateModule = catchAsync(async (req, res, next) => {
     updatedAt: undefined,
   });
 
-  const duplicatedLessons = [];
-  for (const lesson of lessons) {
-    const duplicatedLesson = await Lesson.create({
+  const duplicatedLessons = await Lesson.insertMany(
+    lessons.map((lesson) => ({
       ...lesson.toObject(),
       _id: undefined,
       moduleId: duplicatedModule._id,
@@ -1591,9 +1602,8 @@ const duplicateModule = catchAsync(async (req, res, next) => {
       isPublished: false,
       createdAt: undefined,
       updatedAt: undefined,
-    });
-    duplicatedLessons.push(duplicatedLesson);
-  }
+    })),
+  );
 
   await createAdminLog(
     req.userId,

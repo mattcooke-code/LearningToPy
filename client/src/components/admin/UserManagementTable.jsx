@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useNotification } from "../../context";
 import { useAdminData, useAdminMutation } from "../../hooks";
 import {
@@ -25,11 +25,29 @@ import {
 import { LoadingState, Pagination } from "../ui";
 import UserTableFilters from "./UserTableFilters";
 
+// HELPERs
+const INITIAL_FILTERS = {
+  isBlocked: "",
+  isAdmin: "",
+  levelMin: "",
+  levelMax: "",
+};
+
+const TABLE_COLUMNS = [
+  "username",
+  "email",
+  "level",
+  "xp",
+  "status",
+  "createdAt",
+  "actions",
+];
+
 /**
  * User management table with sorting, filtering, and administrative actions.
  * Supports blocking/unblocking users, toggling admin status, XP adjustment,
  * progress override, and badge awarding.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {string} [props.searchQuery=""] - Filters users by username or email
@@ -38,18 +56,12 @@ import UserTableFilters from "./UserTableFilters";
 
 const UserManagementTable = ({ searchQuery = "" }) => {
   const { showToast, showConfirm } = useNotification();
-  const initialFilters = {
-    isBlocked: "",
-    isAdmin: "",
-    levelMin: "",
-    levelMax: "",
-  };
 
   // Table & Fetching State
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("descend");
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
 
   // Modal States
   const [selectedUser, setSelectedUser] = useState(null);
@@ -167,28 +179,33 @@ const UserManagementTable = ({ searchQuery = "" }) => {
     });
   };
 
-  const handleXPAdjust = async (userId, xpAmount, reason) => {
-    try {
-      await adminApiClient.patch(`/users/${userId}/xp`, {
-        xpChange: xpAmount,
-        reason,
-      });
-      showToast(`XP adjusted by ${xpAmount}`, "success");
-      refresh();
-    } catch (err) {
-      showToast("Failed to adjust XP", "error");
-    }
-  };
+  const handleXPAdjust = useCallback(
+    async (userId, xpAmount, reason) => {
+      try {
+        await adminApiClient.patch(`/users/${userId}/xp`, {
+          xpChange: xpAmount,
+          reason,
+        });
+        showToast(`XP adjusted by ${xpAmount}`, "success");
+        refresh();
+      } catch (err) {
+        showToast("Failed to adjust XP", "error");
+      }
+    },
+    [showToast, refresh],
+  );
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
-    } else {
-      setSortField(field);
+  const handleSort = useCallback((field) => {
+    setSortField((prev) => {
+      if (prev === field) {
+        setSortOrder((o) => (o === "ascend" ? "descend" : "ascend"));
+        return prev;
+      }
       setSortOrder("descend");
-    }
+      return field;
+    });
     setPage(1);
-  };
+  }, []);
 
   if (loading && users.length === 0) {
     return <LoadingState message="Loading users..." height="h-96" />;
@@ -200,7 +217,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
         filters={filters}
         setFilters={setFilters}
         onReset={() => {
-          setFilters(initialFilters);
+          setFilters(INITIAL_FILTERS);
           setPage(1);
         }}
       />
@@ -210,15 +227,7 @@ const UserManagementTable = ({ searchQuery = "" }) => {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800/50">
               <tr>
-                {[
-                  "username",
-                  "email",
-                  "level",
-                  "xp",
-                  "status",
-                  "createdAt",
-                  "actions",
-                ].map((col) => (
+                {TABLE_COLUMNS.map((col) => (
                   <th
                     key={col}
                     className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"

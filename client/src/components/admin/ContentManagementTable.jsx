@@ -32,10 +32,41 @@ import {
 /**
  * Comprehensive content management interface for lessons and modules with filtering and bulk operations.
  * Supports table/grid views, bulk actions, content editing, and module organization.
- * 
+ *
  * @component
  * @returns {JSX.Element} Content management interface with filtering and actions
  */
+
+const DIFFICULTY_STYLES = {
+  beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  intermediate:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+  advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+};
+
+const getDifficultyBadge = (difficulty) => {
+  const style = DIFFICULTY_STYLES[difficulty] || "bg-gray-100 text-gray-800";
+  const label = difficulty
+    ? difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+    : "Unknown";
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style}`}
+    >
+      {label}
+    </span>
+  );
+};
+
+const SortIcon = ({ field, sortConfig }) => {
+  if (sortConfig.field !== field)
+    return <ChevronUp className="h-4 w-4 opacity-30" />;
+  return sortConfig.direction === "ascend" ? (
+    <ChevronUp className="h-4 w-4" />
+  ) : (
+    <ChevronDown className="h-4 w-4" />
+  );
+};
 
 const ContentManagementTable = () => {
   const [content, setContent] = useState([]);
@@ -303,35 +334,7 @@ const ContentManagementTable = () => {
   const effectiveViewMode = isMobile ? "grid" : viewMode;
   const effectiveGroupByModule = isMobile ? false : groupByModule;
 
-  const SortIcon = ({ field }) => {
-    if (sortConfig.field !== field)
-      return <ChevronUp className="h-4 w-4 opacity-30" />;
-    return sortConfig.direction === "ascend" ? (
-      <ChevronUp className="h-4 w-4" />
-    ) : (
-      <ChevronDown className="h-4 w-4" />
-    );
-  };
-
-  const getDifficultyBadge = (difficulty) => {
-    const config = {
-      beginner: { color: "green", label: "Beginner" },
-      intermediate: { color: "yellow", label: "Intermediate" },
-      advanced: { color: "red", label: "Advanced" },
-    }[difficulty] || { color: "gray", label: "Unknown" };
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${config.color}-100 text-${config.color}-800 dark:bg-${config.color}-900 dark:text-${config.color}-200`}
-      >
-        {config.label}
-      </span>
-    );
-  };
-
-  const getTypeIcon = (type) => {
-    return type === "lesson" ? FileText : BookOpen;
-  };
+  const TYPE_ICON = { lesson: FileText, module: BookOpen };
 
   // Get module title by ID
   const getModuleTitle = (moduleId) => {
@@ -551,7 +554,9 @@ const ContentManagementTable = () => {
                   }`}
                 >
                   <span>{column.label}</span>
-                  {column.sortable && <SortIcon field={column.key} />}
+                  {column.sortable && (
+                    <SortIcon field={column.key} sortConfig={sortConfig} />
+                  )}
                 </button>
               </th>
             ))}
@@ -559,7 +564,7 @@ const ContentManagementTable = () => {
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y dark:text-gray-200 divide-gray-200 dark:divide-gray-800">
           {filteredContent.map((item) => {
-            const TypeIcon = getTypeIcon(item.type);
+            const TypeIcon = TYPE_ICON(item.type);
             const isSelected = selectedItems.some(
               (selected) => selected._id === item._id,
             );

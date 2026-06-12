@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Filter, RotateCcw } from "lucide-react";
 
 /**
  * Filter component for user management table with debounced level inputs.
  * Provides account status filtering, role-based filtering, and level range selection.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {Object} props.filters - Current filter values object
@@ -36,33 +36,33 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
   // after the user stops typing for 500ms
   useEffect(() => {
     const timer = setTimeout(() => {
-      setFilters((prev) => ({
-        ...prev,
-        levelMin: localLevels.levelMin,
-        levelMax: localLevels.levelMax,
-      }));
+      setFilters((prev) => {
+        if (
+          prev.levelMin === localLevels.levelMin &&
+          prev.levelMax === localLevels.levelMax
+        ) {
+          return prev; // No change — skip update
+        }
+        return {
+          ...prev,
+          levelMin: localLevels.levelMin,
+          levelMax: localLevels.levelMax,
+        };
+      });
     }, 500);
-
     return () => clearTimeout(timer);
   }, [localLevels, setFilters]);
 
   // Instant update for dropdowns
-  const handleSelectChange = (e) => {
+  const handleSelectChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-  // Update local state only for numeric inputs
-  const handleNumericChange = (e) => {
+  const handleNumericChange = useCallback((e) => {
     const { name, value } = e.target;
-    setLocalLevels((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    setLocalLevels((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
   const hasActiveFilters = Object.values(filters).some((val) => val !== "");
 

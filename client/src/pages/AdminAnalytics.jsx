@@ -3,13 +3,13 @@
  * Analytics dashboard page for administrators to monitor platform performance, user engagement,
  * and content metrics. This page provides comprehensive data visualization with time range filtering,
  * real-time data fetching, and interactive charts for platform analytics.
- * 
+ *
  * Key features include user activity tracking, growth metrics, device demographics, content performance
  * analysis, and struggling content identification. Uses admin API endpoints for data retrieval and
  * transforms raw data into chart-ready formats.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { adminApiClient } from "../services";
 import { AdminPage } from "../components/admin";
 import { RefreshButton, LoadingState, ErrorState } from "../components/ui";
@@ -25,25 +25,25 @@ import { ANALYTICS_TIME_RANGES } from "../constants/adminConstants";
 
 /**
  * Analytics dashboard component for monitoring platform-wide metrics and user engagement.
- * 
+ *
  * This component provides administrators with comprehensive analytics including user activity,
  * growth trends, device breakdowns, and content performance metrics. Features configurable
  * time ranges, real-time data fetching, and interactive visualizations.
- * 
+ *
  * @component
  * @returns {JSX.Element} Analytics dashboard with charts and metrics
- * 
+ *
  * @dataFlow
  * 1. Fetches analytics data via adminApiClient with dateRange and groupBy parameters
  * 2. Transforms raw API responses into chart-ready data structures
  * 3. Renders multiple visualization components with processed data
  * 4. Handles loading states and error conditions with appropriate UI feedback
- * 
+ *
  * @chartTransformations
  * - chartData: Maps daily activity data for ActivityChart (date, activeUsers, lessonsCompleted, xpEarned)
  * - growthData: Direct mapping of growth trends for GrowthChart
  * - deviceData: Direct mapping of device demographics for DevicesChart
- * 
+ *
  * @conditionalRendering
  * - Shows loading state during data fetch
  * - Displays error state with retry functionality on API failures
@@ -54,12 +54,11 @@ const AdminAnalytics = () => {
   const [dateRange, setDateRange] = useState("30d");
   const [groupBy, setGroupBy] = useState("day");
 
-  const fetchAnalytics = async () => {
-    const response = await adminApiClient.get("/analytics", {
+  const fetchAnalytics = useCallback(async () => {
+    return adminApiClient.get("/analytics", {
       params: { range: dateRange, groupBy },
     });
-    return response;
-  };
+  }, [dateRange, groupBy]);
 
   const { data, loading, error, refetch } = useAdminData(
     fetchAnalytics,

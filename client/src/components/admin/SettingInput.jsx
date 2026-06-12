@@ -5,7 +5,7 @@ import { memo, useMemo } from "react";
 /**
  * Dynamic form input supporting multiple input types for admin settings.
  * Shows a visual "Changed" indicator when isChanged is true.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {string} props.setting - Setting key identifier
@@ -303,13 +303,4 @@ SettingInput.defaultProps = {
   description: "",
 };
 
-export default memo(SettingInput, (prevProps, nextProps) => {
-  return (
-    prevProps.value === nextProps.value &&
-    prevProps.isChanged === nextProps.isChanged &&
-    prevProps.label === nextProps.label &&
-    prevProps.description === nextProps.description &&
-    prevProps.type === nextProps.type &&
-    JSON.stringify(prevProps.options) === JSON.stringify(nextProps.options)
-  );
-});
+export default memo(SettingInput);
