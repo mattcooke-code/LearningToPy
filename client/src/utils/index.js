@@ -26,6 +26,7 @@ export {
   mapLessonToFormData,
   normalizeLessonForAPI,
 } from "./lessonFormUtils";
+export { slugifyHeading, parseContent } from "./markdownUtils";
 export {
   DEFAULT_MODULE_FORM_DATA,
   mapModuleToFormData,

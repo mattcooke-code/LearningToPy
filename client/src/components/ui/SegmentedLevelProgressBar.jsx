@@ -1,16 +1,14 @@
-import { useTheme } from "../../context";
-
 /**
  * A segmented progress bar showing course completion with level and lesson tracking.
- * 
+ *
  * This component displays progress through a 20-level course with individual lesson
  * tracking within each module. It uses color-coded segments to indicate progress
  * and handles both active course completion and finished course states.
- * 
+ *
  * @component
  * @example
  * ```jsx
- * <SegmentedLevelProgressBar 
+ * <SegmentedLevelProgressBar
  *   currentLevel={5}
  *   currentModule={{ order: 5, title: "Functions", lessonCount: 8, lessonsCompleted: 3 }}
  *   lessonsCompleted={3}
@@ -18,7 +16,7 @@ import { useTheme } from "../../context";
  *   showLabels={true}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} [props.currentLevel=1] - Current level number (1-20, representing completed modules)
  * @param {Object|null} [props.currentModule=null] - Current module information object
@@ -29,15 +27,15 @@ import { useTheme } from "../../context";
  * @param {number} [props.lessonsCompleted=0] - Number of lessons completed in current module
  * @param {number} [props.totalLessons=0] - Total number of lessons in current module
  * @param {boolean} [props.showLabels=true] - Whether to show header labels and footer information
- * 
+ *
  * @returns {JSX.Element} A segmented progress bar with labels and color coding
- * 
+ *
  * @progressLogic
  * - Course Complete (level 20+): Shows 20 purple segments with completion message
  * - Active Course: Shows segments equal to lesson count (minimum 6)
  * - Each segment represents one lesson within the current module
  * - Progress percentage calculated from completed lessons vs total lessons
- * 
+ *
  * @colorScheme
  * Segment colors based on progress position:
  * - 0-25%: Red (#ef4444) - Beginning stages
@@ -46,43 +44,50 @@ import { useTheme } from "../../context";
  * - 65-85%: Lime (#84cc16) - Advanced progress
  * - 85-100%: Green (#22c55e) - Near completion
  * - Course Complete: Purple (#800080) - Mastery achieved
- * 
+ *
  * @visualFeatures
  * - Segmented bar with rounded corners and spacing
  * - Filled segments use color, empty segments show only borders
  * - Optional segment numbers (shown when ≤12 segments)
  * - Hover tooltips showing lesson/module information
  * - Smooth color transitions (300ms duration)
- * 
+ *
  * @labelInformation
  * Header shows:
  * - Current level or "Course Complete" with celebration emoji
  * - Current module title and order (if active)
  * - Progress percentage and completion status
- * 
+ *
  * Footer shows:
  * - Start/Finish color indicators
  * - Lesson count or mastery status
  * - Additional context information
- * 
+ *
  * @responsiveBehavior
  * - Segment numbers hidden when >12 segments (crowding prevention)
  * - Labels can be toggled for compact display
  * - Maintains readability across different screen sizes
  */
+
+const getSegmentColor = (index, segmentCount, isCourseComplete) => {
+  if (isCourseComplete) return "#800080";
+  const segmentProgress = ((index + 1) / segmentCount) * 100;
+  if (segmentProgress <= 25) return "#ef4444";
+  if (segmentProgress <= 45) return "#f97316";
+  if (segmentProgress <= 65) return "#FFD700";
+  if (segmentProgress <= 85) return "#84cc16";
+  return "#22c55e";
+};
+
 const SegmentedLevelProgressBar = ({
-  currentLevel = 1, // Modules completed (1–20)
-  currentModule = null, // { order, title, lessonCount, lessonsCompleted }
-  lessonsCompleted = 0, // Lessons completed in current module
-  totalLessons = 0, // Total lessons in current module
+  currentLevel = 1,
+  currentModule = null,
+  lessonsCompleted = 0,
+  totalLessons = 0,
   showLabels = true,
 }) => {
-  const { getModuleThemeColor } = useTheme();
-
-  // --- LOGIC FROM NEW VERSION ---
   const isCourseComplete = currentLevel >= 20;
 
-  // If course complete, show 20 blocks. Otherwise, one block per lesson.
   const segmentCount = isCourseComplete
     ? 20
     : totalLessons > 0
@@ -94,19 +99,6 @@ const SegmentedLevelProgressBar = ({
     : totalLessons > 0
       ? (lessonsCompleted / totalLessons) * 100
       : 0;
-
-  // --- STYLE FROM OLD VERSION ---
-  // Restoring the vibrant color progression
-  const getSegmentColor = (index) => {
-    if (isCourseComplete) return "#800080"; // Purple/Gold for total completion
-
-    const segmentProgress = ((index + 1) / segmentCount) * 100;
-    if (segmentProgress <= 25) return "#ef4444"; // Red
-    if (segmentProgress <= 45) return "#f97316"; // Orange
-    if (segmentProgress <= 65) return "#FFD700"; // Yellow
-    if (segmentProgress <= 85) return "#84cc16"; // Lime
-    return "#22c55e"; // Green
-  };
 
   return (
     <div className="w-full">
@@ -155,7 +147,7 @@ const SegmentedLevelProgressBar = ({
                   : `Lesson ${index + 1}`
               }
             >
-              {/* Optional: Segment Number (Old style had this) */}
+              {/* Optional: Segment Number */}
               {showLabels && segmentCount <= 12 && (
                 <span
                   className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold ${isFilled ? "text-white" : "text-gray-400"}`}

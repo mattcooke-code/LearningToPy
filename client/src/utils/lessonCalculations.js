@@ -97,18 +97,16 @@ export const findFirstIncompleteLesson = (lessons = []) => {
  * @param {object[]} [lessons=[]] - Array of lesson objects with `isCompleted`
  *   properties.
  * @returns {{ completed: number, total: number, moduleLessonProgress: number, remaining: number }}
- *   An object with counts and the computed progress percentage from
- *   `calculateModuleLessonProgress`.
+ *   An object with counts and the computed progress percentage
  */
 export const getLessonStatistics = (lessons = []) => {
   const completed = lessons.filter((lesson) => lesson.isCompleted).length;
   const total = lessons.length;
-  const { moduleLessonProgress } = calculateModuleLessonProgress(lessons);
 
   return {
     completed,
     total,
-    moduleLessonProgress,
+    moduleLessonProgress: total > 0 ? Math.round((completed / total) * 100) : 0,
     remaining: total - completed,
   };
 };

@@ -8,29 +8,28 @@ const ImageViewer = ({ src, alt, isOpen, onClose }) => {
   const [showRotateHint, setShowRotateHint] = useState(false);
   const [userRotated, setUserRotated] = useState(false);
   const imgRef = useRef(null);
+  const hintTimerRef = useRef(null);
 
   // Detect image orientation once loaded
   useEffect(() => {
     if (!src || !isOpen) return;
+    let cancelled = false;
 
     const img = new Image();
     img.onload = () => {
-      const landscape = img.naturalWidth > img.naturalHeight;
-      setIsLandscape(landscape);
-      setImageDimensions({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-        ratio: img.naturalWidth / img.naturalHeight,
-      });
-
-      // Show rotate hint for landscape images on mobile
+      if (cancelled) return;
+      // ... existing logic, replace setTimeout with:
       if (landscape && window.innerWidth < 768) {
         setShowRotateHint(true);
-        // Auto-hide hint after 3 seconds
-        setTimeout(() => setShowRotateHint(false), 3000);
+        if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+        hintTimerRef.current = setTimeout(() => setShowRotateHint(false), 3000);
       }
     };
     img.src = src;
+
+    return () => {
+      cancelled = true;
+    };
   }, [src, isOpen]);
 
   // Close on Escape key
@@ -52,6 +51,7 @@ const ImageViewer = ({ src, alt, isOpen, onClose }) => {
 
   // Reset state on close
   const handleClose = () => {
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     setZoom(1);
     setUserRotated(false);
     setShowRotateHint(false);

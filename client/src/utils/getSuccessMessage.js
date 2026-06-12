@@ -41,16 +41,22 @@ export const getSuccessMessage = (action, resource = "item") => {
   const formattedResource =
     resource.charAt(0).toUpperCase() + resource.slice(1);
 
-  const messages = {
-    create: `${formattedResource} created successfully`,
-    update: `${formattedResource} updated successfully`,
-    delete: `${formattedResource} deleted successfully`,
-    save: "Changes saved successfully",
-    publish: "Content published successfully",
-    archive: "Content archived successfully",
-    restore: "Content restored successfully",
-    default: "Operation completed successfully",
-  };
-
-  return messages[action] || messages.default;
+  switch (action) {
+    case "create":
+      return `${formattedResource} created successfully`;
+    case "update":
+      return `${formattedResource} updated successfully`;
+    case "delete":
+      return `${formattedResource} deleted successfully`;
+    case "save":
+      return "Changes saved successfully";
+    case "publish":
+      return "Content published successfully";
+    case "archive":
+      return "Content archived successfully";
+    case "restore":
+      return "Content restored successfully";
+    default:
+      return "Operation completed successfully";
+  }
 };

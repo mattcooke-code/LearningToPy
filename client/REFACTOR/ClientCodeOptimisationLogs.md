@@ -784,3 +784,115 @@ utility functions. Clean separation.
 | `hooks/useContentFilter.js`   | Array copy removal, callback stability |
 | `hooks/useFileDownload.js`    | No changes needed                      |
 | `hooks/usePageViewTracker.js` | Missing dependency                     |
+
+==========================================================================================
+
+# UI COMPONENTS (Additional)
+
+==========================================================================================
+
+## components/ui/ImageViewer.jsx — Cleanup & Cancellation
+
+- **Added Cleanup for Rotate Hint Timer:** The 3-second auto-hide timer now stores
+  its ID in a ref and clears on modal close. Previously the timeout could fire
+  `setState` on an unmounted component if the viewer closed within 3 seconds.
+- **Added `cancelled` Flag to Image Load Effect:** `new Image()` preload now checks
+  a cancellation flag before setting state. Prevents state updates if the component
+  unmounts before the image loads.
+- **Noted `window.innerWidth` in Render:** Checked during render for responsive
+  caption hints. Not reactive to window resize — minor edge case for image viewing.
+
+## components/ui/LeaderboardRow.jsx — Function Extraction
+
+- **Extracted `getRankDisplay` to Module Scope:** Previously defined inside the
+  component, recreated on every render of every leaderboard row. Now a module-level
+  function using a `RANK_MEDALS` lookup object. Look here if medal emojis stop
+  appearing for top 3 ranks.
+
+## components/ui/MarkdownRenderer.jsx — Major Memoization Pass
+
+- **Extracted `parseContent` and `slugifyHeading` to `utils/markdownUtils.js`:**
+  Pure parsing logic moved to a shared utility. The component now imports these
+  instead of defining them internally.
+- **Extracted `CONTAINER_STYLES` and `CONTAINER_TEXT_COLORS` to Module Scope:**
+  Large nested configuration objects were recreated on every render (and per
+  container). Now static constants outside the component.
+- **Wrapped `markdownComponents` in `useMemo`:** 16 React component definitions
+  (some 60+ lines) were recreated on every render. Now only recreated when
+  `activeDark` or `moduleId` changes. This is the single largest render saving
+  in the UI layer. Look here if markdown rendering breaks after theme changes.
+- **Wrapped `dynamicComponents` in `useMemo`:** 12 component definitions for
+  container content. Recreated only on `activeDark` changes.
+- **Wrapped `CustomContainer` in `useMemo`:** Container sub-component recreated
+  only when `activeDark` or `dynamicComponents` changes.
+- **Wrapped `parsedContent` in `useMemo`:** Content was re-parsed (splitting by
+  newlines, iterating all lines) on every render. Now only re-parsed when
+  `content` changes.
+- **Removed Debug `console.log`:** Leftover `console.log("img inside container:", src)`
+  removed.
+- **Inlined `ContainerContent` into `CustomContainer`:** Removed unnecessary
+  intermediate sub-component.
+
+## utils/markdownUtils.js — New File
+
+- **Added `slugifyHeading(text)`:** Converts heading text to URL-safe slug for
+  anchor links.
+- **Added `parseContent(text)`:** Splits markdown content into regular sections
+  and `:::container:::` blocks. Returns structured array for the renderer.
+  Extracted from `MarkdownRenderer.jsx`.
+
+## components/ui/PythonSyntaxHighlighter.jsx — Regex Extraction
+
+- **Extracted `KEYWORDS_REGEX`, `BUILTINS_REGEX`, `STRINGS_REGEX`, `NUMBERS_REGEX`
+  to Module Scope:** Four regex literals were recreated on every line of every
+  code block. For a 50-line snippet, that's 200 regex allocations per render.
+  Now static module-level constants. Look here if syntax highlighting colors
+  are incorrect.
+- **Extracted `getPatterns(isDark)` to Module Scope:** Patterns array with
+  theme-aware class names was recreated per line. Now a module-level function
+  returning the appropriate patterns for the current theme.
+- **Changed `new RegExp()` Per Pattern Per Line → Clone Once Per Call:** Previously
+  created a new RegExp instance for each pattern on each line. Now clones the
+  patterns array once at the top of `highlightCode`. Reduces allocations from
+  O(lines × patterns) to O(lines × 1).
+- **Fixed Typo:** `higlightPython` → `highlightPython` (internal function, no
+  consumer impact).
+
+## components/ui/RefreshButton.jsx — ✅ No Changes Needed
+
+Clean, simple component. Properly disabled during loading, accessible.
+
+## components/ui/SearchableSelect.jsx — Filter Memoization
+
+- **Wrapped `filteredOptions` in `useMemo`:** Previously recalculated on every
+  render (`.toLowerCase()` + `.includes()` on every option) even when the
+  dropdown was closed and `searchTerm` unchanged. Now only recalculates when
+  `options` or `searchTerm` change.
+
+## components/ui/SegmentedLevelProgressBar.jsx — Function Extraction
+
+- **Extracted `getSegmentColor` to Module Scope:** Previously redefined inside
+  the component on every render. Called up to 20 times per render (once per
+  segment). Now a module-level pure function.
+- **Removed Unused `getModuleThemeColor` Destructure:** Was imported from
+  `useTheme()` but never called. Color logic uses `getSegmentColor` instead.
+
+## components/ui/ThemeToggle.jsx — ✅ No Changes Needed
+
+Clean, simple component. Single responsibility, proper accessibility.
+
+---
+
+## Files Changed (UI Components Section)
+
+| File                                          | Type of Change                                        |
+| --------------------------------------------- | ----------------------------------------------------- |
+| `components/ui/ImageViewer.jsx`               | Timer cleanup, image load cancellation                |
+| `components/ui/LeaderboardRow.jsx`            | Function extraction                                   |
+| `components/ui/MarkdownRenderer.jsx`          | Major memoization, static extraction, util extraction |
+| `utils/markdownUtils.js`                      | New file — parsing & slug utilities                   |
+| `components/ui/PythonSyntaxHighlighter.jsx`   | Regex extraction, allocation reduction                |
+| `components/ui/RefreshButton.jsx`             | No changes needed                                     |
+| `components/ui/SearchableSelect.jsx`          | Filter memoization                                    |
+| `components/ui/SegmentedLevelProgressBar.jsx` | Function extraction, unused import removal            |
+| `components/ui/ThemeToggle.jsx`               | No changes needed                                     |

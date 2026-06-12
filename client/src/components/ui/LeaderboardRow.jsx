@@ -1,21 +1,21 @@
 // /client/components/ui/LeaderboardRow.jsx
 /**
  * A leaderboard row component displaying user ranking with visual indicators.
- * 
+ *
  * This component renders a single row in a leaderboard with special styling for
  * top performers and the current user. It includes medal emojis for podium positions
  * and handles both anonymous and identified users.
- * 
+ *
  * @component
  * @example
  * ```jsx
- * <LeaderboardRow 
+ * <LeaderboardRow
  *   rank={1}
  *   user={{ _id: "123", username: "Alice", xp: 1500, isAnonymous: false }}
  *   isCurrent={true}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} props.rank - The user's rank position in the leaderboard (1-based)
  * @param {Object} props.user - User object containing user information
@@ -24,42 +24,40 @@
  * @param {number} props.user.xp - User's experience points total
  * @param {boolean} props.user.isAnonymous - Whether the user is anonymous
  * @param {boolean} props.isCurrent - Whether this row represents the currently logged-in user
- * 
+ *
  * @returns {JSX.Element} A styled row with rank indicator, user info, and XP display
- * 
+ *
  * @visualFeatures
  * - Medal emojis for top 3 positions: 🥇 (1st), 🥈 (2nd), 🥉 (3rd)
  * - Numeric rank display for positions 4+
  * - Special highlighting for current user (blue background/border)
  * - Hover effects for non-current rows
  * - Responsive design with proper spacing
- * 
+ *
  * @rankDisplayLogic
  * - Positions 1-3: Show medal emojis with special yellow styling
  * - Positions 4+: Show numeric rank with gray styling
  * - Current user: Blue circular background regardless of rank
  * - Anonymous users: Display as "Learner #XXXXXX" (last 6 chars of ID)
- * 
+ *
  * @stylingDetails
  * - Current user: Blue theme with border emphasis
  * - Top 3 ranks: Yellow theme for medal positions
  * - Other ranks: Gray theme for standard positions
  * - XP display: Python yellow/light color with bold weight
  * - Anonymous indicator: Small gray text label
- * 
+ *
  * @accessibility
  * - Semantic HTML structure
  * - Clear visual hierarchy
  * - Proper contrast ratios
  * - Hover states for interactive feedback
  */
+
+const RANK_MEDALS = { 1: "🥇", 2: "🥈", 3: "🥉" };
+
 const LeaderboardRow = ({ rank, user, isCurrent }) => {
-  const getRankDisplay = (rank) => {
-    if (rank === 1) return "🥇";
-    if (rank === 2) return "🥈";
-    if (rank === 3) return "🥉";
-    return rank;
-  };
+  const getRankDisplay = (rank) => RANK_MEDALS[rank] || rank;
 
   return (
     <div

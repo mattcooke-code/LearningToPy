@@ -1,14 +1,14 @@
 // components/ui/SearchableSelect.jsx
-import { useState, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Search, ChevronDown, X } from "lucide-react";
 
 /**
  * A searchable dropdown select component with filtering and keyboard navigation.
- * 
+ *
  * This component provides an enhanced select experience with search functionality,
  * making it ideal for long option lists. It includes proper accessibility features,
  * click-outside handling, and comprehensive keyboard support.
- * 
+ *
  * @component
  * @example
  * ```jsx
@@ -17,7 +17,7 @@ import { Search, ChevronDown, X } from "lucide-react";
  *   { value: "uk", label: "United Kingdom" },
  *   { value: "ca", label: "Canada" }
  * ];
- * 
+ *
  * <SearchableSelect
  *   value="us"
  *   onChange={setSelectedCountry}
@@ -27,7 +27,7 @@ import { Search, ChevronDown, X } from "lucide-react";
  *   required
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.value - Currently selected option value
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the new value as argument
@@ -37,9 +37,9 @@ import { Search, ChevronDown, X } from "lucide-react";
  * @param {boolean} [props.required=false] - If true, shows an asterisk (*) next to the label
  * @param {string} [props.className=""] - Additional CSS classes to apply to the wrapper element
  * @param {boolean} [props.disabled=false] - If true, disables the select and prevents interaction
- * 
+ *
  * @returns {JSX.Element} A searchable select dropdown with filtering capabilities
- * 
+ *
  * @features
  * - Real-time search filtering of options
  * - Click outside to close functionality
@@ -49,24 +49,24 @@ import { Search, ChevronDown, X } from "lucide-react";
  * - Disabled state handling
  * - Required field indicator
  * - Responsive dropdown with scroll
- * 
+ *
  * @internalLogic
  * State Management:
  * - `isOpen` - Controls dropdown visibility
  * - `searchTerm` - Current search query for filtering
  * - `wrapperRef` - Reference for click-outside detection
- * 
+ *
  * Filtering Logic:
  * - Case-insensitive search on option labels
  * - Real-time filtering as user types
  * - Shows "No options found" when filter returns no results
- * 
+ *
  * Event Handling:
  * - Click outside detection using mousedown event
  * - Search input stops propagation to prevent dropdown toggle
  * - Clear button resets search and maintains dropdown state
  * - Option selection closes dropdown and clears search
- * 
+ *
  * @accessibility
  * - Semantic HTML structure with proper labels
  * - Disabled state with visual and interaction feedback
@@ -89,9 +89,11 @@ const SearchableSelect = ({
 
   const selectedOption = options.find((opt) => opt.value === value);
 
-  const filteredOptions = options.filter((opt) =>
-    opt.label.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredOptions = useMemo(() => {
+    if (!searchTerm) return options;
+    const term = searchTerm.toLowerCase();
+    return options.filter((opt) => opt.label.toLowerCase().includes(term));
+  }, [options, searchTerm]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
