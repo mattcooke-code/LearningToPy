@@ -53,11 +53,13 @@
  * - Proper contrast ratios
  * - Hover states for interactive feedback
  */
-
-const RANK_MEDALS = { 1: "🥇", 2: "🥈", 3: "🥉" };
-
 const LeaderboardRow = ({ rank, user, isCurrent }) => {
-  const getRankDisplay = (rank) => RANK_MEDALS[rank] || rank;
+  const getRankDisplay = (rank) => {
+    if (rank === 1) return "🥇";
+    if (rank === 2) return "🥈";
+    if (rank === 3) return "🥉";
+    return rank;
+  };
 
   return (
     <div

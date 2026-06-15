@@ -19,7 +19,7 @@ const getCookieOptions = () => {
   return {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "Strict" : "Lax",
+    sameSite: isProduction ? "None" : "Lax",
     path: "/",
     ...(isProduction && { partitioned: true }),
   };
