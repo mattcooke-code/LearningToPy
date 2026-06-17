@@ -211,7 +211,7 @@ const BADGE_DEFINITIONS_CORE = [
   },
   {
     id: "module-15-complete",
-    name: "The Professional",
+    name: "Tool Maker",
     description:
       "Completed M15: Professional Python Development. Virtual environments, pip, debugging, packaging — you work like a real developer now.",
     category: "module",
@@ -286,7 +286,7 @@ const BADGE_DEFINITIONS_CORE = [
     category: "module",
     module: 20,
     phase: 3,
-    tier: "gold",
+    tier: "platinum",
     image: "/badges/platinum/M20_Python_Master.png",
   },
   {
@@ -312,7 +312,7 @@ const BADGE_DEFINITIONS_CORE = [
     module: null,
     phase: null,
     tier: null,
-    image: "/badges/other/Halfway_There.png",
+    image: "/badges/other/Halfway.png",
   },
 
   {
@@ -324,7 +324,7 @@ const BADGE_DEFINITIONS_CORE = [
     module: null,
     phase: null,
     tier: "platinum",
-    image: "/badges/other/Full_Stack_Pythonista.png",
+    image: "/badges/other/100.png",
   },
 
   // ─── ENGAGEMENT BADGES ───────────────────────────────────────
@@ -343,7 +343,7 @@ const BADGE_DEFINITIONS_CORE = [
 
   {
     id: "first-challenge",
-    name: "Code Writer",
+    name: "Code Cracker",
     description:
       "Completed your first coding challenge. You didn't just read about Python — you wrote it.",
     category: "engagement",
@@ -364,22 +364,20 @@ const BADGE_DEFINITIONS_CORE = [
     module: null,
     phase: null,
     tier: null,
-    image: "/badges/other/",
+    image: "/badges/other/Summit.png",
   },
 
   {
     id: "top-ten",
-    name: "Top Ten",
+    name: "Top Ten Club",
     description:
       "Reached the top 10 on the leaderboard. An achievement earned, not given — and it stays yours.",
     category: "leaderboard",
     module: null,
     phase: null,
     tier: null,
-    image: "/badges/other/",
+    image: "/badges/other/Top_Ten.png",
   },
 ];
 
-
-  module.exports = { BADGE_DEFINITIONS_CORE };
-
+module.exports = { BADGE_DEFINITIONS_CORE };

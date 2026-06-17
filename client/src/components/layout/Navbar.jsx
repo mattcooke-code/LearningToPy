@@ -38,9 +38,8 @@ const Navbar = memo(function Navbar() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-4">
-            <ThemeToggle />
             <Link to="/" className="flex items-center space-x-2 shrink-0">
-              <BookOpen className="w-8 h-8" />
+              <img src="public/Logo.png" className="w-18 h-16" />
               <span className="text-xl sm:text-2xl font-bold tracking-tight">
                 Learning To Py
               </span>
@@ -48,6 +47,7 @@ const Navbar = memo(function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center space-x-2">
+            <ThemeToggle />
             {isAuthenticated ? (
               <>
                 <Link
