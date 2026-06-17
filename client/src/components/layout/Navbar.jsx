@@ -39,7 +39,11 @@ const Navbar = memo(function Navbar() {
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2 shrink-0">
-              <img src="public/Logo.png" className="w-18 h-16" />
+              <img
+                src="/Logo.png"
+                className="w-18 h-16"
+                alt="Learning To Py Logo"
+              />
               <span className="text-xl sm:text-2xl font-bold tracking-tight">
                 Learning To Py
               </span>
