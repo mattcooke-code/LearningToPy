@@ -1,106 +1,114 @@
+import ouroborosSrc from "../../../public/ouroboros-spinner.png";
+
 /**
- * A customizable loading spinner component with optional text and multiple styling options.
+ * A loading spinner that rotates the site's ouroboros logo, for use in place
+ * of (or alongside) the plain ring `Spinner` component wherever a more
+ * on-brand loading indicator is wanted.
  *
- * This spinner component provides consistent loading indicators across the application
- * with various sizes, colors, and layout options. It can be used standalone or with
- * accompanying text for better user feedback.
+ * Mirrors the prop API of `Spinner.jsx` (`size`, `className`, `center`,
+ * `showText`, `text`) so it can be swapped in as a drop-in alternative,
+ * with two additions specific to an animated image: `speed` and `reverse`.
  *
  * @component
  * @example
  * ```jsx
- * // Basic spinner
- * <Spinner />
+ * // Basic ouroboros spinner
+ * <OuroborosSpinner />
  *
- * // Large spinner with text
- * <Spinner
- *   size="lg"
- *   color="gray"
- *   showText={true}
- *   text="Processing..."
- *   center={false}
- * />
+ * // Large, slower, with text
+ * <OuroborosSpinner size="lg" speed="slow" showText text="Loading modules..." />
  * ```
  *
  * @param {Object} props - Component props
- * @param {string} [props.size="md"] - Spinner size preset: "sm" (16px), "md" (48px), or "lg" (64px)
- * @param {string} [props.color="python-blue"] - Color scheme for the spinner: "python-blue", "white", "gray", or "light"
- * @param {string} [props.className=""] - Additional CSS classes to apply to the spinner element
+ * @param {string} [props.size="md"] - Spinner size preset: "sm" (32px), "md" (56px), or "lg" (88px)
+ * @param {string} [props.speed="normal"] - Rotation speed preset: "slow" (3.5s), "normal" (2s), or "fast" (1s)
+ * @param {boolean} [props.reverse=false] - If true, the snake appears to chase its tail in the opposite direction
+ * @param {string} [props.className=""] - Additional CSS classes to apply to the image element
  * @param {boolean} [props.center=true] - If true, centers the spinner using flexbox. If false, spinner uses inline positioning
  * @param {boolean} [props.showText=false] - If true, displays text alongside the spinner
  * @param {string} [props.text="Loading..."] - Text to display when showText is true
  *
- * @returns {JSX.Element} A spinning loader with optional text and centering
+ * @returns {JSX.Element} A spinning ouroboros image with optional text and centering
  *
  * @sizePresets
- * - "sm" - h-4 w-4 (16px × 16px)
- * - "md" - h-12 w-12 (48px × 48px)
- * - "lg" - h-16 w-16 (64px × 64px)
- *
- * @colorPresets
- * - "python-blue" - Primary brand color with dark mode support
- * - "white" - White/light gray for dark backgrounds
- * - "gray" - Medium gray for neutral contexts
- * - "light" - Light gray for subtle indicators
- *
- * @layoutOptions
- * - When center=true: Wrapped in flex container with justify-center
- * - When center=false: Returns spinner element directly for inline use
- * - When showText=true: Spinner and text are horizontally aligned with spacing
+ * - "sm" - h-8 w-8 (32px × 32px)
+ * - "md" - h-14 w-14 (56px × 56px)
+ * - "lg" - h-22 w-22 (88px × 88px)
  *
  * @animation
- * Uses CSS animation with animate-spin utility for continuous rotation
+ * Uses a CSS keyframe rotation rather than Tailwind's `animate-spin` so the
+ * speed can vary by preset; respects `prefers-reduced-motion`.
  */
-const Spinner = ({
+const OuroborosSpinner = ({
   size = "md",
-  color = "python-blue",
+  speed = "normal",
+  reverse = false,
   className = "",
   center = true,
   showText = false,
   text = "Loading...",
 }) => {
   const sizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-12 w-12",
-    lg: "h-16 w-16",
+    sm: "h-8 w-8",
+    md: "h-14 w-14",
+    lg: "h-22 w-22",
   };
 
-  const colorClasses = {
-    "python-blue": "border-python-blue dark:border-python-blue",
-    white: "border-white dark:border-gray-300",
-    gray: "border-gray-400 dark:border-gray-500",
-    light: "border-gray-300 dark:border-gray-600",
+  const speedDuration = {
+    slow: "3.5s",
+    normal: "2s",
+    fast: "1s",
   };
 
-  const textColorClasses = {
-    "python-blue": "text-python-blue dark:text-python-blue",
-    white: "text-white dark:text-gray-300",
-    gray: "text-gray-600 dark:text-gray-400",
-    light: "text-gray-500 dark:text-gray-400",
-  };
+  const textColorClasses = "text-python-blue dark:text-python-blue";
 
   const spinner = (
-    <div
+    <img
+      src={ouroborosSrc}
+      alt="Loading"
       role="status"
-      className={`animate-spin rounded-full border-2 border-t-transparent ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
-    ></div>
+      className={`ouroboros-spinner ${sizeClasses[size]} ${className}`}
+      style={{
+        animationDuration: speedDuration[speed],
+        animationDirection: reverse ? "reverse" : "normal",
+      }}
+    />
   );
 
-  if (showText) {
-    return (
-      <div className={`flex items-center ${center ? "justify-center" : ""}`}>
-        {spinner}
-        <span className={`ml-2 text-sm font-medium ${textColorClasses[color]}`}>
-          {text}
-        </span>
-      </div>
-    );
-  }
-
-  return center ? (
+  const content = showText ? (
+    <div className={`flex items-center ${center ? "justify-center" : ""}`}>
+      {spinner}
+      <span className={`ml-2 text-sm font-medium ${textColorClasses}`}>
+        {text}
+      </span>
+    </div>
+  ) : center ? (
     <div className="flex justify-center items-center">{spinner}</div>
   ) : (
     spinner
   );
+
+  return (
+    <>
+      <style>{`
+        @keyframes ouroboros-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .ouroboros-spinner {
+          animation-name: ouroboros-rotate;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ouroboros-spinner {
+            animation-duration: 6s;
+          }
+        }
+      `}</style>
+      {content}
+    </>
+  );
 };
 
-export default Spinner;
+export default OuroborosSpinner;
