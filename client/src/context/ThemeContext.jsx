@@ -36,7 +36,14 @@ import {
   useEffect,
 } from "react";
 import { THEME_COLORS } from "../constants/themeConstants";
-import { resolveCourseThemeColor, getHoverColor } from "../utils";
+import {
+  resolveCourseThemeColor,
+  getStoredThemeColor,
+  setStoredThemeColor,
+  resetStoredThemeColor,
+  applyThemeColor,
+  DEFAULT_THEME_COLOR,
+} from "../utils";
 
 // ---------------------------------------------------------------------------
 // Context Definition
@@ -148,10 +155,7 @@ export const ThemeProvider = ({ children }) => {
    *
    * @type {[string, Function]}
    */
-  const [themeColor, setThemeColor] = useState(() => {
-    const saved = localStorage.getItem("themeColor");
-    return saved || THEME_COLORS.DEFAULT;
-  });
+  const [themeColor, setThemeColor] = useState(getStoredThemeColor);
 
   /**
    * Code editor colour scheme: "dark" or "light".
@@ -221,10 +225,11 @@ export const ThemeProvider = ({ children }) => {
   }, [uiTheme, applyTheme]);
 
   /**
-   * Persist `themeColor` to localStorage on change.
+   * Persist `themeColor` and sync it to the DOM (as `--theme-color` /
+   * `--theme-hover-color` CSS custom properties) whenever it changes.
    */
   useEffect(() => {
-    localStorage.setItem("themeColor", themeColor);
+    setStoredThemeColor(themeColor);
   }, [themeColor]);
 
   /**
@@ -233,17 +238,6 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("codeTheme", codeTheme);
   }, [codeTheme]);
-
-  /**
-   * Update CSS custom properties on the root element whenever themeColor
-   * changes. This allows Tailwind classes like bg-theme / hover:bg-theme-hover
-   * to work without JavaScript hover handlers.
-   */
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty("--theme-color", themeColor);
-    root.style.setProperty("--theme-hover-color", getHoverColor(themeColor));
-  }, [themeColor]);
 
   // ---------------------------------------------------------------------------
   // Public API — Theme Color
@@ -296,9 +290,8 @@ export const ThemeProvider = ({ children }) => {
    * theme preferences.
    */
   const setDefaultTheme = useCallback(() => {
-    setThemeColor(THEME_COLORS.DEFAULT);
-    document.documentElement.style.removeProperty("--theme-color");
-    document.documentElement.style.removeProperty("--theme-hover-color");
+    setThemeColor(DEFAULT_THEME_COLOR);
+    resetStoredThemeColor();
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -368,14 +361,13 @@ export const ThemeProvider = ({ children }) => {
    * theme.
    */
   const resetTheme = useCallback(() => {
-    setThemeColor(THEME_COLORS.DEFAULT);
+    setThemeColor(DEFAULT_THEME_COLOR);
     setCodeTheme(CODE_THEMES.DARK);
     setUiTheme(UI_THEMES.LIGHT);
     localStorage.removeItem("themeColor");
     localStorage.removeItem("codeTheme");
     localStorage.removeItem("uiTheme");
-    document.documentElement.style.removeProperty("--theme-color");
-    document.documentElement.style.removeProperty("--theme-hover-color");
+    applyThemeColor(DEFAULT_THEME_COLOR);
   }, []);
 
   /**

@@ -19,7 +19,7 @@ export const PYTHON_LIGHT = "var(--color-python-light)";
  * Colors correspond to user progress levels (0-100% completion).
  */
 export const THEME_COLORS = {
-  DEFAULT: "var(--color-python-blue)",
+  DEFAULT: "#3776ab",
   RED: "#ef4444", // 0-25%
   ORANGE: "#f97316", // 25-40%
   AMBER: "#fb923c", // 40-55%
@@ -33,7 +33,7 @@ export const THEME_COLORS = {
  * Used for interactive elements and hover states.
  */
 export const THEME_HOVER_COVERS = {
-  DEFAULT: "var(--color-python-yellow)",
+  DEFAULT: "#ffd43b",
   RED: "#d73d3d",
   ORANGE: "#e06c14",
   AMBER: "#ea8029",

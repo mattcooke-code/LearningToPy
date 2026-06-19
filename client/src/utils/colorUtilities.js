@@ -3,14 +3,41 @@
  * @fileoverview Theme colour resolution utilities.
  *
  * Maps user progress percentages to theme colours (red → orange → amber →
- * yellow → lime → green), resolves hover-state variants, and determines
- * which routes should display theme-coloured UI elements.
+ * yellow → lime → green), resolves hover-state variants, determines which
+ * routes should display theme-coloured UI elements, and applies/persists the
+ * resolved colour to the DOM and localStorage.
+ *
+ * This is the single source of truth for theme colour logic — previously
+ * split between this file and a now-removed `themeUtils.js` that duplicated
+ * (and drifted from) the hover-colour mapping and persistence logic below.
  *
  * @module utils/colorUtilities
  * @requires ../constants/themeConstants
  */
 
 import { THEME_COLORS, THEME_HOVER_COVERS } from "../constants/themeConstants";
+
+/**
+ * Default accent colour (Python blue), used whenever no valid colour is
+ * stored in localStorage or when explicitly resetting the theme.
+ *
+ * @type {string}
+ */
+export const DEFAULT_THEME_COLOR = "#3776ab";
+
+/**
+ * Default hover colour (Python yellow), paired with `DEFAULT_THEME_COLOR`.
+ *
+ * @type {string}
+ */
+export const DEFAULT_HOVER_COLOR = "#ffd43b";
+
+/**
+ * localStorage key under which the user's chosen theme colour is persisted.
+ *
+ * @type {string}
+ */
+const THEME_COLOR_STORAGE_KEY = "themeColor";
 
 /**
  * Map a course completion percentage to the corresponding theme colour.
@@ -89,4 +116,48 @@ export const shouldUseThemeColor = (pathname) => {
     pathname === "/dashboard" ||
     pathname === "/profile"
   );
+};
+
+/**
+ * Apply a theme colour (and its derived hover variant) to the document root
+ * as CSS custom properties (`--theme-color`, `--theme-hover-color`).
+ *
+ * This lets Tailwind classes like `bg-theme` / `hover:bg-theme-hover` work
+ * without JS hover handlers.
+ *
+ * @param {string} color - A hex colour string.
+ */
+export const applyThemeColor = (color) => {
+  const root = document.documentElement;
+  root.style.setProperty("--theme-color", color);
+  root.style.setProperty("--theme-hover-color", getHoverColor(color));
+};
+
+/**
+ * Read the persisted theme colour from localStorage, falling back to
+ * `DEFAULT_THEME_COLOR` if nothing valid is stored.
+ *
+ * @returns {string} A hex colour string.
+ */
+export const getStoredThemeColor = () => {
+  const saved = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
+  return saved && saved.startsWith("#") ? saved : DEFAULT_THEME_COLOR;
+};
+
+/**
+ * Apply a theme colour to the DOM and persist it to localStorage.
+ *
+ * @param {string} color - A hex colour string.
+ */
+export const setStoredThemeColor = (color) => {
+  applyThemeColor(color);
+  localStorage.setItem(THEME_COLOR_STORAGE_KEY, color);
+};
+
+/**
+ * Reset the theme colour to its default, both in the DOM and localStorage.
+ */
+export const resetStoredThemeColor = () => {
+  applyThemeColor(DEFAULT_THEME_COLOR);
+  localStorage.removeItem(THEME_COLOR_STORAGE_KEY);
 };
