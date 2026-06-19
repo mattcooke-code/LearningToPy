@@ -238,6 +238,7 @@ const Navbar = memo(function Navbar() {
                   <span>Admin</span>
                 </Link>
               )}
+
               <button
                 onClick={() => {
                   logout();
@@ -247,6 +248,13 @@ const Navbar = memo(function Navbar() {
               >
                 <LogOut size={20} /> <span>Logout</span>
               </button>
+
+              <div className="pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between p-3 rounded-lg">
+                  <span className="text-sm">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
             </>
           ) : (
             <div className="flex flex-col space-y-3 pt-2">
@@ -264,6 +272,12 @@ const Navbar = memo(function Navbar() {
               >
                 Get Started
               </Link>
+              <div className="pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between p-3 rounded-lg">
+                  <span className="text-sm">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
             </div>
           )}
         </div>
