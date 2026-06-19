@@ -1,6 +1,6 @@
 // client/src/pages/ModulesPage.jsx
 import { useEffect, useState } from "react";
-import { useAuth } from "../context";
+import { useAuth, useTheme } from "../context";
 import { BackToTopButton, LoadingState, ErrorState } from "../components/ui";
 import { ModulesHeader, ModulesGrid, ModulesStats } from "../components/module";
 import { apiClient } from "../services";
@@ -16,6 +16,7 @@ import { getErrorMessage } from "../utils";
 
 const ModulesPage = () => {
   const { user, loading: authLoading } = useAuth();
+  const { updateThemeFromCourseProgress } = useTheme();
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,13 +43,19 @@ const ModulesPage = () => {
 
       if (progressResult.status === "fulfilled") {
         setUserProgress(progressResult.value);
+
+        if (progressResult.value?.courseProgressPercentage !== "undefined") {
+          updateThemeFromCourseProgress(
+            progressResult.value.courseProgressPercentage,
+          );
+        }
       }
 
       setLoading(false);
     };
 
     fetchData();
-  }, [authLoading]);
+  }, [authLoading, updateThemeFromCourseProgress]);
 
   if (loading) return <LoadingState message="Loading your learning path..." />;
   if (error) return <ErrorState error={error} />;

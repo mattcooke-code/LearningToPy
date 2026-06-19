@@ -1,9 +1,14 @@
 // index.js
 export { exportToCSV } from "./analyticsUtils";
 export {
+  applyThemeColor,
   resolveCourseThemeColor,
   getHoverColor,
+  getStoredThemeColor,
+  resetStoredThemeColor,
+  setStoredThemeColor,
   shouldUseThemeColor,
+  DEFAULT_THEME_COLOR,
 } from "./colorUtilities";
 export { getDeviceInfo } from "./deviceInfo";
 export {
