@@ -97,19 +97,20 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
   // Memoize parsed content — only re-parse when content changes
   const parsedContent = useMemo(() => parseContent(content), [content]);
 
+  const getContainerTextColor = (containerType, isDark) => {
+    const colors =
+      CONTAINER_TEXT_COLORS[containerType] || CONTAINER_TEXT_COLORS.summary;
+    return isDark ? colors.dark : colors.light;
+  };
+
   // ── Container sub-components ──────────────────────────────────
 
   const dynamicComponents = useMemo(() => {
-    const color = (type) => {
-      const c = CONTAINER_TEXT_COLORS[type] || CONTAINER_TEXT_COLORS.summary;
-      return activeDark ? c.dark : c.light;
-    };
-
-    return {
+    return (containerType) => ({
       h1: ({ children }) => (
         <h2
           id={slugifyHeading(children)}
-          className={`text-xl font-semibold mb-3 mt-2 ${color("summary")}`}
+          className={`text-xl font-semibold mb-3 mt-2 ${getContainerTextColor(containerType, activeDark)}`}
         >
           {children}
         </h2>
@@ -117,7 +118,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       h2: ({ children }) => (
         <h3
           id={slugifyHeading(children)}
-          className={`text-lg font-semibold mb-2 mt-2 ${color("summary")}`}
+          className={`text-lg font-semibold mb-2 mt-2 ${getContainerTextColor(containerType, activeDark)}`}
         >
           {children}
         </h3>
@@ -125,22 +126,30 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       h3: ({ children }) => (
         <h4
           id={slugifyHeading(children)}
-          className={`font-semibold mb-1 mt-2 ${color("summary")}`}
+          className={`font-semibold mb-1 mt-2 ${getContainerTextColor(containerType, activeDark)}`}
         >
           {children}
         </h4>
       ),
       p: ({ children }) => (
-        <p className={`mb-2 leading-relaxed ${color("summary")}`}>{children}</p>
+        <p
+          className={`mb-2 leading-relaxed ${getContainerTextColor(containerType, activeDark)}`}
+        >
+          {children}
+        </p>
       ),
       img: ({ src, alt }) => <img src={src} alt={alt} />,
       ul: ({ children }) => (
-        <ul className={`list-disc ml-6 mb-3 space-y-1 ${color("summary")}`}>
+        <ul
+          className={`list-disc ml-6 mb-3 space-y-1 ${getContainerTextColor(containerType, activeDark)}`}
+        >
           {children}
         </ul>
       ),
       ol: ({ children }) => (
-        <ol className={`list-decimal ml-6 mb-3 space-y-1 ${color("summary")}`}>
+        <ol
+          className={`list-decimal ml-6 mb-3 space-y-1 ${getContainerTextColor(containerType, activeDark)}`}
+        >
           {children}
         </ol>
       ),
@@ -163,10 +172,18 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         );
       },
       strong: ({ children }) => (
-        <strong className={`font-bold ${color("summary")}`}>{children}</strong>
+        <strong
+          className={`font-bold ${getContainerTextColor(containerType, activeDark)}`}
+        >
+          {children}
+        </strong>
       ),
       em: ({ children }) => (
-        <em className={`italic ${color("summary")}`}>{children}</em>
+        <em
+          className={`italic ${getContainerTextColor(containerType, activeDark)}`}
+        >
+          {children}
+        </em>
       ),
       a: ({ href, children }) => {
         const isAnchor = href?.startsWith("#");
@@ -191,13 +208,14 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
           </a>
         );
       },
-    };
+    });
   }, [activeDark]);
 
   const CustomContainer = useMemo(() => {
     return ({ type, children }) => {
       const style = CONTAINER_STYLES[type] || CONTAINER_STYLES.summary;
       const colors = activeDark ? style.dark : style.light;
+      const containerComponents = dynamicComponents(type);
 
       return (
         <div className={`my-6 p-4 rounded-r-lg ${colors.bg} ${colors.border}`}>
@@ -211,7 +229,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
               </strong>
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                components={dynamicComponents}
+                components={containerComponents}
               >
                 {children}
               </ReactMarkdown>

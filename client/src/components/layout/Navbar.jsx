@@ -51,7 +51,6 @@ const Navbar = memo(function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center space-x-2">
-            <ThemeToggle />
             {isAuthenticated ? (
               <>
                 <Link
@@ -84,6 +83,7 @@ const Navbar = memo(function Navbar() {
                     <span>Admin</span>
                   </Link>
                 )}
+                <ThemeToggle />
                 <button
                   onClick={() => logout()}
                   className={`flex items-center space-x-1 ${linkHoverClass}`}
