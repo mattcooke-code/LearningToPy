@@ -107,11 +107,7 @@ const Dashboard = () => {
   // Show loading state while fetching dashboard data for the first time
   if (loading && !userProgress) {
     return (
-      <LoadingState
-        message="Loading your dashboard..."
-        height="min-h-[50vh]"
-        spinnerSize="large"
-      />
+      <LoadingState message="Loading your dashboard..." height="min-h-[50vh]" />
     );
   }
 

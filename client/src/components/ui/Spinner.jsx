@@ -20,7 +20,7 @@ import ouroborosSrc from "../../../public/ouroboros-spinner.png";
  * ```
  *
  * @param {Object} props - Component props
- * @param {string} [props.size="md"] - Spinner size preset: "sm" (32px), "md" (56px), or "lg" (88px)
+ * @param {string} [props.size="md"] - Spinner size preset: "sm" (32px), "md" (56px), or "lg" (96px)
  * @param {string} [props.speed="normal"] - Rotation speed preset: "slow" (3.5s), "normal" (2s), or "fast" (1s)
  * @param {boolean} [props.reverse=false] - If true, the snake appears to chase its tail in the opposite direction
  * @param {string} [props.className=""] - Additional CSS classes to apply to the image element
@@ -33,7 +33,7 @@ import ouroborosSrc from "../../../public/ouroboros-spinner.png";
  * @sizePresets
  * - "sm" - h-8 w-8 (32px × 32px)
  * - "md" - h-14 w-14 (56px × 56px)
- * - "lg" - h-22 w-22 (88px × 88px)
+ * - "lg" - h-24 w-24 (96px × 96px)
  *
  * @animation
  * Uses a CSS keyframe rotation rather than Tailwind's `animate-spin` so the
@@ -51,7 +51,7 @@ const OuroborosSpinner = ({
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-14 w-14",
-    lg: "h-22 w-22",
+    lg: "h-24 w-24",
   };
 
   const speedDuration = {
