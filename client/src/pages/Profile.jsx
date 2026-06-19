@@ -79,20 +79,21 @@ const Profile = () => {
       {/* Header Section */}
       <div className="mb-10 rounded-3xl bg-linear-to-br bg-python-blue p-8 text-white shadow-lg dark:bg-python-dark">
         <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-          <div>
+          <div className="w-full min-w-0">
+            {" "}
             <p className="text-sm uppercase tracking-[0.4em] text-white/80">
               Profile
             </p>
-            <h1 className="mt-3 text-4xl font-bold lg:text-5xl text-python-yellow">
+            <h1 className="mt-3 text-3xl font-bold sm:text-4xl lg:text-5xl text-python-yellow break-words">
               Welcome back, {user?.username}
             </h1>
-            <p className="mt-3 max-w-2xl text-white/90">
+            <p className="mt-3 max-w-2xl text-white/90 break-words">
               Track your learning milestones, celebrate your achievements, and
               see every badge you&apos;ve unlocked along the way.
             </p>
           </div>
 
-          <div className="rounded-2xl p-6 backdrop-blur bg-python-yellow text-python-blue">
+          <div className="flex-shrink-0 rounded-2xl p-6 backdrop-blur bg-python-yellow text-python-blue">
             <p className="flex items-center text-sm font-medium uppercase tracking-wide text-python-blue">
               <Sparkles className="mr-2 h-4 w-4" /> Earned Badges
             </p>
