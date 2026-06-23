@@ -41,7 +41,7 @@ export const useContentFilter = (initialContent) => {
   });
 
   const filteredContent = useMemo(() => {
-    let result = [initialContent];
+    let result = [...initialContent];
 
     if (filters.type !== "all") {
       result = result.filter((item) => item.type === filters.type);

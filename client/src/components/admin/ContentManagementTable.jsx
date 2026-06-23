@@ -564,7 +564,7 @@ const ContentManagementTable = () => {
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y dark:text-gray-200 divide-gray-200 dark:divide-gray-800">
           {filteredContent.map((item) => {
-            const TypeIcon = TYPE_ICON(item.type);
+            const TypeIcon = TYPE_ICON[item.type];
             const isSelected = selectedItems.some(
               (selected) => selected._id === item._id,
             );
@@ -728,7 +728,7 @@ const ContentManagementTable = () => {
   const renderGridView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {filteredContent.map((item) => {
-        const TypeIcon = getTypeIcon(item.type);
+        const TypeIcon = TYPE_ICON[item.type];
         const isSelected = selectedItems.some(
           (selected) => selected._id === item._id,
         );

@@ -128,7 +128,7 @@ const TextInput = ({ value, onChange, setting, type, placeholder }) => (
 
 const SettingInput = ({
   setting,
-  value,
+  value = undefined,
   onChange,
   isChanged = false,
   type = "text",
@@ -293,14 +293,6 @@ SettingInput.propTypes = {
   }),
   label: PropTypes.string.isRequired,
   description: PropTypes.string,
-};
-
-SettingInput.defaultProps = {
-  value: undefined,
-  isChanged: false,
-  type: "text",
-  options: {},
-  description: "",
 };
 
 export default memo(SettingInput);

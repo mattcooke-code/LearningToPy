@@ -86,14 +86,15 @@ const UserManagementTable = ({ searchQuery = "" }) => {
     [page, sortField, sortOrder, searchQuery, filters],
   );
 
+  const fetchUsers = useCallback(() => {
+    return adminApiClient.get("/users/search", { params: queryParams });
+  }, [queryParams]); // This only changes when queryParams change
+
   const {
     data,
     loading,
     refetch: refresh,
-  } = useAdminData(
-    () => adminApiClient.get("/users/search", { params: queryParams }),
-    [queryParams],
-  );
+  } = useAdminData(fetchUsers, [fetchUsers]);
 
   const users = data?.users || [];
   const totalPages = data?.pagination?.totalPages || 1;

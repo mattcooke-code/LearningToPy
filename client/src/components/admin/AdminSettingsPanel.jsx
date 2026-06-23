@@ -1,5 +1,5 @@
 // AdminSettingsPanel.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNotification } from "../../context";
 import { adminApiClient } from "../../services";
 import {
@@ -55,12 +55,16 @@ const AdminSettingsPanel = () => {
   const { confirmReset, confirmAction } = useConfirmActions();
   const settingsManager = useSettingsManager();
 
+  const fetchSettings = useCallback(() => {
+    return adminApiClient.get("/settings");
+  }, []);
+
   const {
     data: fetchedSettings,
     loading,
     error,
     refetch,
-  } = useAdminData(() => adminApiClient.get("/settings"), [], {
+  } = useAdminData(fetchSettings, [fetchSettings], {
     defaultErrorMessage: "Failed to load settings",
   });
 

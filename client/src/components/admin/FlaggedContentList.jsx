@@ -84,19 +84,22 @@ const FlaggedContentList = ({ limit = null }) => {
     [page, filters, limit],
   );
 
+  const fetchFlags = useCallback(() => {
+    return adminApiClient.get("/flagged", { params: queryParams });
+  }, [queryParams]);
+
+  const fetchStats = useCallback(() => {
+    return adminApiClient.get("/stats/flags");
+  }, []);
+
   const {
     data,
     loading,
     refetch: refreshFlags,
-  } = useAdminData(
-    () => adminApiClient.get("/flagged", { params: queryParams }),
-    [queryParams],
-  );
-
-  const { data: stats, refetch: refreshStats } = useAdminData(
-    () => adminApiClient.get("/stats/flags"),
-    [],
-  );
+  } = useAdminData(fetchFlags, [fetchFlags]);
+  const { data: stats, refetch: refreshStats } = useAdminData(fetchStats, [
+    fetchStats,
+  ]);
 
   // 3. Mutations
   const { mutate: resolveFlagMutation, loading: resolving } = useAdminMutation(
