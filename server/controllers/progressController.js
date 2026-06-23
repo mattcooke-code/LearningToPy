@@ -259,7 +259,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
 /**
  * Get the leaderboard slice surrounding the current user (±2 ranks).
  *
- * Fetches all users who have opted into leaderboards, sorts by XP,
+ * Fetches all non-admin users who have opted into leaderboards, sorts by XP,
  * finds the current user's position, and returns a window of nearby users.
  * Respects privacy settings — users who hide usernames appear as "Learner #XXXXXX".
  *
@@ -272,14 +272,19 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const range = 2;
 
   const currentUser = await User.findById(userId)
-    .select("username xp privacySettings")
+    .select("username xp privacySettings isAdmin")
     .lean();
   if (!currentUser) return next(new AppError("User not found", 404));
+
+  const baseFilter = {
+    "privacySettings.showOnLeaderboards": true,
+    isAdmin: { $ne: true },
+  };
 
   const [usersAbove, usersBelow, usersWithMoreXP, totalOptedIn] =
     await Promise.all([
       User.find({
-        "privacySettings.showOnLeaderboards": true,
+        ...baseFilter,
         xp: { $gt: currentUser.xp },
       })
         .select("username xp privacySettings")
@@ -287,7 +292,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
         .limit(range)
         .lean(),
       User.find({
-        "privacySettings.showOnLeaderboards": true,
+        ...baseFilter,
         xp: { $lt: currentUser.xp },
         _id: { $ne: currentUser._id },
       })
@@ -296,12 +301,10 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
         .limit(range)
         .lean(),
       User.countDocuments({
-        "privacySettings.showOnLeaderboards": true,
+        ...baseFilter,
         xp: { $gt: currentUser.xp },
       }),
-      User.countDocuments({
-        "privacySettings.showOnLeaderboards": true,
-      }),
+      User.countDocuments(baseFilter),
     ]);
 
   const rank = usersWithMoreXP + 1;
@@ -339,6 +342,7 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
 
   const topUsers = await User.find({
     "privacySettings.showOnLeaderboards": true,
+    isAdmin: { $ne: true },
   })
     .select("username xp privacySettings")
     .sort({ xp: -1 })
@@ -388,10 +392,13 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
 
   const completedUserIds = moduleCompletions.map((mc) => mc.userId);
 
-  const moduleUsers = await User.find({
+  const baseFilter = {
     _id: { $in: completedUserIds },
     "privacySettings.showOnLeaderboards": true,
-  })
+    isAdmin: { $ne: true },
+  };
+
+  const moduleUsers = await User.find(baseFilter)
     .select("username xp privacySettings")
     .sort({ xp: -1 })
     .limit(50)
@@ -410,8 +417,7 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
 
   const rank =
     (await User.countDocuments({
-      _id: { $in: completedUserIds },
-      "privacySettings.showOnLeaderboards": true,
+      ...baseFilter,
       xp: { $gt: req.user.xp },
     })) + 1;
 

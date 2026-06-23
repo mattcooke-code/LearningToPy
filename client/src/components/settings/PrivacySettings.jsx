@@ -15,6 +15,35 @@ import { getErrorMessage, getSuccessMessage } from "../../utils";
  */
 
 const PrivacySettings = ({ user, onUpdate }) => {
+  if (user?.isAdmin) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <div className="mb-6 flex items-center space-x-3">
+          <Shield className="h-6 w-6 text-python-blue dark:text-python-blue" />
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Privacy Settings
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-100">
+              Control how you appear to other learners
+            </p>
+          </div>
+        </div>
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 p-4 flex items-start space-x-3">
+          <EyeOff className="h-5 w-5 text-gray-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-medium text-gray-700 dark:text-gray-200">
+              Admin accounts are not shown on leaderboards
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              These settings are not applicable to your account.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const [settings, setSettings] = useState({
     showOnLeaderboards: user?.privacySettings?.showOnLeaderboards ?? true,
     showAsAnonymous: user?.privacySettings?.showAsAnonymous ?? false,
