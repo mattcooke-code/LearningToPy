@@ -177,6 +177,11 @@ const UserSchema = new mongoose.Schema(
       referralsCompleted: { type: Number, default: 0, min: 0 },
       betaModulesCompleted: { type: Number, default: 0, min: 0 },
     },
+    leaderboardStatus: {
+      type: String,
+      enum: ["ACTIVE", "COMPLETED_PENDING", "HOF", "INACTIVE_REMOVED"],
+      default: "ACTIVE",
+    },
 
     // ── Activity Metadata ─────────────────────────────
     lastActive: {
@@ -197,6 +202,7 @@ const UserSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    removedFromLeaderboardAt: { type: Date, default: null },
 
     // ── Admin / Status ────────────────────────────────
     isAdmin: {
@@ -225,7 +231,8 @@ const UserSchema = new mongoose.Schema(
 // ── Indexes ───────────────────────────────────────────
 
 // Compound indexes for actual query patterns
-UserSchema.index({ level: -1, xp: -1 }); // Leaderboards
+UserSchema.index({ leaderboardStatus: 1, xp: -1 }); // Leaderboards
+UserSchema.index({ leaderboardStatus: 1, lastActive: -1 });
 UserSchema.index({ isAdmin: 1, lastActive: -1 }); // Admin user listing
 UserSchema.index({ isBlocked: 1, createdAt: -1 }); // Blocked user audit
 UserSchema.index({ lastActiveDate: -1 }); // Streak checks

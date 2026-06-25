@@ -1,4 +1,5 @@
 // learningEngine.js
+const CourseCompletion = require("../models/CourseCompletion");
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
 const LessonCompletion = require("../models/LessonCompletion");
@@ -409,19 +410,13 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 /**
  * Main Orchestrator for Module Completion.
  *
- * Awards XP for module quiz performance, module completion, phase bonuses,
- * and special module bonuses. Writes to ModuleCompletion and XpTransaction
- * collections, updates User (xp, level, counter).
- *
- * @param {Object} user - The user document (mutated: xp, level, completedModulesCount)
- * @param {Object} module - The module being completed
- * @param {number|null} quizScore - The quiz score (0-100), or null if no quiz
- * @param {Array} [quizResults=[]] - Individual quiz question results
  * @returns {Promise<{
- *   xpIncrease: number,
- *   newlyCompleted: boolean,
- *   nextModuleId: string|null,
- *   xpBreakdown: Array
+ * xpIncrease: number,
+ * newlyCompleted: boolean,
+ * nextModuleId: string|null,
+ * xpBreakdown: Array,
+ * courseCompleted?: boolean,
+ * hofEligibleAt?: Date
  * }>}
  */
 const processModuleCompletion = async (
@@ -433,16 +428,22 @@ const processModuleCompletion = async (
   const moduleId = module._id.toString();
   const userId = user._id.toString();
 
+  // Helper to find the next module
+  const nextModule = await findNextModule(module);
+
   // Prevent Duplicate Completion
   const existingCompletion = await ModuleCompletion.findOne({
     userId,
     moduleId,
   });
+
   if (existingCompletion) {
     return {
       xpIncrease: 0,
       newlyCompleted: false,
-      nextModuleId: await findNextModule(module),
+      nextModuleId: nextModule,
+      xpBreakdown: [],
+      courseCompleted: false,
     };
   }
 
@@ -452,11 +453,9 @@ const processModuleCompletion = async (
   let totalXP = 0;
   const xpLog = [];
 
-  // Module Quiz XP
+  // --- XP Calculation Logic (Keeping your original logic) ---
   if (!isM0 && Array.isArray(quizResults) && quizResults.length > 0) {
     const correctCount = quizResults.filter((r) => r.isCorrect).length;
-
-    // XP per correct answer
     const quizXP = correctCount * XP.MODULE_QUIZ.CORRECT_ANSWER;
     totalXP += quizXP;
     xpLog.push({
@@ -465,7 +464,6 @@ const processModuleCompletion = async (
       meta: { moduleId, correct: correctCount, total: quizResults.length },
     });
 
-    // Completion Bonus
     totalXP += XP.MODULE_QUIZ.COMPLETION_BONUS;
     xpLog.push({
       amount: XP.MODULE_QUIZ.COMPLETION_BONUS,
@@ -473,7 +471,6 @@ const processModuleCompletion = async (
       meta: { moduleId, completionBonus: true },
     });
 
-    // Perfect Score Bonus
     if (correctCount === quizResults.length) {
       totalXP += XP.MODULE_QUIZ.PERFECT_SCORE_BONUS;
       xpLog.push({
@@ -484,7 +481,6 @@ const processModuleCompletion = async (
     }
   }
 
-  // Module Completion Bonus
   const completionBonus =
     XP.MODULE.COMPLETION_BONUS + getPhaseBonus(module.phase);
   totalXP += completionBonus;
@@ -494,7 +490,6 @@ const processModuleCompletion = async (
     meta: { moduleId, phase: module.phase },
   });
 
-  // Final Module Capstone Bonus
   if (isM20) {
     totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
     xpLog.push({
@@ -504,7 +499,6 @@ const processModuleCompletion = async (
     });
   }
 
-  // Tutorial Module - Small XP
   if (isM0) {
     totalXP += XP.SPECIAL.M0_COMPLETION;
     xpLog.push({
@@ -514,7 +508,6 @@ const processModuleCompletion = async (
     });
   }
 
-  // Add Module Specific XP
   if (module.xpReward && !isM0) {
     totalXP += module.xpReward;
     xpLog.push({
@@ -524,29 +517,54 @@ const processModuleCompletion = async (
     });
   }
 
-  // Write module completion to new collection
+  // --- Persistence ---
   await ModuleCompletion.create({
     userId,
     moduleId: module._id,
     completedAt: new Date(),
   });
-
-  // Increment counter on User
   user.completedModulesCount = (user.completedModulesCount || 0) + 1;
-
-  // Award XP and update level
   user.xp = (user.xp || 0) + totalXP;
   user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
-
-  // Write XP transactions
   await createXpTransactions(userId, xpLog);
 
-  return {
+  // --- Initialize Result Object ---
+  const result = {
     xpIncrease: totalXP,
     newlyCompleted: true,
-    nextModuleId: await findNextModule(module),
+    nextModuleId: nextModule,
     xpBreakdown: xpLog,
+    courseCompleted: false, // Default
   };
+
+  // --- Course Completion Detection (M20) ---
+  if (isM20) {
+    const timeToCompleteMs = Date.now() - user.createdAt.getTime();
+    const completedModuleCount = await ModuleCompletion.countDocuments({
+      userId,
+    });
+    const existingCourseCompletion = await CourseCompletion.findOne({ userId });
+
+    if (!existingCourseCompletion) {
+      const hofDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      await CourseCompletion.create({
+        userId,
+        completedAt: new Date(),
+        timeToCompleteMs,
+        totalXpAtCompletion: user.xp,
+        moduleCount: completedModuleCount,
+        hofEligibleAt: hofDate,
+      });
+
+      user.leaderboardStatus = "COMPLETED_PENDING";
+
+      // Update result object dynamically
+      result.courseCompleted = true;
+      result.hofEligibleAt = hofDate;
+    }
+  }
+
+  return result;
 };
 
 /**

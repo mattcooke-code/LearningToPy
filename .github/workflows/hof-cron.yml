@@ -1,0 +1,29 @@
+name: Hall of Fame & Inactivity Cron
+
+on:
+    schedule:
+        # Runs daily at 02:00 UTC
+        - cron: "0 2 * * *"
+    workflow_dispatch: # Lets you trigger manually from GitHub Actions tab
+
+jobs:
+    hof-transition:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Trigger HoF Transition
+              run: |
+                  curl -X POST "${{ secrets.RENDER_BACKEND_URL }}/api/cron/hof-transition" \
+                    -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+                    -H "Content-Type: application/json" \
+                    --fail
+
+    inactivity-cleanup:
+        runs-on: ubuntu-latest
+        needs: hof-transition # Runs after HoF transition completes
+        steps:
+            - name: Trigger Inactivity Cleanup
+              run: |
+                  curl -X POST "${{ secrets.RENDER_BACKEND_URL }}/api/cron/inactivity-cleanup" \
+                    -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+                    -H "Content-Type: application/json" \
+                    --fail

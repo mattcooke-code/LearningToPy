@@ -1,4 +1,5 @@
 // progressController.js
+const CourseCompletion = require("../models/CourseCompletion");
 const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
 const Module = require("../models/Module");
@@ -272,19 +273,20 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const range = 2;
 
   const currentUser = await User.findById(userId)
-    .select("username xp privacySettings isAdmin")
+    .select("username xp privacySettings isAdmin leaderboardStatus")
     .lean();
   if (!currentUser) return next(new AppError("User not found", 404));
 
-  const baseFilter = {
+  const activeLeaderboardFilter = {
     "privacySettings.showOnLeaderboards": true,
     isAdmin: { $ne: true },
+    leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
   };
 
   const [usersAbove, usersBelow, usersWithMoreXP, totalOptedIn] =
     await Promise.all([
       User.find({
-        ...baseFilter,
+        ...activeLeaderboardFilter,
         xp: { $gt: currentUser.xp },
       })
         .select("username xp privacySettings")
@@ -292,7 +294,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
         .limit(range)
         .lean(),
       User.find({
-        ...baseFilter,
+        ...activeLeaderboardFilter,
         xp: { $lt: currentUser.xp },
         _id: { $ne: currentUser._id },
       })
@@ -301,10 +303,10 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
         .limit(range)
         .lean(),
       User.countDocuments({
-        ...baseFilter,
+        ...activeLeaderboardFilter,
         xp: { $gt: currentUser.xp },
       }),
-      User.countDocuments(baseFilter),
+      User.countDocuments(activeLeaderboardFilter),
     ]);
 
   const rank = usersWithMoreXP + 1;
@@ -343,8 +345,9 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
   const topUsers = await User.find({
     "privacySettings.showOnLeaderboards": true,
     isAdmin: { $ne: true },
+    leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
   })
-    .select("username xp privacySettings")
+    .select("username xp privacySettings leaderboardStatus")
     .sort({ xp: -1 })
     .limit(limit)
     .lean();
@@ -360,7 +363,8 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
 
   const topUsersWithPrivacy = dedupedUsers.map((user, index) => ({
     ...user,
-    rank: index + 1,
+    rank: user.leaderboardStatus === "COMPLETED_PENDING" ? null : index + 1,
+    isCompleted: user.leaderboardStatus === "COMPLETED_PENDING",
     displayName: user.privacySettings?.showUsernameOnLeaderboards
       ? user.username
       : `Learner #${user._id.toString().slice(-6)}`,
@@ -385,46 +389,40 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
 
-  // Find users who completed this module via ModuleCompletion collection
-  const moduleCompletions = await ModuleCompletion.find({ moduleId })
-    .select("userId")
-    .lean();
+  const moduleLeaderboard = await ModuleCompletion.aggregate([
+    { $match: { moduleId: new mongoose.Types.ObjectId(moduleId) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userData",
+      },
+    },
+    { $unwind: "$userData" },
+    {
+      $match: {
+        "userData.privacySettings.showOnLeaderboards": true,
+        "userData.isAdmin": { $ne: true },
+        "userData.leaderboardStatus": { $in: ["ACTIVE", "COMPLETED_PENDING"] },
+      },
+    },
+    { $sort: { "userData.xp": -1 } },
+    { $limit: 50 },
+    {
+      $project: {
+        _id: "$userData._id",
+        username: "$userData.username",
+        xp: "$userData.xp",
+        privacySettings: "$userData.privacySettings",
+        // Logic for ranking/anonymity handled here or in the application layer
+      },
+    },
+  ]);
 
-  const completedUserIds = moduleCompletions.map((mc) => mc.userId);
-
-  const baseFilter = {
-    _id: { $in: completedUserIds },
-    "privacySettings.showOnLeaderboards": true,
-    isAdmin: { $ne: true },
-  };
-
-  const moduleUsers = await User.find(baseFilter)
-    .select("username xp privacySettings")
-    .sort({ xp: -1 })
-    .limit(50)
-    .lean();
-
-  const formattedUsers = moduleUsers.map((user, index) => ({
-    _id: user._id,
-    rank: index + 1,
-    username: user.privacySettings?.showUsernameOnLeaderboards
-      ? user.username
-      : `Learner #${user._id.toString().slice(-6)}`,
-    xp: user.xp,
-    isCurrent: user._id.toString() === userId,
-    isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
-  }));
-
-  const rank =
-    (await User.countDocuments({
-      ...baseFilter,
-      xp: { $gt: req.user.xp },
-    })) + 1;
-
+  // Format the results...
   sendJsonResponse(res, 200, "Module leaderboard fetched.", {
-    users: formattedUsers,
-    currentUserRank: rank,
-    totalInModule: moduleUsers.length,
+    users: moduleLeaderboard,
   });
 });
 
@@ -505,7 +503,16 @@ const completeLesson = catchAsync(async (req, res, next) => {
  * @param   {string} moduleId - Module ID
  * @body    {number} quizScore - Quiz score (0–100)
  * @body    {Array}  [answers] - Quiz answers to record in history
- * @returns {Object} 200 - { xpGained, newStreak, streakStatus, nextModuleId, newlyCompleted }
+ * @returns {Object} 200 - {
+ * xpGained,
+ * newStreak,
+ * streakStatus,
+ * nextModuleId,
+ * newlyCompleted,
+ * courseCompleted?,
+ * hofEligibleAt?,
+ * daysUntilHof?
+ * }
  * @returns {Object} 404 - User or module not found
  */
 const completeModule = catchAsync(async (req, res, next) => {
@@ -539,13 +546,21 @@ const completeModule = catchAsync(async (req, res, next) => {
   // Trigger leaderboard badge check after XP is persisted
   await checkLeaderboardBadges(user, User);
 
-  sendJsonResponse(res, 200, "Module completed successfully", {
+  const responsePayload = {
     xpGained: result.xpIncrease,
     newStreak: streakResult?.streak ?? user.streak,
     streakStatus: streakResult?.streakStatus,
     nextModuleId: result.nextModuleId,
     newlyCompleted: result.newlyCompleted,
-  });
+  };
+
+  if (result.courseCompleted) {
+    responsePayload.courseCompleted = true;
+    responsePayload.hofEligibleAt = result.hofEligibleAt;
+    responsePayload.daysUntilHof = 30;
+  }
+
+  sendJsonResponse(res, 200, "Module completed successfully", responsePayload);
 });
 
 /**
@@ -568,6 +583,100 @@ const checkStreak = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Streak info retrieved", streakInfo);
 });
 
+/**
+ * Get the Hall of Fame — all users who have been inducted.
+ * Sorted by completion date (earliest first = rank 1).
+ * Supports optional pagination.
+ *
+ * @route   GET /api/progress/hall-of-fame
+ * @query   {number} [page=1]
+ * @query   {number} [limit=20]
+ * @returns {Object} 200 - { members, totalInducted, page, totalPages }
+ */
+const getHallOfFame = catchAsync(async (req, res, next) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+  const skip = (page - 1) * limit;
+
+  const [inductedMembers, totalInducted] = await Promise.all([
+    CourseCompletion.find({ hofJoinedAt: { $ne: null } })
+      .sort({ completedAt: 1 }) // earliest completer = #1
+      .skip(skip)
+      .limit(limit)
+      .populate("userId", "username privacySettings createdAt")
+      .lean(),
+    CourseCompletion.countDocuments({ hofJoinedAt: { $ne: null } }),
+  ]);
+
+  const members = inductedMembers.map((member, index) => {
+    const user = member.userId || {};
+    return {
+      rank: skip + index + 1,
+      displayName: user.privacySettings?.showUsernameOnLeaderboards
+        ? user.username
+        : `Learner #${(user._id || member.userId).toString().slice(-6)}`,
+      isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
+      completedAt: member.completedAt,
+      timeToCompleteMs: member.timeToCompleteMs,
+      timeToCompleteDays: Math.round(member.timeToCompleteMs / 86400000),
+      inductedAt: member.hofJoinedAt,
+      earlyOptIn: member.earlyOptIn,
+    };
+  });
+
+  const totalPages = Math.ceil(totalInducted / limit);
+
+  sendJsonResponse(res, 200, "Hall of Fame fetched", {
+    members,
+    totalInducted,
+    page,
+    totalPages,
+  });
+});
+
+/**
+ * Allow a student who has completed the course to opt into the
+ * Hall of Fame early, before the 30-day window expires.
+ *
+ * @route   POST /api/progress/hall-of-fame/opt-in
+ * @returns {Object} 200 - { hofRank, message }
+ * @returns {Object} 400 - Already inducted or not eligible
+ * @returns {Object} 404 - No course completion record found
+ */
+const optInToHallOfFame = catchAsync(async (req, res, next) => {
+  const userId = req.userId;
+
+  const completion = await CourseCompletion.findOne({ userId });
+  if (!completion) {
+    return next(new AppError("No course completion record found.", 404));
+  }
+
+  if (completion.hofJoinedAt) {
+    return next(new AppError("You are already in the Hall of Fame.", 400));
+  }
+
+  const now = new Date();
+
+  const inductedCount = await CourseCompletion.countDocuments({
+    hofJoinedAt: { $ne: null },
+  });
+
+  completion.hofJoinedAt = now;
+  completion.earlyOptIn = true;
+  completion.earlyOptInAt = now;
+  await completion.save();
+
+  await User.findByIdAndUpdate(userId, {
+    leaderboardStatus: "HOF",
+  });
+
+  sendJsonResponse(res, 200, "Welcome to the Hall of Fame!", {
+    hofRank: inductedCount + 1,
+    inductedAt: now,
+    earlyOptIn: true,
+  });
+});
+
 module.exports = {
   getCurrentProgress,
   getAchievements,
@@ -578,4 +687,6 @@ module.exports = {
   completeLesson,
   completeModule,
   checkStreak,
+  getHallOfFame,
+  optInToHallOfFame,
 };

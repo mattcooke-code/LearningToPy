@@ -64,6 +64,7 @@ const {
 const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
 const authRoutes = require("./routes/auth");
+const cronRoutes = require("./routes/cron");
 const progressRoutes = require("./routes/progress");
 const contentRoutes = require("./routes/content");
 const supportRoutes = require("./routes/support");
@@ -160,6 +161,7 @@ app.use("/curriculum", express.static(path.join(__dirname, "curriculum")));
 app.use("/api/admin", adminRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/cron", cronRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/support", supportRoutes);

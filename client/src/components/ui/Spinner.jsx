@@ -1,5 +1,3 @@
-import ouroborosSrc from "../../../public/ouroboros-spinner.png";
-
 /**
  * A loading spinner that rotates the site's ouroboros logo, for use in place
  * of (or alongside) the plain ring `Spinner` component wherever a more
@@ -64,7 +62,7 @@ const OuroborosSpinner = ({
 
   const spinner = (
     <img
-      src={ouroborosSrc}
+      src="/ouroboros-spinner.png"
       alt="Loading"
       role="status"
       className={`ouroboros-spinner ${sizeClasses[size]} ${className}`}
