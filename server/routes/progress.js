@@ -27,6 +27,14 @@ router.get(
   progressController.getModuleLeaderboard,
 );
 
+router.get("/hall-of-fame", protect, progressController.getHallOfFame);
+
+router.post(
+  "/hall-of-fame/opt-in",
+  protect,
+  progressController.optInToHallOfFame,
+);
+
 router.post(
   "/modules/:moduleId/complete",
   protect,

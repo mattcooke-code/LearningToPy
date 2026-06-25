@@ -1,7 +1,12 @@
+// Dashboard.jsx
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../context";
-import { useDashboardData, useStreakNotifications } from "../hooks";
+import {
+  useDashboardData,
+  useStreakNotifications,
+  useHallOfFame,
+} from "../hooks";
 import {
   ProgressGauge,
   BackToTopButton,
@@ -10,8 +15,9 @@ import {
   LeaderboardRow,
   LoadingState,
   ErrorState,
+  HallOfFameSnapshot,
 } from "../components/ui";
-import { LeaderboardModal } from "../modals";
+import { HallOfFameModal, LeaderboardModal } from "../modals";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
 
@@ -32,6 +38,7 @@ const Dashboard = () => {
   const location = useLocation();
 
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
+  const [isHallOfFameModalOpen, setIsHallOfFameModalOpen] = useState(false);
 
   // Use custom hook for all data fetching
   const {
@@ -46,6 +53,12 @@ const Dashboard = () => {
     location.pathname,
     updateThemeFromCourseProgress,
   );
+
+  const {
+    members: hofMembers,
+    totalInducted: hofTotalInducted,
+    loading: hofLoading,
+  } = useHallOfFame(true, 5);
 
   // Use user data from auth as fallback when progress hasn't loaded yet
   const progressData = userProgress || {
@@ -125,9 +138,19 @@ const Dashboard = () => {
       </div>
 
       {/* Progress Overview with Side-by-side Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        {/* Progress Gauge - takes 2/3 width */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+        {/* Hall of Fame Snapshot - Left sidebar on desktop */}
+        <div className="lg:col-span-1 order-3 lg:order-1">
+          <HallOfFameSnapshot
+            members={hofMembers}
+            totalInducted={hofTotalInducted}
+            loading={hofLoading}
+            onViewAll={() => setIsHallOfFameModalOpen(true)}
+          />
+        </div>
+
+        {/* Progress Gauge - Center (takes 2/4 width) */}
+        <div className="lg:col-span-2 order-1 lg:order-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
             Your Python Progress
           </h2>
@@ -147,8 +170,8 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Your Competitive Zone - takes 1/3 width */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        {/* Leaderboard Snapshot - Right sidebar on desktop */}
+        <div className="lg:col-span-1 order-2 lg:order-3 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
             Your Competitive Zone
           </h3>
@@ -433,6 +456,12 @@ const Dashboard = () => {
           <BackToTopButton />
         </div>
       </div>
+
+      {/* Hall of Fame Modal */}
+      <HallOfFameModal
+        isOpen={isHallOfFameModalOpen}
+        onClose={() => setIsHallOfFameModalOpen(false)}
+      />
 
       {/* Full Leaderboard Modal */}
       <LeaderboardModal

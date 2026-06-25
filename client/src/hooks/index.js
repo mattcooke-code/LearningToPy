@@ -5,6 +5,7 @@ export { useContentFilter } from "./useContentFilter";
 export { useCourseThemeUpdater } from "./useCourseThemeUpdater";
 export { useDashboardData } from "./useDashboardData";
 export { useFileDownload } from "./useFileDownload";
+export { useHallOfFame } from "./useHallOfFame";
 export { usePageViewTracker } from "./usePageViewTracker";
 export { useSettingsManager } from "./useSettingsManager";
 export { useStreakNotifications } from "./useStreakNotifications";

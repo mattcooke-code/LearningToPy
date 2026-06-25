@@ -3,6 +3,7 @@ export { default as BackToTopButton } from "./BackToTopButton";
 export { default as BaseModal } from "./BaseModal";
 export { default as CodeThemeToggle } from "./CodeThemeToggle";
 export { default as ErrorState } from "./ErrorState";
+export { default as HallOfFameSnapshot } from "./HallOfFameSnapshot";
 export { default as ImageViewer } from "./ImageViewer";
 export { default as LeaderboardRow } from "./LeaderboardRow";
 export { default as LoadingState } from "./LoadingState";

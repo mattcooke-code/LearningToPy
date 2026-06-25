@@ -201,6 +201,13 @@ const login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
 
   const user = await User.findOne({ email }).select("+password");
+
+  if (user && user.leaderboardStatus === "INACTIVE_REMOVED") {
+    user.leaderboardStatus =
+      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
+    user.removedFromLeaderboardAt = null;
+  }
+
   if (!user || user.isBlocked) {
     return next(
       new AppError("Invalid credentials or account is blocked.", 401),
@@ -311,6 +318,12 @@ const refreshToken = catchAsync(async (req, res, next) => {
   }
 
   const user = await User.findById(decoded.id);
+
+  if (user && user.leaderboardStatus === "INACTIVE_REMOVED") {
+    user.leaderboardStatus =
+      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
+    user.removedFromLeaderboardAt = null;
+  }
 
   if (!user || user.isBlocked) {
     authUtils.clearRefreshTokenCookie(res);
