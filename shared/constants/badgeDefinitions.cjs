@@ -378,6 +378,18 @@ const BADGE_DEFINITIONS_CORE = [
     tier: null,
     image: "/badges/other/Top_Ten.png",
   },
+
+  {
+    id: "hof",
+    name: "Hall Of Fame",
+    description:
+      "Reached the Hall Of Fame. An achievement earned, not given — and it stays yours.",
+    category: "leaderboard",
+    module: null,
+    phase: null,
+    tier: null,
+    image: "/badges/other/HoF.png",
+  },
 ];
 
 module.exports = { BADGE_DEFINITIONS_CORE };

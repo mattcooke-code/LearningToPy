@@ -90,10 +90,15 @@ app.use(
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
         frameSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: [],
       },
+      reportOnly: false,
     },
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy: true,
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    crossOriginResourcePolicy: { policy: "same-origin" },
     dnsPrefetchControl: { allow: false },
     frameguard: { action: "deny" },
     hidePoweredBy: true,
@@ -108,6 +113,22 @@ app.use(
     xssFilter: true,
   }),
 );
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  );
+
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  res.setHeader("X-Frame-Options", "DENY");
+  if (req.path.startsWith("/api/auth")) {
+    res.setHeader("Cache-Control", "no-store");
+  }
+
+  next();
+});
 
 // 2. CORS
 app.use(
