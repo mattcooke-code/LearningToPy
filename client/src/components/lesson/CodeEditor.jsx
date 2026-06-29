@@ -1,6 +1,7 @@
 // CodeEditor.jsx
 import { useState, useMemo } from "react";
 import CodeMirror from "@uiw/react-codemirror";
+import { EditorView } from "@codemirror/view";
 import { python } from "@codemirror/lang-python";
 import { lintGutter } from "@codemirror/lint";
 import { indentUnit } from "@codemirror/language";
@@ -198,6 +199,7 @@ const CodeEditor = ({
       python(),
       lintGutter(),
       indentUnit.of("    "),
+      EditorView.contentAttributes.of({ "aria-label": "Python code editor" }),
       ...(onRunToLine
         ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
         : []),

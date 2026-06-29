@@ -14,7 +14,7 @@ const CONTAINER_STYLES = {
     light: {
       bg: "bg-blue-50",
       border: "border-l-4 border-blue-500",
-      text: "text-blue-800",
+      text: "text-blue-900",
       title: "text-blue-900",
       emoji: "📝",
     },
@@ -31,7 +31,7 @@ const CONTAINER_STYLES = {
     light: {
       bg: "bg-yellow-50",
       border: "border-l-4 border-yellow-500",
-      text: "text-yellow-800",
+      text: "text-yellow-900",
       title: "text-yellow-900",
       emoji: "💡",
     },
@@ -48,7 +48,7 @@ const CONTAINER_STYLES = {
     light: {
       bg: "bg-red-50",
       border: "border-l-4 border-red-500",
-      text: "text-red-800",
+      text: "text-red-900",
       title: "text-red-900",
       emoji: "⚠️",
     },
@@ -65,7 +65,7 @@ const CONTAINER_STYLES = {
     light: {
       bg: "bg-emerald-50",
       border: "border-l-4 border-emerald-500",
-      text: "text-emerald-800",
+      text: "text-emerald-900",
       title: "text-emerald-900",
       emoji: "📌",
     },
@@ -81,10 +81,10 @@ const CONTAINER_STYLES = {
 };
 
 const CONTAINER_TEXT_COLORS = {
-  summary: { light: "text-blue-800", dark: "text-blue-200" },
-  tip: { light: "text-yellow-800", dark: "text-yellow-200" },
-  warning: { light: "text-red-800", dark: "text-red-200" },
-  note: { light: "text-emerald-800", dark: "text-emerald-200" },
+  summary: { light: "text-blue-900", dark: "text-blue-200" },
+  tip: { light: "text-yellow-900", dark: "text-yellow-200" },
+  warning: { light: "text-red-900", dark: "text-red-200" },
+  note: { light: "text-emerald-900", dark: "text-emerald-200" },
 };
 
 // ── Component ────────────────────────────────────────────────────
@@ -294,7 +294,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         const Tag = hasBlockElement ? "div" : "p";
         return (
           <Tag
-            className={`mb-4 leading-relaxed last:mb-0 ${activeDark ? "text-gray-300" : "text-gray-700"}`}
+            className={`mb-4 leading-relaxed last:mb-0 ${activeDark ? "text-gray-200" : "text-gray-800"}`}
           >
             {children}
           </Tag>
@@ -417,7 +417,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
             </div>
             {alt && (
               <figcaption
-                className={`text-xs md:text-sm mt-2 italic px-2 ${activeDark ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-xs md:text-sm mt-2 italic px-2 ${activeDark ? "text-gray-300" : "text-gray-700"}`}
               >
                 {alt}
                 <span className="hidden md:inline"> — Click to view</span>
@@ -436,7 +436,12 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         />
       ),
       table: ({ children }) => (
-        <div className="overflow-x-auto my-8">
+        <div
+          className="overflow-x-auto my-8"
+          tabIndex="0"
+          role="region"
+          aria-label="Scrollable table"
+        >
           <table
             className={`min-w-full divide-y border rounded-lg shadow-sm ${activeDark ? "divide-gray-700 border-gray-700" : "divide-gray-200 border-gray-300"}`}
           >
@@ -448,7 +453,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         <th
           className={`px-6 py-4 text-left text-sm font-semibold uppercase border-b ${activeDark ? "text-gray-200 bg-gray-900/50 border-gray-700" : "text-gray-900 bg-gray-100 border-gray-300"}`}
         >
-          {children}
+          {children || <span className="sr-only">Column header</span>}
         </th>
       ),
       td: ({ children }) => (
@@ -460,7 +465,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       ),
       blockquote: ({ children }) => (
         <blockquote
-          className={`border-l-4 pl-4 italic my-4 ${activeDark ? "border-blue-800 text-gray-400" : "border-blue-500 text-gray-600"}`}
+          className={`border-l-4 pl-4 italic my-4 ${activeDark ? "border-blue-800 text-gray-300" : "border-blue-500 text-gray-700"}`}
         >
           {children}
         </blockquote>
