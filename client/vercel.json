@@ -39,6 +39,15 @@
           "value": "0"
         }
       ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://www.learningtopy.com"
+        }
+      ]
     }
   ]
 }
