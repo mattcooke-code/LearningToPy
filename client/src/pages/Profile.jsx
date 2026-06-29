@@ -94,10 +94,10 @@ const Profile = () => {
           </div>
 
           <div className="flex-shrink-0 rounded-2xl p-6 backdrop-blur bg-python-yellow text-python-blue">
-            <p className="flex items-center text-sm font-medium uppercase tracking-wide text-python-blue">
+            <p className="flex items-center text-sm font-medium uppercase tracking-wide text-gray-900">
               <Sparkles className="mr-2 h-4 w-4" /> Earned Badges
             </p>
-            <p className="mt-1 text-4xl font-bold">
+            <p className="mt-1 text-4xl font-bold text-gray-900">
               {loading
                 ? "..."
                 : earnedBadgeIds.length.toString().padStart(2, "0")}
@@ -112,9 +112,9 @@ const Profile = () => {
         <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
             <Target className="h-5 w-5 text-theme" />
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white ">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white ">
               Level Progress
-            </h3>
+            </h2>
           </div>
           <div className="space-y-4">
             <div className="text-center">
@@ -137,13 +137,13 @@ const Profile = () => {
             <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
               <div className="text-center">
                 <p className="font-medium">Total XP</p>
-                <p className="text-lg font-bold text-python-yellow dark:text-python-yellow">
+                <p className="text-lg font-bold text-python-blue dark:text-python-yellow">
                   {userProgress?.xp || user?.xp || 0}
                 </p>
               </div>
               <div className="text-center">
                 <p className="font-medium">Current Streak</p>
-                <p className="text-lg font-bold text-green-500 dark:text-green-400">
+                <p className="text-lg font-bold text-green-700 dark:text-green-400">
                   {user?.streak || 0} days
                 </p>
               </div>
@@ -180,7 +180,7 @@ const Profile = () => {
             />
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 Manage your account security and data
               </p>
 
@@ -197,7 +197,7 @@ const Profile = () => {
                     <p className="font-medium text-gray-800 dark:text-white">
                       Change Password
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Update your account password
                     </p>
                   </div>
@@ -217,7 +217,7 @@ const Profile = () => {
                     <p className="font-medium text-gray-800 dark:text-white">
                       Export My Data
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Download all your data as JSON
                     </p>
                   </div>
@@ -238,7 +238,7 @@ const Profile = () => {
                     <p className="font-medium text-red-700 dark:text-red-400">
                       Delete Account
                     </p>
-                    <p className="text-sm text-red-600 dark:text-red-400/80">
+                    <p className="text-sm text-red-700 dark:text-red-300">
                       Permanently remove your account and data
                     </p>
                   </div>
@@ -253,9 +253,9 @@ const Profile = () => {
         <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
           <div className="mb-4 flex items-center space-x-2">
             <TrendingUp className="h-5 w-5 text-python-blue dark:text-python-blue" />
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               Learning Stats
-            </h3>
+            </h2>
           </div>
           <div className="space-y-4">
             {[
@@ -273,7 +273,7 @@ const Profile = () => {
                 value: user?.stats?.averageScore
                   ? `${user.stats.averageScore}%`
                   : "N/A",
-                color: "text-green-600 dark:text-green-400",
+                color: "text-green-700 dark:text-green-400",
                 icon: "🎯",
               },
               {
