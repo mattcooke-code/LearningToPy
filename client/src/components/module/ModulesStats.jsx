@@ -29,7 +29,7 @@ const ModulesStats = ({ totalModules, completedModules, userXP }) => {
           <div className="text-gray-600 dark:text-gray-300">Completed</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-python-yellow">
+          <div className="text-2xl font-bold text-python-blue dark:text-python-yellow">
             {userXP || 0}
           </div>
           <div className="text-gray-600 dark:text-gray-300">Total XP</div>

@@ -67,9 +67,9 @@ const ModuleCard = ({ module, isLocked }) => {
       </div>
 
       {/* Module Title */}
-      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2 p-2">
+      <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 text-center mb-2 p-2">
         {module.title}
-      </h3>
+      </h2>
 
       {/* Short Description */}
       <p className="text-gray-600 dark:text-gray-300 text-sm text-center mb-4 line-clamp-2">
