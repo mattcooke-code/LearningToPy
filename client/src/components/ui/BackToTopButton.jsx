@@ -1,3 +1,4 @@
+// BackToTopButton.jsx
 import { useState, useEffect, useCallback, memo } from "react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "../../context";
@@ -59,15 +60,16 @@ const BackToTopButton = memo(function BackToTopButton({
   if (!showButton) return null;
 
   return (
-    <button
-      onClick={scrollToTop}
-      style={{
-        "--btn-bg": baseColor,
-        "--btn-hover-bg": hoverColor,
-        "--btn-arrow": baseArrow,
-        "--btn-hover-arrow": hoverArrow,
-      }}
-      className={`
+    <aside aria-label="Back to top navigation" role="complementary">
+      <button
+        onClick={scrollToTop}
+        style={{
+          "--btn-bg": baseColor,
+          "--btn-hover-bg": hoverColor,
+          "--btn-arrow": baseArrow,
+          "--btn-hover-arrow": hoverArrow,
+        }}
+        className={`
   fixed z-50 bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8
   rounded-full flex items-center justify-center
   transition-all duration-300 ease-in-out
@@ -79,10 +81,11 @@ const BackToTopButton = memo(function BackToTopButton({
   text-(--btn-arrow)
   hover:text-(--btn-hover-arrow)
 `}
-      aria-label="Back to top"
-    >
-      <ArrowUp size={30} />
-    </button>
+        aria-label="Back to top"
+      >
+        <ArrowUp size={30} />
+      </button>
+    </aside>
   );
 });
 

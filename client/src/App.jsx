@@ -36,6 +36,7 @@ import AdminSettings from "./pages/AdminSettings";
 import { useCourseThemeUpdater, usePageViewTracker } from "./hooks";
 import { AdminLayout } from "./components/admin";
 import { CookieNotice } from "./components/settings";
+import { useTheme } from "./context";
 
 import ModalManager from "./modals/ModalManager";
 
@@ -43,10 +44,14 @@ function App() {
   useCourseThemeUpdater();
   usePageViewTracker();
 
+  const { isDarkMode } = useTheme();
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex flex-col">
+    <div
+      className={`min-h-screen flex flex-col ${isDarkMode ? "dark bg-gray-900" : "bg-linear-to-br from-blue-50 to-indigo-100"}`}
+    >
       <Navbar />
-      <main className="grow">
+      <main className="grow" id="main-content" aria-label="Main content">
         <ScrollToHashElement />
         <Routes>
           {/* PUBLIC */}

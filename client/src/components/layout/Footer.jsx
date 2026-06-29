@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 /**
  * Footer component with navigation links, resources, and brand information.
  * Provides comprehensive site navigation and legal information with responsive design.
- * 
+ *
  * @component
  * @returns {JSX.Element} Site footer with navigation and branding
  */
@@ -13,7 +13,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white dark:bg-python-dark">
+    <footer
+      className="bg-gray-900 text-white dark:bg-python-dark"
+      aria-label="Site footer"
+    >
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -49,7 +52,7 @@ const Footer = () => {
                   Explore the Curriculum
                 </Link>
               </li>
-              <li className="text-gray-500 text-xs italic pt-2 border-t border-gray-800">
+              <li className="text-gray-300 text-xs italic pt-2 border-t border-gray-600">
                 Includes: Python Basics, Data Structures, OOP, and more.
               </li>
             </ul>

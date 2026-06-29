@@ -15,10 +15,12 @@ const CookieNotice = () => {
   if (!visible) return null;
 
   return (
-    <div
+    <aside
       className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm 
                     bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
                     rounded-lg shadow-lg p-4 z-50"
+      aria-label="Cookie notice"
+      role="complementary"
     >
       <div className="flex items-start justify-between">
         <div className="text-sm text-gray-700 dark:text-gray-300">
@@ -42,7 +44,7 @@ const CookieNotice = () => {
           <X className="h-4 w-4" />
         </button>
       </div>
-    </div>
+    </aside>
   );
 };
 

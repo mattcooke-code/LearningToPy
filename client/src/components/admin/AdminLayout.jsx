@@ -86,13 +86,13 @@ const AdminLayout = ({ children }) => {
           </div>
         </div>
         {/* Page content */}
-        <main className="flex-1">
+        <div className="flex-1" role="region" aria-label="Admin content">
           <div className="px-4 sm:px-6 lg:px-8 py-6">
             <div className="max-w-7xl mx-auto">
               {children || <Outlet />}
             </div>{" "}
           </div>
-        </main>
+        </div>
       </div>
       <BackToTopButton />
     </div>

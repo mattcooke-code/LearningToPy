@@ -1,25 +1,15 @@
 // AppLayout.jsx
 import { Outlet } from "react-router-dom";
-import { useTheme } from "../../context";
 
 /**
- * Main application layout wrapper with theme support and responsive design.
- * Provides consistent layout structure with dark mode integration.
- * 
+ * Main application layout wrapper - renders content only.
+ * The main landmark and page structure are handled by App.jsx.
+ *
  * @component
- * @returns {JSX.Element} Application layout with theme-aware styling
+ * @returns {JSX.Element} Content outlet without additional landmarks
  */
-
 const AppLayout = () => {
-  const { isDarkMode } = useTheme();
-
-  return (
-    <div className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""}`}>
-      <main className="flex-grow bg-gray-300 dark:bg-gray-900">
-        <Outlet />
-      </main>
-    </div>
-  );
+  return <Outlet />;
 };
 
 export default AppLayout;

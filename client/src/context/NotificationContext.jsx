@@ -58,20 +58,29 @@ const NotificationContext = createContext();
  */
 const Toast = ({ id, message, type, onClose }) => {
   const typeStyles = {
-    info: "bg-blue-500 border-blue-600",
-    success: "bg-green-500 border-green-600",
-    error: "bg-red-500 border-red-600",
-    warning: "bg-yellow-500 border-yellow-600",
+    info: "bg-blue-600 border-blue-700",
+    success: "bg-green-600 border-green-700",
+    error: "bg-red-600 border-red-700",
+    warning: "bg-yellow-500 border-yellow-600 text-gray-900",
   };
+
+  const textColor = type === "warning" ? "text-gray-900" : "text-white";
+  const closeButtonColor =
+    type === "warning"
+      ? "text-gray-700 hover:text-gray-900"
+      : "text-white hover:text-gray-200";
+
+  const role = type === "error" || type === "warning" ? "alert" : "status";
 
   return (
     <div
-      className={`flex items-center justify-between p-4 mb-2 rounded-lg border-l-4 text-white shadow-lg transform transition-all duration-300 animate-in slide-in-from-bottom-8 ${typeStyles[type]} min-w-300px max-w-md`}
+      role={role}
+      className={`flex items-center justify-between p-4 mb-2 rounded-lg border-l-4 shadow-lg transform transition-all duration-300 animate-in slide-in-from-bottom-8 ${typeStyles[type]} min-w-300px max-w-md`}
     >
-      <span className="flex-1">{message}</span>
+      <span className={`flex-1 font-medium ${textColor}`}>{message}</span>
       <button
         onClick={() => onClose(id)}
-        className="ml-4 text-white hover:text-gray-200 transition-colors text-lg font-bold"
+        className={`ml-4 transition-colors text-lg font-bold ${closeButtonColor}`}
         aria-label="Close notification"
       >
         ×
@@ -135,14 +144,14 @@ const ConfirmationModal = ({
         <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
           {title}
         </h3>
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 max-w-280px leading-relaxed">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-8 max-w-280px leading-relaxed">
           {message}
         </p>
 
         <div className="grid grid-cols-2 gap-3 w-full">
           <button
             onClick={onCancel}
-            className="px-6 py-3 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors"
+            className="px-6 py-3 text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
           >
             {cancelText}
           </button>
@@ -300,11 +309,15 @@ export const NotificationProvider = ({ children }) => {
       {children}
 
       {/* Toast Container — fixed bottom-center, above all other content */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center">
+      <aside
+        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center"
+        aria-label="Notifications"
+        role="status"
+      >
         {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} onClose={removeToast} />
         ))}
-      </div>
+      </aside>
 
       {/* Confirmation Modal — spread the full state object as props */}
       <ConfirmationModal {...confirmModal} />

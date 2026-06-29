@@ -71,6 +71,7 @@ const Navbar = memo(function Navbar() {
     <nav
       style={{ backgroundColor: navbarBg }}
       className={`${navbarText} shadow-lg transition-colors duration-500 relative lg:sticky lg:top-0 z-100`}
+      aria-label="Main navigation"
     >
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-20">
@@ -194,6 +195,8 @@ const Navbar = memo(function Navbar() {
           <button
             onClick={toggleMenu}
             className="lg:hidden p-2 rounded-md hover:bg-black/10 focus:outline-none"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>

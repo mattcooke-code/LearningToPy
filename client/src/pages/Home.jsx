@@ -166,13 +166,13 @@ const Home = () => {
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   to={ctaLink}
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-blue text-python-yellow hover:bg-python-dark hover:text-python-light shadow-lg transition-transform hover:-translate-y-0.5 hover:shadow-xl"
+                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-blue text-white hover:bg-python-dark hover:text-python-light shadow-lg transition-transform hover:-translate-y-0.5 hover:shadow-xl"
                 >
                   {ctaLabel}
                 </Link>
                 <Link
                   to="/modules"
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-yellow text-python-blue hover:bg-python-light hover:text-python-dark hover:-translate-y-0.5 hover:shadow-xl transition"
+                  className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold bg-python-yellow text-gray-900 hover:bg-python-light hover:text-python-dark hover:-translate-y-0.5 hover:shadow-xl transition"
                 >
                   Explore Curriculum
                 </Link>
@@ -194,7 +194,7 @@ const Home = () => {
                       7 days
                     </p>
                   </div>
-                  <div className="bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-700 px-4 py-2 rounded-full flex items-center space-x-2 font-semibold">
+                  <div className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 px-4 py-2 rounded-full flex items-center space-x-2 font-semibold">
                     <Trophy size={18} />
                     <span>Top 10%</span>
                   </div>
@@ -425,7 +425,7 @@ const Home = () => {
                   </div>
 
                   <div className="bg-black rounded-xl p-4 font-mono text-sm text-slate-100 mb-6">
-                    <p className="text-[10px] uppercase text-slate-500 mb-2 tracking-widest">
+                    <p className="text-[10px] uppercase text-slate-400 dark:text-slate-400 mb-2 tracking-widest font-semibold">
                       Terminal Output
                     </p>
                     <pre className="whitespace-pre-wrap leading-relaxed text-[13px] sm:text-sm">
@@ -699,7 +699,7 @@ const Home = () => {
           <div className="mt-12 text-center">
             <Link
               to={ctaLink}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-bold text-python-blue bg-python-yellow shadow-lg transition hover:bg-python-blue hover:text-python-yellow hover:-translate-y-0.5 hover:shadow-xl"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-bold text-gray-900 bg-python-yellow shadow-lg transition hover:bg-python-blue hover:text-white hover:-translate-y-0.5 hover:shadow-xl"
             >
               {ctaLabel}
             </Link>

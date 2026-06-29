@@ -3,17 +3,42 @@
 
 /* Custom theme configuration */
 @theme {
-  --color-python-blue: #3776ab;
-  --color-python-yellow: #ffd43b;
-  --color-python-dark: #1e415e;
-  --color-python-light: #ffe873;
+  --color-python-blue: #2c5f8a;
+  --color-python-yellow: #e6b800;
+  --color-python-dark: #0f2940;
+  --color-python-light: #f5d000;
+
+  --color-python-blue-hover: #234b6e;
+  --color-python-yellow-hover: #cca300;
 
   /* Theme colors driven by JavaScript CSS variables */
-  --color-theme: var(--theme-color, #3776ab);
-  --color-theme-hover: var(--theme-hover-color, #ffd43b);
+  --color-theme: var(--theme-color, #2c5f8a);
+  --color-theme-hover: var(--theme-hover-color, #e6b800);
 
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Segoe UI", Roboto;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Improved text contrast for accessibility */
+@layer utilities {
+  .text-muted {
+    @apply text-slate-700 dark:text-slate-200;
+  }
+
+  .text-muted-light {
+    @apply text-slate-600 dark:text-slate-300;
+  }
+}
+
+/* Override low-contrast Tailwind defaults */
+@layer base {
+  .dark .text-slate-400 {
+    color: #cbd5e1;
+  }
+
+  .dark .text-slate-500 {
+    color: #94a3b8;
+  }
 }
 
 /* Enable dark mode */
@@ -72,4 +97,24 @@ html {
   .prose img[alt*="terminal"] {
     min-width: 280px;
   }
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 24px;
+  background: #2c5f8a;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 0 0 8px 8px;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 16px;
+  outline: 3px solid #ffd43b;
+  outline-offset: 2px;
 }
