@@ -62,16 +62,17 @@ const OuroborosSpinner = ({
   const textColorClasses = "text-python-blue dark:text-python-blue";
 
   const spinner = (
-    <img
-      src={ouroborosSrc}
-      alt="Loading"
-      role="status"
-      className={`ouroboros-spinner ${sizeClasses[size]} ${className}`}
-      style={{
-        animationDuration: speedDuration[speed],
-        animationDirection: reverse ? "reverse" : "normal",
-      }}
-    />
+    <div role="status" aria-label="Loading">
+      <img
+        src={ouroborosSrc}
+        alt="Loading"
+        className={`ouroboros-spinner ${sizeClasses[size]} ${className}`}
+        style={{
+          animationDuration: speedDuration[speed],
+          animationDirection: reverse ? "reverse" : "normal",
+        }}
+      />
+    </div>
   );
 
   const content = showText ? (

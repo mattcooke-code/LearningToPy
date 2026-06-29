@@ -51,7 +51,7 @@ const CodeBlock = ({ code, language = "python" }) => {
     >
       <div className="flex justify-between items-center mb-2">
         <span
-          className={`text-sm font-mono ${isCodeDark ? "text-gray-400" : "text-gray-600"}`}
+          className={`text-sm font-mono ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
         >
           {language}
         </span>
@@ -61,8 +61,10 @@ const CodeBlock = ({ code, language = "python" }) => {
             onClick={handleCopy}
             className={`flex items-center gap-2 px-2 py-1 rounded transition-all duration-200 ${
               copied
-                ? "text-green-500 bg-green-500/10"
-                : "text-gray-500 hover:bg-gray-500/10"
+                ? "text-green-400 bg-green-500/10"
+                : isCodeDark
+                  ? "text-gray-300 hover:bg-gray-500/10"
+                  : "text-gray-600 hover:bg-gray-500/10"
             }`}
           >
             {copied ? (
@@ -78,13 +80,12 @@ const CodeBlock = ({ code, language = "python" }) => {
         </div>
       </div>
 
-      {/* If it's Python, use your fancy highlighter. Otherwise, fall back to standard text */}
       {language.toLowerCase() === "python" ||
       language.toLowerCase() === "py" ? (
         <PythonSyntaxHighlighter code={code} isDark={isCodeDark} />
       ) : (
         <pre
-          className={`text-sm font-mono whitespace-pre-wrap ${isCodeDark ? "text-green-400" : "text-gray-700"}`}
+          className={`text-sm font-mono whitespace-pre-wrap ${isCodeDark ? "text-green-400" : "text-gray-800"}`}
         >
           <code>{code}</code>
         </pre>

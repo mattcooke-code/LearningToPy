@@ -491,7 +491,7 @@ const ExerciseComponent = ({
           </p>
           <pre
             className={`text-xs font-mono whitespace-pre-wrap ${
-              isCodeDark ? "text-gray-400" : "text-gray-600"
+              isCodeDark ? "text-gray-300" : "text-gray-700"
             }`}
           >
             {exercise.expectedOutput}
@@ -576,7 +576,7 @@ const ExerciseComponent = ({
         {isReviewMode && solution && (
           <button
             onClick={() => setShowSolution(!showSolution)}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+            className="bg-green-700 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-800 transition"
           >
             {showSolution ? "Hide Solution" : "Show Solution"}
           </button>

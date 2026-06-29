@@ -17,13 +17,13 @@ import {
 
 /**
  * Lesson header component displaying lesson metadata and interactive controls.
- * 
+ *
  * This component creates a comprehensive header section for lessons, displaying essential
  * metadata including title, description, duration, and XP rewards. Features visual completion
  * indicators, review mode toggle functionality, and reporting capabilities. The responsive
  * design adapts to different screen sizes while maintaining accessibility and user-friendly
  * interactions.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {Object} props.lesson - Lesson data with metadata and status information
@@ -31,38 +31,38 @@ import {
  * @param {Function} props.toggleReviewMode - Function to toggle review mode
  * @param {Function} props.onReport - Function to handle lesson reporting
  * @returns {JSX.Element} Complete lesson header with metadata and controls
- * 
+ *
  * @metadataDisplay
  * - Lesson title with completion status indicator
  * - Short description for context
  * - Duration and XP reward information
  * - Content type classification
  * - Visual hierarchy and typography
- * 
+ *
  * @statusIndicators
  * - Completion checkmark for finished lessons
  * - Review mode badge with visual styling
  * - Color-coded status indicators
  * - Animated icons for enhanced UX
- * 
+ *
  * @interactiveControls
  * - Review mode toggle with loading animation
  * - Report button for content issues
  * - Practice mode access for completed lessons
  * - Responsive button layouts
- * 
+ *
  * @responsiveDesign
  * - Mobile-first approach with stacked layout
  * - Adaptive button arrangements
  * - Flexible typography scaling
  * - Touch-friendly interaction areas
- * 
+ *
  * @accessibilityFeatures
  * - Semantic HTML structure
  * - Proper ARIA labels and roles
  * - Keyboard navigation support
  * - High contrast color schemes
- * 
+ *
  * @visualDesign
  * - Consistent spacing and alignment
  * - Theme-aware color schemes
@@ -105,7 +105,7 @@ const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, onReport }) => {
                 <span>{lesson.xpReward} XP</span>
               </div>
               {/* Metadata tag */}
-              <span className="capitalize px-2 py-0.5 bg-gray-100 dark:bg-gray-600 rounded-md text-xs font-medium">
+              <span className="capitalize px-2 py-0.5 bg-gray-100 dark:bg-gray-600 rounded-md text-xs font-medium text-gray-700 dark:text-gray-200">
                 {lesson.contentType}
               </span>
             </div>

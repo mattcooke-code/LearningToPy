@@ -200,6 +200,11 @@ const CodeEditor = ({
       lintGutter(),
       indentUnit.of("    "),
       EditorView.contentAttributes.of({ "aria-label": "Python code editor" }),
+      EditorView.scrollHandler.of((view) => {
+        view.scrollDOM.setAttribute("tabindex", "0");
+        view.scrollDOM.setAttribute("role", "region");
+        view.scrollDOM.setAttribute("aria-label", "Scrollable code editor");
+      }),
       ...(onRunToLine
         ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
         : []),
@@ -258,6 +263,7 @@ const CodeEditor = ({
           theme={isCodeDark ? "dark" : "light"}
           height={height}
           editable={!readOnly}
+          aria-label="Python code editor"
           basicSetup={{
             lineNumbers: true,
             highlightActiveLine: true,

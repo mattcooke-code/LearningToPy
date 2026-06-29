@@ -453,7 +453,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
         <th
           className={`px-6 py-4 text-left text-sm font-semibold uppercase border-b ${activeDark ? "text-gray-200 bg-gray-900/50 border-gray-700" : "text-gray-900 bg-gray-100 border-gray-300"}`}
         >
-          {children || <span className="sr-only">Column header</span>}
+          {children || <span className="sr-only">Column</span>}
         </th>
       ),
       td: ({ children }) => (
