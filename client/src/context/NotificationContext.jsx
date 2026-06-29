@@ -312,7 +312,6 @@ export const NotificationProvider = ({ children }) => {
       <aside
         className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center"
         aria-label="Notifications"
-        role="status"
       >
         {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} onClose={removeToast} />
