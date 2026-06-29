@@ -158,6 +158,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
                 checked={settings.showOnLeaderboards}
                 onChange={(e) => handleToggleLeaderboard(e.target.checked)}
                 className="peer sr-only"
+                aria-label="Show on leaderboards"
               />
               <div className="bg-theme peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
             </label>
@@ -192,6 +193,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
                   onChange={(e) => handleToggleUsername(e.target.checked)}
                   disabled={!settings.showOnLeaderboards}
                   className="peer sr-only"
+                  aria-label="Show username publicly"
                 />
                 <div
                   className={`bg-theme peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white ${!settings.showOnLeaderboards ? "cursor-not-allowed opacity-50" : ""}`}
