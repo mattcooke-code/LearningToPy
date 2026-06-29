@@ -19,10 +19,10 @@ const HallOfFameSnapshot = ({ members, totalInducted, loading, onViewAll }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-2">
           <Trophy className="h-5 w-5 text-yellow-500" />
           Hall of Fame
-        </h3>
+        </h2>
         {totalInducted > 0 && (
           <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
             {totalInducted} inducted
@@ -75,7 +75,7 @@ const HallOfFameSnapshot = ({ members, totalInducted, loading, onViewAll }) => {
           <p className="text-sm text-gray-500 dark:text-gray-400">
             No inductees yet.
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
             Complete the course to become the first!
           </p>
         </div>

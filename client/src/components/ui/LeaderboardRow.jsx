@@ -100,7 +100,7 @@ const LeaderboardRow = ({ rank, user, isCurrent }) => {
           )}
         </div>
       </div>
-      <span className="text-python-yellow dark:text-python-light font-bold">
+      <span className="text-python-blue dark:text-python-light font-bold">
         {user.xp.toLocaleString()} XP
       </span>
     </div>

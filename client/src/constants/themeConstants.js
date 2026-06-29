@@ -19,13 +19,13 @@ export const PYTHON_LIGHT = "var(--color-python-light)";
  * Colors correspond to user progress levels (0-100% completion).
  */
 export const THEME_COLORS = {
-  DEFAULT: "#3776ab",
-  RED: "#ef4444", // 0-25%
-  ORANGE: "#f97316", // 25-40%
-  AMBER: "#fb923c", // 40-55%
-  YELLOW: "#FFD700", // 55-70%
-  LIME: "#84cc16", // 70-85%
-  GREEN: "#22c55e", // 85-100%
+  DEFAULT: "#2c5f8a",
+  RED: "#c53030",
+  ORANGE: "#c2410c",
+  AMBER: "#b45309",
+  YELLOW: "#b8860b",
+  LIME: "#4d7c0f",
+  GREEN: "#15803d",
 };
 
 /**
@@ -33,13 +33,13 @@ export const THEME_COLORS = {
  * Used for interactive elements and hover states.
  */
 export const THEME_HOVER_COVERS = {
-  DEFAULT: "#ffd43b",
-  RED: "#d73d3d",
-  ORANGE: "#e06c14",
-  AMBER: "#ea8029",
-  YELLOW: "#e6c300",
-  LIME: "#75b214",
-  GREEN: "#1eab52",
+  DEFAULT: "#1e415e",
+  RED: "#9b2c2c",
+  ORANGE: "#9a3412",
+  AMBER: "#92400e",
+  YELLOW: "#9a7b0b",
+  LIME: "#3f6212",
+  GREEN: "#166534",
 };
 
 /**

@@ -237,7 +237,7 @@ const Dashboard = () => {
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
             Total XP
           </h3>
-          <p className="text-3xl font-bold text-python-yellow dark:text-python-yellow mt-2">
+          <p className="text-3xl font-bold text-python-blue dark:text-python-yellow mt-2">
             {progressData.xp}
           </p>
         </div>
@@ -430,11 +430,11 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">
                       {progressData.currentModule.lessonsCompleted} /{" "}
                       {progressData.currentModule.lessonCount} lessons
                     </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
                       Complete to level up!
                     </p>
                   </div>
