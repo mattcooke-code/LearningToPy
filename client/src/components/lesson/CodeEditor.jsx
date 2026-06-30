@@ -203,23 +203,27 @@ const CodeEditor = ({
           ".cm-scroller": {
             outline: "none",
           },
+          ".cm-scroller:focus-visible": {
+            outline: "2px solid #4d9eff",
+            outlineOffset: "-2px",
+          },
           "&.cm-editor .cm-content": {},
 
+          // Lightened from CodeMirror's default oneDark palette (#e06c75)
+          // to meet WCAG 2 AA 4.5:1 contrast against the #282c34 background.
           ".tok-variableName": {
-            color: "#f08d92",
+            color: "#e9838b",
+          },
+          ".tok-propertyName": {
+            color: "#e9838b",
+          },
+          ".tok-definition": {
+            color: "#e9838b",
           },
         },
         { dark: true },
       ),
 
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged || update.viewportChanged) {
-          const scroller = update.view.scrollDOM;
-          if (scroller && scroller.getAttribute("tabindex") === "-1") {
-            scroller.setAttribute("tabindex", "0");
-          }
-        }
-      }),
       ...(onRunToLine
         ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
         : []),
@@ -279,6 +283,14 @@ const CodeEditor = ({
           height={height}
           editable={!readOnly}
           aria-label="Python code editor"
+          onCreateEditor={(view) => {
+            // Ensure the scrollable region is keyboard-focusable from first
+            // paint (axe: scrollable-region-focusable). Doing this here,
+            // rather than in an updateListener, avoids a window where the
+            // scroller sits at tabindex="-1" before any doc/viewport change
+            // has fired — which Safari in particular will flag.
+            view.scrollDOM.setAttribute("tabindex", "0");
+          }}
           basicSetup={{
             lineNumbers: true,
             highlightActiveLine: true,
