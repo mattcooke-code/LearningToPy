@@ -198,10 +198,27 @@ const CodeEditor = ({
       lintGutter(),
       indentUnit.of("    "),
       EditorView.contentAttributes.of({ "aria-label": "Python code editor" }),
-      EditorView.scrollHandler.of((view) => {
-        view.scrollDOM.setAttribute("tabindex", "0");
-        view.scrollDOM.setAttribute("role", "region");
-        view.scrollDOM.setAttribute("aria-label", "Scrollable code editor");
+      EditorView.theme(
+        {
+          ".cm-scroller": {
+            outline: "none",
+          },
+          "&.cm-editor .cm-content": {},
+
+          ".tok-variableName": {
+            color: "#f08d92",
+          },
+        },
+        { dark: true },
+      ),
+
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged || update.viewportChanged) {
+          const scroller = update.view.scrollDOM;
+          if (scroller && scroller.getAttribute("tabindex") === "-1") {
+            scroller.setAttribute("tabindex", "0");
+          }
+        }
       }),
       ...(onRunToLine
         ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]

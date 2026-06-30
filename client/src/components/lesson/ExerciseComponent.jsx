@@ -513,7 +513,7 @@ const ExerciseComponent = ({
             onClick={() => setShowTerminal(!showTerminal)}
             className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors shadow-sm ${
               isCodeDark
-                ? "bg-python-yellow text-python-blue hover:bg-yellow-400"
+                ? "bg-python-yellow text-gray-900 hover:bg-yellow-400"
                 : "bg-python-blue text-white hover:bg-blue-700"
             }`}
           >
