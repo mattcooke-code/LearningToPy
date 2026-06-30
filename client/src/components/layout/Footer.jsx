@@ -32,7 +32,7 @@ const Footer = () => {
                 Learning To Py
               </Link>
             </div>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-gray-300 text-sm mb-4">
               Master Python programming through interactive lessons, hands-on
               exercises, and gamified learning.
             </p>
@@ -47,7 +47,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/curriculum"
-                  className="text-gray-400 hover:text-python-yellow transition-colors text-sm font-medium"
+                  className="text-gray-300 hover:text-python-yellow transition-colors text-sm font-medium"
                 >
                   Explore the Curriculum
                 </Link>
@@ -67,7 +67,7 @@ const Footer = () => {
                   href="https://docs.python.org/3/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-python-yellow transition-colors text-sm"
+                  className="text-gray-300 hover:text-python-yellow transition-colors text-sm"
                 >
                   Official Python Docs
                 </a>
@@ -75,7 +75,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/faq"
-                  className="text-gray-400 hover:text-python-yellow transition-colors text-sm"
+                  className="text-gray-300 hover:text-python-yellow transition-colors text-sm"
                 >
                   FAQ
                 </Link>
@@ -83,7 +83,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/support"
-                  className="text-gray-400 hover:text-python-yellow transition-colors text-sm"
+                  className="text-gray-300 hover:text-python-yellow transition-colors text-sm"
                 >
                   Get Help / Contact Us
                 </Link>
@@ -91,7 +91,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/support?tab=feedback"
-                  className="text-gray-400 hover:text-python-yellow transition-colors text-sm"
+                  className="text-gray-300 hover:text-python-yellow transition-colors text-sm"
                 >
                   Give Feedback
                 </Link>
@@ -104,14 +104,14 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-white">
               Join the Community
             </h3>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-gray-300 text-sm mb-4">
               Follow our journey and connect with other learners.
             </p>
             <div className="flex space-x-4">
               {/* Replace '#' with actual links when ready */}
               <a
                 href="#"
-                className="text-gray-400 hover:text-python-yellow transition-colors"
+                className="text-gray-300 hover:text-python-yellow transition-colors"
                 title="Follow us on X"
               >
                 <svg
@@ -124,7 +124,7 @@ const Footer = () => {
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-python-yellow transition-colors"
+                className="text-gray-300 hover:text-python-yellow transition-colors"
                 title="Star us on GitHub"
               >
                 <svg
@@ -145,25 +145,28 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
+      <div className="border-t border-gray-700">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-400 text-xs mb-4 md:mb-0">
+            <div className="text-gray-300 text-xs mb-4 md:mb-0">
               © {currentYear} Learning To Py.
               <span className="mx-2">|</span>
               <Link
                 to="/privacy"
-                className="hover:text-white transition-colors"
+                className="text-gray-300 hover:text-white transition-colors"
               >
                 Privacy Policy
               </Link>
               <span className="mx-2">|</span>
-              <Link to="/terms" className="hover:text-white transition-colors">
+              <Link
+                to="/terms"
+                className="text-gray-300 hover:text-white transition-colors"
+              >
                 Terms of Service
               </Link>
             </div>
             <div className="flex items-center space-x-6 text-sm">
-              <span className="text-gray-400">Made with</span>
+              <span className="text-gray-300">Made with</span>
               <div className="flex items-center space-x-1 text-red-500">
                 <svg
                   className="w-4 h-4"

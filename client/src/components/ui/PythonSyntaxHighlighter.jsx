@@ -119,7 +119,13 @@ const PythonSyntaxHighlighter = ({ code, isDark = true }) => {
         return (
           <div key={lineIndex}>
             {highlightCode(codePart, isDark)}
-            <span className="text-gray-400 italic">{commentPart}</span>
+            <span
+              className={
+                isDark ? "text-gray-300 italic" : "text-gray-500 italic"
+              }
+            >
+              {commentPart}
+            </span>
           </div>
         );
       }
