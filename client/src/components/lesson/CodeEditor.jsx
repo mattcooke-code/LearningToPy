@@ -227,15 +227,22 @@ const CodeEditor = ({
       ...(isCodeDark
         ? [oneDark, Prec.highest(syntaxHighlighting(a11yHighlightStyle))]
         : []),
-      EditorView.theme({
-        ".cm-scroller": {
-          outline: "none",
-        },
-        ".cm-scroller:focus-visible": {
-          outline: "2px solid #4d9eff",
-          outlineOffset: "-2px",
-        },
-      }),
+      Prec.highest(
+        EditorView.theme({
+          ".cm-scroller": {
+            outline: "none",
+          },
+          ".cm-scroller:focus-visible": {
+            outline: "2px solid #4d9eff",
+            outlineOffset: "-2px",
+          },
+          // oneDark's default gutter line-number color (#7d8799) is 3.86:1
+          // on #282c34 — below WCAG 2 AA 4.5:1. Lightened to clear it.
+          ".cm-gutterElement": {
+            color: "#9aa3b3",
+          },
+        }),
+      ),
 
       ...(onRunToLine
         ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]

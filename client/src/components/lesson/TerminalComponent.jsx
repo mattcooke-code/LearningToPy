@@ -467,13 +467,7 @@ const TerminalComponent = forwardRef(
           >
             <div className="text-center">
               <Spinner size={32} />
-              <p
-                className={`mt-4 ${
-                  isCodeDark ? "text-gray-400" : "text-gray-300"
-                }`}
-              >
-                Loading Python engine...
-              </p>
+              <p className="mt-4 text-gray-300">Loading Python engine...</p>
             </div>
           </div>
         </div>
