@@ -114,28 +114,6 @@ app.use(
   }),
 );
 
-app.use((req, res, next) => {
-  res.removeHeader("Cross-Origin-Embedder-Policy");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  next();
-});
-
-app.use((req, res, next) => {
-  res.setHeader(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  );
-
-  res.setHeader("X-Content-Type-Options", "nosniff");
-
-  res.setHeader("X-Frame-Options", "DENY");
-  if (req.path.startsWith("/api/auth")) {
-    res.setHeader("Cache-Control", "no-store");
-  }
-
-  next();
-});
-
 // 2. CORS
 app.use(
   cors({

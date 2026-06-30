@@ -21,10 +21,10 @@ export const PYTHON_LIGHT = "var(--color-python-light)";
 export const THEME_COLORS = {
   DEFAULT: "#2c5f8a",
   RED: "#c53030",
-  ORANGE: "#c2410c",
-  AMBER: "#b45309",
-  YELLOW: "#b8860b",
-  LIME: "#4d7c0f",
+  ORANGE: "#d1480e",
+  AMBER: "#cc5a00",
+  YELLOW: "#b3920b",
+  LIME: "#3d7a1a",
   GREEN: "#15803d",
 };
 
@@ -35,10 +35,10 @@ export const THEME_COLORS = {
 export const THEME_HOVER_COVERS = {
   DEFAULT: "#1e415e",
   RED: "#9b2c2c",
-  ORANGE: "#9a3412",
-  AMBER: "#92400e",
+  ORANGE: "#b33c0a",
+  AMBER: "#a84800",
   YELLOW: "#9a7b0b",
-  LIME: "#3f6212",
+  LIME: "#2d5a12",
   GREEN: "#166534",
 };
 
