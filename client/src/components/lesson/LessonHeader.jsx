@@ -95,7 +95,7 @@ const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, onReport }) => {
             </p>
 
             {/* Stats Row */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700 dark:text-gray-300">
               <div className="flex items-center space-x-1 shrink-0">
                 <Clock size={16} />
                 <span>{lesson.duration} min</span>
@@ -146,10 +146,10 @@ const LessonHeader = ({ lesson, isReviewMode, toggleReviewMode, onReport }) => {
 
               <button
                 onClick={onReport}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+                className="p-2 text-gray-500 dark:text-gray-400 rounded-lg transition-colors border border-gray-200 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20 group"
                 title="Report this lesson"
               >
-                <Flag className="h-4 w-4" />
+                <Flag className="h-4 w-4 group-hover:text-red-500 dark:group-hover:text-red-400" />
               </button>
             </div>
           </div>

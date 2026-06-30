@@ -64,7 +64,7 @@ const CodeBlock = ({ code, language = "python" }) => {
                 ? "text-green-400 bg-green-500/10"
                 : isCodeDark
                   ? "text-gray-300 hover:bg-gray-500/10"
-                  : "text-gray-600 hover:bg-gray-500/10"
+                  : "text-gray-700 hover:bg-gray-500/10" // Bumped from 600 to 700
             }`}
           >
             {copied ? (

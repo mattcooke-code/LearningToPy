@@ -118,3 +118,29 @@ html {
   outline: 3px solid #ffd43b;
   outline-offset: 2px;
 }
+
+/* Ensure minimum contrast for all text in lesson content */
+@layer utilities {
+  /* Force minimum contrast on light backgrounds */
+  .text-gray-400:not(.dark .text-gray-400) {
+    color: #4b5563; /* gray-600 */
+  }
+
+  .text-gray-500:not(.dark .text-gray-500) {
+    color: #4b5563; /* gray-600 */
+  }
+
+  /* Figcaption text */
+  figcaption {
+    color: #374151; /* gray-700 */
+  }
+
+  .dark figcaption {
+    color: #d1d5db; /* gray-300 */
+  }
+
+  /* Blockquote text */
+  blockquote:not(.dark blockquote) {
+    color: #374151; /* gray-700 */
+  }
+}

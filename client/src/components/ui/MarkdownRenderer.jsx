@@ -438,7 +438,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
       table: ({ children }) => (
         <div
           className="overflow-x-auto my-8"
-          tabIndex="0"
+          tabIndex={0}
           role="region"
           aria-label="Scrollable table"
         >

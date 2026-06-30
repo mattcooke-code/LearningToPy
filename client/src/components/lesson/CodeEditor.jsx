@@ -2,6 +2,7 @@
 import { useState, useMemo } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
+import { StateField, StateEffect } from "@codemirror/state";
 import { python } from "@codemirror/lang-python";
 import { lintGutter } from "@codemirror/lint";
 import { indentUnit } from "@codemirror/language";
@@ -146,9 +147,6 @@ const createRunToHereGutter = (onRunToLine) => {
     },
   });
 };
-
-import { StateField, StateEffect } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
 
 const setHoveredLine = StateEffect.define();
 
