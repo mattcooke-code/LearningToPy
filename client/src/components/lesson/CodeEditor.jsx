@@ -2,7 +2,7 @@
 import { useState, useMemo } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
-import { StateField, StateEffect } from "@codemirror/state";
+import { StateField, StateEffect, Prec } from "@codemirror/state";
 import { python } from "@codemirror/lang-python";
 import { lintGutter } from "@codemirror/lint";
 import { indentUnit } from "@codemirror/language";
@@ -198,30 +198,35 @@ const CodeEditor = ({
       lintGutter(),
       indentUnit.of("    "),
       EditorView.contentAttributes.of({ "aria-label": "Python code editor" }),
-      EditorView.theme(
-        {
-          ".cm-scroller": {
-            outline: "none",
-          },
-          ".cm-scroller:focus-visible": {
-            outline: "2px solid #4d9eff",
-            outlineOffset: "-2px",
-          },
-          "&.cm-editor .cm-content": {},
+      Prec.highest(
+        EditorView.theme(
+          {
+            ".cm-scroller": {
+              outline: "none",
+            },
+            ".cm-scroller:focus-visible": {
+              outline: "2px solid #4d9eff",
+              outlineOffset: "-2px",
+            },
+            "&.cm-editor .cm-content": {},
 
-          // Lightened from CodeMirror's default oneDark palette (#e06c75)
-          // to meet WCAG 2 AA 4.5:1 contrast against the #282c34 background.
-          ".tok-variableName": {
-            color: "#e9838b",
+            // Lightened from CodeMirror's default oneDark palette (#e06c75)
+            // to meet WCAG 2 AA 4.5:1 contrast against the #282c34 background.
+            // Scoped to .cm-editor and wrapped in Prec.highest so these
+            // beat the built-in oneDark HighlightStyle in the cascade —
+            // an unscoped/unprefixed selector here loses to it.
+            "&.cm-editor .tok-variableName": {
+              color: "#e9838b",
+            },
+            "&.cm-editor .tok-propertyName": {
+              color: "#e9838b",
+            },
+            "&.cm-editor .tok-definition": {
+              color: "#e9838b",
+            },
           },
-          ".tok-propertyName": {
-            color: "#e9838b",
-          },
-          ".tok-definition": {
-            color: "#e9838b",
-          },
-        },
-        { dark: true },
+          { dark: true },
+        ),
       ),
 
       ...(onRunToLine
