@@ -96,9 +96,9 @@ app.use(
       },
       reportOnly: false,
     },
-    crossOriginEmbedderPolicy: true,
+    crossOriginEmbedderPolicy: false,
     crossOriginOpenerPolicy: { policy: "same-origin" },
-    crossOriginResourcePolicy: { policy: "same-origin" },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     dnsPrefetchControl: { allow: false },
     frameguard: { action: "deny" },
     hidePoweredBy: true,
@@ -113,6 +113,12 @@ app.use(
     xssFilter: true,
   }),
 );
+
+app.use((req, res, next) => {
+  res.removeHeader("Cross-Origin-Embedder-Policy");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+});
 
 app.use((req, res, next) => {
   res.setHeader(

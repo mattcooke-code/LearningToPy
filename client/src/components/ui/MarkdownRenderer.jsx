@@ -138,7 +138,42 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
           {children}
         </p>
       ),
-      img: ({ src, alt }) => <img src={src} alt={alt} />,
+      img: ({ src, alt, title }) => {
+        let imageSrc = src;
+        const API_BASE = import.meta.env.VITE_BACKEND_URL;
+
+        if (src?.startsWith("./images/")) {
+          imageSrc = `${API_BASE}/curriculum/Module${moduleId}/images/${src.replace("./images/", "")}`;
+        } else if (src?.startsWith("/curriculum/")) {
+          imageSrc = `${API_BASE}${src}`;
+        } else if (
+          src?.includes("learningtopy.onrender.com") &&
+          API_BASE !== "https://learningtopy.onrender.com"
+        ) {
+          // Replace production URL with localhost for dev
+          imageSrc = src.replace("https://learningtopy.onrender.com", API_BASE);
+        }
+
+        return (
+          <figure className="my-4 md:my-8 text-center">
+            <img
+              src={imageSrc}
+              alt={alt || "Lesson image"}
+              title={title}
+              className={`rounded-xl border shadow-lg w-full max-w-full h-auto ${activeDark ? "border-gray-700" : "border-gray-300"}`}
+              loading="lazy"
+            />
+            {alt && (
+              <figcaption
+                className={`text-xs md:text-sm mt-2 italic px-2 ${activeDark ? "text-gray-300" : "text-gray-700"}`}
+              >
+                {alt}
+              </figcaption>
+            )}
+          </figure>
+        );
+      },
+
       ul: ({ children }) => (
         <ul
           className={`list-disc ml-6 mb-3 space-y-1 ${getContainerTextColor(containerType, activeDark)}`}
@@ -374,6 +409,12 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
           imageSrc = `${API_BASE}/curriculum/Module${moduleId}/images/${src.replace("./images/", "")}`;
         } else if (src?.startsWith("/curriculum/")) {
           imageSrc = `${API_BASE}${src}`;
+        } else if (
+          src?.includes("learningtopy.onrender.com") &&
+          API_BASE !== "https://learningtopy.onrender.com"
+        ) {
+          // Replace production URL with localhost for dev
+          imageSrc = src.replace("https://learningtopy.onrender.com", API_BASE);
         }
 
         return (
