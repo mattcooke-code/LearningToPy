@@ -11,7 +11,13 @@ async function initPyodide() {
     stderr: (text) => postMessage({ type: "stderr", text, id: currentId }),
   });
 
-  // Pre-install all libraries used across the course modules
+  // Pre-install all libraries used across the course modules.
+  // micropip is a Python package, not a JS global — it must be loaded via
+  // loadPackage and then bridged into JS scope with pyimport before it can
+  // be called as micropip.install(...) from here.
+  await pyodide.loadPackage("micropip");
+  const micropip = pyodide.pyimport("micropip");
+
   for (const pkg of ["pandas", "numpy", "tzdata"]) {
     try {
       await micropip.install(pkg);
