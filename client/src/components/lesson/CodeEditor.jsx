@@ -4,8 +4,14 @@ import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
 import { StateField, StateEffect, Prec } from "@codemirror/state";
 import { python } from "@codemirror/lang-python";
+import { tags as t } from "@lezer/highlight";
+import { oneDark } from "@codemirror/theme-one-dark";
 import { lintGutter } from "@codemirror/lint";
-import { indentUnit } from "@codemirror/language";
+import {
+  indentUnit,
+  HighlightStyle,
+  syntaxHighlighting,
+} from "@codemirror/language";
 import { gutter, GutterMarker } from "@codemirror/view";
 import { usePython, useTheme } from "../../context";
 import { Spinner } from "../ui";
@@ -192,48 +198,50 @@ const CodeEditor = ({
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
 
+  // Custom highlight style for tokens that fail WCAG 2 AA contrast under
+  // CodeMirror's default oneDark palette (e.g. #e06c75 on #282c34 = 4.38:1).
+  // Wrapped in Prec.highest below so it overrides oneDark's own
+  // syntaxHighlighting extension regardless of array order — a plain
+  // EditorView.theme() override is not reliably enough, since oneDark's
+  // highlight style and a manually-added one have matching specificity and
+  // @uiw/react-codemirror's theme="dark" prop can re-insert oneDark's style
+  // after user extensions internally.
+  const a11yHighlightStyle = useMemo(
+    () =>
+      HighlightStyle.define([
+        // was #e06c75 → 4.38:1, now #e9838b → ~5.3:1 on #282c34
+        {
+          tag: [t.variableName, t.propertyName, t.definition(t.variableName)],
+          color: "#e9838b",
+        },
+      ]),
+    [],
+  );
+
   const extensions = useMemo(
     () => [
       python(),
       lintGutter(),
       indentUnit.of("    "),
       EditorView.contentAttributes.of({ "aria-label": "Python code editor" }),
-      Prec.highest(
-        EditorView.theme(
-          {
-            ".cm-scroller": {
-              outline: "none",
-            },
-            ".cm-scroller:focus-visible": {
-              outline: "2px solid #4d9eff",
-              outlineOffset: "-2px",
-            },
-            "&.cm-editor .cm-content": {},
-
-            // Lightened from CodeMirror's default oneDark palette (#e06c75)
-            // to meet WCAG 2 AA 4.5:1 contrast against the #282c34 background.
-            // Scoped to .cm-editor and wrapped in Prec.highest so these
-            // beat the built-in oneDark HighlightStyle in the cascade —
-            // an unscoped/unprefixed selector here loses to it.
-            "&.cm-editor .tok-variableName": {
-              color: "#e9838b",
-            },
-            "&.cm-editor .tok-propertyName": {
-              color: "#e9838b",
-            },
-            "&.cm-editor .tok-definition": {
-              color: "#e9838b",
-            },
-          },
-          { dark: true },
-        ),
-      ),
+      ...(isCodeDark
+        ? [oneDark, Prec.highest(syntaxHighlighting(a11yHighlightStyle))]
+        : []),
+      EditorView.theme({
+        ".cm-scroller": {
+          outline: "none",
+        },
+        ".cm-scroller:focus-visible": {
+          outline: "2px solid #4d9eff",
+          outlineOffset: "-2px",
+        },
+      }),
 
       ...(onRunToLine
         ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
         : []),
     ],
-    [onRunToLine],
+    [onRunToLine, isCodeDark, a11yHighlightStyle],
   );
 
   const handleQuickRun = async () => {
@@ -284,7 +292,7 @@ const CodeEditor = ({
           value={value}
           onChange={onChange}
           extensions={extensions}
-          theme={isCodeDark ? "dark" : "light"}
+          theme={isCodeDark ? "none" : "light"}
           height={height}
           editable={!readOnly}
           aria-label="Python code editor"
