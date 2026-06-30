@@ -108,28 +108,28 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
   const dynamicComponents = useMemo(() => {
     return (containerType) => ({
       h1: ({ children }) => (
-        <h2
+        <h1
           id={slugifyHeading(children)}
           className={`text-xl font-semibold mb-3 mt-2 ${getContainerTextColor(containerType, activeDark)}`}
         >
           {children}
-        </h2>
+        </h1>
       ),
       h2: ({ children }) => (
-        <h3
+        <h2
           id={slugifyHeading(children)}
           className={`text-lg font-semibold mb-2 mt-2 ${getContainerTextColor(containerType, activeDark)}`}
         >
           {children}
-        </h3>
+        </h2>
       ),
       h3: ({ children }) => (
-        <h4
+        <h3
           id={slugifyHeading(children)}
           className={`font-semibold mb-1 mt-2 ${getContainerTextColor(containerType, activeDark)}`}
         >
           {children}
-        </h4>
+        </h3>
       ),
       p: ({ children }) => (
         <p
@@ -435,20 +435,49 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
           className={`my-8 border-t ${activeDark ? "border-gray-700" : "border-gray-300"}`}
         />
       ),
-      table: ({ children }) => (
-        <div
-          className="overflow-x-auto my-8"
-          tabIndex={0}
-          role="region"
-          aria-label="Scrollable table"
-        >
-          <table
-            className={`min-w-full divide-y border rounded-lg shadow-sm ${activeDark ? "divide-gray-700 border-gray-700" : "divide-gray-200 border-gray-300"}`}
+      table: ({ children }) => {
+        // Extract text from first header cell for unique label
+        let labelText = "Table";
+        if (Array.isArray(children)) {
+          const thead = children.find(
+            (c) => c?.type === "thead" || c?.props?.node?.tagName === "thead",
+          );
+          if (thead) {
+            const rows =
+              thead?.props?.children || thead?.props?.node?.children || [];
+            const firstRow = Array.isArray(rows) ? rows[0] : rows;
+            const cells =
+              firstRow?.props?.children ||
+              firstRow?.props?.node?.children ||
+              [];
+            const firstCell = Array.isArray(cells) ? cells[0] : cells;
+            if (typeof firstCell === "string") {
+              labelText = firstCell.substring(0, 30);
+            } else if (firstCell?.props?.children) {
+              const cellText = firstCell.props.children;
+              labelText =
+                typeof cellText === "string"
+                  ? cellText.substring(0, 30)
+                  : "Table";
+            }
+          }
+        }
+
+        return (
+          <div
+            className="overflow-x-auto my-8"
+            tabIndex={0}
+            role="region"
+            aria-label={labelText}
           >
-            {children}
-          </table>
-        </div>
-      ),
+            <table
+              className={`min-w-full divide-y border rounded-lg shadow-sm ${activeDark ? "divide-gray-700 border-gray-700" : "divide-gray-200 border-gray-300"}`}
+            >
+              {children}
+            </table>
+          </div>
+        );
+      },
       th: ({ children }) => (
         <th
           className={`px-6 py-4 text-left text-sm font-semibold uppercase border-b ${activeDark ? "text-gray-200 bg-gray-900/50 border-gray-700" : "text-gray-900 bg-gray-100 border-gray-300"}`}
