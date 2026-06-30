@@ -42,6 +42,17 @@ export const THEME_HOVER_COVERS = {
   GREEN: "#166534",
 };
 
+// Text color to use on each theme background (for white-text-on-dark-bg situations)
+export const THEME_TEXT_COLORS = {
+  DEFAULT: "#ffffff",
+  RED: "#ffffff",
+  ORANGE: "#ffffff",
+  AMBER: "#ffffff",
+  YELLOW: "#1a1a1a", // Dark text on yellow!
+  LIME: "#ffffff",
+  GREEN: "#ffffff",
+};
+
 /**
  * Routes that use default theme styling instead of progress-based theming.
  * These paths maintain consistent Python blue theming regardless of user progress.

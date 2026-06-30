@@ -267,7 +267,7 @@ const Dashboard = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 to="/modules"
-                className="text-white px-6 py-3 rounded-lg font-semibold transition inline-flex items-center bg-theme hover:bg-theme-hover "
+                className="text-(--theme-text-color) px-6 py-3 rounded-lg font-semibold transition inline-flex items-center bg-theme hover:bg-theme-hover "
               >
                 <BookOpen className="h-5 w-5 mr-2" />
                 Review Modules
@@ -325,7 +325,7 @@ const Dashboard = () => {
 
             <Link
               to={`/modules`}
-              className="text-white px-8 py-3 rounded-lg font-semibold transition inline-flex items-center bg-theme hover:bg-theme-hover "
+              className="text-(--theme-text-color) px-8 py-3 rounded-lg font-semibold transition inline-flex items-center bg-theme hover:bg-theme-hover "
             >
               Continue Module {progressData.currentModule.order}
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -341,7 +341,7 @@ const Dashboard = () => {
             </p>
             <Link
               to="/modules/1"
-              className="text-white px-8 py-3 rounded-lg font-semibold transition inline-flex items-center bg-theme hover:bg-theme-hover"
+              className="text-(--theme-text-color) px-8 py-3 rounded-lg font-semibold transition inline-flex items-center bg-theme hover:bg-theme-hover"
             >
               Start Learning
               <ArrowRight className="ml-2 h-5 w-5" />

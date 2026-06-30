@@ -35,7 +35,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { THEME_COLORS } from "../constants/themeConstants";
+import { THEME_COLORS, THEME_TEXT_COLORS } from "../constants/themeConstants";
 import {
   resolveCourseThemeColor,
   getStoredThemeColor,
@@ -175,6 +175,11 @@ export const ThemeProvider = ({ children }) => {
    */
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  /**
+   * Text colour change based on bg themeColor
+   */
+  const [themeTextColor, setThemeTextColor] = useState("#ffffff");
+
   // ---------------------------------------------------------------------------
   // System Preference Detection
   // ---------------------------------------------------------------------------
@@ -230,6 +235,23 @@ export const ThemeProvider = ({ children }) => {
    */
   useEffect(() => {
     setStoredThemeColor(themeColor);
+  }, [themeColor]);
+
+  /**
+   * Theme text color
+   */
+  useEffect(() => {
+    applyThemeColor(themeColor);
+
+    let textColor = "#ffffff";
+    if (themeColor === THEME_COLORS.YELLOW) {
+      textColor = THEME_TEXT_COLORS.YELLOW;
+    } else if (themeColor === THEME_COLORS.AMBER) {
+      textColor = THEME_TEXT_COLORS.AMBER;
+    }
+
+    document.documentElement.style.setProperty("--theme-text-color", textColor);
+    setThemeTextColor(textColor);
   }, [themeColor]);
 
   /**
@@ -398,6 +420,7 @@ export const ThemeProvider = ({ children }) => {
     // Main theme colour
     /** @type {string} Current accent colour */
     themeColor,
+    themeTextColor,
     /** @type {Function} updateThemeFromCourseProgress(percentage) */
     updateThemeFromCourseProgress,
     /** @type {Function} getModuleThemeColor(percentage) */

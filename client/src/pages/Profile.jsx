@@ -317,7 +317,7 @@ const Profile = () => {
         </h2>
         <button
           onClick={openModal}
-          className="inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-sm transition bg-theme hover:bg-theme-hover"
+          className="inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold text-(--theme-text-color) shadow-sm transition bg-theme hover:bg-theme-hover"
         >
           <Award className="mr-2 h-4 w-4" />
           View All Badges
