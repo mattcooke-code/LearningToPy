@@ -12,15 +12,12 @@ async function initPyodide() {
   });
 
   // Pre-install all libraries used across the course modules
-  try {
-    await pyodide.loadPackage("micropip");
-    await pyodide.runPythonAsync(`
-      import micropip
-      # Pre-download heavy packages to the browser cache
-      await micropip.install(['pandas', 'numpy', 'tzdata', 'sqlite3'])
-    `);
-  } catch (err) {
-    console.error("Preload error:", err);
+  for (const pkg of ["pandas", "numpy", "tzdata"]) {
+    try {
+      await micropip.install(pkg);
+    } catch (err) {
+      console.error(`Failed to preload ${pkg}:`, err);
+    }
   }
 
   postMessage({ type: "ready" });

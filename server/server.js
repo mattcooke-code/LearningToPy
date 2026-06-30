@@ -82,8 +82,17 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'", config.getFrontendUrl()],
-        scriptSrc: ["'self'"],
+        connectSrc: [
+          "'self'",
+          config.getFrontendUrl(),
+          "https://cdn.jsdelivr.net", // pyodide.js, .wasm binary, and package wheels fetched at runtime
+        ],
+        scriptSrc: [
+          "'self'",
+          "https://cdn.jsdelivr.net", // fixes your importScripts() error directly
+          "'wasm-unsafe-eval'", // Chrome's CSP3 directive for WebAssembly.compile/instantiate
+        ],
+        workerSrc: ["'self'", "blob:"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:", config.getFrontendUrl()],
         fontSrc: ["'self'", config.getFrontendUrl()],
