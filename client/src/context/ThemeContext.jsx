@@ -35,6 +35,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { THEME_COLORS, THEME_TEXT_COLORS } from "../constants/themeConstants";
 import {
   resolveCourseThemeColor,
@@ -43,6 +44,7 @@ import {
   getTextColorForTheme,
   resetStoredThemeColor,
   applyThemeColor,
+  shouldUseThemeColor,
   DEFAULT_THEME_COLOR,
 } from "../utils";
 
@@ -181,6 +183,8 @@ export const ThemeProvider = ({ children }) => {
    */
   const themeTextColor = getTextColorForTheme(themeColor);
 
+  const location = useLocation();
+
   // ---------------------------------------------------------------------------
   // System Preference Detection
   // ---------------------------------------------------------------------------
@@ -244,6 +248,19 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("codeTheme", codeTheme);
   }, [codeTheme]);
+
+  /**
+   * Ensure defaults apply when relevant
+   */
+  useEffect(() => {
+    if (!shouldUseThemeColor(location.pathname)) {
+      // Reset to default text color on non-themed pages
+      document.documentElement.style.setProperty(
+        "--theme-text-color",
+        "#ffffff",
+      );
+    }
+  }, [location.pathname]);
 
   // ---------------------------------------------------------------------------
   // Public API — Theme Color

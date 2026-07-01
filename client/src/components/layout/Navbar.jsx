@@ -1,7 +1,11 @@
 import { memo, useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../../context";
-import { PYTHON_BLUE, PYTHON_DARK } from "../../constants/themeConstants";
+import {
+  PYTHON_BLUE,
+  PYTHON_DARK,
+  PYTHON_LIGHT,
+} from "../../constants/themeConstants";
 import { shouldUseThemeColor } from "../../utils";
 import { ThemeToggle } from "../ui";
 import {
@@ -45,8 +49,8 @@ const Navbar = memo(function Navbar() {
   const navbarText = shouldUseThemeColor(location.pathname)
     ? "var(--theme-text-color, #ffffff)"
     : isDarkMode
-      ? "text-python-light"
-      : "text-white";
+      ? PYTHON_LIGHT
+      : "#ffffff";
 
   const linkHoverClass =
     "hover:text-python-yellow hover:bg-black/10 transition px-3 py-2 rounded-md";

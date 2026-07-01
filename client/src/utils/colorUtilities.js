@@ -27,14 +27,14 @@ import {
  *
  * @type {string}
  */
-export const DEFAULT_THEME_COLOR = "#3776ab";
+export const DEFAULT_THEME_COLOR = "#2c5f8a";
 
 /**
  * Default hover colour (Python yellow), paired with `DEFAULT_THEME_COLOR`.
  *
  * @type {string}
  */
-export const DEFAULT_HOVER_COLOR = "#ffd43b";
+export const DEFAULT_HOVER_COLOR = "#1e415e";
 
 /**
  * localStorage key under which the user's chosen theme colour is persisted.

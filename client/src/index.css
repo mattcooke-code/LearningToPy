@@ -13,7 +13,7 @@
 
   /* Theme colors driven by JavaScript CSS variables */
   --color-theme: var(--theme-color, #2c5f8a);
-  --color-theme-hover: var(--theme-hover-color, #e6b800);
+  --color-theme-hover: var(--theme-hover-color, #1e415e);
   --color-theme-text: var(--theme-text-color, #ffffff);
 
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Segoe UI", Roboto;

@@ -82,7 +82,7 @@ const ModuleCard = ({ module, isLocked }) => {
       <div className="mb-4">
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
           <span>Progress</span>
-          <span style={{ color: accentTextColor, fontWeight: "600" }}>
+          <span className="font-extrabold text-gray-800 dark:text-gray-200">
             {moduleLessonProgress}%
           </span>
         </div>
