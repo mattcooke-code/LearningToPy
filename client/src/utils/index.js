@@ -5,6 +5,7 @@ export {
   resolveCourseThemeColor,
   getHoverColor,
   getStoredThemeColor,
+  getTextColorForTheme,
   resetStoredThemeColor,
   setStoredThemeColor,
   shouldUseThemeColor,

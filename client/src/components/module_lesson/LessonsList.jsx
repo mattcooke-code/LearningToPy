@@ -8,11 +8,18 @@ import LessonItem from "./LessonItem";
  * @param {Object} props
  * @param {Array} props.lessons - Array of lesson objects to display
  * @param {string} props.moduleId - Parent module identifier
- * @param {string} props.accentColor - Theme color for lesson items
+ * @param {string} props.accentColor - Theme background color for lesson items
+ * @param {string} props.textColor - Theme text color for lesson items
  * @param {React.ReactNode} [props.emptyState] - Optional custom empty state component
  */
 
-const LessonsList = ({ lessons, moduleId, accentColor, emptyState }) => {
+const LessonsList = ({
+  lessons,
+  moduleId,
+  accentColor,
+  textColor,
+  emptyState,
+}) => {
   if (lessons.length === 0) {
     return (
       <div className="text-center py-12 bg-white dark:bg-gray-700 rounded-lg shadow-md">
@@ -37,6 +44,7 @@ const LessonsList = ({ lessons, moduleId, accentColor, emptyState }) => {
           moduleId={moduleId}
           isLocked={false}
           accentColor={accentColor}
+          textColor={textColor}
         />
       ))}
     </div>

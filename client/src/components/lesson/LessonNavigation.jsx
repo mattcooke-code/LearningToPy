@@ -31,7 +31,8 @@ import {
  * @param {Object} props.nextLesson - Next lesson data or null if no next lesson
  * @param {Object} props.lesson - Current lesson data
  * @param {boolean} props.isReviewMode - Whether in review mode
- * @param {string} props.themeColor - Theme color for styling
+ * @param {string} props.themeColor - Theme bg color for styling
+ * @param {string} props.themeTextColor - Theme text color for styling
  * @param {Object} props.module - Current module data with quiz information
  * @param {boolean} props.lessonFullyCompleted - Whether current lesson is fully completed
  * @returns {JSX.Element} Navigation interface with conditional buttons and indicators
@@ -79,6 +80,7 @@ const LessonNavigation = ({
   lesson,
   isReviewMode,
   themeColor,
+  themeTextColor = "#ffffff",
   module,
   lessonFullyCompleted,
 }) => {
@@ -92,7 +94,7 @@ const LessonNavigation = ({
       {/* Back Button */}
       <Link
         to={`/modules/${module?._id}/lessons`}
-        style={{ backgroundColor: themeColor }}
+        style={{ backgroundColor: themeColor, color: themeTextColor }}
         className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
       >
         <ArrowLeft size={20} />
@@ -104,7 +106,7 @@ const LessonNavigation = ({
         {nextLesson && lessonFullyCompleted && (
           <Link
             to={`/lessons/${nextLesson._id}`}
-            style={{ backgroundColor: themeColor }}
+            style={{ backgroundColor: themeColor, color: themeTextColor }}
             className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
           >
             <span>Next Lesson</span>
@@ -115,7 +117,7 @@ const LessonNavigation = ({
         {isLastLessonOfModule && moduleQuizExists && !moduleQuizCompleted && (
           <Link
             to={`/modules/${lesson.moduleId}/quiz`}
-            style={{ backgroundColor: themeColor }}
+            style={{ backgroundColor: themeColor, color: themeTextColor }}
             className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
           >
             <Trophy size={20} />

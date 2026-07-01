@@ -38,9 +38,9 @@ const ModulesHeader = ({ completedModules, totalModules }) => {
             {modulesCompletionProgress}%
           </span>
         </div>
-        <div className="w-full bg-gray-200 dark:text-gray-200 rounded-full h-3">
+        <div className="w-full bg-gray-200 dark:text-gray-200 rounded-full h-3 ">
           <div
-            className="h-3 rounded-full transition-all duration-500"
+            className="h-3 rounded-full transition-all duration-500 "
             style={{
               width: `${modulesCompletionProgress}%`,
               backgroundColor: themeColor,

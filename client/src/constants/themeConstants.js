@@ -22,8 +22,8 @@ export const THEME_COLORS = {
   DEFAULT: "#2c5f8a",
   RED: "#c53030",
   ORANGE: "#d1480e",
-  AMBER: "#cc5a00",
-  YELLOW: "#b3920b",
+  AMBER: "#e67a00",
+  YELLOW: "#ffd700",
   LIME: "#3d7a1a",
   GREEN: "#15803d",
 };
@@ -37,7 +37,7 @@ export const THEME_HOVER_COVERS = {
   RED: "#9b2c2c",
   ORANGE: "#b33c0a",
   AMBER: "#a84800",
-  YELLOW: "#9a7b0b",
+  YELLOW: "#b89200",
   LIME: "#2d5a12",
   GREEN: "#166534",
 };
@@ -47,7 +47,7 @@ export const THEME_TEXT_COLORS = {
   DEFAULT: "#ffffff",
   RED: "#ffffff",
   ORANGE: "#ffffff",
-  AMBER: "#ffffff",
+  AMBER: "#1a1a1a",
   YELLOW: "#1a1a1a", // Dark text on yellow!
   LIME: "#ffffff",
   GREEN: "#ffffff",

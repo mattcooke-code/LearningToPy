@@ -13,7 +13,8 @@ import { PlayCircle, Award, CheckCircle } from "lucide-react";
  * @param {Object} props
  * @param {Array} props.lessons - Array of lesson objects with completion status
  * @param {string} props.moduleId - Module identifier for quiz routing
- * @param {string} props.accentColor - Theme color for primary action buttons
+ * @param {string} props.accentColor - Theme background color for primary action buttons
+ * @param {string} props.textColor - Theme text color for primary action buttons
  * @param {Function} props.onBackToModules - Callback to return to modules list
  * @param {boolean} props.quizCompleted - Whether user has completed the module quiz
  */
@@ -28,6 +29,7 @@ const QuickActions = ({
   lessons,
   moduleId,
   accentColor,
+  textColor,
   onBackToModules,
   quizCompleted,
 }) => {
@@ -103,7 +105,7 @@ const QuickActions = ({
           <Link
             to={`/modules/${moduleId}/quiz`}
             className={`${BASE_BTN_CLASS} text-white`}
-            style={{ backgroundColor: accentColor }}
+            style={{ backgroundColor: accentColor, color: textColor }}
           >
             <span>Take Final Quiz</span>
           </Link>
@@ -129,7 +131,7 @@ const QuickActions = ({
           <Link
             to={`/lessons/${nextLesson._id}`}
             className={`${BASE_BTN_CLASS} text-white`}
-            style={{ backgroundColor: accentColor }}
+            style={{ backgroundColor: accentColor, color: textColor }}
           >
             <PlayCircle size={20} className="shrink-0" />
             <span className="truncate">Continue: {nextLesson.title}</span>

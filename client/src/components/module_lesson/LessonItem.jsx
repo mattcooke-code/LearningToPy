@@ -23,11 +23,13 @@ import {
  * @param {boolean} props.lesson.isCompleted - Whether user has completed this lesson
  * @param {string} props.moduleId - Parent module identifier
  * @param {boolean} props.isLocked - Whether lesson is locked by prerequisites
- * @param {string} [props.accentColor] - Theme color for interactive elements
+ * @param {string} [props.accentColor] - Theme bg color for interactive elements
+ * @param {string} [props.textColor] - Theme text color for interactive elements
  */
 
-const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
+const LessonItem = ({ lesson, moduleId, isLocked, accentColor, textColor }) => {
   const resolvedAccent = accentColor || "#3776AB";
+  const resolvedText = textColor || "#ffffff";
 
   return (
     <div
@@ -54,8 +56,8 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
             style={
               !lesson.isCompleted && !isLocked
                 ? {
-                    backgroundColor: `${resolvedAccent}20`,
-                    color: resolvedAccent,
+                    backgroundColor: `${resolvedAccent}`,
+                    color: `${resolvedText}90`,
                   }
                 : {}
             }
@@ -90,7 +92,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
               </div>
               <span
                 className="capitalize px-2 py-0.5 text-white font-bold rounded-full shrink-0"
-                style={{ backgroundColor: resolvedAccent }}
+                style={{ backgroundColor: resolvedAccent, color: resolvedText }}
               >
                 {lesson.contentType}
               </span>
@@ -104,7 +106,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor }) => {
             <Link
               to={`/lessons/${lesson._id}`}
               className="flex items-center justify-center space-x-2 text-white py-2 px-6 rounded-lg font-semibold hover:opacity-90 transition w-full"
-              style={{ backgroundColor: resolvedAccent }}
+              style={{ backgroundColor: resolvedAccent, color: resolvedText }}
             >
               <span>{lesson.isCompleted ? "Review" : "Start"}</span>
               <ChevronRight size={16} />

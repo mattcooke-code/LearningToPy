@@ -46,13 +46,13 @@ const BackToTopButton = memo(function BackToTopButton({
 
   // Arrow colours — swap with background for contrast
   const baseArrow = useThemeColor
-    ? "white"
+    ? "var(--theme-text-color, #ffffff)"
     : isDarkMode
       ? "#1e415e" // python-dark on yellow bg
       : "white"; // white on blue bg
 
   const hoverArrow = useThemeColor
-    ? "white"
+    ? "var(--theme-text-color, #ffffff)"
     : isDarkMode
       ? "white" // white on blue bg
       : "#1e415e"; // python-dark on yellow bg

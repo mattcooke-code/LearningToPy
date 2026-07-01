@@ -28,10 +28,12 @@ import {
  */
 
 const ModuleCard = ({ module, isLocked }) => {
-  const { getModuleThemeColor } = useTheme();
+  const { getModuleThemeColor, getModuleTextColor } = useTheme();
 
   const moduleLessonProgress = module.moduleLessonProgress || 0;
   const moduleAccentColor = getModuleThemeColor(moduleLessonProgress);
+
+  const accentTextColor = getModuleTextColor(moduleLessonProgress);
 
   return (
     <div
@@ -80,7 +82,7 @@ const ModuleCard = ({ module, isLocked }) => {
       <div className="mb-4">
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
           <span>Progress</span>
-          <span style={{ color: moduleAccentColor, fontWeight: "600" }}>
+          <span style={{ color: accentTextColor, fontWeight: "600" }}>
             {moduleLessonProgress}%
           </span>
         </div>
@@ -131,7 +133,7 @@ const ModuleCard = ({ module, isLocked }) => {
         <Link
           to={`/modules/${module._id}/lessons`}
           className="w-full text-white py-2 px-4 rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center space-x-2"
-          style={{ backgroundColor: moduleAccentColor }}
+          style={{ backgroundColor: moduleAccentColor, color: accentTextColor }}
         >
           <PlayCircle size={16} />
           <span>

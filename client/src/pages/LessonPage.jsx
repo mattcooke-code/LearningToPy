@@ -80,7 +80,8 @@ const LessonPage = () => {
   const { id: lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { themeColor, updateThemeFromCourseProgress } = useTheme();
+  const { themeColor, textThemeColor, updateThemeFromCourseProgress } =
+    useTheme();
   const { showToast } = useNotification();
   const isCompletingRef = useRef(false);
 
@@ -338,6 +339,7 @@ const LessonPage = () => {
         module={module}
         isReviewMode={isReviewMode}
         themeColor={themeColor}
+        textThemeColor={textThemeColor}
         lessonFullyCompleted={lessonFullyCompleted}
       />
       <BackToTopButton />

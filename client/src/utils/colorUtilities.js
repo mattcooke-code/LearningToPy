@@ -15,7 +15,11 @@
  * @requires ../constants/themeConstants
  */
 
-import { THEME_COLORS, THEME_HOVER_COVERS } from "../constants/themeConstants";
+import {
+  THEME_COLORS,
+  THEME_HOVER_COVERS,
+  THEME_TEXT_COLORS,
+} from "../constants/themeConstants";
 
 /**
  * Default accent colour (Python blue), used whenever no valid colour is
@@ -131,6 +135,7 @@ export const applyThemeColor = (color) => {
   const root = document.documentElement;
   root.style.setProperty("--theme-color", color);
   root.style.setProperty("--theme-hover-color", getHoverColor(color));
+  root.style.setProperty("--theme-text-color", getTextColorForTheme(color));
 };
 
 /**
@@ -160,4 +165,15 @@ export const setStoredThemeColor = (color) => {
 export const resetStoredThemeColor = () => {
   applyThemeColor(DEFAULT_THEME_COLOR);
   localStorage.removeItem(THEME_COLOR_STORAGE_KEY);
+};
+
+/**
+ * Theme Text Color Helper
+ */
+export const getTextColorForTheme = (color) => {
+  const entry = Object.entries(THEME_COLORS).find(([, hex]) => hex === color);
+  if (entry) {
+    return THEME_TEXT_COLORS[entry[0]] || "#ffffff";
+  }
+  return "#ffffff";
 };

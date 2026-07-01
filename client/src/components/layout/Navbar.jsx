@@ -43,7 +43,7 @@ const Navbar = memo(function Navbar() {
       : PYTHON_BLUE;
 
   const navbarText = shouldUseThemeColor(location.pathname)
-    ? "text-white"
+    ? "var(--theme-text-color, #ffffff)"
     : isDarkMode
       ? "text-python-light"
       : "text-white";
@@ -69,8 +69,8 @@ const Navbar = memo(function Navbar() {
 
   return (
     <nav
-      style={{ backgroundColor: navbarBg }}
-      className={`${navbarText} shadow-lg transition-colors duration-500 relative lg:sticky lg:top-0 z-100`}
+      style={{ backgroundColor: navbarBg, color: navbarText }}
+      className="shadow-lg transition-colors duration-500 relative lg:sticky lg:top-0 z-100"
       aria-label="Main navigation"
     >
       <div className="container mx-auto px-4 lg:px-8">

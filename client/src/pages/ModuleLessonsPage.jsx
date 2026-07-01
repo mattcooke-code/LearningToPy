@@ -59,7 +59,7 @@ const ModuleLessonsPage = () => {
   const { moduleId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { getModuleThemeColor } = useTheme();
+  const { getModuleThemeColor, getModuleTextColor } = useTheme();
 
   const [moduleData, setModuleData] = useState(null);
   const [lessons, setLessons] = useState([]);
@@ -102,6 +102,7 @@ const ModuleLessonsPage = () => {
   const { completedLessons, totalLessons, moduleLessonProgress } =
     calculateModuleLessonProgress(lessons);
   const moduleAccentColor = getModuleThemeColor(moduleLessonProgress);
+  const moduleAccentText = getModuleTextColor(moduleLessonProgress);
 
   if (loading) return <LoadingState message="Loading module content..." />;
   if (error)
@@ -143,6 +144,7 @@ const ModuleLessonsPage = () => {
           lessons={lessons}
           moduleId={moduleId}
           accentColor={moduleAccentColor}
+          textColor={moduleAccentText}
           emptyState={emptyStateButton}
         />
 
@@ -151,6 +153,7 @@ const ModuleLessonsPage = () => {
             lessons={lessons}
             moduleId={moduleId}
             accentColor={moduleAccentColor}
+            textColor={moduleAccentText}
             onBackToModules={() => navigate("/modules")}
             quizCompleted={moduleData?.quizCompleted}
           />

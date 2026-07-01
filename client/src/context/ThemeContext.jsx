@@ -40,6 +40,7 @@ import {
   resolveCourseThemeColor,
   getStoredThemeColor,
   setStoredThemeColor,
+  getTextColorForTheme,
   resetStoredThemeColor,
   applyThemeColor,
   DEFAULT_THEME_COLOR,
@@ -176,9 +177,9 @@ export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   /**
-   * Text colour change based on bg themeColor
+   * Access Text Theme Color from colorUtilities
    */
-  const [themeTextColor, setThemeTextColor] = useState("#ffffff");
+  const themeTextColor = getTextColorForTheme(themeColor);
 
   // ---------------------------------------------------------------------------
   // System Preference Detection
@@ -238,23 +239,6 @@ export const ThemeProvider = ({ children }) => {
   }, [themeColor]);
 
   /**
-   * Theme text color
-   */
-  useEffect(() => {
-    applyThemeColor(themeColor);
-
-    let textColor = "#ffffff";
-    if (themeColor === THEME_COLORS.YELLOW) {
-      textColor = THEME_TEXT_COLORS.YELLOW;
-    } else if (themeColor === THEME_COLORS.AMBER) {
-      textColor = THEME_TEXT_COLORS.AMBER;
-    }
-
-    document.documentElement.style.setProperty("--theme-text-color", textColor);
-    setThemeTextColor(textColor);
-  }, [themeColor]);
-
-  /**
    * Persist `codeTheme` to localStorage on change.
    */
   useEffect(() => {
@@ -306,6 +290,15 @@ export const ThemeProvider = ({ children }) => {
     if (moduleLessonProgress <= 85) return THEME_COLORS.LIME;
     return THEME_COLORS.GREEN;
   }, []);
+
+  const getModuleTextColor = useCallback((moduleLessonProgress) => {
+    if (moduleLessonProgress <= 25) return "#ffffff";
+    if (moduleLessonProgress <= 40) return "#ffffff";
+    if (moduleLessonProgress <= 55) return "#1a1a1a";
+    if (moduleLessonProgress <= 70) return "#1a1a1a";
+    if (moduleLessonProgress <= 85) return "#ffffff";
+    return "#ffffff";
+  });
 
   /**
    * Reset the theme colour to its default value without affecting UI or code
@@ -425,6 +418,8 @@ export const ThemeProvider = ({ children }) => {
     updateThemeFromCourseProgress,
     /** @type {Function} getModuleThemeColor(percentage) */
     getModuleThemeColor,
+    /** @type {Function} getModuleTextColor(percentage) */
+    getModuleTextColor,
     /** @type {Function} resetTheme() */
     resetTheme,
     /** @type {Function} setDefaultTheme() */
