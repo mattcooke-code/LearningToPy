@@ -57,7 +57,7 @@ const LessonItem = ({ lesson, moduleId, isLocked, accentColor, textColor }) => {
               !lesson.isCompleted && !isLocked
                 ? {
                     backgroundColor: `${resolvedAccent}`,
-                    color: `${resolvedText}90`,
+                    color: `${resolvedText}95`,
                   }
                 : {}
             }
