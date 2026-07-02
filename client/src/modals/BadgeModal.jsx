@@ -30,7 +30,6 @@ import { BADGE_LIBRARY } from "../data/badges";
  * @param {Object} [props.progressMap={}] - Object mapping badge IDs to progress percentages
  * @returns {JSX.Element} Badge gallery with progress tracking and visual feedback
  */
-
 const BadgeModal = ({
   isOpen,
   onClose,
@@ -54,102 +53,117 @@ const BadgeModal = ({
         Discover every badge you can earn and track your progress.
       </p>
 
-      <div className="grid grid-cols-1 gap-4 overflow-y-auto pr-2 sm:grid-cols-2 lg:grid-cols-3 max-h-[60vh]">
-        {BADGE_LIBRARY.map((badge) => {
-          const isEarned = earnedSet.has(badge.id);
-          const progress = isEarned
-            ? 100
-            : Math.min(progressMap[badge.id] || 0, 100);
-          const hasProgress = !isEarned && progress > 0;
+      <div
+        className="grid grid-cols-1 gap-4 overflow-y-auto pr-2 sm:grid-cols-2 lg:grid-cols-3 max-h-[60vh]"
+        tabIndex={0}
+        role="region"
+        aria-label="Badge gallery"
+      >
+        {BADGE_LIBRARY.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+            No badges available
+          </div>
+        ) : (
+          BADGE_LIBRARY.map((badge) => {
+            const isEarned = earnedSet.has(badge.id);
+            const progress = isEarned
+              ? 100
+              : Math.min(progressMap[badge.id] || 0, 100);
+            const hasProgress = !isEarned && progress > 0;
 
-          return (
-            <div
-              key={badge.id}
-              className={`group flex h-full flex-col rounded-2xl border bg-white dark:bg-gray-600 p-5 shadow-sm transition hover:shadow-md ${
-                isEarned ? "border-green-200" : "border-gray-200"
-              }`}
-            >
-              <div className="flex items-center space-x-4">
-                <div
-                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border ${
-                    isEarned ? "border-green-300" : "border-gray-200"
-                  }`}
-                >
-                  {badge.image ? (
-                    <img
-                      src={badge.image}
-                      alt={badge.name}
-                      /* - aspect-square: Forces the 1:1 shape
-           - object-cover: Crops the image to fill the square without stretching
-           - w-full h-full: Ensures it fills the 16x16 container
-        */
-                      className={`aspect-square h-full w-full object-cover transition ${
-                        isEarned ? "" : "grayscale opacity-60"
-                      }`}
-                    />
-                  ) : (
-                    <div
-                      className={`flex h-full w-full items-center justify-center text-2xl font-semibold ${
-                        isEarned
-                          ? "bg-green-100 text-green-600"
-                          : "bg-gray-100 text-gray-400"
-                      }`}
-                    >
-                      {badge.name.charAt(0)}
+            return (
+              <div
+                key={badge.id}
+                className={`group flex h-full flex-col rounded-2xl border bg-white dark:bg-gray-600 p-5 shadow-sm transition hover:shadow-md ${
+                  isEarned ? "border-green-200" : "border-gray-200"
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div
+                    className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border ${
+                      isEarned ? "border-green-300" : "border-gray-200"
+                    }`}
+                  >
+                    {badge.image ? (
+                      <img
+                        src={badge.image}
+                        alt={badge.name}
+                        className={`aspect-square h-full w-full object-cover transition ${
+                          isEarned ? "" : "grayscale opacity-60"
+                        }`}
+                      />
+                    ) : (
+                      <div
+                        className={`flex h-full w-full items-center justify-center text-2xl font-semibold ${
+                          isEarned
+                            ? "bg-green-100 text-green-600"
+                            : "bg-gray-100 text-gray-400"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {badge.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {badge.name}
+                      </h3>
+                      {isEarned && (
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-700 dark:text-green-100">
+                          Earned
+                        </span>
+                      )}
+                      {!isEarned && hasProgress && (
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-700 dark:text-blue-100">
+                          In progress
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {badge.name}
-                    </h3>
-                    {isEarned && (
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:bg-green-700 dark:text-green-100">
-                        Earned
-                      </span>
-                    )}
-                    {!isEarned && hasProgress && (
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-700 dark:text-blue-100">
-                        In progress
-                      </span>
-                    )}
+                    <p className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-300">
+                      {badge.category}
+                    </p>
                   </div>
-                  <p className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-300">
-                    {badge.category}
-                  </p>
                 </div>
-              </div>
 
-              <p className="mt-4 text-sm text-gray-600 dark:text-python-light">
-                {badge.description}
-              </p>
-              <p className="mt-3 text-sm font-medium text-gray-800 dark:text-gray-200">
-                How to earn:
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-200">
-                {badge.requirement}
-              </p>
+                <p className="mt-4 text-sm text-gray-600 dark:text-python-light">
+                  {badge.description}
+                </p>
+                <p className="mt-3 text-sm font-medium text-gray-800 dark:text-gray-200">
+                  How to earn:
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-200">
+                  {badge.requirement}
+                </p>
 
-              {!isEarned && (
-                <div className="mt-4">
-                  <div className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-300 ">
-                    <span>Progress</span>
-                    <span>{progress}%</span>
-                  </div>
-                  <div className="mt-2 h-2 w-full rounded-full bg-gray-200">
+                {!isEarned && (
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-300">
+                      <span>Progress</span>
+                      <span>{progress}%</span>
+                    </div>
                     <div
-                      className={`h-2 rounded-full ${
-                        hasProgress ? "bg-blue-500" : "bg-gray-300"
-                      }`}
-                      style={{ width: `${progress}%` }}
-                    ></div>
+                      className="mt-2 h-2 w-full rounded-full bg-gray-200"
+                      role="progressbar"
+                      aria-valuenow={progress}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${badge.name} progress: ${progress}%`}
+                    >
+                      <div
+                        className={`h-2 rounded-full ${
+                          hasProgress ? "bg-blue-500" : "bg-gray-300"
+                        }`}
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </BaseModal>
   );
