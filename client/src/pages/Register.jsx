@@ -252,9 +252,9 @@ const Register = () => {
 
             {showAgeInfo && (
               <div className="absolute z-10 mt-2 w-full bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">
+                <h2 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">
                   Why We Ask for Your Age
-                </h4>
+                </h2>
                 <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                   <li>
                     • We need to verify you're at least 13 (required by law)
@@ -281,9 +281,9 @@ const Register = () => {
               <div className="flex items-start space-x-3">
                 <span className="text-2xl">{ageInfo.icon}</span>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                  <h2 className="font-semibold text-gray-900 dark:text-white text-sm">
                     {ageInfo.title}
-                  </h4>
+                  </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                     {ageInfo.description}
                   </p>
