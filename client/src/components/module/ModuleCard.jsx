@@ -55,7 +55,10 @@ const ModuleCard = ({ module, isLocked }) => {
 
       {/* Completed Badge */}
       {module.isCompleted && (
-        <div className="absolute -top-3 -right-3 bg-green-500 text-white p-2 rounded-full">
+        <div
+          className="absolute -top-3 -right-3  p-2 rounded-full"
+          style={{ backgroundColor: moduleAccentColor, color: accentTextColor }}
+        >
           <CheckCircle size={20} />
         </div>
       )}
@@ -124,7 +127,8 @@ const ModuleCard = ({ module, isLocked }) => {
       ) : module.isCompleted ? (
         <Link
           to={`/modules/${module._id}/lessons`}
-          className="w-full bg-green-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-600 transition flex items-center justify-center space-x-2"
+          className="w-full  py-2 px-4 rounded-lg font-semibold hover:bg-green-600 transition flex items-center justify-center space-x-2"
+          style={{ backgroundColor: moduleAccentColor, color: accentTextColor }}
         >
           <CheckCircle size={16} />
           <span>Review</span>

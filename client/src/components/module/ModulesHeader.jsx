@@ -11,7 +11,7 @@ import { calculateModulesCompletionProgress } from "../../utils";
  */
 
 const ModulesHeader = ({ completedModules, totalModules }) => {
-  const { themeColor } = useTheme();
+  const { themeColor, themeTextColor } = useTheme();
 
   const modulesCompletionProgress = calculateModulesCompletionProgress(
     completedModules,
@@ -29,16 +29,15 @@ const ModulesHeader = ({ completedModules, totalModules }) => {
       </p>
 
       {/* Progress Overview */}
-      <div className="mt-6 bg-white dark:bg-gray-700 rounded-lg shadow-md p-6 max-w-md mx-auto">
+      <div className="mt-6  rounded-lg shadow-md p-6 max-w-md mx-auto bg-python-blue text-white">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-            Modules Completion
-          </span>
-          <span className="text-sm font-bold" style={{ color: themeColor }}>
+          <span className="text-sm font-medium ">Modules Completion</span>
+
+          <span className="text-sm font-extrabold">
             {modulesCompletionProgress}%
           </span>
         </div>
-        <div className="w-full bg-gray-200 dark:text-gray-200 rounded-full h-3 ">
+        <div className="w-full bg-gray-200 dark:text-gray-200 rounded-full h-3">
           <div
             className="h-3 rounded-full transition-all duration-500 "
             style={{
@@ -47,7 +46,7 @@ const ModulesHeader = ({ completedModules, totalModules }) => {
             }}
           ></div>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-200 mt-2">
+        <p className="text-xs  mt-2">
           {completedModules} of {totalModules} modules completed
         </p>
       </div>
