@@ -215,13 +215,13 @@ const Support = () => {
             {/* Contact Info Column */}
             <div className="lg:col-span-1 space-y-6">
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <Mail
                     className="mr-2 text-python-blue dark:text-python-yellow"
                     size={18}
                   />
                   Direct Contact
-                </h3>
+                </h2>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                   Email us directly at:
                 </p>
@@ -237,9 +237,9 @@ const Support = () => {
               </div>
 
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
-                <h4 className="text-amber-800 dark:text-amber-400 font-medium mb-2 flex items-center">
+                <h3 className="text-amber-800 dark:text-amber-400 font-medium mb-2 flex items-center">
                   <Bug className="mr-2" size={18} /> Report a Bug
-                </h4>
+                </h3>
                 <p className="text-amber-700 dark:text-amber-300 text-xs leading-relaxed">
                   If you found an error in a lesson, please include the Module
                   and Lesson number so we can fix it quickly!
@@ -247,10 +247,10 @@ const Support = () => {
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
-                <h4 className="text-blue-800 dark:text-blue-400 font-medium mb-2 flex items-center">
+                <h3 className="text-blue-800 dark:text-blue-400 font-medium mb-2 flex items-center">
                   <MessageSquare className="mr-2" size={18} /> Feature
                   Suggestions
-                </h4>
+                </h3>
                 <p className="text-blue-700 dark:text-blue-300 text-xs leading-relaxed">
                   Have an idea to make the platform better? We'd love to hear
                   it!
@@ -272,10 +272,14 @@ const Support = () => {
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
                       Name *
                     </label>
                     <input
+                      id="name"
                       type="text"
                       required
                       className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
@@ -287,10 +291,14 @@ const Support = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
                       Email Address *
                     </label>
                     <input
+                      id="email"
                       type="email"
                       required
                       className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
@@ -305,11 +313,15 @@ const Support = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
                       Category *
                     </label>
                     <div className="relative">
                       <select
+                        id="category"
                         className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white appearance-none cursor-pointer"
                         value={formData.category}
                         onChange={(e) =>
@@ -326,10 +338,14 @@ const Support = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label
+                      htmlFor="subject"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
                       Subject *
                     </label>
                     <input
+                      id="subject"
                       type="text"
                       required
                       className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
@@ -346,10 +362,14 @@ const Support = () => {
                 {formData.category === "bug" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label
+                        htmlFor="moduleNumber"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
                         Module Number
                       </label>
                       <input
+                        id="moduleNumber"
                         type="text"
                         className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                         placeholder="e.g., M3"
@@ -363,10 +383,14 @@ const Support = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label
+                        htmlFor="lessonNumber"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      >
                         Lesson Number
                       </label>
                       <input
+                        id="lessonNumber"
                         type="text"
                         className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white"
                         placeholder="e.g., L3"
@@ -383,10 +407,14 @@ const Support = () => {
                 )}
 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Message *
                   </label>
                   <textarea
+                    id="message"
                     rows="5"
                     required
                     className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:outline-none focus:border-python-blue dark:focus:border-python-yellow transition-colors text-gray-900 dark:text-white resize-none"
