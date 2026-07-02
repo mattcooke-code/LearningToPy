@@ -23,7 +23,6 @@ const SEGMENT_COLORS = [
  * @param {number} [props.platformMetrics.monthlyActiveUsers] - Total monthly active users
  * @returns {JSX.Element|null} User segmentation display or null if no data provided
  */
-
 export const UserSegmentation = ({ userSegments, platformMetrics }) => {
   if (!userSegments?.length) return null;
 
@@ -33,9 +32,10 @@ export const UserSegmentation = ({ userSegments, platformMetrics }) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+      {/* FIXED: h4 → h3 for proper heading hierarchy */}
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
         User Segmentation
-      </h4>
+      </h3>
       <div className="space-y-4">
         {userSegments.map((segment, index) => {
           const percentage =
@@ -56,6 +56,11 @@ export const UserSegmentation = ({ userSegments, platformMetrics }) => {
                 <div
                   className={`h-full ${SEGMENT_COLORS[index % SEGMENT_COLORS.length]} rounded-full transition-all duration-500`}
                   style={{ width: `${percentage}%` }}
+                  role="progressbar"
+                  aria-valuenow={percentage}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${segment.segment}: ${percentage.toFixed(1)}%`}
                 ></div>
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">

@@ -1,7 +1,7 @@
 /**
  * Component displaying top performing content with rankings and performance metrics.
  * Shows content title, difficulty, starts, completions, and completion rates.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {Array<Object>} props.contentPerformance - Array of content performance data
@@ -19,9 +19,10 @@ export const TopContent = ({ contentPerformance }) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 sm:p-6">
-      <h4 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-4">
+      {/* Change h4 to h3 */}
+      <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-4">
         Top Performing Content
-      </h4>
+      </h3>
       <div className="space-y-3 sm:space-y-4">
         {contentPerformance.slice(0, 5).map((item, index) => (
           <div
@@ -46,7 +47,8 @@ export const TopContent = ({ contentPerformance }) => {
               <div className="font-medium text-sm sm:text-base dark:text-gray-200">
                 {item.completions?.toLocaleString() || 0} completions
               </div>
-              <div className="text-xs sm:text-sm text-green-600 dark:text-green-400">
+              {/* Fixed color contrast */}
+              <div className="text-xs sm:text-sm text-green-700 dark:text-green-400">
                 {item.completionRate?.toFixed(1)}% completion rate
               </div>
             </div>
