@@ -75,7 +75,6 @@ const GridView = ({
                 : "border-gray-200 dark:border-gray-700"
             }`}
             role="listitem"
-            aria-selected={isSelected}
             aria-label={`${item.type}: ${item.title}`}
           >
             <div className="p-4">

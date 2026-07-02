@@ -60,6 +60,7 @@ export const ContentToolbar = ({
               className="px-3 md:px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center whitespace-nowrap"
               aria-expanded={showAddMenu}
               aria-haspopup="true"
+              aria-label="Add new content"
             >
               <Plus className="h-4 w-4 md:mr-2" aria-hidden="true" />
               <span className="hidden md:inline">Add New</span>

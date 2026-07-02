@@ -163,7 +163,6 @@ const TableView = ({
                   isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""
                 }`}
                 role="row"
-                aria-selected={isSelected}
               >
                 {/* Checkbox */}
                 <td className="px-3 py-3 whitespace-nowrap" role="gridcell">
