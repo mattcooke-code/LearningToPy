@@ -200,20 +200,30 @@ const AdminSettingsPanel = () => {
 
       {/* Tabs — pb-px keeps the blue active underline from touching the scrollbar */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-8 overflow-x-auto pb-5">
+        <nav
+          className="flex space-x-8 overflow-x-auto pb-5"
+          role="tablist"
+          aria-label="Settings categories"
+        >
           {ADMIN_TABS.map((tab) => {
             const Icon = ICON_MAP[tab.icon];
+            const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
                 className={`py-4 px-1 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
-                  activeTab === tab.id
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                  isActive
+                    ? "border-blue-500 text-blue-700 dark:text-blue-400"
                     : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
                 }`}
               >
-                {Icon && <Icon className="h-4 w-4 inline mr-2" />}
+                {Icon && (
+                  <Icon className="h-4 w-4 inline mr-2" aria-hidden="true" />
+                )}
                 {tab.label}
               </button>
             );
