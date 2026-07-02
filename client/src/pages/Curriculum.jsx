@@ -1,3 +1,4 @@
+// Curriculum.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -31,63 +32,63 @@ import { useTheme } from "../context";
 
 /**
  * Curriculum page component displaying the complete Python learning path with detailed module information.
- * 
+ *
  * This component presents a comprehensive overview of the 20-module curriculum organized into three
  * phases: Python Fundamentals, Intermediate Python, and Advanced Applications. Features detailed
  * module cards with icons, learning highlights, duration estimates, and enrollment CTAs. Includes
  * statistics display, capstone project showcase with code preview, and responsive design with
  * theme-aware styling. Provides a complete learning journey visualization for prospective students.
- * 
+ *
  * @component
  * @returns {JSX.Element} Complete curriculum page with modules and capstone project
- * 
+ *
  * @curriculumStructure
  * - Phase 1: Python Fundamentals (Modules 1-9)
  * - Phase 2: Intermediate Python (Modules 10-15)
  * - Phase 3: Advanced Applications (Modules 16-20)
  * - Capstone Project: Module 20 with portfolio-ready project
- * 
+ *
  * @moduleInformation
  * - Detailed descriptions for each module
  * - Learning highlights with key topics
  * - Duration estimates (2-3 hours for fundamentals, 3-4 for intermediate, 4-5 for advanced)
  * - Visual icons representing module themes
  * - Progress indicators and numbering
- * 
+ *
  * @phaseCardComponent
  * - Reusable PhaseCard component for displaying phase modules
  * - Responsive grid layout for module cards
  * - Hover effects and transitions
  * - Theme-aware styling throughout
  * - Enrollment CTAs for each module
- * 
+ *
  * @capstoneSection
  * - Detailed capstone project overview
  * - Interactive code preview with syntax highlighting
  * - Feature highlights and project requirements
  * - Visual design with gradients and overlays
  * - Call-to-action for enrollment
- * 
+ *
  * @statisticsDisplay
  * - 20 Interactive Modules
  * - 100+ Coding Exercises
  * - 15+ Hours of Content
  * - 1 Capstone Project
  * - Grid layout with visual emphasis
- * 
+ *
  * @visualDesign
  * - Module number overlays with hover effects
  * - Icon integration for visual hierarchy
  * - Gradient backgrounds and overlays
  * - Theme-aware color schemes
  * - Responsive grid layouts
- * 
+ *
  * @userInteraction
  * - Hover effects on module cards
  * - Smooth transitions and animations
  * - Interactive enrollment links
  * - Visual feedback for user engagement
- * 
+ *
  * @responsiveDesign
  * - Mobile-first approach
  * - Adaptive grid layouts
@@ -312,12 +313,12 @@ const CURRICULUM_DATA = {
 
 /**
  * PhaseCard component displaying a curriculum phase with its modules.
- * 
+ *
  * This component renders a phase section with header information and a responsive
  * grid of module cards. Features phase numbering, titles, descriptions, and
  * module cards with interactive elements. Includes hover effects, theme-aware
  * styling, and enrollment CTAs for each module.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {Object} props.phase - Phase data with title and description
@@ -331,13 +332,13 @@ const PhaseCard = ({ phase, modules, index }) => {
       {" "}
       {/* Added mobile side padding */}
       <div className="text-center mb-8 px-4">
-        <div className="inline-block px-4 py-1 rounded-full bg-python-blue/10 text-python-blue dark:bg-python-yellow/10 dark:text-python-yellow text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="inline-block px-4 py-1 rounded-full bg-python-blue/20 text-python-blue dark:bg-python-yellow/20 dark:text-python-yellow text-xs font-bold uppercase tracking-widest mb-4">
           Phase {index + 1}
         </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
           {phase.title}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-2">
+        <p className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto px-2">
           {phase.description}
         </p>
       </div>
@@ -347,7 +348,7 @@ const PhaseCard = ({ phase, modules, index }) => {
             key={module.id}
             className="group relative bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700/50 rounded-2xl p-6 hover:border-python-blue dark:hover:border-python-yellow transition-all duration-300 shadow-sm hover:shadow-lg"
           >
-            <div className="absolute top-4 right-4 text-4xl font-black text-gray-300 dark:text-gray-500 group-hover:text-python-blue dark:group-hover:text-python-yellow transition-colors">
+            <div className="absolute top-4 right-4 text-4xl font-black text-gray-300 dark:text-gray-600 group-hover:text-python-blue dark:group-hover:text-python-yellow transition-colors">
               {String(idx + 1).padStart(2, "0")}
             </div>
 
@@ -359,19 +360,19 @@ const PhaseCard = ({ phase, modules, index }) => {
               {module.title}
             </h3>
 
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed">
+            <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 leading-relaxed">
               {module.description}
             </p>
 
             <div className="mb-4">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-500 mb-2">
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                 What you'll learn:
               </p>
               <ul className="space-y-1.5">
                 {module.highlights.map((item, i) => (
                   <li
                     key={i}
-                    className="flex items-center text-xs text-gray-600 dark:text-gray-400"
+                    className="flex items-center text-xs text-gray-700 dark:text-gray-300"
                   >
                     <CheckCircle
                       size={12}
@@ -384,7 +385,7 @@ const PhaseCard = ({ phase, modules, index }) => {
             </div>
 
             <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
-              <span className="text-xs text-gray-500 dark:text-gray-500">
+              <span className="text-xs text-gray-600 dark:text-gray-400">
                 ⏱️ {module.duration}
               </span>
               <Link
@@ -418,7 +419,7 @@ const Curriculum = () => {
               Step-by-Step
             </span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
+          <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed max-w-2xl mx-auto">
             From your first{" "}
             <code className="bg-gray-100 dark:bg-gray-800 text-python-blue dark:text-python-yellow px-2 py-0.5 rounded font-extrabold text-sm">
               print()
@@ -434,7 +435,7 @@ const Curriculum = () => {
             <div className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-1">
               20
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               Interactive Modules
             </div>
           </div>
@@ -442,7 +443,7 @@ const Curriculum = () => {
             <div className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-1">
               100+
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               Coding Exercises
             </div>
           </div>
@@ -450,7 +451,7 @@ const Curriculum = () => {
             <div className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-1">
               15+
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               Hours of Content
             </div>
           </div>
@@ -458,7 +459,7 @@ const Curriculum = () => {
             <div className="text-3xl font-bold text-python-blue dark:text-python-yellow mb-1">
               1
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               Capstone Project
             </div>
           </div>
@@ -511,7 +512,7 @@ const Curriculum = () => {
                 <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">
                   The Capstone Project
                 </h2>
-                <p className="text-gray-900 dark:text-gray-400 mb-8 leading-relaxed">
+                <p className="text-gray-800 dark:text-gray-300 mb-8 leading-relaxed">
                   Put everything you've learned into practice by building a
                   project of your own choosing. This portfolio-ready piece will
                   showcase your Python mastery to future employers.
@@ -527,7 +528,7 @@ const Curriculum = () => {
                   ].map((feat, i) => (
                     <li
                       key={i}
-                      className="flex items-start text-gray-900 dark:text-gray-300"
+                      className="flex items-start text-gray-800 dark:text-gray-200"
                     >
                       <Award className="w-5 h-5 text-python-yellow mr-3 flex-shrink-0 mt-0.5" />
                       {feat}
@@ -589,7 +590,7 @@ const Curriculum = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Ready to start your Python journey?
           </h2>
-          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/90 mb-8 max-w-2xl mx-auto">
             Join thousands of students who have already mastered Python with our
             interactive platform.
           </p>
