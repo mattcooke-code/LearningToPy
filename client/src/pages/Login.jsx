@@ -41,9 +41,9 @@ const Login = () => {
     <div className="min-h-screen flex justify-center items-start sm:items-center bg-gray-200 dark:bg-gray-900 pt-10 pb-12 px-6 sm:px-10">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
         <div className="text-center">
-          <h2 className="mt-2 sm:mt-6 text-3xl font-extrabold text-python-blue dark:text-python-yellow">
+          <h1 className="mt-2 sm:mt-6 text-3xl font-extrabold text-python-blue dark:text-python-yellow">
             Log In
-          </h2>
+          </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Continue your Python journey
           </p>

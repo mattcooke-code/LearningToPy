@@ -17,6 +17,7 @@ const Footer = () => {
       className="bg-gray-900 text-white dark:bg-python-dark"
       aria-label="Site footer"
     >
+      <h2 className="sr-only">Footer Navigation</h2>
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
