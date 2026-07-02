@@ -25,35 +25,34 @@ import { X } from "lucide-react";
  *   title="Confirm Action"
  *   size="lg"
  *   initialFocusRef={inputRef}
- *   footer={
- *   <button onClick={() => setIsOpen(false)}>Cancel</button>
- * }
+ *   footer={<button onClick={() => setIsOpen(false)}>Cancel</button>}
  * >
- *   <p>Are you sure you want to continue?</p>
+ *   <p id="modal-description">Are you sure you want to continue?</p>
  * </BaseModal>
  * ```
  *
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Controls modal visibility. When false, modal is not rendered.
- * @param {Function} props.onClose - Callback function triggered when modal should close (overlay click, escape key, close button)
- * @param {string} [props.title] - Modal title displayed in the header. If not provided, header may still render for close button.
+ * @param {Function} props.onClose - Callback function triggered when modal should close
+ * @param {string} [props.title] - Modal title displayed in the header
  * @param {React.ReactNode} props.children - Content to display in the modal body area
- * @param {string} [props.size="md"] - Modal size preset. Affects max-width of the modal.
+ * @param {string} [props.size="md"] - Modal size preset
  * @param {boolean} [props.showCloseButton=true] - Whether to show close button (X icon)
  * @param {boolean} [props.closeOnOverlayClick=true] - If true, clicking the overlay/backdrop closes the modal
  * @param {boolean} [props.closeOnEscape=true] - If true, pressing Escape key closes the modal
- * @param {string} [props.className=""] - Additional CSS classes to apply to the modal panel
+ * @param {string} [props.className=""] - Additional CSS classes
  * @param {boolean} [props.hideOverlay=false] - If true, no overlay/backdrop is rendered
  * @param {React.ReactNode} [props.footer] - Content to display in the modal footer area
- * @param {string} [props.footerAlign="right"] - Alignment of footer content: "left", "center", "right", or "between"
- * @param {boolean} [props.disableBodyScroll=true] - If true, prevents body scrolling when modal is open
+ * @param {string} [props.footerAlign="right"] - Alignment of footer content
+ * @param {boolean} [props.disableBodyScroll=true] - Prevents body scrolling when modal is open
  * @param {React.RefObject} [props.initialFocusRef] - Ref to element that should receive focus when modal opens
- * @param {Function} [props.onAfterClose] - Callback function triggered after modal closes and focus is restored
- * @param {string} [props.closeButtonPosition="header"] - Position of close button: "header" or "corner"
- * @param {boolean} [props.backdropBlur=false] - If true, applies backdrop blur effect to overlay
+ * @param {Function} [props.onAfterClose] - Callback after modal closes and focus is restored
+ * @param {string} [props.closeButtonPosition="header"] - Position of close button
+ * @param {boolean} [props.backdropBlur=false] - Applies backdrop blur effect to overlay
+ * @param {string} [props.description] - Description text for aria-describedby
+ * @param {string} [props.headingLevel="h2"] - Semantic heading level for title (h2, h3, etc.)
  *
  * @returns {JSX.Element|null} Modal rendered via React Portal, or null when closed
- *
  */
 
 // Outside component:
@@ -96,9 +95,12 @@ const BaseModal = ({
   onAfterClose,
   closeButtonPosition = "header",
   backdropBlur = false,
+  description,
+  headingLevel: HeadingTag = "h2", // Default to h2 for modals (standalone context)
 }) => {
   const modalRef = useRef(null);
   const lastFocusedElement = useRef(null);
+  const descriptionId = description ? "modal-description" : undefined;
 
   // Store last focused element
   useEffect(() => {
@@ -120,7 +122,7 @@ const BaseModal = ({
     }, 100);
   }, [onClose, onAfterClose]);
 
-  // Escape Key
+  // Escape Key and Body Scroll
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape" && closeOnEscape) handleClose();
@@ -152,18 +154,22 @@ const BaseModal = ({
     }
   }, [isOpen, initialFocusRef]);
 
-  // Trap focus inside modal
+  // Trap focus inside modal - UPDATED: re-query on every tab press
   useEffect(() => {
     if (!isOpen) return;
 
     const handleTabKey = (e) => {
       if (e.key !== "Tab") return;
 
+      // Re-query focusable elements each time to catch dynamic content
       const focusableElements = modalRef.current?.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
 
-      if (!focusableElements?.length) return;
+      if (!focusableElements?.length) {
+        e.preventDefault();
+        return;
+      }
 
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
@@ -196,7 +202,17 @@ const BaseModal = ({
             backdropBlur ? "backdrop-blur-sm" : "bg-opacity-50"
           }`}
           onClick={closeOnOverlayClick ? handleClose : undefined}
-          aria-hidden="true"
+          onKeyDown={(e) => {
+            // Make overlay keyboard accessible
+            if (closeOnOverlayClick && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              handleClose();
+            }
+          }}
+          role="button"
+          tabIndex={closeOnOverlayClick ? 0 : -1}
+          aria-label="Close modal"
+          aria-hidden={!closeOnOverlayClick}
         />
       )}
 
@@ -206,6 +222,7 @@ const BaseModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
+        aria-describedby={descriptionId}
       >
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           {/* Modal Panel */}
@@ -221,7 +238,7 @@ const BaseModal = ({
                 className="absolute right-4 top-4 z-10 p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 aria-label="Close modal"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             )}
 
@@ -230,12 +247,12 @@ const BaseModal = ({
               (showCloseButton && closeButtonPosition === "header")) && (
               <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
                 {title && (
-                  <h3
+                  <HeadingTag
                     id="modal-title"
                     className="text-lg font-semibold text-gray-900 dark:text-white"
                   >
                     {title}
-                  </h3>
+                  </HeadingTag>
                 )}
                 {showCloseButton && closeButtonPosition === "header" && (
                   <button
@@ -243,7 +260,7 @@ const BaseModal = ({
                     className="ml-auto p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     aria-label="Close modal"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-5 w-5" aria-hidden="true" />
                   </button>
                 )}
               </div>
@@ -251,6 +268,11 @@ const BaseModal = ({
 
             {/* Content */}
             <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
+              {description && (
+                <p id="modal-description" className="sr-only">
+                  {description}
+                </p>
+              )}
               {children}
             </div>
 

@@ -43,14 +43,14 @@ const TABS = [
 
 /**
  * Comprehensive lesson editor modal with tabbed interface for content creation and editing.
- * 
+ *
  * This component creates a powerful lesson editing interface with three distinct tabs:
  * Content (lesson body and exercises), Settings (metadata and configuration), and
  * Advanced (prerequisites and technical settings). Features include real-time validation,
  * preview functionality, tag management, and seamless integration with the lesson preview
  * system. The modal handles both creation and editing modes with proper data lifecycle
  * management and comprehensive form validation.
- * 
+ *
  * @component
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Whether the modal is open
@@ -58,20 +58,20 @@ const TABS = [
  * @param {Object|null} props.lesson - Existing lesson data for editing mode, null for creation
  * @param {Function} props.onSave - Callback function to refresh parent components after save
  * @returns {JSX.Element} Comprehensive lesson editing interface with tabbed organization
- * 
+ *
  * @dataLifecycle
  * **Creation Mode** (lesson is null):
  * - Initializes with DEFAULT_LESSON_FORM_DATA as clean state
  * - Provides empty templates for exercises, quizzes, and hints
  * - Sets default values for XP, duration, and content type
  * - Ready for new lesson content creation
- * 
+ *
  * **Editing Mode** (lesson exists):
  * - Maps existing lesson data using mapLessonToFormData()
  * - Preserves all existing content, exercises, and settings
  * - Maintains original lesson ID for API updates
  * - Allows modification while preserving core structure
- * 
+ *
  * @previewLogic
  * **Integration with LessonPreviewModal**:
  * - Passes lesson._id to LessonPreviewModal for real-time preview
@@ -79,7 +79,7 @@ const TABS = [
  * - Preview reflects current form state before saving
  * - Allows administrators to review changes before publication
  * - Semantic ID and custom title support for preview context
- * 
+ *
  * @validation
  * **Internal Form Validation**:
  * - Required field validation (title, content, duration)
@@ -88,14 +88,14 @@ const TABS = [
  * - Duration validation (positive integers)
  * - Tag character limit and uniqueness checking
  * - Prerequisite circular dependency detection
- * 
+ *
  * **Content Structure Validation**:
  * - Markdown content format validation
  * - Exercise answer key validation
  * - Quiz option completeness checking
  * - Hint content relevance validation
  * - Code example syntax validation
- * 
+ *
  * @tabOrganization
  * **Content Tab**:
  * - Rich text editing for lesson content
@@ -103,21 +103,21 @@ const TABS = [
  * - Quiz question configuration
  * - Code example integration
  * - Hint and solution management
- * 
+ *
  * **Settings Tab**:
  * - Basic metadata (title, description, duration)
  * - XP reward configuration
  * - Content type selection
  * - Module assignment
  * - Publication status control
- * 
+ *
  * **Advanced Tab**:
  * - Prerequisite lesson selection
  * - Tag management system
  * - Technical configuration
  * - SEO metadata
  * - Advanced options
- * 
+ *
  * @stateManagement
  * - formData: Complete lesson form state with nested objects
  * - modules: Available modules for assignment
@@ -125,34 +125,34 @@ const TABS = [
  * - saving: Loading state for save operations
  * - activeTab: Current tab selection
  * - newTag/newHint: Temporary input states
- * 
+ *
  * @apiIntegration
  * - GET /content/modules: Fetch available modules
  * - GET /content/lessons: Fetch available lessons for prerequisites
  * - POST /content/lessons: Create new lesson
  * - PATCH /content/lessons/{id}: Update existing lesson
  * - Error handling with toast notifications
- * 
+ *
  * @userExperience
  * - Tabbed interface for organized editing
  * - Auto-save functionality for form data
  * - Real-time validation feedback
  * - Preview integration for content review
  * - Responsive design for mobile and desktop
- * 
+ *
  * @errorHandling
  * - Network error handling with user notifications
  * - Form validation error display
  * - API response error handling
  * - Graceful degradation for missing data
  * - User-friendly error messages
- * 
+ *
  * @performanceOptimizations
  * - Debounced form field updates
  * - Memoized calculations for derived data
  * - Efficient data fetching with proper caching
  * - Optimized re-rendering for large forms
- * 
+ *
  * @accessibility
  * - Semantic HTML structure for tab navigation
  * - Proper ARIA labels and roles
@@ -327,10 +327,14 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
   const renderContentTab = () => (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="lesson-title"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Title *
         </label>
         <input
+          id="lesson-title"
           type="text"
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
@@ -340,22 +344,30 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="lesson-description"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Description
         </label>
         <textarea
+          id="lesson-description"
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
           rows="3"
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="lesson-content"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Content (Markdown) *
         </label>
         <textarea
+          id="lesson-content"
           value={formData.content}
           onChange={(e) => handleChange("content", e.target.value)}
           rows="10"
@@ -375,13 +387,17 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="content-type"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Content Type *
             </label>
             <select
+              id="content-type"
               value={formData.contentType}
               onChange={(e) => handleChange("contentType", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             >
               <option value="theory">Theory/Lesson</option>
               <option value="exercise">Code Exercise</option>
@@ -390,13 +406,17 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="difficulty"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Difficulty *
             </label>
             <select
+              id="difficulty"
               value={formData.difficulty}
               onChange={(e) => handleChange("difficulty", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             >
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
@@ -405,19 +425,26 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="xp-reward"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               XP Reward *
             </label>
             <div className="relative">
-              <Trophy className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-yellow-500" />
+              <Trophy
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-yellow-500"
+                aria-hidden="true"
+              />
               <input
+                id="xp-reward"
                 type="number"
                 value={formData.xpReward}
                 onChange={(e) =>
                   handleChange("xpReward", parseInt(e.target.value) || 0)
                 }
                 min="0"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -501,7 +528,11 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                   {/* Search Input */}
                   <div className="p-2 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
+                      <label htmlFor="prereq-search" className="sr-only">
+                        Search lessons
+                      </label>
                       <input
+                        id="prereq-search"
                         type="text"
                         value={prereqSearchTerm}
                         onChange={(e) => setPrereqSearchTerm(e.target.value)}
@@ -572,11 +603,15 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
 
       {/* Tags */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="new-tag-input"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Tags
         </label>
         <div className="flex items-center space-x-2 mb-3">
           <input
+            id="new-tag-input"
             type="text"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
@@ -590,8 +625,9 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
             type="button"
             onClick={handleAddTag}
             className="p-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+            aria-label="Add tag"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -600,14 +636,15 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
               key={index}
               className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
             >
-              <Tag className="h-3 w-3 mr-1" />
+              <Tag className="h-3 w-3 mr-1" aria-hidden="true" />
               {tag}
               <button
                 type="button"
                 onClick={() => handleRemoveTag(tag)}
                 className="ml-2 text-blue-600 hover:text-blue-800"
+                aria-label={`Remove tag: ${tag}`}
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </button>
             </span>
           ))}
@@ -622,10 +659,14 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="initial-code"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Initial Code
               </label>
               <textarea
+                id="initial-code"
                 value={formData.initialCode}
                 onChange={(e) => handleChange("initialCode", e.target.value)}
                 rows="6"
@@ -633,11 +674,16 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                 placeholder="# Starter code for students..."
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="solution-code"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Solution Code
               </label>
               <textarea
+                id="solution-code"
                 value={formData.solution}
                 onChange={(e) => handleChange("solution", e.target.value)}
                 rows="6"
@@ -645,11 +691,16 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                 placeholder="# Complete solution..."
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="test-cases"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Test Cases (JSON)
               </label>
               <textarea
+                id="test-cases"
                 value={formData.testCases}
                 onChange={(e) => handleChange("testCases", e.target.value)}
                 rows="6"
@@ -658,7 +709,10 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="new-hint-input"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Hints
               </label>
               <div className="space-y-2">
@@ -674,13 +728,15 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                       type="button"
                       onClick={() => handleRemoveHint(index)}
                       className="text-red-600 hover:text-red-800"
+                      aria-label={`Remove hint ${index + 1}`}
                     >
-                      <Minus className="h-4 w-4" />
+                      <Minus className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
                 <div className="flex items-center space-x-2">
                   <input
+                    id="new-hint-input"
                     type="text"
                     value={newHint}
                     onChange={(e) => setNewHint(e.target.value)}
@@ -694,8 +750,9 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                     type="button"
                     onClick={handleAddHint}
                     className="p-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+                    aria-label="Add hint"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -710,10 +767,14 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            htmlFor="challenge-group"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             Challenge Group
           </label>
           <input
+            id="challenge-group"
             type="text"
             value={formData.challengeGroup}
             onChange={(e) => handleChange("challengeGroup", e.target.value)}
@@ -724,10 +785,14 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
             Group lessons together for challenge tracking
           </div>
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <span
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            id="publish-status-label"
+          >
             Publish Status
-          </label>
+          </span>
           <div className="flex items-center space-x-3">
             <button
               type="button"
@@ -737,17 +802,22 @@ const LessonEditorModal = ({ isOpen, onClose, lesson, onSave }) => {
                   ? "bg-green-500"
                   : "bg-gray-300 dark:bg-gray-600"
               }`}
+              role="switch"
+              aria-checked={formData.isPublished}
+              aria-labelledby="publish-status-label"
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   formData.isPublished ? "translate-x-6" : "translate-x-1"
                 }`}
+                aria-hidden="true"
               />
             </button>
             <span
               className={`text-sm font-medium ${
-                formData.isPublished ? "text-green-600" : "text-gray-500"
+                formData.isPublished ? "text-green-700" : "text-gray-500"
               }`}
+              aria-hidden="true"
             >
               {formData.isPublished ? "Published" : "Draft"}
             </span>
