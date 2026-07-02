@@ -332,7 +332,7 @@ const PhaseCard = ({ phase, modules, index }) => {
       {" "}
       {/* Added mobile side padding */}
       <div className="text-center mb-8 px-4">
-        <div className="inline-block px-4 py-1 rounded-full bg-python-blue/20 text-python-blue dark:bg-python-yellow/20 dark:text-python-yellow text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="inline-block px-4 py-1 rounded-full bg-python-blue/20 text-gray-900 dark:bg-python-yellow/20 dark:text-python-yellow text-xs font-bold uppercase tracking-widest mb-4">
           Phase {index + 1}
         </div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
@@ -348,7 +348,7 @@ const PhaseCard = ({ phase, modules, index }) => {
             key={module.id}
             className="group relative bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700/50 rounded-2xl p-6 hover:border-python-blue dark:hover:border-python-yellow transition-all duration-300 shadow-sm hover:shadow-lg"
           >
-            <div className="absolute top-4 right-4 text-4xl font-black text-gray-300 dark:text-gray-600 group-hover:text-python-blue dark:group-hover:text-python-yellow transition-colors">
+            <div className="absolute top-4 right-4 text-4xl font-black text-gray-500 dark:text-gray-600 group-hover:text-python-blue dark:group-hover:text-python-yellow transition-colors">
               {String(idx + 1).padStart(2, "0")}
             </div>
 
@@ -553,15 +553,13 @@ const Curriculum = () => {
                     <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                     <div className="w-3 h-3 rounded-full bg-green-500/60" />
                   </div>
-                  <p className="text-python-blue dark:text-python-yellow mb-2">
-                    # Capstone Project
-                  </p>
+                  <p className="text-python-yellow mb-2"># Capstone Project</p>
                   <p className="text-purple-400">class</p>{" "}
                   <p className="text-python-yellow inline">
                     MyCapstoneProject:
                   </p>
                   <br />
-                  <p className="text-gray-500 ml-4">
+                  <p className="text-gray-400 ml-4">
                     """Your unique solution to a real problem"""
                   </p>
                   <p className="text-blue-400 ml-4">def</p>{" "}
@@ -596,7 +594,7 @@ const Curriculum = () => {
           </p>
           <Link
             to="/register"
-            className="inline-block px-8 py-4 bg-python-light text-python-blue font-bold rounded-xl hover:shadow-xl transition-all transform hover:-translate-y-1"
+            className="inline-block px-8 py-4 bg-python-light text-gray-900 font-bold rounded-xl hover:shadow-xl transition-all transform hover:-translate-y-1"
           >
             Start Learning for Free
           </Link>
