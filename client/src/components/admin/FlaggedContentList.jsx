@@ -201,6 +201,7 @@ const FlaggedContentList = ({ limit = null }) => {
               setPage(1);
             }}
             className="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm px-3 py-2 dark:text-gray-300"
+            aria-label="Filter by status"
           >
             <option value="ALL">All Status</option>
             <option value="PENDING">Pending</option>
@@ -217,6 +218,7 @@ const FlaggedContentList = ({ limit = null }) => {
               setPage(1);
             }}
             className="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm px-3 py-2 dark:text-gray-300"
+            aria-label="Filter by issue type"
           >
             <option value="">All Issue Types</option>
             <option value="CONTENT_ERROR">Content Error</option>

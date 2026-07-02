@@ -77,7 +77,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
         {/* Navigation */}
         <nav
           className="flex-1 overflow-y-auto py-4 px-4"
-          aria-label="Main navigation"
+          aria-label="Main admin navigation"
         >
           <ul className="space-y-1">
             {ADMIN_MENU_ITEMS.map((item) => {

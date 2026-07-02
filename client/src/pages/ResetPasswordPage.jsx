@@ -195,7 +195,11 @@ const ResetPasswordPage = () => {
         )}
 
         {error && !isValidating && isTokenValid && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md">
+          <div
+            role="alert"
+            aria-live="polite"
+            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md"
+          >
             {error}
           </div>
         )}
@@ -214,6 +218,7 @@ const ResetPasswordPage = () => {
                   type="password"
                   id="newPassword"
                   value={password}
+                  aria-describedby="password-hint"
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
@@ -222,6 +227,12 @@ const ResetPasswordPage = () => {
                   placeholder="Enter new password"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-python-blue focus:border-python-blue dark:focus:border-python-light disabled:bg-gray-100 dark:disabled:bg-gray-700 dark:bg-gray-700 dark:text-gray-200"
                 />
+                <p
+                  id="password-hint"
+                  className="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                >
+                  Must be at least 6 characters long.
+                </p>
               </div>
               <div>
                 <label
@@ -248,7 +259,7 @@ const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm rounded-md text-python-yellow hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-extrabold"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm rounded-md text-white hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-python-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-extrabold"
             >
               {loading ? (
                 <Spinner
@@ -270,7 +281,7 @@ const ResetPasswordPage = () => {
             </p>
             <Link
               to="/forgot-password"
-              className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-python-yellow hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue transition-colors"
+              className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white hover:text-python-light bg-python-blue hover:bg-python-dark dark:bg-python-yellow dark:hover:bg-python-light dark:text-python-dark dark:hover:text-python-blue transition-colors"
             >
               Request New Reset Link
             </Link>

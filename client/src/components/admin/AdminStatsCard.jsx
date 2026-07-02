@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
  * @param {boolean} props.trend.positive - Whether trend is positive (green) or negative (red)
  * @param {string} [props.linkTo] - Optional URL to navigate to when clicked
  * @param {Function} [props.onClick] - Optional click handler for the card
+ * @param {string} [props.headingLevel="h3"] - Semantic heading level (h2, h3, h4, etc.)
  * @returns {JSX.Element} Stats card with icon, value, and optional trend
  */
 
@@ -35,6 +36,7 @@ const AdminStatsCard = ({
   trend,
   linkTo,
   onClick,
+  headingLevel: HeadingTag = "h3", // Default to h3, make configurable
 }) => {
   const Content = (
     <div
@@ -59,9 +61,9 @@ const AdminStatsCard = ({
             </span>
           )}
         </div>
-        <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">
+        <HeadingTag className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">
           {title}
-        </h3>
+        </HeadingTag>
         <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {value}
         </p>
@@ -89,7 +91,6 @@ const AdminStatsCard = ({
     </div>
   );
 
-  // Important: Ensure the Link or button wrappers also pass down height
   if (linkTo) {
     return (
       <Link to={linkTo} className="h-full block">

@@ -134,6 +134,7 @@ const AdminDashboard = () => {
       <div className="flex flex-col gap-8 md:gap-12">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          <h2 className="sr-only">Platform Overview</h2>
           <AdminStatsCard
             title="Total Users"
             value={stats.totalUsers}

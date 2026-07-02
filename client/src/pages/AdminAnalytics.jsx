@@ -105,6 +105,7 @@ const AdminAnalytics = () => {
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 dark:text-gray-200"
+            aria-label="Select time range for analytics"
           >
             {ANALYTICS_TIME_RANGES.map((option) => (
               <option key={option.value} value={option.value}>
