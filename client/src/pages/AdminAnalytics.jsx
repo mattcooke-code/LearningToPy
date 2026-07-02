@@ -146,18 +146,18 @@ const AdminAnalytics = () => {
         {/* Charts Grid - Added min-h to prevent zero-height issues */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h3 className="text-lg font-medium mb-4 dark:text-gray-200">
+            <h2 className="text-lg font-medium mb-4 dark:text-gray-200">
               User Activity
-            </h3>
+            </h2>
             <div className="w-full">
               <ActivityChart data={chartData} />
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h3 className="text-lg font-medium mb-4 dark:text-gray-200">
+            <h2 className="text-lg font-medium mb-4 dark:text-gray-200">
               User Growth
-            </h3>
+            </h2>
             <div className="w-full">
               <GrowthChart data={growthData} />
             </div>
@@ -177,9 +177,9 @@ const AdminAnalytics = () => {
             />
 
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-              <h3 className="text-lg font-medium mb-4 dark:text-gray-200">
+              <h2 className="text-lg font-medium mb-4 dark:text-gray-200">
                 Device Breakdown
-              </h3>
+              </h2>
               <div className="w-full">
                 <DevicesChart data={deviceData} />
               </div>
@@ -190,9 +190,9 @@ const AdminAnalytics = () => {
         {/* Struggling Content Table (optional) */}
         {trends.strugglingContent?.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h3 className="text-lg font-medium mb-4">
+            <h2 className="text-lg font-medium mb-4">
               Content Needing Attention
-            </h3>
+            </h2>
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead>

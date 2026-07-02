@@ -73,9 +73,10 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
           <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
             <Filter className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
-          <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-tight">
+
+          <h2 className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-tight">
             Filter Directory
-          </h3>
+          </h2>
         </div>
 
         {hasActiveFilters && (
@@ -92,10 +93,14 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Status Filter */}
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase">
+          <label
+            htmlFor="filter-status"
+            className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase"
+          >
             Account Status
           </label>
           <select
+            id="filter-status"
             name="isBlocked"
             value={filters.isBlocked}
             onChange={handleSelectChange}
@@ -109,10 +114,14 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
 
         {/* Role Filter */}
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-400 dark:text-gray-200 uppercase">
+          <label
+            htmlFor="filter-role"
+            className="text-[11px] font-bold text-gray-400 dark:text-gray-200 uppercase"
+          >
             Privileges
           </label>
           <select
+            id="filter-role"
             name="isAdmin"
             value={filters.isAdmin}
             onChange={handleSelectChange}
@@ -124,12 +133,15 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
           </select>
         </div>
 
-        {/* Level Filters using local state for smooth typing */}
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase">
+          <label
+            htmlFor="filter-min-level"
+            className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase"
+          >
             Min Level
           </label>
           <input
+            id="filter-min-level"
             type="number"
             name="levelMin"
             min="0"
@@ -141,10 +153,14 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase">
+          <label
+            htmlFor="filter-max-level"
+            className="text-[11px] font-bold text-gray-600 dark:text-gray-200 uppercase"
+          >
             Max Level
           </label>
           <input
+            id="filter-max-level"
             type="number"
             name="levelMax"
             min="0"
