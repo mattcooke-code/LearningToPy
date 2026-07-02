@@ -214,7 +214,6 @@ const AdminSettingsPanel = () => {
                 onClick={() => setActiveTab(tab.id)}
                 role="tab"
                 aria-selected={isActive}
-                aria-controls={`panel-${tab.id}`}
                 className={`py-4 px-1 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                   isActive
                     ? "border-blue-500 text-blue-700 dark:text-blue-400"
