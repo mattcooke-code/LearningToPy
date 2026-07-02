@@ -1,6 +1,6 @@
 // GroupedView.jsx
 import { PublishToggleButton, ContentActionBar } from "./ActionButtons";
-import { getDifficultyBadge } from "../../utils";
+import { DifficultyBadge } from "./ContentBadges";
 
 /**
  * Module-grouped view showing lessons organized under their parent modules.
@@ -112,7 +112,7 @@ const GroupedView = ({
                           </span>
                           {lesson.difficulty && (
                             <span className="text-xs">
-                              {getDifficultyBadge(lesson.difficulty)}
+                              <DifficultyBadge difficulty={lesson.difficulty} />
                             </span>
                           )}
                         </div>

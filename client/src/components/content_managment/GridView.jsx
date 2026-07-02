@@ -13,7 +13,7 @@ import {
   EditButton,
   ContentActionBar,
 } from "./ActionButtons";
-import { getDifficultyBadge } from "../../utils";
+import { DifficultyBadge } from "./ContentBadges";
 
 const TYPE_ICONS = {
   lesson: FileText,
@@ -186,7 +186,9 @@ const GridView = ({
                     className="h-4 w-4 text-orange-500 mr-1"
                     aria-hidden="true"
                   />
-                  <span>{getDifficultyBadge(item.difficulty)}</span>
+                  <span>
+                    <DifficultyBadge difficulty={item.difficulty} />
+                  </span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Calendar

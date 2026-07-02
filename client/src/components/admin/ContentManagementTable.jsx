@@ -5,10 +5,14 @@ import { LessonEditorModal, ModuleEditorModal } from "../../modals";
 import { useContentFilter, useConfirmActions } from "../../hooks";
 import { adminApiClient } from "../../services";
 import { calculateContentStats } from "../../utils";
-import { ContentStats, ContentToolbar, EmptyState } from "../content_managment";
-import { TableView } from "./components/ContentViews/TableView";
-import { GridView } from "./components/ContentViews/GridView";
-import { GroupedView } from "./components/ContentViews/GroupedView";
+import {
+  ContentStats,
+  ContentToolbar,
+  EmptyState,
+  GridView,
+  GroupedView,
+  TableView,
+} from "../content_managment";
 
 /**
  * Comprehensive content management interface for lessons and modules with filtering and bulk operations.

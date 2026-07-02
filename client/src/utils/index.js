@@ -13,7 +13,8 @@ export {
 } from "./colorUtilities";
 export {
   DIFFICULTY_STYLES,
-  getDifficultyBadge,
+  getDifficultyLabel,
+  getDifficultyStyles,
   TYPE_ICON_MAP,
 } from "./contentHelpers";
 export { getDeviceInfo } from "./deviceInfo";

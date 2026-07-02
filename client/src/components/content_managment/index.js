@@ -8,6 +8,7 @@ export {
 export { BulkActions } from "./BulkActions";
 export { ContentStats } from "./ContentStats";
 export { ContentToolbar } from "./ContentToolbar";
+export { DifficultyBadge } from "./ContentBadges";
 export { EmptyState } from "./EmptyState";
 export { default as GridView } from "./GridView";
 export { default as GroupedView } from "./GroupedView";

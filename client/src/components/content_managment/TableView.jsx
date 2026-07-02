@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { PublishStatusBadge } from "./PublishToggle";
 import { ContentActionBar } from "./ActionButtons";
-import { getDifficultyBadge } from "../../utils";
+import { DifficultyBadge } from "./ContentBadges";
 
 const SortIcon = ({ field, sortConfig }) => {
   if (sortConfig.field !== field)
@@ -246,7 +246,7 @@ const TableView = ({
 
                 {/* Difficulty */}
                 <td className="px-3 py-3 whitespace-nowrap" role="gridcell">
-                  {getDifficultyBadge(item.difficulty)}
+                  <DifficultyBadge difficulty={item.difficulty} />
                 </td>
 
                 {/* XP */}
