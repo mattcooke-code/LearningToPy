@@ -11,6 +11,11 @@ export {
   shouldUseThemeColor,
   DEFAULT_THEME_COLOR,
 } from "./colorUtilities";
+export {
+  DIFFICULTY_STYLES,
+  getDifficultyBadge,
+  TYPE_ICON_MAP,
+} from "./contentHelpers";
 export { getDeviceInfo } from "./deviceInfo";
 export {
   createDownloadLink,
