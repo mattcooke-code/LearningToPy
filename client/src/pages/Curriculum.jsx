@@ -559,7 +559,7 @@ const Curriculum = () => {
                     MyCapstoneProject:
                   </p>
                   <br />
-                  <p className="text-gray-400 ml-4">
+                  <p className="text-gray-300 ml-4">
                     """Your unique solution to a real problem"""
                   </p>
                   <p className="text-blue-400 ml-4">def</p>{" "}
