@@ -666,8 +666,8 @@ const deleteAccount = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
-  //const peppered = applyPepper(password);
-  const isMatch = await bcrypt.compare(password, user.password);
+  const peppered = applyPepper(password);
+  const isMatch = await bcrypt.compare(peppered, user.password);
   if (!isMatch) {
     return next(
       new AppError("Password is incorrect. Account not deleted.", 401),
