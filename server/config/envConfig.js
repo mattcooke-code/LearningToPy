@@ -90,7 +90,8 @@ const getEmailService = () => process.env.EMAIL_SERVICE || null;
 
 const getEmailHost = () => {
   const service = getEmailService();
-  if (service) return service; // nodemailer uses this as a service alias
+  if (service === "gmail") return "smtp.gmail.com";
+  if (service) return service;
   return process.env.EMAIL_HOST || "smtp.gmail.com";
 };
 
@@ -108,24 +109,19 @@ const getEmailFromName = () => process.env.EMAIL_FROM_NAME || "Learning To Py";
 const getEmailFromAddress = () =>
   process.env.EMAIL_FROM_ADDRESS || getEmailUser();
 
-// Note: previously this function was missing a `return` statement — fixed here.
 const getEmailFrom = () => `"${getEmailFromName()}" <${getEmailFromAddress()}>`;
 
 const getEmailConfig = () => {
-  const service = getEmailService();
   return {
-    ...(service
-      ? { service }
-      : {
-          host: getEmailHost(),
-          port: getEmailPort(),
-          secure: getEmailSecure(),
-        }),
+    host: getEmailHost(),
+    port: getEmailPort(),
+    secure: getEmailSecure(),
     auth: {
       user: getEmailUser(),
       pass: getEmailPassword(),
     },
     from: getEmailFrom(),
+    family: 4,
   };
 };
 

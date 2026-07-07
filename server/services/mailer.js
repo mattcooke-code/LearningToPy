@@ -21,6 +21,7 @@ const createTransporter = async () => {
       host: "smtp.ethereal.email",
       port: 587,
       secure: false,
+      family: 4, // Force IPv4
       auth: {
         user: testAccount.user,
         pass: testAccount.pass,
@@ -41,7 +42,10 @@ const createTransporter = async () => {
     console.log(`   From: ${emailConfig.from}\n`);
   }
 
-  return nodemailer.createTransport({ ...emailConfig, family: 4 });
+  return nodemailer.createTransport({
+    ...emailConfig,
+    family: 4, // Force IPv4 - CRITICAL for Render
+  });
 };
 
 let transporterPromise = null;
@@ -134,7 +138,15 @@ const sendEmail = async (to, subject, htmlContent, options = {}) => {
   }
 };
 
+/**
+ * Reset the cached transporter (useful after config changes)
+ */
+const resetTransporter = () => {
+  transporterPromise = null;
+};
+
 module.exports = {
   sendEmail,
   getTransporter,
+  resetTransporter,
 };
