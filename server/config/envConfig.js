@@ -17,7 +17,12 @@ const isTest = () => getNodeEnv() === "test";
 const validateSecrets = () => {
   if (!isProduction()) return true;
 
-  const required = ["JWT_SECRET", "REFRESH_TOKEN_SECRET", "MONGODB_URI"];
+  const required = [
+    "JWT_SECRET",
+    "REFRESH_TOKEN_SECRET",
+    "MONGODB_URI",
+    "PEPPER_SECRET",
+  ];
   const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {

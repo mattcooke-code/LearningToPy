@@ -23,6 +23,7 @@ const AppError = require("../utils/AppError");
 const authUtils = require("../utils/authUtils");
 const catchAsync = require("../utils/catchAsync");
 const emailTemplates = require("../utils/emailTemplates");
+const { applyPepper } = require("../utils/pepper");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const userUtils = require("../utils/userUtils");
 const {
@@ -100,8 +101,11 @@ const register = catchAsync(async (req, res, next) => {
   if (existingUsername)
     return next(new AppError("Username already taken", 400));
 
+  // Pepper Password
+  const peppered = applyPepper(password);
+
   // Hash password
-  const hashed = await bcrypt.hash(password, 12);
+  const hashed = await bcrypt.hash(peppered, 12);
 
   // Create user ONCE with all required fields
   const newUser = await User.create({
@@ -214,7 +218,9 @@ const login = catchAsync(async (req, res, next) => {
     );
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const peppered = applyPepper(password);
+
+  const isMatch = await bcrypt.compare(peppered, user.password);
   if (!isMatch) {
     return next(
       new AppError("Invalid credentials or account is blocked.", 401),
@@ -526,7 +532,9 @@ const resetPassword = catchAsync(async (req, res, next) => {
     );
   }
 
-  user.password = await bcrypt.hash(newPassword, 12);
+  const peppered = applyPepper(newPassword);
+
+  user.password = await bcrypt.hash(peppered, 12);
   user.resetPasswordToken = undefined;
   user.resetPasswordExpires = undefined;
   user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
@@ -572,13 +580,15 @@ const changePassword = catchAsync(async (req, res, next) => {
   }
 
   // Verify current password
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  const pepperedCurrent = applyPepper(currentPassword);
+  const isMatch = await bcrypt.compare(pepperedCurrent, user.password);
   if (!isMatch) {
     return next(new AppError("Current password is incorrect.", 401));
   }
 
   // Hash and save new password
-  user.password = await bcrypt.hash(newPassword, 12);
+  const pepperedNew = applyPepper(newPassword);
+  user.password = await bcrypt.hash(pepperedNew, 12);
 
   // Invalidate all existing sessions (security best practice)
   user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
@@ -656,7 +666,8 @@ const deleteAccount = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found.", 404));
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const peppered = applyPepper(password);
+  const isMatch = await bcrypt.compare(peppered, user.password);
   if (!isMatch) {
     return next(
       new AppError("Password is incorrect. Account not deleted.", 401),
