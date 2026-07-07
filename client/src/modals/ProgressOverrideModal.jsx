@@ -1,3 +1,4 @@
+// /src/modals/ProgressOverrideModal.jsx
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNotification } from "../context";
 import { BaseModal } from "../components/ui";
@@ -17,19 +18,16 @@ import {
  * Privileged administrative modal for direct user progress modification and database overrides.
  * This component provides powerful administrative tools to directly modify user progress records,
  * including lesson completion status, module completion, and XP adjustments. Features comprehensive
- * search functionality, bulk operations, and audit trail logging for accountability. This is a
- * high-privilege tool that directly impacts user database records.
+ * search functionality, bulk operations, and audit trail logging for accountability.
  */
 
 /**
  * Privileged administrative modal for direct user progress modification and database overrides.
- * 
+ *
  * This component creates a powerful administrative interface for directly modifying user progress
  * records in the database. Features include lesson and module completion toggling, progress
- * search and filtering, bulk operations, and comprehensive audit logging. This is a privileged
- * action that bypasses normal learning progression and directly modifies user database records
- * for administrative purposes such as support interventions, testing, or progress corrections.
- * 
+ * search and filtering, bulk operations, and comprehensive audit logging.
+ *
  * @component
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Whether the modal is open
@@ -37,166 +35,7 @@ import {
  * @param {Function} props.onClose - Function to close the modal
  * @param {Function} props.onSave - Callback function to refresh parent components after changes
  * @returns {JSX.Element} Administrative progress override interface with direct database modification
- * 
- * @privilegedAction
- * **Database Record Modification**:
- * - Direct PATCH requests to /users/{userId}/progress endpoint
- * - Bypasses normal learning progression and validation
- * - Modifies user.completedLessons and user.completedModules arrays
- * - Records override reasons for audit trail
- * - Immediate database persistence without user interaction
- * 
- * **Administrative Privileges Required**:
- * - Admin role validation before modal access
- * - Elevated permissions for progress modification
- * - Audit logging for all override actions
- * - Reason tracking for compliance and accountability
- * - Reversible operations with proper confirmation
- * 
- * @progressOverride
- * **Lesson Completion Override**:
- * - Toggle individual lesson completion status
- * - Direct modification of completedLessons array
- * - XP calculation and automatic updates
- * - Prerequisite bypass for testing scenarios
- * - Bulk lesson completion operations
- * 
- * **Module Completion Override**:
- * - Module-level progress modification
- * - Automatic lesson completion within modules
- * - Module quiz completion handling
- * - Progress dependency management
- * - Certification and badge awarding
- * 
- * @dataLifecycle
- * **Progress Data Fetching**:
- * - GET /users/{userId}/progress: Current user progress
- * - GET /content/lessons: Available lessons catalog
- * - GET /content/modules: Available modules catalog
- * - Real-time progress state synchronization
- * - Efficient data aggregation and display
- * 
- * **State Management**:
- * - userProgress: Current completion arrays
- * - items: Available lessons and modules
- * - selectedType: Filter for lessons vs modules
- * - searchQuery: Text-based filtering
- * - isSavingId: Individual item loading states
- * 
- * @validation
- * **Internal Validation**:
- * - User permission validation before operations
- * - Item existence validation in database
- * - Progress state consistency checking
- * - Circular dependency prevention
- * - Data integrity validation
- * 
- * **Business Logic Validation**:
- * - Prerequisite relationship validation
- * - Module completion requirements
- * - XP calculation consistency
- * - Progress dependency checking
- * - Audit trail completeness
- * 
- * @apiIntegration
- * **Progress Modification**:
- * - PATCH /users/{userId}/progress: Direct progress updates
- * - Payload includes lessonId/moduleId, completed status, and reason
- * - Immediate database persistence
- * - Error handling with rollback capabilities
- * - Response validation and state synchronization
- * 
- * **Data Fetching**:
- * - Parallel API calls for efficiency
- * - Error handling for individual requests
- * - Data aggregation and normalization
- * - Caching strategies for performance
- * - Retry mechanisms for failed requests
- * 
- * @userExperience
- * **Administrative Interface**:
- * - Search and filter functionality
- * - Type switching between lessons and modules
- * - Visual completion status indicators
- * - Bulk operation capabilities
- * - Real-time progress updates
- * 
- * **Feedback Systems**:
- * - Loading indicators for individual operations
- * - Success notifications with XP impact
- * - Error messages with context
- * - Confirmation dialogs for destructive actions
- * - Progress summary statistics
- * 
- * @auditTrail
- * **Action Logging**:
- * - Automatic reason tracking for all overrides
- * - User identification and timestamping
- * - Action type and item identification
- * - Before/after state recording
- * - Compliance reporting capabilities
- * 
- * **Accountability Features**:
- * - Required reason entry for overrides
- * - Admin user identification
- * - Action categorization and logging
- * - Reversibility tracking
- * - Audit report generation
- * 
- * @errorHandling
- * **Network Error Handling**:
- * - API failure detection and user notification
- * - Graceful degradation for partial failures
- * - Retry mechanisms for transient errors
- * - State rollback on failed operations
- * - User-friendly error messages
- * 
- * **Data Integrity**:
- * - Progress state consistency validation
- * - Database constraint handling
- * - Concurrent modification detection
- * - Data validation and sanitization
- * - Error recovery procedures
- * 
- * @securityConsiderations
- * **Access Control**:
- * - Admin role validation before modal access
- * - Permission checking for each operation
- * - Session validation and timeout handling
- * - Secure API communication
- * - Audit trail for compliance
- * 
- * **Data Protection**:
- * - Sensitive user data handling
- * - Secure progress modification
- * - Privacy compliance adherence
- * - Data encryption in transit
- * - Secure logging practices
- * 
- * @performanceOptimizations
- * **Efficient Data Management**:
- * - Memoized filtering for search results
- * - Optimized re-rendering with useCallback
- * - Efficient state updates for progress changes
- * - Parallel API calls for data fetching
- * - Virtual scrolling for large lists
- * 
- * **UI Performance**:
- * - Debounced search input handling
- * - Optimized list rendering
- * - Efficient loading state management
- * - Smooth transitions and animations
- * - Memory leak prevention
- * 
- * @accessibility
- * - Semantic HTML structure for progress items
- * - Proper ARIA labels and roles
- * - Screen reader compatible progress information
- * - Keyboard navigation support
- * - High contrast support for visual elements
- * - Focus management for modal interactions
  */
-
 const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
   // State
   const [selectedType, setSelectedType] = useState("lesson");
@@ -292,100 +131,134 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
     }
   };
 
+  // Pre-computed tab classes to work with Tailwind JIT
+  const tabs = [
+    {
+      id: "lesson",
+      label: "Lessons",
+      icon: FileText,
+      count: userProgress.completedLessons?.length || 0,
+      activeIconClass: "text-blue-500",
+    },
+    {
+      id: "module",
+      label: "Modules",
+      icon: BookOpen,
+      count: userProgress.completedModules?.length || 0,
+      activeIconClass: "text-purple-500",
+    },
+  ];
+
   return (
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      title={`Progress Override: ${user?.username}`}
+      description={`Manage lesson and module completion status for ${user?.username}. Changes are immediate and bypass normal progression.`}
       className="max-h-[90vh] w-[92vw] md:w-[85vw] lg:w-[80vw] xl:max-w-5xl"
-      title={
-        <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-            <ShieldCheck className="h-6 w-6 text-blue-600 dark:text-python-yellow" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-              Progress Override: {user?.username}
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
-              Manual Completion Management
-            </p>
-          </div>
+      size="4xl"
+      footer={
+        <div className="flex justify-end w-full">
+          <button
+            onClick={onClose}
+            className="px-6 py-2.5 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Close Session
+          </button>
         </div>
       }
-      size="4xl"
     >
       {/* Type Tabs */}
-      <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
-        {[
-          {
-            id: "lesson",
-            label: "Lessons",
-            icon: FileText,
-            count: userProgress.completedLessons.length,
-            color: "blue",
-          },
-          {
-            id: "module",
-            label: "Modules",
-            icon: BookOpen,
-            count: userProgress.completedModules.length,
-            color: "purple",
-          },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setSelectedType(tab.id)}
-            className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              selectedType === tab.id
-                ? "bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white"
-                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-            }`}
-          >
-            <tab.icon
-              className={`h-4 w-4 ${
-                selectedType === tab.id ? `text-${tab.color}-500` : ""
-              }`}
-            />
-            <span>{tab.label}</span>
-            <span
-              className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${
-                selectedType === tab.id
-                  ? "bg-gray-100 dark:bg-gray-600"
-                  : "bg-gray-200 dark:bg-gray-800"
+      <div
+        className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6"
+        role="tablist"
+        aria-label="Content type selection"
+      >
+        {tabs.map((tab) => {
+          const TabIcon = tab.icon;
+          const isActive = selectedType === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedType(tab.id)}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`panel-${tab.id}`}
+              className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                isActive
+                  ? "bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white"
+                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              {tab.count}
-            </span>
-          </button>
-        ))}
+              <TabIcon
+                className={`h-4 w-4 ${isActive ? tab.activeIconClass : ""}`}
+                aria-hidden="true"
+              />
+              <span>{tab.label}</span>
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-[10px] ${
+                  isActive
+                    ? "bg-gray-100 dark:bg-gray-600"
+                    : "bg-gray-200 dark:bg-gray-800"
+                }`}
+                aria-label={`${tab.count} ${tab.label.toLowerCase()}`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Search Input */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+          aria-hidden="true"
+        />
+        <label htmlFor="progress-search" className="sr-only">
+          Filter {selectedType}s by title or ID
+        </label>
         <input
+          id="progress-search"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={`Filter ${selectedType}s by title or ID...`}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-gray-200"
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
         />
       </div>
 
       {/* Items List */}
       <div className="min-h-[400px]">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-64 space-y-4">
-            <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+          <div
+            className="flex flex-col items-center justify-center h-64 space-y-4"
+            role="status"
+          >
+            <Loader2
+              className="h-8 w-8 text-blue-500 animate-spin"
+              aria-hidden="true"
+            />
             <p className="text-sm text-gray-500 animate-pulse font-medium">
               Loading user progress...
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+          <div
+            id={`panel-${selectedType}`}
+            className="grid grid-cols-1 gap-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar"
+            tabIndex={0}
+            role="region"
+            aria-label={`${selectedType} progress list`}
+          >
             {filteredItems.length === 0 ? (
               <div className="text-center py-20 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl">
-                <Search className="h-10 w-10 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
+                <Search
+                  className="h-10 w-10 text-gray-200 dark:text-gray-700 mx-auto mb-3"
+                  aria-hidden="true"
+                />
                 <p className="text-gray-500 dark:text-gray-400">
                   No results found matching your search
                 </p>
@@ -416,6 +289,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
                               ? "bg-green-100 dark:bg-green-900/40"
                               : "bg-gray-100 dark:bg-gray-700"
                           }`}
+                          aria-hidden="true"
                         >
                           {selectedType === "lesson" ? (
                             <FileText
@@ -434,15 +308,18 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-bold text-gray-900 dark:text-white truncate text-sm">
+                          <h3 className="font-bold text-gray-900 dark:text-white truncate text-sm">
                             {item.title}
-                          </h4>
+                          </h3>
                           <div className="flex flex-wrap items-center text-[10px] text-gray-500 dark:text-gray-400 mt-1 gap-2">
                             <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded uppercase tracking-tighter break-all">
                               ID: {item._id}
                             </span>
                             <div className="flex items-center">
-                              <Trophy className="h-3 w-3 mr-1 text-yellow-500" />
+                              <Trophy
+                                className="h-3 w-3 mr-1 text-yellow-500"
+                                aria-hidden="true"
+                              />
                               <span>{item.xpReward || 0} XP</span>
                             </div>
                           </div>
@@ -454,22 +331,32 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
                           toggleItemCompletion(item._id, item.type, isCompleted)
                         }
                         disabled={isSavingId !== null}
+                        aria-label={
+                          isSaving
+                            ? `Saving...`
+                            : isCompleted
+                              ? `Revoke completion of ${item.title}`
+                              : `Mark ${item.title} as completed`
+                        }
                         className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 w-full sm:w-32 ${
                           isCompleted
-                            ? "bg-orange-600 text-orange-50 hover:bg-orange-100 dark:bg-orange-900/40 dark:text-orange-400"
+                            ? "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-400"
                             : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-                        } disabled:opacity-50`}
+                        } disabled:opacity-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                       >
                         {isSaving ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2
+                            className="h-3.5 w-3.5 animate-spin"
+                            aria-hidden="true"
+                          />
                         ) : isCompleted ? (
                           <>
-                            <XIcon className="h-3.5 w-3.5" />
+                            <XIcon className="h-3.5 w-3.5" aria-hidden="true" />
                             <span>Revoke</span>
                           </>
                         ) : (
                           <>
-                            <Check className="h-3.5 w-3.5" />
+                            <Check className="h-3.5 w-3.5" aria-hidden="true" />
                             <span>Award</span>
                           </>
                         )}
@@ -482,19 +369,18 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
           </div>
         )}
       </div>
-
-      <div className="mt-8 flex justify-end">
-        <button
-          onClick={onClose}
-          className="px-6 py-2.5 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-        >
-          Close Session
-        </button>
-      </div>
     </BaseModal>
   );
 };
 
+/**
+ * Shield check icon component for security-related UI elements.
+ * Implements a heroicon-style shield with check mark for admin interfaces.
+ *
+ * @component
+ * @param {Object} props - SVG props to pass through
+ * @returns {JSX.Element} Shield check SVG icon
+ */
 const ShieldCheck = (props) => (
   <svg
     {...props}
@@ -502,6 +388,7 @@ const ShieldCheck = (props) => (
     viewBox="0 0 24 24"
     stroke="currentColor"
     strokeWidth={2}
+    aria-hidden="true"
   >
     <path
       strokeLinecap="round"

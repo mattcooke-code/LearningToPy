@@ -41,7 +41,7 @@ const createTransporter = async () => {
     console.log(`   From: ${emailConfig.from}\n`);
   }
 
-  return nodemailer.createTransport(emailConfig);
+  return nodemailer.createTransport({ ...emailConfig, family: 4 });
 };
 
 let transporterPromise = null;
