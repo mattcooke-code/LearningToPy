@@ -66,6 +66,8 @@ const getRefreshTokenSecret = () => {
 
 // ─── Email ───────────────────────────────────────────────────────────────────
 
+// ─── Email ───────────────────────────────────────────────────────────────────
+
 const getEmailUser = () => {
   const user = process.env.EMAIL_USER;
   if (!user && isProduction()) {
@@ -74,65 +76,18 @@ const getEmailUser = () => {
   return user || (isDevelopment() ? "dev@example.com" : undefined);
 };
 
-const getEmailPassword = () => {
-  const password = process.env.EMAIL_PASS;
-  if (!password && isProduction()) {
-    console.warn("⚠️  EMAIL_PASS not set in production.");
-  }
-  return password || (isDevelopment() ? "dev-password-123" : undefined);
-};
-
-/**
- * Returns the nodemailer service alias (e.g. "gmail") if EMAIL_SERVICE is set,
- * otherwise null (fall back to host/port config).
- */
-const getEmailService = () => process.env.EMAIL_SERVICE || null;
-
-const getEmailHost = () => {
-  const service = getEmailService();
-  if (service === "gmail") return "smtp.gmail.com";
-  if (service) return service;
-  return process.env.EMAIL_HOST || "smtp.gmail.com";
-};
-
-const getEmailPort = () => parseInt(process.env.EMAIL_PORT) || 587;
-
-const getEmailSecure = () => {
-  if (process.env.EMAIL_SECURE !== undefined) {
-    return process.env.EMAIL_SECURE === "true";
-  }
-  return getEmailPort() === 465;
-};
-
 const getEmailFromName = () => process.env.EMAIL_FROM_NAME || "Learning To Py";
 
 const getEmailFromAddress = () =>
   process.env.EMAIL_FROM_ADDRESS || getEmailUser();
 
-const getEmailFrom = () => `"${getEmailFromName()}" <${getEmailFromAddress()}>`;
-
-const getEmailConfig = () => {
-  return {
-    host: getEmailHost(),
-    port: getEmailPort(),
-    secure: getEmailSecure(),
-    auth: {
-      user: getEmailUser(),
-      pass: getEmailPassword(),
-    },
-    from: getEmailFrom(),
-    family: 4,
-  };
+const getEmailFrom = () => {
+  const name = getEmailFromName();
+  const address = getEmailFromAddress() || "onboarding@resend.dev";
+  return `"${name}" <${address}>`;
 };
 
-const isEmailConfigured = () => {
-  if (!isProduction()) return true;
-  return !!(
-    process.env.EMAIL_HOST &&
-    process.env.EMAIL_USER &&
-    process.env.EMAIL_PASS
-  );
-};
+const getSupportEmail = () => process.env.SUPPORT_EMAIL || getEmailUser();
 
 // ─── Seeding ─────────────────────────────────────────────────────────────────
 
@@ -203,13 +158,10 @@ module.exports = {
 
   // Email
   getEmailUser,
-  getEmailPassword,
-  getEmailHost,
-  getEmailPort,
-  getEmailSecure,
   getEmailFrom,
-  getEmailConfig,
-  isEmailConfigured,
+  getEmailFromName,
+  getEmailFromAddress,
+  getSupportEmail,
 
   // Seeding
   getSeedConfig,
