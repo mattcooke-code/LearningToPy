@@ -301,7 +301,7 @@ const searchUsers = catchAsync(async (req, res, next) => {
 
   const users = await User.find(searchFilter)
     .select(
-      "username email xp streak badges lastActive isBlocked isAdmin createdAt completedModulesCount",
+      "username email xp streak badges lastActive isBlocked isAdmin createdAt completedModulesCount ageBracket",
     )
     .sort(sortOption)
     .skip(skip)
