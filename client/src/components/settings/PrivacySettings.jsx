@@ -1,3 +1,4 @@
+// /src/components/settings/PrivacySettings.jsx
 import { useRef, useState } from "react";
 import { Shield, Eye, EyeOff, User } from "lucide-react";
 import { apiClient } from "../../services";
@@ -10,11 +11,11 @@ import { getErrorMessage, getSuccessMessage } from "../../utils";
  *
  * @component
  * @param {Object} props
- * @param {Object} props.user - Current user object containing privacySettings
+ * @param {Object} props.user - Current user object containing privacySettings and ageBracket
  * @param {Function} props.onUpdate - Callback fired with updated settings after save
  */
-
 const PrivacySettings = ({ user, onUpdate }) => {
+  // Admin accounts are not shown on leaderboards
   if (user?.isAdmin) {
     return (
       <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
@@ -37,6 +38,37 @@ const PrivacySettings = ({ user, onUpdate }) => {
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               These settings are not applicable to your account.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Users under 16 have enhanced privacy by default (UK Children's Code / Age Appropriate Design Code)
+  if (user?.ageBracket === "13-15") {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <div className="mb-6 flex items-center space-x-3">
+          <Shield className="h-6 w-6 text-python-blue dark:text-python-blue" />
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Privacy Settings
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-100">
+              Control how you appear to other learners
+            </p>
+          </div>
+        </div>
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start space-x-3">
+          <Shield className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-medium text-blue-700 dark:text-blue-300">
+              Enhanced privacy for younger learners
+            </p>
+            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+              To protect your privacy, your profile is not visible on public
+              leaderboards. This setting will be available when you turn 16.
             </p>
           </div>
         </div>
@@ -240,6 +272,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
                 ? "bg-green-50 text-green-800"
                 : "bg-red-50 text-red-800"
             }`}
+            role="alert"
           >
             <p className="text-sm font-medium">{message.text}</p>
           </div>

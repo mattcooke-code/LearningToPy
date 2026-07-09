@@ -273,13 +273,23 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
   const range = 2;
 
   const currentUser = await User.findById(userId)
-    .select("username xp privacySettings isAdmin leaderboardStatus")
+    .select("username xp privacySettings isAdmin leaderboardStatus ageBracket")
     .lean();
   if (!currentUser) return next(new AppError("User not found", 404));
+
+  if (currentUser.ageBracket === "13-15") {
+    return sendJsonResponse(res, 200, "User not eligible for leaderboard", {
+      users: [],
+      currentUserRank: null,
+      totalUsers: 0,
+      message: "Leaderboard is not available for users under 16",
+    });
+  }
 
   const activeLeaderboardFilter = {
     "privacySettings.showOnLeaderboards": true,
     isAdmin: { $ne: true },
+    ageBracket: { $in: ["16-17", "18+"] },
     leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
   };
 
@@ -345,6 +355,7 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
   const topUsers = await User.find({
     "privacySettings.showOnLeaderboards": true,
     isAdmin: { $ne: true },
+    ageBracket: { $in: ["16-17", "18+"] },
     leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
   })
     .select("username xp privacySettings leaderboardStatus")
@@ -404,6 +415,7 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
       $match: {
         "userData.privacySettings.showOnLeaderboards": true,
         "userData.isAdmin": { $ne: true },
+        "userData.ageBracket": { $in: ["16-17", "18+"] },
         "userData.leaderboardStatus": { $in: ["ACTIVE", "COMPLETED_PENDING"] },
       },
     },
@@ -603,10 +615,16 @@ const getHallOfFame = catchAsync(async (req, res, next) => {
       .sort({ completedAt: 1 }) // earliest completer = #1
       .skip(skip)
       .limit(limit)
-      .populate("userId", "username privacySettings createdAt")
+      .populate({
+        path: "userId",
+        select: "username privacySettings createdAt ageBracket",
+        match: { ageBracket: { $in: ["16-17", "18+"] } },
+      })
       .lean(),
     CourseCompletion.countDocuments({ hofJoinedAt: { $ne: null } }),
   ]);
+
+  const filteredMembers = inductedMembers.filter((member) => member.userId);
 
   const members = inductedMembers.map((member, index) => {
     const user = member.userId || {};

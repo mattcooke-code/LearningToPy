@@ -764,22 +764,39 @@ const updatePrivacySettings = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid privacy settings format", 400));
   }
 
+  const existingUser = await User.findById(userId).select("+ageBracket");
+
+  if (!existingUser) {
+    return next(new AppError("User not found", 404));
+  }
+
+  let finalSettings;
+  if (existingUser.ageBracket === "13-15") {
+    finalSettings = {
+      showOnLeaderboards: false,
+      showAsAnonymous: true,
+      showUsernameOnLeaderboards: false,
+    };
+  } else {
+    finalSettings = {
+      showOnLeaderboards,
+      showAsAnonymous,
+      showUsernameOnLeaderboards,
+    };
+  }
+
   const user = await User.findByIdAndUpdate(
     userId,
     {
       $set: {
-        "privacySettings.showOnLeaderboards": showOnLeaderboards,
-        "privacySettings.showAsAnonymous": showAsAnonymous,
+        "privacySettings.showOnLeaderboards": finalSettings.showOnLeaderboards,
+        "privacySettings.showAsAnonymous": finalSettings.showAsAnonymous,
         "privacySettings.showUsernameOnLeaderboards":
-          showUsernameOnLeaderboards,
+          finalSettings.showUsernameOnLeaderboards,
       },
     },
     { new: true, runValidators: true },
   ).select("username privacySettings");
-
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
 
   sendJsonResponse(res, 200, "Privacy settings updated successfully", {
     privacySettings: user.privacySettings,
