@@ -129,7 +129,13 @@ const ConfirmationModal = ({
   }[type] || { bg: "bg-gray-50", btn: "bg-gray-900" };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onCancel} title="" size="md">
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={title}
+      size="md"
+      description={message}
+    >
       <div className="flex flex-col items-center text-center p-2">
         <div
           className={`w-16 h-16 rounded-full ${styles.bg} flex items-center justify-center mb-4`}
@@ -138,6 +144,7 @@ const ConfirmationModal = ({
             className={`w-3 h-3 rounded-full animate-pulse ${
               type === "danger" ? "bg-red-500" : "bg-blue-500"
             }`}
+            aria-hidden="true"
           />
         </div>
 
@@ -166,7 +173,6 @@ const ConfirmationModal = ({
     </BaseModal>
   );
 };
-
 // ---------------------------------------------------------------------------
 // NotificationProvider Component
 // ---------------------------------------------------------------------------
