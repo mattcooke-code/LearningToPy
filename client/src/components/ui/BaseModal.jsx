@@ -222,6 +222,7 @@ const BaseModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
+        aria-label={!title ? "Dialog" : undefined}
         aria-describedby={descriptionId}
       >
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
