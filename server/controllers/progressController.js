@@ -626,7 +626,7 @@ const getHallOfFame = catchAsync(async (req, res, next) => {
 
   const filteredMembers = inductedMembers.filter((member) => member.userId);
 
-  const members = inductedMembers.map((member, index) => {
+  const members = filteredMembers.map((member, index) => {
     const user = member.userId || {};
     return {
       rank: skip + index + 1,
