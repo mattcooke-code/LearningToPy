@@ -148,7 +148,6 @@ const Dashboard = () => {
             onViewAll={() => setIsHallOfFameModalOpen(true)}
           />
         </div>
-
         {/* Progress Gauge - Center (takes 2/4 width) */}
         <div className="lg:col-span-2 order-1 lg:order-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
@@ -169,7 +168,6 @@ const Dashboard = () => {
             <strong>{progressData.xp} XP</strong>
           </p>
         </div>
-
         {/* Leaderboard Snapshot - Right sidebar on desktop */}
         <div className="lg:col-span-1 order-2 lg:order-3 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
@@ -180,17 +178,44 @@ const Dashboard = () => {
             <div className="flex justify-center py-8">
               <Spinner size="medium" />
             </div>
-          ) : surroundingLeaderboard ? (
-            <div className="space-y-3">
-              {surroundingLeaderboard.users?.map((player) => (
-                <LeaderboardRow
-                  key={player._id}
-                  rank={player.rank}
-                  user={player}
-                  isCurrent={player.isCurrent}
-                />
-              ))}
+          ) : user?.ageBracket === "13-15" ? (
+            /* Under 16 Privacy Message */
+            <div className="text-center py-2">
+              <div className="text-4xl mb-3">🔒</div>
+              <h3 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Your Privacy Comes First
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                To protect younger learners, profiles aren't shown on public
+                leaderboards. All your progress is still being tracked —
+                leaderboards become available when you turn 16.
+              </p>
+              <div className="mt-4 text-sm text-blue-600 dark:text-blue-400 font-medium">
+                🌟 Keep learning — you're doing great!
+              </div>
             </div>
+          ) : surroundingLeaderboard ? (
+            /* Standard Leaderboard for 16+ */
+            <>
+              <div className="space-y-3">
+                {surroundingLeaderboard.users?.map((player) => (
+                  <LeaderboardRow
+                    key={player._id}
+                    rank={player.rank}
+                    user={player}
+                    isCurrent={player.isCurrent}
+                  />
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => setIsLeaderboardModalOpen(true)}
+                  className="text-python-blue dark:text-python-light hover:underline font-medium"
+                >
+                  View Full Leaderboard →
+                </button>
+              </div>
+            </>
           ) : (
             <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 p-4 text-center">
               <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -198,16 +223,7 @@ const Dashboard = () => {
               </p>
             </div>
           )}
-
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setIsLeaderboardModalOpen(true)}
-              className="text-python-blue dark:text-python-light hover:underline font-medium"
-            >
-              View Full Leaderboard →
-            </button>
-          </div>
-        </div>
+        </div>{" "}
       </div>
 
       {/* Progress Stats */}

@@ -204,7 +204,7 @@ const register = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("+password +ageBracket");
 
   if (user && user.leaderboardStatus === "INACTIVE_REMOVED") {
     user.leaderboardStatus =
@@ -219,7 +219,6 @@ const login = catchAsync(async (req, res, next) => {
   }
 
   const peppered = applyPepper(password);
-
   const isMatch = await bcrypt.compare(peppered, user.password);
   if (!isMatch) {
     return next(
@@ -262,6 +261,7 @@ const login = catchAsync(async (req, res, next) => {
       isAdmin: user.isAdmin,
       streak: user.streak,
       lastActive: user.lastActiveDate,
+      ageBracket: user.ageBracket,
     },
     streak: streakResult,
   });
@@ -278,7 +278,7 @@ const login = catchAsync(async (req, res, next) => {
  */
 const getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId || req.user._id).select(
-    "-password -refreshToken",
+    "-password -refreshToken +ageBracket",
   );
 
   if (!user) {
@@ -323,7 +323,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid or expired refresh token.", 401));
   }
 
-  const user = await User.findById(decoded.id);
+  const user = await User.findById(decoded.id).select("+ageBracket");
 
   if (user && user.leaderboardStatus === "INACTIVE_REMOVED") {
     user.leaderboardStatus =
@@ -383,6 +383,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
       isAdmin: user.isAdmin,
       streak: user.streak,
       lastActive: user.lastActiveDate,
+      ageBracket: user.ageBracket,
     },
     streak: streakResult,
   });
