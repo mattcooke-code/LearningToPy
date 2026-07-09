@@ -311,9 +311,9 @@ const UserManagementTable = ({ searchQuery = "" }) => {
                         );
                       }}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500 dark:text-gray-400"
-                      aria-label={`Actions for ${user.username}`}
-                      aria-expanded={activeDropdownUser === user._id}
-                      aria-haspopup="true"
+                      aria-label={`More actions for ${user.username}`}
+                      title={`Actions for ${user.username}`}
+                      type="button"
                     >
                       <MoreVertical className="h-4 w-4" aria-hidden="true" />
                     </button>
