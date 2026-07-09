@@ -334,9 +334,22 @@ const UserManagementTable = ({ searchQuery = "" }) => {
                           <Eye className="w-4 h-4 mr-2 text-blue-500" /> View
                           Profile
                         </button>
+                        {/* Make Admin button - disabled for under-18s */}
                         <button
-                          className="w-full px-4 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
                           onClick={() => handleToggleAdmin(user)}
+                          disabled={user.ageBracket !== "18+"}
+                          className={`w-full px-4 py-2 text-sm flex items-center ${
+                            user.ageBracket !== "18+"
+                              ? "opacity-50 cursor-not-allowed text-gray-400"
+                              : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+                          }`}
+                          title={
+                            user.ageBracket !== "18+"
+                              ? "User must be 18 or older to become admin"
+                              : user.isAdmin
+                                ? "Remove admin"
+                                : "Make admin"
+                          }
                         >
                           {user.isAdmin ? (
                             <ShieldOff className="w-4 h-4 mr-2 text-orange-500" />
