@@ -133,9 +133,18 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
     return next(new AppError("Cannot modify own admin status.", 400));
   }
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select("+ageBracket");
   if (!user) {
     return next(new AppError("User not found.", 404));
+  }
+
+  if (makeAdmin && user.ageBracket !== "18+") {
+    return next(
+      new AppError(
+        "Users must be 18 or older to be granted admin priviledges.",
+        400,
+      ),
+    );
   }
 
   const oldStatus = user.isAdmin;
