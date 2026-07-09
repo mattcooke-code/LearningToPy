@@ -206,7 +206,7 @@ const login = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({ email }).select("+password +ageBracket");
 
-  if (user && user.leaderboardStatus === "INACTIVE_REMOVED") {
+  if (user && user.leaderboardStatus === "INACTIVE_REMOVED" && !user.isAdmin) {
     user.leaderboardStatus =
       user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
     user.removedFromLeaderboardAt = null;

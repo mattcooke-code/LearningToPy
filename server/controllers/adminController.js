@@ -148,7 +148,29 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
   }
 
   const oldStatus = user.isAdmin;
+  const oldLeaderboardStatus = user.leaderboardStatus;
+
   user.isAdmin = makeAdmin;
+
+  if (makeAdmin) {
+    user.leaderboardStatus = "INACTIVE_REMOVED";
+    user.removedFromLeaderboardAt = new Date();
+    user.privacySettings = {
+      showOnLeaderboards: false,
+      showAsAnonymous: true,
+      showUsernameOnLeaderboards: false,
+    };
+  } else {
+    user.leaderboardStatus =
+      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
+    user.removedFromLeaderboardAt = null;
+    user.privacySettings = {
+      showOnLeaderboards: true,
+      showAsAnonymous: false,
+      showUsernameOnLeaderboards: false,
+    };
+  }
+
   await user.save();
 
   await createAdminLog(
@@ -156,7 +178,10 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
     makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
     "USER",
     userId,
-    { old: { isAdmin: oldStatus }, new: { isAdmin: user.isAdmin } },
+    {
+      old: { isAdmin: oldStatus, leaderboardStatus: oldLeaderboardStatus },
+      new: { isAdmin: user.isAdmin, leaderboardStatus: user.leaderboardStatus },
+    },
     reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
     req,
   );
