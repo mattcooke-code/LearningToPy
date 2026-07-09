@@ -2,6 +2,10 @@
 
 The terminal is where your code comes to life! It's an interactive Python environment that shows your program's output and any errors. In your lessons, you can open it by clicking the **Show Terminal** button below the code editor.
 
+:::warning
+**The Terminal** is only visible in lessons that have a coding exercise available. The first lesson with a coding exercise is the last lesson of this module. If you want to view the terminal now, you can navigate to **Module 1 Lesson 1**.
+:::
+
 ## What the Terminal Shows
 
 ![Terminal](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/Terminal.png)

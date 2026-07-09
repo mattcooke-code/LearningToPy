@@ -218,9 +218,9 @@ const login = catchAsync(async (req, res, next) => {
     );
   }
 
-  const peppered = applyPepper(password);
+  //const peppered = applyPepper(password);
 
-  const isMatch = await bcrypt.compare(peppered, user.password);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return next(
       new AppError("Invalid credentials or account is blocked.", 401),

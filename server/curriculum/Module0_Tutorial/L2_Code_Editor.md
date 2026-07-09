@@ -2,6 +2,10 @@
 
 Welcome to your Python playground! The code editor is where you'll write, edit, and experiment with Python code. Let's explore its powerful features designed to make coding enjoyable and efficient.
 
+:::warning
+**The Code Editor** is only visible in lessons that have a coding exercise available. The first lesson with a coding exercise is the last lesson of this module. If you want to view the code editor now, you can navigate to **Module 1 Lesson 1**.
+:::
+
 ## Editor Layout
 
 ![Code Editor: Light Mode](https://learningtopy.onrender.com/curriculum/Module0_Tutorial/images/CodeEditorLightMode.png)
@@ -61,7 +65,7 @@ If you have a long block of code, you can "fold" it to keep your workspace clean
 1. Click the `v` next to the line number to collapse the code.
 2. Click the `>` next to the line number to expand it again.
 
-:::note
+:::tip
 **Keep your workspace tidy:**
 Use code folding to hide functions you've already finished so you can focus on the new code you're writing underneath it!
 :::
