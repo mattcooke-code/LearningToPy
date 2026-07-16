@@ -40,6 +40,7 @@ This privacy notice tells you what to expect us to do with your personal informa
   - [Sharing information outside the UK](#sharing-information-outside-the-uk)
     - [Transfers made directly by us](#transfers-made-directly-by-us)
     - [Transfers made by our data processors](#transfers-made-by-our-data-processors)
+    - [Other technologies](#other-technologies)
   - [Automated Decision-Making](#automated-decision-making)
   - [How to complain](#how-to-complain)
 
@@ -415,6 +416,16 @@ Where necessary, our data processors may share personal information outside of t
 | **Category of recipient** | Cloud infrastructure providers (Technology/Infrastructure sector)               |
 | **Country**               | United States and Germany                                                       |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
+
+### Other technologies
+
+Our platform uses various open-source libraries and frameworks (such as React
+and UI component libraries) to provide the user interface. These libraries
+run entirely in the user's browser or on our servers and do not transmit
+personal data to third parties. Our frontend is distributed via Vercel's
+content delivery network (CDN), which may cache static assets at edge
+locations but does not process personal data beyond what is described in
+Vercel's processor agreement above.
 
 ---
 

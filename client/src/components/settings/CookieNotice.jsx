@@ -61,20 +61,18 @@ const CookieNotice = () => {
           Learn more →
         </a>
       </div>
-
       <div className="flex gap-2 mt-3">
         <button
           onClick={() => choose("declined")}
-          className="flex-1 text-sm px-3 py-1.5 rounded-md border border-gray-300 
-                     dark:border-gray-600 text-gray-700 dark:text-gray-200 
-                     hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="flex-1 text-sm px-3 py-1.5 rounded-md bg-gray-600 text-white 
+               hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
         >
           Decline
         </button>
         <button
           onClick={() => choose("accepted")}
           className="flex-1 text-sm px-3 py-1.5 rounded-md bg-blue-600 text-white 
-                     hover:bg-blue-700"
+               hover:bg-blue-700"
         >
           Accept
         </button>
