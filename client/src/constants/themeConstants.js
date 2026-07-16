@@ -46,10 +46,10 @@ export const THEME_HOVER_COVERS = {
 export const THEME_TEXT_COLORS = {
   DEFAULT: "#ffffff",
   RED: "#ffffff",
-  ORANGE: "#e5e5e5",
-  AMBER: "#4a371c",
+  ORANGE: "#ffffff",
+  AMBER: "#1F1F1F",
   YELLOW: "#1a1a1a",
-  LIME: "#e5e5e5",
+  LIME: "#ffffff",
   GREEN: "#ffffff",
 };
 
