@@ -5,15 +5,15 @@
     "Task 1: Print numbers 0 through 7 inclusive.",
     "Task 2: Print numbers 10 through 13 inclusive.",
     "Task 3: Print even numbers from 0 to 10 inclusive (use step of 2)",
-    "Task 4: Countdown from 5 to 1 using negative step"
+    "Task 4: Countdown from 100 to 95 using negative step"
   ],
-  "starterCode": "# Task 1: Print 0 through 7\n\n# Task 2: Print 10 through 13\n\n# Task 3: Print even numbers from 0 to 10 (0, 2, 4, 6, 8, 10)\n\n# Task 4: Countdown from 5 to 1\n",
-  "solution": "# Task 1: Print 0 through 7\nfor i in range(8):\n    print(i)\n\n# Task 2: Print 10 through 13\nfor i in range(10, 14):\n    print(i)\n\n# Task 3: Print even numbers from 0 to 10 (0, 2, 4, 6, 8, 10)\nfor i in range(0, 11, 2):\n    print(i)\n\n# Task 4: Countdown from 5 to 1\nfor i in range(5, 0, -1):\n    print(i)",
+  "starterCode": "# Task 1: Print 0 through 7\n\n# Task 2: Print 10 through 13\n\n# Task 3: Print even numbers from 0 to 10 (0, 2, 4, 6, 8, 10)\n\n# Task 4: Countdown from 100 to 95\n",
+  "solution": "# Task 1: Print 0 through 7\nfor i in range(8):\n    print(i)\n\n# Task 2: Print 10 through 13\nfor i in range(10, 14):\n    print(i)\n\n# Task 3: Print even numbers from 0 to 10 (0, 2, 4, 6, 8, 10)\nfor i in range(0, 11, 2):\n    print(i)\n\n# Task 4: Countdown from 100 to 95\nfor i in range(100, 94, -1):\n    print(i)",
   "hints": [
     "Task 1: `range(8)` generates 0,1,2,3,4,5,6,7 (stops before 8)",
     "Task 2: `range(10, 14)` generates 10,11,12,13 (stops before 14)",
     "Task 3: `range(0, 11, 2)` generates 0,2,4,6,8,10 (step of 2, stops before 11)",
-    "Task 4: Use `range(5, 0, -1)` to count backward (negative step!)",
+    "Task 4: Use `range(100, 94, -1)` to count backward from 100 to 95 (negative step!)",
     "Remember: Start a for loop with `for variable_name in range(...):`",
     "Don't forget to indent the code inside the loop!"
   ],
@@ -21,22 +21,22 @@
   "tests": [
     {
       "name": "Check Task 1 - Print 0 through 7",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check that 0 through 7 are in the output\nfor num in range(8):\n    if str(num) not in output:\n        raise AssertionError(f'Task 1 failed: Missing number {num}. Should print 0 through 7')\n\nprint('TEST_PASSED')"
+      "code": "# Get all printed numbers as a list of integers\nlines = []\nfor line in output.strip().split('\\n'):\n    line = line.strip()\n    if line and line.isdigit():\n        lines.append(int(line))\n\n# Check that 0 through 7 appear (allow other numbers too)\nfor num in range(8):\n    if num not in lines:\n        raise AssertionError(f'Task 1 failed: Missing number {num}. Should print 0 through 7')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check Task 2 - Print 10 through 13",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\n# Check that 10 through 13 are in the output\nfor num in range(10, 14):\n    if str(num) not in output:\n        raise AssertionError(f'Task 2 failed: Missing number {num}. Should print 10 through 13')\n\nprint('TEST_PASSED')"
+      "code": "# Get all printed numbers as a list of integers\nlines = []\nfor line in output.strip().split('\\n'):\n    line = line.strip()\n    if line and line.isdigit():\n        lines.append(int(line))\n\n# Check that 10 through 13 appear\nfor num in range(10, 14):\n    if num not in lines:\n        raise AssertionError(f'Task 2 failed: Missing number {num}. Should print 10 through 13')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check Task 3 - Print even numbers with step",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# Check that even numbers 0, 2, 4, 6, 8, 10 are printed\nexpected_evens = ['0', '2', '4', '6', '8', '10']\nfor even in expected_evens:\n    if even not in lines:\n        raise AssertionError(f'Task 3 failed: Missing {even}. Use range with step=2 to print even numbers: 0, 2, 4, 6, 8, 10')\n\nprint('TEST_PASSED')"
+      "code": "# Get all printed numbers as a list of integers\nlines = []\nfor line in output.strip().split('\\n'):\n    line = line.strip()\n    if line and line.isdigit():\n        lines.append(int(line))\n\n# Check that even numbers 0, 2, 4, 6, 8, 10 are printed\nexpected_evens = [0, 2, 4, 6, 8, 10]\nfor even in expected_evens:\n    if even not in lines:\n        raise AssertionError(f'Task 3 failed: Missing {even}. Use range with step=2 to print even numbers: 0, 2, 4, 6, 8, 10')\n\nprint('TEST_PASSED')"
     },
     {
       "name": "Check Task 4 - Countdown with negative step",
-      "code": "import io, sys\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\nexec(code)\noutput = sys.stdout.getvalue()\nsys.stdout = old_stdout\n\nlines = [line.strip() for line in output.strip().split('\\n') if line.strip()]\n\n# Check countdown from 5 to 1\nexpected_countdown = ['5', '4', '3', '2', '1']\nfor num in expected_countdown:\n    if num not in lines:\n        raise AssertionError(f'Task 4 failed: Missing {num}. Use range with negative step to countdown: 5, 4, 3, 2, 1')\n\nprint('TEST_PASSED')"
+      "code": "# Get all printed numbers as a list of integers\nlines = []\nfor line in output.strip().split('\\n'):\n    line = line.strip()\n    if line and line.isdigit():\n        lines.append(int(line))\n\n# Check that countdown numbers 100, 99, 98, 97, 96, 95 are printed\nexpected_countdown = [100, 99, 98, 97, 96, 95]\nfor num in expected_countdown:\n    if num not in lines:\n        raise AssertionError(f'Task 4 failed: Missing {num}. Use range with negative step to countdown: 100, 99, 98, 97, 96, 95')\n\nprint('TEST_PASSED')"
     }
   ],
-  "expectedOutput": "(Printed on separate lines)\n0, 1, 2, 3, 4, 5, 6, 7\n10, 11, 12, 13\n0, 2, 4, 6, 8, 10\n5, 4, 3, 2, 1",
+  "expectedOutput": "(Printed on separate lines)\n0, 1, 2, 3, 4, 5, 6, 7\n10, 11, 12, 13\n0, 2, 4, 6, 8, 10\n100, 99, 98, 97, 96, 95",
   "tags": ["range", "for-loop", "counting", "stepping", "beginner"],
   "challengeGroup": "for-loop-basics"
 }

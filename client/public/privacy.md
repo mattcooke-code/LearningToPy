@@ -172,6 +172,8 @@ Under UK data protection law, strictly necessary cookies do not require your con
 - Third-party tracking cookies (such as Google Analytics)
 - Social media cookies
 
+**Note on learning progress tracking:** The cookie choice above is separate from the learning progress data described in [How we use your data](#how-we-use-your-data) (pages viewed, quiz attempts, time spent on lessons, etc.). That data is not stored via cookies — it's collected directly by our platform because it's necessary for the platform to function as a learning management system (tracking XP, streaks, badges, and your position where you left off). It is always collected while you are logged in, regardless of your cookie preference below, because it isn't an optional extra — it's the core service. The Accept/Decline choice governs only genuinely optional additions, such as anonymous, cookie-free traffic analytics, which we do not currently use.
+
 If this changes in the future, we will update this notice and ask for your consent where required.
 
 ---
@@ -302,13 +304,21 @@ You can request deletion of your data at any time through your account settings 
 | **What they do**      | Backend hosting — runs our API server and processes user requests including authentication, data queries, and learning progress updates. |
 | **Location**          | Frankfurt, Germany                                                                                                                       |
 
-**Gmail (Google) for Nodemailer**
+**Resend**
 
-|                       |                                                                                                                                           |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Name of processor** | Google LLC (Gmail/Google Workspace)                                                                                                       |
-| **What they do**      | Email delivery service — processes email addresses to send transactional emails including password reset links and account notifications. |
-| **Location**          | United States                                                                                                                             |
+|                       |                                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Name of processor** | Resend (Plus Five Five, Inc.)                                                                                            |
+| **What they do**      | Transactional email delivery service — processes email addresses to send password reset links and account notifications. |
+| **Location**          | United States (account data, metadata, and logs are stored in the US regardless of sending region selected)              |
+
+**Gmail (Google LLC)**
+
+|                       |                                                                                                                                                                                                                                                                                                           |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Name of processor** | Google LLC (Gmail)                                                                                                                                                                                                                                                                                        |
+| **What they do**      | Receives and stores correspondence sent to our support/contact address (learning2py@gmail.com), including queries, complaints, and data rights requests. We are in the process of migrating to a dedicated support mailbox on our own domain; this entry will be updated once that migration is complete. |
+| **Location**          | United States                                                                                                                                                                                                                                                                                             |
 
 ### Others we share personal information with
 
@@ -354,11 +364,19 @@ For further information or to obtain a copy of the appropriate safeguard for any
 | **Country**               | United States (data hosted in Germany)                                          |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
-**Google LLC**
+**Resend (Plus Five Five, Inc.)**
 
 |                           |                                                                                 |
 | ------------------------- | ------------------------------------------------------------------------------- |
 | **Category of recipient** | Email service provider (Technology/Communications sector)                       |
+| **Country**               | United States                                                                   |
+| **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
+
+**Google LLC (Gmail)**
+
+|                           |                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| **Category of recipient** | Correspondence/webmail provider (Technology/Communications sector)              |
 | **Country**               | United States                                                                   |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
@@ -374,7 +392,7 @@ Where necessary, our data processors may share personal information outside of t
 | **Country**               | United States and globally (data storage remains in Ireland)                    |
 | **Compliance basis**      | The country or sector has a UK data bridge (also known as Adequacy Regulations) |
 
-**Google LLC sub-processors** (including cloud infrastructure and email delivery providers)
+**Resend sub-processors** (see resend.com/legal/subprocessors for the current list)
 
 |                           |                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------ |
@@ -444,4 +462,4 @@ SK9 5AF
 
 ---
 
-_Last updated: 20 May 2026_
+_Last updated: 16 July 2026_

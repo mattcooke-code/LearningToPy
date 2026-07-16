@@ -10,6 +10,7 @@ Custom React hooks. Encapsulate reusable stateful logic, side effects, and conte
 | `useAdminMutation.js`       | Mutation        | Generic admin mutation with confirmation dialogs, pre-mutation checks, success/error toasts  | ❌     |
 | `useConfirmActions.js`      | Context wrapper | Promise-based confirmation dialogs (delete, archive, publish, reset) via NotificationContext | ❌     |
 | `useContentFilter.js`       | State           | Content filtering by type/status/difficulty/search and sorting                               | ✅     |
+| `useCookieConsent.js`       | State           | Reads/broadcasts cookie consent choice (accepted/declined) via localStorage + window event   | ❌     |
 | `useCourseThemeUpdater.js`  | Side effect     | Syncs theme colour to course progress on route change                                        | ❌     |
 | `useFileDownload.js`        | Util wrapper    | Memoised callbacks for file, CSV, and Python code downloads                                  | ✅     |
 | `useModal.js`               | Store wrapper   | Accessor for the Zustand modal store (`openModal`, `closeModal`)                             | ❌     |
@@ -43,6 +44,8 @@ useSettingsManager ────► utils (PLATFORM_DEFAULTS)
 useStreakNotifications ► context (useNotification)
 
 useContentFilter ────── (no external dependencies — pure React state)
+
+useCookieConsent ──── (no external dependencies — pure React state + localStorage)
 
 ## Testing Notes
 

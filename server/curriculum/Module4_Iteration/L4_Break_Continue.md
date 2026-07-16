@@ -40,10 +40,10 @@ scores = [85, 42, 98, 55, 70]  # 59 is failing
 
 for score in scores:
     if score < 60:
-        print("Score", score, "is failing. Skipping evaluation.")
+        print(f"Score {score} is failing. Skipping evaluation.")
         continue  # Skips the rest of the code below for this score
 
-    print("Score", score, "is passing! Analyzing...")
+    print(f"Score {score} is passing! Analyzing...")
 
 # Output:
 # Score 85 is passing! Analyzing...

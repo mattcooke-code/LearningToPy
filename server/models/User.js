@@ -216,11 +216,20 @@ const UserSchema = new mongoose.Schema(
     suspensionEnd: Date,
     suspensionReason: String,
 
-    // ── Privacy ───────────────────────────────────────
+    // ── Privacy & Cookies ───────────────────────────────────────
     privacySettings: {
       showOnLeaderboards: { type: Boolean, default: true },
       showUsernameOnLeaderboards: { type: Boolean, default: false },
       showAsAnonymous: { type: Boolean, default: false },
+    },
+    cookieConsent: {
+      type: String,
+      enum: ["ACCEPTED", "DECLINED", null],
+      default: null,
+    },
+    cookieConsentDate: {
+      type: Date,
+      default: null,
     },
   },
   {

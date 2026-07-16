@@ -68,7 +68,8 @@ router.delete("/delete-account", protect, authController.deleteAccount);
 
 router.get("/export-data", protect, authController.exportUserData);
 
-// In auth.js routes - add debug route
+router.patch("/cookie-consent", protect, authController.updateCookieConsent);
+
 router.get("/debug/token", protect, (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];

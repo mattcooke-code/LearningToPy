@@ -968,6 +968,8 @@ const exportUserData = catchAsync(async (req, res, next) => {
 
       // Privacy
       privacySettings: user.privacySettings,
+      cookieConsent: user.cookieConsent,
+      cookieConsentDate: user.cookieConsentDate,
     },
     lessonCompletions: {
       count: lessonCompletions.length,
@@ -1003,6 +1005,46 @@ const exportUserData = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Data export successful.", exportData);
 });
 
+/**
+ * Update user's cookie consent preferences.
+ * Syncs consent choice from localStorage to the database.
+ *
+ * @route   PATCH /api/auth/cookie-consent
+ * @body    {string} cookieConsent - "ACCEPTED" or "DECLINED"
+ * @body    {string} [cookieConsentDate] - ISO date string of consent
+ * @returns {Object} 200 - { cookieConsent, cookieConsentDate }
+ * @returns {Object} 400 - Invalid consent value
+ */
+const updateCookieConsent = catchAsync(async (req, res, next) => {
+  const { cookieConsent, cookieConsentDate } = req.body;
+
+  if (!["ACCEPTED", "DECLINED"].includes(cookieConsent)) {
+    return next(
+      new AppError("Invalid consent value. Must be ACCEPTED or DECLINED.", 400),
+    );
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id || req.userId,
+    {
+      $set: {
+        cookieConsent,
+        cookieConsentDate: cookieConsentDate || new Date(),
+      },
+    },
+    { new: true, runValidators: true },
+  ).select("cookieConsent cookieConsentDate");
+
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  sendJsonResponse(res, 200, "Cookie preferences updated.", {
+    cookieConsent: user.cookieConsent,
+    cookieConsentDate: user.cookieConsentDate,
+  });
+});
+
 module.exports = {
   register,
   login,
@@ -1017,4 +1059,5 @@ module.exports = {
   updatePrivacySettings,
   createFlag,
   exportUserData,
+  updateCookieConsent,
 };

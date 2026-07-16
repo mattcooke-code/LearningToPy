@@ -1,90 +1,113 @@
 // /src/components/settings/PrivacySettings.jsx
-import { useRef, useState } from "react";
-import { Shield, Eye, EyeOff, User } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Shield, Eye, EyeOff, User, Cookie } from "lucide-react";
 import { apiClient } from "../../services";
 import { getErrorMessage, getSuccessMessage } from "../../utils";
+import { useAuth } from "../../context";
+import {
+  CONSENT_KEY,
+  CONSENT_DATE_KEY,
+  CONSENT_EVENT,
+} from "../../hooks/useCookieConsent";
 
 /**
- * Privacy settings form controlling leaderboard visibility and anonymity options.
- * Manages interdependent settings: disabling leaderboards automatically hides usernames,
- * and enabling usernames disables anonymous mode.
+ * Privacy settings form controlling leaderboard visibility and cookie consent.
+ *
+ * Cookie consent is available to ALL users regardless of age or admin status.
+ * Leaderboard settings are restricted by age and admin status.
  *
  * @component
  * @param {Object} props
- * @param {Object} props.user - Current user object containing privacySettings and ageBracket
+ * @param {Object} props.user - Current user object containing privacySettings
  * @param {Function} props.onUpdate - Callback fired with updated settings after save
  */
 const PrivacySettings = ({ user, onUpdate }) => {
-  // Admin accounts are not shown on leaderboards
-  if (user?.isAdmin) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
-        <div className="mb-6 flex items-center space-x-3">
-          <Shield className="h-6 w-6 text-python-blue dark:text-python-blue" />
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Privacy Settings
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-100">
-              Control how you appear to other learners
-            </p>
-          </div>
-        </div>
-        <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 p-4 flex items-start space-x-3">
-          <EyeOff className="h-5 w-5 text-gray-400 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-medium text-gray-700 dark:text-gray-200">
-              Admin accounts are not shown on leaderboards
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              These settings are not applicable to your account.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { updateUser } = useAuth();
 
-  // Users under 16 have enhanced privacy by default (UK Children's Code / Age Appropriate Design Code)
-  if (user?.ageBracket === "13-15") {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
-        <div className="mb-6 flex items-center space-x-3">
-          <Shield className="h-6 w-6 text-python-blue dark:text-python-blue" />
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Privacy Settings
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-100">
-              Control how you appear to other learners
-            </p>
-          </div>
-        </div>
-        <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start space-x-3">
-          <Shield className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-medium text-blue-700 dark:text-blue-300">
-              Enhanced privacy for younger learners
-            </p>
-            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-              To protect your privacy, your profile is not visible on public
-              leaderboards. This setting will be available when you turn 16.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Cookie consent state - available for ALL users
+  const [cookieConsent, setCookieConsent] = useState(() => {
+    if (user?.cookieConsent) return user.cookieConsent === "ACCEPTED";
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(CONSENT_KEY) === "ACCEPTED";
+    }
+    return false;
+  });
 
+  const [savingConsent, setSavingConsent] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const timerRef = useRef(null);
+
+  // Sync cookie consent state when user data loads
+  useEffect(() => {
+    if (user?.cookieConsent) {
+      setCookieConsent(user.cookieConsent === "ACCEPTED");
+    }
+  }, [user?.cookieConsent]);
+
+  const handleCookieConsentToggle = async (accepted) => {
+    const newValue = accepted;
+    setCookieConsent(newValue);
+    setSavingConsent(true);
+
+    try {
+      const consentEnum = accepted ? "ACCEPTED" : "DECLINED";
+      const date = new Date().toISOString();
+
+      // Update backend
+      const response = await apiClient.patch("/auth/cookie-consent", {
+        cookieConsent: consentEnum,
+        cookieConsentDate: date,
+      });
+
+      // Update localStorage
+      localStorage.setItem(CONSENT_KEY, consentEnum);
+      localStorage.setItem(CONSENT_DATE_KEY, date);
+
+      // Broadcast change to all components
+      window.dispatchEvent(
+        new CustomEvent(CONSENT_EVENT, {
+          detail: consentEnum,
+        }),
+      );
+
+      // Update user context with new consent
+      updateUser({
+        cookieConsent: consentEnum,
+        cookieConsentDate: date,
+      });
+
+      setMessage({
+        type: "success",
+        text: `Optional cookies ${accepted ? "enabled" : "disabled"}.`,
+      });
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(
+        () => setMessage({ type: "", text: "" }),
+        3000,
+      );
+    } catch (err) {
+      // Revert on error
+      setCookieConsent(!accepted);
+      console.error("Failed to update cookie consent:", err);
+      setMessage({
+        type: "error",
+        text: getErrorMessage(err, "Failed to update cookie preferences."),
+      });
+    } finally {
+      setSavingConsent(false);
+    }
+  };
+
+  // ---- Leaderboard settings (only for eligible users) ----
   const [settings, setSettings] = useState({
     showOnLeaderboards: user?.privacySettings?.showOnLeaderboards ?? true,
     showAsAnonymous: user?.privacySettings?.showAsAnonymous ?? false,
     showUsernameOnLeaderboards:
       user?.privacySettings?.showUsernameOnLeaderboards ?? true,
   });
+
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
-  const timerRef = useRef(null);
 
   const handleSave = async () => {
     try {
@@ -146,6 +169,10 @@ const PrivacySettings = ({ user, onUpdate }) => {
     });
   };
 
+  // Determine if leaderboard settings should be shown
+  const showLeaderboardSettings =
+    !user?.isAdmin && user?.ageBracket !== "13-15";
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-800 p-6 shadow-sm">
       <div className="mb-6 flex items-center space-x-3">
@@ -155,122 +182,248 @@ const PrivacySettings = ({ user, onUpdate }) => {
             Privacy Settings
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-100">
-            Control how you appear to other learners
+            Control your privacy preferences and cookie settings
           </p>
         </div>
       </div>
+
       <div className="space-y-6">
-        {/* Leaderboard Visibility */}
+        {/* Cookie Consent Section - VISIBLE TO ALL USERS */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                {settings.showOnLeaderboards ? (
-                  <Eye className="h-5 w-5 text-python-blue" />
-                ) : (
-                  <EyeOff className="h-5 w-5 text-gray-500" />
-                )}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                <Cookie className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
                 <h4 className="font-medium text-gray-900 dark:text-white">
-                  Show on Leaderboards
+                  Cookie Preferences
                 </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-100">
-                  Appear in global and module rankings
+                  {cookieConsent
+                    ? "Optional cookies enabled"
+                    : "Optional cookies disabled"}
                 </p>
               </div>
             </div>
             <label
               className="relative inline-flex cursor-pointer items-center"
-              htmlFor="leaderboard-toggle"
+              htmlFor="cookie-consent-toggle"
             >
               <input
-                id="leaderboard-toggle"
+                id="cookie-consent-toggle"
                 type="checkbox"
-                checked={settings.showOnLeaderboards}
-                onChange={(e) => handleToggleLeaderboard(e.target.checked)}
+                checked={cookieConsent}
+                onChange={(e) => handleCookieConsentToggle(e.target.checked)}
+                disabled={savingConsent}
                 className="peer sr-only"
-                aria-label="Show on leaderboards"
+                aria-label="Toggle optional cookies"
               />
-              <div className="bg-theme text-theme-text peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+              <div
+                className={`bg-theme text-theme-text peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white ${savingConsent ? "opacity-50 cursor-wait" : ""}`}
+              ></div>
             </label>
           </div>
 
-          {/* Username Display (nested) */}
-          <div
-            className={`ml-12 space-y-3 transition-all duration-200 ${
-              !settings.showOnLeaderboards ? "opacity-50" : ""
-            }`}
-          >
-            <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-600 p-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
-                  <User className="h-4 w-4 text-gray-600" />
-                </div>
-                <div>
-                  <h5 className="font-medium text-gray-900">Show Username</h5>
-                  <p className="text-sm text-gray-500 dark:text-gray-100">
-                    Display your username publicly
-                  </p>
-                </div>
-              </div>
-              <label
-                className="relative inline-flex cursor-pointer items-center"
-                htmlFor="username-toggle"
-              >
-                <input
-                  id="username-toggle"
-                  type="checkbox"
-                  checked={settings.showUsernameOnLeaderboards}
-                  onChange={(e) => handleToggleUsername(e.target.checked)}
-                  disabled={!settings.showOnLeaderboards}
-                  className="peer sr-only"
-                  aria-label="Show username publicly"
-                />
-                <div
-                  className={`bg-theme text-theme-text peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white ${!settings.showOnLeaderboards ? "cursor-not-allowed opacity-50" : ""}`}
-                ></div>
-              </label>
-            </div>
-            {/* Preview */}
-            <div className="rounded-lg border border-gray-200 p-4">
-              <p className="text-sm font-medium text-gray-700 mb-2 dark:text-gray-100">
-                Preview on leaderboard:
-              </p>
-              <div className="flex flex-wrap items-center justify-between gap-y-2 rounded-lg bg-gray-50 dark:bg-gray-300 px-3 py-3 sm:flex-nowrap">
-                <div className="flex min-w-0 flex-1 items-center space-x-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-python-light text-sm font-semibold">
-                    #25
-                  </span>
-                  <span className="truncate font-medium text-gray-900">
-                    {settings.showUsernameOnLeaderboards
-                      ? user?.username || "YourUsername"
-                      : `Learner #${user?._id?.slice(-6) || "ABC123"}`}
-                  </span>
-                  {!settings.showUsernameOnLeaderboards && (
-                    <span className="hidden xs:inline-block shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 uppercase">
-                      Anon
-                    </span>
+          {/* Cookie consent explanation */}
+          <div className="ml-12">
+            <div className="rounded-lg bg-gray-50 dark:bg-gray-600 p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  {cookieConsent ? (
+                    <div className="h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                    </div>
+                  ) : (
+                    <div className="h-5 w-5 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                      <div className="h-2 w-2 rounded-full bg-red-500" />
+                    </div>
                   )}
                 </div>
-
-                <div className="flex shrink-0 items-center justify-end sm:ml-4">
-                  <span className="rounded-md bg-white/50 px-2 py-1 text-sm font-bold text-yellow-700 shadow-sm sm:bg-transparent sm:p-0 sm:shadow-none">
-                    1,400 XP
-                  </span>
+                <div>
+                  <p className="text-sm text-gray-700 dark:text-gray-200">
+                    <strong>Essential cookies</strong> (always active) —
+                    Required for authentication and core functionality like XP
+                    and streak tracking.
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-200 mt-1">
+                    <strong>Optional cookies</strong> (
+                    {cookieConsent ? "enabled" : "disabled"}) — Currently, we
+                    don't use any optional cookies. This preference applies to
+                    any future non-essential features like analytics or
+                    personalization.
+                  </p>
+                  <a
+                    href="/privacy"
+                    className="text-blue-600 dark:text-blue-400 hover:underline text-xs mt-2 inline-block"
+                  >
+                    Learn more about our cookie policy →
+                  </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Leaderboard Settings - ONLY for eligible users */}
+        {showLeaderboardSettings && (
+          <>
+            {/* Divider */}
+            <div className="border-t border-gray-200 dark:border-gray-700" />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                    {settings.showOnLeaderboards ? (
+                      <Eye className="h-5 w-5 text-python-blue" />
+                    ) : (
+                      <EyeOff className="h-5 w-5 text-gray-500" />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-white">
+                      Show on Leaderboards
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-100">
+                      Appear in global and module rankings
+                    </p>
+                  </div>
+                </div>
+                <label
+                  className="relative inline-flex cursor-pointer items-center"
+                  htmlFor="leaderboard-toggle"
+                >
+                  <input
+                    id="leaderboard-toggle"
+                    type="checkbox"
+                    checked={settings.showOnLeaderboards}
+                    onChange={(e) => handleToggleLeaderboard(e.target.checked)}
+                    className="peer sr-only"
+                    aria-label="Show on leaderboards"
+                  />
+                  <div className="bg-theme text-theme-text peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                </label>
+              </div>
+
+              {/* Username Display (nested) */}
+              <div
+                className={`ml-12 space-y-3 transition-all duration-200 ${
+                  !settings.showOnLeaderboards ? "opacity-50" : ""
+                }`}
+              >
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-600 p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-500">
+                      <User className="h-4 w-4 text-gray-600 dark:text-gray-200" />
+                    </div>
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-white">
+                        Show Username
+                      </h5>
+                      <p className="text-sm text-gray-500 dark:text-gray-100">
+                        Display your username publicly
+                      </p>
+                    </div>
+                  </div>
+                  <label
+                    className="relative inline-flex cursor-pointer items-center"
+                    htmlFor="username-toggle"
+                  >
+                    <input
+                      id="username-toggle"
+                      type="checkbox"
+                      checked={settings.showUsernameOnLeaderboards}
+                      onChange={(e) => handleToggleUsername(e.target.checked)}
+                      disabled={!settings.showOnLeaderboards}
+                      className="peer sr-only"
+                      aria-label="Show username publicly"
+                    />
+                    <div
+                      className={`bg-theme text-theme-text peer h-6 w-11 rounded-full after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white ${!settings.showOnLeaderboards ? "cursor-not-allowed opacity-50" : ""}`}
+                    ></div>
+                  </label>
+                </div>
+                {/* Preview */}
+                <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
+                    Preview on leaderboard:
+                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-y-2 rounded-lg bg-gray-50 dark:bg-gray-300 px-3 py-3 sm:flex-nowrap">
+                    <div className="flex min-w-0 flex-1 items-center space-x-3">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-python-light text-sm font-semibold">
+                        #25
+                      </span>
+                      <span className="truncate font-medium text-gray-900">
+                        {settings.showUsernameOnLeaderboards
+                          ? user?.username || "YourUsername"
+                          : `Learner #${user?._id?.slice(-6) || "ABC123"}`}
+                      </span>
+                      {!settings.showUsernameOnLeaderboards && (
+                        <span className="hidden xs:inline-block shrink-0 rounded-full bg-gray-100 dark:bg-gray-500 px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-gray-200 uppercase">
+                          Anon
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex shrink-0 items-center justify-end sm:ml-4">
+                      <span className="rounded-md bg-white/50 px-2 py-1 text-sm font-bold text-yellow-700 dark:text-yellow-500 shadow-sm sm:bg-transparent sm:p-0 sm:shadow-none">
+                        1,400 XP
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Admin notice */}
+        {user?.isAdmin && (
+          <>
+            <div className="border-t border-gray-200 dark:border-gray-700" />
+            <div className="rounded-lg bg-gray-50 dark:bg-gray-700/50 p-4 flex items-start space-x-3">
+              <EyeOff className="h-5 w-5 text-gray-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium text-gray-700 dark:text-gray-200">
+                  Admin accounts are not shown on leaderboards
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Leaderboard settings are not applicable to your account.
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Under-16 notice */}
+        {user?.ageBracket === "13-15" && (
+          <>
+            <div className="border-t border-gray-200 dark:border-gray-700" />
+            <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start space-x-3">
+              <Shield className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium text-blue-700 dark:text-blue-300">
+                  Enhanced privacy for younger learners
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                  We only use one essential cookie to keep you logged in. You
+                  can choose whether to allow optional cookies that might be
+                  used in the future for things like improving the website. Your
+                  choice won't affect your learning experience.
+                </p>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Message Alert */}
         {message.text && (
           <div
             className={`rounded-lg p-4 ${
               message.type === "success"
-                ? "bg-green-50 text-green-800"
-                : "bg-red-50 text-red-800"
+                ? "bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300"
+                : "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300"
             }`}
             role="alert"
           >
@@ -278,20 +431,22 @@ const PrivacySettings = ({ user, onUpdate }) => {
           </div>
         )}
 
-        {/* Save Button */}
-        <div className="flex items-center justify-between border-t border-gray-100 pt-6">
-          <p className="text-sm text-gray-700 px-1 dark:text-gray-100">
-            Changes apply to all leaderboards immediately
-          </p>
+        {/* Save Button - only show if leaderboard settings are displayed */}
+        {showLeaderboardSettings && (
+          <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-6">
+            <p className="text-sm text-gray-700 dark:text-gray-100 px-1">
+              Changes apply to all leaderboards immediately
+            </p>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="rounded-lg px-8 py-2 font-semibold disabled:opacity-50 bg-theme hover:bg-theme-hover text-theme-text transition-colors"
-          >
-            {saving ? "Saving..." : "Save Settings"}
-          </button>
-        </div>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="rounded-lg px-8 py-2 font-semibold disabled:opacity-50 bg-theme hover:bg-theme-hover text-theme-text transition-colors"
+            >
+              {saving ? "Saving..." : "Save Settings"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -38,6 +38,7 @@ import {
   isTokenValid,
   setTokenMemory,
 } from "../utils";
+import { syncStoredConsentToBackend } from "../hooks/useCookieConsent";
 import {
   apiClient,
   authApiClient,
@@ -273,10 +274,11 @@ export const AuthProvider = ({ children }) => {
             password,
             rememberMe,
           }),
-        (payload) => {
+        async (payload) => {
           const { accessToken: receivedAccessToken, user: userData } = payload;
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, rememberMe);
+            await syncStoredConsentToBackend();
             showToast("Login Successful!", "success");
             return { success: true };
           }
@@ -299,7 +301,7 @@ export const AuthProvider = ({ children }) => {
             password,
             parentalConsent,
           }),
-        (payload) => {
+        async (payload) => {
           const {
             accessToken: receivedAccessToken,
             user: userData,
@@ -308,6 +310,7 @@ export const AuthProvider = ({ children }) => {
           } = payload;
           if (receivedAccessToken && userData) {
             setAuthData(userData, receivedAccessToken, false);
+            await syncStoredConsentToBackend();
             showToast("Registration successful!", "success");
             return { success: true, user: userData, ageNotice, privacyNotice };
           }

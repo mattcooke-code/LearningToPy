@@ -33,7 +33,11 @@ import AdminFlagged from "./pages/AdminFlagged";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 
-import { useCourseThemeUpdater, usePageViewTracker } from "./hooks";
+import {
+  useCourseThemeUpdater,
+  usePageViewTracker,
+  useCookieConsent,
+} from "./hooks";
 import { AdminLayout } from "./components/admin";
 import { CookieNotice } from "./components/settings";
 import { useTheme } from "./context";
@@ -45,6 +49,7 @@ function App() {
   usePageViewTracker();
 
   const { isDarkMode } = useTheme();
+  const consent = useCookieConsent();
 
   return (
     <div
@@ -143,6 +148,7 @@ function App() {
 
       <ModalManager />
       <CookieNotice />
+      {consent === "accepted" && <Analytics />}
     </div>
   );
 }
