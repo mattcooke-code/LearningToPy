@@ -214,6 +214,7 @@ const TerminalComponent = forwardRef(
       height = "300px",
       onCodeExecute = null,
       readOnly = false,
+      executionPreamble = "",
     },
     ref,
   ) => {
@@ -296,7 +297,10 @@ const TerminalComponent = forwardRef(
         try {
           // ----- Build preamble (mocks only — libraries preloaded in worker) -----
           const { preamble, warnings } = buildPreamble(code);
-          const wrappedCode = preamble ? `${preamble}\n${code}` : code;
+          const fullPreamble = [executionPreamble, preamble]
+            .filter(Boolean)
+            .join("\n");
+          const wrappedCode = fullPreamble ? `${fullPreamble}\n${code}` : code;
 
           const warningItems = warnings.map((w) => ({
             type: "warning",
@@ -354,7 +358,7 @@ const TerminalComponent = forwardRef(
           setIsExecuting(false);
         }
       },
-      [input, isExecuting, onCodeExecute, isReady, runCode],
+      [input, isExecuting, onCodeExecute, isReady, runCode, executionPreamble],
     );
 
     const clearTerminal = () => {

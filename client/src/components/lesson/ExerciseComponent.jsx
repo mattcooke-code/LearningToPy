@@ -230,23 +230,21 @@ const ExerciseComponent = ({
     }
   };
 
-  useEffect(() => {
-    if (isReady && exercise.fileSetup) {
-      const fileCreationCode = Object.entries(exercise.fileSetup)
-        .map(([filename, content]) => {
-          const escapedContent = content
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'")
-            .replace(/\n/g, "\\n");
-          return `with open('${filename}', 'w') as f:\n    f.write('${escapedContent}')`;
-        })
-        .join("\n");
+  const fileSetupPreamble = useMemo(() => {
+    if (!exercise.fileSetup) return "";
 
-      runCode(fileCreationCode).catch((err) => {
-        console.error("Failed to create exercise files:", err);
-      });
+    const lines = [];
+    for (const [filename, content] of Object.entries(exercise.fileSetup)) {
+      const escapedContent = content
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, "\\n");
+      lines.push(
+        `with open('${filename}', 'w') as f:\n    f.write('${escapedContent}')`,
+      );
     }
-  }, [isReady, exercise.fileSetup, runCode]);
+    return lines.join("\n");
+  }, [exercise.fileSetup]);
 
   const resetExercise = () => {
     setUserCode(exercise.starterCode);
@@ -259,9 +257,9 @@ const ExerciseComponent = ({
     downloadPythonFile(userCode, "exercise");
   };
 
-  const handleTerminalExecute = useCallback((executionData) => {
-    if (!executionData.success) {
-      console.error("Terminal execution error:", executionData.error);
+  const handleTerminalExecute = useCallback((result) => {
+    if (!result.success) {
+      console.error("Terminal execution error:", result.error);
     }
   }, []);
 
@@ -520,6 +518,7 @@ const ExerciseComponent = ({
               initialCode={userCode}
               height="300px"
               onCodeExecute={handleTerminalExecute}
+              executionPreamble={fileSetupPreamble}
             />
           </div>
         )}
