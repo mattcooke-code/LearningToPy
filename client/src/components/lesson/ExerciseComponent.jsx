@@ -1,5 +1,5 @@
 // ExerciseComponent.jsx
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   Code2,
   RefreshCw,
@@ -230,6 +230,24 @@ const ExerciseComponent = ({
     }
   };
 
+  useEffect(() => {
+    if (isReady && exercise.fileSetup) {
+      const fileCreationCode = Object.entries(exercise.fileSetup)
+        .map(([filename, content]) => {
+          const escapedContent = content
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'")
+            .replace(/\n/g, "\\n");
+          return `with open('${filename}', 'w') as f:\n    f.write('${escapedContent}')`;
+        })
+        .join("\n");
+
+      runCode(fileCreationCode).catch((err) => {
+        console.error("Failed to create exercise files:", err);
+      });
+    }
+  }, [isReady, exercise.fileSetup, runCode]);
+
   const resetExercise = () => {
     setUserCode(exercise.starterCode);
     setShowSolution(false);
@@ -241,37 +259,11 @@ const ExerciseComponent = ({
     downloadPythonFile(userCode, "exercise");
   };
 
-  const handleTerminalExecute = useCallback(
-    (code) => {
-      // Build file setup code if needed
-      let fullTerminalCode = code;
-      if (exercise.fileSetup) {
-        const fileSetupLines = [];
-        for (const [filename, content] of Object.entries(exercise.fileSetup)) {
-          const escapedContent = content
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'")
-            .replace(/\n/g, "\\n");
-          fileSetupLines.push(
-            `with open('${filename}', 'w') as f:\n    f.write('${escapedContent}')`,
-          );
-        }
-        fullTerminalCode = fileSetupLines.join("\n") + "\n\n" + code;
-      }
-
-      // Execute the combined code
-      runCode(fullTerminalCode)
-        .then((result) => {
-          if (!result.success) {
-            console.error("Terminal execution error:", result.error);
-          }
-        })
-        .catch((err) => {
-          console.error("Terminal execution failed:", err);
-        });
-    },
-    [exercise.fileSetup, runCode],
-  );
+  const handleTerminalExecute = useCallback((executionData) => {
+    if (!executionData.success) {
+      console.error("Terminal execution error:", executionData.error);
+    }
+  }, []);
 
   return (
     <div
