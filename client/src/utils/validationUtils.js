@@ -86,7 +86,7 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
   const validationResults = [];
 
   for (const test of tests) {
-    const testResult = await runSingleTest(userCode, test, runCode, exercise); // ← ADD exercise parameter
+    const testResult = await runSingleTest(userCode, test, runCode, exercise);
     validationResults.push(testResult);
 
     if (!testResult.passed) {
@@ -120,7 +120,17 @@ const runSingleTest = async (userCode, test, runCode, exercise) => {
     const fullCode = `
 import sys, io
 
+# Create exercise files for M7 and make sure they run before student code
 ${fileCreationCode}
+
+import os
+${Object.keys(exercise.fileSetup || {})
+  .map(
+    (filename) =>
+      `if not os.path.exists('${filename}'):
+    raise FileNotFoundError(f"Setup failed: {filename} not created")`,
+  )
+  .join("\n")}
 
 student_code = ${safeUserCode}
 code = student_code

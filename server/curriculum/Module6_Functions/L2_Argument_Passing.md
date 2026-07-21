@@ -10,16 +10,16 @@ Positional arguments are the simplest and most common method. The arguments are 
 def configure_user(username, email):
     print(f"User: {username}, Email: {email}")
 
-# The first argument ("Alex") goes to the first parameter (username).
-# The second argument ("a@mail.com") goes to the second parameter (email).
-configure_user("Alex", "a@mail.com")
+# The first argument ("Buck") goes to the first parameter (username).
+# The second argument ("rogers@mail.com") goes to the second parameter (email).
+configure_user("Buck", "rogers@mail.com")
 
 # Output:
-# User: Alex, Email: a@mail.com
+# User: Buck, Email: rogers@mail.com
 ```
 
 :::warning
-If you swap the positions, the logic breaks, even though the data types are correct: `configure_user("a@mail.com", "Alex")` would incorrectly set the username to the email.
+If you swap the positions, the logic breaks, even though the data types are correct: `configure_user("rogers@mail.com", "Buck")` would incorrectly set the username to the email.
 :::
 
 ## 2. Keyword Arguments
