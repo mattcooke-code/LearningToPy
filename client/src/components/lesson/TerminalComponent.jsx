@@ -436,6 +436,12 @@ const TerminalComponent = forwardRef(
       }
     }, [output]);
 
+    useEffect(() => {
+      if (isReady && executionPreamble) {
+        runCode(executionPreamble, 5000);
+      }
+    }, [isReady, executionPreamble, runCode]);
+
     // ---------------------------------------------------------------------------
     // Loading / error states
     // ---------------------------------------------------------------------------
