@@ -1,5 +1,5 @@
 // ExerciseComponent.jsx
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import {
   Code2,
   RefreshCw,
