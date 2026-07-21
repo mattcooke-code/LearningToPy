@@ -31,14 +31,17 @@ async function initPyodide() {
 
 const pyodidePromise = initPyodide();
 
+// In pyodide.worker.js, update the onmessage handler:
+
 onmessage = async (event) => {
   await pyodidePromise;
   const { code, id } = event.data;
   currentId = id;
 
   try {
-    // runPythonAsync handles top-level awaits if the student uses them
-    const result = await pyodide.runPythonAsync(code);
+    const codeString = String(code);
+
+    const result = await pyodide.runPythonAsync(codeString);
     postMessage({
       type: "result",
       id,
@@ -46,7 +49,12 @@ onmessage = async (event) => {
       output: result !== undefined ? String(result) : "",
     });
   } catch (err) {
-    postMessage({ type: "result", id, success: false, error: err.message });
+    postMessage({
+      type: "result",
+      id,
+      success: false,
+      error: String(err.message),
+    });
   } finally {
     currentId = null;
   }

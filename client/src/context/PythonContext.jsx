@@ -174,11 +174,29 @@ export const PythonProvider = ({ children }) => {
           });
         }
 
-        // Generate a short unique ID for this execution
+        let safeCode;
+        if (typeof code === "string") {
+          safeCode = code;
+        } else if (code === null || code === undefined) {
+          return resolve({
+            success: false,
+            error: "No code provided",
+          });
+        } else {
+          // Convert JsProxy or other objects to string
+          try {
+            safeCode = String(code);
+          } catch (e) {
+            return resolve({
+              success: false,
+              error: "Invalid code format",
+            });
+          }
+        }
+
         const id = Math.random().toString(36).substring(7);
         stdoutBuffers.current.set(id, []);
 
-        // Timeout: terminate the stalled worker and restart
         const timeoutId = setTimeout(() => {
           console.warn("RT: Execution timeout. Terminating worker...");
           workerRef.current.terminate();
@@ -189,14 +207,13 @@ export const PythonProvider = ({ children }) => {
           });
         }, timeout);
 
-        // Register the handler that will be called when the worker posts "result"
         pendingRequests.current.set(id, (result) => {
           clearTimeout(timeoutId);
           resolve(result);
         });
 
-        // Send the code to the worker
-        workerRef.current.postMessage({ code, id });
+        // Send the SAFE code string
+        workerRef.current.postMessage({ code: safeCode, id });
       });
     },
     [isReady, initWorker],

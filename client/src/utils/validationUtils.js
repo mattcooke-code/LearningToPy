@@ -19,6 +19,19 @@
 import { getFileCreationCode } from "../data/fileExercises";
 
 /**
+ * Helper function for JS -> Python string consistency
+ */
+const ensureString = (value, fallback = "") => {
+  if (typeof value === "string") return value;
+  if (value === null || value === undefined) return fallback;
+  try {
+    return String(value);
+  } catch (e) {
+    return fallback;
+  }
+};
+
+/**
  * Run exercise validation using Pyodide.
  *
  * Dispatches to the appropriate validation strategy based on
@@ -114,58 +127,70 @@ const runTestsWithPyodide = async (userCode, exercise, runCode) => {
  */
 const runSingleTest = async (userCode, test, runCode, exercise) => {
   try {
-    const safeUserCode = JSON.stringify(userCode);
-    const fileCreationCode = getFileCreationCode(exercise);
+    // ENSURE all inputs are plain strings
+    const cleanUserCode = ensureString(userCode);
+    const cleanExerciseTitle = ensureString(exercise?.title, "");
+    const cleanChallengeGroup = ensureString(exercise?.challengeGroup, "");
 
-    const fullCode = `
-import sys, io, os
+    // Create a clean exercise object with only string values
+    const cleanExercise = {
+      title: cleanExerciseTitle,
+      challengeGroup: cleanChallengeGroup,
+      fileSetup: exercise?.fileSetup || {},
+    };
 
-# Create a namespace for the exercise
-exercise_globals = {}
+    // Get file creation code using clean exercise
+    const fileCreationCode = getFileCreationCode(cleanExercise);
 
-# Create exercise files
-${fileCreationCode}
+    // Properly escape the user code for Python triple-quoted string
+    const pythonSafeCode = cleanUserCode
+      .replace(/\\/g, "\\\\")
+      .replace(/"""/g, '\\"\\"\\"')
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n");
 
-# Verify files exist
-${Object.keys(exercise.fileSetup || {})
-  .map(
-    (filename) =>
-      `if not os.path.exists('${filename}'):
-    raise FileNotFoundError(f"Setup failed: {filename} not created")`,
-  )
-  .join("\n")}
+    // Build the full code with explicit string handling
+    const fullCode = [
+      "import sys, io, os",
+      "",
+      "# Create exercise files",
+      fileCreationCode,
+      "",
+      "# Verify files exist",
+      ...Object.keys(cleanExercise.fileSetup).map(
+        (filename) =>
+          `if not os.path.exists('${filename}'):\n    raise FileNotFoundError(f"Setup failed: {filename} not created")`,
+      ),
+      "",
+      "# Student code",
+      'student_code = """' + pythonSafeCode + '"""',
+      "",
+      "old_stdout = sys.stdout",
+      "captured_output = io.StringIO()",
+      "sys.stdout = captured_output",
+      "",
+      "try:",
+      "    exec(student_code)",
+      "except ModuleNotFoundError:",
+      "    pass",
+      "except Exception as e:",
+      "    sys.stdout = old_stdout",
+      '    raise AssertionError(f"Error in your code: {str(e)}")',
+      "",
+      "sys.stdout = old_stdout",
+      "output = captured_output.getvalue()",
+      "",
+      test.code,
+    ].join("\n");
 
-student_code = ${safeUserCode}
-
-old_stdout = sys.stdout
-captured_output = io.StringIO()
-sys.stdout = captured_output
-
-try:
-    # Execute student code with access to the global namespace
-    exec(student_code, exercise_globals)
-    # Copy any created variables back to local scope for test access
-    for key, value in exercise_globals.items():
-        if not key.startswith('_'):
-            locals()[key] = value
-except ModuleNotFoundError:
-    pass
-except Exception as e:
-    sys.stdout = old_stdout
-    raise AssertionError(f"Error in your code: {str(e)}")
-
-sys.stdout = old_stdout
-output = captured_output.getvalue()
-
-${test.code}
-`.trim();
+    // Log for debugging (remove in production)
+    console.log("Running Python code:", fullCode.substring(0, 200) + "...");
 
     const result = await runCode(fullCode, 30000);
 
     if (!result.success) {
       let feedback = result.error || "Unknown error";
 
-      // Error cleaning logic
       if (feedback.includes("AssertionError:")) {
         const parts = feedback.split("AssertionError:");
         feedback = parts.length > 1 ? parts[1].trim() : feedback;
