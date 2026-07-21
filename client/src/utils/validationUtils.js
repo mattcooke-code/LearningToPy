@@ -118,12 +118,15 @@ const runSingleTest = async (userCode, test, runCode, exercise) => {
     const fileCreationCode = getFileCreationCode(exercise);
 
     const fullCode = `
-import sys, io
+import sys, io, os
 
-# Create exercise files for M7 and make sure they run before student code
+# Create a namespace for the exercise
+exercise_globals = {}
+
+# Create exercise files
 ${fileCreationCode}
 
-import os
+# Verify files exist
 ${Object.keys(exercise.fileSetup || {})
   .map(
     (filename) =>
@@ -133,16 +136,19 @@ ${Object.keys(exercise.fileSetup || {})
   .join("\n")}
 
 student_code = ${safeUserCode}
-code = student_code
 
 old_stdout = sys.stdout
 captured_output = io.StringIO()
 sys.stdout = captured_output
 
 try:
-    exec(compile(student_code, "<student_code>", "exec"), globals())
+    # Execute student code with access to the global namespace
+    exec(student_code, exercise_globals)
+    # Copy any created variables back to local scope for test access
+    for key, value in exercise_globals.items():
+        if not key.startswith('_'):
+            locals()[key] = value
 except ModuleNotFoundError:
-    # Allow import exercises to fail without crashing validation
     pass
 except Exception as e:
     sys.stdout = old_stdout
