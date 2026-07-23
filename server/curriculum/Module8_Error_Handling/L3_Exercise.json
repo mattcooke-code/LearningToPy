@@ -20,6 +20,7 @@
     "Step 6: You can return the average from either the `try` block or after the `else` block",
     "Remember: Functions from Module 6 use `def function_name(parameters):` and `return` values"
   ],
+  "expectedOutput": "Calculation successful\nFunction execution completed\nTest 1: 25.0\nFunction execution completed\nTest 2: Error: Cannot calculate average of empty list\nFunction execution completed\nTest 3: 100.0",
   "validation": "tests",
   "tests": [
     {

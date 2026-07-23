@@ -86,6 +86,10 @@ const LessonSchema = new mongoose.Schema(
       expectedOutput: String,
       tags: [String],
       challengeGroup: String,
+      fileSetup: {
+        type: mongoose.Schema.Types.Mixed,
+        default: undefined,
+      },
     },
     quiz: [
       {

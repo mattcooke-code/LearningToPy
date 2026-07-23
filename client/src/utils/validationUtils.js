@@ -183,8 +183,7 @@ const runSingleTest = async (userCode, test, runCode, exercise) => {
       test.code,
     ].join("\n");
 
-    // Log for debugging (remove in production)
-    console.log("Running Python code:", fullCode.substring(0, 200) + "...");
+    
 
     const result = await runCode(fullCode, 30000);
 

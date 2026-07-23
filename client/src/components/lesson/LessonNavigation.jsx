@@ -95,7 +95,7 @@ const LessonNavigation = ({
       <Link
         to={`/modules/${module?._id}/lessons`}
         style={{ backgroundColor: themeColor, color: themeTextColor }}
-        className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
+        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
       >
         <ArrowLeft size={20} />
         <span>Back To Module</span>
@@ -107,7 +107,7 @@ const LessonNavigation = ({
           <Link
             to={`/lessons/${nextLesson._id}`}
             style={{ backgroundColor: themeColor, color: themeTextColor }}
-            className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
           >
             <span>Next Lesson</span>
             <ArrowRight size={20} />
@@ -118,7 +118,7 @@ const LessonNavigation = ({
           <Link
             to={`/modules/${lesson.moduleId}/quiz`}
             style={{ backgroundColor: themeColor, color: themeTextColor }}
-            className="flex items-center justify-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
           >
             <Trophy size={20} />
             <span>Take Module Quiz</span>
