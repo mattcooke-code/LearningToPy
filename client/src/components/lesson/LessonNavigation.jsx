@@ -145,3 +145,5 @@ const LessonNavigation = ({
     </div>
   );
 };
+
+export default LessonNavigation;
