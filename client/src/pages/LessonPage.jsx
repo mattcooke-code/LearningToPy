@@ -80,8 +80,7 @@ const LessonPage = () => {
   const { id: lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { themeColor, textThemeColor, updateThemeFromCourseProgress } =
-    useTheme();
+  const { updateThemeFromCourseProgress } = useTheme();
   const { showToast } = useNotification();
   const isCompletingRef = useRef(false);
 
