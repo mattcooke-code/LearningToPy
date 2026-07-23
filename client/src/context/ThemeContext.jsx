@@ -252,15 +252,16 @@ export const ThemeProvider = ({ children }) => {
   /**
    * Ensure defaults apply when relevant
    */
-  /*useEffect(() => {
-    if (!shouldUseThemeColor(location.pathname)) {
-      // Reset to default text color on non-themed pages
+  useEffect(() => {
+    if (shouldUseThemeColor(location.pathname)) {
+      applyThemeColor(themeColor);
+    } else {
       document.documentElement.style.setProperty(
         "--theme-text-color",
         "#ffffff",
       );
     }
-  }, [location.pathname]);*/
+  }, [location.pathname, themeColor]);
 
   // ---------------------------------------------------------------------------
   // Public API — Theme Color
