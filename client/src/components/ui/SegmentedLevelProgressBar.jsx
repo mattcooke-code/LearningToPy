@@ -131,7 +131,11 @@ const SegmentedLevelProgressBar = ({
       <div className="flex h-6 w-full space-x-1 rounded-full bg-gray-200 dark:bg-gray-700 p-1">
         {Array.from({ length: segmentCount }).map((_, index) => {
           const isFilled = isCourseComplete || index < lessonsCompleted;
-          const segmentColor = getSegmentColor(index);
+          const segmentColor = getSegmentColor(
+            index,
+            segmentCount,
+            isCourseComplete,
+          );
 
           return (
             <div
