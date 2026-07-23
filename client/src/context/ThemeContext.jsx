@@ -235,14 +235,6 @@ export const ThemeProvider = ({ children }) => {
   }, [uiTheme, applyTheme]);
 
   /**
-   * Persist `themeColor` and sync it to the DOM (as `--theme-color` /
-   * `--theme-hover-color` CSS custom properties) whenever it changes.
-   */
-  useEffect(() => {
-    setStoredThemeColor(themeColor);
-  }, [themeColor]);
-
-  /**
    * Persist `codeTheme` to localStorage on change.
    */
   useEffect(() => {
@@ -254,14 +246,14 @@ export const ThemeProvider = ({ children }) => {
    */
   useEffect(() => {
     if (shouldUseThemeColor(location.pathname)) {
-      applyThemeColor(themeColor);
+      setStoredThemeColor(themeColor);
     } else {
       document.documentElement.style.setProperty(
         "--theme-text-color",
         "#ffffff",
       );
     }
-  }, [location.pathname, themeColor]);
+  }, [themeColor, location.pathname]);
 
   // ---------------------------------------------------------------------------
   // Public API — Theme Color
