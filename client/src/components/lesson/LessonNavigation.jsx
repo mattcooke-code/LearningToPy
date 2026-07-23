@@ -7,6 +7,7 @@ import {
   RefreshCw,
   Trophy,
 } from "lucide-react";
+import { useTheme } from "../../context";
 
 /**
  * @fileoverview
@@ -82,6 +83,7 @@ const LessonNavigation = ({
   module,
   lessonFullyCompleted,
 }) => {
+  const { themeColor, themeTextColor } = useTheme();
   const isLastLessonOfModule = !nextLesson && lessonFullyCompleted;
   const moduleQuizExists =
     module?.moduleQuiz && module.moduleQuiz.questions?.length > 0;
@@ -92,7 +94,8 @@ const LessonNavigation = ({
       {/* Back Button — use Tailwind theme classes */}
       <Link
         to={`/modules/${module?._id}/lessons`}
-        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1 bg-theme hover:bg-theme-hover text-[var(--theme-text-color)]"
+        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
+        style={{ backgroundColor: themeColor, color: themeTextColor }}
       >
         <ArrowLeft size={20} />
         <span>Back To Module</span>
@@ -102,7 +105,8 @@ const LessonNavigation = ({
         {nextLesson && lessonFullyCompleted && (
           <Link
             to={`/lessons/${nextLesson._id}`}
-            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1 bg-theme hover:bg-theme-hover text-(--theme-text-color)"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
+            style={{ backgroundColor: themeColor, color: themeTextColor }}
           >
             <span>Next Lesson</span>
             <ArrowRight size={20} />
@@ -112,7 +116,8 @@ const LessonNavigation = ({
         {isLastLessonOfModule && moduleQuizExists && !moduleQuizCompleted && (
           <Link
             to={`/modules/${lesson.moduleId}/quiz`}
-            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full bg-theme hover:bg-theme-hover text-theme-text"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
+            style={{ backgroundColor: themeColor, color: themeTextColor }}
           >
             <Trophy size={20} />
             <span>Take Module Quiz</span>
