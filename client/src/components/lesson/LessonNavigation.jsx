@@ -1,6 +1,5 @@
 // LessonNavigation.jsx
 import { Link } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
 import {
   ArrowLeft,
   ArrowRight,
@@ -83,8 +82,6 @@ const LessonNavigation = ({
   module,
   lessonFullyCompleted,
 }) => {
-  const { themeColor, themeTextColor } = useTheme();
-
   const isLastLessonOfModule = !nextLesson && lessonFullyCompleted;
   const moduleQuizExists =
     module?.moduleQuiz && module.moduleQuiz.questions?.length > 0;
@@ -92,23 +89,20 @@ const LessonNavigation = ({
 
   return (
     <div className="mt-8 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 gap-4">
-      {/* Back Button */}
+      {/* Back Button — use Tailwind theme classes */}
       <Link
         to={`/modules/${module?._id}/lessons`}
-        style={{ backgroundColor: themeColor, color: themeTextColor }}
-        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1"
+        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1 bg-theme hover:bg-theme-hover text-theme-text"
       >
         <ArrowLeft size={20} />
         <span>Back To Module</span>
       </Link>
 
-      {/* Next Lesson / Quiz Button Group */}
       <div className="flex flex-col w-full sm:w-auto order-1 sm:order-2">
         {nextLesson && lessonFullyCompleted && (
           <Link
             to={`/lessons/${nextLesson._id}`}
-            style={{ backgroundColor: themeColor, color: themeTextColor }}
-            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full bg-theme hover:bg-theme-hover text-theme-text"
           >
             <span>Next Lesson</span>
             <ArrowRight size={20} />
@@ -118,8 +112,7 @@ const LessonNavigation = ({
         {isLastLessonOfModule && moduleQuizExists && !moduleQuizCompleted && (
           <Link
             to={`/modules/${lesson.moduleId}/quiz`}
-            style={{ backgroundColor: themeColor, color: themeTextColor }}
-            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full bg-theme hover:bg-theme-hover text-theme-text"
           >
             <Trophy size={20} />
             <span>Take Module Quiz</span>
