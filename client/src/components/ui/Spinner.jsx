@@ -66,7 +66,7 @@ const OuroborosSpinner = ({
       <img
         src={ouroborosSrc}
         alt="Loading"
-        className={`ouroboros-spinner ${sizeClasses[size]} ${className}`}
+        className={`ouroboros-spinner ${sizeClasses[size]} object-contain ${className}`}
         style={{
           animationDuration: speedDuration[speed],
           animationDirection: reverse ? "reverse" : "normal",
