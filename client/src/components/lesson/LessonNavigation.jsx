@@ -92,7 +92,7 @@ const LessonNavigation = ({
       {/* Back Button — use Tailwind theme classes */}
       <Link
         to={`/modules/${module?._id}/lessons`}
-        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1 bg-theme hover:bg-theme-hover text-theme-text"
+        className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1 bg-theme hover:bg-theme-hover text-[var(--theme-text-color)]"
       >
         <ArrowLeft size={20} />
         <span>Back To Module</span>
@@ -102,7 +102,7 @@ const LessonNavigation = ({
         {nextLesson && lessonFullyCompleted && (
           <Link
             to={`/lessons/${nextLesson._id}`}
-            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg w-full bg-theme hover:bg-theme-hover text-theme-text"
+            className="flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-md w-full sm:w-auto order-2 sm:order-1 bg-theme hover:bg-theme-hover text-(--theme-text-color)"
           >
             <span>Next Lesson</span>
             <ArrowRight size={20} />
