@@ -252,7 +252,7 @@ export const ThemeProvider = ({ children }) => {
   /**
    * Ensure defaults apply when relevant
    */
-  useEffect(() => {
+  /*useEffect(() => {
     if (!shouldUseThemeColor(location.pathname)) {
       // Reset to default text color on non-themed pages
       document.documentElement.style.setProperty(
@@ -260,7 +260,7 @@ export const ThemeProvider = ({ children }) => {
         "#ffffff",
       );
     }
-  }, [location.pathname]);
+  }, [location.pathname]);*/
 
   // ---------------------------------------------------------------------------
   // Public API — Theme Color
