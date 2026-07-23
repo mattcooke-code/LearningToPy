@@ -338,8 +338,6 @@ const LessonPage = () => {
         lesson={lesson}
         module={module}
         isReviewMode={isReviewMode}
-        themeColor={themeColor}
-        textThemeColor={textThemeColor}
         lessonFullyCompleted={lessonFullyCompleted}
       />
       <BackToTopButton />

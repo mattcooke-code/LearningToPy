@@ -1,5 +1,6 @@
 // LessonNavigation.jsx
 import { Link } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import {
   ArrowLeft,
   ArrowRight,
@@ -79,11 +80,11 @@ const LessonNavigation = ({
   nextLesson,
   lesson,
   isReviewMode,
-  themeColor,
-  themeTextColor = "#ffffff",
   module,
   lessonFullyCompleted,
 }) => {
+  const { themeColor, themeTextColor } = useTheme();
+
   const isLastLessonOfModule = !nextLesson && lessonFullyCompleted;
   const moduleQuizExists =
     module?.moduleQuiz && module.moduleQuiz.questions?.length > 0;
