@@ -31,7 +31,7 @@
     {
       "id": "m11l1_q3",
       "type": "multiple-choice",
-      "question": "If you define a variable `species = 'Android'` directly inside a `Robot` class (outside of any methods), what kind of attribute is it?",
+      "question": "If you define a variable `species = 'Machine'` directly inside a `Robot` class (outside of any methods), what kind of attribute is it?",
       "options": [
         "An Instance Attribute unique to each robot",
         "A Local Variable only accessible inside a specific function",

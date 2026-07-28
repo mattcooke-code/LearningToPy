@@ -17,13 +17,13 @@ const ModulesStats = ({ totalModules, completedModules, userXP }) => {
     <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 m-2 text-center">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
         <div>
-          <div className="text-2xl font-bold" style={{ color: themeColor }}>
+          <div className="text-2xl font-bold text-python-dark dark:text-python-light">
             {totalModules}
           </div>
           <div className="text-gray-600 dark:text-gray-300">Total Modules</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-green-500">
+          <div className="text-2xl font-bold text-green-800 dark-text-green-300">
             {completedModules}
           </div>
           <div className="text-gray-600 dark:text-gray-300">Completed</div>
