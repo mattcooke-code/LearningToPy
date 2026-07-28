@@ -78,6 +78,37 @@ print(add_numbers(5, 10))
 
 ```
 
+```python
+from functools import wraps
+
+def ziggy_monitor(func):
+    @wraps(func) # Preserves the original function's identity
+    def wrapper(*args, **kwargs):
+        print(f"⚡ [ZIGGY ALERT]: Preparing leap for '{func.__name__}'...")
+        print(f"   Historical coordinates (args): {args}")
+        print(f"   Mission parameters (kwargs): {kwargs}")
+
+        # Sam leaps - function runs
+        result = func(*args, **kwargs)
+
+        print(f"⚡ [HOLOGRAM]: {result}")
+        return result
+    return wrapper
+
+@ziggy_monitor
+def q_leap(host_name, year, occupation):
+    return f"Sam, your name is {host_name}. It's {year}. You're a {occupation}."
+
+# Testing the universal decorator with multiple arguments
+q_leap("Tom Stratton", year=1964, occupation="Test Pilot")
+
+# Output:
+# ⚡ [ZIGGY ALERT]: Preparing leap for 'q_leap'...
+#     Historical coordinates (args): ('Tom Stratton',)
+#     Mission parameters (kwargs): {'year': 1964, 'occupation': 'Test Pilot'}
+# ⚡ [HOLOGRAM]: Sam, your name is Tom Stratton. It's 1964. You're a Test Pilot.
+```
+
 ## 4. Decorators with Parameters: The "Gift Box"
 
 Sometimes you want the decorator itself to take options, like `@repeat(3)`. This requires a **Triple-Nested Structure**. Think of it like a set of _Russian Matryoshka Dolls_:

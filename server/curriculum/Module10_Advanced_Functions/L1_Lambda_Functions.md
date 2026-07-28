@@ -58,15 +58,15 @@ Lambdas are most commonly used with the built-in `sorted()` function (or the `.s
 
 ```python
 # Sorting a list of tuples by different elements
-user_scores = [("Feyja", 88), ("Odin", 95), ("Týr", 72)]
+user_scores = [("Freya", 88), ("Odin", 95), ("Týr", 72)]
 
 # Sort by score (second element)
 sorted_by_score = sorted(user_scores, key=lambda user: user[1])
-print(sorted_by_score)  # [('Týr', 72), ('Feyja', 88), ('Odin', 95)]
+print(sorted_by_score)  # [('Týr', 72), ('Freya', 88), ('Odin', 95)]
 
 # Sort by name length
 sorted_by_name_length = sorted(user_scores, key=lambda user: len(user[0]))
-print(sorted_by_name_length)  # [('Týr', 72), ('Odin', 95), ('Freyja', 88)]
+print(sorted_by_name_length)  # [('Týr', 72), ('Odin', 95), ('Freya', 88)]
 
 ```
 

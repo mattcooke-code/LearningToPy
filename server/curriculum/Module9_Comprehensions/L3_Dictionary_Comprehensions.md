@@ -62,7 +62,7 @@ print(highlander)  # {'name': 'Connor MacLeod', 'age': 450, 'origin': 'Scotland'
 **Lists of different lengths:** When using `range(len(keys))`, if `values` is shorter than `keys`, the code will crash with an `IndexError`. If `keys` is shorter than `values` the additional values will be ignored. A better approach is to use the `zip()` function.
 :::
 
-_The `zip()` Function_
+### The zip() Function
 
 Python provides a built-in function called `zip()` specifically to "pair up" elements from two lists into tuples automatically.
 

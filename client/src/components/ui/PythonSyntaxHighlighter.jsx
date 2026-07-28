@@ -205,7 +205,7 @@ const PythonSyntaxHighlighter = ({ code, isDark = true }) => {
   };
 
   return (
-    <div className="font-mono whitespace-pre text-left">
+    <div className="font-mono whitespace-pre-wrap text-left">
       {higlightPython(code)}
     </div>
   );

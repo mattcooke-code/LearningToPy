@@ -33,7 +33,7 @@ print(list(upper_names))  # ['KEISHA', 'MUTYA', 'SIOBHAN']
 
 ## 2. The `filter()` Function
 
-`filter()` constructs an iterator from elements of an iterable for which a function returns true.
+`filter()` takes a function and an iterable, and keeps only the items where the function returns `True`.
 
 ### Basic Syntax
 
@@ -46,8 +46,9 @@ filter(function, iterable)
 ```python
 # Filter by custom condition
 def is_current_sugababe(name):
-    return name in ['Keisha', 'Mutya', 'Siobhan']
-
+    current_sugababes = ['Keisha', 'Mutya', 'Siobhan']
+    return name in current_sugababes
+#
 names = ['Keisha', 'Heidi', 'Mutya', 'Amelle', 'Siobhan', 'Jade']
 sugababes = filter(is_current_sugababe, names)
 print(list(sugababes))  # ['Keisha', 'Mutya', 'Siobhan']
