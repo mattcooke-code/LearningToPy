@@ -77,13 +77,13 @@ const ModuleCard = ({ module, isLocked }) => {
       </h2>
 
       {/* Short Description */}
-      <p className="text-gray-600 dark:text-gray-300 text-sm text-center mb-4 line-clamp-2">
+      <p className="text-gray-600 dark:text-gray-200 text-sm text-center mb-4 line-clamp-2">
         {module.shortDescription}
       </p>
 
       {/* Progress Bar */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-300 mb-1">
           <span>Progress</span>
           <span className="font-extrabold text-gray-800 dark:text-gray-200">
             {moduleLessonProgress}%
@@ -101,7 +101,7 @@ const ModuleCard = ({ module, isLocked }) => {
       </div>
 
       {/* Module Stats */}
-      <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-300 mb-4">
         <div className="flex items-center space-x-1">
           <Clock size={14} />
           <span>{module.estimatedHours}h</span>

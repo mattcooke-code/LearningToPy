@@ -23,7 +23,7 @@ const ModulesStats = ({ totalModules, completedModules, userXP }) => {
           <div className="text-gray-600 dark:text-gray-300">Total Modules</div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-green-800 dark-text-green-300">
+          <div className="text-2xl font-bold text-green-800 dark:text-green-300">
             {completedModules}
           </div>
           <div className="text-gray-600 dark:text-gray-300">Completed</div>
