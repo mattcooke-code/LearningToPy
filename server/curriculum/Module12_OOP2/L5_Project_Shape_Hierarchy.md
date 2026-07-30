@@ -1,40 +1,29 @@
 # 📐 Project: Building a Shape Hierarchy
 
-This final project for Module 12 will test your understanding of Inheritance, `super()`, Method Overriding, and Polymorphism by creating a flexible geometric shape system.
+Put inheritance, `super()`, method overriding, and polymorphism into practice by building a geometric shape system.
 
-### Project Goal
+### Your Classes
 
-Design a base `Shape` class and at least two derived classes (`Circle` and `Rectangle`) that accurately calculate their respective area and perimeter using overridden methods. You will then demonstrate polymorphism by processing a list of mixed shape objects.
+**`Shape` (Parent Class)**
 
-### Class Requirements
+- `__init__(self, name)` — stores the `name`
+- `area(self)` — returns `0` (placeholder for child classes to override)
+- `perimeter(self)` — returns `0` (placeholder for child classes to override)
 
-**1. `Shape` (Parent Class)**
+**`Circle(Shape)` (Child Class)**
 
-- **Constructor** (`__init__`): Takes a `name` parameter and stores it.
-- **Methods**:
-  - `area(self)`: Should print a message indicating this method needs to be implemented by a child class.
-  - `perimeter(self)`: Should print a message indicating this method needs to be implemented by a child class.
+- `__init__(self, name, radius)` — calls `super().__init__(name)`, stores `radius`
+- `area(self)` — returns `3.14 * radius ** 2`
+- `perimeter(self)` — returns `2 * 3.14 * radius`
 
-**2. `Circle` (Child Class)**
+**`Rectangle(Shape)` (Child Class)**
 
-- **Inheritance**: Inherits from `Shape`.
-- **Constructor** (`__init__`): Takes `name` and `radius`. _Must use_ `super().__init__` to set the `name`. Stores `radius`.
-- **Method Overriding**:
-  - `area()`: Calculates and returns the area (Formula: π × r², use 3.14 for π).
-  - `perimeter()`: Calculates and returns the perimeter (Formula: 2πr, use 3.14 for π).
+- `__init__(self, name, width, height)` — calls `super().__init__(name)`, stores `width` and `height`
+- `area(self)` — returns `width * height`
+- `perimeter(self)` — returns `2 * (width + height)`
 
-**3. `Rectangle` (Child Class)**
+### Demonstrate Polymorphism
 
-- **Inheritance**: Inherits from `Shape`.
-- **Constructor** (`__init__`): Takes `name`, `width`, and `height`. _Must use_ `super().__init__` to set the `name`. Stores `width` and `height`.
-- **Method Overriding**:
-  - `area()`: Calculates and returns the area (Formula: w \* h).
-  - `perimeter()`: Calculates and returns the perimeter (Formula: 2(w + h)).
-
-### Project Demonstration
-
-After creating the classes, you must:
-
-1. Instantiate one `Circle` and one `Rectangle`.
-
-2. Create a polymorphic function `calculate_and_display(shapes_list)` that iterates through a list of shapes and calls `shape.area()` and `shape.perimeter()` on each one.
+1. Create one `Circle` and one `Rectangle`
+2. Write a function `calculate_and_display(shapes_list)` that loops through a list of shapes and prints each shape's `name`, `area`, and `perimeter`
+3. Call your function with a list containing both shapes
