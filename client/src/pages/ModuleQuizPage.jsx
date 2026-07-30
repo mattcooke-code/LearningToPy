@@ -105,7 +105,12 @@ const ModuleQuizPage = () => {
   const { moduleId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { themeColor, updateThemeFromCourseProgress, isDarkMode } = useTheme();
+  const {
+    themeColor,
+    themeTextColor,
+    updateThemeFromCourseProgress,
+    isDarkMode,
+  } = useTheme();
   const { showToast } = useNotification();
 
   const [module, setModule] = useState(null);
@@ -427,7 +432,7 @@ const ModuleQuizPage = () => {
             {quizResults.passed ? (
               <button
                 onClick={handleContinue}
-                style={{ backgroundColor: themeColor }}
+                style={{ backgroundColor: themeColor, color: themeTextColor }}
                 className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
                 <span>Continue Learning</span>
@@ -436,7 +441,7 @@ const ModuleQuizPage = () => {
             ) : (
               <button
                 onClick={handleRetakeQuiz}
-                style={{ backgroundColor: themeColor }}
+                style={{ backgroundColor: themeColor, color: themeTextColor }}
                 className="flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
                 <RotateCcw size={20} />
@@ -582,7 +587,11 @@ const ModuleQuizPage = () => {
         </div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
-            style={{ width: `${progress}%`, backgroundColor: themeColor }}
+            style={{
+              width: `${progress}%`,
+              backgroundColor: themeColor,
+              color: themeTextColor,
+            }}
             className="h-2 rounded-full transition-all duration-300"
           />
         </div>
@@ -741,7 +750,7 @@ const ModuleQuizPage = () => {
             disabled={
               isSubmitting || Object.keys(userAnswers).length < totalQuestions
             }
-            style={{ backgroundColor: themeColor }}
+            style={{ backgroundColor: themeColor, color: themeTextColor }}
             className="flex items-center space-x-2 text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
           >
             {isSubmitting ? (
@@ -757,7 +766,7 @@ const ModuleQuizPage = () => {
           <button
             onClick={handleNext}
             disabled={!isCurrentAnswered}
-            style={{ backgroundColor: themeColor }}
+            style={{ backgroundColor: themeColor, color: themeTextColor }}
             className={`flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold transition ${
               !isCurrentAnswered
                 ? "opacity-50 cursor-not-allowed"
