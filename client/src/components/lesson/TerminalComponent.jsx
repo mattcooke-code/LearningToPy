@@ -635,7 +635,9 @@ const TerminalComponent = forwardRef(
           ))}
 
           {output.length === 0 && (
-            <div className="text-gray-500 italic">
+            <div
+              className={`italic ${isCodeDark ? "text-gray-500" : "text-gray-600"}`}
+            >
               Type Python code below and press Enter to execute. Use ↑/↓ arrows
               to navigate command history.
               <br />
@@ -685,7 +687,7 @@ const TerminalComponent = forwardRef(
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={readOnly || isExecuting}
-                className={`grow px-2 py-2 font-mono text-sm bg-transparent outline-none resize-none ${
+                className={`grow px-2 py-2 font-mono text-sm bg-transparent outline-none resize-none placeholder:${isCodeDark ? "text-gray-400" : "text-gray-500"} ${
                   isCodeDark ? "text-gray-300" : "text-gray-800"
                 }`}
                 rows={Math.min(10, input.split("\n").length)}
@@ -706,7 +708,7 @@ const TerminalComponent = forwardRef(
                   ? "bg-gray-400 cursor-not-allowed"
                   : input.trim() && !readOnly
                     ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-300 cursor-not-allowed text-gray-500"
+                    : "bg-gray-300 cursor-not-allowed text-gray-700"
               }`}
             >
               {isExecuting ? (
@@ -729,7 +731,7 @@ const TerminalComponent = forwardRef(
               <div>
                 <div
                   className={`text-xs mb-1 ${
-                    isCodeDark ? "text-gray-400" : "text-gray-600"
+                    isCodeDark ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
                   Quick examples:
@@ -754,7 +756,7 @@ const TerminalComponent = forwardRef(
 
             <div
               className={`text-xs ${
-                isCodeDark ? "text-gray-500" : "text-gray-600"
+                isCodeDark ? "text-gray-300" : "text-gray-600"
               }`}
             >
               <div className="flex space-x-4">

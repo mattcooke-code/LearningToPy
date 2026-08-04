@@ -25,7 +25,9 @@ const Footer = () => {
           <div className="md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-python-blue dark:bg-python-light rounded-full flex items-center justify-center">
-                <span className="text-white  font-bold text-sm">Py</span>
+                <span className="text-white dark:text-black font-bold text-sm">
+                  Py
+                </span>
               </div>
               <Link to="/" className="text-xl font-bold text-white">
                 Learning To Py
@@ -180,7 +182,7 @@ const Footer = () => {
                 </svg>
                 <span>and</span>
                 <svg
-                  className="w-4 h-4 text-python-blue dark:text-python-light"
+                  className="w-4 h-4 text-python-light"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
