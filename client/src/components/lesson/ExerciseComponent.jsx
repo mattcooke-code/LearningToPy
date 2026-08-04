@@ -552,7 +552,7 @@ const ExerciseComponent = ({
           className={`px-6 py-2 rounded-lg font-semibold transition flex items-center space-x-2 ${
             isRunning || !isReady || isReviewMode
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-yellow-600 text-white hover:bg-yellow-700"
+              : "bg-yellow-600 text-gray-900 hover:bg-yellow-700"
           }`}
         >
           {isRunning ? (

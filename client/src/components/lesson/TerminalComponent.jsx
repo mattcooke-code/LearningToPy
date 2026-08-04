@@ -636,7 +636,7 @@ const TerminalComponent = forwardRef(
 
           {output.length === 0 && (
             <div
-              className={`italic ${isCodeDark ? "text-gray-500" : "text-gray-600"}`}
+              className={`italic ${isCodeDark ? "text-gray-400" : "text-gray-600"}`}
             >
               Type Python code below and press Enter to execute. Use ↑/↓ arrows
               to navigate command history.
@@ -707,7 +707,7 @@ const TerminalComponent = forwardRef(
                 isExecuting
                   ? "bg-gray-400 cursor-not-allowed"
                   : input.trim() && !readOnly
-                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    ? "bg-green-700 hover:bg-green-800 text-white"
                     : "bg-gray-300 cursor-not-allowed text-gray-700"
               }`}
             >
