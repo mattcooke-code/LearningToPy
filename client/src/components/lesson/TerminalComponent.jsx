@@ -636,7 +636,7 @@ const TerminalComponent = forwardRef(
 
           {output.length === 0 && (
             <div
-              className={`italic ${isCodeDark ? "text-gray-400" : "text-gray-600"}`}
+              className={`italic ${isCodeDark ? "text-gray-300" : "text-gray-600"}`}
             >
               Type Python code below and press Enter to execute. Use ↑/↓ arrows
               to navigate command history.
