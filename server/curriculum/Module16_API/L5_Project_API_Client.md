@@ -25,25 +25,6 @@ You need to fetch all tasks for user ID 5 that are **not completed**. The API ac
 - Method: `GET`
 - Parameters: `userId=5` and `completed=false`
 
-**Expected Response Structure:**
-
-```json
-[
-  {
-    "userId": 5,
-    "id": 201,
-    "title": "Learn Python APIs",
-    "completed": false
-  },
-  {
-    "userId": 5,
-    "id": 202,
-    "title": "Build a project",
-    "completed": false
-  }
-]
-```
-
 ## Task 2: Submitting a New Task
 
 You'll submit a new completed task for user 5.
@@ -61,17 +42,6 @@ You'll submit a new completed task for user 5.
   "userId": 5,
   "title": "Complete API Client Project",
   "completed": true
-}
-```
-
-**Expected Response Structure:**
-
-```json
-{
-  "userId": 5,
-  "title": "Complete API Client Project",
-  "completed": true,
-  "id": 501
 }
 ```
 

@@ -79,6 +79,7 @@ from config import API_KEY
 # From a subpackage
 from utils.helpers import format_date
 from utils.validators import validate_email
+import utils.formatters as fmt
 
 # Relative imports (within packages)
 from .helpers import format_date

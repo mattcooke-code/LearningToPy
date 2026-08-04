@@ -307,7 +307,7 @@ const TerminalComponent = forwardRef(
             content: w,
           }));
 
-          const result = await runCode(wrappedCode, 5000);
+          const result = await runCode(wrappedCode, 15000);
 
           if (result.success) {
             let outputText = "";

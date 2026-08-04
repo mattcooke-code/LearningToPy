@@ -5,7 +5,7 @@
     "**Task 1:** Complete the statement to import the entire `config` module.",
     "**Task 2:** Complete the statement to import the `validate_email` function from `utils.validators`.",
     "**Task 3:** Complete the statement to import the `format_date` function from `utils.helpers` with the alias `fmt_date`.",
-    "**Task 4:** Complete the statement to import `calculate_total` from the `utils` package (exposed via `__init__.py`).",
+    "**Task 4:** Complete the statement to import `calculate_total` from the `utils` package. (It has been set up in `__init__.py` so you can import it directly from `utils` — no need to reference the submodule.)",
     "**Task 5:** Complete the `__all__` list to expose only `format_date` and `validate_email`.",
     "**Task 6:** Write a relative import inside `utils/helpers.py` to import `validate_email` from the neighboring `validators.py` module."
   ],
@@ -16,7 +16,7 @@
     "**Task 1:** Syntax: `import module_name`",
     "**Task 2:** Syntax: `from package.module import function_name`",
     "**Task 3:** Syntax: `from package.module import function_name as alias`",
-    "**Task 4:** When exposed via `__init__.py`: `from package import function_name`",
+    "**Task 4:** The import looks exactly like Task 2, just shorter: `from utils import calculate_total`. The `__init__.py` file makes it available at the package level so you don't need to write `utils.something.calculate_total`.",
     "**Task 5:** `__all__` is a list of strings: `['function1', 'function2']`",
     "**Task 6:** Relative imports start with a dot: `from .module import function`"
   ],
