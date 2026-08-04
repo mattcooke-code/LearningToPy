@@ -22,7 +22,7 @@
       "options": [
         "Tags define elements (like `<a>`); attributes provide extra information about the element (like `href`)",
         "Tags are always visible; attributes are hidden",
-        "Attributes define elements; tags provide extra information",
+        "Attributes define elements (like `href`); tags provide extra information about the element (like `<a>`)",
         "There is no difference; they are the same thing"
       ],
       "correctAnswer": 0,
