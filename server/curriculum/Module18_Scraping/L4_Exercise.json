@@ -4,8 +4,8 @@
   "steps": [
     "**Task 1:** Import the `BeautifulSoup` class from the `bs4` module.",
     "**Task 2:** Create a BeautifulSoup object called `soup` from `html_doc` using `'html.parser'`.",
-    "**Task 3:** Use `soup.find(id='main-title')` to find the element by ID. Store in `main_title` and print its `.text`.",
-    "**Task 4:** Use `soup.find_all(class_='product-name')` to find all product names. Store in `product_names`.",
+    "**Task 3:** Use `soup.find()` to locate the element with the ID `main-title`. Store it in `main_title` and print its text content.",
+    "**Task 4:** Use `soup.find_all()` to locate all elements with the class `product-name`. Store the result in `product_names`. ",
     "**Task 5:** Loop through `product_names` and print the `.text` of each element."
   ],
   "starterCode": "# Task 1: Import BeautifulSoup\n\n\nhtml_doc = \"\"\"\n<div id=\"header\">\n    <h1 id=\"main-title\">Daily Deals on Electronics</h1>\n</div>\n<div class=\"product-listing\">\n    <p class=\"product-name\">Laptop X</p>\n    <p class=\"product-name\">Mouse Pro</p>\n    <p class=\"product-name\">Monitor 4K</p>\n</div>\n\"\"\"\n\n# Task 2: Initialize BeautifulSoup\nsoup = ???\n\n# Task 3: Find and print the main title by ID\nmain_title = ???\nprint(f\"Main Title: {???}\")\n\n# Task 4: Find all product names by class\nproduct_names = ???\n\n# Task 5: Loop through and print all product names\nfor name in product_names:\n\n",

@@ -18,7 +18,7 @@ async function initPyodide() {
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
 
-  for (const pkg of ["pandas", "numpy", "tzdata", "beautifulsoup4"]) {
+  for (const pkg of ["pandas", "numpy", "tzdata", "beautifulsoup4", "sqlite3"]) {
     try {
       await micropip.install(pkg);
     } catch (err) {
