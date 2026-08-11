@@ -308,6 +308,39 @@ const BADGE_LOGIC_MAP = {
     check: () => false,
     progress: () => 0,
   },
+  hof: {
+    check: async (h, user) => {
+      // Check if user has been inducted into HoF
+      const completion = await require("../models/CourseCompletion")
+        .findOne({
+          userId: user._id,
+          hofJoinedAt: { $ne: null },
+        })
+        .lean();
+      return !!completion;
+    },
+    progress: async (h, user) => {
+      const completion = await require("../models/CourseCompletion")
+        .findOne({
+          userId: user._id,
+        })
+        .lean();
+
+      if (!completion) return 0;
+      if (completion.hofJoinedAt) return 100;
+
+      // Calculate progress toward 30-day waiting period
+      if (completion.hofEligibleAt) {
+        const now = new Date();
+        const eligibleDate = new Date(completion.hofEligibleAt);
+        const totalWaitMs = 30 * 24 * 60 * 60 * 1000;
+        const waitedMs = Math.min(now - completion.completedAt, totalWaitMs);
+        return Math.round((waitedMs / totalWaitMs) * 100);
+      }
+
+      return 0;
+    },
+  },
 };
 
 // --- PUBLIC API ---

@@ -37,7 +37,7 @@ const hofTransition = catchAsync(async (req, res) => {
   // Bulk-update User leaderboardStatus
   await User.updateMany(
     { _id: { $in: userIds } },
-    { $set: { leaderboardStatus: "HOF" } },
+    { $set: { leaderboardStatus: "HOF" }, $addToSet: { badges: "hof" } },
   );
 
   sendJsonResponse(res, 200, "HoF transitions complete", {

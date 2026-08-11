@@ -686,6 +686,7 @@ const optInToHallOfFame = catchAsync(async (req, res, next) => {
 
   await User.findByIdAndUpdate(userId, {
     leaderboardStatus: "HOF",
+    $addToSet: { badges: "hof" },
   });
 
   sendJsonResponse(res, 200, "Welcome to the Hall of Fame!", {
