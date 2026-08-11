@@ -76,7 +76,10 @@ export const resolveCourseThemeColor = (courseProgressPercentage) => {
   if (courseProgressPercentage <= 85) {
     return THEME_COLORS.LIME;
   }
-  return THEME_COLORS.GREEN;
+  if (courseProgressPercentage <= 99) {
+    return THEME_COLORS.GREEN;
+  }
+  return THEME_COLORS.PURPLE;
 };
 
 /**

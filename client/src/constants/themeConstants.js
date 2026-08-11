@@ -26,6 +26,7 @@ export const THEME_COLORS = {
   YELLOW: "#ffd700",
   LIME: "#3d7a1a",
   GREEN: "#15803d",
+  PURPLE: "#581c87",
 };
 
 /**
@@ -40,6 +41,7 @@ export const THEME_HOVER_COVERS = {
   YELLOW: "#b89200",
   LIME: "#2d5a12",
   GREEN: "#166534",
+  PURPLE: "#421466",
 };
 
 // Text color to use on each theme background (for white-text-on-dark-bg situations)
@@ -51,6 +53,7 @@ export const THEME_TEXT_COLORS = {
   YELLOW: "#1a1a1a",
   LIME: "#ffffff",
   GREEN: "#ffffff",
+  PURPLE: "#ffffff",
 };
 
 /**
