@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth, useTheme } from "../context";
 import {
   useDashboardData,
+  useCourseCompletion,
   useStreakNotifications,
   useHallOfFame,
 } from "../hooks";
@@ -16,10 +17,14 @@ import {
   LoadingState,
   ErrorState,
   HallOfFameSnapshot,
+  HallOfFameStatus,
+  JourneyCard,
+  StatsCard,
 } from "../components/ui";
 import { HallOfFameModal, LeaderboardModal } from "../modals";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
+import { apiClient } from "../services";
 
 const FALLBACK_PROGRESS = {
   xp: 0,
@@ -60,12 +65,27 @@ const Dashboard = () => {
     loading: hofLoading,
   } = useHallOfFame(true, 5);
 
+  const {
+    completionData,
+    loading: completionLoading,
+    optInToHoF,
+  } = useCourseCompletion();
+
   // Use user data from auth as fallback when progress hasn't loaded yet
   const progressData = userProgress || {
     ...FALLBACK_PROGRESS,
     xp: user?.xp || 0,
     level: user?.level || 1,
     streak: user?.streak || 0,
+  };
+
+  const handleOptInToHof = async () => {
+    try {
+      await apiClient.post("/progress/hall-of-fame/opt-in");
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to opt into Hall of Fame:", err);
+    }
   };
 
   // Show loading state while authentication is being verified
@@ -228,6 +248,7 @@ const Dashboard = () => {
 
       {/* Progress Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Card 1: Current Level */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center mb-4">
             Current Level
@@ -249,23 +270,23 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-            Total XP
-          </h3>
-          <p className="text-3xl font-bold text-python-blue dark:text-python-yellow mt-2">
-            {progressData.xp}
-          </p>
-        </div>
+        {/* Card 2: Journey to Hall of Fame */}
+        <JourneyCard
+          completionData={completionData}
+          loading={completionLoading}
+          modulesCompleted={progressData.stats?.modulesCompleted || 0}
+          onOptIn={optInToHoF}
+          onViewHoF={() => setIsHallOfFameModalOpen(true)}
+        />
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-            Current Streak
-          </h3>
-          <p className="text-3xl font-bold text-green-500 dark:text-green-400 mt-2">
-            {progressData.streak}
-          </p>
-        </div>
+        {/* Card 3: XP & Activity */}
+        <StatsCard
+          xp={progressData.xp}
+          streak={progressData.streak}
+          daysActive={
+            progressData.stats?.daysActive || user?.stats?.daysActive || 0
+          }
+        />
       </div>
 
       {/* Continue Learning Section with Next Module Preview */}

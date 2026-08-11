@@ -3,6 +3,7 @@ export { useAdminMutation } from "./useAdminMutation";
 export { useConfirmActions } from "./useConfirmActions";
 export { useContentFilter } from "./useContentFilter";
 export { useCookieConsent, setCookieConsent } from "./useCookieConsent";
+export { useCourseCompletion } from "./useCourseCompletion";
 export { useCourseThemeUpdater } from "./useCourseThemeUpdater";
 export { useDashboardData } from "./useDashboardData";
 export { useFileDownload } from "./useFileDownload";

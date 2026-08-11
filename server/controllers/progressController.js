@@ -696,6 +696,49 @@ const optInToHallOfFame = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get current user's course completion and HoF status
+ *
+ * @route GET /api/progress/course-completion
+ * @returns {Object} 200 - Course completion status
+ * @returns {Object} 200 - Default object when no completion record exists
+ */
+const getCourseCompletionStatus = catchAsync(async (req, res, next) => {
+  const userId = req.userId;
+
+  const completion = await CourseCompletion.findOne({ userId }).lean();
+
+  if (!completion) {
+    return sendJsonResponse(res, 200, "No course completion record", {
+      courseCompleted: false,
+      hofJoinedAt: null,
+      hofEligibleAt: null,
+      modulesCompleted: 0,
+    });
+  }
+
+  let rank = null;
+  if (completion.hofJoinedAt) {
+    rank =
+      (await CourseCompletion.countDocuments({
+        hofJoinedAt: { $ne: null },
+        completedAt: { $lt: completion.completedAt },
+      })) + 1;
+  }
+
+  sendJsonResponse(res, 200, "Course completion status fetched", {
+    courseCompleted: true,
+    completedAt: completion.completedAt,
+    hofEligibleAt: completion.hofEligibleAt,
+    hofJoinedAt: completion.hofJoinedAt || null,
+    earlyOptIn: completion.earlyOptIn || false,
+    rank,
+    timeToCompleteDays: completion.timeToCompleteMs
+      ? Math.round(completion.timeToCompleteMs / 86400000)
+      : null,
+  });
+});
+
 module.exports = {
   getCurrentProgress,
   getAchievements,
@@ -708,4 +751,5 @@ module.exports = {
   checkStreak,
   getHallOfFame,
   optInToHallOfFame,
+  getCourseCompletionStatus,
 };

@@ -29,6 +29,12 @@ router.get(
 
 router.get("/hall-of-fame", protect, progressController.getHallOfFame);
 
+router.get(
+  "/course-completion",
+  protect,
+  progressController.getCourseCompletionStatus,
+);
+
 router.post(
   "/hall-of-fame/opt-in",
   protect,
