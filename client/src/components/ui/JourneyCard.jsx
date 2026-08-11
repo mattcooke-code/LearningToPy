@@ -235,7 +235,7 @@ const JourneyCard = ({
           </p>
         )}
 
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+        <p className="text-xs text-gray-600 dark:text-gray-300 text-center">
           Complete all 20 modules to begin your Hall of Fame countdown
         </p>
       </div>

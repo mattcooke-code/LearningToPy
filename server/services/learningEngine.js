@@ -317,6 +317,9 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
   // Auto-complete quiz-less modules (e.g., Module 20 capstone)
   let autoCompletedModule = false;
+  let courseCompleted = false;
+  let hofEligibleAt = null;
+
   if (!isM0 && !hasQuiz(lesson)) {
     const moduleLessons = await Lesson.find({
       moduleId: lesson.moduleId,
@@ -375,6 +378,33 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
             });
           }
 
+          // ─── COURSE COMPLETION RECORD ─────────────────
+          // Create CourseCompletion record after the capstone
+          const existingCourseCompletion = await CourseCompletion.findOne({
+            userId,
+          });
+
+          if (!existingCourseCompletion) {
+            const timeToCompleteMs = Date.now() - user.createdAt.getTime();
+            const completedModuleCount = await ModuleCompletion.countDocuments({
+              userId,
+            });
+            const hofDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+            await CourseCompletion.create({
+              userId,
+              completedAt: new Date(),
+              timeToCompleteMs,
+              totalXpAtCompletion: user.xp + totalXp,
+              moduleCount: completedModuleCount,
+              hofEligibleAt: hofDate,
+            });
+
+            user.leaderboardStatus = "COMPLETED_PENDING";
+            courseCompleted = true;
+            hofEligibleAt = hofDate;
+          }
+
           totalXP += moduleBonus;
           xpLog.push({
             amount: moduleBonus,
@@ -404,6 +434,8 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     nextLessonId: await findNextLesson(lesson),
     xpBreakdown: xpLog,
     autoCompletedModule,
+    courseCompleted,
+    hofEligibleAt,
   };
 };
 
