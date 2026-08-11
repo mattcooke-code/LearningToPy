@@ -164,7 +164,7 @@ const JourneyCard = ({
 
           <button
             onClick={onOptIn}
-            className="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors text-sm font-medium"
+            className="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-800 dark:bg-purple-500 dark:text-purple-950 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors text-sm font-medium"
           >
             <Star className="h-4 w-4 mr-2" />
             Join Hall of Fame Now

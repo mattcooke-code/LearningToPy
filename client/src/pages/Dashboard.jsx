@@ -253,7 +253,7 @@ const Dashboard = () => {
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center mb-4">
             Current Level
           </h3>
-          <p className="text-4xl font-bold text-python-blue dark:text-python-blue text-center mb-4">
+          <p className="text-4xl font-bold text-python-blue dark:text-python-light text-center mb-4">
             {progressData.level}
           </p>
           <SegmentedLevelProgressBar
@@ -480,7 +480,7 @@ const Dashboard = () => {
             )}
             {isCourseComplete && (
               <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
-                <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+                <div className="flex items-center space-x-2 text-green-800 dark:text-green-400">
                   <CheckCircle className="h-5 w-5" />
                   <p className="font-semibold">Course Complete!</p>
                 </div>
