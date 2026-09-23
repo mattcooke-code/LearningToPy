@@ -64,7 +64,7 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
   user.stats = user.stats || {};
   const { elapsedSeconds, usedHints, attemptNumber, wasOptimalSolution } =
     submissionBody;
-  const isChallenge = lessonRecord.contentType !== "theory";
+  const isChallenge = lessonRecord.contentType !== "THEORY";
 
   const ensureStat = (key) => {
     if (typeof user.stats[key] !== "number") user.stats[key] = 0;

@@ -391,10 +391,15 @@ const submitLesson = catchAsync(async (req, res, next) => {
 
     if (isCorrectValue) {
       feedback = `Correct! ${currentQuestion.explanation || ""}`;
-      await updateQuizProgress(quizProgress, questionIndex, isCorrectValue);
+      await updateQuizProgress(
+        quizProgress,
+        questionIndex,
+        isCorrectValue,
+        lesson,
+      );
     } else {
       feedback = `Try again! ${currentQuestion.explanation || ""}`;
-      await updateQuizProgress(quizProgress, questionIndex, false);
+      await updateQuizProgress(quizProgress, questionIndex, false, lesson);
     }
   } else if (
     (code === undefined && answer === undefined) ||

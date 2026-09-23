@@ -74,9 +74,15 @@ const isQuizCompleted = (quizProgress, lesson) => {
  * @param   {Object}  quizProgress  - Quiz progress record (mutated in memory, then saved)
  * @param   {number}  questionIndex - Index of the question
  * @param   {boolean} isCorrect     - Whether the answer was correct
+ * @param   {Object} lesson - The lesson document (required to evaluate completion)
  * @returns {Promise<boolean>} Whether the answer was correct
  */
-const updateQuizProgress = async (quizProgress, questionIndex, isCorrect) => {
+const updateQuizProgress = async (
+  quizProgress,
+  questionIndex,
+  isCorrect,
+  lesson,
+) => {
   if (!quizProgress) return false;
 
   let attempt = quizProgress.questionAttempts?.find(
@@ -99,11 +105,8 @@ const updateQuizProgress = async (quizProgress, questionIndex, isCorrect) => {
   await LessonQuizProgress.findByIdAndUpdate(quizProgress._id, {
     questionAttempts: quizProgress.questionAttempts,
     lastAttempt: quizProgress.lastAttempt,
-    completed: isQuizCompleted(quizProgress, {
-      quiz: quizProgress._quizReference,
-    }), // See note below
+    completed: lesson ? isQuizCompleted(quizProgress, lesson) : false,
   });
-
   return attempt.correct;
 };
 
