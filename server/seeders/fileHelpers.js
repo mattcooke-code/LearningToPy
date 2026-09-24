@@ -27,7 +27,7 @@ const readContent = (moduleFolder, fileName) => {
   } catch (error) {
     console.error(
       `❌ Could not read content file: ${moduleFolder}/${fileName}`,
-      error.message
+      error.message,
     );
     return null;
   }
@@ -42,7 +42,7 @@ const parseJSONContent = (moduleFolder, fileName) => {
   } catch (error) {
     console.error(
       `❌ JSON Syntax Error in ${moduleFolder}/${fileName}:`,
-      error.message
+      error.message,
     );
     return null;
   }
@@ -52,7 +52,7 @@ const parseJSONContent = (moduleFolder, fileName) => {
 const validateFileContent = (content, moduleFolder, fileName) => {
   if (!content) {
     throw new Error(
-      `Required file missing or empty: ${moduleFolder}/${fileName}`
+      `Required file missing or empty: ${moduleFolder}/${fileName}`,
     );
   }
   return content;
