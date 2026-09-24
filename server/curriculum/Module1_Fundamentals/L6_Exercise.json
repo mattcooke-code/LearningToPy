@@ -22,33 +22,38 @@
   "tests": [
     {
       "name": "Check all required variables exist",
-      "code": "# Check that all variables were created\nrequired_vars = ['number_a', 'number_b', 'sum_result', 'difference_result', 'product_result', 'quotient_result']\nmissing = [var for var in required_vars if var not in locals()]\n\nif len(missing) > 0:\n    raise AssertionError(f'Missing variables: {\", \".join(missing)}')\n\nprint('TEST_PASSED: All required variables exist')",
+      "code": "required_vars = ['number_a', 'number_b', 'sum_result', 'difference_result', 'product_result', 'quotient_result']\nmissing = [var for var in required_vars if var not in globals()]\nif missing:\n    raise AssertionError(f'Missing variables: {\", \".join(missing)}')\nprint('TEST_PASSED: All required variables exist')",
       "expected": "All 6 variables should be created"
     },
     {
+      "name": "Check number_a and number_b are numeric",
+      "code": "if not isinstance(number_a, (int, float)) or isinstance(number_a, bool):\n    raise AssertionError(f'number_a should be a number, got {type(number_a).__name__}: {number_a!r}')\nif not isinstance(number_b, (int, float)) or isinstance(number_b, bool):\n    raise AssertionError(f'number_b should be a number, got {type(number_b).__name__}: {number_b!r}')\nprint('TEST_PASSED: number_a and number_b are numeric')",
+      "expected": "number_a and number_b are int or float"
+    },
+    {
       "name": "Check sum_result calculation",
-      "code": "# Verify sum is correct\nexpected_sum = number_a + number_b\n\nif sum_result != expected_sum:\n    raise AssertionError(f'sum_result should equal number_a + number_b ({number_a} + {number_b} = {expected_sum}), got: {sum_result}')\n\nprint('TEST_PASSED: sum_result calculation is correct')",
+      "code": "expected_sum = number_a + number_b\nif sum_result != expected_sum:\n    raise AssertionError(f'sum_result should equal number_a + number_b ({number_a} + {number_b} = {expected_sum}), got: {sum_result!r}')\nprint('TEST_PASSED: sum_result calculation is correct')",
       "expected": "sum_result = number_a + number_b"
     },
     {
       "name": "Check difference_result calculation",
-      "code": "# Verify difference is correct\nexpected_diff = number_a - number_b\n\nif difference_result != expected_diff:\n    raise AssertionError(f'difference_result should equal number_a - number_b ({number_a} - {number_b} = {expected_diff}), got: {difference_result}')\n\nprint('TEST_PASSED: difference_result calculation is correct')",
+      "code": "expected_diff = number_a - number_b\nif difference_result != expected_diff:\n    raise AssertionError(f'difference_result should equal number_a - number_b ({number_a} - {number_b} = {expected_diff}), got: {difference_result!r}')\nprint('TEST_PASSED: difference_result calculation is correct')",
       "expected": "difference_result = number_a - number_b"
     },
     {
       "name": "Check product_result calculation",
-      "code": "# Verify product is correct\nexpected_product = number_a * number_b\n\nif product_result != expected_product:\n    raise AssertionError(f'product_result should equal number_a * number_b ({number_a} * {number_b} = {expected_product}), got: {product_result}')\n\nprint('TEST_PASSED: product_result calculation is correct')",
+      "code": "expected_product = number_a * number_b\nif product_result != expected_product:\n    raise AssertionError(f'product_result should equal number_a * number_b ({number_a} * {number_b} = {expected_product}), got: {product_result!r}')\nprint('TEST_PASSED: product_result calculation is correct')",
       "expected": "product_result = number_a * number_b"
     },
     {
       "name": "Check quotient_result calculation",
-      "code": "# Verify quotient is correct\nexpected_quotient = number_a / number_b\n\nif quotient_result != expected_quotient:\n    raise AssertionError(f'quotient_result should equal number_a / number_b ({number_a} / {number_b} = {expected_quotient}), got: {quotient_result}')\n\nprint('TEST_PASSED: quotient_result calculation is correct')",
+      "code": "expected_quotient = number_a / number_b\nif quotient_result != expected_quotient:\n    raise AssertionError(f'quotient_result should equal number_a / number_b ({number_a} / {number_b} = {expected_quotient}), got: {quotient_result!r}')\nprint('TEST_PASSED: quotient_result calculation is correct')",
       "expected": "quotient_result = number_a / number_b"
     },
     {
-      "name": "Check output has 4 lines",
-      "code": "import io\nimport sys\n\n# Capture output by re-executing\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = [line for line in output.split('\\n') if line.strip()]\n\nif len(lines) < 4:\n    raise AssertionError(f'Should print at least 4 results (one per line), got {len(lines)} lines')\n\nprint('TEST_PASSED: Output has sufficient lines')",
-      "expected": "At least 4 lines of output"
+      "name": "Check all four results were printed",
+      "code": "expected_values = [str(sum_result), str(difference_result), str(product_result), str(quotient_result)]\nmissing = [v for v in expected_values if v not in output]\nif missing:\n    raise AssertionError(f'Output should contain all four results, one per line. Missing: {missing}. Got: {output!r}')\nprint('TEST_PASSED: All four results were printed')",
+      "expected": "Output contains str(sum_result), str(difference_result), str(product_result), str(quotient_result)"
     }
   ],
   "tags": ["project", "calculator", "module-review", "variables", "operators"],

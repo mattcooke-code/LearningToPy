@@ -19,27 +19,27 @@
   "tests": [
     {
       "name": "Check first_item variable",
-      "code": "# Check first_item exists and has correct value\nif 'first_item' not in locals():\n    raise AssertionError('Missing first_item variable. Did you create it?')\n\nif first_item != 'milk':\n    raise AssertionError(f'first_item should be \"milk\" (index 0), got: {first_item}')\n\nprint('TEST_PASSED: first_item is correct')",
+      "code": "if 'first_item' not in globals():\n    raise AssertionError('Missing first_item variable. Did you create it?')\nif first_item != 'milk':\n    raise AssertionError(f'first_item should be \"milk\" (index 0), got: {first_item!r}')\nprint('TEST_PASSED: first_item is correct')",
       "expected": "first_item = 'milk'"
     },
     {
       "name": "Check third_item variable",
-      "code": "# Check third_item exists and has correct value\nif 'third_item' not in locals():\n    raise AssertionError('Missing third_item variable. Did you create it?')\n\nif third_item != 'bread':\n    raise AssertionError(f'third_item should be \"bread\" (index 2), got: {third_item}. Remember: 0=first, 1=second, 2=third!')\n\nprint('TEST_PASSED: third_item is correct')",
+      "code": "if 'third_item' not in globals():\n    raise AssertionError('Missing third_item variable. Did you create it?')\nif third_item != 'bread':\n    raise AssertionError(f'third_item should be \"bread\" (index 2), got: {third_item!r}. Remember: 0=first, 1=second, 2=third!')\nprint('TEST_PASSED: third_item is correct')",
       "expected": "third_item = 'bread'"
     },
     {
       "name": "Check last_item variable",
-      "code": "# Check last_item exists and has correct value\nif 'last_item' not in locals():\n    raise AssertionError('Missing last_item variable. Did you create it?')\n\nif last_item != 'cheese':\n    raise AssertionError(f'last_item should be \"cheese\" (index -1), got: {last_item}')\n\nprint('TEST_PASSED: last_item is correct')",
+      "code": "if 'last_item' not in globals():\n    raise AssertionError('Missing last_item variable. Did you create it?')\nif last_item != 'cheese':\n    raise AssertionError(f'last_item should be \"cheese\" (index -1), got: {last_item!r}')\nprint('TEST_PASSED: last_item is correct')",
       "expected": "last_item = 'cheese'"
     },
     {
       "name": "Check second_to_last variable",
-      "code": "# Check second_to_last exists and has correct value\nif 'second_to_last' not in locals():\n    raise AssertionError('Missing second_to_last variable. Did you create it?')\n\nif second_to_last != 'butter':\n    raise AssertionError(f'second_to_last should be \"butter\" (index -2), got: {second_to_last}')\n\nprint('TEST_PASSED: second_to_last is correct')",
+      "code": "if 'second_to_last' not in globals():\n    raise AssertionError('Missing second_to_last variable. Did you create it?')\nif second_to_last != 'butter':\n    raise AssertionError(f'second_to_last should be \"butter\" (index -2), got: {second_to_last!r}')\nprint('TEST_PASSED: second_to_last is correct')",
       "expected": "second_to_last = 'butter'"
     },
     {
       "name": "Check output format",
-      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\nlines = output.split('\\n')\nexpected_lines = [\n    'First item: milk',\n    'Third item: bread',\n    'Last item: cheese',\n    'Second-to-last item: butter'\n]\n\nfor i, expected in enumerate(expected_lines):\n    if i >= len(lines):\n        raise AssertionError(f'Missing line {i+1}: {expected}')\n    \n    if lines[i].strip() != expected:\n        raise AssertionError(f'Line {i+1}: expected \"{expected}\", got \"{lines[i].strip()}\"')\n\nprint('TEST_PASSED: Output format is correct')",
+      "code": "expected_lines = ['First item: milk', 'Third item: bread', 'Last item: cheese', 'Second-to-last item: butter']\nmissing = [line for line in expected_lines if line not in output]\nif missing:\n    raise AssertionError(f'Output should contain each formatted line. Missing: {missing}. Got: {output!r}')\nprint('TEST_PASSED: Output format is correct')",
       "expected": "Four formatted output lines showing each item"
     }
   ],

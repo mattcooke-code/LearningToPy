@@ -20,9 +20,19 @@
   "validation": "tests",
   "tests": [
     {
-      "name": "Verify Security Logic",
-      "code": "import ast, io, sys\n# 1. Logic Check\nif is_serviced is not False:\n    raise AssertionError('is_serviced should be False for Tokyo.')\nif is_blocked is not True:\n    raise AssertionError('is_blocked should be True for the suspicious IP.')\n\n# 2. Syntax Check\ntree = ast.parse(code)\nops = []\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Compare):\n        for op in node.ops:\n            ops.append(type(op).__name__)\nif 'In' not in ops or 'NotIn' not in ops:\n    raise AssertionError('You must use both \"in\" and \"not in\" operators.')\n\n# 3. Output Check (Flexible)\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().lower()\nfinally:\n    sys.stdout = old_stdout\n\nif 'premium' not in output:\n    raise AssertionError('The premium access message was not printed.')\nif 'standard' not in output:\n    raise AssertionError('The standard user message was not printed.')\n\nprint('TEST_PASSED: Membership security system is working!')",
-      "expected": "Uses 'in' and 'not in' correctly and prints appropriate access levels."
+      "name": "Verify is_serviced and is_blocked logic",
+      "code": "if is_serviced is not False:\n    raise AssertionError('is_serviced should be False for Tokyo. Tokyo is not in service_areas.')\nif is_blocked is not True:\n    raise AssertionError('is_blocked should be True. The suspicious IP is not in trusted_ips.')\nprint('TEST_PASSED: is_serviced and is_blocked are correct')",
+      "expected": "is_serviced == False and is_blocked == True"
+    },
+    {
+      "name": "Check membership operators and if statements are used",
+      "code": "import ast\ntree = ast.parse(code)\nops = []\nifs = 0\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Compare):\n        for op in node.ops:\n            ops.append(type(op).__name__)\n    elif isinstance(node, ast.If):\n        ifs += 1\nif 'In' not in ops:\n    raise AssertionError('You must use the \"in\" operator. Step 1 should check if user_city is in service_areas, and Step 3 should check if \"premium\" is in account_type.')\nif 'NotIn' not in ops:\n    raise AssertionError('You must use the \"not in\" operator. Step 2 should check if suspicious_ip is not in trusted_ips.')\nif ifs < 2:\n    raise AssertionError(f'You should use at least 2 if statements (Step 3 and Step 4). Found: {ifs}.')\nprint('TEST_PASSED: Membership operators and if statements present')",
+      "expected": "Uses 'in', 'not in', and at least 2 if statements"
+    },
+    {
+      "name": "Check output messages",
+      "code": "low = output.lower()\nif 'premium' not in low:\n    raise AssertionError(f'Step 3 should print a premium-access message. Got: {output!r}')\nif 'standard' not in low:\n    raise AssertionError(f'Step 4 should print the standard-user message (since user_roles does not contain \"Admin\"). Got: {output!r}')\nprint('TEST_PASSED: Output messages correct')",
+      "expected": "Prints premium access message and standard user message"
     }
   ],
   "expectedOutput": "🛡️ WEBSITE SECURITY CHECK\nAccess granted to premium features.\nStandard user access only",

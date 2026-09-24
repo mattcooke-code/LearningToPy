@@ -20,28 +20,28 @@
   "validation": "tests",
   "tests": [
     {
-      "name": "Check playlist after step 1 (replace first song)",
-      "code": "# After step 1: ['Bohemian Rhapsody', 'Imagine', 'Sweet Child O Mine']\nif 'my_playlist' not in locals():\n    raise AssertionError('Missing my_playlist variable')\n\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\n\nif my_playlist[0] != 'Bohemian Rhapsody':\n    raise AssertionError(f'First song should be \"Bohemian Rhapsody\", got: {my_playlist[0]}')\n\nprint('TEST_PASSED: First song replaced correctly')",
+      "name": "Check playlist first song replaced",
+      "code": "if 'my_playlist' not in globals():\n    raise AssertionError('Missing my_playlist variable')\nif my_playlist[0] != 'Bohemian Rhapsody':\n    raise AssertionError(f'First song should be \"Bohemian Rhapsody\", got: {my_playlist[0]!r}')\nprint('TEST_PASSED: First song replaced correctly')",
       "expected": "First song should be 'Bohemian Rhapsody'"
     },
     {
-      "name": "Check playlist after step 2 (append)",
-      "code": "# After step 2: 'Stairway to Heaven' should be in the playlist\nif 'Stairway to Heaven' not in my_playlist:\n    raise AssertionError('\"Stairway to Heaven\" should be in the playlist')\n\n# It should be at index 4 in the final playlist (before the extended songs)\nif my_playlist[4] != 'Stairway to Heaven':\n    raise AssertionError(f'\"Stairway to Heaven\" should be at index 4, got: {my_playlist[4]}')\n\nprint('TEST_PASSED: Song appended correctly')",
+      "name": "Check playlist song appended",
+      "code": "if 'my_playlist' not in globals():\n    raise AssertionError('Missing my_playlist variable')\nif 'Stairway to Heaven' not in my_playlist:\n    raise AssertionError('\"Stairway to Heaven\" should be in the playlist')\nif my_playlist[4] != 'Stairway to Heaven':\n    raise AssertionError(f'\"Stairway to Heaven\" should be at index 4, got: {my_playlist[4]!r}')\nprint('TEST_PASSED: Song appended correctly')",
       "expected": "'Stairway to Heaven' should be in playlist at index 4"
     },
     {
-      "name": "Check playlist after step 3 (insert at index 2)",
-      "code": "# After step 3: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\n\nif my_playlist[2] != 'Hotel California':\n    raise AssertionError(f'Item at index 2 should be \"Hotel California\", got: {my_playlist[2]}')\n\n# Verify the order of the first 5 songs\nexpected_first_five = ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nif my_playlist[:5] != expected_first_five:\n    raise AssertionError(f'First 5 songs should be {expected_first_five}, got: {my_playlist[:5]}')\n\nprint('TEST_PASSED: Song inserted correctly at index 2')",
+      "name": "Check playlist song inserted at index 2",
+      "code": "if 'my_playlist' not in globals():\n    raise AssertionError('Missing my_playlist variable')\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\nif my_playlist[2] != 'Hotel California':\n    raise AssertionError(f'Item at index 2 should be \"Hotel California\", got: {my_playlist[2]!r}')\nexpected_first_five = ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven']\nif my_playlist[:5] != expected_first_five:\n    raise AssertionError(f'First 5 songs should be {expected_first_five!r}, got: {my_playlist[:5]!r}')\nprint('TEST_PASSED: Song inserted correctly at index 2')",
       "expected": "Song at index 2 should be 'Hotel California'"
     },
     {
-      "name": "Check final playlist after step 4 (extend)",
-      "code": "# Final: ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\n\nif my_playlist[-2:] != ['Smells Like Teen Spirit', 'Wonderwall']:\n    raise AssertionError(f'Last two songs should be from friends_playlist, got: {my_playlist[-2:]}')\n\nif my_playlist[-1] != 'Wonderwall':\n    raise AssertionError(f'Last song should be \"Wonderwall\", got: {my_playlist[-1]}')\n\n# Verify complete final playlist\nexpected_final = ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nif my_playlist != expected_final:\n    raise AssertionError(f'Final playlist incorrect. Expected: {expected_final}, Got: {my_playlist}')\n\nprint('TEST_PASSED: Friends playlist extended correctly')",
+      "name": "Check final playlist after extend",
+      "code": "if 'my_playlist' not in globals():\n    raise AssertionError('Missing my_playlist variable')\nif len(my_playlist) != 7:\n    raise AssertionError(f'Final playlist should have 7 songs, got {len(my_playlist)}')\nexpected_final = ['Bohemian Rhapsody', 'Imagine', 'Hotel California', 'Sweet Child O Mine', 'Stairway to Heaven', 'Smells Like Teen Spirit', 'Wonderwall']\nif my_playlist != expected_final:\n    raise AssertionError(f'Final playlist incorrect. Expected: {expected_final!r}, Got: {my_playlist!r}')\nprint('TEST_PASSED: Friends playlist extended correctly')",
       "expected": "Final playlist should have 7 songs with friends' songs at the end"
     },
     {
       "name": "Check output shows progression",
-      "code": "import io\nimport sys\n\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Check all expected phrases are in output\nif 'Starting playlist:' not in output:\n    raise AssertionError('Should show starting playlist')\n\nif 'After replacing first song:' not in output:\n    raise AssertionError('Should show after replacement')\n\nif 'After appending:' not in output:\n    raise AssertionError('Should show after appending')\n\nif 'After inserting:' not in output:\n    raise AssertionError('Should show after inserting')\n\nif 'Final playlist:' not in output:\n    raise AssertionError('Should show final playlist')\n\nprint('TEST_PASSED: Output shows all progression steps')",
+      "code": "expected_fragments = [\n    'Starting playlist:',\n    'After replacing first song:',\n    'After appending:',\n    'After inserting:',\n    'Final playlist:',\n]\nmissing = [f for f in expected_fragments if f not in output]\nif missing:\n    raise AssertionError(f'Output is missing expected lines. Missing: {missing}. Got: {output!r}')\nprint('TEST_PASSED: Output shows all progression steps')",
       "expected": "Output should show playlist at each stage"
     }
   ],

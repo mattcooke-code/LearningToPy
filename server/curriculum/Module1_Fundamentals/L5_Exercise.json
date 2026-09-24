@@ -5,7 +5,7 @@
     "Task 1: Convert the intro message to an f-string.",
     "Task 2: Convert the character stats to an f-string.",
     "Task 3: Convert the shopping cart to an f-string.",
-    "Task 4: Use the variables provided to create the f-string: \"Soylent Green is people!\""
+    "Task 4: Use the variables provided to create the f-string: \"Soylent Green is people!\". Print the `dinner_time` variable."
   ],
   "starterCode": "name = \"Alex\"\nage = 28\ncity = \"Paris\"\n\n# Task 1: Convert this to an f-string\nmessage1 = \"Hello, my name is \" + name + \", I am \" + str(age) + \" years old, and I live in \" + city + \".\"\n\n# Task 2: Convert this to an f-string\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = \"Character: \" + character + \" | Health: \" + str(health) + \" | Mana: \" + str(mana)\n\n# Task 3: Convert this to an f-string\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = \"Item: \" + item + \" | Price per item: $\" + str(price) + \" | Total: $\" + str(price * quantity)\n\n# Task 4: Construct the famous movie line using an f-string\nfood_wafer = \"Soylent Green\"\nadditive = \"people\"\n\ndinner_time = ???",
   "solution": "name = \"Alex\"\nage = 28\ncity = \"Paris\"\n\nmessage1 = f\"Hello, my name is {name}, I am {age} years old, and I live in {city}.\"\n\ncharacter = \"Wizard\"\nhealth = 85\nmana = 120\nmessage2 = f\"Character: {character} | Health: {health} | Mana: {mana}\"\n\nitem = \"Magic Wand\"\nprice = 49.99\nquantity = 2\nmessage3 = f\"Item: {item} | Price per item: ${price} | Total: ${price * quantity}\"\n\nfood_wafer = \"Soylent Green\"\nadditive = \"people\"\ndinner_time = f\"{food_wafer} is {additive}!\"",

@@ -380,7 +380,19 @@ const submitLesson = catchAsync(async (req, res, next) => {
     if (!code || code.trim() === "") {
       return next(new AppError("No code submitted", 400));
     }
-    isCorrectValue = isCorrect;
+    // Server-side structural validation. We cannot re-execute Python here, but
+    // we can enforce shape: non-empty, not the starter code, and (if the client
+    // claims tests passed) a plausible structured result.
+    const serverValidation = validateCodeSubmission(code, lesson.exercise);
+    if (!serverValidation.isCorrect) {
+      return sendJsonResponse(res, 200, serverValidation.feedback, {
+        isCorrect: false,
+        feedback: serverValidation.feedback,
+        completed: false,
+        xpEarned: 0,
+      });
+    }
+    isCorrectValue = !!isCorrect;
     feedback = validationResult?.feedback || "Code submitted successfully";
   } else if (hasQuiz(lesson) && answer !== undefined) {
     const currentQuestion = lesson.quiz[questionIndex];

@@ -19,17 +19,17 @@
   "tests": [
     {
       "name": "Should print greeting with a name",
-      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Test that output contains a greeting\nif 'Hello' not in output:\n    raise AssertionError('Output should contain \"Hello\"')\nif '!' not in output:\n    raise AssertionError('Output should end with \"!\"')\n\nprint('TEST_PASSED: Greeting printed correctly')",
+      "code": "if 'Hello' not in output:\n    raise AssertionError('Output should contain \"Hello\"')\nif '!' not in output:\n    raise AssertionError('Output should end with \"!\"')\nprint('TEST_PASSED: Greeting printed correctly')",
       "expected": "Output should contain 'Hello' and end with '!'"
     },
     {
       "name": "Should not contain default name",
-      "code": "import io\nimport sys\n\n# Capture output\nold_stdout = sys.stdout\nsys.stdout = io.StringIO()\n\ntry:\n    exec(code)\n    output = sys.stdout.getvalue().strip()\nfinally:\n    sys.stdout = old_stdout\n\n# Test that default name is not used\nif 'Python Learner' in output:\n    raise AssertionError('You need to change the default name from \"Python Learner\"!')\n\nprint('TEST_PASSED: Default name was changed')",
+      "code": "if 'Python Learner' in output:\n    raise AssertionError('You need to change the default name from \"Python Learner\"!')\nprint('TEST_PASSED: Default name was changed')",
       "expected": "Output should not contain 'Python Learner'"
     },
     {
       "name": "Should have changed the name variable",
-      "code": "# Check the code string directly\nif 'name = \"Python Learner\"' in code or \"name = 'Python Learner'\" in code:\n    raise AssertionError('You need to change the name from \"Python Learner\"!')\n\n# Also verify by executing\nif 'name' not in locals():\n    raise AssertionError('Variable \"name\" should exist')\n\nif name == 'Python Learner':\n    raise AssertionError('You need to change the name from \"Python Learner\" to your own name!')\n\nprint('TEST_PASSED: Name variable was changed')",
+      "code": "if 'name' not in globals():\n    raise AssertionError('Variable \"name\" is missing. Keep `name = \"...\"` at the top of your code.')\nif name == 'Python Learner':\n    raise AssertionError('You need to change the name from \"Python Learner\" to your own name!')\nprint('TEST_PASSED: Name variable was changed')",
       "expected": "The 'name' variable should be changed from 'Python Learner' to your name"
     }
   ],

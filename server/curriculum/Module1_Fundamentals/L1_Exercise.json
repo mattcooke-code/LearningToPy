@@ -20,18 +20,18 @@
   "tests": [
     {
       "name": "Check for comment usage",
-      "code": "if '#' not in code:\n    raise AssertionError('Don\\'t forget to keep the comment starting with # at the top!')\nprint('TEST_PASSED: Comment present')",
+      "code": "if not any(line.lstrip().startswith('#') for line in code.split('\\n')):\n    raise AssertionError(\"Don't forget to keep the comment starting with # at the top!\")\nprint('TEST_PASSED: Comment present')",
       "expected": "Code should contain a comment"
     },
     {
       "name": "Check exact indentation (4 spaces)",
-      "code": "lines = code.split('\\n')\n# Find the line containing the print statement\nprint_line = next((l for l in lines if 'print' in l), '')\nif not print_line.startswith('    '):\n    raise AssertionError('The print statement must start with exactly 4 spaces.')\nprint('TEST_PASSED: Correct indentation')",
+      "code": "lines = code.split('\\n')\nprint_line = next((l for l in lines if l.lstrip().startswith('print')), None)\nif print_line is None:\n    raise AssertionError('Could not find a print() statement in your code.')\nleading = len(print_line) - len(print_line.lstrip(' '))\nif leading != 4:\n    raise AssertionError(f'The print statement must start with exactly 4 spaces. Found {leading}.')\nprint('TEST_PASSED: Correct indentation')",
       "expected": "Print statement indented with 4 spaces"
     },
     {
-      "name": "Check code execution",
-      "code": "# Execute user code\ntry:\n    exec(code)\nexcept IndentationError:\n    raise AssertionError('Check your spaces! You have an IndentationError.')\nexcept Exception as e:\n    raise AssertionError(f'Something else went wrong: {e}')\nprint('TEST_PASSED: Code executed successfully')",
-      "expected": "Code runs without errors"
+      "name": "Check that the greeting was printed",
+      "code": "if 'I need to be indented!' not in output:\n    raise AssertionError(f'Expected the print statement to run and produce its message. Got: {output!r}')\nprint('TEST_PASSED: Greeting was printed')",
+      "expected": "The print statement runs and produces its message"
     }
   ],
   "tags": ["syntax", "indentation", "comments"],

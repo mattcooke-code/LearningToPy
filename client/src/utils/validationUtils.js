@@ -164,6 +164,7 @@ const runSingleTest = async (userCode, test, runCode, exercise) => {
       "",
       "# Student code",
       'student_code = """' + pythonSafeCode + '"""',
+      "code = student_code",
       "",
       "old_stdout = sys.stdout",
       "captured_output = io.StringIO()",
@@ -182,8 +183,6 @@ const runSingleTest = async (userCode, test, runCode, exercise) => {
       "",
       test.code,
     ].join("\n");
-
-    
 
     const result = await runCode(fullCode, 30000);
 
