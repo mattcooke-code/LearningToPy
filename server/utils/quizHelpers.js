@@ -145,6 +145,22 @@ const getQuizResultsForXP = (quizProgress, lesson) => {
   });
 };
 
+/**
+ * Derive a list of correctly-answered question indices from a quizProgress
+ * document. This replaces the previous `correctAnswers` array field, which
+ * was never kept in sync with `questionAttempts`.
+ *
+ * @param {Object} quizProgress - LessonQuizProgress document
+ * @returns {number[]} - Sorted array of question indices that user has answered correctly
+ */
+const getCorrectAnswerIndices = (quizProgress) => {
+  if (!quizProgress?.questionAttempts) return [];
+  return quizProgress.questionAttempts
+    .filter((qa) => qa.correct)
+    .map((qa) => qa.questionIndex)
+    .sort((a, b) => a - b);
+};
+
 module.exports = {
   hasQuiz,
   hasExercise,
@@ -154,4 +170,5 @@ module.exports = {
   getQuestionAttempts,
   calculateQuizAnswerXP,
   getQuizResultsForXP,
+  getCorrectAnswerIndices,
 };

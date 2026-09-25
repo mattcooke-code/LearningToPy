@@ -25,6 +25,7 @@ const {
   updateQuizProgress,
   getQuestionAttempts,
   calculateQuizAnswerXP,
+  getCorrectAnswerIndices,
 } = require("../utils/quizHelpers");
 
 const {
@@ -327,12 +328,15 @@ const getLessonContent = catchAsync(async (req, res, next) => {
     moduleNumber: `M${lesson.moduleId.order}`,
     isCompleted,
     quizProgress: quizProgress
-      ? {
-          correctAnswers: quizProgress.correctAnswers,
-          completed: quizProgress.completed,
-          progress: quizProgress.correctAnswers?.length || 0,
-          totalQuestions: lesson.quiz?.length || 0,
-        }
+      ? (() => {
+          const correctAnswers = getCorrectAnswerIndices(quizProgress);
+          return {
+            correctAnswers,
+            completed: quizProgress.completed,
+            progress: correctAnswers.length,
+            totalQuestions: lesson.quiz?.length || 0,
+          };
+        })()
       : null,
   });
 });

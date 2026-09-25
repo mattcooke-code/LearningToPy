@@ -20,7 +20,6 @@ const LessonQuizProgressSchema = new mongoose.Schema(
         correct: { type: Boolean, default: false },
       },
     ],
-    correctAnswers: [{ type: Number }],
     completed: {
       type: Boolean,
       default: false,
