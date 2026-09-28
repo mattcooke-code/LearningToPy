@@ -45,7 +45,7 @@ router.post(
 );
 
 // === AUTHENTICATED ROUTES ===
-router.post("/logout", protect, authController.logout);
+router.post("/logout", authController.logout);
 
 router.get("/user", protect, authController.getUser);
 

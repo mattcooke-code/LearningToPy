@@ -401,7 +401,21 @@ const refreshToken = catchAsync(async (req, res, next) => {
 const logout = catchAsync(async (req, res, next) => {
   authUtils.clearRefreshTokenCookie(res);
 
-  if (req.user) {
+  let userId = req.user?._id || req.userid;
+
+  // Fallback if access token is expired, decode refresh token to find user
+  if (!userId && req.cookies.refreshToken) {
+    try {
+      const decoded = authUtils.verifyToken(
+        req.cookies.refreshToken,
+        authUtils.getRefreshTokenSecret(),
+      );
+    } catch (err) {
+      // Token already expired/invalid
+    }
+  }
+
+  if (userId) {
     const user = await User.findById(req.user._id);
     if (user) {
       user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
