@@ -224,8 +224,11 @@ export const AuthProvider = ({ children }) => {
           throw new Error("Invalid refresh response");
 
         const isRememberMe = !!localStorage.getItem("rememberMe");
-        setAuthData(newUserData, newAccessToken, isRememberMe);
-        processQueue(null, newAccessToken);
+
+        if (!logoutInitiated.current) {
+          setAuthData(newUserData, newAccessToken, isRememberMe);
+          processQueue(null, newAccessToken);
+        }
         return newAccessToken;
       } catch (err) {
         processQueue(err, null);
@@ -364,11 +367,10 @@ export const AuthProvider = ({ children }) => {
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    if (user) {
-      const cleanup = setupSessionEndTracking(BACKEND_URL);
-      return cleanup;
-    }
-  }, [user]);
+    if (!user?._id) return;
+    const cleanup = setupSessionEndTracking(BACKEND_URL);
+    return cleanup;
+  }, [user?._id]);
 
   /**
    * On mount: attempt to restore auth state via the httpOnly refresh cookie.
@@ -413,7 +415,7 @@ export const AuthProvider = ({ children }) => {
       accessToken,
       loading,
       authError,
-      isAuthenticated: !!user || !!accessToken,
+      isAuthenticated: !!user,
       login,
       register,
       logout,
