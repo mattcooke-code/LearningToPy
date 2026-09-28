@@ -47,6 +47,8 @@ const getPort = () => process.env.PORT || 5000;
 const getDatabaseUri = () =>
   process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/learning-to-py";
 
+const getCookieDomain = () => process.env.COOKIE_DOMAIN || ".learningtopy.com";
+
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 const getAccessTokenSecret = () => {
@@ -156,6 +158,7 @@ module.exports = {
   getFrontendUrl,
   getPort,
   getDatabaseUri,
+  getCookieDomain,
 
   // Auth
   getAccessTokenSecret,

@@ -16,13 +16,17 @@ const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000;
  */
 const getCookieOptions = () => {
   const isProduction = config.isProduction();
-  return {
+  const options = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
+    sameSite: "Lax",
     path: "/",
-    ...(isProduction && { partitioned: true }),
   };
+
+  if (isProduction) {
+    options.domain = config.getCookieDomain();
+  }
+  return options;
 };
 
 /**
