@@ -6,10 +6,10 @@ const LessonCompletion = require("../models/LessonCompletion");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
 const LessonQuizProgress = require("../models/LessonQuizProgress");
+const ExerciseProgress = require("../models/ExerciseProgress");
 const XpTransaction = require("../models/XpTransaction");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const { validateContent, validateEnum } = require("../utils/validationHelpers");
 const {
   validateCodeSubmission,
   processLessonCompletion,
@@ -34,8 +34,6 @@ const {
   getModuleLessonCompletion,
 } = require("../services/moduleProgress");
 
-const { findNextLesson, findNextModule } = require("../utils/navigation");
-
 const {
   calculateProgress,
   isModuleFinished,
@@ -49,7 +47,10 @@ const {
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const { trackCompletion } = require("../services/streakManager");
-const { calculateExerciseXP } = require("../../shared/constants/progress.cjs");
+const {
+  getOrCreateExerciseProgress,
+  recordExerciseAttempt,
+} = require("../utils/exerciseHelpers");
 
 // ─── HELPERS ──────────────────────────────────────────────────
 
@@ -304,9 +305,10 @@ const getLessonContent = catchAsync(async (req, res, next) => {
   }
 
   // Parallel queries
-  const [lessonCompletion, quizProgress] = await Promise.all([
+  const [lessonCompletion, quizProgress, exerciseProgress] = await Promise.all([
     LessonCompletion.findOne({ userId, lessonId }),
     LessonQuizProgress.findOne({ userId, lessonId }).lean(),
+    ExerciseProgress.findOne({ userId, lessonId }).lean(),
   ]);
 
   const isCompleted = !!lessonCompletion;
@@ -338,6 +340,13 @@ const getLessonContent = catchAsync(async (req, res, next) => {
           };
         })()
       : null,
+    exerciseProgress: exerciseProgress
+      ? {
+          passed: exerciseProgress.passed,
+          passedAt: exerciseProgress.passedAt,
+          attemptCount: exerciseProgress.attemptCount,
+        }
+      : null,
   });
 });
 
@@ -354,17 +363,14 @@ const submitLesson = catchAsync(async (req, res, next) => {
     code,
     questionIndex = 0,
     validationResult,
-    isCorrect = true,
-    testsPassed,
-    submissionHistory,
-    attemptNumber,
-    usedHints,
+    isCorrect = false,
+    usedHints = false,
     elapsedSeconds,
     wasOptimalSolution,
     moduleConfigReward,
   } = req.body;
 
-  // 1. Fetch Lesson and User
+  // ── 1. Load lesson and user ────────────────────────
   const lesson = await Lesson.findById(lessonId).populate(
     "moduleId",
     "order phase",
@@ -374,19 +380,34 @@ const submitLesson = catchAsync(async (req, res, next) => {
   const user = await User.findById(userId);
   if (!user) return next(new AppError("User not found", 404));
 
-  let feedback = validationResult?.feedback || "Great job!";
+  // ── 2. Load both progress records ──────────────────
+  const exerciseProgress = await getOrCreateExerciseProgress(
+    userId,
+    lessonId,
+    lesson,
+  );
   const quizProgress = await getOrCreateQuizProgress(userId, lessonId, lesson);
 
-  let isCorrectValue = false;
+  // ── 3. Determine what this request is ─────────────
+  const isExerciseSubmission = hasExercise(lesson) && code !== undefined;
+  const isQuizSubmission = hasQuiz(lesson) && answer !== undefined;
 
-  // 2. Validation Logic
-  if (hasExercise(lesson) && code !== undefined) {
+  const isStatusCheckSubmission = !isExerciseSubmission && !isQuizSubmission;
+  const lessonCompletesByStatusCheck = !hasExercise(lesson) && !hasQuiz(lesson);
+
+  const isTheoryStatusCheck =
+    isStatusCheckSubmission && lessonCompletesByStatusCheck;
+
+  let feedback = validationResult?.feedback || "Great job!";
+  let isCorrectForThisAction = false;
+
+  // ── 4. Handle exercise submission ─────────────────
+  if (isExerciseSubmission) {
     if (!code || code.trim() === "") {
       return next(new AppError("No code submitted", 400));
     }
-    // Server-side structural validation. We cannot re-execute Python here, but
-    // we can enforce shape: non-empty, not the starter code, and (if the client
-    // claims tests passed) a plausible structured result.
+
+    // Trusted from client. Shape tested (not empty, not starter code)
     const serverValidation = validateCodeSubmission(code, lesson.exercise);
     if (!serverValidation.isCorrect) {
       return sendJsonResponse(res, 200, serverValidation.feedback, {
@@ -396,51 +417,55 @@ const submitLesson = catchAsync(async (req, res, next) => {
         xpEarned: 0,
       });
     }
-    isCorrectValue = !!isCorrect;
+
+    isCorrectForThisAction = isCorrect;
+
+    await recordExerciseAttempt(exerciseProgress, {
+      passed: isCorrect,
+      code,
+      usedHints,
+      wasOptimal: wasOptimalSolution,
+      elapsedSeconds,
+    });
+
     feedback = validationResult?.feedback || "Code submitted successfully";
-  } else if (hasQuiz(lesson) && answer !== undefined) {
+  }
+
+  // ── 5. Handle quiz submission ─────────────────────
+  else if (isQuizSubmission) {
     const currentQuestion = lesson.quiz[questionIndex];
-    if (!currentQuestion)
+    if (!currentQuestion) {
       return next(new AppError("Invalid question index", 400));
+    }
 
-    isCorrectValue = answer === currentQuestion.correctAnswer;
+    isCorrectForThisAction = answer === currentQuestion.correctAnswer;
 
-    if (isCorrectValue) {
+    if (isCorrectForThisAction) {
       feedback = `Correct! ${currentQuestion.explanation || ""}`;
-      await updateQuizProgress(
-        quizProgress,
-        questionIndex,
-        isCorrectValue,
-        lesson,
-      );
+      await updateQuizProgress(quizProgress, questionIndex, true, lesson);
     } else {
       feedback = `Try again! ${currentQuestion.explanation || ""}`;
       await updateQuizProgress(quizProgress, questionIndex, false, lesson);
     }
-  } else if (
-    (code === undefined && answer === undefined) ||
-    lesson.contentType === "THEORY"
-  ) {
-    isCorrectValue = true;
-    feedback = "Status checked/Theory completed!";
-    if (quizProgress) {
-      quizProgress.completed = true;
-      await LessonQuizProgress.findByIdAndUpdate(quizProgress._id, {
-        completed: true,
-        lastAttempt: new Date(),
-      });
-    }
   }
 
-  const isManualCompletion = code === undefined && answer === undefined;
+  // ── 6. Handle theory / status check ───────────────
+  else if (isTheoryStatusCheck) {
+    feedback = "Status checked/Theory completed!";
+  }
+
+  // ── 7. Re-read persisted exercise state ───────────
+  const exercisePassed = exerciseProgress?.passed || false;
+
+  // ── 8. Evaluate completion from persisted state ───
   const completed = isLessonFullyCompleted(
     lesson,
     quizProgress,
-    isCorrectValue,
-    isManualCompletion,
+    exercisePassed,
+    isStatusCheckSubmission && lessonCompletesByStatusCheck,
   );
 
-  // 3. Process Full Completion
+  // ── 9a. Full completion path ──────────────────────
   if (completed) {
     const freshQuizProgress = await LessonQuizProgress.findOne({
       userId,
@@ -498,7 +523,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     );
 
     return sendJsonResponse(res, 200, "Success!", {
-      isCorrect: isCorrectValue,
+      isCorrect: isCorrectForThisAction,
       feedback,
       completed: true,
       xpEarned: completionResult.xpIncrease,
@@ -509,32 +534,35 @@ const submitLesson = catchAsync(async (req, res, next) => {
     });
   }
 
-  // 4. Partial Success
+  // ── 9b. Partial success path ──────────────────────
   let partialXPEarned = 0;
 
-  if (hasExercise(lesson) && code !== undefined && isCorrectValue) {
-    const submissions =
-      req.body.submissionHistory || (req.body.attemptNumber ? [req.body] : []);
-    const submissionCount = Math.max(1, submissions.length);
-    const firstTryPass =
-      submissionCount === 1 && (req.body.testsPassed || req.body.isCorrect);
-    partialXPEarned = calculateExerciseXP(submissionCount, firstTryPass);
-
-    user.xp = (user.xp || 0) + partialXPEarned;
-  } else if (hasQuiz(lesson) && answer !== undefined && isCorrectValue) {
+  // XP awarded only on full completion
+  if (isExerciseSubmission && isCorrectForThisAction) {
+    partialXPEarned = 0;
+  } else if (isQuizSubmission && isCorrectForThisAction) {
     const attempts = getQuestionAttempts(quizProgress, questionIndex);
     partialXPEarned = calculateQuizAnswerXP(attempts);
 
-    user.xp = (user.xp || 0) + partialXPEarned;
+    if (partialXPEarned > 0) {
+      user.xp = (user.xp || 0) + partialXPEarned;
+      await XpTransaction.create({
+        userId: user._id,
+        amount: partialXPEarned,
+        source: "LESSON_QUIZ",
+        meta: { lessonId, questionIndex, attempts },
+        awardedAt: new Date(),
+      });
+      await user.save();
+    }
   }
 
-  await user.save();
   return sendJsonResponse(
     res,
     200,
-    isCorrectValue ? "Success!" : "Keep trying!",
+    isCorrectForThisAction ? "Success!" : "Keep trying!",
     {
-      isCorrect: isCorrectValue,
+      isCorrect: isCorrectForThisAction,
       feedback,
       completed: false,
       xpEarned: partialXPEarned,

@@ -192,14 +192,17 @@ const recordCourseCompletion = async (user, moduleCount) => {
  * 6. Module config reward
  * 7. Auto-completed module bonus (quiz-less modules)
  *
- * @param {Object} user - The user document (mutated: xp, level, stats)
+ * @param {Object} user - The user document (mutated: xp, level, stats, completedLessonCount, completedModuleCount)
  * @param {Object} lesson - The lesson being completed
  * @param {Object} submissionBody - Submission data from the frontend
  * @returns {Promise<{
  *   xpIncrease: number,
  *   newlyCompleted: boolean,
  *   nextLessonId: string|null,
- *   xpBreakdown: Array
+ *   xpBreakdown: Array,
+ *   autoCompletedModule,
+ *   courseCompleted,
+ *   hofEligibleAt
  * }>}
  */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
@@ -603,18 +606,25 @@ const processModuleCompletion = async (
 };
 
 /**
- * Determines if a lesson is fully completed based on its content type.
+ * Determines whether a lesson is fully complete.
  *
- * @param {Object} lesson - The lesson document
- * @param {Object} quizProgress - User's quiz progress for this lesson
- * @param {boolean} isCorrect - Whether the exercise solution is correct
- * @param {boolean} [forceComplete=false] - Skip all checks and mark complete
+ * A lesson with both an exercise and a quiz requires BOTH to be complete,
+ * in either order. A lesson with only one component requires only that
+ * component. A theory lesson with no interactive components completes on
+ * explicit manual completion.
+ *
+ * @param   {Object}  lesson          - The lesson document
+ * @param   {Object}  quizProgress    - User's LessonQuizProgress, or null
+ * @param   {boolean} exercisePassed  - Whether the user has passed this lesson's exercise.
+ *                                      Must be false for lessons without an exercise
+ *                                      (the function ignores it in that case).
+ * @param   {boolean} [forceComplete=false] - Skip all checks (theory status check)
  * @returns {boolean} Whether the lesson is fully completed
  */
 const isLessonFullyCompleted = (
   lesson,
   quizProgress,
-  isCorrect,
+  exercisePassed,
   forceComplete = false,
 ) => {
   const lessonHasQuiz = hasQuiz(lesson);
@@ -622,28 +632,15 @@ const isLessonFullyCompleted = (
 
   if (forceComplete) return true;
 
-  if (lesson.contentType === "THEORY") {
-    if (lessonHasQuiz && !lessonHasExercise) {
-      return isQuizCompleted(quizProgress, lesson);
-    }
-    if (!lessonHasQuiz && !lessonHasExercise) {
-      return true;
-    }
+  if (!lessonHasQuiz && !lessonHasExercise) {
+    return lesson.contentType === "THEORY";
   }
 
-  if (lessonHasExercise && !lessonHasQuiz && isCorrect) {
-    return true;
-  }
+  const quizDone = lessonHasQuiz ? isQuizCompleted(quizProgress, lesson) : true;
 
-  if (!lessonHasExercise && lessonHasQuiz) {
-    return isQuizCompleted(quizProgress, lesson);
-  }
+  const exerciseDone = lessonHasExercise ? exercisePassed : true;
 
-  if (lessonHasExercise && lessonHasQuiz) {
-    return isCorrect && isQuizCompleted(quizProgress, lesson);
-  }
-
-  return false;
+  return quizDone && exerciseDone;
 };
 
 /**
