@@ -69,8 +69,8 @@ const UserSchema = new mongoose.Schema(
       },
       select: false,
     },
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
     refreshTokenVersion: {
       type: Number,
       default: 0,
@@ -218,7 +218,7 @@ const UserSchema = new mongoose.Schema(
 
     // ── Privacy & Cookies ───────────────────────────────────────
     privacySettings: {
-      showOnLeaderboards: { type: Boolean, default: true },
+      showOnLeaderboards: { type: Boolean, default: false },
       showUsernameOnLeaderboards: { type: Boolean, default: false },
       showAsAnonymous: { type: Boolean, default: false },
     },

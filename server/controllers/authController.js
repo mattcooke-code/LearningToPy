@@ -278,7 +278,7 @@ const login = catchAsync(async (req, res, next) => {
  */
 const getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.userId || req.user._id).select(
-    "-password -refreshToken +ageBracket",
+    "-password -refreshToken -resetPasswordToken -resetPasswordExpires +ageBracket",
   );
 
   if (!user) {
