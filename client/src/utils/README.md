@@ -16,7 +16,7 @@ Pure utility functions and constants. Called by components, hooks, contexts, and
 | `lessonFormUtils.js`      | Exports  | Lesson form defaults, API-to-form mapping, form-to-API normalisation                |
 | `moduleFormUtils.js`      | Exports  | Module form defaults, API-to-form mapping, form-to-API normalisation                |
 | `platformDefaults.js`     | Constant | Platform-wide default settings (general, theme, gamification, features, security)   |
-| `progressCalculations.js` | Exports  | Module lesson progress %, modules completion %, XP-to-level calculations            |
+| `progressCalculations.js` | Exports  | Module lesson progress %, modules completion %,                                     |
 | `quizUtils.js`            | Exports  | Quiz state: answer checking, counting, resetting, server result processing, styling |
 | `statsManagement.js`      | Exports  | Admin/content/user dashboard statistics aggregation                                 |
 | `tokenUtils.js`           | Exports  | JWT storage read (`getStoredAccessToken`) and expiry validation (`isTokenValid`)    |
@@ -34,8 +34,6 @@ deviceInfo.js ─────── (no dependencies — pure DOM)
 |
 lessonCalculations.js ──► services (apiClient)
 └── progressCalculations.js
-│
-progressCalculations.js ──► @shared/constants/progress.cjs
 │
 validationUtils.js ────► data/fileExercises
 │

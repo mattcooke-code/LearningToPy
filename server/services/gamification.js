@@ -3,7 +3,6 @@
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions.cjs");
-const { XP } = require("../../shared/constants/progress.cjs");
 const { toStringId } = require("../utils/generalUtils");
 const Module = require("../models/Module");
 const Lesson = require("../models/Lesson");
@@ -12,23 +11,7 @@ const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
 
 // --- CONSTANTS ---
-const XP_PER_LEVEL = XP.PER_LEVEL;
 const TOTAL_CURRICULUM_MODULES = 20; // M1–M20, excluding M0
-
-// --- XP & LEVELING ---
-
-const calculateLevelProgress = (xp) => {
-  const currentLevel = Math.floor(xp / XP_PER_LEVEL) + 1;
-  const xpInCurrentLevel = xp % XP_PER_LEVEL;
-  const progressCompleted = Math.round((xpInCurrentLevel / XP_PER_LEVEL) * 100);
-
-  return {
-    currentLevel,
-    xpInCurrentLevel,
-    progressCompleted,
-    xpNeededForNextLevel: XP_PER_LEVEL - xpInCurrentLevel,
-  };
-};
 
 // --- DB HELPERS ---
 
@@ -443,7 +426,5 @@ module.exports = {
   evaluateBadges,
   getBadgeProgress,
   awardLeaderboardBadge,
-  calculateLevelProgress,
   checkLeaderboardBadges,
-  XP_PER_LEVEL,
 };

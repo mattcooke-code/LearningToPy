@@ -16,10 +16,7 @@ const {
   processLessonCompletion,
   processModuleCompletion,
 } = require("../services/learningEngine");
-const {
-  getModuleOrderMap,
-  calculateLevelFromModules,
-} = require("../utils/levelUtils");
+const { getModuleOrderMap } = require("../utils/levelUtils");
 const {
   evaluateBadges,
   getBadgeProgress,

@@ -1,14 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 
-// Mock the shared constants before importing the module under test
-vi.mock("@shared/constants/progress.cjs", () => ({
-  XP: { PER_LEVEL: 100 },
-}));
-
 import {
   calculateModuleLessonProgress,
   calculateModulesCompletionProgress,
-  calculateLevelProgress,
 } from "../progressCalculations";
 
 // ============================================================================
@@ -134,67 +128,5 @@ describe("calculateModulesCompletionProgress", () => {
   it("rounds the result", () => {
     expect(calculateModulesCompletionProgress(1, 3)).toBe(33);
     expect(calculateModulesCompletionProgress(2, 3)).toBe(67);
-  });
-});
-
-// ============================================================================
-// calculateLevelProgress
-// ============================================================================
-
-describe("calculateLevelProgress", () => {
-  it("returns level 1 with 0 XP", () => {
-    const result = calculateLevelProgress(0);
-    expect(result).toEqual({
-      currentLevel: 1,
-      xpInCurrentLevel: 0,
-      progressCompleted: 0,
-      xpNeededForNextLevel: 100,
-    });
-  });
-
-  it("returns level 1 at 50 XP (50% progress)", () => {
-    const result = calculateLevelProgress(50);
-    expect(result).toEqual({
-      currentLevel: 1,
-      xpInCurrentLevel: 50,
-      progressCompleted: 50,
-      xpNeededForNextLevel: 50,
-    });
-  });
-
-  it("returns level 2 at exactly 100 XP", () => {
-    const result = calculateLevelProgress(100);
-    expect(result).toEqual({
-      currentLevel: 2,
-      xpInCurrentLevel: 0,
-      progressCompleted: 0,
-      xpNeededForNextLevel: 100,
-    });
-  });
-
-  it("returns level 2 with 150 XP (50% through level 2)", () => {
-    const result = calculateLevelProgress(150);
-    expect(result).toEqual({
-      currentLevel: 2,
-      xpInCurrentLevel: 50,
-      progressCompleted: 50,
-      xpNeededForNextLevel: 50,
-    });
-  });
-
-  it("returns correct values for high XP", () => {
-    const result = calculateLevelProgress(999);
-    expect(result.currentLevel).toBe(10); // floor(999/100) + 1 = 10
-    expect(result.xpInCurrentLevel).toBe(99);
-    expect(result.progressCompleted).toBe(99);
-    expect(result.xpNeededForNextLevel).toBe(1);
-  });
-
-  it("handles large XP values", () => {
-    const result = calculateLevelProgress(10000);
-    expect(result.currentLevel).toBe(101);
-    expect(result.xpInCurrentLevel).toBe(0);
-    expect(result.progressCompleted).toBe(0);
-    expect(result.xpNeededForNextLevel).toBe(100);
   });
 });

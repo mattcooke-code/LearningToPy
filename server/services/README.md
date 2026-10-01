@@ -18,7 +18,7 @@ Business logic layer. Called by controllers, not routes directly.
 ## gamification.js
 
 - **Called by:** `progressController.getAchievements`, `progressController.completeLesson` (indirectly), `progressController.completeModule` (indirectly), `contentController.submitLesson`, `contentController.submitModuleQuiz`, `adminController.awardBadges` (indirectly via leaderboard)
-- **Responsibility:** Badge evaluation, badge progress calculation, leaderboard badge triggers, level-from-XP calculation
+- **Responsibility:** Badge evaluation, badge progress calculation, leaderboard badge triggers
 - **Depends on:** `User` model, `shared/constants/badgeDefinitions.cjs`, `generalUtils.js`
 
 ## learningEngine.js

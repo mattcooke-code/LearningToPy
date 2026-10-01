@@ -120,79 +120,9 @@ vi.mock("../../shared/constants/badgeDefinitions.cjs", () => ({
   ],
 }));
 
-import {
-  calculateLevelProgress,
-  awardLeaderboardBadge,
-  XP_PER_LEVEL,
-} from "../../services/gamification";
+import { awardLeaderboardBadge } from "../../services/gamification";
 
 // --- TESTS ---
-
-describe("calculateLevelProgress", () => {
-  it("returns level 1 for 0 XP", () => {
-    const result = calculateLevelProgress(0);
-    expect(result.currentLevel).toBe(1);
-    expect(result.xpInCurrentLevel).toBe(0);
-    expect(result.progressCompleted).toBe(0);
-    expect(result.xpNeededForNextLevel).toBe(100);
-  });
-
-  it("returns level 1 for 50 XP", () => {
-    const result = calculateLevelProgress(50);
-    expect(result.currentLevel).toBe(1);
-    expect(result.xpInCurrentLevel).toBe(50);
-    expect(result.progressCompleted).toBe(50);
-    expect(result.xpNeededForNextLevel).toBe(50);
-  });
-
-  it("returns level 2 for 100 XP", () => {
-    const result = calculateLevelProgress(100);
-    expect(result.currentLevel).toBe(2);
-    expect(result.xpInCurrentLevel).toBe(0);
-    expect(result.progressCompleted).toBe(0);
-    expect(result.xpNeededForNextLevel).toBe(100);
-  });
-
-  it("returns level 5 for 450 XP with correct progress", () => {
-    const result = calculateLevelProgress(450);
-    expect(result.currentLevel).toBe(5);
-    expect(result.xpInCurrentLevel).toBe(50);
-    expect(result.progressCompleted).toBe(50);
-    expect(result.xpNeededForNextLevel).toBe(50);
-  });
-
-  it("returns level 20 for 1900 XP", () => {
-    const result = calculateLevelProgress(1900);
-    expect(result.currentLevel).toBe(20);
-    expect(result.xpInCurrentLevel).toBe(0);
-    expect(result.progressCompleted).toBe(0);
-  });
-
-  it("returns level 21 for 2000 XP", () => {
-    const result = calculateLevelProgress(2000);
-    expect(result.currentLevel).toBe(21);
-    expect(result.xpInCurrentLevel).toBe(0);
-  });
-
-  it("handles large XP values", () => {
-    const result = calculateLevelProgress(9999);
-    expect(result.currentLevel).toBe(100);
-    expect(result.xpInCurrentLevel).toBe(99);
-    expect(result.xpNeededForNextLevel).toBe(1);
-  });
-
-  it("rounds progress correctly at 99/100", () => {
-    const result = calculateLevelProgress(99);
-    expect(result.currentLevel).toBe(1);
-    expect(result.progressCompleted).toBe(99);
-  });
-});
-
-describe("XP_PER_LEVEL constant", () => {
-  it("equals 100", () => {
-    expect(XP_PER_LEVEL).toBe(100);
-  });
-});
 
 describe("awardLeaderboardBadge", () => {
   it("returns false for invalid badge IDs", async () => {
