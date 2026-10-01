@@ -48,7 +48,6 @@ export { PLATFORM_DEFAULTS } from "./platformDefaults";
 export {
   calculateModuleLessonProgress,
   calculateModulesCompletionProgress,
-  calculateLevelProgress,
 } from "./progressCalculations";
 export {
   shuffleArray,

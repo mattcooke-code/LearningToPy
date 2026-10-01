@@ -22,11 +22,7 @@ const {
   getBadgeProgress,
   checkLeaderboardBadges,
 } = require("../services/gamification");
-const {
-  trackLessonView,
-  trackCompletion,
-  getStreakInfo,
-} = require("../services/streakManager");
+const { trackCompletion, getStreakInfo } = require("../services/streakManager");
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions.cjs");
