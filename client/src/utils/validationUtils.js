@@ -115,7 +115,8 @@ const indentPython = (snippet, spaces = 4) => {
  * Build the complete Python script that runs one test.
  */
 const buildTestScript = (userCode, test, cleanExercise) => {
-  const pythonSafeCode = escapeForPythonTripleQuote(userCode);
+  // Base64 encode user code to prevent quote collisions and syntax errors
+  const b64UserCode = btoa(unescape(encodeURIComponent(userCode)));
   const fileCreationCode = getFileCreationCode(cleanExercise);
 
   const fileExistsChecks = Object.keys(cleanExercise.fileSetup)
@@ -129,15 +130,10 @@ const buildTestScript = (userCode, test, cleanExercise) => {
     .join("\n");
 
   const indentedTest = indentPython(test.code, 4);
-
-  // Build the "Test X crashed: " prefix as a complete Python string
-  // literal, using JSON.stringify to handle escaping. We do NOT wrap
-  // this in extra quotes — JSON.stringify already produces a valid
-  // Python double-quoted string literal.
   const crashPrefix = JSON.stringify(`Test "${test.name}" crashed: `);
 
   return `
-import sys, io, os
+import sys, io, os, base64
 
 # --- Create exercise files ---
 ${fileCreationCode}
@@ -146,7 +142,7 @@ ${fileCreationCode}
 ${fileExistsChecks}
 
 # --- Student code ---
-student_code = """${pythonSafeCode}"""
+student_code = base64.b64decode("${b64UserCode}").decode("utf-8")
 code = student_code
 
 # --- Execute student code with friendly error handling ---
@@ -157,8 +153,6 @@ sys.stdout = captured_output
 try:
     exec(student_code)
 except ModuleNotFoundError:
-    # Some exercises import packages not available in Pyodide's terminal.
-    # The test body is responsible for checking syntax / structure instead.
     pass
 except SyntaxError as e:
     sys.stdout = old_stdout

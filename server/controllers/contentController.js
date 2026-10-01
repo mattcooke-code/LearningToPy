@@ -51,6 +51,7 @@ const {
   getOrCreateExerciseProgress,
   recordExerciseAttempt,
 } = require("../utils/exerciseHelpers");
+const { calculateExerciseXP } = require("../../shared/constants/progress.cjs");
 
 // ─── HELPERS ──────────────────────────────────────────────────
 
@@ -400,6 +401,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
 
   let feedback = validationResult?.feedback || "Great job!";
   let isCorrectForThisAction = false;
+  let exerciseJustPassed = false;
 
   // ── 4. Handle exercise submission ─────────────────
   if (isExerciseSubmission) {
@@ -420,6 +422,9 @@ const submitLesson = catchAsync(async (req, res, next) => {
 
     isCorrectForThisAction = isCorrect;
 
+    // Log whether exercise has been passed (stop xp farming)
+    const wasAlreadyPassed = exerciseProgress?.passed === true;
+
     await recordExerciseAttempt(exerciseProgress, {
       passed: isCorrect,
       code,
@@ -427,6 +432,8 @@ const submitLesson = catchAsync(async (req, res, next) => {
       wasOptimal: wasOptimalSolution,
       elapsedSeconds,
     });
+
+    exerciseJustPassed = isCorrect && !wasAlreadyPassed;
 
     feedback = validationResult?.feedback || "Code submitted successfully";
   }
@@ -454,16 +461,23 @@ const submitLesson = catchAsync(async (req, res, next) => {
     feedback = "Status checked/Theory completed!";
   }
 
-  // ── 7. Re-read persisted exercise state ───────────
+  // ── 7. Load completion record  ───────────
+  const existingLessonCompletion = await LessonCompletion.findOne({
+    userId,
+    lessonId,
+  });
+
   const exercisePassed = exerciseProgress?.passed || false;
 
   // ── 8. Evaluate completion from persisted state ───
-  const completed = isLessonFullyCompleted(
-    lesson,
-    quizProgress,
-    exercisePassed,
-    isStatusCheckSubmission && lessonCompletesByStatusCheck,
-  );
+  const completed =
+    !!existingLessonCompletion ||
+    isLessonFullyCompleted(
+      lesson,
+      quizProgress,
+      exercisePassed,
+      isStatusCheckSubmission && lessonCompletesByStatusCheck,
+    );
 
   // ── 9a. Full completion path ──────────────────────
   if (completed) {
@@ -538,8 +552,24 @@ const submitLesson = catchAsync(async (req, res, next) => {
   let partialXPEarned = 0;
 
   // XP awarded only on full completion
-  if (isExerciseSubmission && isCorrectForThisAction) {
+  if (existingLessonCompletion) {
     partialXPEarned = 0;
+  } else if (isExerciseSubmission && exerciseJustPassed) {
+    const submissionCount = exerciseProgress?.attemptCount || 1;
+    const firstTryPass = exerciseProgress?.attemptCount || 1;
+    partialXPEarned = calculateExerciseXP(submissionCount, firstTryPass);
+
+    if (partialXPEarned > 0) {
+      user.xp = (user.xp || 0) + partialXPEarned;
+      await XpTransaction.create({
+        userId: user._id,
+        amount: partialXPEarned,
+        source: "EXERCISE",
+        meta: { lessonId, submissionCount, firstTryPass },
+        awardedAt: new Date(),
+      });
+      await user.save();
+    }
   } else if (isQuizSubmission && isCorrectForThisAction) {
     const attempts = getQuestionAttempts(quizProgress, questionIndex);
     partialXPEarned = calculateQuizAnswerXP(attempts);

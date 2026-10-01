@@ -121,7 +121,6 @@ const createBadgeHelpers = async (user) => {
 };
 
 // --- BADGE LOGIC MAP ---
-// (Unchanged — logic references are the same, just data source changed)
 
 const BADGE_LOGIC_MAP = {
   // ─── M0 ───────────────────────────────────────────────────────
@@ -345,6 +344,7 @@ const BADGE_LOGIC_MAP = {
 
 // --- PUBLIC API ---
 
+// Checks if a user has earned new badges
 const evaluateBadges = async (user, context = {}) => {
   const helpers = await createBadgeHelpers(user);
   const newlyUnlocked = [];
@@ -366,6 +366,7 @@ const evaluateBadges = async (user, context = {}) => {
   return { newlyUnlocked, unlockedDetails };
 };
 
+// Calculates how close a user is to completing each badge. For display purposes
 const getBadgeProgress = async (user) => {
   const helpers = await createBadgeHelpers(user);
   const results = [];

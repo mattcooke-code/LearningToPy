@@ -489,6 +489,22 @@ const completeLesson = catchAsync(async (req, res, next) => {
 
   const result = await processLessonCompletion(user, lesson, submissionData);
 
+  if (!result.newlyCompleted) {
+    return sendJsonResponse(
+      res,
+      200,
+      "Lesson already completed (practice mode)",
+      {
+        xpGained: 0,
+        newStreak: user.streak,
+        streakStatus: user.streakStatus,
+        nextLessonId: result.nextLessonId,
+        newlyCompleted: false,
+        practiceMode: true,
+      },
+    );
+  }
+
   const streakResult = await trackCompletion(user);
   await user.save();
 

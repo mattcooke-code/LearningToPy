@@ -8,18 +8,17 @@ const XpTransaction = require("../models/XpTransaction");
 const { findNextLesson, findNextModule } = require("../utils/navigation");
 const { normalizeTags } = require("../utils/generalUtils");
 const {
-  XP,
-  THRESHOLDS,
-  calculateLessonQuizXP,
-  calculateExerciseXP,
-  getPhaseBonus,
-} = require("../../shared/constants/progress.cjs");
-const {
   getQuizResultsForXP,
   hasExercise,
   hasQuiz,
   isQuizCompleted,
 } = require("../utils/quizHelpers");
+const {
+  XP,
+  THRESHOLDS,
+  calculateLessonQuizXP,
+  getPhaseBonus,
+} = require("../../shared/constants/progress.cjs");
 
 /**
  * --- VALIDATION LOGIC ---
@@ -235,27 +234,8 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   const xpLog = [];
 
   // ── 3. Compute lesson-level XP ───────────────────────
-  // A. Exercise XP
-  if (hasExercise(lesson) && !isM0) {
-    const submissions =
-      submissionBody.submissionHistory ||
-      (submissionBody.attemptNumber ? [submissionBody] : []);
-    const submissionCount = Math.max(1, submissions.length);
-    const firstTryPass =
-      submissionCount === 1 &&
-      (submissionBody.testsPassed || submissionBody.isCorrect);
 
-    const exerciseXP = calculateExerciseXP(submissionCount, firstTryPass);
-    totalXP += exerciseXP;
-
-    xpLog.push({
-      amount: exerciseXP,
-      source: "EXERCISE",
-      meta: { lessonId, submissions: submissionCount, firstTryPass },
-    });
-  }
-
-  // B. Lesson Quiz XP
+  // A. Lesson Quiz XP
   if (hasQuiz(lesson) && !isM0) {
     const quizProgress =
       submissionBody.quizProgress ||
@@ -297,7 +277,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     }
   }
 
-  // C. Base Lesson Completion
+  // B. Base Lesson Completion
   totalXP += XP.LESSON.COMPLETION;
   xpLog.push({
     amount: XP.LESSON.COMPLETION,
@@ -305,7 +285,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     meta: { lessonId },
   });
 
-  // D. Project Lesson Bonus
+  // C. Project Lesson Bonus
   if (isProjectLesson) {
     totalXP += XP.LESSON.PROJECT_BONUS;
     xpLog.push({
@@ -315,7 +295,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // E. Final Project Override
+  // D. Final Project Override
   if (isFinalModule) {
     totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
     xpLog.push({
@@ -325,7 +305,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // F. Add Module Specific XP
+  // E. Add Module Specific XP
   if (submissionBody.moduleConfigReward && !isM0) {
     totalXP += submissionBody.moduleConfigReward;
     xpLog.push({
