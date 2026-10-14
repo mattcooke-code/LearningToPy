@@ -1,5 +1,5 @@
 // /client/src/hooks/useCookieConsent.js
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context";
 import { apiClient } from "../services";
 

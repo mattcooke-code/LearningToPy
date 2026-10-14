@@ -1,5 +1,5 @@
 // App.jsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import {
   AdminGuard,
   AppLayout,
@@ -148,7 +148,6 @@ function App() {
 
       <ModalManager />
       <CookieNotice />
-      {consent === "accepted" && <Analytics />}
     </div>
   );
 }
