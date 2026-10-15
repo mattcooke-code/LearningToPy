@@ -115,7 +115,7 @@ const CODE_THEMES = {
  * - `uiTheme` — `"light"` or `"dark"`
  * - `themeColor` — an accent colour from `THEME_COLORS`
  * - `codeTheme` — `"dark"` or `"light"` for code blocks
- * - `isDarkMode` — derived boolean for quick dark/light checks
+ * - `isDarkMode` — derived constant
  *
  * **Actions exposed via context:**
  * - `updateThemeFromCourseProgress(percentage)` — set theme colour by overall progress
@@ -172,11 +172,9 @@ export const ThemeProvider = ({ children }) => {
   });
 
   /**
-   * Derived boolean — true when the UI is in dark mode.
-   *
-   * @type {[boolean, Function]}
+   * Derived constant from previously defined uiTheme dark mode.
    */
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const isDarkMode = uiTheme === UI_THEMES.DARK;
 
   /**
    * Access Text Theme Color from colorUtilities
@@ -214,10 +212,8 @@ export const ThemeProvider = ({ children }) => {
 
     if (shouldBeDark) {
       root.classList.add("dark");
-      setIsDarkMode(true);
     } else {
       root.classList.remove("dark");
-      setIsDarkMode(false);
     }
   }, []);
 
