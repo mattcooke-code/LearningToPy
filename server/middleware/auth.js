@@ -40,7 +40,7 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   if (user.isBlocked) {
-    return next(new AppError("User account is blocked.", 401));
+    return next(new AppError("User account is blocked.", 403));
   }
 
   req.user = user;

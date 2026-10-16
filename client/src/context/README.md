@@ -80,5 +80,5 @@ Context files delegate infrastructure logic to dedicated service modules:
 | Utility               | Used By                                  | Responsibility                                                                   |
 | --------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
 | `utils/tokenUtils.js` | `AuthContext`, `services/api.js`         | JWT storage read (`getStoredAccessToken`) and expiry validation (`isTokenValid`) |
-| `utils/deviceInfo.js` | `services/session.js`, `services/api.js` | Browser/platform/screen detection                                                |
+| `utils/deviceInfo.js` | `services/session.js`, `services/api.js` | Browser/platform/screen detection                                                | 
 | `utils/index.js`      | `AuthContext`                            | `getErrorMessage` for user-friendly error extraction                             |
