@@ -24,6 +24,15 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
  * @param {Function} next - Express next function (unused, required for signature)
  */
 const globalErrorHandler = (err, req, res, next) => {
+  // Convert native Mongoose/MongoDB errors to AppError
+  if (err.name === "CastError") {
+    err = new AppError("Invalid ID format", 400);
+  }
+
+  if (err.code === 11000) {
+    err = new AppError("Duplicate field value entered", 400);
+  }
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
