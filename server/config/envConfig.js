@@ -53,7 +53,7 @@ const getCookieDomain = () => process.env.COOKIE_DOMAIN || ".learningtopy.com";
 
 const getAccessTokenSecret = () => {
   const secret = process.env.JWT_SECRET;
-  if (!secret && !isProduction()) {
+  if (!secret && isDevelopment()) {
     console.warn("⚠️  JWT_SECRET not set, using development fallback.");
     return "super-secret-fallback";
   }
