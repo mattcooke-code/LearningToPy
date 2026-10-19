@@ -2,6 +2,7 @@
 const path = require("path");
 const fsSync = require("fs");
 const fs = require("fs/promises");
+const config = require("../config/envConfig");
 const catchAsync = require("../utils/catchAsync");
 
 // ── Resolve base image path once at startup ──────────────────────
@@ -107,7 +108,7 @@ const serveModuleImage = catchAsync(async (req, res) => {
   } catch {
     return res.status(404).json({
       error: "Image not found",
-      debug: process.env.NODE_ENV === "development" ? { imagePath } : undefined,
+      debug: config.isDevelopment() ? { imagePath } : undefined,
     });
   }
 

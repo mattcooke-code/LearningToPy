@@ -75,8 +75,6 @@ const getPepperSecret = () => process.env.PEPPER_SECRET;
 
 // ─── Email ───────────────────────────────────────────────────────────────────
 
-// ─── Email ───────────────────────────────────────────────────────────────────
-
 const getEmailUser = () => {
   const user = process.env.EMAIL_USER;
   if (!user && isProduction()) {
@@ -149,6 +147,9 @@ const getSeedBatchSize = () => getSeedConfig().batchSize;
 const getModulesToSeed = () => getSeedConfig().modules;
 const isDryRun = () => getSeedConfig().dryRun;
 
+// ─── Miscellaneous ─────────────────────────────────────────────────────────────────
+const getCronSecret = () => process.env.CRON_SECRET;
+
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 module.exports = {
@@ -183,4 +184,7 @@ module.exports = {
   getSeedBatchSize,
   getModulesToSeed,
   isDryRun,
+
+  // Misc
+  getCronSecret,
 };

@@ -63,7 +63,7 @@ const sendSupportMessage = catchAsync(async (req, res, next) => {
     </div>
   `;
 
-  const supportEmail = process.env.SUPPORT_EMAIL;
+  const supportEmail = config.getSupportEmail();
   if (!supportEmail) {
     console.log("📝 Support message received (no SUPPORT_EMAIL configured):", {
       name,

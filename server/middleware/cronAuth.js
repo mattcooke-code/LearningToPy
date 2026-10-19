@@ -1,4 +1,6 @@
 // cronAuth.js
+const { getCronSecret } = require("../config/envConfig");
+
 const cronAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -11,7 +13,7 @@ const cronAuth = (req, res, next) => {
 
   const token = authHeader.replace("Bearer ", "");
 
-  if (token !== process.env.CRON_SECRET) {
+  if (token !== getCronSecret()) {
     return res.status(401).json({
       status: "error",
       message: "Invalid cron secret",
