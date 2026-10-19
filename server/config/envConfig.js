@@ -71,6 +71,8 @@ const getRefreshTokenSecret = () => {
   return secret;
 };
 
+const getPepperSecret = () => process.env.PEPPER_SECRET;
+
 // ─── Email ───────────────────────────────────────────────────────────────────
 
 // ─── Email ───────────────────────────────────────────────────────────────────
@@ -163,6 +165,7 @@ module.exports = {
   // Auth
   getAccessTokenSecret,
   getRefreshTokenSecret,
+  getPepperSecret,
 
   // Email
   getEmailUser,

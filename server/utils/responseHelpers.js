@@ -1,4 +1,5 @@
 // responseHelpers.js
+const { isProduction } = require("../config/envConfig");
 /**
  * Sends a standardized JSON response with a consistent envelope.
  *
@@ -21,10 +22,8 @@ const sendJsonResponse = (
   statusCode,
   message,
   data = {},
-  debugDetails = null
+  debugDetails = null,
 ) => {
-  const isProduction = process.env.NODE_ENV === "production";
-
   // Ensure `data` is never null or undefined (arrays and objects are both valid)
   const safeData = data ?? {};
 
@@ -35,7 +34,7 @@ const sendJsonResponse = (
   };
 
   // In development, attach debug info for non-success responses
-  if (!responsePayload.success && !isProduction && debugDetails) {
+  if (!responsePayload.success && !isProduction() && debugDetails) {
     responsePayload.debug_error = debugDetails;
   }
 

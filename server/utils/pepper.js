@@ -1,5 +1,7 @@
 // pepper.js
 
+const { getPepperSecret } = require("../config/envConfig");
+
 /**
  * Applies a pepper (server-side secret) to a password before hashing.
  * If the pepper secret is compromised but the database isn't (or vice-versa),
@@ -9,7 +11,7 @@
  * @returns {string} - The peppered password
  */
 const applyPepper = (password) => {
-  const pepper = process.env.PEPPER_SECRET;
+  const pepper = getPepperSecret();
   if (!pepper) {
     console.error(
       "❌ PEPPER_SECRET is not set. This is a critical security misconfiguration.",
