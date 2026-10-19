@@ -1,6 +1,6 @@
 // server/seeders/updateCurriculum.js (REFACTORED VERSION)
 const mongoose = require("mongoose");
-const { getDatabaseUri, getSeedConfig } = require("../config/envConfig");
+const config = require("../config/envConfig");
 const { readContent, parseJSONContent } = require("./fileHelpers");
 const { prepareQuizData, loadLessonAsset } = require("../utils/seederHelpers");
 const {
@@ -31,7 +31,7 @@ class CurriculumUpdater {
   }
 
   async connect() {
-    const MONGODB_URI = getDatabaseUri();
+    const MONGODB_URI = config.getDatabaseUri();
     console.log(`🔗 Connecting to MongoDB...`);
     await mongoose.connect(MONGODB_URI, {
       maxPoolSize: 1,
@@ -49,10 +49,10 @@ class CurriculumUpdater {
   /**
    * Update module quiz (review quiz)
    */
-  async updateModuleQuiz(moduleNum, config, module) {
+  async updateModuleQuiz(moduleNum, configObj, module) {
     try {
       const reviewQuizFile = `${moduleNum}_ReviewQuiz.json`;
-      const reviewQuiz = parseJSONContent(config.folder, reviewQuizFile);
+      const reviewQuiz = parseJSONContent(configObj.folder, reviewQuizFile);
 
       if (!reviewQuiz) {
         console.log(`  ⚠️  No review quiz found for ${moduleNum}`);
@@ -84,13 +84,13 @@ class CurriculumUpdater {
         );
       }
 
-      const config = getModuleConfig(moduleNum);
+      const modConfig = getModuleConfig(moduleNum);
       const lessonConfig = getLessonConfig(moduleNum, lessonNum);
 
       if (!lessonConfig) {
         throw new Error(
           `Lesson ${lessonNum} not found in ${moduleNum}. ` +
-            `Module has ${config.lessons.length} lessons.`,
+            `Module has ${modConfig.lessons.length} lessons.`,
         );
       }
 
@@ -109,17 +109,17 @@ class CurriculumUpdater {
         slug:
           lessonConfig.slug ||
           lessonConfig.title.toLowerCase().replace(/\s+/g, "-"),
-        content: readContent(config.folder, lessonConfig.file),
+        content: readContent(modConfig.folder, lessonConfig.file),
         contentType: lessonConfig.type,
         quiz: loadLessonAsset(
           parseJSONContent,
-          config.folder,
+          modConfig.folder,
           lessonConfig.quiz,
           "quiz",
         ),
         exercise: loadLessonAsset(
           parseJSONContent,
-          config.folder,
+          modConfig.folder,
           lessonConfig.ex,
           "exercise",
         ),
@@ -163,23 +163,22 @@ class CurriculumUpdater {
         );
       }
 
-      const config = getModuleConfig(moduleNum);
+      const modConfig = getModuleConfig(moduleNum);
 
       // Find existing module
-      const module = await this.Module.findOne({ moduleNumber: moduleNum });
+      let module = await this.Module.findOne({ moduleNumber: moduleNum });
       if (!module) {
         if (options.createMissing) {
           console.log(`⚠️  Module ${moduleNum} not found, creating...`);
-          // Create module with basic data (you'd need to import MODULE_HELPERS)
           const MODULE_HELPERS =
             require("../config/moduleConfig").MODULE_HELPERS;
           const metadata = MODULE_HELPERS.getModuleMetadata(moduleNum);
 
           // Create module
           const newModule = await this.Module.create({
-            title: config.title,
-            description: config.description,
-            shortDescription: config.description.substring(0, 100) + "...",
+            title: modConfig.title,
+            description: modConfig.description,
+            shortDescription: modConfig.description.substring(0, 100) + "...",
             order: parseInt(moduleNum.slice(1)),
             moduleNumber: moduleNum,
             difficulty: metadata.difficulty,
@@ -205,29 +204,29 @@ class CurriculumUpdater {
 
       // Update module quiz if requested
       if (options.updateModuleQuiz) {
-        await this.updateModuleQuiz(moduleNum, config, module);
+        await this.updateModuleQuiz(moduleNum, modConfig, module);
       }
 
       // Update all lessons
-      console.log(`Updating ${config.lessons.length} lessons...`);
+      console.log(`Updating ${modConfig.lessons.length} lessons...`);
 
-      for (let i = 0; i < config.lessons.length; i++) {
-        const l = config.lessons[i];
+      for (let i = 0; i < modConfig.lessons.length; i++) {
+        const l = modConfig.lessons[i];
         const lessonData = {
           title: l.title,
-          content: readContent(config.folder, l.file),
+          content: readContent(modConfig.folder, l.file),
           order: i + 1,
           moduleId: module._id,
           contentType: l.type,
           quiz: loadLessonAsset(
             parseJSONContent,
-            config.folder,
+            modConfig.folder,
             l.quiz,
             "quiz",
           ),
           exercise: loadLessonAsset(
             parseJSONContent,
-            config.folder,
+            modConfig.folder,
             l.ex,
             "exercise",
           ),
@@ -337,8 +336,8 @@ class CurriculumUpdater {
       let skippedCount = 0;
 
       for (const module of modules) {
-        const config = getModuleConfig(module.moduleNumber);
-        if (!config) {
+        const modConfig = getModuleConfig(module.moduleNumber);
+        if (!modConfig) {
           console.log(
             `⚠️  No config found for ${module.moduleNumber}, skipping`,
           );
@@ -352,7 +351,7 @@ class CurriculumUpdater {
 
         for (let i = 0; i < lessons.length; i++) {
           const lesson = lessons[i];
-          const lessonConfig = config.lessons[i];
+          const lessonConfig = modConfig.lessons[i];
 
           if (!lessonConfig) {
             console.log(
@@ -362,16 +361,16 @@ class CurriculumUpdater {
           }
 
           // Update only content, quiz, and exercise
-          lesson.content = readContent(config.folder, lessonConfig.file);
+          lesson.content = readContent(modConfig.folder, lessonConfig.file);
           lesson.quiz = loadLessonAsset(
             parseJSONContent,
-            config.folder,
+            modConfig.folder,
             lessonConfig.quiz,
             "quiz",
           );
           lesson.exercise = loadLessonAsset(
             parseJSONContent,
-            config.folder,
+            modConfig.folder,
             lessonConfig.ex,
             "exercise",
           );
@@ -386,7 +385,7 @@ class CurriculumUpdater {
         // Optionally update module quiz
         try {
           const reviewQuizFile = `${module.moduleNumber}_ReviewQuiz.json`;
-          const reviewQuiz = parseJSONContent(config.folder, reviewQuizFile);
+          const reviewQuiz = parseJSONContent(modConfig.folder, reviewQuizFile);
           if (reviewQuiz) {
             module.moduleQuiz = prepareQuizData(reviewQuiz, true);
             await module.save();
@@ -504,10 +503,8 @@ async function main() {
       if (!dbState.exists) {
         console.warn(`⚠️ Module ${moduleNum} not found in database`);
         const shouldCreate =
-          process.env.NODE_ENV !== "production" &&
-          args.includes("--create-missing");
+          !config.isProduction() && args.includes("--create-missing");
         if (shouldCreate) {
-          // Note: This would need MODULE_HELPERS imported
           console.error("--create-missing not fully implemented for lessons");
           process.exit(1);
         } else {
@@ -545,8 +542,8 @@ async function main() {
       );
       console.log("💡 Consider using --modules to update specific modules.");
 
-      // Add confirmation in production
-      if (process.env.NODE_ENV === "production") {
+      // Add confirmation in production using config.isProduction()
+      if (config.isProduction()) {
         const readline = require("readline");
         const rl = readline.createInterface({
           input: process.stdin,

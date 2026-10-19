@@ -98,6 +98,8 @@ const getEmailFrom = () => {
 
 const getSupportEmail = () => process.env.SUPPORT_EMAIL || getEmailUser();
 
+const getResendApiKey = () => process.env.RESEND_API_KEY;
+
 // ─── Seeding ─────────────────────────────────────────────────────────────────
 
 const getSeedConfig = () => {
@@ -173,6 +175,7 @@ module.exports = {
   getEmailFromName,
   getEmailFromAddress,
   getSupportEmail,
+  getResendApiKey,
 
   // Seeding
   getSeedConfig,

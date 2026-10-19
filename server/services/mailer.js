@@ -13,7 +13,7 @@ let resendClient = null;
  */
 const getResendClient = () => {
   if (!resendClient) {
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = config.getResendApiKey();
 
     if (!apiKey) {
       // In development without API key, we'll use the fallback
