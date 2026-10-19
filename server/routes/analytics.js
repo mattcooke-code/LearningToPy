@@ -1,6 +1,7 @@
 // routes/analytics.js
 const express = require("express");
 const router = express.Router();
+const config = require("../config/envConfig");
 const Activity = require("../models/ActivityLog");
 const { adminOnly } = require("../middleware/adminOnly");
 const { protect } = require("../middleware/auth");
@@ -59,7 +60,7 @@ router.post(
       ipAddress: getClientIP(req),
     }).catch((err) => {
       // Log for debugging but NEVER crash or affect the response
-      if (process.env.NODE_ENV !== "production") {
+      if (!config.isProduction()) {
         console.warn("⚠️ Session end logging failed:", err.message);
       }
     });
@@ -102,7 +103,7 @@ router.post("/page-view", protect, (req, res) => {
     ipAddress: getClientIP(req),
   }).catch((err) => {
     // Log for debugging but NEVER crash or affect the response
-    if (process.env.NODE_ENV !== "production") {
+    if (!config.isProduction()) {
       console.warn("⚠️ Page view logging failed:", err.message);
     }
   });

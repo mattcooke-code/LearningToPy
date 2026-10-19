@@ -1,6 +1,7 @@
 // scripts/backfillLessonCompletions.js
 const mongoose = require("mongoose");
 const path = require("path");
+const config = require("../config/envConfig");
 const User = require("../models/User");
 const Lesson = require("../models/Lesson");
 const Activity = require("../models/ActivityLog");
@@ -12,20 +13,20 @@ require("dotenv").config({
 
 // Debug: Check if env loaded
 console.log("🔍 Environment Check:");
-console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("NODE_ENV:", config.getNodeEnv());
 console.log(
   "MONGODB_URI:",
-  process.env.MONGODB_URI ? "✅ Found" : "❌ Missing",
+  config.getDatabaseUri() ? "✅ Found" : "❌ Missing",
 );
 console.log("Current directory:", __dirname);
 
 const backfillCompletions = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
+    if (!config.getDatabaseUri()) {
       throw new Error("MONGODB_URI is not defined in environment variables");
     }
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(config.getDatabaseUri());
     console.log("✅ Connected to MongoDB");
 
     // Get all users with their completed lessons
