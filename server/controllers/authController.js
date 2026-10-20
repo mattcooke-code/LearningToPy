@@ -169,7 +169,7 @@ const register = catchAsync(async (req, res, next) => {
       "Object to data processing",
       "Data portability",
     ],
-    contactEmail: "learning2py@gmail.com", // Update with your actual email
+    contactEmail: "learning2py@gmail.com",
     lastUpdated: "2026-05-14",
   };
 
@@ -410,13 +410,14 @@ const logout = catchAsync(async (req, res, next) => {
         req.cookies.refreshToken,
         authUtils.getRefreshTokenSecret(),
       );
+      userId = decoded.id;
     } catch (err) {
       // Token already expired/invalid
     }
   }
 
   if (userId) {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(userId);
     if (user) {
       user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
       await user.save();
