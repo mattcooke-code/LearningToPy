@@ -42,7 +42,7 @@ Business logic layer. Called by controllers, not routes directly.
 
 ## streakManager.js
 
-- **Called by:** `progressController.completeLesson`, `progressController.completeModule`, `progressController.checkStreak`, `progressController.getCurrentProgress`, `authController.login`, `authController.refreshToken`, `authController.register` (indirectly via trackLessonView)
+- **Called by:** `progressController.completeLesson`, `progressController.completeModule`, `progressController.checkStreak`, `progressController.getCurrentProgress`, `authController.login`, `authController.refreshToken`, `authController.register` (indirectly via trackDailyActivity)
 - **Responsibility:** Streak tracking with weekly completion requirements, warning system, and streak reset logic
 - **Design:** Uses pre-fetched user documents — callers must call `user.save()` after mutating
 - **Config:** `STREAK_CONFIG` object at top of file controls warning day, required completions, and view qualification window

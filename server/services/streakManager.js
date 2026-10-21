@@ -39,11 +39,11 @@ const getDayOfWeek = (date, weekStart) => {
 };
 
 /**
- * Track when user views ANY lesson content.
+ * Track general user daily activity (triggered on login or content views).
  * Accepts a pre-fetched Mongoose user document.
  * Caller is responsible for fetching the user and calling user.save() afterwards.
  */
-const trackLessonView = async (user) => {
+const trackDailyActivity = async (user) => {
   const today = new Date();
   const todayTime = checkDate(today);
 
@@ -119,7 +119,7 @@ const trackCompletion = async (user) => {
  * Initialize a new week's tracking data if the current week has ended.
  * Rolls over weeklyProgress and evaluates the previous week's performance
  * (resets streak if requirements weren't met).
- * 
+ *
  * @param {Object} user - User document (mutated in place)
  * @param {Date} today - Current date
  */
@@ -157,7 +157,7 @@ const initializeWeekIfNeeded = async (user, today) => {
  * Increments daysActive, updates streak if within the qualifying window
  * (first 5 days of the week), or marks streak AT_RISK if past that window
  * with insufficient completions.
- * 
+ *
  * @param {Object} user - User document (mutated in place)
  * @param {Date} today - Current date
  */
@@ -182,7 +182,7 @@ const handleNewDayOfActivity = async (user, today) => {
  * Update the user's streak counter.
  * Increments if yesterday was active, resets to 1 if a gap occurred.
  * Consecutive days only — a single missed day breaks the streak.
- * 
+ *
  * @param {Object} user - User document (mutated in place)
  * @param {Date} today - Current date
  */
@@ -212,7 +212,7 @@ const updateStreak = async (user, today) => {
  * Evaluate last week's performance and set streak status for the new week.
  * Sets status to RESETTING if completions fell below the required threshold,
  * or ACTIVE if the requirement was met.
- * 
+ *
  * @param {Object} user - User document (mutated in place)
  */
 const evaluateLastWeek = async (user) => {
@@ -231,7 +231,7 @@ const evaluateLastWeek = async (user) => {
  * Issues WARNING on day 5 with no completions and an active streak.
  * Issues RESETTING on day 7 with no completions.
  * Does NOT persist — caller must call user.save().
- * 
+ *
  * @param {Object} user - User document (mutated in place)
  */
 const checkWarningStatus = async (user) => {
@@ -292,7 +292,7 @@ const getStreakInfo = async (userId) => {
 };
 
 module.exports = {
-  trackLessonView,
+  trackDailyActivity,
   trackCompletion,
   getStreakInfo,
 };

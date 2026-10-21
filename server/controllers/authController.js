@@ -17,7 +17,7 @@ const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
 // SERVICES
 const { sendEmail } = require("../services/mailer");
-const { trackLessonView } = require("../services/streakManager");
+const { trackDailyActivity } = require("../services/streakManager");
 // UTILS
 const AppError = require("../utils/AppError");
 const authUtils = require("../utils/authUtils");
@@ -204,7 +204,7 @@ const login = catchAsync(async (req, res, next) => {
     );
   }
 
-  const streakResult = await trackLessonView(user);
+  const streakResult = await trackDailyActivity(user);
   await user.save();
 
   const accessToken = authUtils.generateToken(
@@ -321,7 +321,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
     );
   }
 
-  const streakResult = await trackLessonView(user);
+  const streakResult = await trackDailyActivity(user);
   await user.save();
 
   const newAccessToken = authUtils.generateToken(

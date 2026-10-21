@@ -12,7 +12,10 @@ vi.mock("../../utils/generalUtils", () => ({
   checkDate: mockCheckDate,
 }));
 
-import { trackLessonView, trackCompletion } from "../../services/streakManager";
+import {
+  trackDailyActivity,
+  trackCompletion,
+} from "../../services/streakManager";
 
 // --- HELPERS ---
 
@@ -38,7 +41,7 @@ const d = (isoString) => new Date(isoString);
 
 // --- TESTS ---
 
-describe("trackLessonView", () => {
+describe("trackDailyActivity", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -46,7 +49,7 @@ describe("trackLessonView", () => {
   it("sets initial streak on first view", async () => {
     const user = createUser();
 
-    const result = await trackLessonView(user);
+    const result = await trackDailyActivity(user);
 
     // First activity should initialize a streak
     expect(result.streak).toBeGreaterThan(0);
@@ -72,7 +75,7 @@ describe("trackLessonView", () => {
       },
     });
 
-    const result = await trackLessonView(user);
+    const result = await trackDailyActivity(user);
 
     // Should increment because new Date() is today (1 day after yesterday)
     expect(result.streak).toBe(4);
@@ -95,7 +98,7 @@ describe("trackLessonView", () => {
     });
 
     // Set mockCheckDate to return Wednesday
-    const result = await trackLessonView(user);
+    const result = await trackDailyActivity(user);
 
     // Gap of 2 days should reset streak to 1
     expect(result.streak).toBe(1);
@@ -117,7 +120,7 @@ describe("trackLessonView", () => {
       },
     });
 
-    const result = await trackLessonView(user);
+    const result = await trackDailyActivity(user);
 
     expect(user.weeklyProgress.daysActive).toBe(1); // unchanged
     expect(result.streak).toBe(3); // unchanged
