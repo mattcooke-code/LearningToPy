@@ -103,4 +103,21 @@ const getAgeCompliancePackage = (age, parentalConsent) => {
   };
 };
 
-module.exports = { calculateAge, getAgeBracket, getAgeCompliancePackage };
+/**
+ * Reconciles leaderboard status for an inactive-removed user logging in or refreshing.
+ * Mutates the user document in place.
+ */
+const reconcileLeaderboardStatus = (user) => {
+  if (user && user.leaderboardStatus === "INACTIVE_REMOVED" && !user.isAdmin) {
+    user.leaderboardStatus =
+      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
+    user.removedFromLeaderboardAt = null;
+  }
+};
+
+module.exports = {
+  calculateAge,
+  getAgeBracket,
+  getAgeCompliancePackage,
+  reconcileLeaderboardStatus,
+};

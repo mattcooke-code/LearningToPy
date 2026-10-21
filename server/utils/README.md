@@ -126,14 +126,15 @@ The `partitioned` flag is only applied in production because it requires `secure
 
 ## userUtils.js
 
-- **Used by:** `authController` (`register`)
-- **Responsibility:** Age verification for GDPR and UK Children's Code (Age Appropriate Design Code) compliance
-- **Design:** Three functions:
+- **Used by:** `authController` (`register`, `login`, `refreshToken`)
+- **Responsibility:** Age verification for GDPR and UK Children's Code compliance, alongside lazy reconciliation of user leaderboard statuses during authentication.
+- **Design:** Four core functions:
   - `calculateAge(birthDate)` — Calculates precise age from a Date object. Pure function.
   - `getAgeBracket(age)` — Maps numeric age to bracket string (`"13-15"`, `"16-17"`, `"18+"`). Pure function.
-  - `getAgeCompliancePackage(age, parentalConsent)` — Returns the age bracket, default privacy settings appropriate for that bracket, and an age-specific notice with safety tips and feature restrictions. This is the primary export used during registration.
-- **Privacy:** The user's date of birth is never stored. Only `ageVerified`, `ageVerifiedAt`, and `ageBracket` are persisted — sufficient for legal compliance without retaining unnecessary personal data.
-- **Exports:** `calculateAge`, `getAgeBracket`, `getAgeCompliancePackage`
+  - `getAgeCompliancePackage(age, parentalConsent)` — Returns the age bracket, default privacy settings appropriate for that bracket, and an age-specific notice. Primary export used during registration[cite: 3].
+  - `reconcileLeaderboardStatus(user)` — Lazy data-healing block that reactivates non-admin users previously marked as `INACTIVE_REMOVED` upon login or token refresh, routing them to `COMPLETED_PENDING` (if >= 20 completed modules) or `ACTIVE`.
+- **Privacy:** The user's date of birth is never stored. Only `ageVerified`, `ageVerifiedAt`, and `ageBracket` are persisted — sufficient for legal compliance without retaining unnecessary personal data[cite: 3].
+- **Exports:** `calculateAge`, `getAgeBracket`, `getAgeCompliancePackage`, `reconcileLeaderboardStatus`
 
 ### Age Bracket Defaults
 

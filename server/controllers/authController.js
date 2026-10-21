@@ -184,11 +184,7 @@ const login = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({ email }).select("+password +ageBracket");
 
-  if (user && user.leaderboardStatus === "INACTIVE_REMOVED" && !user.isAdmin) {
-    user.leaderboardStatus =
-      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
-    user.removedFromLeaderboardAt = null;
-  }
+  userUtils.reconcileLeaderboardStatus(user);
 
   if (!user || user.isBlocked) {
     return next(
@@ -303,11 +299,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
 
   const user = await User.findById(decoded.id).select("+ageBracket");
 
-  if (user && user.leaderboardStatus === "INACTIVE_REMOVED") {
-    user.leaderboardStatus =
-      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
-    user.removedFromLeaderboardAt = null;
-  }
+  userUtils.reconcileLeaderboardStatus(user);
 
   if (!user || user.isBlocked) {
     authUtils.clearRefreshTokenCookie(res);
@@ -379,7 +371,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
 const logout = catchAsync(async (req, res, next) => {
   authUtils.clearRefreshTokenCookie(res);
 
-  let userId = req.user?._id || req.userid;
+  let userId = req.user?._id || req.userId;
 
   // Fallback if access token is expired, decode refresh token to find user
   if (!userId && req.cookies.refreshToken) {
