@@ -24,6 +24,7 @@ const authUtils = require("../utils/authUtils");
 const catchAsync = require("../utils/catchAsync");
 const emailTemplates = require("../utils/emailTemplates");
 const { applyPepper } = require("../utils/pepper");
+const { PRIVACY_NOTICE } = require("../utils/privacyUtils");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 const userUtils = require("../utils/userUtils");
 const {
@@ -117,7 +118,7 @@ const register = catchAsync(async (req, res, next) => {
     ageVerifiedAt: new Date(),
     privacySettings: privacySettings,
     parentalConsentConfirmed:
-      ageBracket == "13-15" ? !!parentalConsent : undefined,
+      ageBracket === "13-15" ? !!parentalConsent : undefined,
     refreshTokenVersion: 0,
   });
 
@@ -150,29 +151,6 @@ const register = catchAsync(async (req, res, next) => {
     maxAge: cookieMaxAge,
   });
 
-  // Privacy notice (GDPR transparency)
-  const privacyNotice = {
-    dataCollected: [
-      "Username",
-      "Email address",
-      "Learning progress (XP, levels, completed lessons)",
-      "Quiz and exercise results",
-      "Activity timestamps",
-    ],
-    dataRetention:
-      "Account data is retained until you delete your account. " +
-      "Activity logs are automatically deleted after 90 days.",
-    yourRights: [
-      "Access your data (Settings > Export Data)",
-      "Correct inaccurate data",
-      "Delete your account and all data",
-      "Object to data processing",
-      "Data portability",
-    ],
-    contactEmail: "learning2py@gmail.com",
-    lastUpdated: "2026-05-14",
-  };
-
   sendJsonResponse(res, 201, "Signup successful.", {
     accessToken,
     user: {
@@ -183,7 +161,7 @@ const register = catchAsync(async (req, res, next) => {
       privacySettings: newUser.privacySettings,
     },
     ageNotice,
-    privacyNotice,
+    privacyNotice: PRIVACY_NOTICE,
   });
 });
 

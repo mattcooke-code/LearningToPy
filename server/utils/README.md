@@ -97,6 +97,13 @@ The `partitioned` flag is only applied in production because it requires `secure
 - **Design:** Prefers structured `x-devices-info` header, falls back to user-agent sniffing. IPv4/IPv6 anonymisation.
 - **Exports:** `parseDeviceInfo`, `anonymiseIp`
 
+## privacyUtils.js
+
+- **Used by:** `authController` (`register`)
+- **Responsibility:** Holds static compliance copy for GDPR transparency during user registration.
+- **Design:** Pure static data object (`PRIVACY_NOTICE`) outlining data collected, retention periods, user rights, contact email, and last updated date. Separated from `emailTemplates.js` to keep legal compliance text distinct from email templates.
+- **Exports:** `PRIVACY_NOTICE`
+
 ## quizHelpers.js
 
 - **Used by:** `contentController`, `learningEngine.js`
