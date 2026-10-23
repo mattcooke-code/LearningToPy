@@ -102,7 +102,8 @@ const apiLimiter = rateLimit({
     return req.user?._id?.toString() || req.ip;
   },
   skip: (req) => {
-    if (config.isDevelopment() && req.path === "/api/health") return true;
+    if (config.isDevelopment() && req.originalUrl.startsWith("/api/health"))
+      return true;
     if (isAdmin(req)) return true;
     return false;
   },
@@ -203,7 +204,7 @@ const adminActionLimiter = rateLimit({
     res.status(429).json(options.message);
   },
   skip: (req) => {
-    if (req.path === "/api/health") return true;
+    if (req.originalUrl.startsWith("/api/health")) return true;
     return false;
   },
 });
@@ -290,7 +291,7 @@ const createRateLimiter = (options) => {
 // ── Cleanup ────────────────────────────────────────────────────
 
 // Clean up stale entries every 5 minutes
-setInterval(
+const cleanupInterval = setInterval(
   () => {
     const now = Date.now();
     for (const [ip, data] of requestTracker.entries()) {
@@ -308,6 +309,16 @@ setInterval(
   5 * 60 * 1000,
 );
 
+// Prevent the interval from keeping the Node.js process alive during tests
+if (cleanupInterval.unref) {
+  cleanupInterval.unref();
+}
+
+// Stop function if tests need to explicitly clear
+const stopCleanup = () => {
+  clearInterval(cleanupInterval);
+};
+
 module.exports = {
   apiLimiter,
   authLimiter,
@@ -320,4 +331,5 @@ module.exports = {
   abuseDetector,
   isIPBlocked,
   blockIP,
+  stopCleanup,
 };
