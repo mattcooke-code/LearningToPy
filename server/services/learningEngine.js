@@ -7,6 +7,7 @@ const ModuleCompletion = require("../models/ModuleCompletion");
 const XpTransaction = require("../models/XpTransaction");
 const { findNextLesson, findNextModule } = require("../utils/navigation");
 const { normalizeTags } = require("../utils/generalUtils");
+const { getModuleOrderMap } = require("../utils/levelUtils");
 const {
   getQuizResultsForXP,
   hasExercise,
@@ -667,10 +668,99 @@ const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
   };
 };
 
+/**
+ * Compiles the user's full progress summary for the Dashboard,
+ * determining the current module and curriculum completion stats.
+ *
+ * @param {string} userId - The user's ID
+ * @returns {Promise<Object|null>} Progress summary payload or null if user not found
+ */
+const getUserProgressSummary = async (userId) => {
+  const user = await User.findById(userId).lean();
+  if (!user) return null;
+
+  const [lessonCompletions, moduleCompletions] = await Promise.all([
+    LessonCompletion.find({ userId: user._id }).select("lessonId").lean(),
+    ModuleCompletion.find({ userId: user._id }).select("moduleId").lean(),
+  ]);
+
+  const completedLessonIds = lessonCompletions.map((lc) =>
+    lc.lessonId.toString(),
+  );
+  const completedModuleIds = moduleCompletions.map((mc) =>
+    mc.moduleId.toString(),
+  );
+
+  const modules = await Module.find({ isPublished: true })
+    .select("_id order title")
+    .sort("order")
+    .lean();
+
+  const moduleOrderMap = await getModuleOrderMap();
+
+  let currentModuleData = null;
+  const moduleIds = modules.map((m) => m._id);
+  const allModuleLessons = await Lesson.find({
+    moduleId: { $in: moduleIds },
+    isPublished: true,
+  })
+    .select("_id moduleId")
+    .lean();
+
+  const lessonsByModule = {};
+  allModuleLessons.forEach((l) => {
+    const key = l.moduleId.toString();
+    if (!lessonsByModule[key]) lessonsByModule[key] = [];
+    lessonsByModule[key].push(l);
+  });
+
+  for (const module of modules) {
+    if (module.order === 0) continue;
+    if (completedModuleIds.includes(module._id.toString())) continue;
+
+    const lessons = lessonsByModule[module._id.toString()] || [];
+    const completedInModule = lessons.filter((l) =>
+      completedLessonIds.includes(l._id.toString()),
+    ).length;
+
+    currentModuleData = {
+      order: module.order,
+      title: module.title,
+      lessonCount: lessons.length,
+      lessonsCompleted: completedInModule,
+    };
+    break;
+  }
+
+  if (!currentModuleData && completedModuleIds.length >= 20) {
+    currentModuleData = null; // Signals course complete
+  }
+
+  const userWithArrays = {
+    ...user,
+    completedLessons: completedLessonIds,
+    completedModules: completedModuleIds,
+    completedLessonsCount: lessonCompletions.length,
+    completedModulesCount: moduleCompletions.length,
+  };
+
+  const { totalCurriculumLessons, completedCurriculumCount } =
+    await getCurriculumProgressStats(userWithArrays, { Lesson, Module });
+
+  return {
+    userWithArrays,
+    totalCurriculumLessons,
+    completedCurriculumCount,
+    currentModuleData,
+    moduleOrderMap,
+  };
+};
+
 module.exports = {
   validateCodeSubmission,
   processLessonCompletion,
   processModuleCompletion,
   isLessonFullyCompleted,
   getCurriculumProgressStats,
+  getUserProgressSummary,
 };

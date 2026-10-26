@@ -25,96 +25,25 @@ const {
 /**
  * Fetch the current user's full progress for the Dashboard.
  *
- * Determines the "current module" (first incomplete module after M0),
- * calculates curriculum-wide completion percentage, and formats
- * the response via `formatProgressResponse` for the frontend.
- *
- * If all 20 modules (M1–M20) are complete, signals course completion.
- *
  * @route   GET /api/progress/current
  * @returns {Object} 200 - Full progress object (level, XP, course %, current module, badges, stats)
  * @returns {Object} 404 - User not found
  */
 const getCurrentProgress = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.userId).lean();
-  if (!user) return next(new AppError("User not found.", 404));
+  const progressSummary = await engine.getUserProgressSummary(req.userId);
+  if (!progressSummary) return next(new AppError("User not found.", 404));
 
-  // Fetch completions from new collections
-  const [lessonCompletions, moduleCompletions] = await Promise.all([
-    LessonCompletion.find({ userId: user._id }).select("lessonId").lean(),
-    ModuleCompletion.find({ userId: user._id }).select("moduleId").lean(),
-  ]);
+  const {
+    userWithArrays,
+    totalCurriculumLessons,
+    completedCurriculumCount,
+    currentModuleData,
+    moduleOrderMap,
+  } = progressSummary;
 
-  const completedLessonIds = lessonCompletions.map((lc) =>
-    lc.lessonId.toString(),
-  );
-  const completedModuleIds = moduleCompletions.map((mc) =>
-    mc.moduleId.toString(),
-  );
-
-  // Get all published modules with order
-  const modules = await Module.find({ isPublished: true })
-    .select("_id order title")
-    .sort("order")
-    .lean();
-
-  const moduleOrderMap = await getModuleOrderMap();
-
-  // Find current module (first incomplete module after M0)
-  let currentModuleData = null;
-  let lessonsCompleted = 0;
-  let totalLessons = 0;
-
-  const moduleIds = modules.map((m) => m._id);
-  const allModuleLessons = await Lesson.find({
-    moduleId: { $in: moduleIds },
-    isPublished: true,
-  })
-    .select("_id moduleId")
-    .lean();
-
-  // Group by moduleId
-  const lessonsByModule = {};
-  allModuleLessons.forEach((l) => {
-    const key = l.moduleId.toString();
-    if (!lessonsByModule[key]) lessonsByModule[key] = [];
-    lessonsByModule[key].push(l);
-  });
-
-  for (const module of modules) {
-    if (module.order === 0) continue;
-    if (completedModuleIds.includes(module._id.toString())) continue;
-
-    const lessons = lessonsByModule[module._id.toString()] || [];
-    const completedInModule = lessons.filter((l) =>
-      completedLessonIds.includes(l._id.toString()),
-    ).length;
-
-    currentModuleData = {
-      order: module.order,
-      title: module.title,
-      lessonCount: lessons.length,
-      lessonsCompleted: completedInModule,
-    };
-    break;
+  if (userWithArrays.courseProgressPercentage !== undefined) {
+    // If theme updating happens here or via hook
   }
-
-  // If all modules complete
-  if (!currentModuleData && completedModuleIds.length >= 20) {
-    currentModuleData = null; // Signals course complete
-  }
-
-  // Build user object with arrays for the analytics service
-  const userWithArrays = {
-    ...user,
-    completedLessons: completedLessonIds,
-    completedModules: completedModuleIds,
-    completedLessonsCount: lessonCompletions.length,
-    completedModulesCount: moduleCompletions.length,
-  };
-
-  const { totalCurriculumLessons, completedCurriculumCount } =
-    await engine.getCurriculumProgressStats(userWithArrays, { Lesson, Module });
 
   const progressData = formatProgressResponse(
     userWithArrays,
