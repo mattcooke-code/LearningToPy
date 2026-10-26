@@ -9,16 +9,10 @@ const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
+const { ACTIVE_LEADERBOARD_FILTER } = require("./leaderboardService");
 
 // --- CONSTANTS ---
 const TOTAL_CURRICULUM_MODULES = 20; // M1–M20, excluding M0
-
-const ACTIVE_LEADERBOARD_FILTER = {
-  "privacySettings.showOnLeaderboards": true,
-  isAdmin: { $ne: true },
-  ageBracket: { $in: ["16-17", "18+"] },
-  leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
-};
 
 // --- DB HELPERS ---
 

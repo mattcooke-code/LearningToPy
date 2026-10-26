@@ -11,19 +11,11 @@ const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
 const { formatProgressResponse } = require("../services/analytics");
-const {
-  getCurriculumProgressStats,
-  processLessonCompletion,
-  processModuleCompletion,
-} = require("../services/learningEngine");
+const engine = require("../services/learningEngine");
 const { getModuleOrderMap } = require("../utils/levelUtils");
-const {
-  ACTIVE_LEADERBOARD_FILTER,
-  evaluateBadges,
-  getBadgeProgress,
-  checkLeaderboardBadges,
-} = require("../services/gamification");
-const { trackCompletion, getStreakInfo } = require("../services/streakManager");
+const gamify = require("../services/gamification");
+const leaderboard = require("../services/leaderboardService");
+const manageStreak = require("../services/streakManager");
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions.cjs");
@@ -122,7 +114,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
   };
 
   const { totalCurriculumLessons, completedCurriculumCount } =
-    await getCurriculumProgressStats(userWithArrays, { Lesson, Module });
+    await engine.getCurriculumProgressStats(userWithArrays, { Lesson, Module });
 
   const progressData = formatProgressResponse(
     userWithArrays,
@@ -181,7 +173,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
     quizAttempts: quizAttempts,
   };
 
-  const { newlyUnlocked } = await evaluateBadges(enrichedUser);
+  const { newlyUnlocked } = await gamify.evaluateBadges(enrichedUser);
 
   if (newlyUnlocked.length > 0) {
     await User.findByIdAndUpdate(userId, {
@@ -192,7 +184,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
     ];
   }
 
-  const badgeProgress = await getBadgeProgress(enrichedUser);
+  const badgeProgress = await gamify.getBadgeProgress(enrichedUser);
 
   const progressMap = new Map(
     badgeProgress.map((progressItem) => [
@@ -256,70 +248,19 @@ const getAchievements = catchAsync(async (req, res, next) => {
  * @returns {Object} 404 - User not found or not on leaderboard
  */
 const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
-  const userId = req.userId.toString();
-  const range = 2;
+  const result = await leaderboard.getSurroundingUsers(req.userId);
+  if (!result) return next(new AppError("User not found", 404));
 
-  const currentUser = await User.findById(userId)
-    .select("username xp privacySettings isAdmin leaderboardStatus ageBracket")
-    .lean();
-  if (!currentUser) return next(new AppError("User not found", 404));
-
-  if (currentUser.ageBracket === "13-15") {
+  if (result.message) {
     return sendJsonResponse(res, 200, "User not eligible for leaderboard", {
       users: [],
-      currentUserRank: null,
+      currentRank: null,
       totalUsers: 0,
-      message: "Leaderboard is not available for users under 16",
+      message: result.message,
     });
   }
 
-  const [usersAbove, usersBelow, usersWithMoreXP, totalOptedIn] =
-    await Promise.all([
-      User.find({
-        ...ACTIVE_LEADERBOARD_FILTER,
-        xp: { $gt: currentUser.xp },
-      })
-        .select("username xp privacySettings")
-        .sort({ xp: 1 })
-        .limit(range)
-        .lean(),
-      User.find({
-        ...ACTIVE_LEADERBOARD_FILTER,
-        xp: { $lt: currentUser.xp },
-        _id: { $ne: currentUser._id },
-      })
-        .select("username xp privacySettings")
-        .sort({ xp: -1 })
-        .limit(range)
-        .lean(),
-      User.countDocuments({
-        ...ACTIVE_LEADERBOARD_FILTER,
-        xp: { $gt: currentUser.xp },
-      }),
-      User.countDocuments(ACTIVE_LEADERBOARD_FILTER),
-    ]);
-
-  const rank = usersWithMoreXP + 1;
-  const aboveReversed = usersAbove.reverse();
-
-  const allSlice = [...aboveReversed, currentUser, ...usersBelow];
-
-  const surroundingUsers = allSlice.map((user, index) => ({
-    _id: user._id,
-    rank: rank - aboveReversed.length + index,
-    username: user.privacySettings?.showUsernameOnLeaderboards
-      ? user.username
-      : `Learner #${user._id.toString().slice(-6)}`,
-    xp: user.xp,
-    isCurrent: user._id.toString() === userId,
-    isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
-  }));
-
-  sendJsonResponse(res, 200, "User's leaderboard placement found", {
-    users: surroundingUsers,
-    currentUserRank: rank,
-    totalUsers: totalOptedIn,
-  });
+  sendJsonResponse(res, 200, "User's leaderboard placement found", result);
 });
 
 /**
@@ -330,32 +271,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - { topUsersWithPrivacy: [...] }
  */
 const getTopLeaderboard = catchAsync(async (req, res, next) => {
-  const limit = parseInt(req.query.limit) || 10;
-
-  const topUsers = await User.find({ ACTIVE_LEADERBOARD_FILTER })
-    .select("username xp privacySettings leaderboardStatus")
-    .sort({ xp: -1 })
-    .limit(limit)
-    .lean();
-
-  // Deduplicate by _id in case of index inconsistency after schema refactor
-  const seen = new Set();
-  const dedupedUsers = topUsers.filter((u) => {
-    const id = u._id.toString();
-    if (seen.has(id)) return false;
-    seen.add(id);
-    return true;
-  });
-
-  const topUsersWithPrivacy = dedupedUsers.map((user, index) => ({
-    ...user,
-    rank: user.leaderboardStatus === "COMPLETED_PENDING" ? null : index + 1,
-    isCompleted: user.leaderboardStatus === "COMPLETED_PENDING",
-    displayName: user.privacySettings?.showUsernameOnLeaderboards
-      ? user.username
-      : `Learner #${user._id.toString().slice(-6)}`,
-    isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
-  }));
+  const topUsersWithPrivacy = await leaderboard.getTopUsers(req.query.limit);
 
   sendJsonResponse(res, 200, "Top leaderboard fetched", {
     topUsersWithPrivacy,
@@ -373,43 +289,10 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
  */
 const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
-  const userId = req.userId;
+  const users = await leaderboard.getModuleLeaderboardData(moduleId);
 
-  const moduleLeaderboard = await ModuleCompletion.aggregate([
-    { $match: { moduleId: new mongoose.Types.ObjectId(moduleId) } },
-    {
-      $lookup: {
-        from: "users",
-        localField: "userId",
-        foreignField: "_id",
-        as: "userData",
-      },
-    },
-    { $unwind: "$userData" },
-    {
-      $match: {
-        "userData.privacySettings.showOnLeaderboards": true,
-        "userData.isAdmin": { $ne: true },
-        "userData.ageBracket": { $in: ["16-17", "18+"] },
-        "userData.leaderboardStatus": { $in: ["ACTIVE", "COMPLETED_PENDING"] },
-      },
-    },
-    { $sort: { "userData.xp": -1 } },
-    { $limit: 50 },
-    {
-      $project: {
-        _id: "$userData._id",
-        username: "$userData.username",
-        xp: "$userData.xp",
-        privacySettings: "$userData.privacySettings",
-        // Logic for ranking/anonymity handled here or in the application layer
-      },
-    },
-  ]);
-
-  // Format the results...
   sendJsonResponse(res, 200, "Module leaderboard fetched.", {
-    users: moduleLeaderboard,
+    users,
   });
 });
 
@@ -462,7 +345,11 @@ const completeLesson = catchAsync(async (req, res, next) => {
     return next(new AppError("User or lesson not found", 404));
   }
 
-  const result = await processLessonCompletion(user, lesson, submissionData);
+  const result = await engine.processLessonCompletion(
+    user,
+    lesson,
+    submissionData,
+  );
 
   if (!result.newlyCompleted) {
     return sendJsonResponse(
@@ -480,11 +367,11 @@ const completeLesson = catchAsync(async (req, res, next) => {
     );
   }
 
-  const streakResult = await trackCompletion(user);
+  const streakResult = await manageStreak.trackCompletion(user);
   await user.save();
 
   // Trigger leaderboard badge check after XP is persisted
-  await checkLeaderboardBadges(user, User);
+  await gamify.checkLeaderboardBadges(user, User);
 
   sendJsonResponse(res, 200, "Lesson completed successfully", {
     xpGained: result.xpIncrease,
@@ -529,7 +416,7 @@ const completeModule = catchAsync(async (req, res, next) => {
     return next(new AppError("User or module not found", 404));
   }
 
-  const result = await processModuleCompletion(user, module, quizScore);
+  const result = await engine.processModuleCompletion(user, module, quizScore);
 
   // Record quiz attempt in the new QuizAttempt collection
   if (answers && quizScore !== undefined) {
@@ -543,11 +430,11 @@ const completeModule = catchAsync(async (req, res, next) => {
     });
   }
 
-  const streakResult = await trackCompletion(user);
+  const streakResult = await manageStreak.trackCompletion(user);
   await user.save();
 
   // Trigger leaderboard badge check after XP is persisted
-  await checkLeaderboardBadges(user, User);
+  await gamify.checkLeaderboardBadges(user, User);
 
   const responsePayload = {
     xpGained: result.xpIncrease,
@@ -577,7 +464,7 @@ const completeModule = catchAsync(async (req, res, next) => {
  * @returns {Object} 404 - User not found
  */
 const checkStreak = catchAsync(async (req, res, next) => {
-  const streakInfo = await getStreakInfo(req.userId);
+  const streakInfo = await manageStreak.getStreakInfo(req.userId);
 
   if (!streakInfo) {
     return next(new AppError("User not found", 404));
