@@ -141,7 +141,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
  * persists any new ones, then calls `getBadgeProgress` to calculate
  * 0–100 progress for every badge in BADGE_DEFINITIONS_CORE.
  *
- * Returns three arrays:
+ * Returns single array with a status field for:
  * - **earned**: Badges the user has (progress = 100)
  * - **inProgress**: Badges with progress > 0 but not yet earned
  * - **locked**: Badges with 0 progress
@@ -193,10 +193,6 @@ const getAchievements = catchAsync(async (req, res, next) => {
 
   const badgeProgress = await getBadgeProgress(enrichedUser);
 
-  const earned = [];
-  const inProgress = [];
-  const locked = [];
-
   const progressMap = new Map(
     badgeProgress.map((progressItem) => [
       progressItem.id,
@@ -206,7 +202,8 @@ const getAchievements = catchAsync(async (req, res, next) => {
 
   const earnedSet = new Set(enrichedUser.badges || []);
 
-  BADGE_DEFINITIONS_CORE.forEach((badge) => {
+  // Map into a single unified array with a status field (REST-compliant)
+  const badgesWithStatus = BADGE_DEFINITIONS_CORE.map((badge) => {
     const baseDetails = {
       id: badge.id,
       name: badge.name,
@@ -218,35 +215,31 @@ const getAchievements = catchAsync(async (req, res, next) => {
     };
 
     if (earnedSet.has(badge.id)) {
-      earned.push({
+      return {
         ...baseDetails,
+        status: "earned",
         completed: true,
         progressPercentage: 100,
-      });
-      return;
+      };
     }
 
     const progressPercentage = progressMap.get(badge.id) || 0;
 
     if (progressPercentage > 0) {
-      inProgress.push({
-        ...baseDetails,
-        progressPercentage,
-      });
-    } else {
-      locked.push({
-        ...baseDetails,
-        progressPercentage: 0,
-      });
+      return { ...baseDetails, status: "inProgress", progressPercentage };
     }
+
+    return { ...baseDetails, status: "locked", progressPercentage: 0 };
   });
 
+  const earnedCount = badgesWithStatus.filter(
+    (b) => b.status === "earned",
+  ).length;
+
   sendJsonResponse(res, 200, "Achievements progress calculated successfully.", {
-    earnedBadges: earned,
-    inProgress: inProgress,
-    locked: locked,
+    badges: badgesWithStatus,
     totalBadges: BADGE_DEFINITIONS_CORE.length,
-    earnedCount: earned.length,
+    earnedCount: earnedCount,
   });
 });
 

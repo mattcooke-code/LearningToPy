@@ -49,7 +49,7 @@ Express middleware functions. Applied in a specific order in `server.js`.
 
 - **Applied:** `ipBlocker` and `abuseDetector` globally; specific limiters per route
 - **Responsibility:** Tiered rate limiting (API: 100/15min, Auth: 5/15min, Password: 3/1hr, Content: 10/1hr, Admin: 20/1hr). IP blocking for abuse (>100 req/min = 1hr block).
-- **Exports:** `apiLimiter`, `authLimiter`, `passwordResetLimiter`, `contentCreationLimiter`, `adminActionLimiter`, `ipBlocker`, `createRateLimiter`, `abuseDetector`
+- **Exports:** `apiLimiter`, `authLimiter`, `passwordResetLimiter`, `contentCreationLimiter`, `adminActionLimiter`, `ipBlocker`, `createRateLimiter`, `abuseDetector`, `blockIp`, `stopCleanup`, `lessonInteractionLimiter`, `isIPBlocked`
 
 ## sessionTracker.js
 

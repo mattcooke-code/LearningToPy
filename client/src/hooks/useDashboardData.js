@@ -12,6 +12,7 @@ export const useDashboardData = (
     userProgress: null,
     surroundingLeaderboard: null,
     earnedBadgeIds: [],
+    badgeProgressMap: {},
     loading: false,
     error: null,
   });
@@ -44,12 +45,22 @@ export const useDashboardData = (
         updateTheme(progress.courseProgressPercentage);
       }
 
+      const allBadges = achievements?.badges || [];
+
+      const earnedBadgeIds = allBadges
+        .filter((b) => b.status === "earned")
+        .map((b) => b.id);
+
+      const badgeProgressMap = {};
+      allBadges.forEach((b) => {
+        badgeProgressMap[b.id] = b.progressPercentage;
+      });
+
       setData({
         userProgress: progress,
         surroundingLeaderboard: leaderboard,
-        earnedBadgeIds: achievements
-          ? (achievements.earnedBadges || []).map((b) => b.id)
-          : [],
+        earnedBadgeIds,
+        badgeProgressMap,
         loading: false,
         error:
           !progress && !leaderboard && !achievements
