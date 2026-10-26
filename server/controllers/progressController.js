@@ -18,6 +18,7 @@ const {
 } = require("../services/learningEngine");
 const { getModuleOrderMap } = require("../utils/levelUtils");
 const {
+  ACTIVE_LEADERBOARD_FILTER,
   evaluateBadges,
   getBadgeProgress,
   checkLeaderboardBadges,
@@ -272,17 +273,10 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
     });
   }
 
-  const activeLeaderboardFilter = {
-    "privacySettings.showOnLeaderboards": true,
-    isAdmin: { $ne: true },
-    ageBracket: { $in: ["16-17", "18+"] },
-    leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
-  };
-
   const [usersAbove, usersBelow, usersWithMoreXP, totalOptedIn] =
     await Promise.all([
       User.find({
-        ...activeLeaderboardFilter,
+        ...ACTIVE_LEADERBOARD_FILTER,
         xp: { $gt: currentUser.xp },
       })
         .select("username xp privacySettings")
@@ -290,7 +284,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
         .limit(range)
         .lean(),
       User.find({
-        ...activeLeaderboardFilter,
+        ...ACTIVE_LEADERBOARD_FILTER,
         xp: { $lt: currentUser.xp },
         _id: { $ne: currentUser._id },
       })
@@ -299,10 +293,10 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
         .limit(range)
         .lean(),
       User.countDocuments({
-        ...activeLeaderboardFilter,
+        ...ACTIVE_LEADERBOARD_FILTER,
         xp: { $gt: currentUser.xp },
       }),
-      User.countDocuments(activeLeaderboardFilter),
+      User.countDocuments(ACTIVE_LEADERBOARD_FILTER),
     ]);
 
   const rank = usersWithMoreXP + 1;
@@ -338,12 +332,7 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
 const getTopLeaderboard = catchAsync(async (req, res, next) => {
   const limit = parseInt(req.query.limit) || 10;
 
-  const topUsers = await User.find({
-    "privacySettings.showOnLeaderboards": true,
-    isAdmin: { $ne: true },
-    ageBracket: { $in: ["16-17", "18+"] },
-    leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
-  })
+  const topUsers = await User.find({ ACTIVE_LEADERBOARD_FILTER })
     .select("username xp privacySettings leaderboardStatus")
     .sort({ xp: -1 })
     .limit(limit)

@@ -13,6 +13,13 @@ const QuizAttempt = require("../models/QuizAttempt");
 // --- CONSTANTS ---
 const TOTAL_CURRICULUM_MODULES = 20; // M1–M20, excluding M0
 
+const ACTIVE_LEADERBOARD_FILTER = {
+  "privacySettings.showOnLeaderboards": true,
+  isAdmin: { $ne: true },
+  ageBracket: { $in: ["16-17", "18+"] },
+  leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
+};
+
 // --- DB HELPERS ---
 
 const buildModuleOrderCache = async () => {
@@ -385,7 +392,7 @@ const checkLeaderboardBadges = async (user, User) => {
 
   if (!hasTopTen) {
     const tenthPlace = await User.findOne({
-      "privacySettings.showOnLeaderboards": true,
+      ...ACTIVE_LEADERBOARD_FILTER,
       _id: { $ne: user._id },
     })
       .sort({ xp: -1 })
@@ -400,7 +407,7 @@ const checkLeaderboardBadges = async (user, User) => {
 
   if (!hasSummit) {
     const firstPlace = await User.findOne({
-      "privacySettings.showOnLeaderboards": true,
+      ...ACTIVE_LEADERBOARD_FILTER,
       _id: { $ne: user._id },
     })
       .sort({ xp: -1 })
@@ -423,6 +430,7 @@ const awardLeaderboardBadge = async (user, badgeId) => {
 };
 
 module.exports = {
+  ACTIVE_LEADERBOARD_FILTER,
   evaluateBadges,
   getBadgeProgress,
   awardLeaderboardBadge,
