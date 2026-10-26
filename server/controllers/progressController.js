@@ -1,5 +1,4 @@
 // progressController.js
-const CourseCompletion = require("../models/CourseCompletion");
 const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
 const Module = require("../models/Module");
@@ -12,7 +11,6 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
 
 const { formatProgressResponse } = require("../services/analytics");
 const engine = require("../services/learningEngine");
-const { getModuleOrderMap } = require("../utils/levelUtils");
 const gamify = require("../services/gamification");
 const leaderboard = require("../services/leaderboardService");
 const manageStreak = require("../services/streakManager");
@@ -415,48 +413,9 @@ const checkStreak = catchAsync(async (req, res, next) => {
 const getHallOfFame = catchAsync(async (req, res, next) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
-  const skip = (page - 1) * limit;
 
-  const [inductedMembers, totalInducted] = await Promise.all([
-    CourseCompletion.find({ hofJoinedAt: { $ne: null } })
-      .sort({ completedAt: 1 }) // earliest completer = #1
-      .skip(skip)
-      .limit(limit)
-      .populate({
-        path: "userId",
-        select: "username privacySettings createdAt ageBracket",
-        match: { ageBracket: { $in: ["16-17", "18+"] } },
-      })
-      .lean(),
-    CourseCompletion.countDocuments({ hofJoinedAt: { $ne: null } }),
-  ]);
-
-  const filteredMembers = inductedMembers.filter((member) => member.userId);
-
-  const members = filteredMembers.map((member, index) => {
-    const user = member.userId || {};
-    return {
-      rank: skip + index + 1,
-      displayName: user.privacySettings?.showUsernameOnLeaderboards
-        ? user.username
-        : `Learner #${(user._id || member.userId).toString().slice(-6)}`,
-      isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
-      completedAt: member.completedAt,
-      timeToCompleteMs: member.timeToCompleteMs,
-      timeToCompleteDays: Math.round(member.timeToCompleteMs / 86400000),
-      inductedAt: member.hofJoinedAt,
-      earlyOptIn: member.earlyOptIn,
-    };
-  });
-
-  const totalPages = Math.ceil(totalInducted / limit);
-
-  sendJsonResponse(res, 200, "Hall of Fame fetched", {
-    members,
-    totalInducted,
-    page,
-    totalPages,
-  });
+  const result = await engine.getHallOfFameMembers(page, limit);
+  sendJsonResponse(res, 200, "Hall of Fame fetched", result);
 });
 
 /**
@@ -471,36 +430,16 @@ const getHallOfFame = catchAsync(async (req, res, next) => {
 const optInToHallOfFame = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 
-  const completion = await CourseCompletion.findOne({ userId });
-  if (!completion) {
-    return next(new AppError("No course completion record found.", 404));
+  try {
+    const result = await engine.optInUserToHoF(userId);
+    sendJsonResponse(res, 200, "Welcome to the Hall of Fame!", {
+      hofRank: result.hofRank,
+      inductedAt: result.inductedAt,
+      earlyOptIn: true,
+    });
+  } catch (err) {
+    return next(error);
   }
-
-  if (completion.hofJoinedAt) {
-    return next(new AppError("You are already in the Hall of Fame.", 400));
-  }
-
-  const now = new Date();
-
-  const inductedCount = await CourseCompletion.countDocuments({
-    hofJoinedAt: { $ne: null },
-  });
-
-  completion.hofJoinedAt = now;
-  completion.earlyOptIn = true;
-  completion.earlyOptInAt = now;
-  await completion.save();
-
-  await User.findByIdAndUpdate(userId, {
-    leaderboardStatus: "HOF",
-    $addToSet: { badges: "hof" },
-  });
-
-  sendJsonResponse(res, 200, "Welcome to the Hall of Fame!", {
-    hofRank: inductedCount + 1,
-    inductedAt: now,
-    earlyOptIn: true,
-  });
 });
 
 /**
@@ -511,39 +450,12 @@ const optInToHallOfFame = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - Default object when no completion record exists
  */
 const getCourseCompletionStatus = catchAsync(async (req, res, next) => {
-  const userId = req.userId;
+  const status = await engine.getCourseStatusForUser(req.userId);
+  const message = status.courseCompleted
+    ? "Course completion status fetched"
+    : "No course completion record";
 
-  const completion = await CourseCompletion.findOne({ userId }).lean();
-
-  if (!completion) {
-    return sendJsonResponse(res, 200, "No course completion record", {
-      courseCompleted: false,
-      hofJoinedAt: null,
-      hofEligibleAt: null,
-      modulesCompleted: 0,
-    });
-  }
-
-  let rank = null;
-  if (completion.hofJoinedAt) {
-    rank =
-      (await CourseCompletion.countDocuments({
-        hofJoinedAt: { $ne: null },
-        completedAt: { $lt: completion.completedAt },
-      })) + 1;
-  }
-
-  sendJsonResponse(res, 200, "Course completion status fetched", {
-    courseCompleted: true,
-    completedAt: completion.completedAt,
-    hofEligibleAt: completion.hofEligibleAt,
-    hofJoinedAt: completion.hofJoinedAt || null,
-    earlyOptIn: completion.earlyOptIn || false,
-    rank,
-    timeToCompleteDays: completion.timeToCompleteMs
-      ? Math.round(completion.timeToCompleteMs / 86400000)
-      : null,
-  });
+  sendJsonResponse(res, 200, message, status);
 });
 
 module.exports = {

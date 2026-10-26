@@ -756,6 +756,118 @@ const getUserProgressSummary = async (userId) => {
   };
 };
 
+// --- HALL OF FAME & COURSE COMPLETION SERVICE HELPERS ---
+
+const getHallOfFameMembers = async (page = 1, limit = 20) => {
+  const skip = (page - 1) * limit;
+
+  const [inductedMembers, totalInducted] = await Promise.all([
+    CourseCompletion.find({ hofJoinedAt: { $ne: null } })
+      .sort({ completedAt: 1 }) // earliest completer = #1
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "userId",
+        select: "username privacySettings createdAt ageBracket",
+        match: { ageBracket: { $in: ["16-17", "18+"] } },
+      })
+      .lean(),
+    CourseCompletion.countDocuments({ hofJoinedAt: { $ne: null } }),
+  ]);
+
+  const filteredMembers = inductedMembers.filter((member) => member.userId);
+
+  const members = filteredMembers.map((member, index) => {
+    const user = member.userId || {};
+    return {
+      rank: skip + index + 1,
+      displayName: user.privacySettings?.showUsernameOnLeaderboards
+        ? user.username
+        : `Learner #${(user._id || member.userId).toString().slice(-6)}`,
+      isAnonymous: !user.privacySettings?.showUsernameOnLeaderboards,
+      completedAt: member.completedAt,
+      timeToCompleteMs: member.timeToCompleteMs,
+      timeToCompleteDays: Math.round(member.timeToCompleteMs / 86400000),
+      inductedAt: member.hofJoinedAt,
+      earlyOptIn: member.earlyOptIn,
+    };
+  });
+
+  const totalPages = Math.ceil(totalInducted / limit);
+
+  return {
+    members,
+    totalInducted,
+    page,
+    totalPages,
+  };
+};
+
+const optInUserToHoF = async (userId) => {
+  const completion = await CourseCompletion.findOne({ userId });
+  if (!completion) {
+    throw new AppError("No course completion record found.", 404);
+  }
+
+  if (completion.hofJoinedAt) {
+    throw new AppError("You are already in the Hall of Fame.", 400);
+  }
+
+  const now = new Date();
+  const inductedCount = await CourseCompletion.countDocuments({
+    hofJoinedAt: { $ne: null },
+  });
+
+  completion.hofJoinedAt = now;
+  completion.earlyOptIn = true;
+  completion.earlyOptInAt = now;
+  await completion.save();
+
+  await User.findByIdAndUpdate(userId, {
+    leaderboardStatus: "HOF",
+    $addToSet: { badges: "hof" },
+  });
+
+  return {
+    hofRank: inductedCount + 1,
+    inductedAt: now,
+  };
+};
+
+const getCourseStatusForUser = async (userId) => {
+  const completion = await CourseCompletion.findOne({ userId }).lean();
+
+  if (!completion) {
+    return {
+      courseCompleted: false,
+      hofJoinedAt: null,
+      hofEligibleAt: null,
+      modulesCompleted: 0,
+    };
+  }
+
+  let rank = null;
+  if (completion.hofJoinedAt) {
+    rank =
+      (await CourseCompletion.countDocuments({
+        hofJoinedAt: { $ne: null },
+        completedAt: { $lt: completion.completedAt },
+      })) + 1;
+  }
+
+  return {
+    courseCompleted: true,
+    completedAt: completion.completedAt,
+    hofEligibleAt: completion.hofEligibleAt,
+    hofJoinedAt: completion.hofJoinedAt || null,
+    earlyOptIn: completion.earlyOptIn || false,
+    rank,
+    timeToCompleteDays: completion.timeToCompleteMs
+      ? Math.round(completion.timeToCompleteMs / 86400000)
+      : null,
+  };
+};
+
 module.exports = {
   validateCodeSubmission,
   processLessonCompletion,
@@ -763,4 +875,7 @@ module.exports = {
   isLessonFullyCompleted,
   getCurriculumProgressStats,
   getUserProgressSummary,
+  getHallOfFameMembers,
+  optInUserToHoF,
+  getCourseStatusForUser,
 };
