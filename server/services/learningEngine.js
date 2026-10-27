@@ -4,6 +4,7 @@ const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
 const LessonCompletion = require("../models/LessonCompletion");
 const ModuleCompletion = require("../models/ModuleCompletion");
+const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
 const { findNextLesson, findNextModule } = require("../utils/navigation");
 const { normalizeTags } = require("../utils/generalUtils");
