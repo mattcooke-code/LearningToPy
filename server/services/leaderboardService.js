@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const ModuleCompletion = require("../models/ModuleCompletion");
-const AppError = require("../utils/AppError");
 
 // --- CONSTANTS (Temporary placement) ---
 const ACTIVE_LEADERBOARD_FILTER = {

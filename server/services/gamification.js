@@ -9,6 +9,7 @@ const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
+const CourseCompletion = require("../models/CourseCompletion");
 const { ACTIVE_LEADERBOARD_FILTER } = require("./leaderboardService");
 
 // --- CONSTANTS ---
@@ -33,7 +34,7 @@ const getTotalLessonsInModule = async (moduleId) => {
 
 /**
  * Creates the helpers object used by BADGE_LOGIC_MAP checks.
- * Now queries ModuleCompletion, LessonCompletion, and QuizAttempt
+ * Queries ModuleCompletion, LessonCompletion, and QuizAttempt
  * collections instead of reading embedded User arrays.
  *
  * @param {Object} user - The user document (requires _id)
@@ -112,45 +113,18 @@ const BADGE_LOGIC_MAP = {
     check: (h) => h.hasCompletedModuleByOrder(0),
     progress: (h) => (h.hasCompletedModuleByOrder(0) ? 100 : 0),
   },
-  // ─── PHASE 1 MODULE BADGES (M1–M9) ───────────────────────────
-  "module-1-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(1),
-    progress: (h) => (h.hasCompletedModuleByOrder(1) ? 100 : 0),
-  },
-  "module-2-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(2),
-    progress: (h) => (h.hasCompletedModuleByOrder(2) ? 100 : 0),
-  },
-  "module-3-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(3),
-    progress: (h) => (h.hasCompletedModuleByOrder(3) ? 100 : 0),
-  },
-  "module-4-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(4),
-    progress: (h) => (h.hasCompletedModuleByOrder(4) ? 100 : 0),
-  },
-  "module-5-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(5),
-    progress: (h) => (h.hasCompletedModuleByOrder(5) ? 100 : 0),
-  },
-  "module-6-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(6),
-    progress: (h) => (h.hasCompletedModuleByOrder(6) ? 100 : 0),
-  },
-  "module-7-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(7),
-    progress: (h) => (h.hasCompletedModuleByOrder(7) ? 100 : 0),
-  },
-  "module-8-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(8),
-    progress: (h) => (h.hasCompletedModuleByOrder(8) ? 100 : 0),
-  },
-  "module-9-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(9),
-    progress: (h) => (h.hasCompletedModuleByOrder(9) ? 100 : 0),
-  },
+};
 
-  // ─── PHASE 1 COMPLETION ───────────────────────────────────────
+// ─── MODULE BADGES (M1–M20 Generated Dynamically) ───────────────
+for (let i = 1; i <= 20; i++) {
+  BADGE_LOGIC_MAP[`module-${i}-complete`] = {
+    check: (h) => h.hasCompletedModuleByOrder(i),
+    progress: (h) => (h.hasCompletedModuleByOrder(i) ? 100 : 0),
+  };
+}
+
+// ─── PHASE & MILESTONE BADGES ─────────────────────────────────
+Object.assign(BADGE_LOGIC_MAP, {
   "phase-1-complete": {
     check: (h) => h.hasCompletedModuleByOrder(9),
     progress: (h) => {
@@ -161,34 +135,6 @@ const BADGE_LOGIC_MAP = {
       return Math.round((count / 9) * 100);
     },
   },
-
-  // ─── PHASE 2 MODULE BADGES (M10–M15) ─────────────────────────
-  "module-10-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(10),
-    progress: (h) => (h.hasCompletedModuleByOrder(10) ? 100 : 0),
-  },
-  "module-11-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(11),
-    progress: (h) => (h.hasCompletedModuleByOrder(11) ? 100 : 0),
-  },
-  "module-12-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(12),
-    progress: (h) => (h.hasCompletedModuleByOrder(12) ? 100 : 0),
-  },
-  "module-13-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(13),
-    progress: (h) => (h.hasCompletedModuleByOrder(13) ? 100 : 0),
-  },
-  "module-14-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(14),
-    progress: (h) => (h.hasCompletedModuleByOrder(14) ? 100 : 0),
-  },
-  "module-15-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(15),
-    progress: (h) => (h.hasCompletedModuleByOrder(15) ? 100 : 0),
-  },
-
-  // ─── PHASE 2 COMPLETION ───────────────────────────────────────
   "phase-2-complete": {
     check: (h) => h.hasCompletedModuleByOrder(15),
     progress: (h) => {
@@ -199,30 +145,6 @@ const BADGE_LOGIC_MAP = {
       return Math.round((count / 6) * 100);
     },
   },
-
-  // ─── PHASE 3 MODULE BADGES (M16–M20) ─────────────────────────
-  "module-16-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(16),
-    progress: (h) => (h.hasCompletedModuleByOrder(16) ? 100 : 0),
-  },
-  "module-17-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(17),
-    progress: (h) => (h.hasCompletedModuleByOrder(17) ? 100 : 0),
-  },
-  "module-18-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(18),
-    progress: (h) => (h.hasCompletedModuleByOrder(18) ? 100 : 0),
-  },
-  "module-19-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(19),
-    progress: (h) => (h.hasCompletedModuleByOrder(19) ? 100 : 0),
-  },
-  "module-20-complete": {
-    check: (h) => h.hasCompletedModuleByOrder(20),
-    progress: (h) => (h.hasCompletedModuleByOrder(20) ? 100 : 0),
-  },
-
-  // ─── PHASE 3 COMPLETION ───────────────────────────────────────
   "phase-3-complete": {
     check: (h) => h.hasCompletedModuleByOrder(20),
     progress: (h) => {
@@ -233,8 +155,6 @@ const BADGE_LOGIC_MAP = {
       return Math.round((count / 5) * 100);
     },
   },
-
-  // ─── MILESTONE BADGES ─────────────────────────────────────────
   "halfway-there": {
     check: (h) =>
       h.completedCurriculumModuleCount() >= TOTAL_CURRICULUM_MODULES / 2,
@@ -262,12 +182,10 @@ const BADGE_LOGIC_MAP = {
 
   // ─── ENGAGEMENT BADGES ────────────────────────────────────────
   "first-quiz": {
-    // Now reads from the quizAttempts array fetched by createBadgeHelpers
     check: (h) => (h.quizAttempts || []).length > 0,
     progress: (h) => ((h.quizAttempts || []).length > 0 ? 100 : 0),
   },
   "first-challenge": {
-    // Now reads from lessonCompletionHistory fetched by createBadgeHelpers
     check: (h) =>
       (h.lessonCompletionHistory || []).some(
         (entry) =>
@@ -293,21 +211,16 @@ const BADGE_LOGIC_MAP = {
   },
   hof: {
     check: async (h, user) => {
-      // Check if user has been inducted into HoF
-      const completion = await require("../models/CourseCompletion")
-        .findOne({
-          userId: user._id,
-          hofJoinedAt: { $ne: null },
-        })
-        .lean();
+      const completion = await CourseCompletion.findOne({
+        userId: user._id,
+        hofJoinedAt: { $ne: null },
+      }).lean();
       return !!completion;
     },
     progress: async (h, user) => {
-      const completion = await require("../models/CourseCompletion")
-        .findOne({
-          userId: user._id,
-        })
-        .lean();
+      const completion = await CourseCompletion.findOne({
+        userId: user._id,
+      }).lean();
 
       if (!completion) return 0;
       if (completion.hofJoinedAt) return 100;
@@ -315,7 +228,6 @@ const BADGE_LOGIC_MAP = {
       // Calculate progress toward 30-day waiting period
       if (completion.hofEligibleAt) {
         const now = new Date();
-        const eligibleDate = new Date(completion.hofEligibleAt);
         const totalWaitMs = 30 * 24 * 60 * 60 * 1000;
         const waitedMs = Math.min(now - completion.completedAt, totalWaitMs);
         return Math.round((waitedMs / totalWaitMs) * 100);
@@ -324,7 +236,7 @@ const BADGE_LOGIC_MAP = {
       return 0;
     },
   },
-};
+});
 
 // --- PUBLIC API ---
 
@@ -350,7 +262,7 @@ const evaluateBadges = async (user, context = {}) => {
   return { newlyUnlocked, unlockedDetails };
 };
 
-// Calculates how close a user is to completing each badge. For display purposes
+// Calculates how close a user is to completing each badge for display purposes
 const getBadgeProgress = async (user) => {
   const helpers = await createBadgeHelpers(user);
   const results = [];
