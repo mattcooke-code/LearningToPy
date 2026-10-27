@@ -79,15 +79,6 @@ const Dashboard = () => {
     streak: user?.streak || 0,
   };
 
-  const handleOptInToHof = async () => {
-    try {
-      await apiClient.post("/progress/hall-of-fame/opt-in");
-      window.location.reload();
-    } catch (err) {
-      console.error("Failed to opt into Hall of Fame:", err);
-    }
-  };
-
   // Show loading state while authentication is being verified
   if (authLoading) {
     return (
