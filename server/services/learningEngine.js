@@ -451,6 +451,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
  * newlyCompleted: boolean,
  * nextModuleId: string|null,
  * xpBreakdown: Array,
+ *
  * courseCompleted?: boolean,
  * hofEligibleAt?: Date
  * }>}
@@ -459,10 +460,23 @@ const processModuleCompletion = async (
   user,
   module,
   quizScore,
+  answers,
   quizResults = [],
 ) => {
   const moduleId = module._id.toString();
   const userId = user._id.toString();
+
+  // Record quiz attempt
+  if (answers && quizScore !== undefined) {
+    await QuizAttempt.create({
+      userId,
+      moduleId,
+      attemptedAt: new Date(),
+      score: quizScore,
+      passed: quizScore >= 70,
+      answers,
+    });
+  }
 
   // Helper to find the next module
   const nextModule = await findNextModule(module);

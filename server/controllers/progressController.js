@@ -208,7 +208,6 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
 /**
  * Get the leaderboard for a specific module — users who completed it, sorted by XP.
  *
- * Also calculates the requesting user's rank within that module's leaderboard.
  *
  * @route   GET /api/progress/leaderboard/module/:moduleId
  * @param   {string} moduleId - Module ID
@@ -343,19 +342,12 @@ const completeModule = catchAsync(async (req, res, next) => {
     return next(new AppError("User or module not found", 404));
   }
 
-  const result = await engine.processModuleCompletion(user, module, quizScore);
-
-  // Record quiz attempt in the new QuizAttempt collection
-  if (answers && quizScore !== undefined) {
-    await QuizAttempt.create({
-      userId: user._id,
-      moduleId: module._id,
-      attemptedAt: new Date(),
-      score: quizScore,
-      passed: quizScore >= 70,
-      answers,
-    });
-  }
+  const result = await engine.processModuleCompletion(
+    user,
+    module,
+    quizScore,
+    answers,
+  );
 
   const streakResult = await manageStreak.trackCompletion(user);
   await user.save();
@@ -438,7 +430,7 @@ const optInToHallOfFame = catchAsync(async (req, res, next) => {
       earlyOptIn: true,
     });
   } catch (err) {
-    return next(error);
+    return next(err);
   }
 });
 
