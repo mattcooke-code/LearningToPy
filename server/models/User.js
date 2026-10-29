@@ -1,4 +1,4 @@
-// models/User.js
+// User.js
 const mongoose = require("mongoose");
 const { validatePassword } = require("../utils/validationHelpers");
 
