@@ -72,7 +72,7 @@ const resetProgress = async () => {
         modulesCompleted: 0,
         averageQuizScore: 0,
         totalTimeSpent: 0,
-        lastActiveDate: null,
+        streakLastCheckedDate: null,
       },
       // Preserve authentication info
       // lastLoginDate: null // Optional: reset last login too

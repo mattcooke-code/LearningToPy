@@ -66,7 +66,7 @@ const ModuleSchema = new mongoose.Schema(
         randomizeAnswerOrder: { type: Boolean, default: true },
         passingScore: { type: Number, default: 70 },
       },
-      // The questions are now nested inside the quiz object
+      // The questions are nested inside the quiz object
       questions: [
         {
           id: String,

@@ -202,7 +202,7 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
  */
 const getAdmins = catchAsync(async (req, res, next) => {
   const admins = await User.find({ isAdmin: true })
-    .select("username email level xp lastActive createdAt")
+    .select("username email level xp lastEngagementAt createdAt")
     .sort({ createdAt: -1 });
 
   sendJsonResponse(res, 200, "Admins retrieved", { admins });
@@ -224,7 +224,9 @@ const getAdminStats = catchAsync(async (req, res, next) => {
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({
-      lastActive: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      lastEngagementAt: {
+        $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      },
     }),
     Lesson.countDocuments(),
     Lesson.countDocuments({ isPublished: true }),
@@ -301,7 +303,7 @@ const searchUsers = catchAsync(async (req, res, next) => {
 
   const users = await User.find(searchFilter)
     .select(
-      "username email xp streak badges lastActive isBlocked isAdmin createdAt completedModulesCount ageBracket",
+      "username email xp streak badges lastEngagementAt isBlocked isAdmin createdAt completedModulesCount ageBracket",
     )
     .sort(sortOption)
     .skip(skip)
@@ -720,7 +722,7 @@ const getUserDetails = catchAsync(async (req, res, next) => {
     currentLevel: userWithLevel.level,
     isAdmin: user.isAdmin || false,
     isBlocked: user.isBlocked || false,
-    lastActiveDate: user.lastActive || user.createdAt,
+    lastEngagement: user.lastEngagementAt || user.createdAt,
     privacySettings: user.privacySettings || {
       showOnLeaderboards: true,
       showUsernameOnLeaderboards: false,

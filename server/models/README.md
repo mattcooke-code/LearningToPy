@@ -22,15 +22,15 @@ All unbounded arrays have been extracted to dedicated collections.
 | **Auth**             | `username`, `email`, `password` (select:false), `resetPasswordToken`, `resetPasswordExpires`, `refreshTokenVersion` |
 | **Age verification** | `ageVerified`, `ageVerifiedAt`, `ageBracket` (select:false), `parentalConsentConfirmed`                             |
 | **Progress**         | `level`, `xp`, `completedLessonsCount`, `completedModulesCount` (denormalised counters)                             |
-| **Streak**           | `streak`, `streakStatus`, `lastActiveDate`, `lastCompletionDate`, `weeklyProgress`                                  |
+| **Streak**           | `streak`, `streakStatus`, `streakLastCheckedDate`, `lastCompletionDate`, `weeklyProgress`                           |
 | **Gamification**     | `badges[]`, `stats` (20+ tracked stats)                                                                             |
-| **Activity**         | `lastActive`, `totalLearningTime`, `totalSessionTime`, `loginCount`                                                 |
+| **Activity**         | `lastEngagementAt`, `totalLearningTime`, `totalSessionTime`, `loginCount`                                           |
 | **Admin/Status**     | `isAdmin`, `isBlocked`, `suspensionEnd`, `suspensionReason`                                                         |
 | **Privacy**          | `privacySettings` (showOnLeaderboards, showUsernameOnLeaderboards, showAsAnonymous)                                 |
 
 **Indexes:** `email` (unique), `username` (unique), `{ level:-1, xp:-1 }` (leaderboards),
-`{ isAdmin:1, lastActive:-1 }`, `{ isBlocked:1, createdAt:-1 }`,
-`lastActiveDate`, `weeklyProgress.weekStartDate`
+`{ isAdmin:1, lastEngagementAt:-1 }`, `{ isBlocked:1, createdAt:-1 }`,
+`streakLastCheckedDate`, `weeklyProgress.weekStartDate`
 
 **Related collections** (query these instead of embedded arrays):
 

@@ -23,7 +23,7 @@ const createUser = (overrides = {}) => ({
   _id: "user123",
   streak: 0,
   streakStatus: "ACTIVE",
-  lastActiveDate: null,
+  streakLastCheckedDate: null,
   lastCompletionDate: null,
   weeklyProgress: {
     weekStartDate: null,
@@ -54,7 +54,7 @@ describe("trackDailyActivity", () => {
     // First activity should initialize a streak
     expect(result.streak).toBeGreaterThan(0);
     expect(user.weeklyProgress.daysActive).toBe(1);
-    expect(user.lastActiveDate).toBeDefined();
+    expect(user.streakLastCheckedDate).toBeDefined();
   });
 
   it("increments streak on consecutive day", async () => {
@@ -65,7 +65,7 @@ describe("trackDailyActivity", () => {
 
     const user = createUser({
       streak: 3,
-      lastActiveDate: yesterday,
+      streakLastCheckedDate: yesterday,
       weeklyProgress: {
         weekStartDate: yesterday,
         daysActive: 1,
@@ -87,7 +87,7 @@ describe("trackDailyActivity", () => {
 
     const user = createUser({
       streak: 10,
-      lastActiveDate: monday,
+      streakLastCheckedDate: monday,
       weeklyProgress: {
         weekStartDate: monday,
         daysActive: 1,
@@ -110,7 +110,7 @@ describe("trackDailyActivity", () => {
 
     const user = createUser({
       streak: 3,
-      lastActiveDate: today,
+      streakLastCheckedDate: today,
       weeklyProgress: {
         weekStartDate: today,
         daysActive: 1,
@@ -138,7 +138,7 @@ describe("trackCompletion", () => {
 
     const user = createUser({
       streak: 3,
-      lastActiveDate: monday,
+      streakLastCheckedDate: monday,
       weeklyProgress: {
         weekStartDate: monday,
         daysActive: 1,
@@ -158,7 +158,7 @@ describe("trackCompletion", () => {
 
     const user = createUser({
       streak: 5,
-      lastActiveDate: monday,
+      streakLastCheckedDate: monday,
       streakStatus: "WARNING",
       weeklyProgress: {
         weekStartDate: monday,
@@ -180,7 +180,7 @@ describe("trackCompletion", () => {
 
     const user = createUser({
       streak: 5,
-      lastActiveDate: monday,
+      streakLastCheckedDate: monday,
       streakStatus: "AT_RISK",
       weeklyProgress: {
         weekStartDate: monday,
@@ -202,7 +202,7 @@ describe("trackCompletion", () => {
 
     const user = createUser({
       streak: 3,
-      lastActiveDate: now, // active today
+      streakLastCheckedDate: now, // active today
       lastCompletionDate: now, // already completed today
       weeklyProgress: {
         weekStartDate: now, // current week started today

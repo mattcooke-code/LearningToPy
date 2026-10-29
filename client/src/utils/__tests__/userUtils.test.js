@@ -16,7 +16,8 @@ describe("normalizeUserData", () => {
       completedModules: ["module1"],
       stats: { timeSpent: 3600 },
       privacySettings: { showProfile: true },
-      lastActiveDate: "2026-05-01",
+      lastEngagementAt: "2026-05-01",
+      streakLastCheckedDate: "2026-05-01",
       totalLearningTime: 7200,
       createdAt: "2026-01-15",
       isAdmin: false,
@@ -36,7 +37,8 @@ describe("normalizeUserData", () => {
     expect(result.completedModules).toEqual(["module1"]);
     expect(result.stats).toEqual({ timeSpent: 3600 });
     expect(result.privacySettings).toEqual({ showProfile: true });
-    expect(result.lastActiveDate).toBe("2026-05-01");
+    expect(result.lastEngagementAt).toBe("2026-05-01");
+    expect(result.streakLastCheckedDate).toBe("2026-05-01");
     expect(result.totalLearningTime).toBe(7200);
     expect(result.createdAt).toBe("2026-01-15");
     expect(result.isAdmin).toBe(false);
@@ -88,27 +90,6 @@ describe("normalizeUserData", () => {
     expect(result.level).toBe(10);
   });
 
-  // ---- Alternative key names ----
-  it("uses currentLevel when level is missing", () => {
-    const raw = { _id: "test", currentLevel: 7 };
-    expect(normalizeUserData(raw).level).toBe(7);
-  });
-
-  it("uses totalXP when xp is missing", () => {
-    const raw = { _id: "test", totalXP: 999 };
-    expect(normalizeUserData(raw).xp).toBe(999);
-  });
-
-  it("uses lastActive when lastActiveDate is missing", () => {
-    const raw = { _id: "test", lastActive: "2026-04-20" };
-    expect(normalizeUserData(raw).lastActiveDate).toBe("2026-04-20");
-  });
-
-  it("uses totalSessionTime when totalLearningTime is missing", () => {
-    const raw = { _id: "test", totalSessionTime: 5400 };
-    expect(normalizeUserData(raw).totalLearningTime).toBe(5400);
-  });
-
   // ---- Defaults for missing fields ----
   it("returns safe defaults for an empty object", () => {
     const result = normalizeUserData({});
@@ -124,7 +105,8 @@ describe("normalizeUserData", () => {
     expect(result.completedModules).toEqual([]);
     expect(result.stats).toEqual({});
     expect(result.privacySettings).toEqual({});
-    expect(result.lastActiveDate).toBeNull();
+    expect(result.lastEngagementAt).toBeNull();
+    expect(result.streakLastCheckedDate).toBeNull();
     expect(result.totalLearningTime).toBe(0);
     expect(result.createdAt).toBeNull();
     expect(result.isAdmin).toBe(false);

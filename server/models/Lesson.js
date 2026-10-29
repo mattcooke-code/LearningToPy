@@ -67,7 +67,7 @@ const LessonSchema = new mongoose.Schema(
     tags: [{ type: String, trim: true }],
     challengeGroup: { type: String, trim: true },
     codeExample: { language: String, code: String, explanation: String },
-    // Ensure your L1_Exercise.json files follow this structure
+    // Ensure L1_Exercise.json files follow this structure
     exercise: {
       title: String,
       instructions: String,

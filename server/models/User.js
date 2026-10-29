@@ -131,7 +131,7 @@ const UserSchema = new mongoose.Schema(
       default: "ACTIVE",
       uppercase: true,
     },
-    lastActiveDate: {
+    streakLastCheckedDate: {
       type: Date,
       default: null,
     },
@@ -152,31 +152,6 @@ const UserSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    stats: {
-      fastChallengeCount: { type: Number, default: 0, min: 0 },
-      firstTryChallengeCount: { type: Number, default: 0, min: 0 },
-      optimalSolutionCount: { type: Number, default: 0, min: 0 },
-      functionChallengeCount: { type: Number, default: 0, min: 0 },
-      apiChallengeCount: { type: Number, default: 0, min: 0 },
-      fileChallengeCount: { type: Number, default: 0, min: 0 },
-      regexChallengeCount: { type: Number, default: 0, min: 0 },
-      dataStructuresExamScore: {
-        type: Number,
-        min: 0,
-        max: 100,
-        default: null,
-      },
-      oopExamScore: {
-        type: Number,
-        min: 0,
-        max: 100,
-        default: null,
-      },
-      bugReportsVerified: { type: Number, default: 0, min: 0 },
-      helpfulVotesReceived: { type: Number, default: 0, min: 0 },
-      referralsCompleted: { type: Number, default: 0, min: 0 },
-      betaModulesCompleted: { type: Number, default: 0, min: 0 },
-    },
     leaderboardStatus: {
       type: String,
       enum: ["ACTIVE", "COMPLETED_PENDING", "HOF", "INACTIVE_REMOVED"],
@@ -184,7 +159,7 @@ const UserSchema = new mongoose.Schema(
     },
 
     // ── Activity Metadata ─────────────────────────────
-    lastActive: {
+    lastEngagementAt: {
       type: Date,
       default: Date.now,
     },
@@ -241,15 +216,15 @@ const UserSchema = new mongoose.Schema(
 
 // Compound indexes for actual query patterns
 UserSchema.index({ leaderboardStatus: 1, xp: -1 }); // Leaderboards
-UserSchema.index({ leaderboardStatus: 1, lastActive: -1 });
-UserSchema.index({ isAdmin: 1, lastActive: -1 }); // Admin user listing
+UserSchema.index({ leaderboardStatus: 1, lastEngagementAt: -1 });
+UserSchema.index({ isAdmin: 1, lastEngagementAt: -1 }); // Admin user listing
 UserSchema.index({ isBlocked: 1, createdAt: -1 }); // Blocked user audit
-UserSchema.index({ lastActiveDate: -1 }); // Streak checks
+UserSchema.index({ streakLastCheckedDate: -1 }); // Streak checks
 UserSchema.index({ "weeklyProgress.weekStartDate": -1 }); // Weekly reset queries
 
 // ── Pre-save Hook ─────────────────────────────────────
 UserSchema.pre("save", function (next) {
-  // Only update lastActive when progress-related fields change
+  // Only update lastEngagementAt when progress-related fields change
   if (
     this.isNew ||
     this.isModified("xp") ||
@@ -257,7 +232,7 @@ UserSchema.pre("save", function (next) {
     this.isModified("completedLessonsCount") ||
     this.isModified("completedModulesCount")
   ) {
-    this.lastActive = new Date();
+    this.lastEngagementAt = new Date();
   }
   next();
 });

@@ -56,7 +56,7 @@ const inactivityCleanup = catchAsync(async (req, res) => {
   const result = await User.updateMany(
     {
       leaderboardStatus: { $in: ["ACTIVE", "COMPLETED_PENDING"] },
-      lastActive: { $lt: cutoff },
+      lastEngagementAt: { $lt: cutoff },
     },
     {
       $set: {

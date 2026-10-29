@@ -56,6 +56,8 @@ document bloat, improve write performance, and enable efficient pagination/TTL i
   - **Added:** `{ level: -1, xp: -1 }` (leaderboards), `{ isAdmin: 1, lastActive: -1 }` (admin listing), `{ isBlocked: 1, createdAt: -1 }` (blocked user audit)
   - **Retained:** `email` (unique), `username` (unique), `lastActiveDate`, `weeklyProgress.weekStartDate`
 
+- NOTE: after this refactor, `lastActive` was renamed to `lastEngagementAt` and `lastActiveDate` was renamed to `streakLastCheckedDate` to avoid naming confusion
+
 ## models/LessonCompletion.js (New)
 
 - Extracted from `User.lessonCompletionHistory[]` and `User.completedLessons[]`

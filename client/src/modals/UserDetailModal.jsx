@@ -282,13 +282,13 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                 />
                 Joined {formatDate(currentUser.createdAt)}
               </div>
-              {currentUser.lastActive && (
+              {currentUser.lastEngagementAt && (
                 <div className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
                   <Activity
                     className="h-4 w-4 mr-2 text-orange-500"
                     aria-hidden="true"
                   />
-                  Last active {formatDate(currentUser.lastActive)}
+                  Last active {formatDate(currentUser.lastEngagementAt)}
                 </div>
               )}
             </div>
@@ -550,7 +550,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
                       Last Active
                     </dt>
                     <dd className="text-xs font-bold text-gray-900 dark:text-gray-200">
-                      {formatDate(currentUser.lastActive)}
+                      {formatDate(currentUser.lastEngagementAt)}
                     </dd>
                   </div>
                   <div className="flex justify-between items-center">

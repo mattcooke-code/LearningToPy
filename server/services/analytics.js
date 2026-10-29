@@ -99,7 +99,7 @@ const formatProgressResponse = (
       ? calculateDaysActiveFromCompletions(
           completionData.lessonCompletions,
           completionData.moduleCompletions,
-          user.lastActiveDate,
+          user.streakLastCheckedDate,
         )
       : calculateDaysActive(user); // Fallback to old method
 
@@ -186,8 +186,10 @@ const calculateDaysActive = (user) => {
     });
   }
 
-  if (user.lastActiveDate) {
-    const dateKey = new Date(user.lastActiveDate).toISOString().split("T")[0];
+  if (user.streakLastCheckedDate) {
+    const dateKey = new Date(user.streakLastCheckedDate)
+      .toISOString()
+      .split("T")[0];
     uniqueDays.add(dateKey);
   }
 
@@ -209,13 +211,13 @@ const calculateDaysActive = (user) => {
  *
  * @param {Array} lessonCompletions - LessonCompletion documents
  * @param {Array} moduleCompletions - ModuleCompletion documents
- * @param {Date} lastActiveDate - User's lastActiveDate
+ * @param {Date} streakLastCheckedDate - User's last streak check
  * @returns {number} Number of unique days
  */
 const calculateDaysActiveFromCompletions = (
   lessonCompletions = [],
   moduleCompletions = [],
-  lastActiveDate = null,
+  streakLastCheckedDate = null,
 ) => {
   const uniqueDays = new Set();
 
@@ -233,8 +235,8 @@ const calculateDaysActiveFromCompletions = (
     }
   });
 
-  if (lastActiveDate) {
-    const dateKey = new Date(lastActiveDate).toISOString().split("T")[0];
+  if (streakLastCheckedDate) {
+    const dateKey = new Date(streakLastCheckedDate).toISOString().split("T")[0];
     uniqueDays.add(dateKey);
   }
 

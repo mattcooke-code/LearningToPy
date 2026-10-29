@@ -49,15 +49,15 @@ const trackDailyActivity = async (user) => {
 
   await initializeWeekIfNeeded(user, today);
 
-  const lastActive = user.lastActiveDate
-    ? checkDate(user.lastActiveDate)
+  const streakLastChecked = user.streakLastCheckedDate
+    ? checkDate(user.streakLastCheckedDate)
     : null;
 
-  if (!lastActive || lastActive < todayTime) {
+  if (!streakLastChecked || streakLastChecked < todayTime) {
     await handleNewDayOfActivity(user, today);
   }
 
-  user.lastActiveDate = new Date();
+  user.streakLastCheckedDate = new Date();
 
   // checkWarningStatus does not save — caller handles persistence
   await checkWarningStatus(user);
@@ -104,7 +104,10 @@ const trackCompletion = async (user) => {
   }
 
   const dayOfWeek = getDayOfWeek(today, user.weeklyProgress.weekStartDate);
-  if (dayOfWeek > STREAK_CONFIG.VIEW_QUALIFIES_DAYS || !user.lastActiveDate) {
+  if (
+    dayOfWeek > STREAK_CONFIG.VIEW_QUALIFIES_DAYS ||
+    !user.streakLastCheckedDate
+  ) {
     await updateStreak(user, today);
   }
 
@@ -189,15 +192,15 @@ const handleNewDayOfActivity = async (user, today) => {
 const updateStreak = async (user, today) => {
   const todayTime = checkDate(today);
 
-  if (!user.lastActiveDate) {
+  if (!user.streakLastCheckedDate) {
     user.streak = 1;
     user.streakStatus = "ACTIVE";
     return;
   }
 
-  const lastActiveTime = checkDate(user.lastActiveDate);
+  const streakLastCheckedTime = checkDate(user.streakLastCheckedDate);
   const diffDays = Math.round(
-    (todayTime - lastActiveTime) / (1000 * 60 * 60 * 24),
+    (todayTime - streakLastCheckedTime) / (1000 * 60 * 60 * 24),
   );
 
   if (diffDays === 1) {
@@ -267,7 +270,7 @@ const checkWarningStatus = async (user) => {
  */
 const getStreakInfo = async (userId) => {
   const user = await User.findById(userId).select(
-    "streak streakStatus lastActiveDate lastCompletionDate weeklyProgress",
+    "streak streakStatus streakLastCheckedDate lastCompletionDate weeklyProgress",
   );
 
   if (!user) return null;
@@ -286,7 +289,7 @@ const getStreakInfo = async (userId) => {
     warningDay: STREAK_CONFIG.WARNING_DAY,
     currentDayOfWeek: dayOfWeek,
     daysRemaining: Math.max(0, 7 - dayOfWeek),
-    lastActive: user.lastActiveDate,
+    streakLastChecked: user.streakLastCheckedDate,
     lastCompletion: user.lastCompletionDate,
   };
 };

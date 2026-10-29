@@ -16,7 +16,7 @@
  * - Standard `{ _id, username, email, ... }` from `/auth/user`
  * - Wrapped `{ success: true, id, ... }` from login/register
  * - Sparse objects with alternative key names (`currentLevel` vs `level`,
- *   `totalXP` vs `xp`, `lastActive` vs `lastActiveDate`)
+ *   `totalXP` vs `xp`)
  *
  * If `rawUser` has `success: true` and an `id`, it's used as the source;
  * otherwise `fallbackUser` (usually the previous user state) is used.
@@ -39,7 +39,8 @@
  *   completedModules: string[],
  *   stats: object,
  *   privacySettings: object,
- *   lastActiveDate: string|null,
+ *   lastEngagementAt: string|null,
+ *   streakLastCheckedDate: string|null,
  *   totalLearningTime: number,
  *   createdAt: string|null,
  *   isAdmin: boolean,
@@ -54,8 +55,8 @@ export const normalizeUserData = (rawUser = {}, fallbackUser = {}) => {
     _id: source.id || source._id || "",
     username: source.username || "",
     email: source.email || "",
-    level: source.level || source.currentLevel || 1,
-    xp: source.xp || source.totalXP || 0,
+    level: source.level || 1,
+    xp: source.xp || 0,
     streak: source.streak || 0,
     badges: Array.isArray(source.badges) ? [...source.badges] : [],
     completedLessons: Array.isArray(source.completedLessons)
@@ -66,8 +67,9 @@ export const normalizeUserData = (rawUser = {}, fallbackUser = {}) => {
       : [],
     stats: source.stats || {},
     privacySettings: source.privacySettings || {},
-    lastActiveDate: source.lastActiveDate || source.lastActive || null,
-    totalLearningTime: source.totalLearningTime || source.totalSessionTime || 0,
+    lastEngagementAt: source.lastEngagementAt || null,
+    streakLastCheckedDate: source.streakLastCheckedDate || null,
+    totalLearningTime: source.totalLearningTime || 0,
     createdAt: source.createdAt || null,
     isAdmin: Boolean(source.isAdmin),
     isBlocked: Boolean(source.isBlocked),

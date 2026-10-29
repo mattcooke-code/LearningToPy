@@ -224,12 +224,12 @@ describe("calculateDaysActive", () => {
     expect(calculateDaysActive(user)).toBe(1);
   });
 
-  it("includes lastActiveDate if present", () => {
+  it("includes streakLastCheckedDate if present", () => {
     const user = {
       lessonCompletionHistory: [
         { completedAt: new Date("2026-01-01T10:00:00Z") },
       ],
-      lastActiveDate: new Date("2026-01-05T10:00:00Z"),
+      streakLastCheckedDate: new Date("2026-01-05T10:00:00Z"),
     };
     expect(calculateDaysActive(user)).toBe(2);
   });

@@ -176,7 +176,7 @@ const formatRetentionCohorts = (retentionData) =>
 const fetchUserStats = async (start, end) => {
   const [total, active, newUsers] = await Promise.all([
     User.countDocuments(),
-    User.countDocuments({ lastActive: { $gte: start } }),
+    User.countDocuments({ lastEngagementAt: { $gte: start } }),
     User.countDocuments({ createdAt: { $gte: start } }),
   ]);
 
@@ -516,7 +516,7 @@ const fetchEngagementStats = async (start) => {
         },
       },
     ]),
-    User.countDocuments({ lastActive: { $gte: start } }),
+    User.countDocuments({ lastEngagementAt: { $gte: start } }),
     Activity.countDocuments({ timestamp: { $gte: start } }),
     Activity.countDocuments({
       actionType: "SESSION_START",
