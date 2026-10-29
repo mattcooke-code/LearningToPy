@@ -180,9 +180,14 @@ const register = catchAsync(async (req, res, next) => {
  * @returns {Object} 401 - Invalid credentials or account blocked
  */
 const login = catchAsync(async (req, res, next) => {
-  const { email, password, rememberMe } = req.body;
+  const { credential, email, password, rememberMe } = req.body;
+  const loginIdentifier = credential || email;
 
-  const user = await User.findByCredential(credentialInput);
+  if (!loginIdentifier || !password) {
+    return next(new AppError("Please provide credentials and password", 400));
+  }
+
+  const user = await User.findByCredential(loginIdentifier);
 
   userUtils.reconcileLeaderboardStatus(user);
 

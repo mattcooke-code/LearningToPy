@@ -226,6 +226,9 @@ UserSchema.pre("save", function (next) {
 
 // ── Statics ───────────────────────────────────────────
 UserSchema.statics.findByCredential = function (credential) {
+  if (!credential) {
+    throw new Error("Credential is required for lookup");
+  }
   const normalized = credential.toLowerCase();
   return this.findOne({
     $or: [{ email: normalized }, { username: normalized }],
