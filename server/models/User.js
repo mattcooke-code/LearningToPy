@@ -1,6 +1,10 @@
 // User.js
 const mongoose = require("mongoose");
-const { validatePassword } = require("../utils/validationHelpers");
+const {
+  validatePassword,
+  validateUsername,
+  validateEmail,
+} = require("../utils/validationHelpers");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -19,20 +23,11 @@ const UserSchema = new mongoose.Schema(
       ],
       validate: {
         validator: function (value) {
-          const reserved = new Set([
-            "admin",
-            "root",
-            "system",
-            "api",
-            "www",
-            "mail",
-            "support",
-            "null",
-            "undefined",
-          ]);
-          return !reserved.has(value.toLowerCase());
+          return validateUsername(value).isValid;
         },
-        message: "Username is reserved",
+        message: function (props) {
+          return validateUsername(props.value).message;
+        },
       },
     },
     email: {
@@ -47,17 +42,9 @@ const UserSchema = new mongoose.Schema(
       ],
       validate: {
         validator: function (value) {
-          const domain = value.split("@")[1]?.toLowerCase();
-          if (!domain) return false;
-          const blockedDomains = new Set([
-            "tempmail.com",
-            "10minutemail.com",
-            "guerrillamail.com",
-            "mailinator.com",
-          ]);
-          return !blockedDomains.has(domain);
+          return validateEmail(value);
         },
-        message: "Disposable email addresses are not allowed",
+        message: "Please provide a valid, non-disposable email address",
       },
     },
     password: {
