@@ -182,7 +182,7 @@ const register = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, password, rememberMe } = req.body;
 
-  const user = await User.findOne({ email }).select("+password +ageBracket");
+  const user = await User.findByCredential(credentialInput);
 
   userUtils.reconcileLeaderboardStatus(user);
 

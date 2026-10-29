@@ -1,11 +1,11 @@
-// Login.jsx
+// Login.jsx (Updated snippet)
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context";
 import { LoadingState, Spinner } from "../components/ui";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [credential, setCredential] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -30,7 +30,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return; // Prevent double submit
-    await login(email, password, rememberMe);
+    await login(credential, password, rememberMe);
   };
 
   if (isAuthenticated) {
@@ -64,20 +64,20 @@ const Login = () => {
           )}
           <div>
             <label
-              htmlFor="email"
+              htmlFor="credential"
               className="block text-sm font-medium text-python-dark dark:text-python-light"
             >
-              Email:
+              Email or Username:
             </label>
             <input
-              id="email"
-              type="email"
-              value={email}
+              id="credential"
+              type="text"
+              value={credential}
               required
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
+              onChange={(e) => setCredential(e.target.value)}
+              autoComplete="username"
               disabled={loading}
-              placeholder="Enter your email"
+              placeholder="Enter your email or username"
               className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-python-blue dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
             />
           </div>

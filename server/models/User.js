@@ -242,7 +242,7 @@ UserSchema.statics.findByCredential = function (credential) {
   const normalized = credential.toLowerCase();
   return this.findOne({
     $or: [{ email: normalized }, { username: normalized }],
-  }).select("+password");
+  }).select("+password +ageBracket");
 };
 
 // ── Virtuals ──────────────────────────────────────────
