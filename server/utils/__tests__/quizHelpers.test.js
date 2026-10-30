@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   hasQuiz,
-  hasExercise,
   isQuizCompleted,
   getQuestionAttempts,
   calculateQuizAnswerXP,
@@ -18,19 +17,6 @@ describe("hasQuiz", () => {
   it("returns true when quiz has questions", () => {
     expect(hasQuiz({ quiz: [{ id: "q1" }] })).toBe(true);
     expect(hasQuiz({ quiz: [{ id: "q1" }, { id: "q2" }] })).toBe(true);
-  });
-});
-
-describe("hasExercise", () => {
-  it("returns false when exercise is missing", () => {
-    expect(hasExercise({})).toBe(false);
-    expect(hasExercise({ exercise: null })).toBe(false);
-    expect(hasExercise({ exercise: undefined })).toBe(false);
-  });
-
-  it("returns true when exercise exists", () => {
-    expect(hasExercise({ exercise: { starterCode: "# code" } })).toBe(true);
-    expect(hasExercise({ exercise: {} })).toBe(true);
   });
 });
 

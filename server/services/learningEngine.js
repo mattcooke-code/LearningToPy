@@ -595,7 +595,7 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
   let totalXP = 0;
   const xpLog = [];
 
-  // --- XP Calculation Logic (Keeping your original logic) ---
+  // --- XP Calculation Logic ---
   if (!isM0 && quizResults.length > 0) {
     const correctCount = quizResults.filter((r) => r.isCorrect).length;
     const quizXP = correctCount * XP.MODULE_QUIZ.CORRECT_ANSWER;
@@ -715,7 +715,7 @@ const isLessonFullyCompleted = (
   forceComplete = false,
 ) => {
   const lessonHasQuiz = quizHelpers.hasQuiz(lesson);
-  const lessonHasExercise = quizHelpers.hasExercise(lesson);
+  const lessonHasExercise = exerciseHelpers.hasExercise(lesson);
 
   if (forceComplete) return true;
 
@@ -769,11 +769,11 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   );
 
   const isExerciseSubmission =
-    quizHelpers.hasExercise(lesson) && code !== undefined;
+    exerciseHelpers.hasExercise(lesson) && code !== undefined;
   const isQuizSubmission = quizHelpers.hasQuiz(lesson) && answer !== undefined;
   const isStatusCheckSubmission = !isExerciseSubmission && !isQuizSubmission;
   const lessonCompletesByStatusCheck =
-    !quizHelpers.hasExercise(lesson) && !quizHelpers.hasQuiz(lesson);
+    !exerciseHelpers.hasExercise(lesson) && !quizHelpers.hasQuiz(lesson);
 
   let feedback = validationResult?.feedback || "Great job!";
   let isCorrectForThisAction = false;

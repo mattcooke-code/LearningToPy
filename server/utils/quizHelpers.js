@@ -17,18 +17,6 @@ const hasQuiz = (lesson) => {
 };
 
 /**
- * Check if a lesson has an exercise component.
- */
-const hasExercise = (lesson) => {
-  return !!(
-    lesson.exercise &&
-    (lesson.exercise.starterCode ||
-      (lesson.exercise.steps && lesson.exercise.steps.length > 0) ||
-      (lesson.exercise.testCases && lesson.exercise.testCases.length > 0))
-  );
-};
-
-/**
  * Get or create a quiz progress record for a user on a specific lesson.
  * Now uses LessonQuizProgress collection instead of user.lessonQuizProgress array.
  *
@@ -163,7 +151,6 @@ const getCorrectAnswerIndices = (quizProgress) => {
 
 module.exports = {
   hasQuiz,
-  hasExercise,
   getOrCreateQuizProgress,
   isQuizCompleted,
   updateQuizProgress,

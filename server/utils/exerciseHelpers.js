@@ -1,6 +1,17 @@
 // exerciseHelpers.js
 const ExerciseProgress = require("../models/ExerciseProgress");
-const { hasExercise } = require("./quizHelpers");
+
+/**
+ * Check if a lesson has an exercise component.
+ */
+const hasExercise = (lesson) => {
+  return !!(
+    lesson.exercise &&
+    (lesson.exercise.starterCode ||
+      (lesson.exercise.steps && lesson.exercise.steps.length > 0) ||
+      (lesson.exercise.testCases && lesson.exercise.testCases.length > 0))
+  );
+};
 
 /**
  * Get or create an ExerciseProgress record for a user on a specific lesson.
@@ -57,4 +68,8 @@ const recordExerciseAttempt = async (progress, attemptData) => {
   return progress;
 };
 
-module.exports = { getOrCreateExerciseProgress, recordExerciseAttempt };
+module.exports = {
+  hasExercise,
+  getOrCreateExerciseProgress,
+  recordExerciseAttempt,
+};

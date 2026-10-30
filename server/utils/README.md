@@ -109,7 +109,7 @@ The `partitioned` flag is only applied in production because it requires `secure
 - **Used by:** `contentController`, `learningEngine.js`
 - **Responsibility:** Quiz state management — progress tracking, completion checks, attempt counting, XP calculation delegation
 - **Design:** Pure functions that operate on user/lesson data. Mutates quiz progress objects in place.
-- **Exports:** `hasQuiz`, `hasExercise`, `getOrCreateQuizProgress`, `isQuizCompleted`, `updateQuizProgress`, `getQuestionAttempts`, `calculateQuizAnswerXP`, `getQuizResultsForXP`
+- **Exports:** `hasQuiz`, `getOrCreateQuizProgress`, `isQuizCompleted`, `updateQuizProgress`, `getQuestionAttempts`, `calculateQuizAnswerXP`, `getQuizResultsForXP`
 
 ## responseHelpers.js
 
