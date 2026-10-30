@@ -335,10 +335,35 @@ const awardLeaderboardBadge = async (user, badgeId) => {
   return true;
 };
 
+/**
+ * Evaluates badge conditions and applies any newly-unlocked badges to the
+ * in-memory user document. Does NOT persist — the caller is responsible for
+ * saving `user` as part of its own completion transaction.
+ *
+ * @param {Object} user    - User document (mutated: user.badges)
+ * @param {Object} context - Badge evaluation context (e.g. { type, lessonId })
+ * @returns {Promise<Array>} Detail objects for newly-unlocked badges
+ */
+const evaluateAndApplyBadges = async (user, context = {}) => {
+  const { newlyUnlocked, unlockedDetails } = await evaluateBadges(
+    user,
+    context,
+  );
+
+  if (newlyUnlocked?.length > 0) {
+    user.badges = user.badges || [];
+    newlyUnlocked.forEach((id) => {
+      if (!user.badges.includes(id)) user.badges.push(id);
+    });
+  }
+  return unlockedDetails || [];
+};
+
 module.exports = {
   ACTIVE_LEADERBOARD_FILTER,
   evaluateBadges,
   getBadgeProgress,
   awardLeaderboardBadge,
   checkLeaderboardBadges,
+  evaluateAndApplyBadges,
 };

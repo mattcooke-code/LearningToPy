@@ -9,7 +9,11 @@ const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
 const { formatProgressResponse } = require("./analytics");
-const { evaluateBadges, checkLeaderboardBadges } = require("./gamification");
+const {
+  evaluateBadges,
+  checkLeaderboardBadges,
+  evaluateAndApplyBadges,
+} = require("./gamification");
 const { getModuleLessonCompletion } = require("./moduleProgress");
 const { trackCompletion } = require("./streakManager");
 const AppError = require("../utils/AppError");
@@ -773,16 +777,8 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       lesson,
       submissionData,
     );
-    const { newlyUnlocked, unlockedDetails } = await evaluateBadges(user, {
-      type: "lesson_completion",
-      lessonId,
-    });
 
-    if (newlyUnlocked?.length > 0) {
-      newlyUnlocked.forEach((id) => {
-        if (!user.badges.includes(id)) user.badges.push(id);
-      });
-    }
+    const badgesUnlockedDetails = await evaluateAndApplyBadges(user);
 
     await trackCompletion(user);
     await user.save();
@@ -799,7 +795,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
         xpEarned: completionResult.xpIncrease,
         xpBreakdown: completionResult.xpBreakdown,
         progress: progressData,
-        badgesUnlocked: unlockedDetails,
+        badgesUnlocked: badgesUnlockedDetails,
         nextLessonId: completionResult.nextLessonId,
       },
     };
@@ -929,18 +925,7 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
     moduleCompletedNow = completionResult.newlyCompleted;
     nextModuleId = completionResult.nextModuleId;
 
-    const { newlyUnlocked, unlockedDetails } = await evaluateBadges(user, {
-      type: "module_completion",
-      moduleId: module._id,
-      quizScore: score,
-    });
-
-    badgesUnlockedDetails = unlockedDetails || [];
-    if (newlyUnlocked?.length > 0) {
-      newlyUnlocked.forEach((id) => {
-        if (!user.badges.includes(id)) user.badges.push(id);
-      });
-    }
+    badgesUnlockedDetails = await evaluateAndApplyBadges(user);
 
     await trackCompletion(user);
   }
