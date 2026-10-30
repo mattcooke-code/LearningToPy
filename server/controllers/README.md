@@ -118,7 +118,6 @@ Password confirmation is required to prevent accidental or CSRF-triggered deleti
 | `getSurroundingLeaderboard` | GET /api/progress/leaderboard/around-me  | Yes  | ±2 ranks around current user                         |
 | `getTopLeaderboard`         | GET /api/progress/leaderboard/top        | Yes  | Top N users                                          |
 | `getModuleLeaderboard`      | GET /api/progress/leaderboard/module/:id | Yes  | Per-module XP ranking                                |
-| `startLesson`               | POST /api/progress/lessons/:id/start     | Yes  | Record lesson view                                   |
 | `checkStreak`               | GET /api/progress/streak                 | Yes  | Current streak status                                |
 
 ---

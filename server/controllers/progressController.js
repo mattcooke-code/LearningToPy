@@ -226,31 +226,6 @@ const getModuleLeaderboard = catchAsync(async (req, res, next) => {
 });
 
 /**
- * Record that a user has started viewing a lesson.
- *
- * Lightweight endpoint — validates the lesson exists, then returns a timestamp.
- * Does not modify user state (no XP, no completion).
- *
- * @route   POST /api/progress/lessons/:lessonId/start
- * @param   {string} lessonId - Lesson ID
- * @returns {Object} 200 - { lessonId, timestamp }
- * @returns {Object} 404 - Lesson not found
- */
-const startLesson = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-
-  const lesson = await Lesson.findById(lessonId);
-  if (!lesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
-
-  sendJsonResponse(res, 200, "Lesson started", {
-    lessonId,
-    timestamp: new Date(),
-  });
-});
-
-/**
  * Get the current user's streak information.
  *
  * Returns days active, completions this week, warning day, days remaining,
@@ -334,7 +309,6 @@ module.exports = {
   getSurroundingLeaderboard,
   getTopLeaderboard,
   getModuleLeaderboard,
-  startLesson,
   checkStreak,
   getHallOfFame,
   optInToHallOfFame,

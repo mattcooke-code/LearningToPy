@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const { protect } = require("../middleware/auth");
+const { trackActivity } = require("../middleware/activityTracker");
 const contentController = require("../controllers/contentController");
 const imageController = require("../controllers/imageController");
 
@@ -24,12 +25,14 @@ router.get("/lessons/:lessonId", protect, contentController.getLessonContent);
 router.post(
   "/lessons/:lessonId/submit",
   protect,
+  trackActivity("LESSON_COMPLETE"),
   contentController.submitLesson,
 );
 
 router.post(
   "/modules/:moduleId/submit-quiz",
   protect,
+  trackActivity("MODULE_QUIZ_SUBMIT"),
   contentController.submitModuleQuiz,
 );
 

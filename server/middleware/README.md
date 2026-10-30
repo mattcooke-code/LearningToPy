@@ -22,7 +22,7 @@ Express middleware functions. Applied in a specific order in `server.js`.
 - **Applied:** Selectively via `trackActivity('ACTION_TYPE')` on specific routes
 - **Responsibility:** Fire-and-forget ActivityLog entries on successful (2xx) responses
 - **Captures:** userId, actionType, sessionId, lesson/module IDs, device info, anonymised IP
-- **Exports:** `trackActivity`, `addActivityMetadata`
+- **Exports:** `trackActivity`
 
 ## adminOnly.js
 

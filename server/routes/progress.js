@@ -2,10 +2,6 @@
 const express = require("express");
 const router = express.Router();
 const { protect } = require("../middleware/auth");
-const {
-  trackActivity,
-  addActivityMetadata,
-} = require("../middleware/activityTracker");
 const progressController = require("../controllers/progressController");
 
 // === AUTHENTICATED ROUTES ===
@@ -42,13 +38,6 @@ router.post(
 );
 
 router.post("/streak", protect, progressController.checkStreak);
-
-router.post(
-  "/lessons/:lessonId/start",
-  protect,
-  trackActivity("LESSON_START"),
-  progressController.startLesson,
-);
 
 // === EXPORT ===
 module.exports = router;

@@ -27,11 +27,4 @@ const trackActivity = (actionType) => {
   };
 };
 
-const addActivityMetadata = (metadata) => {
-  return (req, res, next) => {
-    req.activityMetadata = { ...req.activityMetadata, ...metadata };
-    next();
-  };
-};
-
-module.exports = { trackActivity, addActivityMetadata };
+module.exports = { trackActivity };
