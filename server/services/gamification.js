@@ -296,6 +296,8 @@ const checkLeaderboardBadges = async (user, User) => {
 
   if (!user.privacySettings?.showOnLeaderboards) return;
 
+  let awarded = false;
+
   if (!hasTopTen) {
     const tenthPlace = await User.findOne({
       ...ACTIVE_LEADERBOARD_FILTER,
@@ -307,7 +309,7 @@ const checkLeaderboardBadges = async (user, User) => {
       .lean();
 
     if (!tenthPlace || user.xp >= tenthPlace.xp) {
-      await awardLeaderboardBadge(user, "top-ten");
+      awarded = awardLeaderboardBadge(user, "top-ten") || awarded;
     }
   }
 
@@ -321,17 +323,26 @@ const checkLeaderboardBadges = async (user, User) => {
       .lean();
 
     if (!firstPlace || user.xp >= firstPlace.xp) {
-      await awardLeaderboardBadge(user, "reached-the-summit");
+      awarded = awardLeaderboardBadge(user, "reached-the-summit") || awarded;
     }
   }
+
+  if (awarded) await user.save();
 };
 
-const awardLeaderboardBadge = async (user, badgeId) => {
+/**
+ * Applies a leaderboard badge to the in-memory user document.
+ * Does NOT persist — the caller is responsible for saving `user`.
+ *
+ * @param {Object} user    - User document (mutated: user.badges)
+ * @param {string} badgeId - Badge id to award ("top-ten" | "reached-the-summit")
+ * @returns {boolean} Whether the badge was actually applied
+ */
+const awardLeaderboardBadge = (user, badgeId) => {
   if (!["reached-the-summit", "top-ten"].includes(badgeId)) return false;
   if (user.badges?.includes(badgeId)) return false;
 
   user.badges = [...(user.badges || []), badgeId];
-  await user.save();
   return true;
 };
 

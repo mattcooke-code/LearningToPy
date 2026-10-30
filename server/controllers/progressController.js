@@ -1,7 +1,6 @@
 // progressController.js
 const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
-const Module = require("../models/Module");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
@@ -252,131 +251,6 @@ const startLesson = catchAsync(async (req, res, next) => {
 });
 
 /**
- * Complete a lesson and award XP.
- *
- * Delegates to `processLessonCompletion` for all XP calculation,
- * then tracks streak via `trackCompletion`, persists the user,
- * and checks for leaderboard badges.
- *
- * @route   POST /api/progress/lessons/:lessonId/complete
- * @param   {string} lessonId - Lesson ID
- * @body    {Object} submissionData - Passed directly to processLessonCompletion
- * @returns {Object} 200 - { xpGained, newStreak, streakStatus, nextLessonId, newlyCompleted }
- * @returns {Object} 404 - User or lesson not found
- */
-const completeLesson = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-  const submissionData = req.body;
-
-  const user = await User.findById(req.userId);
-  const lesson = await Lesson.findById(lessonId);
-
-  if (!user || !lesson) {
-    return next(new AppError("User or lesson not found", 404));
-  }
-
-  const result = await learningEngine.processLessonCompletion(
-    user,
-    lesson,
-    submissionData,
-  );
-
-  if (!result.newlyCompleted) {
-    return sendJsonResponse(
-      res,
-      200,
-      "Lesson already completed (practice mode)",
-      {
-        xpGained: 0,
-        newStreak: user.streak,
-        streakStatus: user.streakStatus,
-        nextLessonId: result.nextLessonId,
-        newlyCompleted: false,
-        practiceMode: true,
-      },
-    );
-  }
-
-  const streakResult = await streakManager.trackCompletion(user);
-  await user.save();
-
-  // Trigger leaderboard badge check after XP is persisted
-  await gamification.checkLeaderboardBadges(user, User);
-
-  sendJsonResponse(res, 200, "Lesson completed successfully", {
-    xpGained: result.xpIncrease,
-    newStreak: streakResult?.streak ?? user.streak,
-    streakStatus: streakResult?.streakStatus,
-    nextLessonId: result.nextLessonId,
-    newlyCompleted: result.newlyCompleted,
-  });
-});
-
-/**
- * Complete a module with quiz results.
- *
- * Delegates to `processModuleCompletion` for XP calculation,
- * records the quiz attempt on the user, tracks streak,
- * and checks for leaderboard badges.
- *
- * @route   POST /api/progress/modules/:moduleId/complete
- * @param   {string} moduleId - Module ID
- * @body    {number} quizScore - Quiz score (0–100)
- * @body    {Array}  [answers] - Quiz answers to record in history
- * @returns {Object} 200 - {
- * xpGained,
- * newStreak,
- * streakStatus,
- * nextModuleId,
- * newlyCompleted,
- * courseCompleted?,
- * hofEligibleAt?,
- * daysUntilHof?
- * }
- * @returns {Object} 404 - User or module not found
- */
-const completeModule = catchAsync(async (req, res, next) => {
-  const { moduleId } = req.params;
-  const { quizScore, answers } = req.body;
-
-  const user = await User.findById(req.userId);
-  const module = await Module.findById(moduleId);
-
-  if (!user || !module) {
-    return next(new AppError("User or module not found", 404));
-  }
-
-  const result = await learningEngine.processModuleCompletion(
-    user,
-    module,
-    quizScore,
-    answers,
-  );
-
-  const streakResult = await streakManager.trackCompletion(user);
-  await user.save();
-
-  // Trigger leaderboard badge check after XP is persisted
-  await gamification.checkLeaderboardBadges(user, User);
-
-  const responsePayload = {
-    xpGained: result.xpIncrease,
-    newStreak: streakResult?.streak ?? user.streak,
-    streakStatus: streakResult?.streakStatus,
-    nextModuleId: result.nextModuleId,
-    newlyCompleted: result.newlyCompleted,
-  };
-
-  if (result.courseCompleted) {
-    responsePayload.courseCompleted = true;
-    responsePayload.hofEligibleAt = result.hofEligibleAt;
-    responsePayload.daysUntilHof = 30;
-  }
-
-  sendJsonResponse(res, 200, "Module completed successfully", responsePayload);
-});
-
-/**
  * Get the current user's streak information.
  *
  * Returns days active, completions this week, warning day, days remaining,
@@ -461,8 +335,6 @@ module.exports = {
   getTopLeaderboard,
   getModuleLeaderboard,
   startLesson,
-  completeLesson,
-  completeModule,
   checkStreak,
   getHallOfFame,
   optInToHallOfFame,

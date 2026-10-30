@@ -119,8 +119,6 @@ Password confirmation is required to prevent accidental or CSRF-triggered deleti
 | `getTopLeaderboard`         | GET /api/progress/leaderboard/top        | Yes  | Top N users                                          |
 | `getModuleLeaderboard`      | GET /api/progress/leaderboard/module/:id | Yes  | Per-module XP ranking                                |
 | `startLesson`               | POST /api/progress/lessons/:id/start     | Yes  | Record lesson view                                   |
-| `completeLesson`            | POST /api/progress/lessons/:id/complete  | Yes  | Award XP, update streak, check badges                |
-| `completeModule`            | POST /api/progress/modules/:id/complete  | Yes  | Record quiz, award XP, check badges                  |
 | `checkStreak`               | GET /api/progress/streak                 | Yes  | Current streak status                                |
 
 ---

@@ -41,20 +41,7 @@ router.post(
   progressController.optInToHallOfFame,
 );
 
-router.post(
-  "/modules/:moduleId/complete",
-  protect,
-  progressController.completeModule,
-);
 router.post("/streak", protect, progressController.checkStreak);
-
-router.post(
-  "/lessons/:lessonId/complete",
-  protect,
-  addActivityMetadata({ xpEarned: 100 }),
-  trackActivity("LESSON_COMPLETE"),
-  progressController.completeLesson,
-);
 
 router.post(
   "/lessons/:lessonId/start",
