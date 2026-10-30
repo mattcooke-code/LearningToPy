@@ -222,6 +222,32 @@ const fetchUserCompletionData = async (userId, { fullDocs = false } = {}) => {
 };
 
 /**
+ * Build the progress payload returned to the client after a completion event.
+ * Owns the fetch + reshape + format sequence so call sites don't repeat it.
+ */
+const buildProgressResponse = async (user, { Lesson, Module }) => {
+  const [{ totalCurriculumLessons, completedCurriculumCount }, completionData] =
+    await Promise.all([
+      getCurriculumProgressStats(user, { Lesson, Module }),
+      fetchUserCompletionData(user._id, { fullDocs: true }),
+    ]);
+
+  return formatProgressResponse(
+    user.toObject(),
+    totalCurriculumLessons,
+    completedCurriculumCount,
+    null,
+    null,
+    {
+      completedModules: completionData.completedModules,
+      completedLessons: completionData.completedLessons,
+      lessonCompletions: completionData.lessonCompletions,
+      moduleCompletions: completionData.moduleCompletions,
+    },
+  );
+};
+
+/**
  * Main Orchestrator for Lesson Completion.
  *
  * Handles XP calculation across multiple sources, writes to the new
@@ -762,27 +788,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     await user.save();
     await checkLeaderboardBadges(user, User);
 
-    const [
-      { totalCurriculumLessons, completedCurriculumCount },
-      completionData,
-    ] = await Promise.all([
-      getCurriculumProgressStats(user, { Lesson, Module }),
-      fetchUserCompletionData(userId, { fullDocs: true }),
-    ]);
-
-    const progressData = formatProgressResponse(
-      user.toObject(),
-      totalCurriculumLessons,
-      completedCurriculumCount,
-      null,
-      null,
-      {
-        completedModules: completionData.completedModules,
-        completedLessons: completionData.completedLessons,
-        lessonCompletions: completionData.lessonCompletions,
-        moduleCompletions: completionData.moduleCompletions,
-      },
-    );
+    const progressData = await buildProgressResponse(user, { Lesson, Module });
 
     return {
       message: "Success!",
@@ -943,26 +949,7 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 
   if (passed) await checkLeaderboardBadges(user, User);
 
-  // Fetch progress data in parallel
-  const [{ totalCurriculumLessons, completedCurriculumCount }, completionData] =
-    await Promise.all([
-      getCurriculumProgressStats(user, { Lesson, Module }),
-      fetchUserCompletionData(userId, { fullDocs: true }),
-    ]);
-
-  const progressData = formatProgressResponse(
-    user.toObject(),
-    totalCurriculumLessons,
-    completedCurriculumCount,
-    null,
-    null,
-    {
-      completedModules: completionData.completedModules,
-      completedLessons: completionData.completedLessons,
-      lessonCompletions: completionData.lessonCompletions,
-      moduleCompletions: completionData.moduleCompletions,
-    },
-  );
+  const progressData = await buildProgressResponse(user, { Lesson, Module });
 
   return {
     message: passed ? "Quiz passed!" : "Quiz completed",
