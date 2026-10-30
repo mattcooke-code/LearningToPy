@@ -1,4 +1,6 @@
 // learningEngine.js
+// ─────────────── IMPORTS ──────────────────
+// ---MODELS---
 const CourseCompletion = require("../models/CourseCompletion");
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
@@ -8,32 +10,19 @@ const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
-const { formatProgressResponse } = require("./analytics");
-const {
-  evaluateBadges,
-  checkLeaderboardBadges,
-  evaluateAndApplyBadges,
-} = require("./gamification");
-const { getModuleLessonCompletion } = require("./moduleProgress");
-const { trackCompletion } = require("./streakManager");
+// ---SERVICES---
+const analytics = require("./analytics");
+const gamification = require("./gamification");
+const moduleProgress = require("./moduleProgress");
+const streakManager = require("./streakManager");
+// ---UTILITIES---
 const AppError = require("../utils/AppError");
-const {
-  getOrCreateExerciseProgress,
-  recordExerciseAttempt,
-} = require("../utils/exerciseHelpers");
-const { findNextLesson, findNextModule } = require("../utils/navigation");
-const { normalizeTags } = require("../utils/generalUtils");
-const { getModuleOrderMap } = require("../utils/levelUtils");
-const {
-  getQuizResultsForXP,
-  hasExercise,
-  hasQuiz,
-  isQuizCompleted,
-  getOrCreateQuizProgress,
-  updateQuizProgress,
-  getQuestionAttempts,
-  calculateQuizAnswerXP,
-} = require("../utils/quizHelpers");
+const exerciseHelpers = require("../utils/exerciseHelpers");
+const navigation = require("../utils/navigation");
+const generalUtils = require("../utils/generalUtils");
+const levelUtils = require("../utils/levelUtils");
+const quizHelpers = require("../utils/quizHelpers");
+// ---SHARED_CONSTANTS---
 const {
   XP,
   THRESHOLDS,
@@ -42,9 +31,11 @@ const {
   calculateExerciseXP,
 } = require("../../shared/constants/progress.cjs");
 
-/**
- * --- VALIDATION LOGIC ---
- */
+// +=============================================+
+// |              HELPERS                        |
+// +=============================================+
+
+// ───────── PURE HELPERS ─────────
 
 /**
  * Validates a user's code submission against the exercise requirements.
@@ -69,8 +60,28 @@ const validateCodeSubmission = (userCode, exercise) => {
 };
 
 /**
- * --- STATS TRACKING ---
+ * Creates a standardized lesson completion record for history tracking.
+ *
+ * @param {Object} lesson - The lesson document
+ * @param {Object} submissionBody - Submission metadata
+ * @param {Date} timestamp - Completion timestamp
+ * @returns {Object} Formatted completion record
  */
+const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
+  return {
+    lessonId: lesson._id,
+    completedAt: timestamp,
+    tags: generalUtils.normalizeTags(lesson.tags),
+    contentType: lesson.contentType,
+    difficulty: lesson.difficulty,
+    challengeGroup: lesson.challengeGroup?.toLowerCase(),
+    elapsedSeconds: submissionBody.elapsedSeconds,
+    attemptNumber: submissionBody.attemptNumber,
+    usedHints: !!submissionBody.usedHints,
+    linesOfCode: submissionBody.linesOfCode,
+    wasOptimal: !!submissionBody.wasOptimalSolution,
+  };
+};
 
 /**
  * Increments user statistics based on lesson completion performance.
@@ -121,33 +132,7 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
   }
 };
 
-/**
- * --- COMPLETION CORE ---
- */
-
-/**
- * Creates a standardized lesson completion record for history tracking.
- *
- * @param {Object} lesson - The lesson document
- * @param {Object} submissionBody - Submission metadata
- * @param {Date} timestamp - Completion timestamp
- * @returns {Object} Formatted completion record
- */
-const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
-  return {
-    lessonId: lesson._id,
-    completedAt: timestamp,
-    tags: normalizeTags(lesson.tags),
-    contentType: lesson.contentType,
-    difficulty: lesson.difficulty,
-    challengeGroup: lesson.challengeGroup?.toLowerCase(),
-    elapsedSeconds: submissionBody.elapsedSeconds,
-    attemptNumber: submissionBody.attemptNumber,
-    usedHints: !!submissionBody.usedHints,
-    linesOfCode: submissionBody.linesOfCode,
-    wasOptimal: !!submissionBody.wasOptimalSolution,
-  };
-};
+// ───────── PERSISTENCE HELPERS ─────────
 
 /**
  * Bulk-insert XP transactions for a completion event.
@@ -197,6 +182,8 @@ const recordCourseCompletion = async (user, moduleCount) => {
   return hofDate;
 };
 
+// ───────── QUERY HELPERS ─────────
+
 /**
  * Fetch all completion data for a user from collections.
  */
@@ -226,6 +213,50 @@ const fetchUserCompletionData = async (userId, { fullDocs = false } = {}) => {
 };
 
 /**
+ * Calculates the current curriculum progress for a user.
+ * Now queries LessonCompletion collection instead of user.completedLessons array.
+ *
+ * @param {Object} user - The user document (requires _id)
+ * @param {Object} models - Object containing Lesson and Module models
+ * @returns {Object} { totalCurriculumLessons, completedCurriculumCount }
+ */
+const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
+  const curriculumModules = await Module.find({
+    order: { $gt: 0 },
+    isPublished: true,
+  }).select("_id");
+
+  const curriculumModuleIds = curriculumModules.map((m) => m._id);
+
+  const totalCurriculumLessons = await Lesson.countDocuments({
+    isPublished: true,
+    moduleId: { $in: curriculumModuleIds },
+  });
+
+  // Query LessonCompletion for completed lessons in curriculum modules
+  const completedLessonIds = await LessonCompletion.find({
+    userId: user._id,
+  })
+    .select("lessonId")
+    .lean();
+
+  const completedIdSet = new Set(
+    completedLessonIds.map((lc) => lc.lessonId.toString()),
+  );
+
+  const completedCurriculumCount = await Lesson.countDocuments({
+    _id: { $in: Array.from(completedIdSet) },
+    isPublished: true,
+    moduleId: { $in: curriculumModuleIds },
+  });
+
+  return {
+    totalCurriculumLessons,
+    completedCurriculumCount,
+  };
+};
+
+/**
  * Build the progress payload returned to the client after a completion event.
  * Owns the fetch + reshape + format sequence so call sites don't repeat it.
  */
@@ -236,7 +267,7 @@ const buildProgressResponse = async (user, { Lesson, Module }) => {
       fetchUserCompletionData(user._id, { fullDocs: true }),
     ]);
 
-  return formatProgressResponse(
+  return analytics.formatProgressResponse(
     user.toObject(),
     totalCurriculumLessons,
     completedCurriculumCount,
@@ -250,6 +281,10 @@ const buildProgressResponse = async (user, { Lesson, Module }) => {
     },
   );
 };
+
+// +=============================================+
+// |              ORCHESTRATORS                  |
+// +=============================================+
 
 /**
  * Main Orchestrator for Lesson Completion.
@@ -293,7 +328,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     return {
       xpIncrease: 0,
       newlyCompleted: false,
-      nextLessonId: await findNextLesson(lesson),
+      nextLessonId: await navigation.findNextLesson(lesson),
     };
   }
 
@@ -312,7 +347,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   // ── 3. Compute lesson-level XP ───────────────────────
 
   // A. Lesson Quiz XP
-  if (hasQuiz(lesson) && !isM0) {
+  if (quizHelpers.hasQuiz(lesson) && !isM0) {
     const quizProgress =
       submissionBody.quizProgress ||
       user.lessonQuizProgress?.find(
@@ -320,7 +355,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
       );
 
     if (quizProgress) {
-      const results = getQuizResultsForXP(quizProgress, lesson);
+      const results = quizHelpers.getQuizResultsForXP(quizProgress, lesson);
 
       for (const result of results) {
         if (result.correct) {
@@ -397,7 +432,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   let autoCompleteModule = null;
   let autoCompleteModuleBonus = 0;
 
-  if (!isM0 && !hasQuiz(lesson)) {
+  if (!isM0 && !quizHelpers.hasQuiz(lesson)) {
     const moduleLessons = await Lesson.find({
       moduleId: lesson.moduleId,
       isPublished: true,
@@ -425,7 +460,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
     if (allOthersComplete) {
       const fullModule = await Module.findById(lesson.moduleId);
-      const moduleHasQuiz = hasQuiz(fullModule);
+      const moduleHasQuiz = quizHelpers.hasQuiz(fullModule);
 
       if (!moduleHasQuiz) {
         // Module has no quiz - auto-complete it
@@ -510,7 +545,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   return {
     xpIncrease: totalXP,
     newlyCompleted: true,
-    nextLessonId: await findNextLesson(lesson),
+    nextLessonId: await navigation.findNextLesson(lesson),
     xpBreakdown: xpLog,
     autoCompletedModule,
     courseCompleted,
@@ -536,7 +571,7 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
   const userId = user._id.toString();
 
   // Helper to find the next module
-  const nextModule = await findNextModule(module);
+  const nextModule = await navigation.findNextModule(module);
 
   // Prevent Duplicate Completion
   const existingCompletion = await ModuleCompletion.findOne({
@@ -658,6 +693,46 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
 };
 
 /**
+ * Determines whether a lesson is fully complete.
+ *
+ * A lesson with both an exercise and a quiz requires BOTH to be complete,
+ * in either order. A lesson with only one component requires only that
+ * component. A theory lesson with no interactive components completes on
+ * explicit manual completion.
+ *
+ * @param   {Object}  lesson          - The lesson document
+ * @param   {Object}  quizProgress    - User's LessonQuizProgress, or null
+ * @param   {boolean} exercisePassed  - Whether the user has passed this lesson's exercise.
+ *                                      Must be false for lessons without an exercise
+ *                                      (the function ignores it in that case).
+ * @param   {boolean} [forceComplete=false] - Skip all checks (theory status check)
+ * @returns {boolean} Whether the lesson is fully completed
+ */
+const isLessonFullyCompleted = (
+  lesson,
+  quizProgress,
+  exercisePassed,
+  forceComplete = false,
+) => {
+  const lessonHasQuiz = quizHelpers.hasQuiz(lesson);
+  const lessonHasExercise = quizHelpers.hasExercise(lesson);
+
+  if (forceComplete) return true;
+
+  if (!lessonHasQuiz && !lessonHasExercise) {
+    return lesson.contentType === "THEORY";
+  }
+
+  const quizDone = lessonHasQuiz
+    ? quizHelpers.isQuizCompleted(quizProgress, lesson)
+    : true;
+
+  const exerciseDone = lessonHasExercise ? exercisePassed : true;
+
+  return quizDone && exerciseDone;
+};
+
+/**
  * Orchestrates a lesson submission (handles exercises, quizzes, theory, partial progress, and full completion).
  */
 const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
@@ -682,17 +757,23 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   const user = await User.findById(userId);
   if (!user) throw new AppError("User not found", 404);
 
-  const exerciseProgress = await getOrCreateExerciseProgress(
+  const exerciseProgress = await exerciseHelpers.getOrCreateExerciseProgress(
     userId,
     lessonId,
     lesson,
   );
-  const quizProgress = await getOrCreateQuizProgress(userId, lessonId, lesson);
+  const quizProgress = await quizHelpers.getOrCreateQuizProgress(
+    userId,
+    lessonId,
+    lesson,
+  );
 
-  const isExerciseSubmission = hasExercise(lesson) && code !== undefined;
-  const isQuizSubmission = hasQuiz(lesson) && answer !== undefined;
+  const isExerciseSubmission =
+    quizHelpers.hasExercise(lesson) && code !== undefined;
+  const isQuizSubmission = quizHelpers.hasQuiz(lesson) && answer !== undefined;
   const isStatusCheckSubmission = !isExerciseSubmission && !isQuizSubmission;
-  const lessonCompletesByStatusCheck = !hasExercise(lesson) && !hasQuiz(lesson);
+  const lessonCompletesByStatusCheck =
+    !quizHelpers.hasExercise(lesson) && !quizHelpers.hasQuiz(lesson);
 
   let feedback = validationResult?.feedback || "Great job!";
   let isCorrectForThisAction = false;
@@ -719,7 +800,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     isCorrectForThisAction = isCorrect;
     const wasAlreadyPassed = exerciseProgress?.passed === true;
 
-    await recordExerciseAttempt(exerciseProgress, {
+    await exerciseHelpers.recordExerciseAttempt(exerciseProgress, {
       passed: isCorrect,
       code,
       usedHints,
@@ -738,10 +819,20 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     isCorrectForThisAction = answer === currentQuestion.correctAnswer;
     if (isCorrectForThisAction) {
       feedback = `Correct! ${currentQuestion.explanation || ""}`;
-      await updateQuizProgress(quizProgress, questionIndex, true, lesson);
+      await quizHelpers.updateQuizProgress(
+        quizProgress,
+        questionIndex,
+        true,
+        lesson,
+      );
     } else {
       feedback = `Try again! ${currentQuestion.explanation || ""}`;
-      await updateQuizProgress(quizProgress, questionIndex, false, lesson);
+      await quizHelpers.updateQuizProgress(
+        quizProgress,
+        questionIndex,
+        false,
+        lesson,
+      );
     }
   }
 
@@ -778,11 +869,12 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       submissionData,
     );
 
-    const badgesUnlockedDetails = await evaluateAndApplyBadges(user);
+    const badgesUnlockedDetails =
+      await gamification.evaluateAndApplyBadges(user);
 
-    await trackCompletion(user);
+    await streakManager.trackCompletion(user);
     await user.save();
-    await checkLeaderboardBadges(user, User);
+    await gamification.checkLeaderboardBadges(user, User);
 
     const progressData = await buildProgressResponse(user, { Lesson, Module });
 
@@ -814,8 +906,11 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       xpSource = "EXERCISE";
       xpMeta = { lessonId, submissionCount };
     } else if (isQuizSubmission && isCorrectForThisAction) {
-      const attempts = getQuestionAttempts(quizProgress, questionIndex);
-      partialXPEarned = calculateQuizAnswerXP(attempts);
+      const attempts = quizHelpers.getQuestionAttempts(
+        quizProgress,
+        questionIndex,
+      );
+      partialXPEarned = quizHelpers.calculateQuizAnswerXP(attempts);
       xpSource = "LESSON_QUIZ";
       xpMeta = { lessonId, questionIndex, attempts };
     }
@@ -866,7 +961,7 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
     isPublished: true,
   });
 
-  const completedLessonsInModule = getModuleLessonCompletion(
+  const completedLessonsInModule = moduleProgress.getModuleLessonCompletion(
     moduleLessons,
     completedLessons,
   );
@@ -925,14 +1020,14 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
     moduleCompletedNow = completionResult.newlyCompleted;
     nextModuleId = completionResult.nextModuleId;
 
-    badgesUnlockedDetails = await evaluateAndApplyBadges(user);
+    badgesUnlockedDetails = await gamification.evaluateAndApplyBadges(user);
 
-    await trackCompletion(user);
+    await streakManager.trackCompletion(user);
   }
 
   await user.save();
 
-  if (passed) await checkLeaderboardBadges(user, User);
+  if (passed) await gamification.checkLeaderboardBadges(user, User);
 
   const progressData = await buildProgressResponse(user, { Lesson, Module });
 
@@ -955,87 +1050,9 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
   };
 };
 
-/**
- * Determines whether a lesson is fully complete.
- *
- * A lesson with both an exercise and a quiz requires BOTH to be complete,
- * in either order. A lesson with only one component requires only that
- * component. A theory lesson with no interactive components completes on
- * explicit manual completion.
- *
- * @param   {Object}  lesson          - The lesson document
- * @param   {Object}  quizProgress    - User's LessonQuizProgress, or null
- * @param   {boolean} exercisePassed  - Whether the user has passed this lesson's exercise.
- *                                      Must be false for lessons without an exercise
- *                                      (the function ignores it in that case).
- * @param   {boolean} [forceComplete=false] - Skip all checks (theory status check)
- * @returns {boolean} Whether the lesson is fully completed
- */
-const isLessonFullyCompleted = (
-  lesson,
-  quizProgress,
-  exercisePassed,
-  forceComplete = false,
-) => {
-  const lessonHasQuiz = hasQuiz(lesson);
-  const lessonHasExercise = hasExercise(lesson);
-
-  if (forceComplete) return true;
-
-  if (!lessonHasQuiz && !lessonHasExercise) {
-    return lesson.contentType === "THEORY";
-  }
-
-  const quizDone = lessonHasQuiz ? isQuizCompleted(quizProgress, lesson) : true;
-
-  const exerciseDone = lessonHasExercise ? exercisePassed : true;
-
-  return quizDone && exerciseDone;
-};
-
-/**
- * Calculates the current curriculum progress for a user.
- * Now queries LessonCompletion collection instead of user.completedLessons array.
- *
- * @param {Object} user - The user document (requires _id)
- * @param {Object} models - Object containing Lesson and Module models
- * @returns {Object} { totalCurriculumLessons, completedCurriculumCount }
- */
-const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
-  const curriculumModules = await Module.find({
-    order: { $gt: 0 },
-    isPublished: true,
-  }).select("_id");
-
-  const curriculumModuleIds = curriculumModules.map((m) => m._id);
-
-  const totalCurriculumLessons = await Lesson.countDocuments({
-    isPublished: true,
-    moduleId: { $in: curriculumModuleIds },
-  });
-
-  // Query LessonCompletion for completed lessons in curriculum modules
-  const completedLessonIds = await LessonCompletion.find({
-    userId: user._id,
-  })
-    .select("lessonId")
-    .lean();
-
-  const completedIdSet = new Set(
-    completedLessonIds.map((lc) => lc.lessonId.toString()),
-  );
-
-  const completedCurriculumCount = await Lesson.countDocuments({
-    _id: { $in: Array.from(completedIdSet) },
-    isPublished: true,
-    moduleId: { $in: curriculumModuleIds },
-  });
-
-  return {
-    totalCurriculumLessons,
-    completedCurriculumCount,
-  };
-};
+// +=============================================+
+// |         USER PROGRESS & DASHBOARD           |
+// +=============================================+
 
 /**
  * Compiles the user's full progress summary for the Dashboard,
@@ -1065,7 +1082,7 @@ const getUserProgressSummary = async (userId) => {
     .sort("order")
     .lean();
 
-  const moduleOrderMap = await getModuleOrderMap();
+  const moduleOrderMap = await levelUtils.getModuleOrderMap();
 
   let currentModuleData = null;
   const moduleIds = modules.map((m) => m._id);
@@ -1125,7 +1142,9 @@ const getUserProgressSummary = async (userId) => {
   };
 };
 
-// --- HALL OF FAME & COURSE COMPLETION SERVICE HELPERS ---
+// +=============================================+
+// |      HALL OF FAME & COURSE COMPLETION       |
+// +=============================================+
 
 const getHallOfFameMembers = async (page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
@@ -1237,16 +1256,22 @@ const getCourseStatusForUser = async (userId) => {
   };
 };
 
+// ───────── EXPORTS ────────────
+
 module.exports = {
+  // Helpers
   validateCodeSubmission,
   fetchUserCompletionData,
+  getCurriculumProgressStats,
+  // Orchestrators
   processLessonCompletion,
   processModuleCompletion,
+  isLessonFullyCompleted,
   submitLessonAttempt,
   submitModuleQuizAttempt,
-  isLessonFullyCompleted,
-  getCurriculumProgressStats,
+  // User Progress
   getUserProgressSummary,
+  // HoF
   getHallOfFameMembers,
   optInUserToHoF,
   getCourseStatusForUser,
