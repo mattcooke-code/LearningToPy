@@ -9,11 +9,11 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-const { formatProgressResponse } = require("../services/analytics");
-const engine = require("../services/learningEngine");
-const gamify = require("../services/gamification");
-const leaderboard = require("../services/leaderboardService");
-const manageStreak = require("../services/streakManager");
+const analytics = require("../services/analytics");
+const learningEngine = require("../services/learningEngine");
+const gamification = require("../services/gamification");
+const leaderboardService = require("../services/leaderboardService");
+const streakManager = require("../services/streakManager");
 const {
   BADGE_DEFINITIONS_CORE,
 } = require("../../shared/constants/badgeDefinitions.cjs");
@@ -28,7 +28,9 @@ const {
  * @returns {Object} 404 - User not found
  */
 const getCurrentProgress = catchAsync(async (req, res, next) => {
-  const progressSummary = await engine.getUserProgressSummary(req.userId);
+  const progressSummary = await learningEngine.getUserProgressSummary(
+    req.userId,
+  );
   if (!progressSummary) return next(new AppError("User not found.", 404));
 
   const {
@@ -43,7 +45,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
     // If theme updating happens here or via hook
   }
 
-  const progressData = formatProgressResponse(
+  const progressData = analytics.formatProgressResponse(
     userWithArrays,
     totalCurriculumLessons,
     completedCurriculumCount,
@@ -100,7 +102,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
     quizAttempts: quizAttempts,
   };
 
-  const { newlyUnlocked } = await gamify.evaluateBadges(enrichedUser);
+  const { newlyUnlocked } = await gamification.evaluateBadges(enrichedUser);
 
   if (newlyUnlocked.length > 0) {
     await User.findByIdAndUpdate(userId, {
@@ -111,7 +113,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
     ];
   }
 
-  const badgeProgress = await gamify.getBadgeProgress(enrichedUser);
+  const badgeProgress = await gamification.getBadgeProgress(enrichedUser);
 
   const progressMap = new Map(
     badgeProgress.map((progressItem) => [
@@ -175,7 +177,7 @@ const getAchievements = catchAsync(async (req, res, next) => {
  * @returns {Object} 404 - User not found or not on leaderboard
  */
 const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
-  const result = await leaderboard.getSurroundingUsers(req.userId);
+  const result = await leaderboardService.getSurroundingUsers(req.userId);
   if (!result) return next(new AppError("User not found", 404));
 
   if (result.message) {
@@ -198,7 +200,9 @@ const getSurroundingLeaderboard = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - { topUsersWithPrivacy: [...] }
  */
 const getTopLeaderboard = catchAsync(async (req, res, next) => {
-  const topUsersWithPrivacy = await leaderboard.getTopUsers(req.query.limit);
+  const topUsersWithPrivacy = await leaderboardService.getTopUsers(
+    req.query.limit,
+  );
 
   sendJsonResponse(res, 200, "Top leaderboard fetched", {
     topUsersWithPrivacy,
@@ -215,7 +219,7 @@ const getTopLeaderboard = catchAsync(async (req, res, next) => {
  */
 const getModuleLeaderboard = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
-  const users = await leaderboard.getModuleLeaderboardData(moduleId);
+  const users = await leaderboardService.getModuleLeaderboardData(moduleId);
 
   sendJsonResponse(res, 200, "Module leaderboard fetched.", {
     users,
@@ -271,7 +275,7 @@ const completeLesson = catchAsync(async (req, res, next) => {
     return next(new AppError("User or lesson not found", 404));
   }
 
-  const result = await engine.processLessonCompletion(
+  const result = await learningEngine.processLessonCompletion(
     user,
     lesson,
     submissionData,
@@ -293,11 +297,11 @@ const completeLesson = catchAsync(async (req, res, next) => {
     );
   }
 
-  const streakResult = await manageStreak.trackCompletion(user);
+  const streakResult = await streakManager.trackCompletion(user);
   await user.save();
 
   // Trigger leaderboard badge check after XP is persisted
-  await gamify.checkLeaderboardBadges(user, User);
+  await gamification.checkLeaderboardBadges(user, User);
 
   sendJsonResponse(res, 200, "Lesson completed successfully", {
     xpGained: result.xpIncrease,
@@ -342,18 +346,18 @@ const completeModule = catchAsync(async (req, res, next) => {
     return next(new AppError("User or module not found", 404));
   }
 
-  const result = await engine.processModuleCompletion(
+  const result = await learningEngine.processModuleCompletion(
     user,
     module,
     quizScore,
     answers,
   );
 
-  const streakResult = await manageStreak.trackCompletion(user);
+  const streakResult = await streakManager.trackCompletion(user);
   await user.save();
 
   // Trigger leaderboard badge check after XP is persisted
-  await gamify.checkLeaderboardBadges(user, User);
+  await gamification.checkLeaderboardBadges(user, User);
 
   const responsePayload = {
     xpGained: result.xpIncrease,
@@ -383,7 +387,7 @@ const completeModule = catchAsync(async (req, res, next) => {
  * @returns {Object} 404 - User not found
  */
 const checkStreak = catchAsync(async (req, res, next) => {
-  const streakInfo = await manageStreak.getStreakInfo(req.userId);
+  const streakInfo = await streakManager.getStreakInfo(req.userId);
 
   if (!streakInfo) {
     return next(new AppError("User not found", 404));
@@ -406,7 +410,7 @@ const getHallOfFame = catchAsync(async (req, res, next) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
 
-  const result = await engine.getHallOfFameMembers(page, limit);
+  const result = await learningEngine.getHallOfFameMembers(page, limit);
   sendJsonResponse(res, 200, "Hall of Fame fetched", result);
 });
 
@@ -423,7 +427,7 @@ const optInToHallOfFame = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 
   try {
-    const result = await engine.optInUserToHoF(userId);
+    const result = await learningEngine.optInUserToHoF(userId);
     sendJsonResponse(res, 200, "Welcome to the Hall of Fame!", {
       hofRank: result.hofRank,
       inductedAt: result.inductedAt,
@@ -442,7 +446,7 @@ const optInToHallOfFame = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - Default object when no completion record exists
  */
 const getCourseCompletionStatus = catchAsync(async (req, res, next) => {
-  const status = await engine.getCourseStatusForUser(req.userId);
+  const status = await learningEngine.getCourseStatusForUser(req.userId);
   const message = status.courseCompleted
     ? "Course completion status fetched"
     : "No course completion record";
