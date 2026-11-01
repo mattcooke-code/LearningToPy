@@ -17,14 +17,12 @@ import {
   LoadingState,
   ErrorState,
   HallOfFameSnapshot,
-  HallOfFameStatus,
   JourneyCard,
   StatsCard,
 } from "../components/ui";
 import { HallOfFameModal, LeaderboardModal } from "../modals";
 import { BADGES_BY_ID } from "../data/badges";
 import { ArrowRight, BookOpen, CheckCircle } from "lucide-react";
-import { apiClient } from "../services";
 
 const FALLBACK_PROGRESS = {
   xp: 0,
