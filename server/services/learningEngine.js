@@ -39,11 +39,6 @@ const {
 
 /**
  * Validates a user's code submission against the exercise requirements.
- *
- * @param {string} userCode - The code submitted by the user
- * @param {Object} exercise - The exercise document with starterCode
- * @param {string} exercise.starterCode - The initial code template
- * @returns {{ isCorrect: boolean, feedback: string }} Validation result
  */
 const validateCodeSubmission = (userCode, exercise) => {
   if (!userCode || userCode.trim() === "") {
@@ -61,11 +56,6 @@ const validateCodeSubmission = (userCode, exercise) => {
 
 /**
  * Creates a standardized lesson completion record for history tracking.
- *
- * @param {Object} lesson - The lesson document
- * @param {Object} submissionBody - Submission metadata
- * @param {Date} timestamp - Completion timestamp
- * @returns {Object} Formatted completion record
  */
 const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
   return {
@@ -85,12 +75,6 @@ const createLessonCompletionRecord = (lesson, submissionBody, timestamp) => {
 
 /**
  * Increments user statistics based on lesson completion performance.
- * Tracks speed, accuracy, and tag-based challenge categories.
- * Mutates the user object directly.
- *
- * @param {Object} user - The user document (mutated in place)
- * @param {Object} lessonRecord - The lesson completion record
- * @param {Object} submissionBody - Submission metadata from the frontend
  */
 const updateUserStats = (user, lessonRecord, submissionBody) => {
   user.stats = user.stats || {};
@@ -136,10 +120,6 @@ const updateUserStats = (user, lessonRecord, submissionBody) => {
 
 /**
  * Bulk-insert XP transactions for a completion event.
- *
- * @param {string} userId - The user's ID
- * @param {Array} xpLog - Array of { amount, source, meta } objects
- * @returns {Promise<Array>} The created XpTransaction documents
  */
 const createXpTransactions = async (userId, xpLog) => {
   if (xpLog.length === 0) return [];
@@ -157,10 +137,6 @@ const createXpTransactions = async (userId, xpLog) => {
 
 /**
  * Record the user's course completion
- *
- * @param {Object} user - User document (mutated: leaderboardStatus)
- * @param {number} moduleCount - Total modules completed by the user
- * @returns {Promise<Date|null>} The hofEligibleAt date, or null if already completed
  */
 const recordCourseCompletion = async (user, moduleCount) => {
   const existing = await CourseCompletion.findOne({ userId: user._id });
@@ -173,13 +149,43 @@ const recordCourseCompletion = async (user, moduleCount) => {
     userId: user._id,
     completedAt: now,
     timeToCompleteMs: now.getTime() - user.createdAt.getTime(),
-    totalXpAtCompletion: user.xp, // ← reads post-completion total
+    totalXpAtCompletion: user.xp,
     moduleCount,
     hofEligibleAt: hofDate,
   });
 
   user.leaderboardStatus = "COMPLETED_PENDING";
   return hofDate;
+};
+
+/**
+ * Helper: Find user or throw 404 error
+ */
+const findUserOrThrow = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError("User not found", 404);
+  return user;
+};
+
+/**
+ * Helper: Award XP and recalculate level
+ */
+const awardUserXp = (user, xpAmount) => {
+  user.xp = (user.xp || 0) + xpAmount;
+  user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
+};
+
+/**
+ * Helper: Check and record course completion for M20
+ */
+const checkAndRecordCourseCompletion = async (user, userId, isM20) => {
+  if (!isM20) return { courseCompleted: false, hofEligibleAt: null };
+  const moduleCount = await ModuleCompletion.countDocuments({ userId });
+  const hofDate = await recordCourseCompletion(user, moduleCount);
+  return {
+    courseCompleted: !!hofDate,
+    hofEligibleAt: hofDate || null,
+  };
 };
 
 // ───────── QUERY HELPERS ─────────
@@ -214,11 +220,6 @@ const fetchUserCompletionData = async (userId, { fullDocs = false } = {}) => {
 
 /**
  * Calculates the current curriculum progress for a user.
- * Now queries LessonCompletion collection instead of user.completedLessons array.
- *
- * @param {Object} user - The user document (requires _id)
- * @param {Object} models - Object containing Lesson and Module models
- * @returns {Object} { totalCurriculumLessons, completedCurriculumCount }
  */
 const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
   const curriculumModules = await Module.find({
@@ -233,7 +234,6 @@ const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
     moduleId: { $in: curriculumModuleIds },
   });
 
-  // Query LessonCompletion for completed lessons in curriculum modules
   const completedLessonIds = await LessonCompletion.find({
     userId: user._id,
   })
@@ -258,7 +258,6 @@ const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
 
 /**
  * Build the progress payload returned to the client after a completion event.
- * Owns the fetch + reshape + format sequence so call sites don't repeat it.
  */
 const buildProgressResponse = async (user, { Lesson, Module }) => {
   const [{ totalCurriculumLessons, completedCurriculumCount }, completionData] =
@@ -286,40 +285,10 @@ const buildProgressResponse = async (user, { Lesson, Module }) => {
 // |              ORCHESTRATORS                  |
 // +=============================================+
 
-/**
- * Main Orchestrator for Lesson Completion.
- *
- * Handles XP calculation across multiple sources, writes to the new
- * LessonCompletion, ModuleCompletion, and XpTransaction collections,
- * and updates the User document (xp, level, stats, counters) in place.
- *
- * **XP Sources (awarded in order):**
- * 1. Exercise submission XP
- * 2. Lesson quiz XP (per-question + passing bonus)
- * 3. Base lesson completion XP
- * 4. Project lesson bonus
- * 5. Capstone project bonus (Module 20)
- * 6. Module config reward
- * 7. Auto-completed module bonus (quiz-less modules)
- *
- * @param {Object} user - The user document (mutated: xp, level, stats, completedLessonCount, completedModuleCount)
- * @param {Object} lesson - The lesson being completed
- * @param {Object} submissionBody - Submission data from the frontend
- * @returns {Promise<{
- *   xpIncrease: number,
- *   newlyCompleted: boolean,
- *   nextLessonId: string|null,
- *   xpBreakdown: Array,
- *   autoCompletedModule,
- *   courseCompleted,
- *   hofEligibleAt
- * }>}
- */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
   const lessonId = lesson._id.toString();
   const userId = user._id.toString();
 
-  // ── 1. Duplicate-completion guard ────────────────────
   const existingCompletion = await LessonCompletion.findOne({
     userId,
     lessonId,
@@ -332,7 +301,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     };
   }
 
-  // ── 2. Module context ────────────────────────────────
   const module = await Module.findById(lesson.moduleId)
     .select("order phase")
     .lean();
@@ -344,9 +312,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   let totalXP = 0;
   const xpLog = [];
 
-  // ── 3. Compute lesson-level XP ───────────────────────
-
-  // A. Lesson Quiz XP
   if (quizHelpers.hasQuiz(lesson) && !isM0) {
     const quizProgress =
       submissionBody.quizProgress ||
@@ -374,7 +339,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
         }
       }
 
-      // Passing Bonus
       const correctCount = results.filter((r) => r.correct).length;
       const score = (correctCount / results.length) * 100;
       if (score >= THRESHOLDS.QUIZ.PASSING_SCORE) {
@@ -388,7 +352,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     }
   }
 
-  // B. Base Lesson Completion
   totalXP += XP.LESSON.COMPLETION;
   xpLog.push({
     amount: XP.LESSON.COMPLETION,
@@ -396,7 +359,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     meta: { lessonId },
   });
 
-  // C. Project Lesson Bonus
   if (isProjectLesson) {
     totalXP += XP.LESSON.PROJECT_BONUS;
     xpLog.push({
@@ -406,7 +368,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // D. Final Project Override
   if (isFinalModule) {
     totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
     xpLog.push({
@@ -416,7 +377,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // E. Add Module Specific XP
   if (submissionBody.moduleConfigReward && !isM0) {
     totalXP += submissionBody.moduleConfigReward;
     xpLog.push({
@@ -426,8 +386,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  // ── 4. Detect auto-completion (module has no quiz) ───
-  //    Detection only. No writes yet. No XP added yet.
   let willAutoComplete = false;
   let autoCompleteModule = null;
   let autoCompleteModuleBonus = 0;
@@ -442,7 +400,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
     const moduleLessonIds = moduleLessons.map((l) => l._id.toString());
 
-    // Check if all lessons in this module are now completed
     const completedLessonRecords = await LessonCompletion.find({
       userId,
       lessonId: { $in: moduleLessonIds },
@@ -452,8 +409,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
       lc.lessonId.toString(),
     );
 
-    // Note: the current lesson isn't yet marked complete in the DB,
-    // so we check for *all but this one* and then add this one.
     const allOthersComplete = moduleLessonIds
       .filter((id) => id !== lessonId)
       .every((id) => completedLessonIds.includes(id));
@@ -463,7 +418,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
       const moduleHasQuiz = quizHelpers.hasQuiz(fullModule);
 
       if (!moduleHasQuiz) {
-        // Module has no quiz - auto-complete it
         const existingModuleCompletion = await ModuleCompletion.findOne({
           userId,
           moduleId: fullModule._id,
@@ -473,14 +427,12 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
           willAutoComplete = true;
           autoCompleteModule = fullModule;
 
-          // Award module completion XP
           const modulePhase = fullModule.phase || 1;
           autoCompleteModuleBonus =
             XP.MODULE.COMPLETION_BONUS + getPhaseBonus(modulePhase);
 
           totalXP += autoCompleteModuleBonus;
 
-          // Special M20 capstone bonus
           if (fullModule.order === 20) {
             totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
             xpLog.push({
@@ -500,16 +452,11 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     }
   }
 
-  // ── 5. Update user XP ────────────────────────────────
-  // Award XP and update level
-  user.xp = (user.xp || 0) + totalXP;
-  user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
+  awardUserXp(user, totalXP);
   user.completedLessonsCount = (user.completedLessonsCount || 0) + 1;
 
-  // ── 6. Write XP transactions ─────────────────────────
   await createXpTransactions(userId, xpLog);
 
-  // ── 7. Write completion records ──────────────────────
   const now = new Date();
   const record = createLessonCompletionRecord(lesson, submissionBody, now);
   await LessonCompletion.create({ userId, ...record });
@@ -529,17 +476,16 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     autoCompletedModule = true;
   }
 
-  // ── 8. Record course completion if M20 just auto-completed ──
   if (autoCompletedModule && autoCompleteModule?.order === 20) {
-    const moduleCount = await ModuleCompletion.countDocuments({ userId });
-    const hofDate = await recordCourseCompletion(user, moduleCount);
-    if (hofDate) {
-      courseCompleted = true;
-      hofEligibleAt = hofDate;
-    }
+    const courseResult = await checkAndRecordCourseCompletion(
+      user,
+      userId,
+      true,
+    );
+    courseCompleted = courseResult.courseCompleted;
+    hofEligibleAt = courseResult.hofEligibleAt;
   }
 
-  // ── 9. Update stats ──────────────────────────────────
   updateUserStats(user, record, submissionBody);
 
   return {
@@ -553,27 +499,12 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   };
 };
 
-/**
- * Main Orchestrator for Module Completion.
- *
- * @returns {Promise<{
- * xpIncrease: number,
- * newlyCompleted: boolean,
- * nextModuleId: string|null,
- * xpBreakdown: Array,
- *
- * courseCompleted?: boolean,
- * hofEligibleAt?: Date
- * }>}
- */
 const processModuleCompletion = async (user, module, quizResults = []) => {
   const moduleId = module._id.toString();
   const userId = user._id.toString();
 
-  // Helper to find the next module
   const nextModule = await navigation.findNextModule(module);
 
-  // Prevent Duplicate Completion
   const existingCompletion = await ModuleCompletion.findOne({
     userId,
     moduleId,
@@ -595,7 +526,6 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
   let totalXP = 0;
   const xpLog = [];
 
-  // --- XP Calculation Logic ---
   if (!isM0 && quizResults.length > 0) {
     const correctCount = quizResults.filter((r) => r.isCorrect).length;
     const quizXP = correctCount * XP.MODULE_QUIZ.CORRECT_ANSWER;
@@ -659,55 +589,39 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
     });
   }
 
-  // --- Persistence ---
   await ModuleCompletion.create({
     userId,
     moduleId: module._id,
     completedAt: new Date(),
   });
   user.completedModulesCount = (user.completedModulesCount || 0) + 1;
-  user.xp = (user.xp || 0) + totalXP;
-  user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
+
+  awardUserXp(user, totalXP);
   await createXpTransactions(userId, xpLog);
 
-  // --- Initialize Result Object ---
   const result = {
     xpIncrease: totalXP,
     newlyCompleted: true,
     nextModuleId: nextModule,
     xpBreakdown: xpLog,
-    courseCompleted: false, // Default
+    courseCompleted: false,
   };
 
-  // --- Course Completion Detection (M20) ---
   if (isM20) {
-    const moduleCount = await ModuleCompletion.countDocuments({ userId });
-    const hofDate = await recordCourseCompletion(user, moduleCount);
-    if (hofDate) {
+    const courseResult = await checkAndRecordCourseCompletion(
+      user,
+      userId,
+      isM20,
+    );
+    if (courseResult.courseCompleted) {
       result.courseCompleted = true;
-      result.hofEligibleAt = hofDate;
+      result.hofEligibleAt = courseResult.hofEligibleAt;
     }
   }
 
   return result;
 };
 
-/**
- * Determines whether a lesson is fully complete.
- *
- * A lesson with both an exercise and a quiz requires BOTH to be complete,
- * in either order. A lesson with only one component requires only that
- * component. A theory lesson with no interactive components completes on
- * explicit manual completion.
- *
- * @param   {Object}  lesson          - The lesson document
- * @param   {Object}  quizProgress    - User's LessonQuizProgress, or null
- * @param   {boolean} exercisePassed  - Whether the user has passed this lesson's exercise.
- *                                      Must be false for lessons without an exercise
- *                                      (the function ignores it in that case).
- * @param   {boolean} [forceComplete=false] - Skip all checks (theory status check)
- * @returns {boolean} Whether the lesson is fully completed
- */
 const isLessonFullyCompleted = (
   lesson,
   quizProgress,
@@ -732,9 +646,6 @@ const isLessonFullyCompleted = (
   return quizDone && exerciseDone;
 };
 
-/**
- * Orchestrates a lesson submission (handles exercises, quizzes, theory, partial progress, and full completion).
- */
 const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   const {
     answer,
@@ -754,8 +665,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   );
   if (!lesson) throw new AppError("Lesson not found", 404);
 
-  const user = await User.findById(userId);
-  if (!user) throw new AppError("User not found", 404);
+  const user = await findUserOrThrow(userId);
 
   const exerciseProgress = await exerciseHelpers.getOrCreateExerciseProgress(
     userId,
@@ -779,7 +689,6 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   let isCorrectForThisAction = false;
   let exerciseJustPassed = false;
 
-  // 1. Handle exercise submission
   if (isExerciseSubmission) {
     if (!code || code.trim() === "")
       throw new AppError("No code submitted", 400);
@@ -810,9 +719,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
 
     exerciseJustPassed = isCorrect && !wasAlreadyPassed;
     feedback = validationResult?.feedback || "Code submitted successfully";
-  }
-  // 2. Handle quiz submission
-  else if (isQuizSubmission) {
+  } else if (isQuizSubmission) {
     const currentQuestion = lesson.quiz[questionIndex];
     if (!currentQuestion) throw new AppError("Invalid question index", 400);
 
@@ -851,7 +758,6 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       isStatusCheckSubmission && lessonCompletesByStatusCheck,
     );
 
-  // 3. Full Completion Path
   if (completed) {
     const freshQuizProgress = await LessonQuizProgress.findOne({
       userId,
@@ -893,8 +799,6 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     };
   }
 
-  // 4. Partial Success Path
-  // Standardising XpTransaction values
   let partialXPEarned = 0;
   let xpSource = null;
   let xpMeta = null;
@@ -915,7 +819,6 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       xpMeta = { lessonId, questionIndex, attempts };
     }
 
-    // Single unified write if XP was earned
     if (partialXPEarned > 0 && xpSource) {
       user.xp = (user.xp || 0) + partialXPEarned;
       await XpTransaction.create({
@@ -940,9 +843,6 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   };
 };
 
-/**
- * Orchestrates a module quiz submission, grading, and completion workflow.
- */
 const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
   const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found.", 404);
@@ -951,8 +851,7 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
     throw new AppError("Module quiz not found.", 404);
   }
 
-  const user = await User.findById(userId);
-  if (!user) throw new AppError("User not found.", 404);
+  const user = await findUserOrThrow(userId);
 
   const { completedLessons } = await fetchUserCompletionData(userId);
 
@@ -973,7 +872,6 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
     );
   }
 
-  // Grade the quiz
   const questions = module.moduleQuiz.questions;
   let correctCount = 0;
   const results = [];
@@ -1054,28 +952,14 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 // |         USER PROGRESS & DASHBOARD           |
 // +=============================================+
 
-/**
- * Compiles the user's full progress summary for the Dashboard,
- * determining the current module and curriculum completion stats.
- *
- * @param {string} userId - The user's ID
- * @returns {Promise<Object|null>} Progress summary payload or null if user not found
- */
 const getUserProgressSummary = async (userId) => {
   const user = await User.findById(userId).lean();
   if (!user) return null;
 
-  const [lessonCompletions, moduleCompletions] = await Promise.all([
-    LessonCompletion.find({ userId: user._id }).select("lessonId").lean(),
-    ModuleCompletion.find({ userId: user._id }).select("moduleId").lean(),
-  ]);
-
-  const completedLessonIds = lessonCompletions.map((lc) =>
-    lc.lessonId.toString(),
-  );
-  const completedModuleIds = moduleCompletions.map((mc) =>
-    mc.moduleId.toString(),
-  );
+  // Reusing fetchUserCompletionData helper
+  const completionData = await fetchUserCompletionData(userId);
+  const completedLessonIds = completionData.completedLessons;
+  const completedModuleIds = completionData.completedModules;
 
   const modules = await Module.find({ isPublished: true })
     .select("_id order title")
@@ -1119,15 +1003,15 @@ const getUserProgressSummary = async (userId) => {
   }
 
   if (!currentModuleData && completedModuleIds.length >= 20) {
-    currentModuleData = null; // Signals course complete
+    currentModuleData = null;
   }
 
   const userWithArrays = {
     ...user,
     completedLessons: completedLessonIds,
     completedModules: completedModuleIds,
-    completedLessonsCount: lessonCompletions.length,
-    completedModulesCount: moduleCompletions.length,
+    completedLessonsCount: completedLessonIds.length,
+    completedModulesCount: completedModuleIds.length,
   };
 
   const { totalCurriculumLessons, completedCurriculumCount } =
@@ -1151,7 +1035,7 @@ const getHallOfFameMembers = async (page = 1, limit = 20) => {
 
   const [inductedMembers, totalInducted] = await Promise.all([
     CourseCompletion.find({ hofJoinedAt: { $ne: null } })
-      .sort({ completedAt: 1 }) // earliest completer = #1
+      .sort({ completedAt: 1 })
       .skip(skip)
       .limit(limit)
       .populate({
