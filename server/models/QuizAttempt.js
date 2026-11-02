@@ -28,7 +28,7 @@ const QuizAttemptSchema = new mongoose.Schema(
     },
     answers: [
       {
-        questionId: mongoose.Schema.Types.ObjectId,
+        questionId: String,
         question: String,
         userAnswer: String,
         correctAnswer: String,
