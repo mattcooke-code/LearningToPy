@@ -198,7 +198,7 @@ Individual lessons within a module. Supports theory, exercises, quizzes, and pro
 | `content`      | String            | 10–50000 chars, required                                       |
 | `order`        | Number            | Sort order within module                                       |
 | `moduleId`     | ObjectId → Module | Required, indexed                                              |
-| `contentType`  | String (enum)     | THEORY, EXERCISE, QUIZ, PROJECT, GUIDED_SETUP                  |
+| `contentType`  | String (enum)     | THEORY, EXERCISE, QUIZ, PROJECT,                               |
 | `difficulty`   | String (enum)     | BEGINNER, INTERMEDIATE, ADVANCED                               |
 | `xpReward`     | Number            | Default 25                                                     |
 | `exercise`     | Object            | starterCode, solution, hints, testCases, validation rules      |

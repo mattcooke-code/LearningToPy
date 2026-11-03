@@ -761,7 +761,7 @@ const MODULE_CONFIGS = {
         file: "L1_HTTP_Basics.md",
         quiz: "L1_Quiz.json",
         title: "HTTP Basics and Library Setup",
-        type: "guided_setup",
+        type: "exercise",
         ex: "L1_Exercise.json",
       },
       {

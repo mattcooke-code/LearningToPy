@@ -52,7 +52,7 @@ const LessonSchema = new mongoose.Schema(
     duration: { type: Number, default: 15, min: 1 },
     contentType: {
       type: String,
-      enum: ["THEORY", "EXERCISE", "QUIZ", "PROJECT", "GUIDED_SETUP"],
+      enum: ["THEORY", "EXERCISE", "QUIZ", "PROJECT"],
       default: "THEORY",
       uppercase: true,
       required: true,
