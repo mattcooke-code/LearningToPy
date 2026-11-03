@@ -139,23 +139,36 @@ const createXpTransactions = async (userId, xpLog) => {
  * Record the user's course completion
  */
 const recordCourseCompletion = async (user, moduleCount) => {
-  const existing = await CourseCompletion.findOne({ userId: user._id });
-  if (existing) return null;
-
   const now = new Date();
   const hofDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-  await CourseCompletion.create({
-    userId: user._id,
-    completedAt: now,
-    timeToCompleteMs: now.getTime() - user.createdAt.getTime(),
-    totalXpAtCompletion: user.xp,
-    moduleCount,
-    hofEligibleAt: hofDate,
-  });
+  try {
+    const existing = await CourseCompletion.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $setOnInsert: {
+          userId: user._id,
+          completedAt: now,
+          timeToCompleteMs: now.getTime() - user.createdAt.getTime(),
+          totalXpAtCompletion: user.xp,
+          moduleCount,
+          hofEligibleAt: hofDate,
+        },
+      },
+      { upsert: true, new: true, rawResult: true },
+    );
 
-  user.leaderboardStatus = "COMPLETED_PENDING";
-  return hofDate;
+    if (existing.lastErrorObject.updatedExisting) {
+      return null; // Already completed
+    }
+
+    user.leaderboardStatus = "COMPLETED_PENDING";
+    return hofDate;
+  } catch (err) {
+    // Handle potential duplicate key race condition edge cases
+    if (err.code === 11000) return null;
+    throw err;
+  }
 };
 
 /**
@@ -452,28 +465,37 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     }
   }
 
+  const now = new Date();
+  const record = createLessonCompletionRecord(lesson, submissionBody, now);
+  await LessonCompletion.create({ userId, ...record });
+
   awardUserXp(user, totalXP);
   user.completedLessonsCount = (user.completedLessonsCount || 0) + 1;
 
   await createXpTransactions(userId, xpLog);
-
-  const now = new Date();
-  const record = createLessonCompletionRecord(lesson, submissionBody, now);
-  await LessonCompletion.create({ userId, ...record });
 
   let autoCompletedModule = false;
   let courseCompleted = false;
   let hofEligibleAt = null;
 
   if (willAutoComplete) {
-    await ModuleCompletion.create({
-      userId,
-      moduleId: autoCompleteModule._id,
-      completedAt: now,
-    });
+    try {
+      await ModuleCompletion.create({
+        userId,
+        moduleId: autoCompleteModule._id,
+        completedAt: now,
+      });
 
-    user.completedModulesCount = (user.completedModulesCount || 0) + 1;
-    autoCompletedModule = true;
+      user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+      autoCompletedModule = true;
+    } catch (err) {
+      if (err.code === 11000) {
+        // Duplicate Key Error - already completed
+        autoCompletedModule = false;
+      } else {
+        throw err;
+      }
+    }
   }
 
   if (autoCompletedModule && autoCompleteModule?.order === 20) {
