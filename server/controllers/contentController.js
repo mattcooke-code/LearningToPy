@@ -303,11 +303,35 @@ const getLessonContent = catchAsync(async (req, res, next) => {
 const submitLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const userId = req.userId;
+  const data = req.body;
+
+  const questionIndex = Number(data.questionIndex ?? 0);
+  if (!Number.isInteger(questionIndex) || questionIndex < 0) {
+    return next(new AppError("Invalid question index", 400));
+  }
+
+  const clean = {
+    answer:
+      data.answer !== undefined && data.answer !== null
+        ? Number(data.answer)
+        : undefined,
+    code: typeof data.code === "string" ? data.code.slice(0, 20000) : undefined,
+    questionIndex,
+    isCorrect: data.isCorrect === true,
+    usedHints: data.usedHints === true,
+    wasOptimalSolution: data.wasOptimalSolution === true,
+    elapsedSeconds: Number.isFinite(data.elapsedSeconds)
+      ? Math.min(Math.max(data.elapsedSeconds, 0), 86400)
+      : undefined,
+    validationResult: {
+      feedback: String(data.validationResult?.feedback ?? "").slice(0, 500),
+    },
+  };
 
   const result = await learningEngine.submitLessonAttempt(
     userId,
     lessonId,
-    req.body,
+    clean,
   );
 
   return sendJsonResponse(res, 200, result.message, result.payload);
