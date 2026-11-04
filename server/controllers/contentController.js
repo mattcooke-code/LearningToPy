@@ -13,33 +13,6 @@ const analytics = require("../services/analytics");
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-// ─── HELPERS ──────────────────────────────────────────────────
-
-/**
- * Fetch all published lessons for a set of module IDs in one query,
- * grouped by moduleId for O(1) lookup.
- *
- * @param {string[]} moduleIds
- * @returns {Promise<Object<string, Object[]>>} Map of moduleId → lessons array
- */
-const fetchLessonsByModule = async (moduleIds) => {
-  const allLessons = await Lesson.find({
-    moduleId: { $in: moduleIds },
-    isPublished: true,
-  })
-    .select("_id moduleId")
-    .lean();
-
-  const lessonsByModule = {};
-  allLessons.forEach((lesson) => {
-    const key = lesson.moduleId.toString();
-    if (!lessonsByModule[key]) lessonsByModule[key] = [];
-    lessonsByModule[key].push(lesson);
-  });
-
-  return lessonsByModule;
-};
-
 // ─── CONTROLLER FUNCTIONS ────────────────────────────────────
 
 /**
@@ -65,7 +38,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
 
   // Single query for all lessons across all modules
   const moduleIds = modules.map((m) => m._id);
-  const lessonsByModule = await fetchLessonsByModule(moduleIds);
+  const lessonsByModule = await learningEngine.fetchLessonsByModule(moduleIds);
 
   const modulesWithProgress = modules.map((module) => {
     const lessons = lessonsByModule[module._id.toString()] || [];
@@ -359,22 +332,6 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
   return sendJsonResponse(res, 200, result.message, result.payload);
 });
 
-/**
- * Fix module completion state for admin users.
- *
- * @route   POST /api/content/modules/fix-progress
- */
-const fixModuleProgress = catchAsync(async (req, res, next) => {
-  const userId = req.userId;
-
-  const modulesFixed = await learningEngine.fixUserModuleProgress(userId);
-
-  sendJsonResponse(res, 200, "Module integrity check complete", {
-    fixedCount: modulesFixed.length,
-    modules: modulesFixed,
-  });
-});
-
 module.exports = {
   getAllModules,
   getModule,
@@ -382,5 +339,4 @@ module.exports = {
   getLessonContent,
   submitLesson,
   submitModuleQuiz,
-  fixModuleProgress,
 };

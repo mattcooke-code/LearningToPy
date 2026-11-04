@@ -63,6 +63,8 @@ router.post(
   "/content/modules/:moduleId/duplicate",
   adminController.duplicateModule,
 );
+
+router.post("/modules/fix-progress", adminController.fixModuleProgress);
 router.delete("/content/modules/:moduleId", adminController.deleteModule);
 
 // Badge management

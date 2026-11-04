@@ -36,6 +36,4 @@ router.post(
   contentController.submitModuleQuiz,
 );
 
-router.get("/fix-progress", contentController.fixModuleProgress);
-
 module.exports = router;

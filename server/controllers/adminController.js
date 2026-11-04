@@ -25,13 +25,10 @@ const Module = require("../models/Module");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
+const learningEngine = require("../services/learningEngine");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const {
-  addLevelToUsers,
-  getUserWithLevel,
-  getModuleOrderMap,
-} = require("../utils/levelUtils");
+const levelUtils = require("../utils/levelUtils");
 const { anonymiseIp } = require("../utils/parseDeviceInfo");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
@@ -328,8 +325,8 @@ const searchUsers = catchAsync(async (req, res, next) => {
     completedModules: completionMap[user._id.toString()] || [],
   }));
 
-  const moduleOrderMap = await getModuleOrderMap();
-  const usersWithLevel = await addLevelToUsers(
+  const moduleOrderMap = await levelUtils.getModuleOrderMap();
+  const usersWithLevel = await levelUtils.addLevelToUsers(
     usersWithModules,
     moduleOrderMap,
   );
@@ -395,7 +392,7 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
     ...user.toObject(),
     completedModules: moduleCompletions.map((mc) => mc.moduleId),
   };
-  const userWithLevel = await getUserWithLevel(userWithModules);
+  const userWithLevel = await levelUtils.getUserWithLevel(userWithModules);
 
   const updatedUser = {
     _id: user._id,
@@ -686,7 +683,7 @@ const getUserDetails = catchAsync(async (req, res, next) => {
       ? Math.round((lessonCompletions.length / totalLessons) * 100)
       : 0;
 
-  const userWithLevel = await getUserWithLevel({
+  const userWithLevel = await levelUtils.getUserWithLevel({
     ...user,
     completedModules: moduleCompletions.map(
       (mc) => mc.moduleId?._id || mc.moduleId,
@@ -1707,6 +1704,22 @@ const updateModuleOrder = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Module order updated", { module });
 });
 
+/**
+ * Fix module completion state for admin users.
+ *
+ * @route   POST /api/content/modules/fix-progress
+ */
+const fixModuleProgress = catchAsync(async (req, res, next) => {
+  const userId = req.body.userId || req.user._id;
+
+  const modulesFixed = await learningEngine.fixUserModuleProgress(userId);
+
+  sendJsonResponse(res, 200, "Module integrity check complete", {
+    fixedCount: modulesFixed.length,
+    modules: modulesFixed,
+  });
+});
+
 module.exports = {
   toggleAdminStatus,
   getAdmins,
@@ -1742,4 +1755,5 @@ module.exports = {
   duplicateModule,
   updateLessonOrder,
   updateModuleOrder,
+  fixModuleProgress,
 };
