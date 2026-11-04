@@ -389,12 +389,12 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  if (submissionBody.moduleConfigReward && !isM0) {
-    totalXP += submissionBody.moduleConfigReward;
+  if (lesson.xpReward && !isM0) {
+    totalXP += lesson.xpReward;
     xpLog.push({
-      amount: submissionBody.moduleConfigReward,
+      amount: lesson.xpReward,
       source: "BONUS",
-      meta: { lessonId, reason: "module_config_reward" },
+      meta: { lessonId, reason: "lesson_config_reward" },
     });
   }
 
@@ -688,7 +688,6 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     usedHints = false,
     elapsedSeconds,
     wasOptimalSolution,
-    moduleConfigReward,
   } = submissionBody;
 
   const lesson = await Lesson.findById(lessonId).populate(
@@ -720,6 +719,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   let feedback = validationResult?.feedback || "Great job!";
   let isCorrectForThisAction = false;
   let exerciseJustPassed = false;
+  let alreadyCorrect = false;
 
   if (isExerciseSubmission) {
     if (!code || code.trim() === "")
@@ -755,23 +755,26 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     const currentQuestion = lesson.quiz[questionIndex];
     if (!currentQuestion) throw new AppError("Invalid question index", 400);
 
-    isCorrectForThisAction = answer === currentQuestion.correctAnswer;
+    isCorrectForThisAction =
+      Number(answer) === Number(currentQuestion.correctAnswer);
+
+    alreadyCorrect = !!quizProgress?.questionAttempts?.some(
+      (qa) => qa.questionIndex === questionIndex && qa.correct,
+    );
+
+    if (!alreadyCorrect) {
+      await quizHelpers.updateQuizProgress(
+        quizProgress,
+        questionIndex,
+        isCorrectForThisAction,
+        lesson,
+      );
+    }
+
     if (isCorrectForThisAction) {
       feedback = `Correct! ${currentQuestion.explanation || ""}`;
-      await quizHelpers.updateQuizProgress(
-        quizProgress,
-        questionIndex,
-        true,
-        lesson,
-      );
     } else {
       feedback = `Try again! ${currentQuestion.explanation || ""}`;
-      await quizHelpers.updateQuizProgress(
-        quizProgress,
-        questionIndex,
-        false,
-        lesson,
-      );
     }
   }
 
@@ -795,10 +798,16 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       userId,
       lessonId,
     });
+
+    const exercise = exerciseProgress;
+
     const submissionData = {
-      ...submissionBody,
-      moduleConfigReward,
       quizProgress: freshQuizProgress,
+      attemptNumber: exercise?.attemptsAtPass,
+      usedHints: exercise?.usedHints,
+      elapsedSeconds: exercise?.elapsedSeconds,
+      wasOptimalSolution: exercise?.wasOptimal,
+      linesOfCode: exercise?.passingCode?.split("\n").length,
     };
 
     const completionResult = await processLessonCompletion(
@@ -841,7 +850,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
       partialXPEarned = calculateExerciseXP(submissionCount, submissionCount);
       xpSource = "EXERCISE";
       xpMeta = { lessonId, submissionCount };
-    } else if (isQuizSubmission && isCorrectForThisAction) {
+    } else if (isQuizSubmission && isCorrectForThisAction && !alreadyCorrect) {
       const attempts = quizHelpers.getQuestionAttempts(
         quizProgress,
         questionIndex,
