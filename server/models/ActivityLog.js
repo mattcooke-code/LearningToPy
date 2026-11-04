@@ -37,6 +37,7 @@ const activityLogSchema = new mongoose.Schema(
         "SESSION_END",
         "EXERCISE_ATTEMPT",
         "EXERCISE_COMPLETE",
+        "MODULE_QUIZ_SUBMIT",
       ],
       required: true,
       index: true,
