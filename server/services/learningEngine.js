@@ -231,6 +231,31 @@ const fetchUserCompletionData = async (userId, { fullDocs = false } = {}) => {
 };
 
 /**
+ * Fetch all published lessons for a set of module IDs in one query,
+ * grouped by moduleId for O(1) lookup.
+ *
+ * @param {string[]} moduleIds
+ * @returns {Promise<Object<string, Object[]>>} Map of moduleId → lessons array
+ */
+const fetchLessonsByModule = async (moduleIds) => {
+  const allLessons = await Lesson.find({
+    moduleId: { $in: moduleIds },
+    isPublished: true,
+  })
+    .select("_id moduleId")
+    .lean();
+
+  const lessonsByModule = {};
+  allLessons.forEach((lesson) => {
+    const key = lesson.moduleId.toString();
+    if (!lessonsByModule[key]) lessonsByModule[key] = [];
+    lessonsByModule[key].push(lesson);
+  });
+
+  return lessonsByModule;
+};
+
+/**
  * Calculates the current curriculum progress for a user.
  */
 const getCurriculumProgressStats = async (user, { Lesson, Module }) => {
@@ -325,11 +350,11 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   const xpLog = [];
 
   if (quizHelpers.hasQuiz(lesson) && !isM0) {
-    const quizProgress =
-      submissionBody.quizProgress ||
-      user.lessonQuizProgress?.find(
-        (qp) => qp.lessonId?.toString() === lessonId,
-      );
+    const quizProgress = await quizHelpers.getOrCreateQuizProgress(
+      userId,
+      lessonId,
+      lesson,
+    );
 
     if (quizProgress) {
       const results = quizHelpers.getQuizResultsForXP(quizProgress, lesson);
@@ -703,11 +728,10 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     lessonId,
     lesson,
   );
-  const quizProgress = await quizHelpers.getOrCreateQuizProgress(
+  const quizProgress = await LessonQuizProgress.findOne({
     userId,
     lessonId,
-    lesson,
-  );
+  }).lean();
 
   const isExerciseSubmission =
     exerciseHelpers.hasExercise(lesson) && code !== undefined;
@@ -802,7 +826,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
 
     const submissionData = {
       quizProgress: freshQuizProgress,
-      attemptNumber: exercise?.attemptCount,
+      attemptNumber: exercise?.firstAttemptPassed ? 1 : exercise?.attemptCount,
       usedHints: exercise?.usedHints,
       elapsedSeconds: exercise?.elapsedSeconds,
       wasOptimalSolution: exercise?.wasOptimal,
@@ -989,21 +1013,23 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 };
 
 /**
- * Fix module completion state for admin users.
- * Uses a single lesson query + client-side grouping.
+ * Scans all published modules for a user, verifies if all lessons and
+ * the module quiz have been completed, and backfills missing module completion
+ * records, XP transactions, and completion counts.
  *
- * @route   POST /api/content/modules/fix-progress
+ * @param {string} userId - The ID of the user whose progress is being fixed.
+ * @returns {Promise<string[]>} - An array of module titles that were fixed.
  */
 const fixUserModuleProgress = async (userId) => {
   const user = await findUserOrThrow(userId);
 
   if (!user.isAdmin) {
-    return next(new AppError("Access denied. Admin privileges required.", 403));
+    throw new AppError("Access denied. Admin privileges required.", 403);
   }
 
   const modules = await Module.find({ isPublished: true }).lean();
   const { completedLessons, completedModules } =
-    await learningEngine.fetchUserCompletionData(userId);
+    await fetchUserCompletionData(userId);
   const quizAttempts = await QuizAttempt.find({ userId }).lean();
 
   // Fetch all lessons for all modules in one query
@@ -1030,26 +1056,37 @@ const fixUserModuleProgress = async (userId) => {
     );
 
     if (allLessonsDone && quizPassed) {
-      await ModuleCompletion.create({
-        userId,
-        moduleId: module._id,
-        completedAt: new Date(),
-      });
+      try {
+        await ModuleCompletion.create({
+          userId,
+          moduleId: module._id,
+          completedAt: new Date(),
+        });
 
-      const xpAmount = module.xpReward || 100;
-      user.xp = (user.xp || 0) + xpAmount;
+        const xpAmount = module.xpReward || 100;
+        user.xp = (user.xp || 0) + xpAmount;
 
-      await XpTransaction.create({
-        userId: user._id,
-        amount: xpAmount,
-        source: "MODULE_COMPLETION_FIX",
-        meta: { moduleId: module._id.toString(), reason: "admin_progress_fix" },
-        awardedAt: new Date(),
-      });
+        await XpTransaction.create({
+          userId: user._id,
+          amount: xpAmount,
+          source: "MODULE_COMPLETION_AUTO",
+          meta: {
+            moduleId: module._id.toString(),
+            reason: "admin_progress_fix",
+          },
+          awardedAt: new Date(),
+        });
 
-      user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+        user.completedModulesCount = (user.completedModulesCount || 0) + 1;
 
-      modulesFixed.push(module.title);
+        modulesFixed.push(module.title);
+      } catch (err) {
+        if (err.code === 11000) {
+          // Skip if already completed (duplicate key race condition)
+          continue;
+        }
+        throw err;
+      }
     }
   }
 
@@ -1256,6 +1293,7 @@ module.exports = {
   // Helpers
   validateCodeSubmission,
   fetchUserCompletionData,
+  fetchLessonsByModule,
   getCurriculumProgressStats,
   // Orchestrators
   processLessonCompletion,
