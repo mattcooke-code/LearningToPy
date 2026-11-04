@@ -755,8 +755,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     const currentQuestion = lesson.quiz[questionIndex];
     if (!currentQuestion) throw new AppError("Invalid question index", 400);
 
-    isCorrectForThisAction =
-      Number(answer) === Number(currentQuestion.correctAnswer);
+    isCorrectForThisAction = answer === currentQuestion.correctAnswer;
 
     alreadyCorrect = !!quizProgress?.questionAttempts?.some(
       (qa) => qa.questionIndex === questionIndex && qa.correct,
@@ -989,6 +988,76 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
   };
 };
 
+/**
+ * Fix module completion state for admin users.
+ * Uses a single lesson query + client-side grouping.
+ *
+ * @route   POST /api/content/modules/fix-progress
+ */
+const fixUserModuleProgress = async (userId) => {
+  const user = await findUserOrThrow(userId);
+
+  if (!user.isAdmin) {
+    return next(new AppError("Access denied. Admin privileges required.", 403));
+  }
+
+  const modules = await Module.find({ isPublished: true }).lean();
+  const { completedLessons, completedModules } =
+    await learningEngine.fetchUserCompletionData(userId);
+  const quizAttempts = await QuizAttempt.find({ userId }).lean();
+
+  // Fetch all lessons for all modules in one query
+  const moduleIds = modules.map((m) => m._id);
+  const lessonsByModule = await fetchLessonsByModule(moduleIds);
+
+  let modulesFixed = [];
+
+  for (const module of modules) {
+    const moduleIdString = module._id.toString();
+
+    if (completedModules.includes(moduleIdString)) continue;
+
+    const lessons = lessonsByModule[moduleIdString] || [];
+    if (lessons.length === 0) continue;
+
+    const allLessonsDone = analytics.isModuleFinished(
+      completedLessons,
+      lessons,
+    );
+    const quizPassed = moduleProgress.hasPassedModuleQuiz(
+      { quizAttempts },
+      module._id,
+    );
+
+    if (allLessonsDone && quizPassed) {
+      await ModuleCompletion.create({
+        userId,
+        moduleId: module._id,
+        completedAt: new Date(),
+      });
+
+      const xpAmount = module.xpReward || 100;
+      user.xp = (user.xp || 0) + xpAmount;
+
+      await XpTransaction.create({
+        userId: user._id,
+        amount: xpAmount,
+        source: "MODULE_COMPLETION_FIX",
+        meta: { moduleId: module._id.toString(), reason: "admin_progress_fix" },
+        awardedAt: new Date(),
+      });
+
+      user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+
+      modulesFixed.push(module.title);
+    }
+  }
+
+  if (modulesFixed.length > 0) await user.save();
+
+  return modulesFixed;
+};
+
 // +=============================================+
 // |         USER PROGRESS & DASHBOARD           |
 // +=============================================+
@@ -1194,6 +1263,7 @@ module.exports = {
   isLessonFullyCompleted,
   submitLessonAttempt,
   submitModuleQuizAttempt,
+  fixUserModuleProgress,
   // User Progress
   getUserProgressSummary,
   // HoF
