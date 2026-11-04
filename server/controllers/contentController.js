@@ -310,11 +310,17 @@ const submitLesson = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid question index", 400));
   }
 
+  let parsedAnswer = undefined;
+  if (data.answer !== undefined && data.answer !== null && data.answer !== "") {
+    const num = Number(data.answer);
+    if (!Number.isInteger(num)) {
+      return next(new AppError("Invalid answer", 400));
+    }
+    parsedAnswer = num;
+  }
+
   const clean = {
-    answer:
-      data.answer !== undefined && data.answer !== null
-        ? Number(data.answer)
-        : undefined,
+    answer: parsedAnswer,
     code: typeof data.code === "string" ? data.code.slice(0, 20000) : undefined,
     questionIndex,
     isCorrect: data.isCorrect === true,
