@@ -1,10 +1,7 @@
 // contentController.js
 const Module = require("../models/Module");
 const Lesson = require("../models/Lesson");
-const User = require("../models/User");
 const LessonCompletion = require("../models/LessonCompletion");
-const ModuleCompletion = require("../models/ModuleCompletion");
-const QuizAttempt = require("../models/QuizAttempt");
 const LessonQuizProgress = require("../models/LessonQuizProgress");
 const ExerciseProgress = require("../models/ExerciseProgress");
 const AppError = require("../utils/AppError");
@@ -364,63 +361,13 @@ const submitModuleQuiz = catchAsync(async (req, res, next) => {
 
 /**
  * Fix module completion state for admin users.
- * Uses a single lesson query + client-side grouping.
  *
  * @route   POST /api/content/modules/fix-progress
  */
 const fixModuleProgress = catchAsync(async (req, res, next) => {
   const userId = req.userId;
 
-  const user = await User.findById(userId);
-  if (!user) return next(new AppError("User not found", 404));
-
-  if (!user.isAdmin) {
-    return next(new AppError("Access denied. Admin privileges required.", 403));
-  }
-
-  const modules = await Module.find({ isPublished: true }).lean();
-  const { completedLessons, completedModules } =
-    await learningEngine.fetchUserCompletionData(userId);
-  const quizAttempts = await QuizAttempt.find({ userId }).lean();
-
-  // Fetch all lessons for all modules in one query
-  const moduleIds = modules.map((m) => m._id);
-  const lessonsByModule = await fetchLessonsByModule(moduleIds);
-
-  let modulesFixed = [];
-
-  for (const module of modules) {
-    const moduleIdString = module._id.toString();
-
-    if (completedModules.includes(moduleIdString)) continue;
-
-    const lessons = lessonsByModule[moduleIdString] || [];
-    if (lessons.length === 0) continue;
-
-    const allLessonsDone = analytics.isModuleFinished(
-      completedLessons,
-      lessons,
-    );
-    const quizPassed = moduleProgress.hasPassedModuleQuiz(
-      { quizAttempts },
-      module._id,
-    );
-
-    if (allLessonsDone && quizPassed) {
-      await ModuleCompletion.create({
-        userId,
-        moduleId: module._id,
-        completedAt: new Date(),
-      });
-
-      user.xp += module.xpReward || 100;
-      user.completedModulesCount = (user.completedModulesCount || 0) + 1;
-
-      modulesFixed.push(module.title);
-    }
-  }
-
-  if (modulesFixed.length > 0) await user.save();
+  const modulesFixed = await learningEngine.fixUserModuleProgress(userId);
 
   sendJsonResponse(res, 200, "Module integrity check complete", {
     fixedCount: modulesFixed.length,
