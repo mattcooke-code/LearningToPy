@@ -110,10 +110,19 @@ const getUserWithLevel = async (user) => {
   };
 };
 
+const recalculateUserLevel = async (userId) => {
+  const user = await User.findById(userId).select("completedModules").lean();
+  if (!user) return null;
+  const level = await calculateUserLevel(user);
+  await User.updateOne({ _id: userId }, { $set: { level } });
+  return level;
+};
+
 module.exports = {
   getModuleOrderMap,
   calculateLevelFromModules,
   calculateUserLevel,
   addLevelToUsers,
   getUserWithLevel,
+  recalculateUserLevel,
 };
