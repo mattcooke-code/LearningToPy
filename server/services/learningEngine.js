@@ -803,7 +803,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
 
     const submissionData = {
       quizProgress: freshQuizProgress,
-      attemptNumber: exercise?.attemptsAtPass,
+      attemptNumber: exercise?.attemptCount,
       usedHints: exercise?.usedHints,
       elapsedSeconds: exercise?.elapsedSeconds,
       wasOptimalSolution: exercise?.wasOptimal,
