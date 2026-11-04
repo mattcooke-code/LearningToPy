@@ -1,5 +1,6 @@
 // levelUtils.js
 const Module = require("../models/Module");
+const User = require("../models/User");
 
 // Cache for module order map to avoid repeated database queries
 let moduleOrderMapCache = null;

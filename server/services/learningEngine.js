@@ -185,7 +185,6 @@ const findUserOrThrow = async (userId) => {
  */
 const awardUserXp = (user, xpAmount) => {
   user.xp = (user.xp || 0) + xpAmount;
-  user.level = Math.floor(user.xp / XP.PER_LEVEL) + 1;
 };
 
 /**
@@ -487,6 +486,12 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
       });
 
       user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+
+      // Update User Level
+      if (autoCompleteModule.order > 0) {
+        user.level = Math.min(20, Math.max(1, autoCompleteModule.order));
+      }
+
       autoCompletedModule = true;
     } catch (err) {
       if (err.code === 11000) {
@@ -617,6 +622,11 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
     completedAt: new Date(),
   });
   user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+
+  // Update User Level
+  if (module.order > 0) {
+    user.level = Math.min(20, Math.max(1, module.order));
+  }
 
   awardUserXp(user, totalXP);
   await createXpTransactions(userId, xpLog);
