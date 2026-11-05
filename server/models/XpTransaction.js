@@ -55,4 +55,23 @@ XpTransactionSchema.index(
   { expireAfterSeconds: 365 * 24 * 60 * 60 },
 );
 
+// Prevent duplicate partial XP awards for the exact same lesson quiz question or exercise submission
+XpTransactionSchema.index(
+  { userId: 1, source: 1, "meta.lessonId": 1, "meta.questionIndex": 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { "meta.questionIndex": { $exists: true } },
+  },
+);
+
+XpTransactionSchema.index(
+  { userId: 1, source: 1, "meta.lessonId": 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { source: "EXERCISE", "meta.isFirstTry": true },
+  },
+);
+
 module.exports = mongoose.model("XpTransaction", XpTransactionSchema);

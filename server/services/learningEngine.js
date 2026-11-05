@@ -848,10 +848,18 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     }
 
     if (entry && entry.amount > 0) {
-      partialXPEarned = entry.amount;
-      awardUserXp(user, entry.amount);
-      await createXpTransactions(user._id, [entry]);
-      await user.save();
+      try {
+        await createXpTransactions(user._id, [entry]);
+        awardUserXp(user, entry.amount);
+        await user.save();
+        partialXPEarned = entry.amount;
+      } catch (err) {
+        if (err.code === 11000) {
+          partialXPEarned = 0;
+        } else {
+          throw err;
+        }
+      }
     }
   }
 
