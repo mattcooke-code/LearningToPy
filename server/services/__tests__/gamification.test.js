@@ -19,7 +19,7 @@ vi.mock("../../utils/generalUtils", () => ({
   toStringId: vi.fn((id) => (id ? id.toString() : null)),
 }));
 
-vi.mock("../../shared/constants/progress.cjs", () => ({
+vi.mock("../../constants/xpConstants", () => ({
   XP: {
     PER_LEVEL: 100,
     EXERCISE: {

@@ -1,8 +1,5 @@
 // analytics.js
-const { XP } = require("../../shared/constants/progress.cjs");
 const { calculateLevelFromModules } = require("../utils/levelUtils");
-const LessonCompletion = require("../models/LessonCompletion");
-const ModuleCompletion = require("../models/ModuleCompletion");
 
 /**
  * --- PERCENTAGE CALCULATORS ---

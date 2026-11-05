@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("../../shared/constants/progress.cjs", () => ({
+vi.mock("../../constants/xpConstants.js", () => ({
   XP: { PER_LEVEL: 100 },
   THRESHOLDS: {},
+}));
+
+vi.mock("../xpService.js", () => ({
   calculateLessonQuizXP: vi.fn(),
   calculateExerciseXP: vi.fn(),
   getPhaseBonus: vi.fn(),
