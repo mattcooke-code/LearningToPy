@@ -15,6 +15,7 @@ const analytics = require("./analytics");
 const gamification = require("./gamification");
 const moduleProgress = require("./moduleProgress");
 const streakManager = require("./streakManager");
+const xpService = require("./xpService");
 // ---UTILITIES---
 const AppError = require("../utils/AppError");
 const exerciseHelpers = require("../utils/exerciseHelpers");
@@ -22,14 +23,8 @@ const navigation = require("../utils/navigation");
 const generalUtils = require("../utils/generalUtils");
 const levelUtils = require("../utils/levelUtils");
 const quizHelpers = require("../utils/quizHelpers");
-// ---SHARED_CONSTANTS---
-const {
-  XP,
-  THRESHOLDS,
-  calculateLessonQuizXP,
-  getPhaseBonus,
-  calculateExerciseXP,
-} = require("../../shared/constants/progress.cjs");
+// ---CONSTANTS---
+const { XP, THRESHOLDS } = require("../constants/xpConstants");
 
 // +=============================================+
 // |              HELPERS                        |
@@ -349,6 +344,26 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   let totalXP = 0;
   const xpLog = [];
 
+  const exerciseProgress = await exerciseHelpers.getOrCreateExerciseProgress(
+    userId,
+    lessonId,
+    lesson,
+  );
+  if (exerciseProgress && exerciseProgress.passed) {
+    const subCount = exerciseProgress.attemptCount || 1;
+    const isFirstTry = exerciseProgress.firstAttemptPassed || false;
+    const exerciseXP = xpService.calculateExerciseXP(subCount, isFirstTry);
+
+    if (exerciseXP > 0) {
+      totalXP += exerciseXP;
+      xpLog.push({
+        amount: exerciseXP,
+        source: "EXERCISE",
+        meta: { lessonId, submissionCount: subCount, isFirstTry },
+      });
+    }
+  }
+
   if (quizHelpers.hasQuiz(lesson) && !isM0) {
     const quizProgress = await quizHelpers.getOrCreateQuizProgress(
       userId,
@@ -361,7 +376,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
       for (const result of results) {
         if (result.correct) {
-          const quizXP = calculateLessonQuizXP(result.attempts);
+          const quizXP = xpService.calculateLessonQuizXP(result.attempts);
           totalXP += quizXP;
 
           xpLog.push({
@@ -466,7 +481,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
           const modulePhase = fullModule.phase || 1;
           autoCompleteModuleBonus =
-            XP.MODULE.COMPLETION_BONUS + getPhaseBonus(modulePhase);
+            XP.MODULE.COMPLETION_BONUS + xpService.getPhaseBonus(modulePhase);
 
           totalXP += autoCompleteModuleBonus;
 
@@ -606,7 +621,7 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
   }
 
   const completionBonus =
-    XP.MODULE.COMPLETION_BONUS + getPhaseBonus(module.phase);
+    XP.MODULE.COMPLETION_BONUS + xpService.getPhaseBonus(module.phase);
   totalXP += completionBonus;
   xpLog.push({
     amount: completionBonus,
@@ -728,10 +743,11 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     lessonId,
     lesson,
   );
-  const quizProgress = await LessonQuizProgress.findOne({
+  const quizProgress = await quizHelpers.getOrCreateQuizProgress(
     userId,
     lessonId,
-  }).lean();
+    lesson,
+  );
 
   const isExerciseSubmission =
     exerciseHelpers.hasExercise(lesson) && code !== undefined;
@@ -870,15 +886,20 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   if (!existingLessonCompletion) {
     if (isExerciseSubmission && exerciseJustPassed) {
       const submissionCount = exerciseProgress?.attemptCount || 1;
-      partialXPEarned = calculateExerciseXP(submissionCount, submissionCount);
+      const isFirstTry =
+        exerciseProgress?.firstAttemptPassed || submissionCount === 1;
+      partialXPEarned = xpService.calculateExerciseXP(
+        submissionCount,
+        isFirstTry,
+      );
       xpSource = "EXERCISE";
-      xpMeta = { lessonId, submissionCount };
+      xpMeta = { lessonId, submissionCount, isFirstTry };
     } else if (isQuizSubmission && isCorrectForThisAction && !alreadyCorrect) {
       const attempts = quizHelpers.getQuestionAttempts(
         quizProgress,
         questionIndex,
       );
-      partialXPEarned = quizHelpers.calculateQuizAnswerXP(attempts);
+      partialXPEarned = xpService.calculateLessonQuizXP(attempts);
       xpSource = "LESSON_QUIZ";
       xpMeta = { lessonId, questionIndex, attempts };
     }
