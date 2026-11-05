@@ -183,6 +183,43 @@ const awardUserXp = (user, xpAmount) => {
 };
 
 /**
+ * Lesson-level quiz/exercise XP is not payable in Module 0 (tutorial).
+ * Single check used by every lesson XP path.
+ */
+const isLessonXpEligible = (moduleOrder) =>
+  !(moduleOrder === 0 && XP.SPECIAL.M0_NO_QUIZ_EXERCISE_XP);
+
+/**
+ * Build the XP log entry for a passed exercise.
+ * Called wherever exercise XP is paid so both paths use identical maths.
+ */
+const buildExerciseXpEntry = (lessonId, exerciseProgress) => {
+  const submissionCount = exerciseProgress?.attemptCount || 1;
+  const isFirstTry = !!exerciseProgress?.firstAttemptPassed;
+  return {
+    amount: xpService.calculateExerciseXP(submissionCount, isFirstTry),
+    source: "EXERCISE",
+    meta: { lessonId, submissionCount, isFirstTry },
+  };
+};
+
+/**
+ * Build the XP log entry for a correct lesson-quiz answer.
+ */
+const buildQuizAnswerXpEntry = (lessonId, questionIndex, attempts) => ({
+  amount: xpService.calculateLessonQuizXP(attempts),
+  source: "LESSON_QUIZ",
+  meta: { lessonId, questionIndex, attempts },
+});
+
+/**
+ * Convert a calculateModuleCompletionXP breakdown into XpTransaction log
+ * entries, merging in caller-specific meta (moduleId, lessonId, ...).
+ */
+const toXpLog = (breakdown, extraMeta = {}) =>
+  breakdown.map((b) => ({ ...b, meta: { ...extraMeta, ...b.meta } }));
+
+/**
  * Helper: Check and record course completion for M20
  */
 const checkAndRecordCourseCompletion = async (user, userId, isM20) => {
@@ -339,55 +376,54 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   const moduleOrder = module?.order;
   const isM0 = moduleOrder === 0;
   const isProjectLesson = lesson.contentType === "PROJECT";
-  const isFinalModule = moduleOrder === 20 && isProjectLesson;
 
   let totalXP = 0;
   const xpLog = [];
 
-  const exerciseProgress = await exerciseHelpers.getOrCreateExerciseProgress(
-    userId,
-    lessonId,
-    lesson,
-  );
-  if (exerciseProgress && exerciseProgress.passed) {
-    const subCount = exerciseProgress.attemptCount || 1;
-    const isFirstTry = exerciseProgress.firstAttemptPassed || false;
-    const exerciseXP = xpService.calculateExerciseXP(subCount, isFirstTry);
+  // Exercise and quiz-answer XP is paid at the moment the event happens
+  // (see partial XP in submitLessonAttempt). When that event is also the one
+  // that completes the lesson, it is paid here instead - never both.
+  const xpEligible = isLessonXpEligible(moduleOrder);
 
-    if (exerciseXP > 0) {
-      totalXP += exerciseXP;
-      xpLog.push({
-        amount: exerciseXP,
-        source: "EXERCISE",
-        meta: { lessonId, submissionCount: subCount, isFirstTry },
-      });
-    }
-  }
-
-  if (quizHelpers.hasQuiz(lesson) && !isM0) {
-    const quizProgress = await quizHelpers.getOrCreateQuizProgress(
+  if (xpEligible && submissionBody.exerciseJustPassed) {
+    const exerciseProgress = await exerciseHelpers.getOrCreateExerciseProgress(
       userId,
       lessonId,
       lesson,
     );
+    if (exerciseProgress?.passed) {
+      const entry = buildExerciseXpEntry(lessonId, exerciseProgress);
+      if (entry.amount > 0) {
+        totalXP += entry.amount;
+        xpLog.push(entry);
+      }
+    }
+  }
+
+  if (quizHelpers.hasQuiz(lesson) && xpEligible) {
+    const quizProgress = await LessonQuizProgress.findOne({
+      userId,
+      lessonId,
+    }).lean();
 
     if (quizProgress) {
       const results = quizHelpers.getQuizResultsForXP(quizProgress, lesson);
 
-      for (const result of results) {
-        if (result.correct) {
-          const quizXP = xpService.calculateLessonQuizXP(result.attempts);
-          totalXP += quizXP;
-
-          xpLog.push({
-            amount: quizXP,
-            source: "LESSON_QUIZ",
-            meta: {
-              lessonId,
-              questionIndex: result.questionIndex,
-              attempts: result.attempts,
-            },
-          });
+      // Only the answer submitted in this request is still unpaid; earlier
+      // correct answers were paid when they were submitted.
+      const justAnswered = results.find(
+        (r) =>
+          r.correct && r.questionIndex === submissionBody.justCorrectQuestion,
+      );
+      if (justAnswered) {
+        const entry = buildQuizAnswerXpEntry(
+          lessonId,
+          justAnswered.questionIndex,
+          justAnswered.attempts,
+        );
+        if (entry.amount > 0) {
+          totalXP += entry.amount;
+          xpLog.push(entry);
         }
       }
 
@@ -420,27 +456,8 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     });
   }
 
-  if (isFinalModule) {
-    totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
-    xpLog.push({
-      amount: XP.SPECIAL.M20_PROJECT_BONUS,
-      source: "BONUS",
-      meta: { lessonId, reason: "capstone_project" },
-    });
-  }
-
-  if (lesson.xpReward && !isM0) {
-    totalXP += lesson.xpReward;
-    xpLog.push({
-      amount: lesson.xpReward,
-      source: "BONUS",
-      meta: { lessonId, reason: "lesson_config_reward" },
-    });
-  }
-
   let willAutoComplete = false;
   let autoCompleteModule = null;
-  let autoCompleteModuleBonus = 0;
 
   if (!isM0 && !quizHelpers.hasQuiz(lesson)) {
     const moduleLessons = await Lesson.find({
@@ -479,26 +496,21 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
           willAutoComplete = true;
           autoCompleteModule = fullModule;
 
-          const modulePhase = fullModule.phase || 1;
-          autoCompleteModuleBonus =
-            XP.MODULE.COMPLETION_BONUS + xpService.getPhaseBonus(modulePhase);
-
-          totalXP += autoCompleteModuleBonus;
-
-          if (fullModule.order === 20) {
-            totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
-            xpLog.push({
-              amount: XP.SPECIAL.M20_PROJECT_BONUS,
-              source: "BONUS",
-              meta: { lessonId, reason: "capstone_auto_complete" },
-            });
-          }
-
-          xpLog.push({
-            amount: autoCompleteModuleBonus,
-            source: "MODULE_COMPLETION_AUTO",
-            meta: { moduleId: fullModule._id.toString(), phase: modulePhase },
+          // Same formula as the module-quiz path (no quiz results here).
+          const { total, breakdown } = xpService.calculateModuleCompletionXP({
+            order: fullModule.order,
           });
+          totalXP += total;
+          xpLog.push(
+            ...toXpLog(breakdown, {
+              lessonId,
+              moduleId: fullModule._id.toString(),
+            }).map((entry) =>
+              entry.source === "MODULE_COMPLETION"
+                ? { ...entry, source: "MODULE_COMPLETION_AUTO" }
+                : entry,
+            ),
+          );
         }
       }
     }
@@ -587,74 +599,13 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
     };
   }
 
-  const isM0 = module.order === 0;
   const isM20 = module.order === 20;
 
-  let totalXP = 0;
-  const xpLog = [];
-
-  if (!isM0 && quizResults.length > 0) {
-    const correctCount = quizResults.filter((r) => r.isCorrect).length;
-    const quizXP = correctCount * XP.MODULE_QUIZ.CORRECT_ANSWER;
-    totalXP += quizXP;
-    xpLog.push({
-      amount: quizXP,
-      source: "MODULE_QUIZ",
-      meta: { moduleId, correct: correctCount, total: quizResults.length },
-    });
-
-    totalXP += XP.MODULE_QUIZ.COMPLETION_BONUS;
-    xpLog.push({
-      amount: XP.MODULE_QUIZ.COMPLETION_BONUS,
-      source: "MODULE_QUIZ",
-      meta: { moduleId, completionBonus: true },
-    });
-
-    if (correctCount === quizResults.length) {
-      totalXP += XP.MODULE_QUIZ.PERFECT_SCORE_BONUS;
-      xpLog.push({
-        amount: XP.MODULE_QUIZ.PERFECT_SCORE_BONUS,
-        source: "MODULE_QUIZ",
-        meta: { moduleId, perfectScore: true },
-      });
-    }
-  }
-
-  const completionBonus =
-    XP.MODULE.COMPLETION_BONUS + xpService.getPhaseBonus(module.phase);
-  totalXP += completionBonus;
-  xpLog.push({
-    amount: completionBonus,
-    source: "MODULE_COMPLETION",
-    meta: { moduleId, phase: module.phase },
+  const { total: totalXP, breakdown } = xpService.calculateModuleCompletionXP({
+    order: module.order,
+    quizResults,
   });
-
-  if (isM20) {
-    totalXP += XP.SPECIAL.M20_PROJECT_BONUS;
-    xpLog.push({
-      amount: XP.SPECIAL.M20_PROJECT_BONUS,
-      source: "BONUS",
-      meta: { moduleId, reason: "capstone_completion" },
-    });
-  }
-
-  if (isM0) {
-    totalXP += XP.SPECIAL.M0_COMPLETION;
-    xpLog.push({
-      amount: XP.SPECIAL.M0_COMPLETION,
-      source: "MODULE_COMPLETION",
-      meta: { moduleId, reason: "tutorial_completion" },
-    });
-  }
-
-  if (module.xpReward && !isM0) {
-    totalXP += module.xpReward;
-    xpLog.push({
-      amount: module.xpReward,
-      source: "BONUS",
-      meta: { moduleId, reason: "module_config_reward" },
-    });
-  }
+  const xpLog = toXpLog(breakdown, { moduleId });
 
   await ModuleCompletion.create({
     userId,
@@ -735,6 +686,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     "order phase",
   );
   if (!lesson) throw new AppError("Lesson not found", 404);
+  const moduleOrder = lesson.moduleId?.order;
 
   const user = await findUserOrThrow(userId);
 
@@ -833,15 +785,16 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     );
 
   if (completed) {
-    const freshQuizProgress = await LessonQuizProgress.findOne({
-      userId,
-      lessonId,
-    });
-
     const exercise = exerciseProgress;
 
+    // Facts derived from server state only; the raw request body is never
+    // passed through to the completion logic.
     const submissionData = {
-      quizProgress: freshQuizProgress,
+      exerciseJustPassed,
+      justCorrectQuestion:
+        isQuizSubmission && isCorrectForThisAction && !alreadyCorrect
+          ? questionIndex
+          : undefined,
       attemptNumber: exercise?.firstAttemptPassed ? 1 : exercise?.attemptCount,
       usedHints: exercise?.usedHints,
       elapsedSeconds: exercise?.elapsedSeconds,
@@ -880,39 +833,24 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   }
 
   let partialXPEarned = 0;
-  let xpSource = null;
-  let xpMeta = null;
 
-  if (!existingLessonCompletion) {
+  if (!existingLessonCompletion && isLessonXpEligible(moduleOrder)) {
+    let entry = null;
+
     if (isExerciseSubmission && exerciseJustPassed) {
-      const submissionCount = exerciseProgress?.attemptCount || 1;
-      const isFirstTry =
-        exerciseProgress?.firstAttemptPassed || submissionCount === 1;
-      partialXPEarned = xpService.calculateExerciseXP(
-        submissionCount,
-        isFirstTry,
-      );
-      xpSource = "EXERCISE";
-      xpMeta = { lessonId, submissionCount, isFirstTry };
+      entry = buildExerciseXpEntry(lessonId, exerciseProgress);
     } else if (isQuizSubmission && isCorrectForThisAction && !alreadyCorrect) {
       const attempts = quizHelpers.getQuestionAttempts(
         quizProgress,
         questionIndex,
       );
-      partialXPEarned = xpService.calculateLessonQuizXP(attempts);
-      xpSource = "LESSON_QUIZ";
-      xpMeta = { lessonId, questionIndex, attempts };
+      entry = buildQuizAnswerXpEntry(lessonId, questionIndex, attempts);
     }
 
-    if (partialXPEarned > 0 && xpSource) {
-      user.xp = (user.xp || 0) + partialXPEarned;
-      await XpTransaction.create({
-        userId: user._id,
-        amount: partialXPEarned,
-        source: xpSource,
-        meta: xpMeta,
-        awardedAt: new Date(),
-      });
+    if (entry && entry.amount > 0) {
+      partialXPEarned = entry.amount;
+      awardUserXp(user, entry.amount);
+      await createXpTransactions(user._id, [entry]);
       await user.save();
     }
   }
@@ -1084,19 +1022,19 @@ const fixUserModuleProgress = async (userId) => {
           completedAt: new Date(),
         });
 
-        const xpAmount = module.xpReward || 100;
-        user.xp = (user.xp || 0) + xpAmount;
-
-        await XpTransaction.create({
-          userId: user._id,
-          amount: xpAmount,
-          source: "MODULE_COMPLETION_AUTO",
-          meta: {
+        // Same formula as a normal completion, minus per-answer quiz XP
+        // (not reconstructable from stored QuizAttempt scores).
+        const { total, breakdown } = xpService.calculateModuleCompletionXP({
+          order: module.order,
+        });
+        awardUserXp(user, total);
+        await createXpTransactions(
+          user._id,
+          toXpLog(breakdown, {
             moduleId: module._id.toString(),
             reason: "admin_progress_fix",
-          },
-          awardedAt: new Date(),
-        });
+          }),
+        );
 
         user.completedModulesCount = (user.completedModulesCount || 0) + 1;
 
