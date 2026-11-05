@@ -12,18 +12,6 @@ const getModuleRewardXp = (order) => {
 };
 
 /**
- * Determines the curriculum phase based on the module order.
- * @param {number} order - The module order/number.
- * @returns {number} The phase number (1, 2, or 3), or 0 if not found.
- */
-const getModulePhase = (order) => {
-  if (order >= 1 && order <= 9) return 1;
-  if (order >= 10 && order <= 15) return 2;
-  if (order >= 16 && order <= 20) return 3;
-  return 0;
-};
-
-/**
  * Calculates the phase completion bonus based on the phase number.
  * @param {number} phase - The phase number (1, 2, or 3).
  * @returns {number} The bonus XP amount.
@@ -77,7 +65,8 @@ const calculateModuleCompletionXP = ({ order, phase, quizResults = [] }) => {
   const add = (amount, source, meta = {}) =>
     amount > 0 && breakdown.push({ amount, source, meta });
 
-  const currentPhase = phase ?? getModulePhase(order);
+  // Fallback to MODULE_REWARDS configuration, defaulting to phase 1 if unspecified
+  const currentPhase = phase ?? MODULE_REWARDS[order]?.phase ?? 1;
 
   if (order !== 0 && quizResults.length) {
     const correct = quizResults.filter((r) => r.isCorrect).length;
@@ -112,7 +101,6 @@ const calculateModuleCompletionXP = ({ order, phase, quizResults = [] }) => {
 
 module.exports = {
   getModuleRewardXp,
-  getModulePhase,
   getPhaseBonus,
   calculateLessonQuizXP,
   calculateExerciseXP,
