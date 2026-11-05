@@ -1,4 +1,6 @@
 // server/config/moduleConfigs.js
+const { getModuleRewardXp } = require("../services/xpService");
+
 /**
  * Centralized module configuration for seeding and updating
  *
@@ -953,133 +955,114 @@ const MODULE_HELPERS = {
       M1: {
         difficulty: "BEGINNER",
         estimatedHours: 3,
-        xpReward: 100,
         icon: "🐍",
       },
       M2: {
         difficulty: "BEGINNER",
         estimatedHours: 2.5,
-        xpReward: 150,
         icon: "📊",
       },
       M3: {
         difficulty: "BEGINNER",
         estimatedHours: 2,
-        xpReward: 120,
         icon: "🚥",
       },
       M4: {
         difficulty: "BEGINNER",
         estimatedHours: 2.5,
-        xpReward: 130,
         icon: "🔁",
       },
       M5: {
         difficulty: "BEGINNER",
         estimatedHours: 2.5,
-        xpReward: 170,
         icon: "📖",
       },
       M6: {
         difficulty: "BEGINNER",
         estimatedHours: 3,
-        xpReward: 180,
         icon: "⚙️",
       },
       M7: {
         difficulty: "BEGINNER",
         estimatedHours: 2.5,
-        xpReward: 160,
         icon: "📁",
       },
       M8: {
         difficulty: "BEGINNER",
         estimatedHours: 2.5,
-        xpReward: 140,
         icon: "🛡️",
       },
       M9: {
         difficulty: "BEGINNER",
         estimatedHours: 2.5,
-        xpReward: 150,
         icon: "✨",
       },
       M10: {
         difficulty: "INTERMEDIATE",
         estimatedHours: 3,
-        xpReward: 180,
         icon: "🎯",
       },
       M11: {
         difficulty: "INTERMEDIATE",
         estimatedHours: 3,
-        xpReward: 200,
         icon: "🏗️",
       },
       M12: {
         difficulty: "INTERMEDIATE",
         estimatedHours: 3,
-        xpReward: 210,
         icon: "🧬",
       },
       M13: {
         difficulty: "INTERMEDIATE",
         estimatedHours: 2.5,
-        xpReward: 160,
         icon: "📅",
       },
       M14: {
         difficulty: "INTERMEDIATE",
         estimatedHours: 3,
-        xpReward: 170,
         icon: "🔍",
       },
       M15: {
         difficulty: "INTERMEDIATE",
         estimatedHours: 4,
-        xpReward: 250,
         icon: "🛠️",
       },
       M16: {
         difficulty: "ADVANCED",
         estimatedHours: 4,
-        xpReward: 300,
         icon: "🌐",
       },
       M17: {
         difficulty: "ADVANCED",
         estimatedHours: 5,
-        xpReward: 350,
         icon: "📊",
       },
       M18: {
         difficulty: "ADVANCED",
         estimatedHours: 3.5,
-        xpReward: 280,
         icon: "🕸️",
       },
       M19: {
         difficulty: "ADVANCED",
         estimatedHours: 3,
-        xpReward: 260,
         icon: "💾",
       },
       M20: {
         difficulty: "ADVANCED",
         estimatedHours: 6,
-        xpReward: 500,
         icon: "🏆",
       },
     };
 
-    return (
-      metadataMap[moduleNum] || {
-        difficulty: "BEGINNER",
-        estimatedHours: 2,
-        xpReward: 100,
-        icon: "📚",
-      }
-    );
+    const baseMeta = metadataMap[moduleNum] || {
+      difficulty: "BEGINNER",
+      estimatedHours: 2,
+      icon: "📚",
+    };
+
+    const order = parseInt(moduleNum.replace("M", ""), 10);
+
+    return { ...baseMeta, xpReward: getModuleRewardXp(order) };
   },
 
   /**
