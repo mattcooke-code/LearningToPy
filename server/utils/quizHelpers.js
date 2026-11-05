@@ -1,7 +1,5 @@
 // quizHelpers.js
-const {
-  calculateLessonQuizXP,
-} = require("../../shared/constants/progress.cjs");
+const { calculateLessonQuizXP } = require("../services/xpService");
 const LessonQuizProgress = require("../models/LessonQuizProgress");
 
 /**
@@ -108,13 +106,6 @@ const getQuestionAttempts = (quizProgress, questionIndex) => {
 };
 
 /**
- * Calculate XP for a correct quiz answer based on attempt count.
- */
-const calculateQuizAnswerXP = (attempts) => {
-  return calculateLessonQuizXP(attempts);
-};
-
-/**
  * Build an array of results for all quiz questions.
  */
 const getQuizResultsForXP = (quizProgress, lesson) => {
@@ -154,7 +145,6 @@ module.exports = {
   isQuizCompleted,
   updateQuizProgress,
   getQuestionAttempts,
-  calculateQuizAnswerXP,
   getQuizResultsForXP,
   getCorrectAnswerIndices,
 };
