@@ -1,6 +1,5 @@
 // quizHelpers.js
 const {
-  XP,
   calculateLessonQuizXP,
 } = require("../../shared/constants/progress.cjs");
 const LessonQuizProgress = require("../models/LessonQuizProgress");
