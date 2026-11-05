@@ -98,10 +98,14 @@ const getModule = catchAsync(async (req, res, next) => {
     return next(new AppError("Module not found.", 404));
   }
 
-  const { completedLessons, completedModules, quizAttempts } =
-    await learningEngine.fetchUserCompletionData(userId);
+  const [completionData, lessonsByModule] = await Promise.all([
+    learningEngine.fetchUserCompletionData(userId),
+    learningEngine.fetchLessonsByModule([moduleId]),
+  ]);
 
-  const lessons = await Lesson.find({ moduleId, isPublished: true });
+  const { completedLessons, completedModules, quizAttempts } = completionData;
+
+  const lessons = lessonsByModule[moduleId.toString()] || [];
 
   const completedLessonsInModule = moduleProgress.getModuleLessonCompletion(
     lessons,
