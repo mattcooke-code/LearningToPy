@@ -143,7 +143,7 @@ export const TopContent = ({ contentPerformance }) => {
                 {index + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-gray-900 dark:text-white text-sm sm:text-base break-words">
+                <div className="font-medium text-gray-900 dark:text-white text-sm sm:text-base wrap-break-word">
                   {item.title}
                 </div>
                 <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">

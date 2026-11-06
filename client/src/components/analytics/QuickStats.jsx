@@ -53,7 +53,7 @@ export const QuickStats = ({ platformMetrics }) => {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className={`bg-gradient-to-r ${stat.gradient} rounded-xl p-6 text-white`}
+          className={`bg-linear-to-r ${stat.gradient} rounded-xl p-6 text-white`}
         >
           <div className="text-2xl font-bold">{stat.value}</div>
           <div className="text-sm opacity-90">{stat.label}</div>
