@@ -138,6 +138,10 @@ const LessonPage = () => {
 
       showToast(message, "success");
 
+      // Mark completed immediately (before any await) so effects watching
+      // lesson.isCompleted can't fire a redundant completion request.
+      setLesson((prev) => ({ ...prev, isCompleted: true }));
+
       if (nextLessonId) {
         try {
           const data = await apiClient.get(`/content/lessons/${nextLessonId}`);
@@ -146,8 +150,6 @@ const LessonPage = () => {
           console.log("Next lesson not found");
         }
       }
-
-      setLesson((prev) => ({ ...prev, isCompleted: true }));
 
       if (progress?.courseProgressPercentage !== undefined) {
         updateThemeFromCourseProgress(progress.courseProgressPercentage);
@@ -182,10 +184,10 @@ const LessonPage = () => {
         { manualCompletion: true },
       );
 
-      if (result.completed && result.newlyCompleted !== false) {
-        handleLessonCompletionUI(result);
-      } else {
+      if (!result.completed) {
         showToast("Lesson not fully finished yet.", "warning");
+      } else if (result.newlyCompleted !== false) {
+        handleLessonCompletionUI(result);
       }
     } catch (err) {
       console.error("Completion call failed:", err);
@@ -229,8 +231,19 @@ const LessonPage = () => {
   }, []);
 
   const handleCodeSubmit = useCallback(
-    async (content) => {
+    async (content, serverResult) => {
       if (!lesson || isReviewMode) return;
+
+      // ExerciseComponent submits to the server itself and passes the response
+      // as the 2nd argument. Apply it to the UI but do NOT submit again: a second
+      // POST re-records the attempt and returns a 0 XP "already completed"
+      // response, which produced the extra "+0 XP" toast.
+      if (serverResult) {
+        if (serverResult.isCorrect) setExerciseCompleted(true);
+        if (serverResult.completed) handleLessonCompletionUI(serverResult);
+        return;
+      }
+
       setIsSubmitting(true);
 
       if (content && content.completed && content.xpEarned !== undefined) {

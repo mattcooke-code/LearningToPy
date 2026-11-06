@@ -195,7 +195,9 @@ const ExerciseComponent = ({
         },
       );
 
-      if (result.isCorrect && result.xpEarned > 0) {
+      // If this submission also completes the lesson, LessonPage shows one
+      // "Lesson completed! +N XP" toast with the full total, so skip this one.
+      if (result.isCorrect && result.xpEarned > 0 && !result.completed) {
         showToast(`💻 +${result.xpEarned} XP earned!`, "success");
       }
 
