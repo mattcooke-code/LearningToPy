@@ -213,6 +213,21 @@ const buildQuizAnswerXpEntry = (lessonId, questionIndex, attempts) => ({
 });
 
 /**
+ * Order of the final module: a 1-lesson capstone project with no module quiz.
+ * It is the ONLY module that auto-completes (so the whole course can complete
+ * when the capstone is submitted). Every other module completes by passing
+ * its module quiz. M0 is an optional tutorial and never auto-completes.
+ */
+const FINAL_MODULE_ORDER = 20;
+
+/**
+ * Whether a MODULE has an end-of-module quiz.
+ * Note: quizHelpers.hasQuiz() checks `lesson.quiz` (lesson-level quizzes) and
+ * always returns false for a Module document - do not use it for modules.
+ */
+const hasModuleQuiz = (module) => !!module?.moduleQuiz?.questions?.length;
+
+/**
  * Convert a calculateModuleCompletionXP breakdown into XpTransaction log
  * entries, merging in caller-specific meta (moduleId, lessonId, ...).
  */
@@ -374,7 +389,6 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
     .select("order phase")
     .lean();
   const moduleOrder = module?.order;
-  const isM0 = moduleOrder === 0;
   const isProjectLesson = lesson.contentType === "PROJECT";
 
   let totalXP = 0;
@@ -459,7 +473,10 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   let willAutoComplete = false;
   let autoCompleteModule = null;
 
-  if (!isM0 && !quizHelpers.hasQuiz(lesson)) {
+  // Only the final module auto-completes. All other modules must pass their
+  // module quiz, which is what creates the ModuleCompletion (and unlocks the
+  // next module).
+  if (moduleOrder === FINAL_MODULE_ORDER) {
     const moduleLessons = await Lesson.find({
       moduleId: lesson.moduleId,
       isPublished: true,
@@ -484,9 +501,7 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
 
     if (allOthersComplete) {
       const fullModule = await Module.findById(lesson.moduleId);
-      const moduleHasQuiz = quizHelpers.hasQuiz(fullModule);
-
-      if (!moduleHasQuiz) {
+      if (!hasModuleQuiz(fullModule)) {
         const existingModuleCompletion = await ModuleCompletion.findOne({
           userId,
           moduleId: fullModule._id,
@@ -825,6 +840,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
         completed: true,
         xpEarned: completionResult.xpIncrease,
         xpBreakdown: completionResult.xpBreakdown,
+        alreadyCompleted: !completionResult.newlyCompleted,
         progress: progressData,
         badgesUnlocked: badgesUnlockedDetails,
         nextLessonId: completionResult.nextLessonId,
@@ -848,18 +864,10 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     }
 
     if (entry && entry.amount > 0) {
-      try {
-        await createXpTransactions(user._id, [entry]);
-        awardUserXp(user, entry.amount);
-        await user.save();
-        partialXPEarned = entry.amount;
-      } catch (err) {
-        if (err.code === 11000) {
-          partialXPEarned = 0;
-        } else {
-          throw err;
-        }
-      }
+      partialXPEarned = entry.amount;
+      awardUserXp(user, entry.amount);
+      await createXpTransactions(user._id, [entry]);
+      await user.save();
     }
   }
 
@@ -878,7 +886,7 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
   const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found.", 404);
 
-  if (!module.moduleQuiz?.questions?.length) {
+  if (!hasModuleQuiz(module)) {
     throw new AppError("Module quiz not found.", 404);
   }
 
