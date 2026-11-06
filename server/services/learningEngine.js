@@ -826,7 +826,11 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     const badgesUnlockedDetails =
       await gamification.evaluateAndApplyBadges(user);
 
-    await streakManager.trackCompletion(user);
+    // Only a NEW completion counts toward the streak; resubmitting a finished
+    // lesson must not satisfy the weekly requirement.
+    if (completionResult.newlyCompleted) {
+      await streakManager.trackCompletion(user);
+    }
     await user.save();
     await gamification.checkLeaderboardBadges(user, User);
 
@@ -960,7 +964,10 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 
     badgesUnlockedDetails = await gamification.evaluateAndApplyBadges(user);
 
-    await streakManager.trackCompletion(user);
+    // Retaking an already-passed module quiz must not count as a completion.
+    if (completionResult.newlyCompleted) {
+      await streakManager.trackCompletion(user);
+    }
   }
 
   await user.save();

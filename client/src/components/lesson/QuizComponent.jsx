@@ -185,7 +185,10 @@ const QuizComponent = ({
         return updated;
       });
 
-      if (data.isCorrect && data.xpEarned > 0) {
+      // If this answer completes the lesson, the parent shows one
+      // "Lesson completed! +N XP" toast with the full total, so skip this one.
+      const parentShowsCompletion = data.completed && onAnswerSubmit;
+      if (data.isCorrect && data.xpEarned > 0 && !parentShowsCompletion) {
         showToast(`+${data.xpEarned} XP earned! 🎯`, "success");
       }
 

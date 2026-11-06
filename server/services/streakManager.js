@@ -103,10 +103,14 @@ const trackCompletion = async (user) => {
     user.weeklyProgress.warningIssued = false;
   }
 
+  // Advance the streak at most once per day. updateStreak() compares against
+  // streakLastCheckedDate, which completions don't move, so without this guard
+  // every extra completion on days 6-7 would add another +1.
   const dayOfWeek = getDayOfWeek(today, user.weeklyProgress.weekStartDate);
   if (
-    dayOfWeek > STREAK_CONFIG.VIEW_QUALIFIES_DAYS ||
-    !user.streakLastCheckedDate
+    !alreadyCompletedToday &&
+    (dayOfWeek > STREAK_CONFIG.VIEW_QUALIFIES_DAYS ||
+      !user.streakLastCheckedDate)
   ) {
     await updateStreak(user, today);
   }
