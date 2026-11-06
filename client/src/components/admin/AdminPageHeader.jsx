@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 /**
  * Header component for admin pages with title, description, and optional action.
  * Provides consistent page heading structure with responsive layout.
- * 
+ *
  * @component
  * @param {Object} props
  * @param {string} props.title - Header title
@@ -29,7 +29,7 @@ const AdminPageHeader = ({ title, description, action, className = "" }) => {
           </p>
         )}
       </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 };

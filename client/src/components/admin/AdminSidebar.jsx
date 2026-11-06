@@ -110,7 +110,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                     aria-current={isActive ? "page" : undefined}
                   >
                     <Icon
-                      className="h-5 w-5 mr-3 flex-shrink-0"
+                      className="h-5 w-5 mr-3 shrink-0"
                       aria-hidden="true"
                     />
                     <span className="flex-1 truncate">{item.label}</span>
@@ -124,7 +124,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                     )}
                     {isActive && (
                       <ChevronRight
-                        className="h-4 w-4 ml-2 flex-shrink-0"
+                        className="h-4 w-4 ml-2 shrink-0"
                         aria-hidden="true"
                       />
                     )}

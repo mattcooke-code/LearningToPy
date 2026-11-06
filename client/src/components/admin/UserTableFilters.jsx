@@ -84,7 +84,7 @@ const UserTableFilters = ({ filters, setFilters, onReset }) => {
             onClick={onReset}
             className="group flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-orange-600 transition-colors"
           >
-            <RotateCcw className="h-3 w-3 group-hover:rotate-[-45deg] transition-transform" />
+            <RotateCcw className="h-3 w-3 group-hover:-rotate-45 transition-transform" />
             Clear All
           </button>
         )}

@@ -615,7 +615,7 @@ const ModuleQuizPage = () => {
             />
           </h2>
           {currentFeedback?.showFeedback && (
-            <div className="ml-4 flex-shrink-0">
+            <div className="ml-4 shrink-0">
               {currentFeedback.isCorrect ? (
                 <CheckCircle className="h-8 w-8 text-green-500 dark:text-green-400" />
               ) : (
@@ -713,7 +713,7 @@ const ModuleQuizPage = () => {
             }`}
           >
             <div className="flex items-start">
-              <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+              <Info className="h-5 w-5 mr-2 shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold mb-1">
                   {currentFeedback.isCorrect ? "✓ Correct!" : "✗ Incorrect"}
