@@ -160,7 +160,7 @@ export const ContentToolbar = ({
                     })),
                 ]}
                 placeholder="Select module..."
-                className="w-[220px]"
+                className="w-55"
                 aria-label="Filter by module"
               />
             )}

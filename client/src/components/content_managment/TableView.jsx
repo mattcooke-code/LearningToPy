@@ -177,7 +177,7 @@ const TableView = ({
 
                 {/* Title */}
                 <td
-                  className="px-3 py-3 whitespace-nowrap max-w-[220px]"
+                  className="px-3 py-3 whitespace-nowrap max-w-55"
                   role="gridcell"
                 >
                   <div className="flex items-center">
@@ -198,14 +198,14 @@ const TableView = ({
                       />
                     </div>
                     <div className="min-w-0">
-                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate max-w-[160px]">
+                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate max-w-40">
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-1">
                           {item.type === "lesson" ? "📖" : "📦"} #
                           {item.order || "—"}
                         </span>
                         {item.title}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px]">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-40">
                         ID: {item._id?.slice(-8)}
                         {item.type === "lesson" && item.moduleId && (
                           <span className="ml-1">
