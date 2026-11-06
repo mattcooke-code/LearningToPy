@@ -231,7 +231,7 @@ const ProgressOverrideModal = ({ isOpen, user, onClose, onSave }) => {
       </div>
 
       {/* Items List */}
-      <div className="min-h-[400px]">
+      <div className="min-h-100">
         {loading ? (
           <div
             className="flex flex-col items-center justify-center h-64 space-y-4"

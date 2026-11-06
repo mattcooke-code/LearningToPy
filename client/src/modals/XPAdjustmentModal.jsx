@@ -89,7 +89,7 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
       footer={
         <div className="flex items-center justify-between w-full">
           <p
-            className="text-[10px] text-gray-400 max-w-[200px] leading-tight font-medium"
+            className="text-[10px] text-gray-400 max-w-50 leading-tight font-medium"
             role="note"
           >
             Note: XP adjustments are logged and visible in user activity
@@ -149,7 +149,7 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
               <span className="text-sm font-normal opacity-60">XP</span>
             </p>
           </div>
-          <div className="h-10 w-[1px] bg-white/10" aria-hidden="true" />
+          <div className="h-10 w-px bg-white/10" aria-hidden="true" />
           <div className="text-right">
             <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
               Current Rank

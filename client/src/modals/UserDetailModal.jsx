@@ -237,7 +237,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
 
         <div className="relative flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 text-center md:text-left">
           <div
-            className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white text-3xl font-black shrink-0"
+            className="h-20 w-20 rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white text-3xl font-black shrink-0"
             aria-hidden="true"
           >
             {currentUser.username?.charAt(0).toUpperCase()}
@@ -328,7 +328,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
       </div>
 
       {/* Tab Content Area */}
-      <div className="min-h-[400px]">
+      <div className="min-h-100">
         {/* Overview Tab */}
         <div
           id="panel-overview"
@@ -413,7 +413,7 @@ const UserDetailModal = ({ isOpen, onClose, user }) => {
         >
           {activeTab === "activity" && (
             <div
-              className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar"
+              className="space-y-4 max-h-125 overflow-y-auto pr-2 custom-scrollbar"
               tabIndex={0}
               role="log"
               aria-label="User activity log"

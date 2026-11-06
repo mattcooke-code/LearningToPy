@@ -655,7 +655,7 @@ const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
                 />
               </div>
               <div
-                className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
+                className="space-y-2 max-h-100 overflow-y-auto pr-2 custom-scrollbar"
                 tabIndex={0}
                 role="listbox"
                 aria-label="Available lessons"
@@ -703,7 +703,7 @@ const ModuleEditorModal = ({ isOpen, onClose, module, onSave }) => {
             {/* Current Module Content */}
             <div className="lg:col-span-2 space-y-3">
               {moduleLessons.length === 0 ? (
-                <div className="h-full min-h-[200px] border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center text-gray-400">
+                <div className="h-full min-h-50 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center text-gray-400">
                   <Plus
                     className="h-8 w-8 mb-2 opacity-20"
                     aria-hidden="true"

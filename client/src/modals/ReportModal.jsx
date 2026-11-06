@@ -120,7 +120,7 @@ const ReportModal = ({ isOpen, onClose, lessonId }) => {
       <div className="space-y-4">
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
           <div className="flex items-start space-x-3">
-            <Flag className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <Flag className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
                 Help us improve this lesson!
