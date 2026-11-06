@@ -597,7 +597,7 @@ const TerminalComponent = forwardRef(
         {/* Output Area */}
         <div
           ref={terminalRef}
-          className={`grow overflow-y-auto overflow-x-hidden p-4 font-mono text-sm whitespace-pre-wrap break-words ${
+          className={`grow overflow-y-auto overflow-x-hidden p-4 font-mono text-sm whitespace-pre-wrap wrap-break-word ${
             isCodeDark ? "bg-black text-gray-300" : "bg-gray-900 text-gray-100"
           }`}
           style={{ height }}

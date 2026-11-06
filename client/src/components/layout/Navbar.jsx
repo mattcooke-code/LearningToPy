@@ -107,7 +107,7 @@ const Navbar = memo(function Navbar() {
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-black/10 transition ${isDropdownOpen ? "bg-black/10" : ""}`}
                   >
                     <User className="w-5 h-5" />
-                    <span className="font-medium max-w-[120px] truncate">
+                    <span className="font-medium max-w-30 truncate">
                       {user?.username}
                     </span>
                     <ChevronDown
