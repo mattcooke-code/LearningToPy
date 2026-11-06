@@ -95,9 +95,24 @@ with open('data.txt', 'w') as f:
  *   string if this exercise doesn't need file setup.
  */
 export const getFileCreationCode = (exercise) => {
+  const setup = exercise.fileSetup || {};
+
+  // Prefer explicit fileSetup — it's the source of truth.
+  if (Object.keys(setup).length > 0) {
+    return Object.entries(setup)
+      .map(([name, content]) => {
+        const body =
+          typeof content === "string"
+            ? JSON.stringify(content)
+            : JSON.stringify(String(content));
+        return `with open(${JSON.stringify(name)}, 'w', encoding='utf-8') as f:\n    f.write(${body})`;
+      })
+      .join("\n");
+  }
+
+  // Fall back to the legacy map for exercises that need procedural setup.
   const title = exercise.title || "";
   const challengeGroup = exercise.challengeGroup || "";
-
   const match = FILE_CREATION_MAP.find(
     (entry) =>
       (entry.title && title.includes(entry.title)) ||
