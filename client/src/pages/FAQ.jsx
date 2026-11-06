@@ -24,51 +24,51 @@ import { BackToTopButton } from "../components/ui";
 
 /**
  * FAQ page component providing searchable help documentation and support resources.
- * 
+ *
  * This component displays frequently asked questions organized by categories with
  * real-time search functionality, expandable/collapsible items, and support contact
  * options. Features categorized content (Getting Started, Progress & Levels, Technical,
  * Troubleshooting, Account & Privacy), search filtering, and responsive design with
  * theme-aware styling. Includes contact support CTA and navigation to other help resources.
- * 
+ *
  * @component
  * @returns {JSX.Element} Complete FAQ page with search and categorized questions
- * 
+ *
  * @stateManagement
  * - searchQuery: Current search term for filtering FAQ items
  * - openItems: Object tracking which FAQ items are expanded/collapsed
- * 
+ *
  * @searchFunctionality
  * - Real-time filtering of FAQ categories and items
  * - Case-insensitive search across questions and answers
  * - Dynamic category hiding when no items match
  * - No results state with helpful messaging
- * 
+ *
  * @contentCategories
  * - Getting Started: Platform introduction and basic questions
  * - Progress & Levels: XP, streaks, and level system explanations
  * - Technical: Browser support, code execution, and technical details
  * - Troubleshooting: Password reset, bug reporting, and common issues
  * - Account & Privacy: Account management and data protection
- * 
+ *
  * @userInteraction
  * - Expandable/collapsible FAQ items with smooth transitions
  * - Search input with icon and placeholder text
  * - Category icons for visual organization
  * - Hover effects and interactive elements
- * 
+ *
  * @supportIntegration
  * - Contact support CTA with email link
  * - Navigation to support page
  * - Quick links to curriculum and FAQ
  * - Help resources and contact information
- * 
+ *
  * @responsiveDesign
  * - Mobile-friendly layout with proper spacing
  * - Adaptive search bar sizing
  * - Touch-friendly interactive elements
  * - Flexible grid layouts for different screen sizes
- * 
+ *
  * @themeIntegration
  * - Dark mode support with theme-aware colors
  * - Consistent styling with platform theme
@@ -319,7 +319,7 @@ const FAQ = () => {
           )}
 
           {/* Contact Support CTA */}
-          <div className="mt-12 p-6 md:p-10 max-w-4xl mx-auto bg-gradient-to-r from-python-blue to-python-yellow  rounded-2xl text-center">
+          <div className="mt-12 p-6 md:p-10 max-w-4xl mx-auto bg-linear-to-r from-python-blue to-python-yellow  rounded-2xl text-center">
             <Mail className="h-8 w-8 text-python-dark dark:text-python-yellow mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               Still have questions?

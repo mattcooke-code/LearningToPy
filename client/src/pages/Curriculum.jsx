@@ -376,7 +376,7 @@ const PhaseCard = ({ phase, modules, index }) => {
                   >
                     <CheckCircle
                       size={12}
-                      className="mr-2 text-python-blue dark:text-python-yellow flex-shrink-0"
+                      className="mr-2 text-python-blue dark:text-python-yellow shrink-0"
                     />
                     {item}
                   </li>
@@ -489,8 +489,8 @@ const Curriculum = () => {
           <div
             className={`relative rounded-3xl p-6 md:p-12 lg:p-16 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-xl ${
               isDarkMode
-                ? "bg-gradient-to-r from-python-blue/20 to-python-yellow/20"
-                : "bg-gradient-to-r from-python-blue to-python-yellow"
+                ? "bg-linear-to-r from-python-blue/20 to-python-yellow/20"
+                : "bg-linear-to-r from-python-blue to-python-yellow"
             }`}
           >
             {/* Light mode specific background */}
@@ -530,7 +530,7 @@ const Curriculum = () => {
                       key={i}
                       className="flex items-start text-gray-800 dark:text-gray-200"
                     >
-                      <Award className="w-5 h-5 text-python-yellow mr-3 flex-shrink-0 mt-0.5" />
+                      <Award className="w-5 h-5 text-python-yellow mr-3 shrink-0 mt-0.5" />
                       {feat}
                     </li>
                   ))}
@@ -577,14 +577,14 @@ const Curriculum = () => {
                     <span className="text-green-400">"Project complete!"</span>)
                   </p>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-python-blue/30 to-python-yellow/30 blur-2xl -z-10" />
+                <div className="absolute inset-0 bg-linear-to-r from-python-blue/30 to-python-yellow/30 blur-2xl -z-10" />
               </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <div className="rounded-3xl bg-gradient-to-r from-python-blue to-python-dark dark:from-python-blue dark:to-python-dark p-8 md:p-12 text-center">
+        <div className="rounded-3xl bg-linear-to-r from-python-blue to-python-dark dark:from-python-blue dark:to-python-dark p-8 md:p-12 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Ready to start your Python journey?
           </h2>

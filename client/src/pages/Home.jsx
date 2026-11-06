@@ -182,8 +182,8 @@ const Home = () => {
             <div
               className={`relative rounded-3xl shadow-2xl p-8 border border-slate-100 dark:border-slate-900 overflow-hidden transition-all ${
                 isDarkMode
-                  ? "bg-gradient-to-b from-python-light via-slate-800 to-python-dark"
-                  : "bg-gradient-to-b from-python-yellow to-python-blue"
+                  ? "bg-linear-to-b from-python-light via-slate-800 to-python-dark"
+                  : "bg-linear-to-b from-python-yellow to-python-blue"
               }`}
             >
               <div className="relative z-10">
@@ -247,14 +247,14 @@ const Home = () => {
                         }`}
                       >
                         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                          <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-slate-700 flex items-center justify-center text-xs sm:text-sm font-semibold flex-shrink-0">
+                          <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-slate-700 flex items-center justify-center text-xs sm:text-sm font-semibold shrink-0">
                             #{player.position}
                           </div>
                           <span className="font-medium text-sm sm:text-base truncate">
                             {player.name}
                           </span>
                         </div>
-                        <span className="text-python-yellow font-semibold text-sm sm:text-base flex-shrink-0 ml-2">
+                        <span className="text-python-yellow font-semibold text-sm sm:text-base shrink-0 ml-2">
                           {player.xp} XP
                         </span>
                       </div>
@@ -390,8 +390,8 @@ const Home = () => {
               className={`relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all 
   w-full max-w-md mx-auto lg:max-w-none lg:mx-0 ${
     isDarkMode
-      ? "bg-gradient-to-br from-python-dark via-python-dark/95 to-python-light"
-      : "bg-gradient-to-br from-python-blue via-python-blue/60  to-python-yellow"
+      ? "bg-linear-to-br from-python-dark via-python-dark/95 to-python-light"
+      : "bg-linear-to-br from-python-blue via-python-blue/60  to-python-yellow"
   }`}
             >
               {!isDarkMode && (
