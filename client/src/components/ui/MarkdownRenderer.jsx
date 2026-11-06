@@ -452,7 +452,7 @@ const MarkdownRenderer = ({ content, moduleId = "M0", isDark }) => {
                 src={imageSrc}
                 alt={alt || "Lesson image"}
                 title={title}
-                className={`rounded-xl border shadow-lg w-full max-w-full h-auto min-h-[80px] md:min-h-[100px] ${activeDark ? "border-gray-700" : "border-gray-300"} transition-transform duration-200 group-hover:scale-[1.01]`}
+                className={`rounded-xl border shadow-lg w-full max-w-full h-auto min-h-20 md:min-h-25 ${activeDark ? "border-gray-700" : "border-gray-300"} transition-transform duration-200 group-hover:scale-[1.01]`}
                 loading="lazy"
               />
             </div>

@@ -82,13 +82,13 @@ const ImageViewer = ({ src, alt, isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-sm"
       onClick={handleClose}
     >
       {/* Close button */}
       <button
         onClick={handleClose}
-        className="absolute top-4 right-4 text-white hover:text-white text-3xl z-[110]
+        className="absolute top-4 right-4 text-white hover:text-white text-3xl z-110
                    w-12 h-12 flex items-center justify-center rounded-full 
                    bg-black/60 hover:bg-black/80 transition-colors
                    border border-white/20"
@@ -98,7 +98,7 @@ const ImageViewer = ({ src, alt, isOpen, onClose }) => {
       </button>
 
       {/* Top controls */}
-      <div className="absolute top-4 left-4 flex gap-2 z-[110]">
+      <div className="absolute top-4 left-4 flex gap-2 z-110">
         {/* Rotate button */}
         <button
           onClick={toggleRotation}
@@ -133,13 +133,13 @@ const ImageViewer = ({ src, alt, isOpen, onClose }) => {
       {/* Rotate hint toast */}
       {showRotateHint && (
         <div
-          className="absolute top-20 left-1/2 -translate-x-1/2 z-[110]
+          className="absolute top-20 left-1/2 -translate-x-1/2 z-110
                         bg-white/95 text-gray-900 px-4 py-2.5 rounded-lg
                         shadow-lg animate-bounce text-sm flex items-center gap-2
                         whitespace-nowrap"
         >
           <svg
-            className="w-5 h-5 flex-shrink-0"
+            className="w-5 h-5 shrink-0"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -159,7 +159,7 @@ const ImageViewer = ({ src, alt, isOpen, onClose }) => {
       )}
 
       {/* Zoom controls */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-[110]">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-110">
         <button
           onClick={zoomOut}
           className="w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full 

@@ -29,7 +29,7 @@ const HallOfFameStatus = ({ completionData, loading, onOptIn }) => {
   if (completionData.hofJoinedAt) {
     const inductedDate = new Date(completionData.hofJoinedAt);
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 p-6 shadow-md border border-yellow-200 dark:border-yellow-800">
+      <div className="rounded-2xl bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 p-6 shadow-md border border-yellow-200 dark:border-yellow-800">
         <div className="flex items-center space-x-3 mb-3">
           <Trophy className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -64,7 +64,7 @@ const HallOfFameStatus = ({ completionData, loading, onOptIn }) => {
     );
 
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 shadow-md border border-purple-200 dark:border-purple-800">
+      <div className="rounded-2xl bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 shadow-md border border-purple-200 dark:border-purple-800">
         <div className="flex items-center space-x-3 mb-3">
           <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">

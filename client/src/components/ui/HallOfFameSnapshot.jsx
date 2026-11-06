@@ -43,7 +43,7 @@ const HallOfFameSnapshot = ({ members, totalInducted, loading, onViewAll }) => {
             >
               <div className="flex items-center space-x-2 min-w-0">
                 <div
-                  className={`h-7 w-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-semibold ${
+                  className={`h-7 w-7 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold ${
                     member.rank === 1
                       ? "bg-yellow-400 text-yellow-900"
                       : member.rank === 2
@@ -62,7 +62,7 @@ const HallOfFameSnapshot = ({ members, totalInducted, loading, onViewAll }) => {
                   {member.displayName}
                 </span>
               </div>
-              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
+              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 shrink-0 ml-2">
                 <Clock className="h-3 w-3 mr-1" />
                 {formatDate(member.completedAt)}
               </div>

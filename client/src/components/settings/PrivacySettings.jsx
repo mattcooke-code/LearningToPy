@@ -229,7 +229,7 @@ const PrivacySettings = ({ user, onUpdate }) => {
           <div className="ml-12">
             <div className="rounded-lg bg-gray-50 dark:bg-gray-600 p-4">
               <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0 mt-0.5">
+                <div className="shrink-0 mt-0.5">
                   {cookieConsent ? (
                     <div className="h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                       <div className="h-2 w-2 rounded-full bg-green-500" />

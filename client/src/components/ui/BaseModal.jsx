@@ -198,7 +198,7 @@ const BaseModal = ({
       {/* Overlay */}
       {!hideOverlay && (
         <div
-          className={`fixed inset-0 z-[9998] bg-gray-900 transition-opacity ${
+          className={`fixed inset-0 z-9998 bg-gray-900 transition-opacity ${
             backdropBlur ? "backdrop-blur-sm" : "bg-opacity-50"
           }`}
           onClick={closeOnOverlayClick ? handleClose : undefined}
@@ -218,7 +218,7 @@ const BaseModal = ({
 
       {/* Modal Container */}
       <div
-        className="fixed inset-0 z-[9999] overflow-y-auto"
+        className="fixed inset-0 z-9999 overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
