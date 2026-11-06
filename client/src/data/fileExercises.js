@@ -70,6 +70,15 @@ with open('server_log_raw.txt', 'w') as f:
     f.write('404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n')
 `,
   },
+  // Lesson 8.2. - Handling Specific Exceptions
+  {
+    title: "Handling Specific Exceptions",
+    challengeGroup: "specific-exceptions",
+    code: `
+with open('data.txt', 'w') as f:
+    f.write('0')
+`,
+  },
 ];
 
 /**
