@@ -1705,12 +1705,15 @@ const updateModuleOrder = catchAsync(async (req, res, next) => {
 });
 
 /**
- * Fix module completion state for admin users.
- *
- * @route   POST /api/content/modules/fix-progress
+ * Backfill missing module completions for a user (defaults to the caller).
+ * @route POST /api/admin/modules/fix-progress
  */
 const fixModuleProgress = catchAsync(async (req, res, next) => {
-  const userId = req.body.userId || req.user._id;
+  const userId = req.body.userId ?? req.userId;
+
+  if (typeof userId !== "string" || !mongoose.isValidObjectId(userId)) {
+    return next(new AppError("Invalid user id", 400));
+  }
 
   const modulesFixed = await learningEngine.fixUserModuleProgress(userId);
 

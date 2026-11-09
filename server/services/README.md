@@ -23,7 +23,7 @@ Business logic layer. Called by controllers, not routes directly.
 
 ## learningEngine.js
 
-- **Called by:** `progressController.completeLesson`, `progressController.completeModule`, `progressController.getCurrentProgress`, `contentController.submitLesson`, `contentController.submitModuleQuiz`, `contentController.fixModuleProgress`
+- **Called by:** `progressController.completeLesson`, `progressController.completeModule`, `progressController.getCurrentProgress`, `contentController.submitLesson`, `contentController.submitModuleQuiz`, `adminController.fixModuleProgress`
 - **Responsibility:** Lesson/module completion orchestration, XP calculation, auto-completion of quiz-less modules, curriculum progress stats, code validation, user stats tracking
 - **Depends on:** `quizHelpers.js`, `navigation.js`, `constants/xpConstants.js`, `generalUtils.js`
 

@@ -998,7 +998,10 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 /**
  * Scans all published modules for a user, verifies if all lessons and
  * the module quiz have been completed, and backfills missing module completion
- * records, XP transactions, and completion counts.
+ * records, XP transactions, completion counts and level.
+ *
+ * Authorization is NOT checked here: `userId` is the user being repaired, not
+ * the caller, so the route must be protected by the adminOnly middleware.
  *
  * @param {string} userId - The ID of the user whose progress is being fixed.
  * @returns {Promise<string[]>} - An array of module titles that were fixed.
@@ -1006,11 +1009,8 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 const fixUserModuleProgress = async (userId) => {
   const user = await findUserOrThrow(userId);
 
-  if (!user.isAdmin) {
-    throw new AppError("Access denied. Admin privileges required.", 403);
-  }
-
-  const modules = await Module.find({ isPublished: true }).lean();
+  // Curriculum order, so repairs (and the returned titles) are deterministic.
+  const modules = await Module.find({ isPublished: true }).sort("order").lean();
   const { completedLessons, completedModules } =
     await fetchUserCompletionData(userId);
   const quizAttempts = await QuizAttempt.find({ userId }).lean();
@@ -1020,6 +1020,7 @@ const fixUserModuleProgress = async (userId) => {
   const lessonsByModule = await fetchLessonsByModule(moduleIds);
 
   let modulesFixed = [];
+  let highestFixedOrder = 0;
 
   for (const module of modules) {
     const moduleIdString = module._id.toString();
@@ -1033,10 +1034,14 @@ const fixUserModuleProgress = async (userId) => {
       completedLessons,
       lessons,
     );
-    const quizPassed = moduleProgress.hasPassedModuleQuiz(
-      { quizAttempts },
-      module._id,
-    );
+
+    // M20 (Capstone) has no module quiz; all other modules require passing the quiz.
+    const isFinalModuleWithoutQuiz =
+      module.order === FINAL_MODULE_ORDER && !hasModuleQuiz(module);
+
+    const quizPassed = isFinalModuleWithoutQuiz
+      ? true
+      : moduleProgress.hasPassedModuleQuiz({ quizAttempts }, module._id);
 
     if (allLessonsDone && quizPassed) {
       try {
@@ -1047,10 +1052,10 @@ const fixUserModuleProgress = async (userId) => {
         });
 
         // Same formula as a normal completion, minus per-answer quiz XP
-        // (not reconstructable from stored QuizAttempt scores).
         const { total, breakdown } = xpService.calculateModuleCompletionXP({
           order: module.order,
         });
+
         awardUserXp(user, total);
         await createXpTransactions(
           user._id,
@@ -1061,6 +1066,18 @@ const fixUserModuleProgress = async (userId) => {
         );
 
         user.completedModulesCount = (user.completedModulesCount || 0) + 1;
+        highestFixedOrder = Math.max(highestFixedOrder, module.order);
+
+        // Update user level incrementally or keep track
+        if (module.order > 0) {
+          user.level = Math.max(
+            user.level || 1,
+            Math.min(20, Math.max(1, highestFixedOrder)),
+          );
+        }
+
+        // Save user state immediately per module to prevent partial-failure desyncs
+        await user.save();
 
         modulesFixed.push(module.title);
       } catch (err) {
@@ -1072,8 +1089,6 @@ const fixUserModuleProgress = async (userId) => {
       }
     }
   }
-
-  if (modulesFixed.length > 0) await user.save();
 
   return modulesFixed;
 };
