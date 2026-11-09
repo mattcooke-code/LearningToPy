@@ -25,90 +25,21 @@ const Module = require("../models/Module");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
+const adminService = require("../services/adminService");
+const {
+  createAdminLog,
+  actorFromRequest,
+} = require("../services/auditService");
 const learningEngine = require("../services/learningEngine");
+const { DEFAULT_SETTINGS } = require("../constants/adminConstants");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const levelUtils = require("../utils/levelUtils");
-const { anonymiseIp } = require("../utils/parseDeviceInfo");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
 const mongoose = require("mongoose");
 
 // ======= HELPER FUNCTIONs =======
-/**
- * Create an audit log entry for admin actions.
- *
- * Anonymises the admin's IP address for GDPR/data protection compliance.
- * Logging failures are caught silently — they never fail the request.
- *
- * @param {string}   adminId    - ID of the admin performing the action
- * @param {string}   action     - Action type (e.g., "USER_MADE_ADMIN", "LESSON_DELETED")
- * @param {string}   targetType - Type of target ("USER", "LESSON", "MODULE", "FLAG", "SETTINGS")
- * @param {string}   targetId   - ID of the affected resource
- * @param {Object}   changes    - { old, new } diff of the change
- * @param {string}   reason     - Human-readable reason for the action
- * @param {Object}   req        - Express request object (for IP and user-agent)
- */
-const createAdminLog = async (
-  adminId,
-  action,
-  targetType,
-  targetId,
-  changes,
-  reason,
-  req,
-) => {
-  try {
-    // Anonymise IP address for data protection compliance
-    const anonymizedIp = anonymiseIp(req.ip || req.connection.remoteAddress);
-
-    await AdminLog.create({
-      adminId,
-      action,
-      targetType,
-      targetId,
-      changes,
-      reason: reason || "",
-      ipAddress: anonymizedIp,
-      userAgent: req.headers["user-agent"],
-    });
-  } catch (logError) {
-    console.error("Failed to create admin log:", logError);
-  }
-};
-
-/**
- * getSettings() - default settings object
- */
-const DEFAULT_SETTINGS = {
-  themeColor: "#3b82f6",
-  codeTheme: "dark",
-  defaultTheme: "system",
-  xpPerLevel: 100,
-  moduleXpBonus: 500,
-  streakBonusMultiplier: 1.5,
-  dailyStreakReward: 50,
-  weeklyChallengeBonus: 1000,
-  maxFileSize: 10,
-  maxAvatarSize: 2,
-  sessionTimeout: 60,
-  maxLoginAttempts: 5,
-  enableLeaderboards: true,
-  enableBadges: true,
-  enableStreaks: true,
-  enableChallenges: true,
-  enableComments: true,
-  maintenanceMode: false,
-  allowRegistrations: true,
-  defaultDifficulty: "BEGINNER",
-  maxLessonsPerModule: 20,
-  previewMode: false,
-  autoPublishNewContent: false,
-  requireEmailVerification: false,
-  requireStrongPassword: true,
-  enable2FA: false,
-  logIpAddresses: true,
-};
 
 /**
  * Toggle a user's admin status.
@@ -124,6 +55,7 @@ const DEFAULT_SETTINGS = {
 const toggleAdminStatus = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { makeAdmin, reason } = req.body;
+  const actor = actorFromRequest(req);
 
   // Prevent self-modification
   if (userId === req.userId.toString()) {
@@ -171,7 +103,7 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
   await user.save();
 
   await createAdminLog(
-    req.userId,
+    actor,
     makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
     "USER",
     userId,
@@ -180,7 +112,6 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
       new: { isAdmin: user.isAdmin, leaderboardStatus: user.leaderboardStatus },
     },
     reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
-    req,
   );
 
   sendJsonResponse(
@@ -370,6 +301,7 @@ const searchUsers = catchAsync(async (req, res, next) => {
 const adjustUserXp = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { xpChange, reason } = req.body;
+  const actor = actorFromRequest(req);
 
   if (userId === req.userId.toString()) {
     return next(new AppError("Cannot modify your own XP", 400));
@@ -404,7 +336,7 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
   };
 
   await createAdminLog(
-    req.userId,
+    actor,
     "XP_ADJUSTMENT",
     "USER",
     userId,
@@ -413,7 +345,6 @@ const adjustUserXp = catchAsync(async (req, res, next) => {
       new: { xp: updatedUser.xp, level: updatedUser.level },
     },
     reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
-    req,
   );
 
   // Create XP transaction record for audit trail
@@ -583,6 +514,7 @@ const getFlagStats = catchAsync(async (req, res, next) => {
 const updateUserStatus = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { action, duration, reason } = req.body;
+  const actor = actorFromRequest(req);
 
   // Prevent self-modification
   if (userId === req.userId.toString()) {
@@ -630,7 +562,7 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
   }
 
   await createAdminLog(
-    req.userId,
+    actor,
     actionType,
     "USER",
     userId,
@@ -639,7 +571,6 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
       new: action === "delete" ? null : { isBlocked: user.isBlocked },
     },
     reason || `${action} action performed by admin`,
-    req,
   );
 
   sendJsonResponse(res, 200, `User ${action}ed successfully`, {
@@ -791,6 +722,7 @@ const getUserBadges = catchAsync(async (req, res, next) => {
 const awardBadges = catchAsync(async (req, res, next) => {
   const { badgeIds, reason } = req.body;
   const user = await User.findById(req.params.userId);
+  const actor = actorFromRequest(req);
 
   if (!user) return next(new AppError("User not found", 404));
 
@@ -800,13 +732,12 @@ const awardBadges = catchAsync(async (req, res, next) => {
     user.badges = [...new Set([...user.badges, ...newBadges])];
 
     await createAdminLog(
-      req.userId,
+      actor,
       "AWARD_BADGES",
       "USER",
       user._id,
       { added: newBadges, reason },
       reason,
-      req,
     );
 
     await user.save();
@@ -832,6 +763,7 @@ const awardBadges = catchAsync(async (req, res, next) => {
 const removeBadges = catchAsync(async (req, res, next) => {
   const { badgeIds, reason } = req.body;
   const user = await User.findById(req.params.userId);
+  const actor = actorFromRequest(req);
 
   if (!user) return next(new AppError("User not found", 404));
 
@@ -841,13 +773,12 @@ const removeBadges = catchAsync(async (req, res, next) => {
     user.badges = user.badges.filter((id) => !badgeIds.includes(id));
 
     await createAdminLog(
-      req.userId,
+      actor,
       "REMOVE_BADGES",
       "USER",
       user._id,
       { removed: removedBadges, reason },
       reason,
-      req,
     );
 
     await user.save();
@@ -906,6 +837,7 @@ const getUserProgress = catchAsync(async (req, res, next) => {
 const overrideUserProgress = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { moduleId, lessonId, completed, reason } = req.body;
+  const actor = actorFromRequest(req);
 
   if (userId === req.userId.toString()) {
     return next(new AppError("Cannot modify your own progress", 400));
@@ -981,14 +913,13 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
   ]);
 
   await createAdminLog(
-    req.userId,
+    actor,
     actionType,
     lessonId ? "LESSON" : "MODULE",
     lessonId || moduleId,
     { old: oldValue, new: newValue },
     reason ||
       `Progress override by admin: ${completed ? "complete" : "incomplete"}`,
-    req,
   );
 
   sendJsonResponse(res, 200, "Progress updated successfully", {
@@ -1054,6 +985,7 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
 const resolveFlag = catchAsync(async (req, res, next) => {
   const { flagId } = req.params;
   const { status, adminResponse } = req.body;
+  const actor = actorFromRequest(req);
 
   const validStatuses = ["IN_REVIEW", "FIXED", "REJECTED"];
   if (!validStatuses.includes(status)) {
@@ -1092,7 +1024,7 @@ const resolveFlag = catchAsync(async (req, res, next) => {
 
       // Log the XP adjustment
       await createAdminLog(
-        req.userId,
+        actor,
         "XP_ADJUSTMENT",
         "USER",
         user._id,
@@ -1102,7 +1034,6 @@ const resolveFlag = catchAsync(async (req, res, next) => {
           reason: `Flag compensation for: ${flag.title}`,
         },
         `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
-        req,
       );
     }
   }
@@ -1111,7 +1042,7 @@ const resolveFlag = catchAsync(async (req, res, next) => {
 
   // Log the admin action
   await createAdminLog(
-    req.userId,
+    actor,
     "FLAG_RESOLVED",
     "FLAG",
     flagId,
@@ -1123,7 +1054,6 @@ const resolveFlag = catchAsync(async (req, res, next) => {
       targetId: flag.targetId,
     },
     `Flag resolved with status: ${status}. ${adminResponse || ""}`,
-    req,
   );
 
   sendJsonResponse(
@@ -1156,6 +1086,7 @@ const getSettings = catchAsync(async (req, res, next) => {
  * @returns {Object} 400 - Invalid XP values
  */
 const updateSettings = catchAsync(async (req, res, next) => {
+  const actor = actorFromRequest(req);
   const { changes } = req.body;
 
   if (changes.xpPerLevel !== undefined && changes.xpPerLevel <= 0) {
@@ -1167,13 +1098,12 @@ const updateSettings = catchAsync(async (req, res, next) => {
   }
 
   await createAdminLog(
-    req.userId,
+    actor,
     "SETTINGS_UPDATED",
     "SETTINGS",
     null,
     { new: changes },
     "Settings updated via admin panel.",
-    req,
   );
 
   sendJsonResponse(res, 200, "Settings updated successfully.", {
@@ -1273,6 +1203,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
 const updateLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const updateData = req.body;
+  const actor = actorFromRequest(req);
 
   const lesson = await Lesson.findByIdAndUpdate(lessonId, updateData, {
     new: true,
@@ -1284,13 +1215,12 @@ const updateLesson = catchAsync(async (req, res, next) => {
   }
 
   await createAdminLog(
-    req.userId,
+    actor,
     "LESSON_UPDATED",
     "LESSON",
     lessonId,
     { new: updateData },
     "Updated via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 200, "Lesson updated", { lesson });
@@ -1306,6 +1236,7 @@ const updateLesson = catchAsync(async (req, res, next) => {
 const updateModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const updateData = req.body;
+  const actor = actorFromRequest(req);
 
   const module = await Module.findByIdAndUpdate(moduleId, updateData, {
     new: true,
@@ -1317,13 +1248,12 @@ const updateModule = catchAsync(async (req, res, next) => {
   }
 
   await createAdminLog(
-    req.userId,
+    actor,
     "MODULE_UPDATED",
     "MODULE",
     moduleId,
     { new: updateData },
     "Updated via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 200, "Module updated", { module });
@@ -1365,6 +1295,7 @@ const getContentStats = catchAsync(async (req, res, next) => {
 const publishLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
   const { publish } = req.body;
+  const actor = actorFromRequest(req);
 
   const lesson = await Lesson.findById(lessonId);
   if (!lesson) {
@@ -1375,13 +1306,12 @@ const publishLesson = catchAsync(async (req, res, next) => {
   await lesson.save();
 
   await createAdminLog(
-    req.userId,
+    actor,
     publish ? "LESSON_PUBLISHED" : "LESSON_UNPUBLISHED",
     "LESSON",
     lessonId,
     { old: { isPublished: !publish }, new: { isPublished: publish } },
     `Lesson ${publish ? "published" : "unpublished"} via admin panel`,
-    req,
   );
 
   sendJsonResponse(
@@ -1400,6 +1330,7 @@ const publishLesson = catchAsync(async (req, res, next) => {
 const publishModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const { publish } = req.body;
+  const actor = actorFromRequest(req);
 
   const module = await Module.findById(moduleId);
   if (!module) {
@@ -1410,13 +1341,12 @@ const publishModule = catchAsync(async (req, res, next) => {
   await module.save();
 
   await createAdminLog(
-    req.userId,
+    actor,
     publish ? "MODULE_PUBLISHED" : "MODULE_UNPUBLISHED",
     "MODULE",
     moduleId,
     { old: { isPublished: !publish }, new: { isPublished: publish } },
     `Module ${publish ? "published" : "unpublished"} via admin panel`,
-    req,
   );
 
   sendJsonResponse(
@@ -1433,6 +1363,7 @@ const publishModule = catchAsync(async (req, res, next) => {
  */
 const createLesson = catchAsync(async (req, res, next) => {
   const lessonData = req.body;
+  const actor = actorFromRequest(req);
 
   if (!lessonData.order) {
     const lastLesson = await Lesson.findOne({
@@ -1444,13 +1375,12 @@ const createLesson = catchAsync(async (req, res, next) => {
   const lesson = await Lesson.create(lessonData);
 
   await createAdminLog(
-    req.userId,
+    actor,
     "LESSON_CREATED",
     "LESSON",
     lesson._id,
     { new: { title: lesson.title, moduleId: lesson.moduleId } },
     "Lesson created via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 201, "Lesson created", { lesson });
@@ -1462,6 +1392,7 @@ const createLesson = catchAsync(async (req, res, next) => {
  */
 const createModule = catchAsync(async (req, res, next) => {
   const moduleData = req.body;
+  const actor = actorFromRequest(req);
 
   if (
     !moduleData.order ||
@@ -1478,7 +1409,7 @@ const createModule = catchAsync(async (req, res, next) => {
   const module = await Module.create(moduleData);
 
   await createAdminLog(
-    req.userId,
+    actor,
     "MODULE_CREATED",
     "MODULE",
     module._id,
@@ -1488,7 +1419,6 @@ const createModule = catchAsync(async (req, res, next) => {
       order: module.order,
     },
     "Module created via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 201, "Module created", { module });
@@ -1500,6 +1430,7 @@ const createModule = catchAsync(async (req, res, next) => {
  */
 const deleteLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
+  const actor = actorFromRequest(req);
 
   const lesson = await Lesson.findById(lessonId);
   if (!lesson) {
@@ -1509,13 +1440,12 @@ const deleteLesson = catchAsync(async (req, res, next) => {
   await Lesson.findByIdAndDelete(lessonId);
 
   await createAdminLog(
-    req.userId,
+    actor,
     "LESSON_DELETED",
     "LESSON",
     lessonId,
     { old: { title: lesson.title } },
     "Lesson deleted via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 200, "Lesson deleted", { lessonId });
@@ -1528,6 +1458,7 @@ const deleteLesson = catchAsync(async (req, res, next) => {
  */
 const deleteModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
+  const actor = actorFromRequest(req);
 
   const module = await Module.findById(moduleId);
   if (!module) {
@@ -1547,13 +1478,12 @@ const deleteModule = catchAsync(async (req, res, next) => {
   await Module.findByIdAndDelete(moduleId);
 
   await createAdminLog(
-    req.userId,
+    actor,
     "MODULE_DELETED",
     "MODULE",
     moduleId,
     { old: { title: module.title } },
     "Module deleted via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 200, "Module deleted", { moduleId });
@@ -1565,6 +1495,7 @@ const deleteModule = catchAsync(async (req, res, next) => {
  */
 const duplicateLesson = catchAsync(async (req, res, next) => {
   const { lessonId } = req.params;
+  const actor = actorFromRequest(req);
 
   if (!mongoose.Types.ObjectId.isValid(lessonId)) {
     return next(new AppError("Invalid lesson ID", 400));
@@ -1585,13 +1516,12 @@ const duplicateLesson = catchAsync(async (req, res, next) => {
   });
 
   await createAdminLog(
-    req.userId,
+    actor,
     "LESSON_DUPLICATED",
     "LESSON",
     duplicatedLesson._id,
     { new: { title: duplicatedLesson.title, sourceLesson: lessonId } },
     "Lesson duplicated via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 201, "Lesson duplicated", { lesson: duplicatedLesson });
@@ -1603,6 +1533,7 @@ const duplicateLesson = catchAsync(async (req, res, next) => {
  */
 const duplicateModule = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
+  const actor = actorFromRequest(req);
 
   if (!mongoose.Types.ObjectId.isValid(moduleId)) {
     return next(new AppError("Invalid module ID", 400));
@@ -1639,7 +1570,7 @@ const duplicateModule = catchAsync(async (req, res, next) => {
   );
 
   await createAdminLog(
-    req.userId,
+    actor,
     "MODULE_DUPLICATED",
     "MODULE",
     duplicatedModule._id,
@@ -1653,7 +1584,6 @@ const duplicateModule = catchAsync(async (req, res, next) => {
       },
     },
     "Module duplicated via admin panel",
-    req,
   );
 
   sendJsonResponse(res, 201, "Module duplicated", {
@@ -1711,6 +1641,7 @@ const updateModuleOrder = catchAsync(async (req, res, next) => {
 const fixModuleProgress = catchAsync(async (req, res, next) => {
   const userId = req.body.userId ?? req.userId;
   const { reason } = req.body;
+  const actor = actorFromRequest(req);
 
   if (typeof userId !== "string" || !mongoose.isValidObjectId(userId)) {
     return next(new AppError("Invalid user id", 400));
@@ -1720,14 +1651,13 @@ const fixModuleProgress = catchAsync(async (req, res, next) => {
 
   // ── Create audit log entry ─────────────────────────────────
   await createAdminLog(
-    req.userId,
+    actor,
     "MODULE_PROGRESS_FIXED",
     "USER",
     userId,
     { modulesFixed, fixedCount: modulesFixed.length },
     reason ||
       `Backfilled missing module completions (${modulesFixed.length} fixed)`,
-    req,
   );
 
   sendJsonResponse(res, 200, "Module integrity check complete", {
