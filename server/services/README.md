@@ -6,7 +6,7 @@ Business logic layer. Called by controllers, not routes directly.
 
 - **Called by:** `progressController.getCurrentProgress`, `contentController.getAllModules`, `contentController.getModule`, `contentController.submitLesson`, `contentController.submitModuleQuiz`
 - **Responsibility:** Formats user progress into API response shape, calculates percentages, deduplicates lesson counts, aggregates active days, provides tag/category lookup helpers
-- **Depends on:** `levelUtils.js`, `shared/constants/progress.cjs`
+- **Depends on:** `levelUtils.js`
 
 ## analyticsCache.js (in /utils)
 
@@ -25,7 +25,7 @@ Business logic layer. Called by controllers, not routes directly.
 
 - **Called by:** `progressController.completeLesson`, `progressController.completeModule`, `progressController.getCurrentProgress`, `contentController.submitLesson`, `contentController.submitModuleQuiz`, `contentController.fixModuleProgress`
 - **Responsibility:** Lesson/module completion orchestration, XP calculation, auto-completion of quiz-less modules, curriculum progress stats, code validation, user stats tracking
-- **Depends on:** `quizHelpers.js`, `navigation.js`, `shared/constants/progress.cjs`, `generalUtils.js`
+- **Depends on:** `quizHelpers.js`, `navigation.js`, `constants/xpConstants.js`, `generalUtils.js`
 
 ## mailer.js
 

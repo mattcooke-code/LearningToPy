@@ -32,7 +32,6 @@ export default defineConfig({
       "react/jsx-runtime",
       "react-dom/client",
       "lucide-react",
-      "@shared/constants/progress.cjs",
       "@shared/constants/badgeDefinitions.cjs",
     ],
     force: true, // ADD THIS - forces re-optimization
