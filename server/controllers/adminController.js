@@ -1710,12 +1710,25 @@ const updateModuleOrder = catchAsync(async (req, res, next) => {
  */
 const fixModuleProgress = catchAsync(async (req, res, next) => {
   const userId = req.body.userId ?? req.userId;
+  const { reason } = req.body;
 
   if (typeof userId !== "string" || !mongoose.isValidObjectId(userId)) {
     return next(new AppError("Invalid user id", 400));
   }
 
   const modulesFixed = await learningEngine.fixUserModuleProgress(userId);
+
+  // ── Create audit log entry ─────────────────────────────────
+  await createAdminLog(
+    req.userId,
+    "MODULE_PROGRESS_FIXED",
+    "USER",
+    userId,
+    { modulesFixed, fixedCount: modulesFixed.length },
+    reason ||
+      `Backfilled missing module completions (${modulesFixed.length} fixed)`,
+    req,
+  );
 
   sendJsonResponse(res, 200, "Module integrity check complete", {
     fixedCount: modulesFixed.length,

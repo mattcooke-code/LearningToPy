@@ -29,6 +29,7 @@ const adminLogSchema = new mongoose.Schema(
         "LESSON_INCOMPLETE_OVERRIDE",
         "MODULE_COMPLETED_OVERRIDE",
         "MODULE_INCOMPLETE_OVERRIDE",
+        "MODULE_PROGRESS_FIXED",
 
         // Flags
         "FLAG_RESOLVED",
@@ -76,26 +77,27 @@ const adminLogSchema = new mongoose.Schema(
       default: "",
       maxlength: [1000, "Reason must not exceed 1000 characters"],
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Prevent script injection in reason field
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Reason contains invalid content"
-      }
+        message: "Reason contains invalid content",
+      },
     },
     ipAddress: {
       type: String,
       default: null,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           if (!value) return true; // Allow null values
           // Basic IP address validation (IPv4 and IPv6)
-          const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+          const ipv4Regex =
+            /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
           const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
           return ipv4Regex.test(value) || ipv6Regex.test(value);
         },
-        message: "Invalid IP address format"
-      }
+        message: "Invalid IP address format",
+      },
     },
     userAgent: String,
     timestamp: {
