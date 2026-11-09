@@ -369,6 +369,18 @@ const buildProgressResponse = async (user, { Lesson, Module }) => {
 // |              ORCHESTRATORS                  |
 // +=============================================+
 
+/**
+ * Processes the successful completion of a lesson, calculating earned XP (including exercise,
+ * quiz, and project bonuses), recording history, updating streak counts, handling potential
+ * auto-completions for final modules (like M20), and returning a progress response package.
+ *
+ * @param {Object} user - The Mongoose user document of the student.
+ * @param {Object} lesson - The Mongoose lesson document being completed.
+ * @param {Object} submissionBody - Server-derived facts and statistics read from database state
+ *                                  (e.g., exerciseJustPassed, justCorrectQuestion, attempt counts, hints).
+ * @returns {Promise<Object>} - An object containing total XP increase, completion flags, next lesson navigation,
+ *                              XP breakdown logs, and downstream course/module completion states.
+ */
 const processLessonCompletion = async (user, lesson, submissionBody) => {
   const lessonId = lesson._id.toString();
   const userId = user._id.toString();
@@ -593,6 +605,17 @@ const processLessonCompletion = async (user, lesson, submissionBody) => {
   };
 };
 
+/**
+ * Processes the successful completion of a module after a student passes its module quiz,
+ * creating the module completion record, awarding module completion XP, updating user level
+ * and completion counts, and triggering course completion checks for M20.
+ *
+ * @param {Object} user - The Mongoose user document of the student.
+ * @param {Object} module - The Mongoose module document being completed.
+ * @param {Array<Object>} [quizResults=[]] - Optional breakdown of the module quiz answers and results.
+ * @returns {Promise<Object>} - An object containing total XP increase, completion state, next module ID,
+ *                              XP transaction breakdown, and course completion status.
+ */
 const processModuleCompletion = async (user, module, quizResults = []) => {
   const moduleId = module._id.toString();
   const userId = user._id.toString();
@@ -660,6 +683,16 @@ const processModuleCompletion = async (user, module, quizResults = []) => {
   return result;
 };
 
+/**
+ * Determines whether a lesson is fully completed based on its type (theory, practice, exercise,
+ * or quiz) and whether all prerequisite criteria have been met.
+ *
+ * @param {Object} lesson - The Mongoose lesson document being evaluated.
+ * @param {Object} quizProgress - The user's quiz progress state for the lesson.
+ * @param {boolean} exercisePassed - Whether the exercise component has been successfully passed.
+ * @param {boolean} [forceComplete=false] - Optional override flag to force completion.
+ * @returns {boolean} - Returns true if all required conditions are satisfied, otherwise false.
+ */
 const isLessonFullyCompleted = (
   lesson,
   quizProgress,
@@ -684,6 +717,28 @@ const isLessonFullyCompleted = (
   return quizDone && exerciseDone;
 };
 
+/**
+ * Handles a student's attempt on a lesson, evaluating exercise code submissions
+ * or quiz answers, tracking completion state, and awarding incremental or completion XP.
+ * If the lesson is fully satisfied, it triggers downstream processing like course
+ * completions, auto-completing modules (e.g., M20), streak tracking, and badge evaluations.
+ *
+ * @param {string} userId - The ID of the student making the attempt.
+ * @param {string} lessonId - The ID of the lesson being attempted.
+ * @param {Object} submissionBody - The details of the student's submission.
+ * @param {number} [submissionBody.answer] - The selected numerical answer index for a lesson quiz question.
+ * @param {string} [submissionBody.code] - The submitted source code for an exercise.
+ * @param {number} [submissionBody.questionIndex=0] - The index of the quiz question being answered.
+ * @param {Object} [submissionBody.validationResult] - Pre-validated feedback from the client/sandbox.
+ * @param {boolean} [submissionBody.isCorrect=false] - Whether the submission passed validation.
+ * @param {boolean} [submissionBody.usedHints=false] - Whether the student used hints during the attempt.
+ * @param {number} [submissionBody.elapsedSeconds] - Time spent on the attempt in seconds.
+ * @param {boolean} [submissionBody.wasOptimalSolution] - Whether the solution met optimal criteria.
+ * @returns {Promise<Object>} - A response object containing feedback, completion status,
+ *                              earned XP, updated dashboard progress, and unlocked badges.
+ * @throws {AppError} 404 - If the lesson or user cannot be found.
+ * @throws {AppError} 400 - If an empty code submission or invalid question index is provided.
+ */
 const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   const {
     answer,
@@ -887,6 +942,19 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
   };
 };
 
+/**
+ * Processes a student's submission for a module-level quiz, validates scores against
+ * the passing threshold, records the attempt, and handles completions, XP awards,
+ * streaks, and leaderboard triggers if passed.
+ *
+ * @param {string} userId - The ID of the student submitting the quiz.
+ * @param {string} moduleId - The ID of the module whose quiz is being attempted.
+ * @param {Object} [answers={}] - A map of question IDs to the student's selected answers.
+ * @returns {Promise<Object>} - An object containing success messages, score statistics,
+ *                              earned XP, updated progress data, and unlocked badges.
+ * @throws {AppError} 404 - If the module or module quiz is not found.
+ * @throws {AppError} 403 - If the user attempts to take the quiz before completing all lessons.
+ */
 const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
   const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found.", 404);
@@ -1076,6 +1144,11 @@ const fixUserModuleProgress = async (userId) => {
           );
         }
 
+        // If repairing M20, ensure the course completion record and HoF eligibility are triggered
+        if (module.order === FINAL_MODULE_ORDER) {
+          await checkAndRecordCourseCompletion(user, userId, true);
+        }
+
         // Save user state immediately per module to prevent partial-failure desyncs
         await user.save();
 
@@ -1096,7 +1169,15 @@ const fixUserModuleProgress = async (userId) => {
 // +=============================================+
 // |         USER PROGRESS & DASHBOARD           |
 // +=============================================+
-
+/**
+ * Retrieves a comprehensive summary of a user's progress across the curriculum,
+ * aggregating completed lessons and modules, calculating curriculum-wide completion stats,
+ * and identifying the user's current active module data.
+ *
+ * @param {string} userId - The ID of the user whose progress summary is being retrieved.
+ * @returns {Promise<Object|null>} - A summary object containing user data arrays, curriculum totals,
+ *                                   current module info, and module order mappings, or null if not found.
+ */
 const getUserProgressSummary = async (userId) => {
   const user = await User.findById(userId).lean();
   if (!user) return null;
@@ -1174,7 +1255,16 @@ const getUserProgressSummary = async (userId) => {
 // +=============================================+
 // |      HALL OF FAME & COURSE COMPLETION       |
 // +=============================================+
-
+/**
+ * Fetches a paginated list of inducted members for the Hall of Fame, filtering out
+ * restricted age brackets and privacy settings while calculating ranks, timeline metrics,
+ * and display names.
+ *
+ * @param {number} [page=1] - The page number for pagination.
+ * @param {number} [limit=20] - The maximum number of members to return per page.
+ * @returns {Promise<Object>} - An object containing formatted member rankings, total inducted count,
+ *                              current page, and total pages.
+ */
 const getHallOfFameMembers = async (page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
 
@@ -1220,6 +1310,15 @@ const getHallOfFameMembers = async (page = 1, limit = 20) => {
   };
 };
 
+/**
+ * Opts an eligible user into the Hall of Fame, recording their induction timestamp,
+ * assigning early opt-in badges, and updating their leaderboard status.
+ *
+ * @param {string} userId - The ID of the user opting into the Hall of Fame.
+ * @returns {Promise<Object>} - An object containing the user's Hall of Fame rank and induction date.
+ * @throws {AppError} 404 - If no course completion record exists for the user.
+ * @throws {AppError} 400 - If the user is already opted into the Hall of Fame.
+ */
 const optInUserToHoF = async (userId) => {
   const completion = await CourseCompletion.findOne({ userId });
   if (!completion) {
@@ -1251,6 +1350,14 @@ const optInUserToHoF = async (userId) => {
   };
 };
 
+/**
+ * Retrieves the course completion status, Hall of Fame eligibility schedule, induction data,
+ * and completion time duration for a specific user.
+ *
+ * @param {string} userId - The ID of the user whose course status is being checked.
+ * @returns {Promise<Object>} - An object detailing course completion state, completion dates,
+ *                              HoF eligibility, rank, and completion duration in days.
+ */
 const getCourseStatusForUser = async (userId) => {
   const completion = await CourseCompletion.findOne({ userId }).lean();
 
