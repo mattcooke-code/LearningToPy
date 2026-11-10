@@ -770,7 +770,251 @@ const overrideUserProgress = async ({
 // +=============================================+
 // |              FLAG MANAGEMENT                |
 // +=============================================+
+/**
+ * List flagged content with filters, search, and pagination.
+ *
+ * Enriches lesson flags with semantic IDs (e.g. "M3L5"), lesson/module
+ * titles, and a content preview; enriches user-profile flags with the
+ * target user's username and email.
+ *
+ * @param {Object} params
+ * @param {string} [params.status]     - Status filter, or "ALL" for none
+ * @param {string} [params.issueType]
+ * @param {string} [params.search]
+ * @param {number} [params.page=1]
+ * @param {number} [params.limit=20]
+ * @returns {Promise<{ flaggedContent: Object[], pagination: Object }>}
+ */
+const getFlaggedContent = async ({
+  status,
+  issueType,
+  search,
+  page = 1,
+  limit = 20,
+}) => {
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
 
+  const filter = {};
+  if (status && status !== "ALL") filter.status = status;
+  if (issueType && issueType !== "") filter.issueType = issueType;
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+      { suggestedFix: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [flaggedContent, total] = await Promise.all([
+    FlaggedContent.find(filter)
+      .populate("reporterId", "username email")
+      .populate("resolvedBy", "username email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    FlaggedContent.countDocuments(filter),
+  ]);
+
+  // ── Batch-fetch lessons and users for enrichment ──────────────
+  const lessonIds = flaggedContent
+    .filter((f) => f.targetType === "LESSON" && f.targetId)
+    .map((f) => f.targetId);
+
+  const userFlagIds = flaggedContent
+    .filter((f) => f.targetType === "USER_PROFILE" && f.targetId)
+    .map((f) => f.targetId);
+
+  const [lessons, users] = await Promise.all([
+    lessonIds.length > 0
+      ? Lesson.find({ _id: { $in: lessonIds } })
+          .populate("moduleId", "order title")
+          .lean()
+      : [],
+    userFlagIds.length > 0
+      ? User.find({ _id: { $in: userFlagIds } })
+          .select("username email")
+          .lean()
+      : [],
+  ]);
+
+  const lessonMap = new Map(lessons.map((l) => [l._id.toString(), l]));
+  const userMap = new Map(users.map((u) => [u._id.toString(), u]));
+
+  // ── Enrich flags with semantic data ─────────────────────────
+  const enrichedContent = flaggedContent.map((flag) => {
+    if (flag.targetType === "LESSON" && flag.targetId) {
+      const lesson = lessonMap.get(flag.targetId.toString());
+      if (lesson && lesson.moduleId) {
+        return {
+          ...flag,
+          semanticId: `M${lesson.moduleId.order}L${lesson.order || 0}`,
+          lessonTitle: lesson.title,
+          moduleTitle: lesson.moduleId.title,
+          contentPreview: lesson.description?.substring(0, 200),
+        };
+      }
+      return {
+        ...flag,
+        semanticId: `Lesson ${flag.targetId.slice(-6)}`,
+      };
+    }
+
+    if (flag.targetType === "USER_PROFILE" && flag.targetId) {
+      const user = userMap.get(flag.targetId.toString());
+      return {
+        ...flag,
+        semanticId: `User: ${user?.username || "Unknown"}`,
+        contentPreview: `Email: ${user?.email || "N/A"}`,
+      };
+    }
+
+    return flag;
+  });
+
+  return {
+    flaggedContent: enrichedContent,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+    },
+  };
+};
+
+/**
+ * Get aggregate flag statistics grouped by status.
+ *
+ * Result always contains `pending`, `in_review`, `fixed`, `rejected`,
+ * and `xp_adjusted` keys, defaulting to 0 when no flags of that status
+ * exist.
+ *
+ * @returns {Promise<{
+ *   pending: number,
+ *   in_review: number,
+ *   fixed: number,
+ *   rejected: number,
+ *   xp_adjusted: number
+ * }>}
+ */
+const getFlagStats = async () => {
+  const stats = await FlaggedContent.aggregate([
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  const result = {
+    pending: 0,
+    in_review: 0,
+    fixed: 0,
+    rejected: 0,
+    xp_adjusted: 0,
+  };
+
+  stats.forEach((stat) => {
+    const key = stat._id.toLowerCase();
+    if (result.hasOwnProperty(key)) {
+      result[key] = stat.count;
+    }
+  });
+
+  return result;
+};
+
+/**
+ * Resolve a flagged content report.
+ *
+ * Updating a flag to FIXED awards 25 XP to the reporter as compensation
+ * and writes a corresponding XP_ADJUSTMENT audit log, followed by a
+ * FLAG_RESOLVED audit log.
+ *
+ * The returned `compensationMessage` is not part of the client payload —
+ * it's used by the controller to reconstruct the top-level response
+ * message (matching the original controller's redundant message format).
+ *
+ * @param {Object} params
+ * @param {string} params.flagId
+ * @param {"IN_REVIEW"|"FIXED"|"REJECTED"} params.status
+ * @param {string} [params.adminResponse]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{
+ *   flag: Object,
+ *   message: string,
+ *   compensationMessage: string
+ * }>}
+ * @throws {AppError} 400 - Invalid status
+ * @throws {AppError} 404 - Flag not found
+ */
+const resolveFlag = async ({ flagId, status, adminResponse, actor }) => {
+  const validStatuses = ["IN_REVIEW", "FIXED", "REJECTED"];
+  if (!validStatuses.includes(status)) {
+    throw new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400);
+  }
+
+  const flag = await FlaggedContent.findById(flagId);
+  if (!flag) throw new AppError("Flag not found", 404);
+
+  const oldStatus = flag.status;
+  flag.status = status;
+  flag.adminResponse = adminResponse;
+  flag.resolvedBy = actor.id;
+  flag.resolvedAt = new Date();
+
+  let compensationMessage = "";
+  let xpCompensation = 0;
+
+  if (status === "FIXED") {
+    xpCompensation = 25;
+    flag.xpCompensation = xpCompensation;
+
+    const reporter = await User.findById(flag.reporterId);
+    if (reporter) {
+      const oldXp = reporter.xp;
+      reporter.xp += xpCompensation;
+      await reporter.save();
+
+      compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
+
+      await createAdminLog(
+        actor,
+        "XP_ADJUSTMENT",
+        "USER",
+        reporter._id,
+        {
+          old: oldXp,
+          new: reporter.xp,
+          reason: `Flag compensation for: ${flag.title}`,
+        },
+        `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
+      );
+    }
+  }
+
+  await flag.save();
+
+  await createAdminLog(
+    actor,
+    "FLAG_RESOLVED",
+    "FLAG",
+    flagId,
+    {
+      oldStatus,
+      newStatus: status,
+      xpCompensation,
+      targetType: flag.targetType,
+      targetId: flag.targetId,
+    },
+    `Flag resolved with status: ${status}. ${adminResponse || ""}`,
+  );
+
+  return {
+    flag,
+    message: `The reporter has been notified${compensationMessage}`,
+    compensationMessage,
+  };
+};
 // +=============================================+
 // |              CONTENT MANAGEMENT             |
 // +=============================================+
@@ -796,4 +1040,8 @@ module.exports = {
   awardBadges,
   removeBadges,
   overrideUserProgress,
+  // Flag management
+  getFlaggedContent,
+  getFlagStats,
+  resolveFlag,
 };
