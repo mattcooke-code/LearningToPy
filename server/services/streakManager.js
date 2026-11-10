@@ -10,27 +10,23 @@ const STREAK_CONFIG = {
 };
 
 /**
- * Get the start of the week (Monday 00:00:00) for a given date.
- * @param {Date|string} date - The reference date
- * @returns {Date} Monday of that week at midnight
+ * Get the start of the week (Monday 00:00:00 UTC) for a given user's local date.
+ * @param {string} userLocalDateStr - Format: "YYYY-MM-DD"
  */
-const getWeekStart = (date) => {
-  const d = new Date(date);
-  const day = d.getDay();
+const getWeekStart = (userLocalDateStr) => {
+  const d = new Date(userLocalDateStr + "T00:00:00Z");
+  const day = d.getUTCDay();
   const diff = day === 0 ? 6 : day - STREAK_CONFIG.WEEK_START_DAY;
-  d.setDate(d.getDate() - diff);
-  d.setHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() - diff);
+  d.setUTCHours(0, 0, 0, 0);
   return d;
 };
 
 /**
  * Get the 1-based day of the week relative to the user's week start.
- * @param {Date|string} date - The date to check
- * @param {Date|string} weekStart - The user's current week start date
- * @returns {number} Day number (1 = Monday, 7 = Sunday)
  */
-const getDayOfWeek = (date, weekStart) => {
-  const dateTime = checkDate(date);
+const getDayOfWeek = (userLocalDateStr, weekStart) => {
+  const dateTime = new Date(userLocalDateStr + "T00:00:00Z");
   const weekStartTime = checkDate(weekStart);
   const diffDays = Math.round(
     (dateTime - weekStartTime) / (1000 * 60 * 60 * 24),
@@ -39,28 +35,25 @@ const getDayOfWeek = (date, weekStart) => {
 };
 
 /**
- * Track general user daily activity (triggered on login or content views).
- * Accepts a pre-fetched Mongoose user document.
- * Caller is responsible for fetching the user and calling user.save() afterwards.
+ * Track general user daily activity (triggered on login or token refresh).
  */
-const trackDailyActivity = async (user) => {
-  const today = new Date();
-  const todayTime = checkDate(today);
+const trackDailyActivity = async (user, userLocalDateStr) => {
+  const todayTime = new Date(userLocalDateStr + "T00:00:00Z");
 
-  await initializeWeekIfNeeded(user, today);
+  await initializeWeekIfNeeded(user, todayTime, userLocalDateStr);
 
   const streakLastChecked = user.streakLastCheckedDate
     ? checkDate(user.streakLastCheckedDate)
     : null;
 
   if (!streakLastChecked || streakLastChecked < todayTime) {
-    await handleNewDayOfActivity(user, today);
+    await handleNewDayOfActivity(user, todayTime, userLocalDateStr);
   }
 
   user.streakLastCheckedDate = new Date();
 
   // checkWarningStatus does not save — caller handles persistence
-  await checkWarningStatus(user);
+  await checkWarningStatus(user, userLocalDateStr);
 
   return {
     streak: user.streak,
@@ -71,14 +64,11 @@ const trackDailyActivity = async (user) => {
 
 /**
  * Track when user COMPLETES a lesson or module quiz.
- * Accepts a pre-fetched Mongoose user document.
- * Caller is responsible for fetching the user and calling user.save() afterwards.
  */
 const trackCompletion = async (user) => {
-  const today = new Date();
-  const todayTime = checkDate(today);
+  const todayTime = new Date(userLocalDateStr + "T00:00:00Z");
 
-  await initializeWeekIfNeeded(user, today);
+  await initializeWeekIfNeeded(user, todayTime, userLocalDateStr);
 
   // Guard against counting multiple completions on the same day
   const lastCompletion = user.lastCompletionDate
@@ -106,13 +96,16 @@ const trackCompletion = async (user) => {
   // Advance the streak at most once per day. updateStreak() compares against
   // streakLastCheckedDate, which completions don't move, so without this guard
   // every extra completion on days 6-7 would add another +1.
-  const dayOfWeek = getDayOfWeek(today, user.weeklyProgress.weekStartDate);
+  const dayOfWeek = getDayOfWeek(
+    userLocalDateStr,
+    user.weeklyProgress.weekStartDate,
+  );
   if (
     !alreadyCompletedToday &&
     (dayOfWeek > STREAK_CONFIG.VIEW_QUALIFIES_DAYS ||
       !user.streakLastCheckedDate)
   ) {
-    await updateStreak(user, today);
+    await updateStreak(user, todayTime);
   }
 
   return {
@@ -126,12 +119,9 @@ const trackCompletion = async (user) => {
  * Initialize a new week's tracking data if the current week has ended.
  * Rolls over weeklyProgress and evaluates the previous week's performance
  * (resets streak if requirements weren't met).
- *
- * @param {Object} user - User document (mutated in place)
- * @param {Date} today - Current date
  */
-const initializeWeekIfNeeded = async (user, today) => {
-  const weekStart = getWeekStart(today);
+const initializeWeekIfNeeded = async (user, todayTime, userLocalDateStr) => {
+  const weekStart = getWeekStart(userLocalDateStr);
   const weekStartTime = checkDate(weekStart);
 
   if (
@@ -139,11 +129,9 @@ const initializeWeekIfNeeded = async (user, today) => {
     checkDate(user.weeklyProgress.weekStartDate) < weekStartTime
   ) {
     const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+    weekEnd.setUTCHours(23, 59, 59, 999);
     const weekEndTime = checkDate(weekEnd);
-
-    const todayTime = checkDate(today);
 
     if (todayTime > weekEndTime) {
       await evaluateLastWeek(user);
@@ -165,16 +153,17 @@ const initializeWeekIfNeeded = async (user, today) => {
  * (first 5 days of the week), or marks streak AT_RISK if past that window
  * with insufficient completions.
  *
- * @param {Object} user - User document (mutated in place)
- * @param {Date} today - Current date
  */
-const handleNewDayOfActivity = async (user, today) => {
+const handleNewDayOfActivity = async (user, todayTime, userLocalDateStr) => {
   user.weeklyProgress.daysActive += 1;
 
-  const dayOfWeek = getDayOfWeek(today, user.weeklyProgress.weekStartDate);
+  const dayOfWeek = getDayOfWeek(
+    userLocalDateStr,
+    user.weeklyProgress.weekStartDate,
+  );
 
   if (dayOfWeek <= STREAK_CONFIG.VIEW_QUALIFIES_DAYS) {
-    await updateStreak(user, today);
+    await updateStreak(user, todayTime);
   } else {
     if (
       user.weeklyProgress.completionsThisWeek <
@@ -190,12 +179,8 @@ const handleNewDayOfActivity = async (user, today) => {
  * Increments if yesterday was active, resets to 1 if a gap occurred.
  * Consecutive days only — a single missed day breaks the streak.
  *
- * @param {Object} user - User document (mutated in place)
- * @param {Date} today - Current date
  */
-const updateStreak = async (user, today) => {
-  const todayTime = checkDate(today);
-
+const updateStreak = async (user, todayTime) => {
   if (!user.streakLastCheckedDate) {
     user.streak = 1;
     user.streakStatus = "ACTIVE";
@@ -241,11 +226,13 @@ const evaluateLastWeek = async (user) => {
  *
  * @param {Object} user - User document (mutated in place)
  */
-const checkWarningStatus = async (user) => {
+const checkWarningStatus = async (user, userLocalDateStr) => {
   if (!user.weeklyProgress.weekStartDate) return;
 
-  const today = new Date();
-  const dayOfWeek = getDayOfWeek(today, user.weeklyProgress.weekStartDate);
+  const dayOfWeek = getDayOfWeek(
+    userLocalDateStr,
+    user.weeklyProgress.weekStartDate,
+  );
 
   // Day 5: Entering the danger zone
   if (
@@ -272,16 +259,15 @@ const checkWarningStatus = async (user) => {
  * Get current streak info for a user.
  * This is a read-only query so fetching by userId here is appropriate.
  */
-const getStreakInfo = async (userId) => {
+const getStreakInfo = async (userId, userLocalDateStr) => {
   const user = await User.findById(userId).select(
     "streak streakStatus streakLastCheckedDate lastCompletionDate weeklyProgress",
   );
 
   if (!user) return null;
 
-  const today = new Date();
   const dayOfWeek = user.weeklyProgress.weekStartDate
-    ? getDayOfWeek(today, user.weeklyProgress.weekStartDate)
+    ? getDayOfWeek(userLocalDateStr, user.weeklyProgress.weekStartDate)
     : 1;
 
   return {

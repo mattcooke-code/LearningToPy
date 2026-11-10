@@ -739,7 +739,12 @@ const isLessonFullyCompleted = (
  * @throws {AppError} 404 - If the lesson or user cannot be found.
  * @throws {AppError} 400 - If an empty code submission or invalid question index is provided.
  */
-const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
+const submitLessonAttempt = async (
+  userId,
+  lessonId,
+  submissionBody,
+  userLocalDate,
+) => {
   const {
     answer,
     code,
@@ -884,7 +889,7 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
     // Only a NEW completion counts toward the streak; resubmitting a finished
     // lesson must not satisfy the weekly requirement.
     if (completionResult.newlyCompleted) {
-      await streakManager.trackCompletion(user);
+      await streakManager.trackCompletion(user, userLocalDate);
     }
     await user.save();
     await gamification.checkLeaderboardBadges(user, User);
@@ -955,7 +960,12 @@ const submitLessonAttempt = async (userId, lessonId, submissionBody) => {
  * @throws {AppError} 404 - If the module or module quiz is not found.
  * @throws {AppError} 403 - If the user attempts to take the quiz before completing all lessons.
  */
-const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
+const submitModuleQuizAttempt = async (
+  userId,
+  moduleId,
+  answers = {},
+  userLocalDate,
+) => {
   const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found.", 404);
 
@@ -1034,7 +1044,7 @@ const submitModuleQuizAttempt = async (userId, moduleId, answers = {}) => {
 
     // Retaking an already-passed module quiz must not count as a completion.
     if (completionResult.newlyCompleted) {
-      await streakManager.trackCompletion(user);
+      await streakManager.trackCompletion(user, userLocalDate);
     }
   }
 
