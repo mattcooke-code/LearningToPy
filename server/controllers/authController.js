@@ -180,7 +180,7 @@ const register = catchAsync(async (req, res, next) => {
  * @returns {Object} 401 - Invalid credentials or account blocked
  */
 const login = catchAsync(async (req, res, next) => {
-  const { credential, email, password, rememberMe } = req.body;
+  const { credential, email, password, rememberMe, userLocalDate } = req.body;
   const loginIdentifier = credential || email;
 
   if (!loginIdentifier || !password) {
@@ -205,7 +205,7 @@ const login = catchAsync(async (req, res, next) => {
     );
   }
 
-  const streakResult = await trackDailyActivity(user);
+  const streakResult = await trackDailyActivity(user, userLocalDate);
   await user.save();
 
   const accessToken = authUtils.generateToken(
@@ -318,7 +318,10 @@ const refreshToken = catchAsync(async (req, res, next) => {
     );
   }
 
-  const streakResult = await trackDailyActivity(user);
+  const userLocalDate =
+    req.body.userLocalDate || new Date().toISOString().split("T")[0];
+
+  const streakResult = await trackDailyActivity(user, userLocalDate);
   await user.save();
 
   const newAccessToken = authUtils.generateToken(

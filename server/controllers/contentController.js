@@ -279,6 +279,8 @@ const submitLesson = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const data = req.body;
 
+  const userLocalDate = data.userLocalDate;
+
   const questionIndex = Number(data.questionIndex ?? 0);
   if (!Number.isInteger(questionIndex) || questionIndex < 0) {
     return next(new AppError("Invalid question index", 400));
@@ -312,6 +314,7 @@ const submitLesson = catchAsync(async (req, res, next) => {
     userId,
     lessonId,
     clean,
+    userLocalDate,
   );
 
   return sendJsonResponse(res, 200, result.message, result.payload);
@@ -325,12 +328,13 @@ const submitLesson = catchAsync(async (req, res, next) => {
 const submitModuleQuiz = catchAsync(async (req, res, next) => {
   const { moduleId } = req.params;
   const userId = req.userId;
-  const { answers } = req.body;
+  const { answers, userLocalDate } = req.body;
 
   const result = await learningEngine.submitModuleQuizAttempt(
     userId,
     moduleId,
     answers,
+    userLocalDate,
   );
 
   return sendJsonResponse(res, 200, result.message, result.payload);
