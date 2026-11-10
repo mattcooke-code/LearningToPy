@@ -20,11 +20,8 @@
 const AdminLog = require("../models/AdminLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
-const LessonCompletion = require("../models/LessonCompletion");
 const Module = require("../models/Module");
-const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
-const XpTransaction = require("../models/XpTransaction");
 const adminService = require("../services/adminService");
 const {
   createAdminLog,
@@ -34,93 +31,9 @@ const learningEngine = require("../services/learningEngine");
 const { DEFAULT_SETTINGS } = require("../constants/adminConstants");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const levelUtils = require("../utils/levelUtils");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
 const mongoose = require("mongoose");
-
-// ======= HELPER FUNCTIONs =======
-
-/**
- * Toggle a user's admin status.
- * Prevents self-modification (admin cannot demote themselves).
- *
- * @route   PUT /api/admin/users/:userId/toggle-admin
- * @body    {boolean} makeAdmin - New admin status
- * @body    {string}  [reason]  - Reason for the change
- * @returns {Object} 200 - Updated user
- * @returns {Object} 400 - Cannot modify own admin status
- * @returns {Object} 404 - User not found
- */
-const toggleAdminStatus = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
-  const { makeAdmin, reason } = req.body;
-  const actor = actorFromRequest(req);
-
-  // Prevent self-modification
-  if (userId === req.userId.toString()) {
-    return next(new AppError("Cannot modify own admin status.", 400));
-  }
-
-  const user = await User.findById(userId).select("+ageBracket");
-  if (!user) {
-    return next(new AppError("User not found.", 404));
-  }
-
-  if (makeAdmin && user.ageBracket !== "18+") {
-    return next(
-      new AppError(
-        "Users must be 18 or older to be granted admin priviledges.",
-        400,
-      ),
-    );
-  }
-
-  const oldStatus = user.isAdmin;
-  const oldLeaderboardStatus = user.leaderboardStatus;
-
-  user.isAdmin = makeAdmin;
-
-  if (makeAdmin) {
-    user.leaderboardStatus = "INACTIVE_REMOVED";
-    user.removedFromLeaderboardAt = new Date();
-    user.privacySettings = {
-      showOnLeaderboards: false,
-      showAsAnonymous: true,
-      showUsernameOnLeaderboards: false,
-    };
-  } else {
-    user.leaderboardStatus =
-      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
-    user.removedFromLeaderboardAt = null;
-    user.privacySettings = {
-      showOnLeaderboards: true,
-      showAsAnonymous: false,
-      showUsernameOnLeaderboards: false,
-    };
-  }
-
-  await user.save();
-
-  await createAdminLog(
-    actor,
-    makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
-    "USER",
-    userId,
-    {
-      old: { isAdmin: oldStatus, leaderboardStatus: oldLeaderboardStatus },
-      new: { isAdmin: user.isAdmin, leaderboardStatus: user.leaderboardStatus },
-    },
-    reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
-  );
-
-  sendJsonResponse(
-    res,
-    200,
-    `User ${makeAdmin ? "made" : "removed from"} admin`,
-    { user },
-  );
-});
 
 // +=============================================+
 // |              USER MANAGEMENT                |
@@ -238,6 +151,36 @@ const getUserProgress = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "User progress retrieved", data);
 });
 
+// ───────── WRITES ─────────
+/**
+ * Toggle a user's admin status.
+ * Prevents self-modification (admin cannot demote themselves).
+ *
+ * @route   PUT /api/admin/users/:userId/toggle-admin
+ * @body    {boolean} makeAdmin - New admin status
+ * @body    {string}  [reason]  - Reason for the change
+ * @returns {Object} 200 - Updated user
+ * @returns {Object} 400 - Cannot modify own admin status
+ * @returns {Object} 404 - User not found
+ */
+const toggleAdminStatus = catchAsync(async (req, res, next) => {
+  const { makeAdmin, reason } = req.body;
+
+  const data = await adminService.toggleAdminStatus({
+    targetUserId: req.params.userId,
+    makeAdmin,
+    reason,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(
+    res,
+    200,
+    `User ${makeAdmin ? "made" : "removed from"} admin`,
+    data,
+  );
+});
+
 /**
  * Manually adjust a user's XP.
  * Prevents self-modification. Logs old/new XP values.
@@ -250,66 +193,124 @@ const getUserProgress = catchAsync(async (req, res, next) => {
  * @returns {Object} 404 - User not found
  */
 const adjustUserXp = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
   const { xpChange, reason } = req.body;
-  const actor = actorFromRequest(req);
 
-  if (userId === req.userId.toString()) {
-    return next(new AppError("Cannot modify your own XP", 400));
-  }
+  const data = await adminService.adjustUserXp({
+    targetUserId: req.params.userId,
+    xpChange,
+    reason,
+    actor: actorFromRequest(req),
+  });
 
-  const user = await User.findById(userId);
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
+  sendJsonResponse(res, 200, "XP adjusted successfully", data);
+});
 
-  const oldXp = user.xp;
-  const oldLevel = user.level;
+/**
+ * Block, unblock, or delete a user account.
+ * Prevents self-modification. Block can include a duration (in days).
+ *
+ * @route   PUT /api/admin/users/:userId/status
+ * @body    {string} action   - "block", "unblock", or "delete"
+ * @body    {number} [duration] - Block duration in days (only for "block")
+ * @body    {string} [reason]   - Reason for the action
+ * @returns {Object} 200 - Updated user (null for delete)
+ * @returns {Object} 400 - Cannot modify own status or invalid action
+ * @returns {Object} 404 - User not found
+ */
+const updateUserStatus = catchAsync(async (req, res, next) => {
+  const { action, duration, reason } = req.body;
 
-  user.xp += parseInt(xpChange);
-  await user.save();
+  const data = await adminService.updateUserStatus({
+    targetUserId: req.params.userId,
+    action,
+    duration,
+    reason,
+    actor: actorFromRequest(req),
+  });
 
-  // Fetch module completions for level calculation
-  const moduleCompletions = await ModuleCompletion.find({ userId }).lean();
-  const userWithModules = {
-    ...user.toObject(),
-    completedModules: moduleCompletions.map((mc) => mc.moduleId),
-  };
-  const userWithLevel = await levelUtils.getUserWithLevel(userWithModules);
+  sendJsonResponse(res, 200, `User ${action}ed successfully`, data);
+});
 
-  const updatedUser = {
-    _id: user._id,
-    username: user.username,
-    level: userWithLevel.level,
-    xp: user.xp,
-    streak: user.streak,
-    badgeCount: user.badges?.length || 0,
-  };
+/**
+ * Award one or more badges to a user. Skips badges already earned.
+ *
+ * @route   POST /api/admin/users/:userId/badges/award
+ * @body    {string[]} badgeIds - Badge IDs to award
+ * @body    {string}   [reason] - Reason for awarding
+ * @returns {Object} 200 - { awarded, total }
+ * @returns {Object} 404 - User not found
+ */
+const awardBadges = catchAsync(async (req, res, next) => {
+  const { badgeIds, reason } = req.body;
 
-  await createAdminLog(
-    actor,
-    "XP_ADJUSTMENT",
-    "USER",
-    userId,
-    {
-      old: { xp: oldXp, level: oldLevel },
-      new: { xp: updatedUser.xp, level: updatedUser.level },
-    },
-    reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
+  const data = await adminService.awardBadges({
+    targetUserId: req.params.userId,
+    badgeIds,
+    reason,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(
+    res,
+    200,
+    `Successfully awarded ${data.awarded.length} badges`,
+    data,
   );
+});
 
-  // Create XP transaction record for audit trail
-  await XpTransaction.create({
-    userId,
-    amount: parseInt(xpChange),
-    source: "BONUS",
-    meta: { reason: reason || "Admin adjustment", adminId: req.userId },
+/**
+ * Remove one or more badges from a user.
+ *
+ * @route   POST /api/admin/users/:userId/badges/remove
+ * @body    {string[]} badgeIds - Badge IDs to remove
+ * @body    {string}   [reason] - Reason for removal
+ * @returns {Object} 200 - { removed, remaining }
+ * @returns {Object} 404 - User not found
+ */
+const removeBadges = catchAsync(async (req, res, next) => {
+  const { badgeIds, reason } = req.body;
+
+  const data = await adminService.removeBadges({
+    targetUserId: req.params.userId,
+    badgeIds,
+    reason,
+    actor: actorFromRequest(req),
   });
 
-  sendJsonResponse(res, 200, "XP adjusted successfully", {
-    user: updatedUser,
-    change: xpChange,
+  sendJsonResponse(
+    res,
+    200,
+    `Successfully removed ${data.removed.length} badges`,
+    data,
+  );
+});
+
+/**
+ * Override a user's lesson or module completion status.
+ * Prevents self-modification. Can mark as complete or incomplete.
+ *
+ * @route   PUT /api/admin/users/:userId/progress
+ * @body    {string}  [lessonId] - Lesson ID to override (use this OR moduleId)
+ * @body    {string}  [moduleId] - Module ID to override
+ * @body    {boolean} completed  - New completion status
+ * @body    {string}  [reason]   - Reason for override
+ * @returns {Object} 200 - Updated progress
+ * @returns {Object} 400 - Cannot modify own progress, or missing lessonId/moduleId
+ * @returns {Object} 404 - User not found
+ */
+const overrideUserProgress = catchAsync(async (req, res, next) => {
+  const { moduleId, lessonId, completed, reason } = req.body;
+
+  const data = await adminService.overrideUserProgress({
+    targetUserId: req.params.userId,
+    lessonId,
+    moduleId,
+    completed,
+    reason,
+    actor: actorFromRequest(req),
   });
+
+  sendJsonResponse(res, 200, "Progress updated successfully", data);
 });
 
 /**
@@ -448,279 +449,6 @@ const getFlagStats = catchAsync(async (req, res, next) => {
   });
 
   sendJsonResponse(res, 200, "Flag statistics retrieved", result);
-});
-
-/**
- * Block, unblock, or delete a user account.
- * Prevents self-modification. Block can include a duration (in days).
- *
- * @route   PUT /api/admin/users/:userId/status
- * @body    {string} action   - "block", "unblock", or "delete"
- * @body    {number} [duration] - Block duration in days (only for "block")
- * @body    {string} [reason]   - Reason for the action
- * @returns {Object} 200 - Updated user (null for delete)
- * @returns {Object} 400 - Cannot modify own status or invalid action
- * @returns {Object} 404 - User not found
- */
-const updateUserStatus = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
-  const { action, duration, reason } = req.body;
-  const actor = actorFromRequest(req);
-
-  // Prevent self-modification
-  if (userId === req.userId.toString()) {
-    return next(new AppError("Cannot modify your own status", 400));
-  }
-
-  const user = await User.findById(userId);
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
-
-  const oldStatus = user.isBlocked;
-
-  let actionType;
-  switch (action) {
-    case "block":
-      user.isBlocked = true;
-      user.suspensionEnd = duration
-        ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000)
-        : null;
-      user.suspensionReason = reason;
-      actionType = "USER_BLOCKED";
-      break;
-    case "unblock":
-      user.isBlocked = false;
-      user.suspensionEnd = null;
-      user.suspensionReason = null;
-      actionType = "USER_UNBLOCKED";
-      break;
-    case "delete":
-      await User.findByIdAndDelete(userId);
-      actionType = "USER_DELETED";
-      break;
-    default:
-      return next(
-        new AppError(
-          "Invalid action. Use 'block', 'unblock', or 'delete'",
-          400,
-        ),
-      );
-  }
-
-  if (action !== "delete") {
-    await user.save();
-  }
-
-  await createAdminLog(
-    actor,
-    actionType,
-    "USER",
-    userId,
-    {
-      old: { isBlocked: oldStatus },
-      new: action === "delete" ? null : { isBlocked: user.isBlocked },
-    },
-    reason || `${action} action performed by admin`,
-  );
-
-  sendJsonResponse(res, 200, `User ${action}ed successfully`, {
-    user: action === "delete" ? null : user,
-  });
-});
-
-/**
- * Award one or more badges to a user. Skips badges already earned.
- *
- * @route   POST /api/admin/users/:userId/badges/award
- * @body    {string[]} badgeIds - Badge IDs to award
- * @body    {string}   [reason] - Reason for awarding
- * @returns {Object} 200 - { awarded, total }
- * @returns {Object} 404 - User not found
- */
-const awardBadges = catchAsync(async (req, res, next) => {
-  const { badgeIds, reason } = req.body;
-  const user = await User.findById(req.params.userId);
-  const actor = actorFromRequest(req);
-
-  if (!user) return next(new AppError("User not found", 404));
-
-  const newBadges = badgeIds.filter((id) => !user.badges.includes(id));
-
-  if (newBadges.length > 0) {
-    user.badges = [...new Set([...user.badges, ...newBadges])];
-
-    await createAdminLog(
-      actor,
-      "AWARD_BADGES",
-      "USER",
-      user._id,
-      { added: newBadges, reason },
-      reason,
-    );
-
-    await user.save();
-  }
-
-  sendJsonResponse(
-    res,
-    200,
-    `Successfully awarded ${newBadges.length} badges`,
-    { awarded: newBadges, total: user.badges.length },
-  );
-});
-
-/**
- * Remove one or more badges from a user.
- *
- * @route   POST /api/admin/users/:userId/badges/remove
- * @body    {string[]} badgeIds - Badge IDs to remove
- * @body    {string}   [reason] - Reason for removal
- * @returns {Object} 200 - { removed, remaining }
- * @returns {Object} 404 - User not found
- */
-const removeBadges = catchAsync(async (req, res, next) => {
-  const { badgeIds, reason } = req.body;
-  const user = await User.findById(req.params.userId);
-  const actor = actorFromRequest(req);
-
-  if (!user) return next(new AppError("User not found", 404));
-
-  const removedBadges = badgeIds.filter((id) => user.badges.includes(id));
-
-  if (removedBadges.length > 0) {
-    user.badges = user.badges.filter((id) => !badgeIds.includes(id));
-
-    await createAdminLog(
-      actor,
-      "REMOVE_BADGES",
-      "USER",
-      user._id,
-      { removed: removedBadges, reason },
-      reason,
-    );
-
-    await user.save();
-  }
-  sendJsonResponse(
-    res,
-    200,
-    `Successfully removed ${removedBadges.length} badges`,
-    {
-      removed: removedBadges,
-      remaining: user.badges.length,
-    },
-  );
-});
-
-/**
- * Override a user's lesson or module completion status.
- * Prevents self-modification. Can mark as complete or incomplete.
- *
- * @route   PUT /api/admin/users/:userId/progress
- * @body    {string}  [lessonId] - Lesson ID to override (use this OR moduleId)
- * @body    {string}  [moduleId] - Module ID to override
- * @body    {boolean} completed  - New completion status
- * @body    {string}  [reason]   - Reason for override
- * @returns {Object} 200 - Updated progress
- * @returns {Object} 400 - Cannot modify own progress, or missing lessonId/moduleId
- * @returns {Object} 404 - User not found
- */
-const overrideUserProgress = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
-  const { moduleId, lessonId, completed, reason } = req.body;
-  const actor = actorFromRequest(req);
-
-  if (userId === req.userId.toString()) {
-    return next(new AppError("Cannot modify your own progress", 400));
-  }
-
-  const user = await User.findById(userId);
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
-
-  let oldValue, newValue, actionType;
-
-  if (lessonId) {
-    const existingCompletion = await LessonCompletion.findOne({
-      userId,
-      lessonId,
-    });
-
-    oldValue = { lessonCompleted: !!existingCompletion };
-
-    if (completed && !existingCompletion) {
-      await LessonCompletion.create({ userId, lessonId });
-      await User.findByIdAndUpdate(userId, {
-        $inc: { completedLessonsCount: 1 },
-      });
-    } else if (!completed && existingCompletion) {
-      await LessonCompletion.deleteOne({ userId, lessonId });
-      await User.findByIdAndUpdate(userId, {
-        $inc: { completedLessonsCount: -1 },
-      });
-    }
-
-    const updatedExists = await LessonCompletion.findOne({ userId, lessonId });
-    newValue = { lessonCompleted: !!updatedExists };
-
-    actionType = completed
-      ? "LESSON_COMPLETED_OVERRIDE"
-      : "LESSON_INCOMPLETE_OVERRIDE";
-  } else if (moduleId) {
-    const existingCompletion = await ModuleCompletion.findOne({
-      userId,
-      moduleId,
-    });
-
-    oldValue = { moduleCompleted: !!existingCompletion };
-
-    if (completed && !existingCompletion) {
-      await ModuleCompletion.create({ userId, moduleId });
-      await User.findByIdAndUpdate(userId, {
-        $inc: { completedModulesCount: 1 },
-      });
-    } else if (!completed && existingCompletion) {
-      await ModuleCompletion.deleteOne({ userId, moduleId });
-      await User.findByIdAndUpdate(userId, {
-        $inc: { completedModulesCount: -1 },
-      });
-    }
-
-    const updatedExists = await ModuleCompletion.findOne({ userId, moduleId });
-    newValue = { moduleCompleted: !!updatedExists };
-
-    actionType = completed
-      ? "MODULE_COMPLETED_OVERRIDE"
-      : "MODULE_INCOMPLETE_OVERRIDE";
-  } else {
-    return next(new AppError("Either lessonId or moduleId is required", 400));
-  }
-
-  // Fetch updated counts
-  const [lessonCount, moduleCount] = await Promise.all([
-    LessonCompletion.countDocuments({ userId }),
-    ModuleCompletion.countDocuments({ userId }),
-  ]);
-
-  await createAdminLog(
-    actor,
-    actionType,
-    lessonId ? "LESSON" : "MODULE",
-    lessonId || moduleId,
-    { old: oldValue, new: newValue },
-    reason ||
-      `Progress override by admin: ${completed ? "complete" : "incomplete"}`,
-  );
-
-  sendJsonResponse(res, 200, "Progress updated successfully", {
-    user: {
-      _id: userId,
-      completedLessonsCount: lessonCount,
-      completedModulesCount: moduleCount,
-    },
-  });
 });
 
 /**
