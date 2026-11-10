@@ -7,9 +7,10 @@ const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
+const XpTransaction = require("../models/XpTransaction");
 
 // ---SERVICES---
-// (added per-stage)
+const { createAdminLog } = require("./auditService");
 
 // ---UTILITIES---
 const AppError = require("../utils/AppError");
@@ -351,6 +352,421 @@ const getUserProgress = async (userId) => {
     })),
   };
 };
+
+// ───────── WRITES ────────
+/**
+ * Toggle a user's admin status.
+ *
+ * Grants or revokes admin privileges. When granting, the user is removed
+ * from leaderboards (admins are leaderboard-ineligible); when revoking,
+ * leaderboard status is restored based on completed-module count.
+ *
+ * Prevents self-modification. Enforces 18+ age bracket for new admins.
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {boolean} params.makeAdmin
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ user: Object }>}
+ * @throws {AppError} 400 - Cannot modify own status, or age restriction
+ * @throws {AppError} 404 - User not found
+ */
+const toggleAdminStatus = async ({
+  targetUserId,
+  makeAdmin,
+  reason,
+  actor,
+}) => {
+  if (targetUserId === actor.id.toString()) {
+    throw new AppError("Cannot modify own admin status.", 400);
+  }
+
+  const user = await getUserOrThrow(targetUserId, "+ageBracket");
+
+  if (makeAdmin && user.ageBracket !== "18+") {
+    throw new AppError(
+      "Users must be 18 or older to be granted admin priviledges.",
+      400,
+    );
+  }
+
+  const oldStatus = user.isAdmin;
+  const oldLeaderboardStatus = user.leaderboardStatus;
+
+  user.isAdmin = makeAdmin;
+
+  if (makeAdmin) {
+    user.leaderboardStatus = "INACTIVE_REMOVED";
+    user.removedFromLeaderboardAt = new Date();
+    user.privacySettings = {
+      showOnLeaderboards: false,
+      showAsAnonymous: true,
+      showUsernameOnLeaderboards: false,
+    };
+  } else {
+    user.leaderboardStatus =
+      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
+    user.removedFromLeaderboardAt = null;
+    user.privacySettings = {
+      showOnLeaderboards: true,
+      showAsAnonymous: false,
+      showUsernameOnLeaderboards: false,
+    };
+  }
+
+  await user.save();
+
+  await createAdminLog(
+    actor,
+    makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
+    "USER",
+    targetUserId,
+    {
+      old: { isAdmin: oldStatus, leaderboardStatus: oldLeaderboardStatus },
+      new: { isAdmin: user.isAdmin, leaderboardStatus: user.leaderboardStatus },
+    },
+    reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
+  );
+
+  return { user };
+};
+
+/**
+ * Manually adjust a user's XP.
+ *
+ * Creates an `XpTransaction` audit record and returns a slim user shape
+ * (not the full document) so responses stay stable.
+ *
+ * Prevents self-modification.
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {number|string} params.xpChange
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ user: Object, change: number|string }>}
+ * @throws {AppError} 400 - Cannot modify own XP
+ * @throws {AppError} 404 - User not found
+ */
+const adjustUserXp = async ({ targetUserId, xpChange, reason, actor }) => {
+  if (targetUserId === actor.id.toString()) {
+    throw new AppError("Cannot modify your own XP", 400);
+  }
+
+  const user = await getUserOrThrow(targetUserId);
+
+  const oldXp = user.xp;
+  const oldLevel = user.level;
+
+  user.xp += parseInt(xpChange);
+  await user.save();
+
+  // Hydrate completed-module IDs for level calculation
+  const moduleCompletions = await ModuleCompletion.find({
+    userId: targetUserId,
+  }).lean();
+  const userWithModules = {
+    ...user.toObject(),
+    completedModules: moduleCompletions.map((mc) => mc.moduleId),
+  };
+  const userWithLevel = await levelUtils.getUserWithLevel(userWithModules);
+
+  const updatedUser = {
+    _id: user._id,
+    username: user.username,
+    level: userWithLevel.level,
+    xp: user.xp,
+    streak: user.streak,
+    badgeCount: user.badges?.length || 0,
+  };
+
+  await createAdminLog(
+    actor,
+    "XP_ADJUSTMENT",
+    "USER",
+    targetUserId,
+    {
+      old: { xp: oldXp, level: oldLevel },
+      new: { xp: updatedUser.xp, level: updatedUser.level },
+    },
+    reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
+  );
+
+  await XpTransaction.create({
+    userId: targetUserId,
+    amount: parseInt(xpChange),
+    source: "BONUS",
+    meta: { reason: reason || "Admin adjustment", adminId: actor.id },
+  });
+
+  return { user: updatedUser, change: xpChange };
+};
+/**
+ * Block, unblock, or delete a user account.
+ *
+ * Prevents self-modification. Block can include a duration in days.
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {"block"|"unblock"|"delete"} params.action
+ * @param {number} [params.duration] - Block duration in days
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ user: Object|null }>}
+ * @throws {AppError} 400 - Cannot modify own status, or invalid action
+ * @throws {AppError} 404 - User not found
+ */
+const updateUserStatus = async ({
+  targetUserId,
+  action,
+  duration,
+  reason,
+  actor,
+}) => {
+  if (targetUserId === actor.id.toString()) {
+    throw new AppError("Cannot modify your own status", 400);
+  }
+
+  const user = await getUserOrThrow(targetUserId);
+  const oldStatus = user.isBlocked;
+
+  let actionType;
+  switch (action) {
+    case "block":
+      user.isBlocked = true;
+      user.suspensionEnd = duration
+        ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000)
+        : null;
+      user.suspensionReason = reason;
+      actionType = "USER_BLOCKED";
+      break;
+    case "unblock":
+      user.isBlocked = false;
+      user.suspensionEnd = null;
+      user.suspensionReason = null;
+      actionType = "USER_UNBLOCKED";
+      break;
+    case "delete":
+      await User.findByIdAndDelete(targetUserId);
+      actionType = "USER_DELETED";
+      break;
+    default:
+      throw new AppError(
+        "Invalid action. Use 'block', 'unblock', or 'delete'",
+        400,
+      );
+  }
+
+  if (action !== "delete") {
+    await user.save();
+  }
+
+  await createAdminLog(
+    actor,
+    actionType,
+    "USER",
+    targetUserId,
+    {
+      old: { isBlocked: oldStatus },
+      new: action === "delete" ? null : { isBlocked: user.isBlocked },
+    },
+    reason || `${action} action performed by admin`,
+  );
+
+  return { user: action === "delete" ? null : user };
+};
+
+/**
+ * Award one or more badges to a user. Skips badges already earned.
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {string[]} params.badgeIds
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ awarded: string[], total: number }>}
+ * @throws {AppError} 404 - User not found
+ */
+const awardBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
+  const user = await getUserOrThrow(targetUserId);
+
+  const newBadges = badgeIds.filter((id) => !user.badges.includes(id));
+
+  if (newBadges.length > 0) {
+    user.badges = [...new Set([...user.badges, ...newBadges])];
+
+    await createAdminLog(
+      actor,
+      "AWARD_BADGES",
+      "USER",
+      user._id,
+      { added: newBadges, reason },
+      reason,
+    );
+
+    await user.save();
+  }
+
+  return { awarded: newBadges, total: user.badges.length };
+};
+
+/**
+ * Remove one or more badges from a user.
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {string[]} params.badgeIds
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ removed: string[], remaining: number }>}
+ * @throws {AppError} 404 - User not found
+ */
+const removeBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
+  const user = await getUserOrThrow(targetUserId);
+
+  const removedBadges = badgeIds.filter((id) => user.badges.includes(id));
+
+  if (removedBadges.length > 0) {
+    user.badges = user.badges.filter((id) => !badgeIds.includes(id));
+
+    await createAdminLog(
+      actor,
+      "REMOVE_BADGES",
+      "USER",
+      user._id,
+      { removed: removedBadges, reason },
+      reason,
+    );
+
+    await user.save();
+  }
+
+  return { removed: removedBadges, remaining: user.badges.length };
+};
+
+/**
+ * Override a user's lesson or module completion status.
+ *
+ * Marks a lesson OR module complete/incomplete, adjusting the user's
+ * running completion counts on `User`. Prevents self-modification.
+ *
+ * Exactly one of `lessonId` or `moduleId` must be provided.
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {string} [params.lessonId]
+ * @param {string} [params.moduleId]
+ * @param {boolean} params.completed
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{
+ *   user: { _id: string, completedLessonsCount: number, completedModulesCount: number }
+ * }>}
+ * @throws {AppError} 400 - Cannot modify own progress, or missing id
+ * @throws {AppError} 404 - User not found
+ */
+const overrideUserProgress = async ({
+  targetUserId,
+  lessonId,
+  moduleId,
+  completed,
+  reason,
+  actor,
+}) => {
+  if (targetUserId === actor.id.toString()) {
+    throw new AppError("Cannot modify your own progress", 400);
+  }
+
+  await getUserOrThrow(targetUserId, "_id");
+
+  let oldValue, newValue, actionType;
+
+  if (lessonId) {
+    const existingCompletion = await LessonCompletion.findOne({
+      userId: targetUserId,
+      lessonId,
+    });
+
+    oldValue = { lessonCompleted: !!existingCompletion };
+
+    if (completed && !existingCompletion) {
+      await LessonCompletion.create({ userId: targetUserId, lessonId });
+      await User.findByIdAndUpdate(targetUserId, {
+        $inc: { completedLessonsCount: 1 },
+      });
+    } else if (!completed && existingCompletion) {
+      await LessonCompletion.deleteOne({ userId: targetUserId, lessonId });
+      await User.findByIdAndUpdate(targetUserId, {
+        $inc: { completedLessonsCount: -1 },
+      });
+    }
+
+    const updatedExists = await LessonCompletion.findOne({
+      userId: targetUserId,
+      lessonId,
+    });
+    newValue = { lessonCompleted: !!updatedExists };
+
+    actionType = completed
+      ? "LESSON_COMPLETED_OVERRIDE"
+      : "LESSON_INCOMPLETE_OVERRIDE";
+  } else if (moduleId) {
+    const existingCompletion = await ModuleCompletion.findOne({
+      userId: targetUserId,
+      moduleId,
+    });
+
+    oldValue = { moduleCompleted: !!existingCompletion };
+
+    if (completed && !existingCompletion) {
+      await ModuleCompletion.create({ userId: targetUserId, moduleId });
+      await User.findByIdAndUpdate(targetUserId, {
+        $inc: { completedModulesCount: 1 },
+      });
+    } else if (!completed && existingCompletion) {
+      await ModuleCompletion.deleteOne({ userId: targetUserId, moduleId });
+      await User.findByIdAndUpdate(targetUserId, {
+        $inc: { completedModulesCount: -1 },
+      });
+    }
+
+    const updatedExists = await ModuleCompletion.findOne({
+      userId: targetUserId,
+      moduleId,
+    });
+    newValue = { moduleCompleted: !!updatedExists };
+
+    actionType = completed
+      ? "MODULE_COMPLETED_OVERRIDE"
+      : "MODULE_INCOMPLETE_OVERRIDE";
+  } else {
+    throw new AppError("Either lessonId or moduleId is required", 400);
+  }
+
+  const [lessonCount, moduleCount] = await Promise.all([
+    LessonCompletion.countDocuments({ userId: targetUserId }),
+    ModuleCompletion.countDocuments({ userId: targetUserId }),
+  ]);
+
+  await createAdminLog(
+    actor,
+    actionType,
+    lessonId ? "LESSON" : "MODULE",
+    lessonId || moduleId,
+    { old: oldValue, new: newValue },
+    reason ||
+      `Progress override by admin: ${completed ? "complete" : "incomplete"}`,
+  );
+
+  return {
+    user: {
+      _id: targetUserId,
+      completedLessonsCount: lessonCount,
+      completedModulesCount: moduleCount,
+    },
+  };
+};
 // +=============================================+
 // |              FLAG MANAGEMENT                |
 // +=============================================+
@@ -374,4 +790,10 @@ module.exports = {
   getUserActivity,
   getUserBadges,
   getUserProgress,
+  toggleAdminStatus,
+  adjustUserXp,
+  updateUserStatus,
+  awardBadges,
+  removeBadges,
+  overrideUserProgress,
 };

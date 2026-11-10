@@ -126,6 +126,7 @@ const toggleAdminStatus = catchAsync(async (req, res, next) => {
 // |              USER MANAGEMENT                |
 // +=============================================+
 
+// ───────── READS ─────────
 /**
  * List all admin users, sorted by creation date.
  *
