@@ -15,6 +15,7 @@ import {
   buildShuffledOptions,
   getShuffledOptions,
   getActualIndex,
+  getUserLocalDate,
 } from "../utils";
 import {
   Trophy,
@@ -230,6 +231,7 @@ const ModuleQuizPage = () => {
         {
           answers: userAnswers,
           questionOrder: shuffledQuestions.map((q) => q._id),
+          userLocalDate: getUserLocalDate(),
         },
       );
 

@@ -17,6 +17,7 @@ export {
   getDifficultyStyles,
   TYPE_ICON_MAP,
 } from "./contentHelpers";
+export { getUserLocalDate } from "./dateUtils";
 export { getDeviceInfo } from "./deviceInfo";
 export {
   createDownloadLink,

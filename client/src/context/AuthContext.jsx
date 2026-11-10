@@ -33,6 +33,7 @@ import {
 } from "react";
 import { useNotification } from "../context/NotificationContext";
 import {
+  getUserLocalDate,
   getErrorMessage,
   getStoredAccessToken,
   isTokenValid,
@@ -217,7 +218,11 @@ export const AuthProvider = ({ children }) => {
     isRefreshing.current = true;
     const refreshP = (async () => {
       try {
-        const payload = await authApiClient.post("/api/auth/refresh-token");
+        const userLocalDate = getUserLocalDate();
+
+        const payload = await authApiClient.post("/api/auth/refresh-token", {
+          userLocalDate,
+        });
         const { accessToken: newAccessToken, user: newUserData } = payload;
 
         if (!newAccessToken || !newUserData)
@@ -269,6 +274,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(
     async (email, password, rememberMe) => {
+      const userLocalDate = getUserLocalDate();
+
       return executeAuthAction(
         "login",
         () =>
@@ -276,6 +283,7 @@ export const AuthProvider = ({ children }) => {
             email,
             password,
             rememberMe,
+            userLocalDate,
           }),
         async (payload) => {
           const { accessToken: receivedAccessToken, user: userData } = payload;

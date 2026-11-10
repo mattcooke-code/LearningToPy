@@ -1,5 +1,5 @@
 // ExerciseComponent.jsx
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import {
   Code2,
   RefreshCw,
@@ -13,7 +13,11 @@ import { useTheme, usePython, useNotification } from "../../context";
 import { apiClient } from "../../services";
 import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
-import { validateWithPyodide, getErrorMessage } from "../../utils";
+import {
+  validateWithPyodide,
+  getErrorMessage,
+  getUserLocalDate,
+} from "../../utils";
 
 /**
  * @fileoverview
@@ -192,6 +196,7 @@ const ExerciseComponent = ({
           submissionHistory: [
             { attemptNumber, code: userCode, timestamp: Date.now() },
           ],
+          userLocalDate: getUserLocalDate(),
         },
       );
 

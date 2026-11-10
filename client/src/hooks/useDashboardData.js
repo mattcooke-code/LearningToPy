@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiClient } from "../services";
+import { getUserLocalDate } from "../utils";
 
 export const useDashboardData = (
   user,
@@ -25,7 +26,9 @@ export const useDashboardData = (
 
       const [progressResult, leaderboardResult, achievementsResult] =
         await Promise.allSettled([
-          apiClient.get("/progress/current"),
+          apiClient.get(
+            `/progress/current?userLocalDate=${getUserLocalDate()}`,
+          ),
           apiClient.get("/progress/leaderboard/around-me"),
           apiClient.get("/progress/achievements"),
         ]);

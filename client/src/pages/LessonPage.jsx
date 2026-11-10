@@ -10,7 +10,11 @@ import {
 } from "../components/lesson";
 import { apiClient } from "../services";
 import { ReportModal } from "../modals";
-import { getErrorMessage, calculateNextLessonManually } from "../utils";
+import {
+  getErrorMessage,
+  calculateNextLessonManually,
+  getUserLocalDate,
+} from "../utils";
 
 /**
  * @fileoverview
@@ -181,7 +185,7 @@ const LessonPage = () => {
     try {
       const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
-        { manualCompletion: true },
+        { manualCompletion: true, userLocalDate: getUserLocalDate() },
       );
 
       if (!result.completed) {

@@ -17,6 +17,7 @@ import {
   getOptionButtonClass,
   isLessonQuizComplete,
 } from "../../utils/quizUtils";
+import { getUserLocalDate } from "../../utils";
 
 /**
  * @fileoverview
@@ -148,6 +149,7 @@ const QuizComponent = ({
         answer: selected,
         questionIndex: index,
         attemptNumber: (attempts[questionId] || 0) + 1,
+        userLocalDate: getUserLocalDate(),
       });
 
       setAttempts((prev) => ({
