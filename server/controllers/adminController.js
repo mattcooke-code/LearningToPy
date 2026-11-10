@@ -18,10 +18,8 @@
  * @middleware adminOnly - Required on all routes
  */
 const AdminLog = require("../models/AdminLog");
-const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
 const Module = require("../models/Module");
-const User = require("../models/User");
 const adminService = require("../services/adminService");
 const {
   createAdminLog,
@@ -313,6 +311,10 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Progress updated successfully", data);
 });
 
+// +=============================================+
+// |              FLAG MANAGEMENT                |
+// +=============================================+
+
 /**
  * List flagged content with filters, search, and pagination.
  * Enriches lesson flags with semantic IDs (e.g., "M3L5") for readability.
@@ -326,100 +328,17 @@ const overrideUserProgress = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - { flaggedContent, pagination }
  */
 const getFlaggedContent = catchAsync(async (req, res, next) => {
-  const { status, issueType, search, page = 1, limit = 20 } = req.query;
-  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const { status, issueType, search, page, limit } = req.query;
 
-  const filter = {};
-  if (status && status !== "ALL") {
-    filter.status = status;
-  }
-  if (issueType && issueType !== "") {
-    filter.issueType = issueType;
-  }
-  if (search) {
-    filter.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } },
-      { suggestedFix: { $regex: search, $options: "i" } },
-    ];
-  }
-
-  const [flaggedContent, total] = await Promise.all([
-    FlaggedContent.find(filter)
-      .populate("reporterId", "username email")
-      .populate("resolvedBy", "username email")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean(),
-    FlaggedContent.countDocuments(filter),
-  ]);
-
-  // ── Batch-fetch lessons for enrichment ──────────────────────
-  const lessonIds = flaggedContent
-    .filter((f) => f.targetType === "LESSON" && f.targetId)
-    .map((f) => f.targetId);
-
-  const userFlagIds = flaggedContent
-    .filter((f) => f.targetType === "USER_PROFILE" && f.targetId)
-    .map((f) => f.targetId);
-
-  const [lessons, users] = await Promise.all([
-    lessonIds.length > 0
-      ? Lesson.find({ _id: { $in: lessonIds } })
-          .populate("moduleId", "order title")
-          .lean()
-      : [],
-    userFlagIds.length > 0
-      ? User.find({ _id: { $in: userFlagIds } })
-          .select("username email")
-          .lean()
-      : [],
-  ]);
-
-  const lessonMap = new Map(lessons.map((l) => [l._id.toString(), l]));
-  const userMap = new Map(users.map((u) => [u._id.toString(), u]));
-
-  // ── Enrich flags with semantic data ─────────────────────────
-  const enrichedContent = flaggedContent.map((flag) => {
-    if (flag.targetType === "LESSON" && flag.targetId) {
-      const lesson = lessonMap.get(flag.targetId.toString());
-      if (lesson && lesson.moduleId) {
-        return {
-          ...flag,
-          semanticId: `M${lesson.moduleId.order}L${lesson.order || 0}`,
-          lessonTitle: lesson.title,
-          moduleTitle: lesson.moduleId.title,
-          contentPreview: lesson.description?.substring(0, 200),
-        };
-      }
-      return {
-        ...flag,
-        semanticId: `Lesson ${flag.targetId.slice(-6)}`,
-      };
-    }
-
-    if (flag.targetType === "USER_PROFILE" && flag.targetId) {
-      const user = userMap.get(flag.targetId.toString());
-      return {
-        ...flag,
-        semanticId: `User: ${user?.username || "Unknown"}`,
-        contentPreview: `Email: ${user?.email || "N/A"}`,
-      };
-    }
-
-    return flag;
+  const data = await adminService.getFlaggedContent({
+    status,
+    issueType,
+    search,
+    page,
+    limit,
   });
 
-  sendJsonResponse(res, 200, "Flagged content retrieved", {
-    flaggedContent: enrichedContent,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total,
-      totalPages: Math.ceil(total / parseInt(limit)),
-    },
-  });
+  sendJsonResponse(res, 200, "Flagged content retrieved", data);
 });
 
 /**
@@ -429,26 +348,40 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - { pending, in_review, fixed, rejected, xp_adjusted }
  */
 const getFlagStats = catchAsync(async (req, res, next) => {
-  const stats = await FlaggedContent.aggregate([
-    { $group: { _id: "$status", count: { $sum: 1 } } },
-  ]);
+  const data = await adminService.getFlagStats();
 
-  const result = {
-    pending: 0,
-    in_review: 0,
-    fixed: 0,
-    rejected: 0,
-    xp_adjusted: 0,
-  };
+  sendJsonResponse(res, 200, "Flag statistics retrieved", data);
+});
 
-  stats.forEach((stat) => {
-    const key = stat._id.toLowerCase();
-    if (result.hasOwnProperty(key)) {
-      result[key] = stat.count;
-    }
+/**
+ * Resolve a flagged content report.
+ *
+ * Updates flag status to IN_REVIEW, FIXED, or REJECTED. When fixed, awards
+ * 25 XP to the reporter as compensation and logs the XP adjustment.
+ *
+ * @route   PUT /api/admin/flags/:flagId/resolve
+ * @body    {string} status         - "IN_REVIEW", "FIXED", or "REJECTED"
+ * @body    {string} [adminResponse] - Response message
+ * @returns {Object} 200 - { flag, message }
+ * @returns {Object} 400 - Invalid status
+ * @returns {Object} 404 - Flag not found
+ */
+const resolveFlag = catchAsync(async (req, res, next) => {
+  const { status, adminResponse } = req.body;
+
+  const { compensationMessage, ...data } = await adminService.resolveFlag({
+    flagId: req.params.flagId,
+    status,
+    adminResponse,
+    actor: actorFromRequest(req),
   });
 
-  sendJsonResponse(res, 200, "Flag statistics retrieved", result);
+  sendJsonResponse(
+    res,
+    200,
+    `Flag resolved successfully.${compensationMessage}`,
+    data,
+  );
 });
 
 /**
@@ -487,104 +420,6 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
       totalPages: Math.ceil(total / parseInt(limit)),
     },
   });
-});
-
-/**
- * Resolve a flagged content report.
- *
- * Updates flag status to IN_REVIEW, FIXED, or REJECTED. When fixed, awards
- * 25 XP to the reporter as compensation and logs the XP adjustment.
- *
- * @route   PUT /api/admin/flags/:flagId/resolve
- * @body    {string} status         - "IN_REVIEW", "FIXED", or "REJECTED"
- * @body    {string} [adminResponse] - Response message
- * @returns {Object} 200 - { flag, message }
- * @returns {Object} 400 - Invalid status
- * @returns {Object} 404 - Flag not found
- */
-const resolveFlag = catchAsync(async (req, res, next) => {
-  const { flagId } = req.params;
-  const { status, adminResponse } = req.body;
-  const actor = actorFromRequest(req);
-
-  const validStatuses = ["IN_REVIEW", "FIXED", "REJECTED"];
-  if (!validStatuses.includes(status)) {
-    return next(
-      new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400),
-    );
-  }
-
-  const flag = await FlaggedContent.findById(flagId);
-  if (!flag) {
-    return next(new AppError("Flag not found", 404));
-  }
-
-  const oldStatus = flag.status;
-  flag.status = status;
-  flag.adminResponse = adminResponse;
-  flag.resolvedBy = req.userId;
-  flag.resolvedAt = new Date();
-
-  let compensationMessage = "";
-  let xpCompensation = 0;
-
-  // Handle XP compensation if needed
-  if (status === "FIXED") {
-    xpCompensation = 25;
-    flag.xpCompensation = xpCompensation;
-
-    // Award XP to the reporter
-    const user = await User.findById(flag.reporterId);
-    if (user) {
-      const oldXp = user.xp;
-      user.xp += xpCompensation;
-      await user.save();
-
-      compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
-
-      // Log the XP adjustment
-      await createAdminLog(
-        actor,
-        "XP_ADJUSTMENT",
-        "USER",
-        user._id,
-        {
-          old: oldXp,
-          new: user.xp,
-          reason: `Flag compensation for: ${flag.title}`,
-        },
-        `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
-      );
-    }
-  }
-
-  await flag.save();
-
-  // Log the admin action
-  await createAdminLog(
-    actor,
-    "FLAG_RESOLVED",
-    "FLAG",
-    flagId,
-    {
-      oldStatus,
-      newStatus: status,
-      xpCompensation,
-      targetType: flag.targetType,
-      targetId: flag.targetId,
-    },
-    `Flag resolved with status: ${status}. ${adminResponse || ""}`,
-  );
-
-  sendJsonResponse(
-    res,
-    200,
-    `Flag resolved successfully.${compensationMessage}`,
-    {
-      flag,
-      message: `The reporter has been notified${compensationMessage}`,
-    },
-  );
 });
 
 /**
