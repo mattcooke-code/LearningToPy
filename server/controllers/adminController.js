@@ -384,6 +384,68 @@ const resolveFlag = catchAsync(async (req, res, next) => {
   );
 });
 
+// +=============================================+
+// |              CONTENT MANAGEMENT             |
+// +=============================================+
+
+// ───────── READS ─────────
+
+/**
+ * List all lessons with filtering by status, difficulty, and module.
+ *
+ * @route   GET /api/admin/lessons
+ * @query   {string} [status]     - "published", "draft", or omit for all
+ * @query   {string} [difficulty] - Filter by difficulty
+ * @query   {string} [moduleId]   - Filter by module
+ * @query   {number} [page=1]     - Page number
+ * @query   {number} [limit=1000] - Results per page
+ * @returns {Object} 200 - { lessons, pagination }
+ */
+const getAllLessons = catchAsync(async (req, res, next) => {
+  const { limit, page, status, difficulty, moduleId } = req.query;
+
+  const data = await adminService.getAllLessons({
+    limit,
+    page,
+    status,
+    difficulty,
+    moduleId,
+  });
+
+  sendJsonResponse(res, 200, "Lessons retrieved", data);
+});
+
+/**
+ * List all modules with filtering by publish status.
+ *
+ * @route   GET /api/admin/modules
+ * @query   {string} [status]     - "published", "draft", or omit for all
+ * @query   {number} [page=1]     - Page number
+ * @query   {number} [limit=1000] - Results per page
+ * @returns {Object} 200 - { modules, pagination }
+ */
+const getAllModules = catchAsync(async (req, res, next) => {
+  const { limit, page, status } = req.query;
+
+  const data = await adminService.getAllModules({ limit, page, status });
+
+  sendJsonResponse(res, 200, "Modules retrieved", data);
+});
+
+/**
+ * Get content statistics (lesson/module counts, published vs draft).
+ *
+ * @route   GET /api/admin/content/stats
+ * @returns {Object} 200 - { totalLessons, publishedLessons, draftLessons, totalModules, publishedModules, draftModules }
+ */
+const getContentStats = catchAsync(async (req, res, next) => {
+  const data = await adminService.getContentStats();
+
+  sendJsonResponse(res, 200, "Content stats retrieved", data);
+});
+
+// ───────── WRITES ─────────
+
 /**
  * List all admin activity logs with filtering and pagination.
  *
@@ -468,87 +530,6 @@ const updateSettings = catchAsync(async (req, res, next) => {
 });
 
 /**
- * List all lessons with filtering by status, difficulty, and module.
- *
- * @route   GET /api/admin/lessons
- * @query   {string} [status]     - "published", "draft", or omit for all
- * @query   {string} [difficulty] - Filter by difficulty
- * @query   {string} [moduleId]   - Filter by module
- * @query   {number} [page=1]     - Page number
- * @query   {number} [limit=1000] - Results per page
- * @returns {Object} 200 - { lessons, pagination }
- */
-const getAllLessons = catchAsync(async (req, res, next) => {
-  const { limit = 1000, page = 1, status, difficulty, moduleId } = req.query;
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-
-  const filter = {};
-  if (status === "published") filter.isPublished = true;
-  if (status === "draft") filter.isPublished = false;
-  if (difficulty && difficulty !== "all") filter.difficulty = difficulty;
-  if (moduleId && moduleId !== "" && moduleId !== "all") {
-    filter.moduleId = moduleId;
-  }
-
-  console.log("Lesson filter:", filter); // Debug log
-
-  const [lessons, total] = await Promise.all([
-    Lesson.find(filter)
-      .populate("moduleId", "title order")
-      .sort({ order: 1, moduleId: 1 })
-      .skip(skip)
-      .limit(parseInt(limit)),
-    Lesson.countDocuments(filter),
-  ]);
-
-  sendJsonResponse(res, 200, "Lessons retrieved", {
-    lessons,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total,
-      totalPages: Math.ceil(total / parseInt(limit)),
-    },
-  });
-});
-
-/**
- * List all modules with filtering by publish status.
- *
- * @route   GET /api/admin/modules
- * @query   {string} [status]     - "published", "draft", or omit for all
- * @query   {number} [page=1]     - Page number
- * @query   {number} [limit=1000] - Results per page
- * @returns {Object} 200 - { modules, pagination }
- */
-const getAllModules = catchAsync(async (req, res, next) => {
-  const { limit = 1000, page = 1, status } = req.query;
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-
-  const filter = {};
-  if (status === "published") filter.isPublished = true;
-  if (status === "draft") filter.isPublished = false;
-
-  const [modules, total] = await Promise.all([
-    Module.find(filter)
-      .sort({ order: 1, createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit)),
-    Module.countDocuments(filter),
-  ]);
-
-  sendJsonResponse(res, 200, "Modules retrieved", {
-    modules,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total,
-      totalPages: Math.ceil(total / parseInt(limit)),
-    },
-  });
-});
-
-/**
  * Update a lesson's fields. Runs Mongoose validators.
  *
  * @route   PUT /api/admin/lessons/:lessonId
@@ -612,31 +593,6 @@ const updateModule = catchAsync(async (req, res, next) => {
   );
 
   sendJsonResponse(res, 200, "Module updated", { module });
-});
-
-/**
- * Get content statistics (lesson/module counts, published vs draft).
- *
- * @route   GET /api/admin/content/stats
- * @returns {Object} 200 - { totalLessons, publishedLessons, draftLessons, totalModules, publishedModules, draftModules }
- */
-const getContentStats = catchAsync(async (req, res, next) => {
-  const [totalLessons, publishedLessons, totalModules, publishedModules] =
-    await Promise.all([
-      Lesson.countDocuments(),
-      Lesson.countDocuments({ isPublished: true }),
-      Module.countDocuments(),
-      Module.countDocuments({ isPublished: true }),
-    ]);
-
-  sendJsonResponse(res, 200, "Content stats retrieved", {
-    totalLessons,
-    publishedLessons,
-    draftLessons: totalLessons - publishedLessons,
-    totalModules,
-    publishedModules,
-    draftModules: totalModules - publishedModules,
-  });
 });
 
 /**
