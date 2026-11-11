@@ -558,6 +558,85 @@ const updateModuleOrder = catchAsync(async (req, res, next) => {
 });
 
 /**
+ * Create a new lesson. Auto-assigns order if not provided.
+ * @route   POST /api/admin/lessons
+ */
+const createLesson = catchAsync(async (req, res, next) => {
+  const data = await adminService.createLesson({
+    lessonData: req.body,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 201, "Lesson created", data);
+});
+
+/**
+ * Create a new module. Auto-handles moduleNumber and order.
+ * @route   POST /api/admin/modules
+ */
+const createModule = catchAsync(async (req, res, next) => {
+  const data = await adminService.createModule({
+    moduleData: req.body,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 201, "Module created", data);
+});
+
+/**
+ * Delete a lesson by ID.
+ * @route   DELETE /api/admin/lessons/:lessonId
+ */
+const deleteLesson = catchAsync(async (req, res, next) => {
+  const data = await adminService.deleteLesson({
+    lessonId: req.params.lessonId,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 200, "Lesson deleted", data);
+});
+
+/**
+ * Delete a module. Refuses if it still contains lessons.
+ * @route   DELETE /api/admin/modules/:moduleId
+ * @returns {Object} 400 - Cannot delete non-empty module
+ */
+const deleteModule = catchAsync(async (req, res, next) => {
+  const data = await adminService.deleteModule({
+    moduleId: req.params.moduleId,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 200, "Module deleted", data);
+});
+
+/**
+ * Duplicate a lesson (unpublished, titled "Original (Copy)").
+ * @route   POST /api/admin/lessons/:lessonId/duplicate
+ */
+const duplicateLesson = catchAsync(async (req, res, next) => {
+  const data = await adminService.duplicateLesson({
+    lessonId: req.params.lessonId,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 201, "Lesson duplicated", data);
+});
+
+/**
+ * Duplicate an entire module including all its lessons (all unpublished).
+ * @route   POST /api/admin/modules/:moduleId/duplicate
+ */
+const duplicateModule = catchAsync(async (req, res, next) => {
+  const data = await adminService.duplicateModule({
+    moduleId: req.params.moduleId,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 201, "Module duplicated", data);
+});
+
+/**
  * List all admin activity logs with filtering and pagination.
  *
  * @route   GET /api/admin/activity-logs
@@ -637,241 +716,6 @@ const updateSettings = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Settings updated successfully.", {
     changes,
     timestamp: new Date().toISOString(),
-  });
-});
-
-/**
- * Create a new lesson. Auto-assigns order if not provided.
- * @route   POST /api/admin/lessons
- */
-const createLesson = catchAsync(async (req, res, next) => {
-  const lessonData = req.body;
-  const actor = actorFromRequest(req);
-
-  if (!lessonData.order) {
-    const lastLesson = await Lesson.findOne({
-      moduleId: lessonData.moduleId,
-    }).sort({ order: -1 });
-    lessonData.order = (lastLesson?.order || 0) + 1;
-  }
-
-  const lesson = await Lesson.create(lessonData);
-
-  await createAdminLog(
-    actor,
-    "LESSON_CREATED",
-    "LESSON",
-    lesson._id,
-    { new: { title: lesson.title, moduleId: lesson.moduleId } },
-    "Lesson created via admin panel",
-  );
-
-  sendJsonResponse(res, 201, "Lesson created", { lesson });
-});
-
-/**
- * Create a new module. Auto-handles moduleNumber and order.
- * @route   POST /api/admin/modules
- */
-const createModule = catchAsync(async (req, res, next) => {
-  const moduleData = req.body;
-  const actor = actorFromRequest(req);
-
-  if (
-    !moduleData.order ||
-    moduleData.order === 0 ||
-    moduleData.order === null
-  ) {
-    delete moduleData.order;
-  }
-
-  if (!moduleData.moduleNumber || moduleData.moduleNumber === "") {
-    delete moduleData.moduleNumber;
-  }
-
-  const module = await Module.create(moduleData);
-
-  await createAdminLog(
-    actor,
-    "MODULE_CREATED",
-    "MODULE",
-    module._id,
-    {
-      title: module.title,
-      moduleNumber: module.moduleNumber,
-      order: module.order,
-    },
-    "Module created via admin panel",
-  );
-
-  sendJsonResponse(res, 201, "Module created", { module });
-});
-
-/**
- * Delete a lesson by ID.
- * @route   DELETE /api/admin/lessons/:lessonId
- */
-const deleteLesson = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-  const actor = actorFromRequest(req);
-
-  const lesson = await Lesson.findById(lessonId);
-  if (!lesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
-
-  await Lesson.findByIdAndDelete(lessonId);
-
-  await createAdminLog(
-    actor,
-    "LESSON_DELETED",
-    "LESSON",
-    lessonId,
-    { old: { title: lesson.title } },
-    "Lesson deleted via admin panel",
-  );
-
-  sendJsonResponse(res, 200, "Lesson deleted", { lessonId });
-});
-
-/**
- * Delete a module. Refuses if it still contains lessons.
- * @route   DELETE /api/admin/modules/:moduleId
- * @returns {Object} 400 - Cannot delete non-empty module
- */
-const deleteModule = catchAsync(async (req, res, next) => {
-  const { moduleId } = req.params;
-  const actor = actorFromRequest(req);
-
-  const module = await Module.findById(moduleId);
-  if (!module) {
-    return next(new AppError("Module not found", 404));
-  }
-
-  const lessonCount = await Lesson.countDocuments({ moduleId });
-  if (lessonCount > 0) {
-    return next(
-      new AppError(
-        `Cannot delete module with ${lessonCount} lessons. Delete or reassign lessons first.`,
-        400,
-      ),
-    );
-  }
-
-  await Module.findByIdAndDelete(moduleId);
-
-  await createAdminLog(
-    actor,
-    "MODULE_DELETED",
-    "MODULE",
-    moduleId,
-    { old: { title: module.title } },
-    "Module deleted via admin panel",
-  );
-
-  sendJsonResponse(res, 200, "Module deleted", { moduleId });
-});
-
-/**
- * Duplicate a lesson (unpublished, titled "Original (Copy)").
- * @route   POST /api/admin/lessons/:lessonId/duplicate
- */
-const duplicateLesson = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-  const actor = actorFromRequest(req);
-
-  if (!mongoose.Types.ObjectId.isValid(lessonId)) {
-    return next(new AppError("Invalid lesson ID", 400));
-  }
-
-  const originalLesson = await Lesson.findById(lessonId);
-  if (!originalLesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
-
-  const duplicatedLesson = await Lesson.create({
-    ...originalLesson.toObject(),
-    _id: undefined,
-    title: `${originalLesson.title} (Copy)`,
-    isPublished: false,
-    createdAt: undefined,
-    updatedAt: undefined,
-  });
-
-  await createAdminLog(
-    actor,
-    "LESSON_DUPLICATED",
-    "LESSON",
-    duplicatedLesson._id,
-    { new: { title: duplicatedLesson.title, sourceLesson: lessonId } },
-    "Lesson duplicated via admin panel",
-  );
-
-  sendJsonResponse(res, 201, "Lesson duplicated", { lesson: duplicatedLesson });
-});
-
-/**
- * Duplicate an entire module including all its lessons (all unpublished).
- * @route   POST /api/admin/modules/:moduleId/duplicate
- */
-const duplicateModule = catchAsync(async (req, res, next) => {
-  const { moduleId } = req.params;
-  const actor = actorFromRequest(req);
-
-  if (!mongoose.Types.ObjectId.isValid(moduleId)) {
-    return next(new AppError("Invalid module ID", 400));
-  }
-
-  const originalModule = await Module.findById(moduleId);
-  if (!originalModule) {
-    return next(new AppError("Module not found", 404));
-  }
-
-  const lessons = await Lesson.find({ moduleId });
-
-  const duplicatedModule = await Module.create({
-    ...originalModule.toObject(),
-    _id: undefined,
-    title: `${originalModule.title} (Copy)`,
-    moduleNumber: undefined,
-    order: undefined,
-    isPublished: false,
-    createdAt: undefined,
-    updatedAt: undefined,
-  });
-
-  const duplicatedLessons = await Lesson.insertMany(
-    lessons.map((lesson) => ({
-      ...lesson.toObject(),
-      _id: undefined,
-      moduleId: duplicatedModule._id,
-      title: `${lesson.title} (Copy)`,
-      isPublished: false,
-      createdAt: undefined,
-      updatedAt: undefined,
-    })),
-  );
-
-  await createAdminLog(
-    actor,
-    "MODULE_DUPLICATED",
-    "MODULE",
-    duplicatedModule._id,
-    {
-      new: {
-        title: duplicatedModule.title,
-        sourceModule: moduleId,
-        lessonCount: lessons.length,
-        newModuleNumber: duplicatedModule.newModuleNumber,
-        newOrder: duplicatedModule.order,
-      },
-    },
-    "Module duplicated via admin panel",
-  );
-
-  sendJsonResponse(res, 201, "Module duplicated", {
-    module: duplicatedModule,
-    lessons: duplicatedLessons,
   });
 });
 
