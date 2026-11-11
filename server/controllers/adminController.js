@@ -447,6 +447,117 @@ const getContentStats = catchAsync(async (req, res, next) => {
 // ───────── WRITES ─────────
 
 /**
+ * Update a lesson's fields. Runs Mongoose validators.
+ *
+ * @route   PUT /api/admin/lessons/:lessonId
+ * @returns {Object} 200 - Updated lesson
+ * @returns {Object} 404 - Lesson not found
+ */
+const updateLesson = catchAsync(async (req, res, next) => {
+  const data = await adminService.updateLesson({
+    lessonId: req.params.lessonId,
+    updateData: req.body,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 200, "Lesson updated", data);
+});
+
+/**
+ * Update a module's fields. Runs Mongoose validators.
+ *
+ * @route   PUT /api/admin/modules/:moduleId
+ * @returns {Object} 200 - Updated module
+ * @returns {Object} 404 - Module not found
+ */
+const updateModule = catchAsync(async (req, res, next) => {
+  const data = await adminService.updateModule({
+    moduleId: req.params.moduleId,
+    updateData: req.body,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 200, "Module updated", data);
+});
+
+/**
+ * Publish or unpublish a lesson.
+ *
+ * @route   PUT /api/admin/lessons/:lessonId/publish
+ * @body    {boolean} publish - True to publish, false to unpublish
+ * @returns {Object} 200 - Updated lesson
+ * @returns {Object} 404 - Lesson not found
+ */
+const publishLesson = catchAsync(async (req, res, next) => {
+  const { publish } = req.body;
+
+  const data = await adminService.publishLesson({
+    lessonId: req.params.lessonId,
+    publish,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(
+    res,
+    200,
+    `Lesson ${publish ? "published" : "unpublished"}`,
+    data,
+  );
+});
+
+/**
+ * Publish or unpublish a module.
+ * Same pattern as publishLesson
+ * @route   PUT /api/admin/modules/:moduleId/publish
+ */
+const publishModule = catchAsync(async (req, res, next) => {
+  const { publish } = req.body;
+
+  const data = await adminService.publishModule({
+    moduleId: req.params.moduleId,
+    publish,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(
+    res,
+    200,
+    `Module ${publish ? "published" : "unpublished"}`,
+    data,
+  );
+});
+
+/**
+ * Update a lesson's sort order within its module.
+ * @route   PUT /api/admin/lessons/:lessonId/order
+ */
+const updateLessonOrder = catchAsync(async (req, res, next) => {
+  const { order } = req.body;
+
+  const data = await adminService.updateLessonOrder({
+    lessonId: req.params.lessonId,
+    order,
+  });
+
+  sendJsonResponse(res, 200, "Lesson order updated", data);
+});
+
+/**
+ * Update a module's sort order in the curriculum.
+ * @route   PUT /api/admin/modules/:moduleId/order
+ */
+const updateModuleOrder = catchAsync(async (req, res, next) => {
+  const { order } = req.body;
+
+  const data = await adminService.updateModuleOrder({
+    moduleId: req.params.moduleId,
+    order,
+  });
+
+  sendJsonResponse(res, 200, "Module order updated", data);
+});
+
+/**
  * List all admin activity logs with filtering and pagination.
  *
  * @route   GET /api/admin/activity-logs
@@ -527,145 +638,6 @@ const updateSettings = catchAsync(async (req, res, next) => {
     changes,
     timestamp: new Date().toISOString(),
   });
-});
-
-/**
- * Update a lesson's fields. Runs Mongoose validators.
- *
- * @route   PUT /api/admin/lessons/:lessonId
- * @returns {Object} 200 - Updated lesson
- * @returns {Object} 404 - Lesson not found
- */
-const updateLesson = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-  const updateData = req.body;
-  const actor = actorFromRequest(req);
-
-  const lesson = await Lesson.findByIdAndUpdate(lessonId, updateData, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!lesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
-
-  await createAdminLog(
-    actor,
-    "LESSON_UPDATED",
-    "LESSON",
-    lessonId,
-    { new: updateData },
-    "Updated via admin panel",
-  );
-
-  sendJsonResponse(res, 200, "Lesson updated", { lesson });
-});
-
-/**
- * Update a module's fields. Runs Mongoose validators.
- *
- * @route   PUT /api/admin/modules/:moduleId
- * @returns {Object} 200 - Updated module
- * @returns {Object} 404 - Module not found
- */
-const updateModule = catchAsync(async (req, res, next) => {
-  const { moduleId } = req.params;
-  const updateData = req.body;
-  const actor = actorFromRequest(req);
-
-  const module = await Module.findByIdAndUpdate(moduleId, updateData, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!module) {
-    return next(new AppError("Module not found", 404));
-  }
-
-  await createAdminLog(
-    actor,
-    "MODULE_UPDATED",
-    "MODULE",
-    moduleId,
-    { new: updateData },
-    "Updated via admin panel",
-  );
-
-  sendJsonResponse(res, 200, "Module updated", { module });
-});
-
-/**
- * Publish or unpublish a lesson.
- *
- * @route   PUT /api/admin/lessons/:lessonId/publish
- * @body    {boolean} publish - True to publish, false to unpublish
- * @returns {Object} 200 - Updated lesson
- * @returns {Object} 404 - Lesson not found
- */
-const publishLesson = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-  const { publish } = req.body;
-  const actor = actorFromRequest(req);
-
-  const lesson = await Lesson.findById(lessonId);
-  if (!lesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
-
-  lesson.isPublished = publish;
-  await lesson.save();
-
-  await createAdminLog(
-    actor,
-    publish ? "LESSON_PUBLISHED" : "LESSON_UNPUBLISHED",
-    "LESSON",
-    lessonId,
-    { old: { isPublished: !publish }, new: { isPublished: publish } },
-    `Lesson ${publish ? "published" : "unpublished"} via admin panel`,
-  );
-
-  sendJsonResponse(
-    res,
-    200,
-    `Lesson ${publish ? "published" : "unpublished"}`,
-    { lesson },
-  );
-});
-
-/**
- * Publish or unpublish a module.
- * Same pattern as publishLesson
- * @route   PUT /api/admin/modules/:moduleId/publish
- */
-const publishModule = catchAsync(async (req, res, next) => {
-  const { moduleId } = req.params;
-  const { publish } = req.body;
-  const actor = actorFromRequest(req);
-
-  const module = await Module.findById(moduleId);
-  if (!module) {
-    return next(new AppError("Module not found", 404));
-  }
-
-  module.isPublished = publish;
-  await module.save();
-
-  await createAdminLog(
-    actor,
-    publish ? "MODULE_PUBLISHED" : "MODULE_UNPUBLISHED",
-    "MODULE",
-    moduleId,
-    { old: { isPublished: !publish }, new: { isPublished: publish } },
-    `Module ${publish ? "published" : "unpublished"} via admin panel`,
-  );
-
-  sendJsonResponse(
-    res,
-    200,
-    `Module ${publish ? "published" : "unpublished"}`,
-    { module },
-  );
 });
 
 /**
@@ -901,48 +873,6 @@ const duplicateModule = catchAsync(async (req, res, next) => {
     module: duplicatedModule,
     lessons: duplicatedLessons,
   });
-});
-
-/**
- * Update a lesson's sort order within its module.
- * @route   PUT /api/admin/lessons/:lessonId/order
- */
-const updateLessonOrder = catchAsync(async (req, res, next) => {
-  const { lessonId } = req.params;
-  const { order } = req.body;
-
-  const lesson = await Lesson.findByIdAndUpdate(
-    lessonId,
-    { order },
-    { new: true },
-  );
-
-  if (!lesson) {
-    return next(new AppError("Lesson not found", 404));
-  }
-
-  sendJsonResponse(res, 200, "Lesson order updated", { lesson });
-});
-
-/**
- * Update a module's sort order in the curriculum.
- * @route   PUT /api/admin/modules/:moduleId/order
- */
-const updateModuleOrder = catchAsync(async (req, res, next) => {
-  const { moduleId } = req.params;
-  const { order } = req.body;
-
-  const module = await Module.findByIdAndUpdate(
-    moduleId,
-    { order },
-    { new: true },
-  );
-
-  if (!module) {
-    return next(new AppError("Module not found", 404));
-  }
-
-  sendJsonResponse(res, 200, "Module order updated", { module });
 });
 
 /**
