@@ -634,6 +634,40 @@ const duplicateModule = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 201, "Module duplicated", data);
 });
 
+// +=============================================+
+// |              SETTINGS & STATS               |
+// +=============================================+
+
+/**
+ * Get platform settings (returns defaults — not persisted to DB).
+ *
+ * @route   GET /api/admin/settings
+ * @returns {Object} 200 - Default platform settings
+ */
+const getSettings = catchAsync(async (req, res, next) => {
+  const data = await adminService.getSettings();
+  sendJsonResponse(res, 200, "Settings retrieved", data);
+});
+
+/**
+ * Update platform settings. Validates XP values.
+ *
+ * @route   PUT /api/admin/settings
+ * @body    {Object} changes - Key-value pairs of settings to update
+ * @returns {Object} 200 - { changes, timestamp }
+ * @returns {Object} 400 - Invalid XP values
+ */
+const updateSettings = catchAsync(async (req, res, next) => {
+  const { changes } = req.body;
+
+  const data = await adminService.updateSettings({
+    changes,
+    actor: actorFromRequest(req),
+  });
+
+  sendJsonResponse(res, 200, "Settings updated successfully", data);
+});
+
 /**
  * List all admin activity logs with filtering and pagination.
  *
@@ -669,51 +703,6 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
       total,
       totalPages: Math.ceil(total / parseInt(limit)),
     },
-  });
-});
-
-/**
- * Get platform settings (returns defaults — not persisted to DB).
- *
- * @route   GET /api/admin/settings
- * @returns {Object} 200 - Default platform settings
- */
-const getSettings = catchAsync(async (req, res, next) => {
-  sendJsonResponse(res, 200, "Settings retrieved.", DEFAULT_SETTINGS);
-});
-
-/**
- * Update platform settings. Validates XP values.
- *
- * @route   PUT /api/admin/settings
- * @body    {Object} changes - Key-value pairs of settings to update
- * @returns {Object} 200 - { changes, timestamp }
- * @returns {Object} 400 - Invalid XP values
- */
-const updateSettings = catchAsync(async (req, res, next) => {
-  const actor = actorFromRequest(req);
-  const { changes } = req.body;
-
-  if (changes.xpPerLevel !== undefined && changes.xpPerLevel <= 0) {
-    return next(new AppError("XP must be greater than 0", 400));
-  }
-
-  if (changes.moduleXpBonus !== undefined && changes.moduleXpBonus < 0) {
-    return next(new AppError("Module XP bonus cannot be negative", 400));
-  }
-
-  await createAdminLog(
-    actor,
-    "SETTINGS_UPDATED",
-    "SETTINGS",
-    null,
-    { new: changes },
-    "Settings updated via admin panel.",
-  );
-
-  sendJsonResponse(res, 200, "Settings updated successfully.", {
-    changes,
-    timestamp: new Date().toISOString(),
   });
 });
 
