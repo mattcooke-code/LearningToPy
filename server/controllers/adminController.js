@@ -17,18 +17,10 @@
  *
  * @middleware adminOnly - Required on all routes
  */
-const AdminLog = require("../models/AdminLog");
 const adminService = require("../services/adminService");
-const {
-  createAdminLog,
-  actorFromRequest,
-} = require("../services/auditService");
-const learningEngine = require("../services/learningEngine");
-const AppError = require("../utils/AppError");
+const { actorFromRequest } = require("../services/auditService");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
-
-const mongoose = require("mongoose");
 
 // +=============================================+
 // |              USER MANAGEMENT                |
@@ -667,6 +659,10 @@ const updateSettings = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 200, "Settings updated successfully", data);
 });
 
+// +=============================================+
+// |             ADMIN OPERATIONS                |
+// +=============================================+
+
 /**
  * List all admin activity logs with filtering and pagination.
  *
@@ -678,31 +674,16 @@ const updateSettings = catchAsync(async (req, res, next) => {
  * @returns {Object} 200 - { logs, pagination }
  */
 const getActivityLogs = catchAsync(async (req, res, next) => {
-  const { page = 1, limit = 50, actionType, targetType } = req.query;
-  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const { page, limit, actionType, targetType } = req.query;
 
-  const filter = {};
-  if (actionType) filter.action = actionType; // Swapped actionType to action for AdminLog
-  if (targetType) filter.targetType = targetType;
-
-  const [logs, total] = await Promise.all([
-    AdminLog.find(filter)
-      .populate("adminId", "username email")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit)),
-    AdminLog.countDocuments(filter),
-  ]);
-
-  sendJsonResponse(res, 200, "Activity logs retrieved", {
-    logs,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total,
-      totalPages: Math.ceil(total / parseInt(limit)),
-    },
+  const data = await adminService.getActivityLogs({
+    page,
+    limit,
+    actionType,
+    targetType,
   });
+
+  sendJsonResponse(res, 200, "Activity logs retrieved", data);
 });
 
 /**
@@ -710,67 +691,61 @@ const getActivityLogs = catchAsync(async (req, res, next) => {
  * @route POST /api/admin/modules/fix-progress
  */
 const fixModuleProgress = catchAsync(async (req, res, next) => {
-  const userId = req.body.userId ?? req.userId;
   const { reason } = req.body;
-  const actor = actorFromRequest(req);
+  const targetUserId = req.body.userId ?? req.userId;
 
-  if (typeof userId !== "string" || !mongoose.isValidObjectId(userId)) {
-    return next(new AppError("Invalid user id", 400));
-  }
-
-  const modulesFixed = await learningEngine.fixUserModuleProgress(userId);
-
-  // ── Create audit log entry ─────────────────────────────────
-  await createAdminLog(
-    actor,
-    "MODULE_PROGRESS_FIXED",
-    "USER",
-    userId,
-    { modulesFixed, fixedCount: modulesFixed.length },
-    reason ||
-      `Backfilled missing module completions (${modulesFixed.length} fixed)`,
-  );
-
-  sendJsonResponse(res, 200, "Module integrity check complete", {
-    fixedCount: modulesFixed.length,
-    modules: modulesFixed,
+  const data = await adminService.fixModuleProgress({
+    targetUserId,
+    reason,
+    actor: actorFromRequest(req),
   });
+
+  sendJsonResponse(res, 200, "Module integrity check complete", data);
 });
 
+// ───────── EXPORTS ────────────
+
 module.exports = {
-  toggleAdminStatus,
+  // User Management (reads)
   getAdmins,
   getAdminStats,
   searchUsers,
-  adjustUserXp,
-  getFlaggedContent,
-  getFlagStats,
-  updateUserStatus,
   getUserDetails,
   getUserActivity,
   getUserBadges,
+  getUserProgress,
+  // User Management (writes)
+  toggleAdminStatus,
+  adjustUserXp,
+  updateUserStatus,
   awardBadges,
   removeBadges,
-  getUserProgress,
   overrideUserProgress,
-  getActivityLogs,
+  // Flag management
+  getFlaggedContent,
+  getFlagStats,
   resolveFlag,
-  getSettings,
-  updateSettings,
+  // Content management (reads)
   getAllLessons,
   getAllModules,
+  getContentStats,
+  // Content management (writes)
   updateLesson,
   updateModule,
-  getContentStats,
   publishLesson,
   publishModule,
+  updateLessonOrder,
+  updateModuleOrder,
   createLesson,
   createModule,
   deleteLesson,
   deleteModule,
   duplicateLesson,
   duplicateModule,
-  updateLessonOrder,
-  updateModuleOrder,
+  // Settings & stats
+  getSettings,
+  updateSettings,
+  // Admin Ops
+  getActivityLogs,
   fixModuleProgress,
 };
