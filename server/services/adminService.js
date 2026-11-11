@@ -14,6 +14,7 @@ const XpTransaction = require("../models/XpTransaction");
 const { createAdminLog } = require("./auditService");
 
 // ---UTILITIES---
+const mongoose = require("mongoose");
 const AppError = require("../utils/AppError");
 const levelUtils = require("../utils/levelUtils");
 
@@ -1317,6 +1318,266 @@ const updateModuleOrder = async ({ moduleId, order }) => {
 
   return { module };
 };
+
+/**
+ * Create a new lesson. Auto-assigns `order` when not provided by finding
+ * the current highest order for the target module and adding 1.
+ *
+ * @param {Object} params
+ * @param {Object} params.lessonData - Fields for the new lesson
+ * @param {Object} params.actor      - { id, ip, userAgent }
+ * @returns {Promise<{ lesson: Object }>}
+ */
+const createLesson = async ({ lessonData, actor }) => {
+  if (!lessonData.order) {
+    const lastLesson = await Lesson.findOne({
+      moduleId: lessonData.moduleId,
+    }).sort({ order: -1 });
+    lessonData.order = (lastLesson?.order || 0) + 1;
+  }
+
+  const lesson = await Lesson.create(lessonData);
+
+  await createAdminLog(
+    actor,
+    "LESSON_CREATED",
+    "LESSON",
+    lesson._id,
+    { new: { title: lesson.title, moduleId: lesson.moduleId } },
+    "Lesson created via admin panel",
+  );
+
+  return { lesson };
+};
+
+/**
+ * Create a new module.
+ *
+ * Normalizes `order` and `moduleNumber` by deleting them from the payload
+ * when falsy / 0 / null / empty-string — this lets the schema's defaults
+ * and pre-save hooks assign them. (Does NOT auto-assign `order` the way
+ * `createLesson` does — asymmetric with the lesson path, matching the
+ * original admin controller's behavior.)
+ *
+ * @param {Object} params
+ * @param {Object} params.moduleData - Fields for the new module
+ * @param {Object} params.actor      - { id, ip, userAgent }
+ * @returns {Promise<{ module: Object }>}
+ */
+const createModule = async ({ moduleData, actor }) => {
+  if (
+    !moduleData.order ||
+    moduleData.order === 0 ||
+    moduleData.order === null
+  ) {
+    delete moduleData.order;
+  }
+
+  if (!moduleData.moduleNumber || moduleData.moduleNumber === "") {
+    delete moduleData.moduleNumber;
+  }
+
+  const module = await Module.create(moduleData);
+
+  await createAdminLog(
+    actor,
+    "MODULE_CREATED",
+    "MODULE",
+    module._id,
+    // NOTE: audit `changes` shape is intentionally not `{ new: { ... } }` —
+    // preserved from the original controller (the only audit call that
+    // omits the `new` wrapper). Flagged as debt.
+    {
+      title: module.title,
+      moduleNumber: module.moduleNumber,
+      order: module.order,
+    },
+    "Module created via admin panel",
+  );
+
+  return { module };
+};
+
+/**
+ * Delete a lesson by ID.
+ *
+ * @param {Object} params
+ * @param {string} params.lessonId
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ lessonId: string }>}
+ * @throws {AppError} 404 - Lesson not found
+ */
+const deleteLesson = async ({ lessonId, actor }) => {
+  const lesson = await Lesson.findById(lessonId);
+  if (!lesson) throw new AppError("Lesson not found", 404);
+
+  await Lesson.findByIdAndDelete(lessonId);
+
+  await createAdminLog(
+    actor,
+    "LESSON_DELETED",
+    "LESSON",
+    lessonId,
+    { old: { title: lesson.title } },
+    "Lesson deleted via admin panel",
+  );
+
+  return { lessonId };
+};
+
+/**
+ * Delete a module.
+ *
+ * Refuses to delete a module that still contains any lessons (published
+ * or draft). Callers must delete or reassign lessons first.
+ *
+ * @param {Object} params
+ * @param {string} params.moduleId
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ moduleId: string }>}
+ * @throws {AppError} 404 - Module not found
+ * @throws {AppError} 400 - Module is not empty
+ */
+const deleteModule = async ({ moduleId, actor }) => {
+  const module = await Module.findById(moduleId);
+  if (!module) throw new AppError("Module not found", 404);
+
+  const lessonCount = await Lesson.countDocuments({ moduleId });
+  if (lessonCount > 0) {
+    throw new AppError(
+      `Cannot delete module with ${lessonCount} lessons. Delete or reassign lessons first.`,
+      400,
+    );
+  }
+
+  await Module.findByIdAndDelete(moduleId);
+
+  await createAdminLog(
+    actor,
+    "MODULE_DELETED",
+    "MODULE",
+    moduleId,
+    { old: { title: module.title } },
+    "Module deleted via admin panel",
+  );
+
+  return { moduleId };
+};
+
+/**
+ * Duplicate a lesson as a new unpublished copy.
+ *
+ * The copy is titled `"<original title> (Copy)"` and starts unpublished
+ * so it can be reviewed before being made visible.
+ *
+ * @param {Object} params
+ * @param {string} params.lessonId
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ lesson: Object }>}
+ * @throws {AppError} 400 - Invalid lesson ID
+ * @throws {AppError} 404 - Lesson not found
+ */
+const duplicateLesson = async ({ lessonId, actor }) => {
+  if (!mongoose.Types.ObjectId.isValid(lessonId)) {
+    throw new AppError("Invalid lesson ID", 400);
+  }
+
+  const originalLesson = await Lesson.findById(lessonId);
+  if (!originalLesson) throw new AppError("Lesson not found", 404);
+
+  const duplicatedLesson = await Lesson.create({
+    ...originalLesson.toObject(),
+    _id: undefined,
+    title: `${originalLesson.title} (Copy)`,
+    isPublished: false,
+    createdAt: undefined,
+    updatedAt: undefined,
+  });
+
+  await createAdminLog(
+    actor,
+    "LESSON_DUPLICATED",
+    "LESSON",
+    duplicatedLesson._id,
+    { new: { title: duplicatedLesson.title, sourceLesson: lessonId } },
+    "Lesson duplicated via admin panel",
+  );
+
+  return { lesson: duplicatedLesson };
+};
+
+/**
+ * Duplicate an entire module, including all of its lessons.
+ *
+ * Both the module and every lesson copy start unpublished. The module's
+ * `order` and `moduleNumber` are unset so the schema assigns the next
+ * available values.
+ *
+ * Note: module + lesson creation is NOT transactional. If the module
+ * create succeeds but lesson insertion fails, an orphan unpublished
+ * module is left behind. Preserved from the original controller.
+ *
+ * @param {Object} params
+ * @param {string} params.moduleId
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ module: Object, lessons: Object[] }>}
+ * @throws {AppError} 400 - Invalid module ID
+ * @throws {AppError} 404 - Module not found
+ */
+const duplicateModule = async ({ moduleId, actor }) => {
+  if (!mongoose.Types.ObjectId.isValid(moduleId)) {
+    throw new AppError("Invalid module ID", 400);
+  }
+
+  const originalModule = await Module.findById(moduleId);
+  if (!originalModule) throw new AppError("Module not found", 404);
+
+  const lessons = await Lesson.find({ moduleId });
+
+  const duplicatedModule = await Module.create({
+    ...originalModule.toObject(),
+    _id: undefined,
+    title: `${originalModule.title} (Copy)`,
+    moduleNumber: undefined,
+    order: undefined,
+    isPublished: false,
+    createdAt: undefined,
+    updatedAt: undefined,
+  });
+
+  const duplicatedLessons = await Lesson.insertMany(
+    lessons.map((lesson) => ({
+      ...lesson.toObject(),
+      _id: undefined,
+      moduleId: duplicatedModule._id,
+      title: `${lesson.title} (Copy)`,
+      isPublished: false,
+      createdAt: undefined,
+      updatedAt: undefined,
+    })),
+  );
+
+  await createAdminLog(
+    actor,
+    "MODULE_DUPLICATED",
+    "MODULE",
+    duplicatedModule._id,
+    {
+      new: {
+        title: duplicatedModule.title,
+        sourceModule: moduleId,
+        lessonCount: lessons.length,
+        // Preserved from original: `newModuleNumber` is not a schema field,
+        // so this logs `undefined` (omitted from the Mongo document). Debt.
+        newModuleNumber: duplicatedModule.newModuleNumber,
+        newOrder: duplicatedModule.order,
+      },
+    },
+    "Module duplicated via admin panel",
+  );
+
+  return { module: duplicatedModule, lessons: duplicatedLessons };
+};
 // +=============================================+
 // |              SETTINGS & STATS               |
 // +=============================================+
@@ -1354,4 +1615,10 @@ module.exports = {
   publishModule,
   updateLessonOrder,
   updateModuleOrder,
+  createLesson,
+  createModule,
+  deleteLesson,
+  deleteModule,
+  duplicateLesson,
+  duplicateModule,
 };
