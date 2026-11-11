@@ -65,7 +65,7 @@ const trackDailyActivity = async (user, userLocalDateStr) => {
 /**
  * Track when user COMPLETES a lesson or module quiz.
  */
-const trackCompletion = async (user) => {
+const trackCompletion = async (user, userLocalDateStr) => {
   const todayTime = new Date(userLocalDateStr + "T00:00:00Z");
 
   await initializeWeekIfNeeded(user, todayTime, userLocalDateStr);
