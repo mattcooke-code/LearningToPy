@@ -18,8 +18,6 @@
  * @middleware adminOnly - Required on all routes
  */
 const AdminLog = require("../models/AdminLog");
-const Lesson = require("../models/Lesson");
-const Module = require("../models/Module");
 const adminService = require("../services/adminService");
 const {
   createAdminLog,
