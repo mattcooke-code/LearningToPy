@@ -24,7 +24,6 @@ const {
   actorFromRequest,
 } = require("../services/auditService");
 const learningEngine = require("../services/learningEngine");
-const { DEFAULT_SETTINGS } = require("../constants/adminConstants");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");

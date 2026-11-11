@@ -12,6 +12,7 @@ const XpTransaction = require("../models/XpTransaction");
 
 // ---SERVICES---
 const { createAdminLog } = require("./auditService");
+const learningEngine = require("./learningEngine");
 
 // ---UTILITIES---
 const mongoose = require("mongoose");
@@ -769,9 +770,11 @@ const overrideUserProgress = async ({
     },
   };
 };
+
 // +=============================================+
 // |              FLAG MANAGEMENT                |
 // +=============================================+
+
 /**
  * List flagged content with filters, search, and pagination.
  *
@@ -1634,6 +1637,99 @@ const updateSettings = async ({ changes, actor }) => {
   };
 };
 
+// +=============================================+
+// |             ADMIN OPERATIONS                |
+// +=============================================+
+
+/**
+ * List admin activity logs with filtering and pagination.
+ *
+ * @param {Object} params
+ * @param {number} [params.page=1]
+ * @param {number} [params.limit=50]
+ * @param {string} [params.actionType] - Matches `AdminLog.action`
+ * @param {string} [params.targetType] - Matches `AdminLog.targetType`
+ * @returns {Promise<{ logs: Object[], pagination: Object }>}
+ */
+const getActivityLogs = async ({
+  page = 1,
+  limit = 50,
+  actionType,
+  targetType,
+}) => {
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+  if (actionType) filter.action = actionType;
+  if (targetType) filter.targetType = targetType;
+
+  const [logs, total] = await Promise.all([
+    AdminLog.find(filter)
+      .populate("adminId", "username email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum),
+    AdminLog.countDocuments(filter),
+  ]);
+
+  return {
+    logs,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+    },
+  };
+};
+
+/**
+ * Backfill missing module completions for a user.
+ *
+ * Composes `learningEngine.fixUserModuleProgress` (which owns the repair
+ * logic) with an admin-audit entry recording what was fixed.
+ *
+ * `targetUserId` should be the target of the repair — NOT the admin
+ * invoking it — though admins can repair their own progress by passing
+ * their own ID (the original controller defaulted to `req.userId` when
+ * the body omitted `userId`; that default is applied at the controller).
+ *
+ * @param {Object} params
+ * @param {string} params.targetUserId
+ * @param {string} [params.reason]
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ fixedCount: number, modules: string[] }>}
+ * @throws {AppError} 400 - Invalid user id
+ * @throws {AppError} 404 - User not found (from learningEngine)
+ */
+const fixModuleProgress = async ({ targetUserId, reason, actor }) => {
+  if (
+    typeof targetUserId !== "string" ||
+    !mongoose.isValidObjectId(targetUserId)
+  ) {
+    throw new AppError("Invalid user id", 400);
+  }
+
+  const modulesFixed = await learningEngine.fixUserModuleProgress(targetUserId);
+
+  await createAdminLog(
+    actor,
+    "MODULE_PROGRESS_FIXED",
+    "USER",
+    targetUserId,
+    { modulesFixed, fixedCount: modulesFixed.length },
+    reason ||
+      `Backfilled missing module completions (${modulesFixed.length} fixed)`,
+  );
+
+  return {
+    fixedCount: modulesFixed.length,
+    modules: modulesFixed,
+  };
+};
+
 // ───────── EXPORTS ────────────
 
 module.exports = {
@@ -1676,4 +1772,7 @@ module.exports = {
   // Settings & stats
   getSettings,
   updateSettings,
+  // Admin Ops
+  getActivityLogs,
+  fixModuleProgress,
 };
