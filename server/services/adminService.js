@@ -5,6 +5,7 @@ const AdminLog = require("../models/AdminLog");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
+const Module = require("../models/Module");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
@@ -1015,10 +1016,137 @@ const resolveFlag = async ({ flagId, status, adminResponse, actor }) => {
     compensationMessage,
   };
 };
+
 // +=============================================+
 // |              CONTENT MANAGEMENT             |
 // +=============================================+
 
+// ───────── READS ─────────
+
+/**
+ * List all lessons with filtering by status, difficulty, and module.
+ *
+ * Note: `status`, `difficulty`, and `moduleId` filters use explicit
+ * sentinel checks (`"all"`, `""`) rather than treating any unrecognised
+ * value as "no filter" — matches the existing admin UI contract.
+ *
+ * @param {Object} params
+ * @param {number} [params.page=1]
+ * @param {number} [params.limit=1000]
+ * @param {string} [params.status]     - "published" | "draft" | (anything else = no filter)
+ * @param {string} [params.difficulty] - Filter by difficulty, "all" disables
+ * @param {string} [params.moduleId]   - Filter by module, "" or "all" disables
+ * @returns {Promise<{ lessons: Object[], pagination: Object }>}
+ */
+const getAllLessons = async ({
+  limit = 1000,
+  page = 1,
+  status,
+  difficulty,
+  moduleId,
+}) => {
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+  if (status === "published") filter.isPublished = true;
+  if (status === "draft") filter.isPublished = false;
+  if (difficulty && difficulty !== "all") filter.difficulty = difficulty;
+  if (moduleId && moduleId !== "" && moduleId !== "all") {
+    filter.moduleId = moduleId;
+  }
+
+  const [lessons, total] = await Promise.all([
+    Lesson.find(filter)
+      .populate("moduleId", "title order")
+      .sort({ order: 1, moduleId: 1 })
+      .skip(skip)
+      .limit(limitNum),
+    Lesson.countDocuments(filter),
+  ]);
+
+  return {
+    lessons,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+    },
+  };
+};
+
+/**
+ * List all modules with filtering by publish status.
+ *
+ * @param {Object} params
+ * @param {number} [params.page=1]
+ * @param {number} [params.limit=1000]
+ * @param {string} [params.status] - "published" | "draft" | (anything else = no filter)
+ * @returns {Promise<{ modules: Object[], pagination: Object }>}
+ */
+const getAllModules = async ({ limit = 1000, page = 1, status }) => {
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+  if (status === "published") filter.isPublished = true;
+  if (status === "draft") filter.isPublished = false;
+
+  const [modules, total] = await Promise.all([
+    Module.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum),
+    Module.countDocuments(filter),
+  ]);
+
+  return {
+    modules,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+    },
+  };
+};
+
+/**
+ * Get content statistics (lesson/module counts, published vs draft).
+ *
+ * @returns {Promise<{
+ *   totalLessons: number,
+ *   publishedLessons: number,
+ *   draftLessons: number,
+ *   totalModules: number,
+ *   publishedModules: number,
+ *   draftModules: number
+ * }>}
+ */
+const getContentStats = async () => {
+  const [totalLessons, publishedLessons, totalModules, publishedModules] =
+    await Promise.all([
+      Lesson.countDocuments(),
+      Lesson.countDocuments({ isPublished: true }),
+      Module.countDocuments(),
+      Module.countDocuments({ isPublished: true }),
+    ]);
+
+  return {
+    totalLessons,
+    publishedLessons,
+    draftLessons: totalLessons - publishedLessons,
+    totalModules,
+    publishedModules,
+    draftModules: totalModules - publishedModules,
+  };
+};
+
+// ───────── WRITES ─────────
+// (populated in Stage 5)
 // +=============================================+
 // |              SETTINGS & STATS               |
 // +=============================================+
@@ -1026,7 +1154,7 @@ const resolveFlag = async ({ flagId, status, adminResponse, actor }) => {
 // ───────── EXPORTS ────────────
 
 module.exports = {
-  // User Management
+  // User Management (reads)
   getAdmins,
   getAdminStats,
   searchUsers,
@@ -1034,6 +1162,7 @@ module.exports = {
   getUserActivity,
   getUserBadges,
   getUserProgress,
+  // User Management (writes)
   toggleAdminStatus,
   adjustUserXp,
   updateUserStatus,
@@ -1044,4 +1173,8 @@ module.exports = {
   getFlaggedContent,
   getFlagStats,
   resolveFlag,
+  // Content management (reads)
+  getAllLessons,
+  getAllModules,
+  getContentStats,
 };
