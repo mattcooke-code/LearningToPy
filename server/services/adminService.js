@@ -1146,7 +1146,177 @@ const getContentStats = async () => {
 };
 
 // ───────── WRITES ─────────
-// (populated in Stage 5)
+
+/**
+ * Update a lesson's fields.
+ *
+ * Runs Mongoose validators on the resulting document. The full request
+ * body is passed to the update — no field whitelisting is applied here
+ * (matches the original admin controller's behavior).
+ *
+ * @param {Object} params
+ * @param {string} params.lessonId
+ * @param {Object} params.updateData - Fields to update
+ * @param {Object} params.actor      - { id, ip, userAgent }
+ * @returns {Promise<{ lesson: Object }>}
+ * @throws {AppError} 404 - Lesson not found
+ */
+const updateLesson = async ({ lessonId, updateData, actor }) => {
+  const lesson = await Lesson.findByIdAndUpdate(lessonId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!lesson) throw new AppError("Lesson not found", 404);
+
+  await createAdminLog(
+    actor,
+    "LESSON_UPDATED",
+    "LESSON",
+    lessonId,
+    { new: updateData },
+    "Updated via admin panel",
+  );
+
+  return { lesson };
+};
+
+/**
+ * Update a module's fields.
+ *
+ * Runs Mongoose validators on the resulting document. Same body-passthrough
+ * behavior as `updateLesson`.
+ *
+ * @param {Object} params
+ * @param {string} params.moduleId
+ * @param {Object} params.updateData
+ * @param {Object} params.actor      - { id, ip, userAgent }
+ * @returns {Promise<{ module: Object }>}
+ * @throws {AppError} 404 - Module not found
+ */
+const updateModule = async ({ moduleId, updateData, actor }) => {
+  const module = await Module.findByIdAndUpdate(moduleId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!module) throw new AppError("Module not found", 404);
+
+  await createAdminLog(
+    actor,
+    "MODULE_UPDATED",
+    "MODULE",
+    moduleId,
+    { new: updateData },
+    "Updated via admin panel",
+  );
+
+  return { module };
+};
+
+/**
+ * Publish or unpublish a lesson.
+ *
+ * @param {Object} params
+ * @param {string} params.lessonId
+ * @param {boolean} params.publish
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ lesson: Object }>}
+ * @throws {AppError} 404 - Lesson not found
+ */
+const publishLesson = async ({ lessonId, publish, actor }) => {
+  const lesson = await Lesson.findById(lessonId);
+  if (!lesson) throw new AppError("Lesson not found", 404);
+
+  lesson.isPublished = publish;
+  await lesson.save();
+
+  await createAdminLog(
+    actor,
+    publish ? "LESSON_PUBLISHED" : "LESSON_UNPUBLISHED",
+    "LESSON",
+    lessonId,
+    { old: { isPublished: !publish }, new: { isPublished: publish } },
+    `Lesson ${publish ? "published" : "unpublished"} via admin panel`,
+  );
+
+  return { lesson };
+};
+
+/**
+ * Publish or unpublish a module.
+ *
+ * @param {Object} params
+ * @param {string} params.moduleId
+ * @param {boolean} params.publish
+ * @param {Object} params.actor - { id, ip, userAgent }
+ * @returns {Promise<{ module: Object }>}
+ * @throws {AppError} 404 - Module not found
+ */
+const publishModule = async ({ moduleId, publish, actor }) => {
+  const module = await Module.findById(moduleId);
+  if (!module) throw new AppError("Module not found", 404);
+
+  module.isPublished = publish;
+  await module.save();
+
+  await createAdminLog(
+    actor,
+    publish ? "MODULE_PUBLISHED" : "MODULE_UNPUBLISHED",
+    "MODULE",
+    moduleId,
+    { old: { isPublished: !publish }, new: { isPublished: publish } },
+    `Module ${publish ? "published" : "unpublished"} via admin panel`,
+  );
+
+  return { module };
+};
+
+/**
+ * Update a lesson's sort order within its module.
+ *
+ * No audit log is written — matches the original controller's behavior.
+ *
+ * @param {Object} params
+ * @param {string} params.lessonId
+ * @param {number} params.order
+ * @returns {Promise<{ lesson: Object }>}
+ * @throws {AppError} 404 - Lesson not found
+ */
+const updateLessonOrder = async ({ lessonId, order }) => {
+  const lesson = await Lesson.findByIdAndUpdate(
+    lessonId,
+    { order },
+    { new: true },
+  );
+
+  if (!lesson) throw new AppError("Lesson not found", 404);
+
+  return { lesson };
+};
+
+/**
+ * Update a module's sort order in the curriculum.
+ *
+ * No audit log is written — matches the original controller's behavior.
+ *
+ * @param {Object} params
+ * @param {string} params.moduleId
+ * @param {number} params.order
+ * @returns {Promise<{ module: Object }>}
+ * @throws {AppError} 404 - Module not found
+ */
+const updateModuleOrder = async ({ moduleId, order }) => {
+  const module = await Module.findByIdAndUpdate(
+    moduleId,
+    { order },
+    { new: true },
+  );
+
+  if (!module) throw new AppError("Module not found", 404);
+
+  return { module };
+};
 // +=============================================+
 // |              SETTINGS & STATS               |
 // +=============================================+
@@ -1177,4 +1347,11 @@ module.exports = {
   getAllLessons,
   getAllModules,
   getContentStats,
+  // Content management (writes)
+  updateLesson,
+  updateModule,
+  publishLesson,
+  publishModule,
+  updateLessonOrder,
+  updateModuleOrder,
 };
