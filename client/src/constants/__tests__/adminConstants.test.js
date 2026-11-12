@@ -51,7 +51,6 @@ describe("adminConstants", () => {
       expect(paths).toContain("/admin/content");
       expect(paths).toContain("/admin/flagged");
       expect(paths).toContain("/admin/analytics");
-      expect(paths).toContain("/admin/settings");
     });
 
     it("should have exact flag only for dashboard", () => {
@@ -639,10 +638,8 @@ describe("adminConstants", () => {
 
   describe("Immutability", () => {
     it("ADMIN_MENU_ITEMS should maintain its structure", () => {
-      const originalLength = ADMIN_MENU_ITEMS.length;
       const originalPaths = ADMIN_MENU_ITEMS.map((item) => item.path);
       expect(originalPaths).toContain("/admin");
-      expect(originalPaths).toContain("/admin/settings");
     });
 
     it("FLAG_STATUS_CONFIG should maintain its structure", () => {

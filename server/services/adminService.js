@@ -19,9 +19,6 @@ const mongoose = require("mongoose");
 const AppError = require("../utils/AppError");
 const levelUtils = require("../utils/levelUtils");
 
-// ---CONSTANTS---
-const { DEFAULT_SETTINGS } = require("../constants/adminConstants");
-
 // +=============================================+
 // |              USER MANAGEMENT                |
 // +=============================================+
@@ -1581,61 +1578,6 @@ const duplicateModule = async ({ moduleId, actor }) => {
 
   return { module: duplicatedModule, lessons: duplicatedLessons };
 };
-// +=============================================+
-// |              SETTINGS & STATS               |
-// +=============================================+
-
-/**
- * Get platform settings.
- *
- * Currently returns a shallow copy of the built-in defaults. Settings are
- * not yet persisted to a database — `updateSettings` logs changes but does
- * not save them. This is a pre-existing design gap, preserved during the
- * controller→service refactor; a future change would add a Settings
- * collection and read from it here.
- *
- * @returns {Promise<Object>} Copy of `DEFAULT_SETTINGS` (flat, 26 keys)
- */
-const getSettings = async () => {
-  return { ...DEFAULT_SETTINGS };
-};
-
-/**
- * Update platform settings.
- *
- * Validates XP-related values, writes an audit log entry, and returns the
- * (uncommitted) changes with a timestamp. **Changes are NOT persisted** —
- * see `getSettings` JSDoc for why this is preserved behavior.
- *
- * @param {Object} params
- * @param {Object} params.changes - Key/value pairs to validate and log
- * @param {Object} params.actor   - { id, ip, userAgent }
- * @returns {Promise<{ changes: Object, timestamp: string }>}
- * @throws {AppError} 400 - Invalid XP values
- */
-const updateSettings = async ({ changes, actor }) => {
-  if (changes.xpPerLevel !== undefined && changes.xpPerLevel <= 0) {
-    throw new AppError("XP must be greater than 0", 400);
-  }
-
-  if (changes.moduleXpBonus !== undefined && changes.moduleXpBonus < 0) {
-    throw new AppError("Module XP bonus cannot be negative", 400);
-  }
-
-  await createAdminLog(
-    actor,
-    "SETTINGS_UPDATED",
-    "SETTINGS",
-    null,
-    { new: changes },
-    "Settings updated via admin panel.",
-  );
-
-  return {
-    changes,
-    timestamp: new Date().toISOString(),
-  };
-};
 
 // +=============================================+
 // |             ADMIN OPERATIONS                |
@@ -1769,9 +1711,6 @@ module.exports = {
   deleteModule,
   duplicateLesson,
   duplicateModule,
-  // Settings & stats
-  getSettings,
-  updateSettings,
   // Admin Ops
   getActivityLogs,
   fixModuleProgress,

@@ -31,7 +31,6 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminContentPage from "./pages/AdminContentPage";
 import AdminFlagged from "./pages/AdminFlagged";
 import AdminAnalytics from "./pages/AdminAnalytics";
-import AdminSettings from "./pages/AdminSettings";
 
 import {
   useCourseThemeUpdater,
@@ -139,7 +138,6 @@ function App() {
               <Route path="content" element={<AdminContentPage />} />
               <Route path="flagged" element={<AdminFlagged />} />
               <Route path="analytics" element={<AdminAnalytics />} />
-              <Route path="settings" element={<AdminSettings />} />
             </Route>
           </Route>
         </Routes>

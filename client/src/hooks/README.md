@@ -16,7 +16,6 @@ Custom React hooks. Encapsulate reusable stateful logic, side effects, and conte
 | `useFileDownload.js`        | Util wrapper    | Memoised callbacks for file, CSV, and Python code downloads                                       | ✅     |
 | `useModal.js`               | Store wrapper   | Accessor for the Zustand modal store (`openModal`, `closeModal`)                                  | ❌     |
 | `usePageViewTracker.js`     | Side effect     | POSTs page view analytics on authenticated route changes                                          | ❌     |
-| `useSettingsManager.js`     | State           | Editable settings with dirty-change tracking against server originals                             | ✅     |
 | `useStreakNotifications.js` | Side effect     | Toast/confirm notifications for streak WARNING, AT_RISK, RESETTING states                         | ❌     |
 | `index.js`                  | Barrel          | Re-exports all public hooks                                                                       | —      |
 
@@ -41,8 +40,6 @@ useModal ──────────────► store/useModalStore
 
 usePageViewTracker ────► react-router-dom
 └─► context (useAuth)
-
-useSettingsManager ────► utils (PLATFORM_DEFAULTS)
 
 useStreakNotifications ► context (useNotification)
 

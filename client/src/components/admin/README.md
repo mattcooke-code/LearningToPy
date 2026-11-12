@@ -9,9 +9,11 @@ The admin components form a complete administrative dashboard system that enable
 ## Components
 
 ### AdminLayout.jsx
+
 **Purpose**: Layout wrapper for admin pages with sidebar navigation and responsive design.
 
 **Key Features**:
+
 - Responsive sidebar with mobile navigation
 - User authentication and authorization checks
 - Admin status display and user information
@@ -19,9 +21,11 @@ The admin components form a complete administrative dashboard system that enable
 - Back-to-top functionality
 
 **Props**:
+
 - `children`: Child components to render in the main content area
 
 **Usage**:
+
 ```jsx
 <AdminLayout>
   <AdminDashboard />
@@ -31,15 +35,18 @@ The admin components form a complete administrative dashboard system that enable
 ---
 
 ### AdminPage.jsx
+
 **Purpose**: Wrapper component for admin pages with optional header and consistent layout.
 
 **Key Features**:
+
 - Optional page header with title and description
 - Consistent spacing and layout structure
 - Header action button support
 - Responsive design patterns
 
 **Props**:
+
 - `children`: Page content to render
 - `title`: Page title displayed in the header
 - `description`: Optional description displayed below the title
@@ -48,9 +55,10 @@ The admin components form a complete administrative dashboard system that enable
 - `className`: Additional CSS classes to apply
 
 **Usage**:
+
 ```jsx
-<AdminPage 
-  title="User Management" 
+<AdminPage
+  title="User Management"
   description="Manage platform users and permissions"
   headerAction={<AddUserButton />}
 >
@@ -61,21 +69,25 @@ The admin components form a complete administrative dashboard system that enable
 ---
 
 ### AdminPageHeader.jsx
+
 **Purpose**: Header component for admin pages with title, description, and optional action.
 
 **Key Features**:
+
 - Responsive layout with mobile-first design
 - Optional action component placement
 - Consistent typography hierarchy
 - Flexible styling options
 
 **Props**:
+
 - `title`: Header title
 - `description`: Optional description below the title
 - `action`: Optional action component on the right side
 - `className`: Additional CSS classes to apply
 
 **Usage**:
+
 ```jsx
 <AdminPageHeader
   title="Settings"
@@ -87,9 +99,11 @@ The admin components form a complete administrative dashboard system that enable
 ---
 
 ### AdminSidebar.jsx
+
 **Purpose**: Navigation sidebar for admin interface with menu items and badge counts.
 
 **Key Features**:
+
 - Dynamic menu items with icons and badges
 - Real-time badge counts for notifications
 - Mobile-responsive with overlay
@@ -97,42 +111,24 @@ The admin components form a complete administrative dashboard system that enable
 - Smooth transitions and animations
 
 **Props**:
+
 - `isOpen`: Whether the sidebar is currently open
 - `onClose`: Function to call when closing the sidebar
 
 **Usage**:
+
 ```jsx
-<AdminSidebar
-  isOpen={sidebarOpen}
-  onClose={() => setSidebarOpen(false)}
-/>
-```
-
----
-
-### AdminSettingsPanel.jsx
-**Purpose**: Settings panel for configuring platform-wide settings with tabbed interface.
-
-**Key Features**:
-- Tabbed interface for different setting categories
-- Real-time preview of setting changes
-- Advanced settings with security warnings
-- Validation and error handling
-- Save status indicators
-
-**Props**: None (self-contained component)
-
-**Usage**:
-```jsx
-<AdminSettingsPanel />
+<AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 ```
 
 ---
 
 ### AdminStatsCard.jsx
+
 **Purpose**: Stats card component displaying key metrics with optional trend and navigation.
 
 **Key Features**:
+
 - Configurable color themes
 - Optional trend indicators
 - Click navigation support
@@ -140,6 +136,7 @@ The admin components form a complete administrative dashboard system that enable
 - Icon and value display
 
 **Props**:
+
 - `title`: Statistic title displayed below the value
 - `value`: Main statistic value to display
 - `icon`: Icon or emoji to display in the colored badge
@@ -151,6 +148,7 @@ The admin components form a complete administrative dashboard system that enable
 - `onClick`: Optional click handler for the card
 
 **Usage**:
+
 ```jsx
 <AdminStatsCard
   title="Total Users"
@@ -164,34 +162,12 @@ The admin components form a complete administrative dashboard system that enable
 
 ---
 
-### AdminTabPreview.jsx
-**Purpose**: Preview component for admin settings tabs showing live configuration effects.
-
-**Key Features**:
-- Live preview of theme changes
-- XP calculation demonstrations
-- Platform status indicators
-- Security recommendations
-- Real-time configuration feedback
-
-**Props**:
-- `tab`: Current active tab identifier
-- `settings`: Current settings object with all configuration values
-
-**Usage**:
-```jsx
-<AdminTabPreview
-  tab="theme"
-  settings={currentSettings}
-/>
-```
-
----
-
 ### ContentManagementTable.jsx
+
 **Purpose**: Comprehensive content management interface for lessons and modules with filtering and bulk operations.
 
 **Key Features**:
+
 - Table and grid view modes
 - Advanced filtering and search
 - Bulk operations (publish, delete, duplicate)
@@ -202,6 +178,7 @@ The admin components form a complete administrative dashboard system that enable
 **Props**: None (self-contained component)
 
 **Usage**:
+
 ```jsx
 <ContentManagementTable />
 ```
@@ -209,9 +186,11 @@ The admin components form a complete administrative dashboard system that enable
 ---
 
 ### FlaggedContentList.jsx
+
 **Purpose**: List component for displaying and managing flagged content with filtering and quick actions.
 
 **Key Features**:
+
 - Status-based filtering and search
 - Quick action buttons for common resolutions
 - Detailed flag information and metadata
@@ -220,72 +199,23 @@ The admin components form a complete administrative dashboard system that enable
 - Real-time statistics display
 
 **Props**:
+
 - `limit`: Optional limit for number of items to display
 
 **Usage**:
+
 ```jsx
 <FlaggedContentList limit={10} />
 ```
 
 ---
 
-### SaveStatusIndicator.jsx
-**Purpose**: Floating indicator showing the number of unsaved changes in settings panels.
-
-**Key Features**:
-- Fixed positioning for visibility
-- Change count display
-- User impact warnings
-- Automatic hiding when no changes
-
-**Props**:
-- `changesCount`: Number of unsaved changes to display
-
-**Usage**:
-```jsx
-<SaveStatusIndicator changesCount={3} />
-```
-
----
-
-### SettingInput.jsx
-**Purpose**: Dynamic form input component supporting multiple input types for admin settings.
-
-**Key Features**:
-- Multiple input types (text, number, select, toggle, color, range)
-- Change indication and highlighting
-- Validation and error handling
-- Accessibility features
-- Memoized performance optimization
-
-**Props**:
-- `setting`: Setting key identifier
-- `value`: Current value of the setting
-- `onChange`: Change handler function
-- `isChanged`: Whether the setting has been modified
-- `type`: Input type (text, number, select, toggle, color, range)
-- `options`: Configuration options for the input type
-- `label`: Display label for the setting
-- `description`: Optional description text
-
-**Usage**:
-```jsx
-<SettingInput
-  setting="themeColor"
-  value="#3776AB"
-  onChange={handleSettingChange}
-  type="color"
-  label="Primary Theme Color"
-  description="Main color used throughout the platform"
-/>
-```
-
----
-
 ### UserManagementTable.jsx
+
 **Purpose**: User management table with filtering, sorting, and administrative actions.
 
 **Key Features**:
+
 - User search and filtering
 - Administrative actions (block/unblock, admin permissions)
 - XP adjustment and progress override
@@ -294,9 +224,11 @@ The admin components form a complete administrative dashboard system that enable
 - Sorting and pagination
 
 **Props**:
+
 - `searchQuery`: Optional search query to filter users
 
 **Usage**:
+
 ```jsx
 <UserManagementTable searchQuery="john" />
 ```
@@ -304,9 +236,11 @@ The admin components form a complete administrative dashboard system that enable
 ---
 
 ### UserTableFilters.jsx
+
 **Purpose**: Filter component for user management table with debounced level inputs.
 
 **Key Features**:
+
 - Account status filtering
 - Role-based filtering
 - Debounced level range inputs
@@ -314,11 +248,13 @@ The admin components form a complete administrative dashboard system that enable
 - Responsive grid layout
 
 **Props**:
+
 - `filters`: Current filter values
 - `setFilters`: Function to update filter values
 - `onReset`: Function to reset all filters
 
 **Usage**:
+
 ```jsx
 <UserTableFilters
   filters={currentFilters}
@@ -332,15 +268,12 @@ The admin components form a complete administrative dashboard system that enable
 ## Integration and Dependencies
 
 ### Component Hierarchy
+
 ```
 AdminLayout
 ├── AdminSidebar
 ├── AdminPage
 │   └── AdminPageHeader
-├── AdminSettingsPanel
-│   ├── SettingInput
-│   ├── AdminTabPreview
-│   └── SaveStatusIndicator
 ├── ContentManagementTable
 ├── FlaggedContentList
 └── UserManagementTable
@@ -348,12 +281,14 @@ AdminLayout
 ```
 
 ### External Dependencies
+
 - **React**: Component framework and hooks
 - **React Router**: Navigation and routing
 - **Lucide React**: Icon library for visual elements
 - **Prop Types**: Type checking for component props
 
 ### Internal Dependencies
+
 - **Admin API Client**: Backend communication
 - **Admin Hooks**: Custom hooks for data fetching and mutations
 - **UI Components**: Shared UI components and patterns
@@ -361,6 +296,7 @@ AdminLayout
 - **Constants**: Configuration constants and enums
 
 ### State Management
+
 - **Local State**: Component-specific state management
 - **Custom Hooks**: Data fetching and caching
 - **Context**: User authentication and notifications
@@ -369,17 +305,20 @@ AdminLayout
 ## Styling and Design
 
 ### Design System
+
 - **Color Palette**: Consistent with platform theme system
 - **Typography**: Hierarchical text sizing and weights
 - **Spacing**: Unified spacing patterns using Tailwind classes
 - **Layout**: Responsive grid and flexbox patterns
 
 ### Responsive Design
+
 - **Mobile**: Single column layouts, optimized touch targets
 - **Tablet**: Adaptive layouts with improved spacing
 - **Desktop**: Full multi-column layouts with enhanced features
 
 ### Accessibility
+
 - **Semantic HTML**: Proper heading hierarchy and element structure
 - **Keyboard Navigation**: Tab order and focus management
 - **Screen Reader Support**: ARIA labels and descriptive text
@@ -388,8 +327,9 @@ AdminLayout
 ## Usage Examples
 
 ### Complete Admin Dashboard Setup
+
 ```jsx
-import { AdminLayout, AdminPage, AdminStatsCard } from './components/admin';
+import { AdminLayout, AdminPage, AdminStatsCard } from "./components/admin";
 
 const AdminDashboard = () => {
   return (
@@ -423,29 +363,17 @@ const AdminDashboard = () => {
 };
 ```
 
-### Settings Page with Custom Configuration
-```jsx
-import { AdminLayout, AdminSettingsPanel } from './components/admin';
-
-const SettingsPage = () => {
-  return (
-    <AdminLayout>
-      <AdminSettingsPanel />
-    </AdminLayout>
-  );
-};
-```
-
 ### User Management with Search
+
 ```jsx
-import { AdminLayout, UserManagementTable } from './components/admin';
+import { AdminLayout, UserManagementTable } from "./components/admin";
 
 const UserManagementPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   return (
     <AdminLayout>
-      <AdminPage 
+      <AdminPage
         title="User Management"
         description="Manage platform users and permissions"
       >
@@ -459,12 +387,13 @@ const UserManagementPage = () => {
 ## Performance Considerations
 
 ### Optimizations
-- **Memoization**: SettingInput component uses React.memo for performance
+
 - **Debounced Inputs**: Search and filter inputs use debouncing to reduce API calls
 - **Efficient Data Fetching**: Custom hooks handle caching and error states
 - **Lazy Loading**: Components load data only when needed
 
 ### Best Practices
+
 - **Error Boundaries**: Graceful error handling throughout the interface
 - **Loading States**: Consistent loading indicators for better UX
 - **Data Validation**: Input validation and sanitization
@@ -473,11 +402,13 @@ const UserManagementPage = () => {
 ## Security Considerations
 
 ### Authentication
+
 - **Admin Verification**: All components verify admin privileges
 - **Route Protection**: Protected routes for admin-only access
 - **Session Management**: Proper session handling and timeouts
 
 ### Data Protection
+
 - **Input Sanitization**: All user inputs are properly sanitized
 - **API Security**: Secure API communication with proper headers
 - **Error Handling**: Secure error messages that don't leak information
@@ -485,12 +416,14 @@ const UserManagementPage = () => {
 ## Error Handling
 
 ### User Experience
+
 - **Graceful Degradation**: Components handle missing data gracefully
 - **Clear Error Messages**: User-friendly error notifications
 - **Recovery Options**: Retry mechanisms and alternative actions
 - **Loading States**: Proper loading indicators during data fetching
 
 ### Technical Implementation
+
 - **Error Boundaries**: Catch and handle component errors
 - **API Error Handling**: Consistent error response handling
 - **Validation Errors**: Input validation with clear feedback
@@ -499,6 +432,7 @@ const UserManagementPage = () => {
 ## Future Enhancements
 
 ### Potential Improvements
+
 - **Real-time Updates**: WebSocket integration for live data
 - **Advanced Analytics**: Enhanced reporting and analytics features
 - **Bulk Operations**: More sophisticated bulk action capabilities
@@ -506,6 +440,7 @@ const UserManagementPage = () => {
 - **Role-based Access**: Granular permission system
 
 ### Scalability
+
 - **Component Composition**: Modular design for easy extension
 - **Plugin System**: Support for custom admin modules
 - **API Integration**: Flexible API integration patterns
@@ -529,14 +464,10 @@ The admin components are exported through the index.js file for easy importing:
 export { default as AdminLayout } from "./AdminLayout";
 export { default as AdminPage } from "./AdminPage";
 export { default as AdminPageHeader } from "./AdminPageHeader";
-export { default as AdminSettingsPanel } from "./AdminSettingsPanel";
 export { default as AdminSidebar } from "./AdminSidebar";
 export { default as AdminStatsCard } from "./AdminStatsCard";
-export { default as AdminTabPreview } from "./AdminTabPreview";
 export { default as ContentManagementTable } from "./ContentManagementTable";
 export { default as FlaggedContentList } from "./FlaggedContentList";
-export { default as SaveStatusIndicator } from "./SaveStatusIndicator";
-export { default as SettingInput } from "./SettingInput";
 export { default as UserManagementTable } from "./UserManagementTable";
 export { default as UserTableFilters } from "./UserTableFilters";
 ```

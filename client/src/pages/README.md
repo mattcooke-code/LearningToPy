@@ -5,14 +5,15 @@ Contains all top-level page components that define the main routes and views of 
 ## Key Files
 
 ### Administrative Pages
+
 - **AdminDashboard.jsx** - Main administrative dashboard with platform statistics, recent users, quick actions, and flagged content monitoring
 - **AdminAnalytics.jsx** - Analytics dashboard with user activity tracking, growth metrics, device demographics, and content performance analysis
 - **AdminContentPage.jsx** - Content management interface for creating, editing, and organizing lessons and modules
 - **AdminUsers.jsx** - User management interface with user account oversight, XP adjustments, and account moderation
 - **AdminFlagged.jsx** - Content moderation page for reviewing and managing reported content and user reports
-- **AdminSettings.jsx** - Administrative settings page for platform configuration and system preferences
 
 ### User-Facing Pages
+
 - **Dashboard.jsx** - Main user dashboard with progress overview and navigation
 - **Curriculum.jsx** - Course curriculum display with module and lesson navigation
 - **Home.jsx** - Landing page and marketing content
@@ -23,6 +24,7 @@ Contains all top-level page components that define the main routes and views of 
 - **Support.jsx** - Customer support and contact page
 
 ### Learning Pages
+
 - **ModulesPage.jsx** - Main modules listing page
 - **ModuleLessonsPage.jsx** - Individual module lesson listing
 - **LessonPage.jsx** - Individual lesson content viewer
@@ -30,6 +32,7 @@ Contains all top-level page components that define the main routes and views of 
 - **TerminalPlayground.jsx** - Interactive Python code playground
 
 ### Authentication Pages
+
 - **ForgotPasswordPage.jsx** - Password reset request page
 - **ResetPasswordPage.jsx** - Password reset confirmation page
 
@@ -42,7 +45,6 @@ The admin suite follows a structured workflow for platform management:
 3. **User Management** - Access AdminUsers to oversee accounts and adjust user data
 4. **Moderation** - Review AdminFlagged for content that needs moderation
 5. **Analytics** - Analyze AdminAnalytics for detailed platform metrics and insights
-6. **Settings** - Configure AdminSettings for platform-wide preferences
 
 ## Dependencies
 

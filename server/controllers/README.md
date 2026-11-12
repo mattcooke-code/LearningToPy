@@ -15,7 +15,7 @@ and send responses. They contain minimal business logic.
 | User management  | `toggleAdminStatus`, `getAdmins`, `searchUsers`, `adjustUserXp`, `updateUserStatus`, `getUserDetails`, `getUserActivity`, `getUserBadges`, `getUserProgress`, `overrideUserProgress`, `awardBadges`, `removeBadges`                                |
 | Flag management  | `getFlaggedContent`, `getFlagStats`, `resolveFlag`                                                                                                                                                                                                 |
 | Content CRUD     | `getAllLessons`, `getAllModules`, `createLesson`, `createModule`, `updateLesson`, `updateModule`, `deleteLesson`, `deleteModule`, `duplicateLesson`, `duplicateModule`, `updateLessonOrder`, `updateModuleOrder`, `publishLesson`, `publishModule` |
-| Settings & stats | `getAdminStats`, `getContentStats`, `getSettings`, `updateSettings`, `getActivityLogs`                                                                                                                                                             |
+| Settings & stats | `getAdminStats`, `getContentStats`,`getActivityLogs`                                                                                                                                                                                               |
 
 ---
 

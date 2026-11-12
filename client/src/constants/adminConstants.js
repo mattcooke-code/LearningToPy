@@ -42,7 +42,6 @@ export const ADMIN_MENU_ITEMS = [
     badgeCount: 3, // Dynamic value
   },
   { path: "/admin/analytics", label: "Analytics", icon: PieChart },
-  { path: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 /**

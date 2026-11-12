@@ -45,7 +45,6 @@ export {
   mapModuleToFormData,
   normalizeModuleForAPI,
 } from "./moduleFormUtils";
-export { PLATFORM_DEFAULTS } from "./platformDefaults";
 export {
   calculateModuleLessonProgress,
   calculateModulesCompletionProgress,

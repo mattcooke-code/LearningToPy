@@ -626,40 +626,6 @@ const duplicateModule = catchAsync(async (req, res, next) => {
 });
 
 // +=============================================+
-// |              SETTINGS & STATS               |
-// +=============================================+
-
-/**
- * Get platform settings (returns defaults — not persisted to DB).
- *
- * @route   GET /api/admin/settings
- * @returns {Object} 200 - Default platform settings
- */
-const getSettings = catchAsync(async (req, res, next) => {
-  const data = await adminService.getSettings();
-  sendJsonResponse(res, 200, "Settings retrieved", data);
-});
-
-/**
- * Update platform settings. Validates XP values.
- *
- * @route   PUT /api/admin/settings
- * @body    {Object} changes - Key-value pairs of settings to update
- * @returns {Object} 200 - { changes, timestamp }
- * @returns {Object} 400 - Invalid XP values
- */
-const updateSettings = catchAsync(async (req, res, next) => {
-  const { changes } = req.body;
-
-  const data = await adminService.updateSettings({
-    changes,
-    actor: actorFromRequest(req),
-  });
-
-  sendJsonResponse(res, 200, "Settings updated successfully", data);
-});
-
-// +=============================================+
 // |             ADMIN OPERATIONS                |
 // +=============================================+
 
@@ -742,9 +708,6 @@ module.exports = {
   deleteModule,
   duplicateLesson,
   duplicateModule,
-  // Settings & stats
-  getSettings,
-  updateSettings,
   // Admin Ops
   getActivityLogs,
   fixModuleProgress,

@@ -79,10 +79,6 @@ router.patch("/flagged/:flagId/resolve", adminController.resolveFlag);
 // Activity logs
 router.get("/activity-logs", adminController.getActivityLogs);
 
-// Settings
-router.get("/settings", adminController.getSettings);
-router.patch("/settings", adminController.updateSettings);
-
 // Analytics
 router.get("/analytics", analyticsController.getPlatformAnalytics);
 router.get(
