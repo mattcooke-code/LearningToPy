@@ -528,6 +528,19 @@ const updateUserStatus = async ({
     throw new AppError("Cannot modify your own status", 400);
   }
 
+  // Validate `duration` whenever it's provided — regardless of `action` — so
+  // typos like `{ action: "unblock", duration: -1 }` surface as errors rather
+  // than being silently ignored. Omitting `duration` (or passing 0/null) means
+  // "permanent block", matching pre-fix behaviour.
+  if (duration !== undefined && duration !== null) {
+    if (!Number.isInteger(duration) || duration < 0) {
+      throw new AppError(
+        "duration must be a non-negative integer (days), or omitted for a permanent block",
+        400,
+      );
+    }
+  }
+
   const user = await getUserOrThrow(targetUserId);
   const oldStatus = user.isBlocked;
 
@@ -1247,6 +1260,7 @@ const publishLesson = async ({ lessonId, publish, actor }) => {
   const lesson = await Lesson.findById(lessonId);
   if (!lesson) throw new AppError("Lesson not found", 404);
 
+  const oldStatus = lesson.isPublished;
   lesson.isPublished = publish;
   await lesson.save();
 
@@ -1255,7 +1269,7 @@ const publishLesson = async ({ lessonId, publish, actor }) => {
     publish ? "LESSON_PUBLISHED" : "LESSON_UNPUBLISHED",
     "LESSON",
     lessonId,
-    { old: { isPublished: !publish }, new: { isPublished: publish } },
+    { old: { isPublished: oldStatus }, new: { isPublished: publish } },
     `Lesson ${publish ? "published" : "unpublished"} via admin panel`,
   );
 
@@ -1276,6 +1290,7 @@ const publishModule = async ({ moduleId, publish, actor }) => {
   const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found", 404);
 
+  const oldStatus = module.isPublished;
   module.isPublished = publish;
   await module.save();
 
@@ -1284,7 +1299,7 @@ const publishModule = async ({ moduleId, publish, actor }) => {
     publish ? "MODULE_PUBLISHED" : "MODULE_UNPUBLISHED",
     "MODULE",
     moduleId,
-    { old: { isPublished: !publish }, new: { isPublished: publish } },
+    { old: { isPublished: oldStatus }, new: { isPublished: publish } },
     `Module ${publish ? "published" : "unpublished"} via admin panel`,
   );
 
