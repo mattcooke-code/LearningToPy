@@ -45,21 +45,16 @@ import {
   authApiClient,
   adminApiClient,
   setupInterceptors,
-  getSessionId,
   setupSessionEndTracking,
   clearSessionId,
+  sendSessionEnd,
+  BACKEND_URL,
 } from "../services";
 
 // ---------------------------------------------------------------------------
 // Re-export API clients for consumers that need direct access
 // ---------------------------------------------------------------------------
 export { apiClient, authApiClient, adminApiClient };
-
-// ---------------------------------------------------------------------------
-// Configuration
-// ---------------------------------------------------------------------------
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 // ---------------------------------------------------------------------------
 // Context Definition
@@ -80,14 +75,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
   const [leaderboardVersion, setLeaderboardVersion] = useState(0);
-  const [sessionId] = useState(() =>
-    typeof window !== "undefined" ? getSessionId() : null,
-  );
 
-  // ---- Refs for token refresh queue ----
-  const isRefreshing = useRef(false);
+  // ---- Refs ----
   const refreshPromise = useRef(null);
-  const failedQueue = useRef([]);
   const logoutInitiated = useRef(false);
 
   /**
@@ -108,25 +98,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /**
-   * Resolve or reject every promise that was queued while a token refresh
-   * was in flight.
-   */
-  const processQueue = useCallback((error, token = null) => {
-    failedQueue.current.forEach((promise) => {
-      if (error) {
-        promise.reject(error);
-      } else {
-        promise.resolve(token);
-      }
-    });
-    failedQueue.current = [];
-  }, []);
-
-  /**
    * Persist user data and token in memory, update Axios default headers,
    * and clear any existing auth error.
    *
-   * ✅ Uses shallow field comparison instead of JSON.stringify (O(1) vs O(n))
+   * ✅ Uses shallow field comparison including streakLastCheckedDate and username
    */
   const setAuthData = useCallback(
     (userData, newAccessToken, isRememberMe = false) => {
@@ -137,7 +112,9 @@ export const AuthProvider = ({ children }) => {
           prevUser._id === userData._id &&
           prevUser.xp === userData.xp &&
           prevUser.level === userData.level &&
-          prevUser.streak === userData.streak
+          prevUser.streak === userData.streak &&
+          prevUser.streakLastCheckedDate === userData.streakLastCheckedDate &&
+          prevUser.username === userData.username
         ) {
           return prevUser;
         }
@@ -196,62 +173,52 @@ export const AuthProvider = ({ children }) => {
         setAuthData(null, null);
         showToast(message || "You have been logged out", "info");
         setLoading(false);
+        sendSessionEnd(BACKEND_URL);
         clearSessionId();
         refreshPromise.current = null;
-        failedQueue.current = [];
-        isRefreshing.current = false;
         logoutInitiated.current = false;
       }
     },
-    [setAuthData, showToast],
+    [setAuthData, showToast, setAuthHeader],
   );
 
-  const refreshAuthToken = useCallback(async () => {
-    if (isRefreshing.current) {
-      return new Promise((resolve, reject) => {
-        failedQueue.current.push({ resolve, reject });
-      });
-    }
-
+  const refreshAuthToken = useCallback(() => {
     if (refreshPromise.current) return refreshPromise.current;
 
-    isRefreshing.current = true;
-    const refreshP = (async () => {
+    const p = (async () => {
       try {
-        const userLocalDate = getUserLocalDate();
-
         const payload = await authApiClient.post("/api/auth/refresh-token", {
-          userLocalDate,
+          userLocalDate: getUserLocalDate(),
         });
         const { accessToken: newAccessToken, user: newUserData } = payload;
-
         if (!newAccessToken || !newUserData)
           throw new Error("Invalid refresh response");
 
-        const isRememberMe = !!localStorage.getItem("rememberMe");
-
         if (!logoutInitiated.current) {
-          setAuthData(newUserData, newAccessToken, isRememberMe);
-          processQueue(null, newAccessToken);
+          setAuthData(
+            newUserData,
+            newAccessToken,
+            !!localStorage.getItem("rememberMe"),
+          );
         }
         return newAccessToken;
       } catch (err) {
-        processQueue(err, null);
         if (!logoutInitiated.current) {
           setAuthData(null, null);
           setAuthError("Session expired. Please log in again.");
           showToast("Session expired. Please log in again.", "error");
         }
         throw err;
-      } finally {
-        isRefreshing.current = false;
-        refreshPromise.current = null;
       }
     })();
 
-    refreshPromise.current = refreshP;
-    return refreshP;
-  }, [setAuthData, showToast, processQueue]);
+    refreshPromise.current = p;
+    const clear = () => {
+      if (refreshPromise.current === p) refreshPromise.current = null;
+    };
+    p.then(clear, clear);
+    return p;
+  }, [setAuthData, showToast]);
 
   const executeAuthAction = useCallback(
     async (actionName, apiCall, successHandler) => {
@@ -374,11 +341,11 @@ export const AuthProvider = ({ children }) => {
   // Effects
   // ---------------------------------------------------------------------------
 
+  const isAuthenticated = !!user;
   useEffect(() => {
-    if (!user?._id) return;
-    const cleanup = setupSessionEndTracking(BACKEND_URL);
-    return cleanup;
-  }, [user?._id]);
+    if (!isAuthenticated) return;
+    return setupSessionEndTracking(BACKEND_URL);
+  }, [isAuthenticated]);
 
   /**
    * On mount: attempt to restore auth state via the httpOnly refresh cookie.
@@ -398,11 +365,10 @@ export const AuthProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [fetchUserProfile]);
 
   /**
    * One-time interceptor setup.
-   * Safe to run once — refreshAuthToken reads from refs, logoutInitiated is a ref.
    */
   useEffect(() => {
     const cleanup = setupInterceptors(
@@ -411,7 +377,7 @@ export const AuthProvider = ({ children }) => {
       logoutInitiated,
     );
     return cleanup;
-  }, []);
+  }, [refreshAuthToken, showToast]);
 
   // ---------------------------------------------------------------------------
   // Context Value — ✅ Memoized to prevent unnecessary consumer re-renders
@@ -432,7 +398,6 @@ export const AuthProvider = ({ children }) => {
       leaderboardVersion,
       triggerLeaderboardRefresh: () => setLeaderboardVersion((v) => v + 1),
       isUserAdmin,
-      sessionId,
     }),
     [
       user,
@@ -446,7 +411,6 @@ export const AuthProvider = ({ children }) => {
       updateUser,
       leaderboardVersion,
       isUserAdmin,
-      sessionId,
     ],
   );
 

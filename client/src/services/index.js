@@ -5,9 +5,11 @@ export {
   authApiClient,
   adminApiClient,
   setupInterceptors,
+  BACKEND_URL,
 } from "./api";
 export {
   getSessionId,
   setupSessionEndTracking,
   clearSessionId,
+  sendSessionEnd,
 } from "./session";
