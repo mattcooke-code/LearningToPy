@@ -20,6 +20,17 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
 const ACTIVITY_COLLECTION = Activity.collection.name;
 const WEEKS_TO_TRACK = [1, 2, 3, 4];
 
+/**
+ * TODO (Refactor & Optimization):
+ * Cache keys currently use precise dynamic timestamps (`start` and `end`) generated
+ * on every request. Even for named ranges like "30d", these timestamps change by seconds/milliseconds,
+ * resulting in frequent, unnecessary cache misses.
+ *
+ * When moving these aggregation queries into `analyticsService`, normalize or truncate the cache keys
+ * (e.g., round the start/end dates to the nearest hour or day depending on the range)
+ * to ensure effective cache hit rates.
+ */
+
 // ---------------------------------------------------------------------------
 // Date range helper
 // ---------------------------------------------------------------------------
