@@ -614,7 +614,7 @@ const awardBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
       "AWARD_BADGES",
       "USER",
       user._id,
-      { added: newBadges, reason },
+      { new: { added: newBadges } },
       reason,
     );
 
@@ -648,7 +648,7 @@ const removeBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
       "REMOVE_BADGES",
       "USER",
       user._id,
-      { removed: removedBadges, reason },
+      { new: { removed: removedBadges } },
       reason,
     );
 
@@ -1008,11 +1008,7 @@ const resolveFlag = async ({ flagId, status, adminResponse, actor }) => {
             "XP_ADJUSTMENT",
             "USER",
             reporter._id,
-            {
-              old: oldXp,
-              new: reporter.xp,
-              reason: `Flag compensation for: ${flag.title}`,
-            },
+            { old: { xp: oldXp }, new: { xp: reporter.xp } },
             `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
             { session },
           );
@@ -1318,13 +1314,22 @@ const publishModule = async ({ moduleId, publish, actor }) => {
  * @throws {AppError} 404 - Lesson not found
  */
 const updateLessonOrder = async ({ lessonId, order }) => {
-  const lesson = await Lesson.findByIdAndUpdate(
-    lessonId,
-    { order },
-    { new: true },
-  );
+  const lesson = await Lesson.findByIdAndUpdate(lessonId);
 
   if (!lesson) throw new AppError("Lesson not found", 404);
+
+  const oldOrder = lesson.order;
+  lesson.order = order;
+  await lesson.save();
+
+  await createAdminLog(
+    actor,
+    "LESSON_ORDER_UPDATED",
+    "LESSON",
+    lessonId,
+    { old: { order: oldOrder }, new: { order } },
+    "Lesson order updated via admin panel",
+  );
 
   return { lesson };
 };
@@ -1341,13 +1346,21 @@ const updateLessonOrder = async ({ lessonId, order }) => {
  * @throws {AppError} 404 - Module not found
  */
 const updateModuleOrder = async ({ moduleId, order }) => {
-  const module = await Module.findByIdAndUpdate(
-    moduleId,
-    { order },
-    { new: true },
-  );
-
+  const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found", 404);
+
+  const oldOrder = module.order;
+  module.order = order;
+  await module.save();
+
+  await createAdminLog(
+    actor,
+    "MODULE_ORDER_UPDATED",
+    "MODULE",
+    moduleId,
+    { old: { order: oldOrder }, new: { order } },
+    "Module order updated via admin panel",
+  );
 
   return { module };
 };
@@ -1417,13 +1430,12 @@ const createModule = async ({ moduleData, actor }) => {
     "MODULE_CREATED",
     "MODULE",
     module._id,
-    // NOTE: audit `changes` shape is intentionally not `{ new: { ... } }` —
-    // preserved from the original controller (the only audit call that
-    // omits the `new` wrapper). Flagged as debt.
     {
-      title: module.title,
-      moduleNumber: module.moduleNumber,
-      order: module.order,
+      new: {
+        title: module.title,
+        moduleNumber: module.moduleNumber,
+        order: module.order,
+      },
     },
     "Module created via admin panel",
   );
@@ -1617,8 +1629,8 @@ const duplicateModule = async ({ moduleId, actor }) => {
           title: result.module.title,
           sourceModule: moduleId,
           lessonCount: result.lessons.length,
-          newModuleNumber: result.module.newModuleNumber,
-          newOrder: result.module.order,
+          moduleNumber: result.module.moduleNumber,
+          order: result.module.order,
         },
       },
       "Module duplicated via admin panel",
@@ -1712,7 +1724,7 @@ const fixModuleProgress = async ({ targetUserId, reason, actor }) => {
     "MODULE_PROGRESS_FIXED",
     "USER",
     targetUserId,
-    { modulesFixed, fixedCount: modulesFixed.length },
+    { new: { modulesFixed, fixedCount: modulesFixed.length } },
     reason ||
       `Backfilled missing module completions (${modulesFixed.length} fixed)`,
   );

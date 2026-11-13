@@ -526,6 +526,7 @@ const updateLessonOrder = catchAsync(async (req, res, next) => {
   const data = await adminService.updateLessonOrder({
     lessonId: req.params.lessonId,
     order,
+    actor: actorFromRequest(req),
   });
 
   sendJsonResponse(res, 200, "Lesson order updated", data);
@@ -541,6 +542,7 @@ const updateModuleOrder = catchAsync(async (req, res, next) => {
   const data = await adminService.updateModuleOrder({
     moduleId: req.params.moduleId,
     order,
+    actor: actorFromRequest(req),
   });
 
   sendJsonResponse(res, 200, "Module order updated", data);
