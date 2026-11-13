@@ -3,150 +3,95 @@ const express = require("express");
 const router = express.Router();
 const config = require("../config/envConfig");
 const Activity = require("../models/ActivityLog");
+const Session = require("../models/Session");
 const { adminOnly } = require("../middleware/adminOnly");
 const { protect } = require("../middleware/auth");
+const sessionService = require("../services/sessionService");
+const { isValidSessionId } = require("../utils/sessionId");
+const { parseDeviceInfo, anonymiseIp } = require("../utils/parseDeviceInfo");
 
-/**
- * Helper to safely extract IP address from request.
- * Handles IPv4, IPv6, and IPv4-mapped IPv6 addresses.
- * Falls back gracefully if req.ip is unavailable.
- */
-const getClientIP = (req) => {
-  // req.ip is set by Express trust proxy
-  if (req.ip) return req.ip;
-
-  // Fallbacks if trust proxy isn't working
-  if (req.connection?.remoteAddress) return req.connection.remoteAddress;
-  if (req.socket?.remoteAddress) return req.socket.remoteAddress;
-
-  return "0.0.0.0"; // Last resort fallback
+const warnInDev = (label, err) => {
+  if (!config.isProduction()) console.warn(`⚠️ ${label}:`, err.message);
 };
 
 /**
- * Session End - can be called without authentication
+ * sendBeacon sends a string body as text/plain, so the body arrives as a raw
+ * string; other clients may send JSON (already parsed by the global parser).
+ */
+const parseBeaconBody = (body) => {
+  if (typeof body === "string") {
+    try {
+      const parsed = JSON.parse(body);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+  return body && typeof body === "object" ? body : {};
+};
+
+/**
+ * Session end beacon — unauthenticated by necessity (sendBeacon can't set an
+ * Authorization header and the access token may be expired by then).
  *
- * IMPORTANT: This is a fire-and-forget analytics endpoint.
- * Errors here should NEVER affect the user experience or auth flow.
+ * The client sends ONLY { sessionId }. The server uses its own clock, only
+ * extends sessions that are still live, and ignores everything else, so a
+ * caller can't inject arbitrary events or durations. Fire-and-forget: errors
+ * here must never affect the user.
  */
 router.post(
   "/session-end",
-  // Accept both text/plain (sendBeacon default) and application/json
-  (req, res, next) => {
-    if (req.headers["content-type"]?.includes("application/json")) {
-      return express.json({ limit: "1kb" })(req, res, next);
-    }
-    // sendBeacon sends text/plain — read raw body and parse manually
-    let raw = "";
-    req.on("data", (chunk) => (raw += chunk));
-    req.on("end", () => {
-      try {
-        req.body = JSON.parse(raw);
-      } catch {
-        req.body = {};
-      }
-      next();
-    });
-  },
+  express.text({ type: "*/*", limit: "1kb" }),
   (req, res) => {
-    const { sessionId, duration, actionType, deviceInfo = {} } = req.body;
+    const { sessionId } = parseBeaconBody(req.body);
 
-    // Fire-and-forget: Don't await, don't let errors propagate
-    Activity.create({
-      ...(req.user?._id && { userId: req.user._id }),
-      sessionId,
-      actionType: actionType || "SESSION_END",
-      metadata: { duration, deviceInfo },
-      timestamp: new Date(),
-      ipAddress: getClientIP(req),
-    }).catch((err) => {
-      // Log for debugging but NEVER crash or affect the response
-      if (!config.isProduction()) {
-        console.warn("⚠️ Session end logging failed:", err.message);
-      }
-    });
+    if (isValidSessionId(sessionId)) {
+      sessionService
+        .endSession(sessionId)
+        .catch((err) => warnInDev("Session end failed", err));
+    }
 
-    // Always return success immediately - analytics is non-critical
     res.status(200).json({ received: true });
   },
 );
 
 /**
- * Page views - require authentication
- *
- * Protected route that logs page navigation.
- * Uses fire-and-forget pattern to avoid blocking the response.
+ * Page views — require authentication.
+ * The session ID comes from the x-session-id header (validated by the
+ * sessionTracker middleware), not from the request body.
  */
 router.post("/page-view", protect, (req, res) => {
-  const { path, sessionId } = req.body;
+  const { path } = req.body ?? {};
 
-  let deviceInfo = {};
-  try {
-    if (req.headers["x-device-info"]) {
-      const decodedHeader = decodeURIComponent(req.headers["x-device-info"]);
-      deviceInfo = JSON.parse(decodedHeader);
-    }
-  } catch (e) {
-    // Silently ignore malformed device info headers
+  if (req.sessionId && typeof path === "string" && path) {
+    Activity.create({
+      userId: req.user._id,
+      sessionId: req.sessionId,
+      actionType: "PAGE_VIEW",
+      metadata: {
+        path: path.slice(0, 200),
+        deviceInfo: parseDeviceInfo(req.headers),
+      },
+      timestamp: new Date(),
+      ipAddress: anonymiseIp(req.ip),
+    }).catch((err) => warnInDev("Page view logging failed", err));
   }
 
-  // Fire-and-forget: Don't await, don't let errors propagate
-  Activity.create({
-    userId: req.user._id,
-    sessionId,
-    actionType: "PAGE_VIEW",
-    metadata: {
-      path,
-      deviceInfo,
-      timestamp: new Date().toISOString(),
-    },
-    timestamp: new Date(),
-    ipAddress: getClientIP(req),
-  }).catch((err) => {
-    // Log for debugging but NEVER crash or affect the response
-    if (!config.isProduction()) {
-      console.warn("⚠️ Page view logging failed:", err.message);
-    }
-  });
-
-  // Always return success immediately
   res.status(200).json({ received: true });
 });
 
 /**
- * Test headers endpoint (public for debugging)
- */
-router.get("/test-headers", (req, res) => {
-  let deviceInfo = null;
-  try {
-    if (req.headers["x-device-info"]) {
-      deviceInfo = JSON.parse(decodeURIComponent(req.headers["x-device-info"]));
-    }
-  } catch (e) {}
-
-  res.json({
-    headers: {
-      "x-session-id": req.headers["x-session-id"] || null,
-      "x-device-info": req.headers["x-device-info"] || null,
-      "user-agent": req.headers["user-agent"],
-    },
-    parsedDeviceInfo: deviceInfo,
-    timestamp: new Date().toISOString(),
-    clientIP: getClientIP(req),
-  });
-});
-
-/**
- * Debug endpoint - requires admin
- * Provides activity analytics for admin dashboard
+ * Debug endpoint — requires admin.
  */
 router.get("/debug/check", protect, adminOnly, async (req, res) => {
   try {
     const [recentSessions, withDeviceInfo, todayActivity, total, actionCounts] =
       await Promise.all([
-        Activity.find({ actionType: "SESSION_END" })
-          .sort({ timestamp: -1 })
+        Session.find()
+          .sort({ endedAt: -1 })
           .limit(5)
-          .populate("userId", "username"),
+          .populate("userId", "username")
+          .lean(),
 
         Activity.find({ "metadata.deviceInfo": { $exists: true } })
           .sort({ timestamp: -1 })
@@ -170,12 +115,12 @@ router.get("/debug/check", protect, adminOnly, async (req, res) => {
         todayActivity,
         actionCounts,
       },
-      sessionEnds: recentSessions.map((s) => ({
-        user: s.userId?.username || "Anonymous",
-        duration: s.metadata?.duration,
-        timestamp: s.timestamp,
-        hasDeviceInfo: !!s.metadata?.deviceInfo,
-        deviceInfo: s.metadata?.deviceInfo,
+      recentSessions: recentSessions.map((s) => ({
+        user: s.userId?.username || "Unknown",
+        durationSeconds: Math.round((s.endedAt - s.startedAt) / 1000),
+        startedAt: s.startedAt,
+        endedAt: s.endedAt,
+        deviceInfo: s.deviceInfo,
       })),
       deviceInfoSamples: withDeviceInfo.map((s) => ({
         actionType: s.actionType,

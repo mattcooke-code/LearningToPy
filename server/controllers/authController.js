@@ -13,6 +13,7 @@ const LessonCompletion = require("../models/LessonCompletion");
 const LessonQuizProgress = require("../models/LessonQuizProgress");
 const ModuleCompletion = require("../models/ModuleCompletion");
 const QuizAttempt = require("../models/QuizAttempt");
+const Session = require("../models/Session");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
 // SERVICES
@@ -154,10 +155,7 @@ const register = catchAsync(async (req, res, next) => {
   sendJsonResponse(res, 201, "Signup successful.", {
     accessToken,
     user: {
-      id: newUser._id,
-      username: newUser.username,
-      isAdmin: newUser.isAdmin,
-      streak: newUser.streak,
+      ...authUtils.toAuthUser(newUser),
       privacySettings: newUser.privacySettings,
     },
     ageNotice,
@@ -234,14 +232,7 @@ const login = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Login successful", {
     accessToken,
-    user: {
-      id: user._id,
-      username: user.username,
-      isAdmin: user.isAdmin,
-      streak: user.streak,
-      streakLastCheckedDate: user.streakLastCheckedDate,
-      ageBracket: user.ageBracket,
-    },
+    user: authUtils.toAuthUser(user),
     streak: streakResult,
   });
 });
@@ -355,14 +346,7 @@ const refreshToken = catchAsync(async (req, res, next) => {
 
   sendJsonResponse(res, 200, "Token refreshed successfully.", {
     accessToken: newAccessToken,
-    user: {
-      id: user._id,
-      username: user.username,
-      isAdmin: user.isAdmin,
-      streak: user.streak,
-      streakLastCheckedDate: user.streakLastCheckedDate,
-      ageBracket: user.ageBracket,
-    },
+    user: authUtils.toAuthUser(user),
     streak: streakResult,
   });
 });
@@ -686,6 +670,7 @@ const deleteAccount = catchAsync(async (req, res, next) => {
         QuizAttempt.deleteMany({ userId }).session(session),
         XpTransaction.deleteMany({ userId }).session(session),
         LessonQuizProgress.deleteMany({ userId }).session(session),
+        Session.deleteMany({ userId }).session(session),
       ]);
       await AdminLog.updateMany(
         { adminId: userId },
@@ -715,6 +700,7 @@ const deleteAccount = catchAsync(async (req, res, next) => {
       QuizAttempt.deleteMany({ userId }),
       XpTransaction.deleteMany({ userId }),
       LessonQuizProgress.deleteMany({ userId }),
+      Session.deleteMany({ userId }),
     ]);
     await AdminLog.updateMany(
       { adminId: userId },
@@ -924,6 +910,7 @@ const exportUserData = catchAsync(async (req, res, next) => {
     quizAttempts,
     xpTransactions,
     lessonQuizProgress,
+    sessions,
   ] = await Promise.all([
     ActivityLog.find({ userId }).select("-ipAddress").lean(),
     FlaggedContent.find({ reporterId: userId }).lean(),
@@ -932,6 +919,7 @@ const exportUserData = catchAsync(async (req, res, next) => {
     QuizAttempt.find({ userId }).sort({ attemptedAt: -1 }).lean(),
     XpTransaction.find({ userId }).sort({ awardedAt: -1 }).lean(),
     LessonQuizProgress.find({ userId }).lean(),
+    Session.find({ userId }).lean(),
   ]);
 
   const exportData = {
@@ -992,6 +980,10 @@ const exportUserData = catchAsync(async (req, res, next) => {
     flaggedContent: {
       count: flaggedContent.length,
       data: flaggedContent,
+    },
+    sessions: {
+      count: sessions.length,
+      data: sessions,
     },
   };
 

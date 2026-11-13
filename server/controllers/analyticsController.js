@@ -10,6 +10,7 @@ const Activity = require("../models/ActivityLog");
 const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
 const Module = require("../models/Module");
+const Session = require("../models/Session");
 const User = require("../models/User");
 const { withCache, invalidatePrefix } = require("../utils/analyticsCache");
 const AppError = require("../utils/AppError");
@@ -484,10 +485,9 @@ const fetchDemographicStats = async (start) => {
 
 /**
  * Fetch engagement statistics: average session duration, actions per active user,
- * total sessions, and returning user count.
+ * total sessions, and returning user count[cite: 3].
  *
- * Runs 5 queries in parallel. "Returning users" are defined as users with
- * more than 1 activity event in the period.
+ * Runs queries in parallel using the Session model and Activity logs[cite: 3].
  *
  * @param   {Date} start - Window start
  * @returns {Object} { avgSessionDuration, avgActionsPerUser, totalSessions, returningUsers }
@@ -500,28 +500,21 @@ const fetchEngagementStats = async (start) => {
     totalSessions,
     returningUsers,
   ] = await Promise.all([
-    Activity.aggregate([
+    Session.aggregate([
+      { $match: { startedAt: { $gte: start } } },
       {
-        $match: {
-          actionType: "SESSION_END",
-          "metadata.duration": { $exists: true },
+        $project: {
+          seconds: {
+            $divide: [{ $subtract: ["$endedAt", "$startedAt"] }, 1000],
+          },
         },
       },
-      {
-        $group: {
-          _id: null,
-          avg: { $avg: "$metadata.duration" },
-          min: { $min: "$metadata.duration" },
-          max: { $max: "$metadata.duration" },
-        },
-      },
+      { $match: { seconds: { $gt: 0 } } },
+      { $group: { _id: null, avg: { $avg: "$seconds" } } },
     ]),
     User.countDocuments({ lastEngagementAt: { $gte: start } }),
     Activity.countDocuments({ timestamp: { $gte: start } }),
-    Activity.countDocuments({
-      actionType: "SESSION_START",
-      timestamp: { $gte: start },
-    }),
+    Session.countDocuments({ startedAt: { $gte: start } }),
     Activity.aggregate([
       { $match: { timestamp: { $gte: start } } },
       { $group: { _id: "$userId", count: { $sum: 1 } } },

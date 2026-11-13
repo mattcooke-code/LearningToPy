@@ -1,51 +1,42 @@
 // middleware/sessionTracker.js
-const crypto = require("crypto");
-const Activity = require("../models/ActivityLog");
-const { parseDeviceInfo, anonymiseIp } = require("../utils/parseDeviceInfo");
+const sessionService = require("../services/sessionService");
+const { isValidSessionId } = require("../utils/sessionId");
 
 /**
- * Session tracking middleware — assigns a unique session ID and logs SESSION_START events.
+ * Session tracking middleware.
  *
- * **Flow:**
- * 1. Reads existing session ID from `x-session-id` header, or generates a new one
- * 2. Stores session ID on `req.sessionId` (not on headers — avoids mutating the request)
- * 3. Sends the session ID back to the client via `x-session-id` response header
- * 4. On first call per request, logs a `SESSION_START` ActivityLog entry (fire-and-forget)
- * 5. Records `req.startTime` for duration calculation on session end
+ * 1. Reads the client-generated session ID from `x-session-id`, validates it,
+ *    and exposes it as `req.sessionId` (undefined if absent or malformed).
+ *    The server never invents session IDs: the client only sends the header
+ *    for logged-in users, and an ID the client didn't create is meaningless.
+ * 2. When the response finishes, if the request turned out to be authenticated
+ *    (`protect` has run by then and set req.user / req.userId), records activity
+ *    for that (user, session) via sessionService.touch — fire-and-forget and throttled.
  *
- * Tracking failures are silent — they never block the request.
+ * Doing this on `finish` is what lets one global middleware see the user even
+ * though `protect` is applied per-route.
  *
- * @middleware Applied globally before route handlers
+ * @middleware Mount once, after rate limiting and before the API routers:
+ *             app.use("/api/", sessionTracker);
  */
 const sessionTracker = (req, res, next) => {
-  // Read or generate session ID — store on req, not req.headers
-  const existingSessionId = req.headers["x-session-id"];
-  if (existingSessionId) {
-    req.sessionId = existingSessionId;
-  } else {
-    req.sessionId = crypto.randomBytes(16).toString("hex");
-    res.setHeader("x-session-id", req.sessionId);
-  }
+  const header = req.headers["x-session-id"];
+  req.sessionId = isValidSessionId(header) ? header : undefined;
 
-  if (!req.sessionStarted) {
-    req.sessionStarted = true;
+  if (req.sessionId) {
+    res.on("finish", () => {
+      const userId = req.user?._id || req.userId;
+      if (!userId) return;
 
-    const deviceInfo = parseDeviceInfo(req.headers);
-
-    Activity.create({
-      userId: req.user?._id,
-      sessionId: req.sessionId,
-      actionType: "SESSION_START",
-      metadata: { deviceInfo },
-      ipAddress: anonymiseIp(req.ip),
-      timestamp: new Date(),
-    }).catch((err) => {
-      // Structured logging would be better here for production monitoring
-      console.error("Session start logging failed:", err.message);
+      sessionService.touch({
+        userId,
+        sessionId: req.sessionId,
+        headers: req.headers,
+        ip: req.ip,
+      });
     });
   }
 
-  req.startTime = Date.now();
   next();
 };
 

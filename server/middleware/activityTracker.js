@@ -1,3 +1,4 @@
+// middleware/activityTracker.js
 const Activity = require("../models/ActivityLog");
 const { parseDeviceInfo, anonymiseIp } = require("../utils/parseDeviceInfo");
 
@@ -5,12 +6,15 @@ const trackActivity = (actionType) => {
   return (req, res, next) => {
     res.on("finish", () => {
       if (res.statusCode >= 200 && res.statusCode < 300) {
+        const sessionId = req.sessionId;
+        if (!sessionId) return;
+
         const deviceInfo = parseDeviceInfo(req.headers);
 
         Activity.create({
           userId: req.user?._id || req.userId,
           actionType,
-          sessionId: req.session?.id || req.headers["x-session-id"],
+          sessionId,
           metadata: {
             lessonId: req.params.lessonId || req.body.lessonId,
             moduleId: req.params.moduleId || req.body.moduleId,

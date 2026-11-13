@@ -60,6 +60,9 @@ const {
   abuseDetector,
 } = require("./middleware/rateLimiter");
 
+// Session Tracking
+const sessionTracker = require("./middleware/sessionTracker");
+
 // Routes
 const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
@@ -129,6 +132,7 @@ app.use(
     origin: config.getFrontendUrl(),
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    maxAge: 600,
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -164,6 +168,9 @@ app.use(hpp({ allowlist: ["sort", "fields", "tags"] }));
 app.use(ipBlocker);
 app.use(abuseDetector);
 app.use("/api/", apiLimiter);
+
+// 8. Session tracking
+app.use("/api/", sessionTracker);
 
 // ─── Static Assets ───────────────────────────────────────────────────────────
 
