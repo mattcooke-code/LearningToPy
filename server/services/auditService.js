@@ -23,21 +23,30 @@ const createAdminLog = async (
   targetId,
   changes,
   reason,
+  { session } = {},
 ) => {
-  try {
-    const anonymizedIp = anonymiseIp(actor?.ip);
+  const doc = {
+    adminId: actor?.id,
+    action,
+    targetType,
+    targetId,
+    changes,
+    reason: reason || "",
+    ipAddress: anonymiseIp(actor?.ip),
+    userAgent: actor?.userAgent,
+  };
 
-    await AdminLog.create({
-      adminId: actor?.id,
-      action,
-      targetType,
-      targetId,
-      changes,
-      reason: reason || "",
-      ipAddress: anonymizedIp,
-      userAgent: actor?.userAgent,
-    });
+  try {
+    if (session) {
+      // Inside a transaction: participate in it, and DO NOT swallow errors —
+      // a failed audit write must abort the whole transaction.
+      await AdminLog.create([doc], { session });
+    } else {
+      // Fire-and-forget: existing behaviour, logging failures never fail the request.
+      await AdminLog.create(doc);
+    }
   } catch (logError) {
+    if (session) throw logError;
     console.error("Failed to create admin log:", logError);
   }
 };

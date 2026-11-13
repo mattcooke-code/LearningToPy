@@ -955,69 +955,87 @@ const resolveFlag = async ({ flagId, status, adminResponse, actor }) => {
     throw new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400);
   }
 
-  const flag = await FlaggedContent.findById(flagId);
-  if (!flag) throw new AppError("Flag not found", 404);
+  const session = await mongoose.startSession();
 
-  const oldStatus = flag.status;
-  flag.status = status;
-  flag.adminResponse = adminResponse;
-  flag.resolvedBy = actor.id;
-  flag.resolvedAt = new Date();
+  try {
+    const result = await session.withTransaction(async () => {
+      const flag = await FlaggedContent.findOne({ _id: flagId }).session(
+        session,
+      );
+      if (!flag) {
+        throw new AppError("Flag not found", 404);
+      }
+      if (flag.status === "FIXED") {
+        throw new AppError("Flag already resolved as FIXED", 409);
+      }
 
-  let compensationMessage = "";
-  let xpCompensation = 0;
+      const oldStatus = flag.status;
+      flag.status = status;
+      flag.adminResponse = adminResponse;
+      flag.resolvedBy = actor.id;
+      flag.resolvedAt = new Date();
 
-  if (status === "FIXED") {
-    xpCompensation = 25;
-    flag.xpCompensation = xpCompensation;
+      let compensationMessage = "";
+      let xpCompensation = 0;
 
-    const reporter = await User.findById(flag.reporterId);
-    if (reporter) {
-      const oldXp = reporter.xp;
-      reporter.xp += xpCompensation;
-      await reporter.save();
+      if (status === "FIXED") {
+        xpCompensation = 25;
+        flag.xpCompensation = xpCompensation;
 
-      compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
+        const reporter = await User.findById(flag.reporterId).session(session);
+        if (reporter) {
+          const oldXp = reporter.xp;
+          reporter.xp += xpCompensation;
+          await reporter.save({ session });
+
+          compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
+
+          await createAdminLog(
+            actor,
+            "XP_ADJUSTMENT",
+            "USER",
+            reporter._id,
+            {
+              old: oldXp,
+              new: reporter.xp,
+              reason: `Flag compensation for: ${flag.title}`,
+            },
+            `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
+            { session },
+          );
+        }
+      }
+
+      await flag.save({ session });
 
       await createAdminLog(
         actor,
-        "XP_ADJUSTMENT",
-        "USER",
-        reporter._id,
+        "FLAG_RESOLVED",
+        "FLAG",
+        flagId,
         {
-          old: oldXp,
-          new: reporter.xp,
-          reason: `Flag compensation for: ${flag.title}`,
+          oldStatus,
+          newStatus: status,
+          xpCompensation,
+          targetType: flag.targetType,
+          targetId: flag.targetId,
         },
-        `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
+        `Flag resolved with status: ${status}. ${adminResponse || ""}`,
+        { session },
       );
-    }
+
+      return {
+        flag,
+        message: `The reporter has been notified${compensationMessage}`,
+        compensationMessage,
+      };
+    });
+
+    return result;
+  } finally {
+    await session.endSession();
   }
-
-  await flag.save();
-
-  await createAdminLog(
-    actor,
-    "FLAG_RESOLVED",
-    "FLAG",
-    flagId,
-    {
-      oldStatus,
-      newStatus: status,
-      xpCompensation,
-      targetType: flag.targetType,
-      targetId: flag.targetId,
-    },
-    `Flag resolved with status: ${status}. ${adminResponse || ""}`,
-  );
-
-  return {
-    flag,
-    message: `The reporter has been notified${compensationMessage}`,
-    compensationMessage,
-  };
 };
-
 // +=============================================+
 // |              CONTENT MANAGEMENT             |
 // +=============================================+
@@ -1529,54 +1547,72 @@ const duplicateModule = async ({ moduleId, actor }) => {
     throw new AppError("Invalid module ID", 400);
   }
 
-  const originalModule = await Module.findById(moduleId);
-  if (!originalModule) throw new AppError("Module not found", 404);
+  const session = await mongoose.startSession();
 
-  const lessons = await Lesson.find({ moduleId });
+  try {
+    const result = await session.withTransaction(async () => {
+      const originalModule = await Module.findById(moduleId).session(session);
+      if (!originalModule) {
+        throw new AppError("Module not found", 404);
+      }
 
-  const duplicatedModule = await Module.create({
-    ...originalModule.toObject(),
-    _id: undefined,
-    title: `${originalModule.title} (Copy)`,
-    moduleNumber: undefined,
-    order: undefined,
-    isPublished: false,
-    createdAt: undefined,
-    updatedAt: undefined,
-  });
+      const lessons = await Lesson.find({ moduleId }).session(session);
 
-  const duplicatedLessons = await Lesson.insertMany(
-    lessons.map((lesson) => ({
-      ...lesson.toObject(),
-      _id: undefined,
-      moduleId: duplicatedModule._id,
-      title: `${lesson.title} (Copy)`,
-      isPublished: false,
-      createdAt: undefined,
-      updatedAt: undefined,
-    })),
-  );
+      const duplicatedModule = await Module.create(
+        [
+          {
+            ...originalModule.toObject(),
+            _id: undefined,
+            title: `${originalModule.title} (Copy)`,
+            moduleNumber: undefined,
+            order: undefined,
+            isPublished: false,
+            createdAt: undefined,
+            updatedAt: undefined,
+          },
+        ],
+        { session },
+      );
+      const moduleCopy = duplicatedModule[0];
 
-  await createAdminLog(
-    actor,
-    "MODULE_DUPLICATED",
-    "MODULE",
-    duplicatedModule._id,
-    {
-      new: {
-        title: duplicatedModule.title,
-        sourceModule: moduleId,
-        lessonCount: lessons.length,
-        // Preserved from original: `newModuleNumber` is not a schema field,
-        // so this logs `undefined` (omitted from the Mongo document). Debt.
-        newModuleNumber: duplicatedModule.newModuleNumber,
-        newOrder: duplicatedModule.order,
+      const duplicatedLessons = await Lesson.insertMany(
+        lessons.map((lesson) => ({
+          ...lesson.toObject(),
+          _id: undefined,
+          moduleId: moduleCopy._id,
+          title: `${lesson.title} (Copy)`,
+          isPublished: false,
+          createdAt: undefined,
+          updatedAt: undefined,
+        })),
+        { session },
+      );
+
+      return { module: moduleCopy, lessons: duplicatedLessons };
+    });
+
+    // Audit log safely executes AFTER the transaction has successfully committed
+    await createAdminLog(
+      actor,
+      "MODULE_DUPLICATED",
+      "MODULE",
+      result.module._id,
+      {
+        new: {
+          title: result.module.title,
+          sourceModule: moduleId,
+          lessonCount: result.lessons.length,
+          newModuleNumber: result.module.newModuleNumber,
+          newOrder: result.module.order,
+        },
       },
-    },
-    "Module duplicated via admin panel",
-  );
+      "Module duplicated via admin panel",
+    );
 
-  return { module: duplicatedModule, lessons: duplicatedLessons };
+    return result;
+  } finally {
+    await session.endSession();
+  }
 };
 
 // +=============================================+
