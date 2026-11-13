@@ -83,6 +83,21 @@ const verifyToken = (token, secret) => {
   }
 };
 
+/**
+ * Standardize user object returned upon authentication.
+ * @param   {Object} user - Mongoose user document
+ * @returns {Object} Sanitized user profile object
+ */
+const toAuthUser = (user) => ({
+  _id: user._id,
+  id: user._id, // legacy alias; drop once the client only uses _id
+  username: user.username,
+  isAdmin: user.isAdmin,
+  streak: user.streak,
+  streakLastCheckedDate: user.streakLastCheckedDate,
+  ageBracket: user.ageBracket,
+});
+
 module.exports = {
   ACCESS_TOKEN_LIFESPAN,
   getCookieOptions,
@@ -90,6 +105,7 @@ module.exports = {
   generateToken,
   verifyToken,
   clearRefreshTokenCookie,
+  toAuthUser,
   getAccessTokenSecret: config.getAccessTokenSecret,
   getRefreshTokenSecret: config.getRefreshTokenSecret,
 };
