@@ -176,7 +176,7 @@ const findUserOrThrow = async (userId) => {
 };
 
 /**
- * Helper: Award XP and recalculate level
+ * Helper: Award XP
  */
 const awardUserXp = (user, xpAmount) => {
   user.xp = (user.xp || 0) + xpAmount;

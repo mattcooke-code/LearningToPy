@@ -227,6 +227,7 @@ const UserSchema = new mongoose.Schema(
 // ── Indexes ───────────────────────────────────────────
 
 // Compound indexes for actual query patterns
+UserSchema.index({ createdAt: -1 });
 UserSchema.index({ leaderboardStatus: 1, xp: -1 }); // Leaderboards
 UserSchema.index({ leaderboardStatus: 1, lastEngagementAt: -1 });
 UserSchema.index({ isAdmin: 1, lastEngagementAt: -1 }); // Admin user listing

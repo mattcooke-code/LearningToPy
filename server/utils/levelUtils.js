@@ -1,5 +1,6 @@
 // levelUtils.js
 const Module = require("../models/Module");
+const ModuleCompletion = require("../models/ModuleCompletion");
 const User = require("../models/User");
 
 // Cache for module order map to avoid repeated database queries
@@ -112,9 +113,12 @@ const getUserWithLevel = async (user) => {
 };
 
 const recalculateUserLevel = async (userId) => {
-  const user = await User.findById(userId).select("completedModules").lean();
-  if (!user) return null;
-  const level = await calculateUserLevel(user);
+  const completions = await ModuleCompletion.findById(userId)
+    .select("moduleId")
+    .lean();
+  const level = await calculateUserLevel({
+    completedModules: completions.map((c) => c.moduleId),
+  });
   await User.updateOne({ _id: userId }, { $set: { level } });
   return level;
 };

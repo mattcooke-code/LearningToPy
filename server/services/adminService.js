@@ -101,9 +101,14 @@ const getAdminStats = async () => {
 /**
  * Search users with filtering, sorting, and pagination.
  *
- * Hydrates each result with a derived `level` (from module completions)
- * and supports level-range filtering. `completedModules` is stripped from
- * the final response.
+ * Reads `User.level` directly (denormalised counter, kept in sync by
+ * learningEngine + overrideUserProgress). Level filters apply to the
+ * whole result set, not the current page — so `pagination.total`
+ * reflects the filtered count, matching the returned page.
+ *
+ * Uses a single aggregation with `$facet` so the paginated page and the
+ * total count come from the same snapshot (avoids the `find()` +
+ * `countDocuments()` disagreement window).
  *
  * @param {Object}  params
  * @param {string}  [params.query]
@@ -130,6 +135,7 @@ const searchUsers = async ({
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
+  // ── Build filter ────────────────────────────────
   const searchFilter = {};
 
   if (query) {
@@ -138,67 +144,72 @@ const searchUsers = async ({
       { email: { $regex: query, $options: "i" } },
     ];
   }
-
   if (isBlocked !== undefined) searchFilter.isBlocked = isBlocked === "true";
   if (isAdmin !== undefined) searchFilter.isAdmin = isAdmin === "true";
 
-  let sortOption = {};
+  // Level filters apply to the whole result set — this is the fix.
+  if (levelMin !== undefined) {
+    searchFilter.level = {
+      ...searchFilter.level,
+      $gte: parseInt(levelMin),
+    };
+  }
+  if (levelMax !== undefined) {
+    searchFilter.level = {
+      ...searchFilter.level,
+      $lte: parseInt(levelMax),
+    };
+  }
+
+  // ── Build sort ──────────────────────────────────
+  const sortOption = {};
   if (sort.startsWith("-")) {
     sortOption[sort.substring(1)] = -1;
   } else {
     sortOption[sort] = 1;
   }
 
-  const users = await User.find(searchFilter)
-    .select(
-      "username email xp streak badges lastEngagementAt isBlocked isAdmin createdAt completedModulesCount ageBracket",
-    )
-    .sort(sortOption)
-    .skip(skip)
-    .limit(limitNum)
-    .lean();
+  // ── Single aggregation: paginated page + filtered total ──
+  const [result] = await User.aggregate([
+    { $match: searchFilter },
+    { $sort: sortOption },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        users: [
+          { $skip: skip },
+          { $limit: limitNum },
+          {
+            $project: {
+              _id: 1,
+              username: 1,
+              email: 1,
+              level: 1,
+              xp: 1,
+              streak: 1,
+              badges: 1,
+              lastEngagementAt: 1,
+              isBlocked: 1,
+              isAdmin: 1,
+              createdAt: 1,
+              completedModulesCount: 1,
+              // Previously listed in `.select()` but suppressed by
+              // `select: false` on the schema. Aggregation is raw, so it
+              // now appears — intentional fix; frontend can drop it if
+              // unwanted by adding `ageBracket: 0` here.
+              ageBracket: 1,
+            },
+          },
+        ],
+      },
+    },
+  ]);
 
-  // Hydrate completed-module IDs for level calculation
-  const userIds = users.map((u) => u._id);
-  const moduleCompletions = await ModuleCompletion.find({
-    userId: { $in: userIds },
-  }).lean();
-
-  const completionMap = {};
-  moduleCompletions.forEach((mc) => {
-    const uid = mc.userId.toString();
-    if (!completionMap[uid]) completionMap[uid] = [];
-    completionMap[uid].push(mc.moduleId);
-  });
-
-  const usersWithModules = users.map((user) => ({
-    ...user,
-    completedModules: completionMap[user._id.toString()] || [],
-  }));
-
-  const moduleOrderMap = await levelUtils.getModuleOrderMap();
-  const usersWithLevel = await levelUtils.addLevelToUsers(
-    usersWithModules,
-    moduleOrderMap,
-  );
-
-  let filteredUsers = usersWithLevel;
-
-  if (levelMin) {
-    filteredUsers = filteredUsers.filter((u) => u.level >= parseInt(levelMin));
-  }
-  if (levelMax) {
-    filteredUsers = filteredUsers.filter((u) => u.level <= parseInt(levelMax));
-  }
-
-  const sanitizedUsers = filteredUsers.map(
-    ({ completedModules, ...rest }) => rest,
-  );
-
-  const total = await User.countDocuments(searchFilter);
+  const users = result?.users ?? [];
+  const total = result?.metadata?.[0]?.total ?? 0;
 
   return {
-    users: sanitizedUsers,
+    users,
     pagination: {
       page: pageNum,
       limit: limitNum,
@@ -743,6 +754,9 @@ const overrideUserProgress = async ({
         $inc: { completedModulesCount: -1 },
       });
     }
+
+    // Recompute and persist level AFTER ModuleCompletion is updated
+    await levelUtils.recalculateUserLevel(targetUserId);
 
     const updatedExists = await ModuleCompletion.findOne({
       userId: targetUserId,
