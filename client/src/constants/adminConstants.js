@@ -87,16 +87,6 @@ export const FLAG_STATUS_CONFIG = {
     iconBg: "bg-red-100 dark:bg-red-900/30 text-red-600",
     badge: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
   },
-  XP_ADJUSTED: {
-    color: "purple",
-    icon: Star,
-    label: "XP Adjusted",
-    bg: "bg-purple-100 dark:bg-purple-900/30",
-    text: "text-purple-700 dark:text-purple-300",
-    iconBg: "bg-purple-100 dark:bg-purple-900/30 text-purple-600",
-    badge:
-      "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  },
 };
 
 /**

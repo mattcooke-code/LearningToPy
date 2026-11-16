@@ -36,12 +36,12 @@ const flaggedContentSchema = new mongoose.Schema(
       minlength: [5, "Title must be at least 5 characters"],
       trim: true,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Prevent script injection in title
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Title contains invalid content"
-      }
+        message: "Title contains invalid content",
+      },
     },
     description: {
       type: String,
@@ -50,29 +50,29 @@ const flaggedContentSchema = new mongoose.Schema(
       minlength: [10, "Description must be at least 10 characters"],
       trim: true,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           // Prevent script injection in description
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Description contains invalid content"
-      }
+        message: "Description contains invalid content",
+      },
     },
     suggestedFix: {
       type: String,
       maxlength: [1000, "Suggested fix must not exceed 1000 characters"],
       trim: true,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           if (!value) return true; // Optional field
           // Prevent script injection in suggested fix
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Suggested fix contains invalid content"
-      }
+        message: "Suggested fix contains invalid content",
+      },
     },
     status: {
       type: String,
-      enum: ["PENDING", "IN_REVIEW", "FIXED", "REJECTED", "XP_ADJUSTED"],
+      enum: ["PENDING", "IN_REVIEW", "FIXED", "REJECTED"],
       default: "PENDING",
     },
     adminResponse: {
@@ -80,13 +80,13 @@ const flaggedContentSchema = new mongoose.Schema(
       maxlength: [1000, "Admin response must not exceed 1000 characters"],
       trim: true,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           if (!value) return true; // Optional field
           // Prevent script injection in admin response
           return !/<script|javascript:|on\w+=/i.test(value);
         },
-        message: "Admin response contains invalid content"
-      }
+        message: "Admin response contains invalid content",
+      },
     },
     xpCompensation: {
       type: Number,

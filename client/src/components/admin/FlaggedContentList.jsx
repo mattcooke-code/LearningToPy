@@ -122,7 +122,6 @@ const FlaggedContentList = ({ limit = null }) => {
     in_review: 0,
     fixed: 0,
     rejected: 0,
-    xp_adjusted: 0,
   };
 
   // 4. Handlers
@@ -184,11 +183,6 @@ const FlaggedContentList = ({ limit = null }) => {
           value={currentStats.rejected || 0}
           status="REJECTED"
         />
-        <StatCard
-          label="XP Adjusted"
-          value={currentStats.xp_adjusted || 0}
-          status="XP_ADJUSTED"
-        />
       </div>
 
       {/* Filter Bar */}
@@ -208,7 +202,6 @@ const FlaggedContentList = ({ limit = null }) => {
             <option value="IN_REVIEW">In Review</option>
             <option value="FIXED">Fixed</option>
             <option value="REJECTED">Rejected</option>
-            <option value="XP_ADJUSTED">XP Adjusted</option>
           </select>
 
           <select

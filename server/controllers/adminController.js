@@ -215,7 +215,9 @@ const updateUserStatus = catchAsync(async (req, res, next) => {
     actor: actorFromRequest(req),
   });
 
-  sendJsonResponse(res, 200, `User ${action}ed successfully`, data);
+  const VERB = { block: "blocked", unblock: "unblocked", delete: "deleted" };
+
+  sendJsonResponse(res, 200, `User ${VERB[action]} successfully`, data);
 });
 
 /**
@@ -334,7 +336,7 @@ const getFlaggedContent = catchAsync(async (req, res, next) => {
  * Get aggregate flag statistics grouped by status.
  *
  * @route   GET /api/admin/flags/stats
- * @returns {Object} 200 - { pending, in_review, fixed, rejected, xp_adjusted }
+ * @returns {Object} 200 - { pending, in_review, fixed, rejected}
  */
 const getFlagStats = catchAsync(async (req, res, next) => {
   const data = await adminService.getFlagStats();

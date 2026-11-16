@@ -386,7 +386,7 @@ const toggleAdminStatus = async ({
 
   if (makeAdmin && user.ageBracket !== "18+") {
     throw new AppError(
-      "Users must be 18 or older to be granted admin priviledges.",
+      "Users must be 18 or older to be granted admin privileges.",
       400,
     );
   }
@@ -903,8 +903,8 @@ const getFlaggedContent = async ({
 /**
  * Get aggregate flag statistics grouped by status.
  *
- * Result always contains `pending`, `in_review`, `fixed`, `rejected`,
- * and `xp_adjusted` keys, defaulting to 0 when no flags of that status
+ * Result always contains `pending`, `in_review`, `fixed`, and `rejected`
+ * keys, defaulting to 0 when no flags of that status
  * exist.
  *
  * @returns {Promise<{
@@ -912,7 +912,6 @@ const getFlaggedContent = async ({
  *   in_review: number,
  *   fixed: number,
  *   rejected: number,
- *   xp_adjusted: number
  * }>}
  */
 const getFlagStats = async () => {
@@ -925,7 +924,6 @@ const getFlagStats = async () => {
     in_review: 0,
     fixed: 0,
     rejected: 0,
-    xp_adjusted: 0,
   };
 
   stats.forEach((stat) => {
@@ -1088,7 +1086,7 @@ const getAllLessons = async ({
   const [lessons, total] = await Promise.all([
     Lesson.find(filter)
       .populate("moduleId", "title order")
-      .sort({ order: 1, moduleId: 1 })
+      .sort({ order: 1, _id: 1 })
       .skip(skip)
       .limit(limitNum),
     Lesson.countDocuments(filter),
@@ -1305,7 +1303,6 @@ const publishModule = async ({ moduleId, publish, actor }) => {
 /**
  * Update a lesson's sort order within its module.
  *
- * No audit log is written — matches the original controller's behavior.
  *
  * @param {Object} params
  * @param {string} params.lessonId
@@ -1313,7 +1310,7 @@ const publishModule = async ({ moduleId, publish, actor }) => {
  * @returns {Promise<{ lesson: Object }>}
  * @throws {AppError} 404 - Lesson not found
  */
-const updateLessonOrder = async ({ lessonId, order }) => {
+const updateLessonOrder = async ({ lessonId, order, actor }) => {
   const lesson = await Lesson.findByIdAndUpdate(lessonId);
 
   if (!lesson) throw new AppError("Lesson not found", 404);
@@ -1337,15 +1334,13 @@ const updateLessonOrder = async ({ lessonId, order }) => {
 /**
  * Update a module's sort order in the curriculum.
  *
- * No audit log is written — matches the original controller's behavior.
- *
  * @param {Object} params
  * @param {string} params.moduleId
  * @param {number} params.order
  * @returns {Promise<{ module: Object }>}
  * @throws {AppError} 404 - Module not found
  */
-const updateModuleOrder = async ({ moduleId, order }) => {
+const updateModuleOrder = async ({ moduleId, order, actor }) => {
   const module = await Module.findById(moduleId);
   if (!module) throw new AppError("Module not found", 404);
 
@@ -1411,15 +1406,11 @@ const createLesson = async ({ lessonData, actor }) => {
  * @returns {Promise<{ module: Object }>}
  */
 const createModule = async ({ moduleData, actor }) => {
-  if (
-    !moduleData.order ||
-    moduleData.order === 0 ||
-    moduleData.order === null
-  ) {
+  if (!moduleData.order) {
     delete moduleData.order;
   }
 
-  if (!moduleData.moduleNumber || moduleData.moduleNumber === "") {
+  if (!moduleData.moduleNumber) {
     delete moduleData.moduleNumber;
   }
 
@@ -1556,11 +1547,8 @@ const duplicateLesson = async ({ lessonId, actor }) => {
  *
  * Both the module and every lesson copy start unpublished. The module's
  * `order` and `moduleNumber` are unset so the schema assigns the next
- * available values.
- *
- * Note: module + lesson creation is NOT transactional. If the module
- * create succeeds but lesson insertion fails, an orphan unpublished
- * module is left behind. Preserved from the original controller.
+ * available values. Wrapped in a transaction so a partial failure leaves
+ * no orphan module behind. The audit log is written after commit.
  *
  * @param {Object} params
  * @param {string} params.moduleId
