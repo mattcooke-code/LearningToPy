@@ -103,8 +103,8 @@ const getAdminStats = async () => {
  *
  * Reads `User.level` directly (denormalised counter, kept in sync by
  * learningEngine + overrideUserProgress). Level filters apply to the
- * whole result set, not the current page — so `pagination.total`
- * reflects the filtered count, matching the returned page.
+ * whole result set — so `pagination.total` reflects the filtered count,
+ * matching the returned page.
  *
  * Uses a single aggregation with `$facet` so the paginated page and the
  * total count come from the same snapshot (avoids the `find()` +
@@ -131,8 +131,16 @@ const searchUsers = async ({
   levelMin,
   levelMax,
 }) => {
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
+  // Guard: clamp page to >= 1; non-numeric values fall through the isNaN
+  // check below and are simply ignored rather than silently producing
+  // empty results (previous behaviour: parseInt(NaN) poisoned the filter).
+  const parsedPage = parseInt(page);
+  const pageNum = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+
+  const parsedLimit = parseInt(limit);
+  const limitNum =
+    Number.isNaN(parsedLimit) || parsedLimit < 1 ? 20 : parsedLimit;
+
   const skip = (pageNum - 1) * limitNum;
 
   // ── Build filter ────────────────────────────────
@@ -147,18 +155,16 @@ const searchUsers = async ({
   if (isBlocked !== undefined) searchFilter.isBlocked = isBlocked === "true";
   if (isAdmin !== undefined) searchFilter.isAdmin = isAdmin === "true";
 
-  // Level filters apply to the whole result set — this is the fix.
-  if (levelMin !== undefined) {
-    searchFilter.level = {
-      ...searchFilter.level,
-      $gte: parseInt(levelMin),
-    };
-  }
-  if (levelMax !== undefined) {
-    searchFilter.level = {
-      ...searchFilter.level,
-      $lte: parseInt(levelMax),
-    };
+  // Level filters apply to the whole result set. Guarded with isNaN so a
+  // non-numeric `levelMin=abc` is ignored rather than producing a
+  // never-matching `$gte: NaN` clause.
+  const parsedLevelMin = levelMin !== undefined ? parseInt(levelMin) : NaN;
+  const parsedLevelMax = levelMax !== undefined ? parseInt(levelMax) : NaN;
+
+  if (!Number.isNaN(parsedLevelMin) || !Number.isNaN(parsedLevelMax)) {
+    searchFilter.level = {};
+    if (!Number.isNaN(parsedLevelMin)) searchFilter.level.$gte = parsedLevelMin;
+    if (!Number.isNaN(parsedLevelMax)) searchFilter.level.$lte = parsedLevelMax;
   }
 
   // ── Build sort ──────────────────────────────────
@@ -193,10 +199,6 @@ const searchUsers = async ({
               isAdmin: 1,
               createdAt: 1,
               completedModulesCount: 1,
-              // Previously listed in `.select()` but suppressed by
-              // `select: false` on the schema. Aggregation is raw, so it
-              // now appears — intentional fix; frontend can drop it if
-              // unwanted by adding `ageBracket: 0` here.
               ageBracket: 1,
             },
           },
