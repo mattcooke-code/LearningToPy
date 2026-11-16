@@ -756,7 +756,7 @@ const overrideUserProgress = async ({
     }
 
     // Recompute and persist level AFTER ModuleCompletion is updated
-    await levelUtils.recalculateUserLevel(targetUserId);
+    const newLevel = await levelUtils.recalculateUserLevel(targetUserId);
 
     const updatedExists = await ModuleCompletion.findOne({
       userId: targetUserId,
@@ -789,6 +789,7 @@ const overrideUserProgress = async ({
   return {
     user: {
       _id: targetUserId,
+      level: newLevel,
       completedLessonsCount: lessonCount,
       completedModulesCount: moduleCount,
     },

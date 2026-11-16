@@ -112,8 +112,18 @@ const getUserWithLevel = async (user) => {
   };
 };
 
+/**
+ * Recompute and persist a user's level from their current module completions.
+ *
+ * Writes the computed value to `User.level`. Used after any operation that
+ * mutates `ModuleCompletion` outside the normal lesson/module-completion
+ * flow (e.g. admin overrides).
+ *
+ * @param {string} userId
+ * @returns {Promise<number>} The new level (1–20)
+ */
 const recalculateUserLevel = async (userId) => {
-  const completions = await ModuleCompletion.findById(userId)
+  const completions = await ModuleCompletion.find({ userId })
     .select("moduleId")
     .lean();
   const level = await calculateUserLevel({
