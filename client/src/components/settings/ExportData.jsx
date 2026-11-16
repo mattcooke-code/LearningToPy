@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { useNotification } from "../../context";
 import { apiClient } from "../../services";
-import { getErrorMessage } from "../../utils";
+import { getErrorMessage, getUserLocalDate } from "../../utils";
 
 const ExportData = () => {
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,7 @@ const ExportData = () => {
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = `my-data-${new Date().toISOString().split("T")[0]}.json`;
+      link.download = `my-data-${getUserLocalDate()}.json`;
       link.click();
       URL.revokeObjectURL(url);
 
