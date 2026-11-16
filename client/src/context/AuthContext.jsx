@@ -163,7 +163,7 @@ export const AuthProvider = ({ children }) => {
           authApiClient.defaults.headers.common["Authorization"] =
             `Bearer ${currentAccessToken}`;
         }
-        await authApiClient.post("/api/auth/logout");
+        await authApiClient.post("/logout");
       } catch {
         // Silent fail — client-side cleanup is what matters
       } finally {
@@ -187,7 +187,7 @@ export const AuthProvider = ({ children }) => {
 
     const p = (async () => {
       try {
-        const payload = await authApiClient.post("/api/auth/refresh-token", {
+        const payload = await authApiClient.post("/refresh-token", {
           userLocalDate: getUserLocalDate(),
         });
         const { accessToken: newAccessToken, user: newUserData } = payload;
@@ -246,7 +246,7 @@ export const AuthProvider = ({ children }) => {
       return executeAuthAction(
         "login",
         () =>
-          authApiClient.post("/api/auth/login", {
+          authApiClient.post("/login", {
             email,
             password,
             rememberMe,
@@ -272,7 +272,7 @@ export const AuthProvider = ({ children }) => {
       return executeAuthAction(
         "registration",
         () =>
-          authApiClient.post("/api/auth/register", {
+          authApiClient.post("/register", {
             username,
             email,
             dateOfBirth,

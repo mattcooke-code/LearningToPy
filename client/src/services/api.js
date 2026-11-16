@@ -34,7 +34,7 @@ const createClient = (baseURL) =>
   });
 
 export const apiClient = createClient(`${BACKEND_URL}/api`);
-export const authApiClient = createClient(BACKEND_URL);
+export const authApiClient = createClient(`${BACKEND_URL}/api/auth`);
 export const adminApiClient = createClient(`${BACKEND_URL}/api/admin`);
 
 // ---------------------------------------------------------------------------

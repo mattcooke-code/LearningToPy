@@ -69,7 +69,7 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      const response = await authApiClient.post("/api/auth/forgot-password", {
+      const response = await authApiClient.post("/forgot-password", {
         email,
       });
 

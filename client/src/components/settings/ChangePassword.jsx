@@ -42,7 +42,7 @@ const ChangePassword = () => {
     try {
       // ✅ Uses authApiClient — follows established pattern
       // authApiClient has baseURL = BACKEND_URL, so path is /api/auth/change-password
-      await authApiClient.post("/api/auth/change-password", {
+      await authApiClient.post("/change-password", {
         currentPassword: form.currentPassword,
         newPassword: form.newPassword,
       });

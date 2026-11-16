@@ -96,7 +96,7 @@ const ResetPasswordPage = () => {
       }
 
       try {
-        await authApiClient.get(`/api/auth/validate-reset-token/${token}`);
+        await authApiClient.get(`/validate-reset-token/${token}`);
         if (!cancelled) {
           setIsTokenValid(true);
           // Toast removed — the form appearing is confirmation enough
@@ -140,7 +140,7 @@ const ResetPasswordPage = () => {
     setLoading(true);
 
     try {
-      const response = await authApiClient.post("/api/auth/reset-password", {
+      const response = await authApiClient.post("/reset-password", {
         token,
         newPassword: password,
       });
