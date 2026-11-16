@@ -61,6 +61,11 @@ export const isTokenValid = (token) => {
   if (!token) return false;
   try {
     const decoded = jwtDecode(token);
+
+    if (typeof decoded.exp !== "number") {
+      return false;
+    }
+
     return decoded.exp > Date.now() / 1000 + 30;
   } catch {
     return false;
