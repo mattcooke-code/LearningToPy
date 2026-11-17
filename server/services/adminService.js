@@ -17,6 +17,7 @@ const learningEngine = require("./learningEngine");
 // ---UTILITIES & CONSTANTS---
 const mongoose = require("mongoose");
 const adminConstants = require("../constants/adminConstants");
+const adminUtils = require("../utils/adminUtils");
 const AppError = require("../utils/AppError");
 const levelUtils = require("../utils/levelUtils");
 
@@ -58,77 +59,6 @@ const PROGRESS_TYPES = Object.freeze({
 // +=============================================+
 // |              SHARED HELPERS                 |
 // +=============================================+
-
-/**
- * Parse `page` / `limit` query values into safe numbers.
- *
- * Non-numeric or < 1 values fall back to defaults; `limit` is capped at
- * `maxLimit`.
- *
- * @param {{ page?: any, limit?: any }} input
- * @param {{ defaultLimit: number, maxLimit: number }} limits
- * @returns {{ pageNum: number, limitNum: number, skip: number }}
- */
-const parsePagination = ({ page, limit }, { defaultLimit, maxLimit }) => {
-  const parsedPage = parseInt(page, 10);
-  const parsedLimit = parseInt(limit, 10);
-
-  const pageNum = parsedPage >= 1 ? parsedPage : 1;
-  const limitNum =
-    parsedLimit >= 1 ? Math.min(parsedLimit, maxLimit) : defaultLimit;
-
-  return { pageNum, limitNum, skip: (pageNum - 1) * limitNum };
-};
-
-/** Build the standard `pagination` response block. */
-const buildPagination = (pageNum, limitNum, total) => ({
-  page: pageNum,
-  limit: limitNum,
-  total,
-  totalPages: Math.ceil(total / limitNum),
-});
-
-/** Escape a string for safe use inside a RegExp / `$regex`. */
-const escapeRegex = (value) =>
-  String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-/** Build a case-insensitive `$or` clause matching `term` in any `fields`. */
-const buildSearchOr = (fields, term) => {
-  const pattern = escapeRegex(term);
-  return fields.map((field) => ({
-    [field]: { $regex: pattern, $options: "i" },
-  }));
-};
-
-/**
- * Throw 400 if an admin is trying to modify their own account.
- *
- * @param {string|Object} targetUserId
- * @param {Object} actor - { id, ip, userAgent }
- * @param {string} what  - e.g. "XP", "status", "progress", "admin status"
- * @throws {AppError} 400
- */
-const assertNotSelf = (targetUserId, actor, what) => {
-  if (String(targetUserId) === String(actor.id)) {
-    throw new AppError(`Cannot modify your own ${what}`, 400);
-  }
-};
-
-/**
- * Throw 400 unless `id` is an ObjectId or a 24-character hex string.
- *
- * Stricter than `ObjectId.isValid` / `mongoose.isValidObjectId`, which also
- * accept any 12-character string (and numbers).
- *
- * @param {any} id
- * @param {string} label - Used in the message: `Invalid ${label}`
- * @throws {AppError} 400
- */
-const assertValidObjectId = (id, label) => {
-  const valid =
-    id instanceof mongoose.Types.ObjectId || /^[0-9a-f]{24}$/i.test(String(id));
-  if (!valid) throw new AppError(`Invalid ${label}`, 400);
-};
 
 /**
  * Find a document by ID or throw 404 `"<label> not found"`.
@@ -333,7 +263,7 @@ const searchUsers = async ({
   levelMin,
   levelMax,
 }) => {
-  const { pageNum, limitNum, skip } = parsePagination(
+  const { pageNum, limitNum, skip } = adminUtils.parsePagination(
     { page, limit },
     adminConstants.PAGE_LIMITS.USERS,
   );
@@ -342,7 +272,7 @@ const searchUsers = async ({
   const searchFilter = {};
 
   if (typeof query === "string" && query) {
-    searchFilter.$or = buildSearchOr(["username", "email"], query);
+    searchFilter.$or = adminUtils.buildSearchOr(["username", "email"], query);
   }
   if (isBlocked !== undefined) searchFilter.isBlocked = isBlocked === "true";
   if (isAdmin !== undefined) searchFilter.isAdmin = isAdmin === "true";
@@ -391,7 +321,10 @@ const searchUsers = async ({
   const users = result?.users ?? [];
   const total = result?.metadata?.[0]?.total ?? 0;
 
-  return { users, pagination: buildPagination(pageNum, limitNum, total) };
+  return {
+    users,
+    pagination: adminUtils.buildPagination(pageNum, limitNum, total),
+  };
 };
 
 /**
@@ -473,7 +406,7 @@ const getUserDetails = async (userId) => {
  */
 const getUserActivity = async (userId, limit = 50) => {
   const user = await getUserOrThrow(userId, "_id");
-  const { limitNum } = parsePagination(
+  const { limitNum } = adminUtils.parsePagination(
     { limit },
     adminConstants.PAGE_LIMITS.ACTIVITY,
   );
@@ -560,7 +493,7 @@ const toggleAdminStatus = async ({
   reason,
   actor,
 }) => {
-  assertNotSelf(targetUserId, actor, "admin status");
+  adminUtils.assertNotSelf(targetUserId, actor, "admin status");
 
   const user = await getUserOrThrow(targetUserId, "+ageBracket");
 
@@ -629,7 +562,7 @@ const toggleAdminStatus = async ({
  * @throws {AppError} 404 - User not found
  */
 const adjustUserXp = async ({ targetUserId, xpChange, reason, actor }) => {
-  assertNotSelf(targetUserId, actor, "XP");
+  adminUtils.assertNotSelf(targetUserId, actor, "XP");
 
   const delta = parseInt(xpChange, 10);
   if (Number.isNaN(delta)) {
@@ -717,7 +650,7 @@ const updateUserStatus = async ({
   reason,
   actor,
 }) => {
-  assertNotSelf(targetUserId, actor, "status");
+  adminUtils.assertNotSelf(targetUserId, actor, "status");
 
   // Validate `duration` whenever it's provided — regardless of `action` — so
   // typos like `{ action: "unblock", duration: -1 }` surface as errors rather
@@ -781,20 +714,6 @@ const updateUserStatus = async ({
 };
 
 /**
- * Validate a `badgeIds` payload and drop duplicates.
- *
- * @param {any} badgeIds
- * @returns {string[]}
- * @throws {AppError} 400 - Not an array
- */
-const normalizeBadgeIds = (badgeIds) => {
-  if (!Array.isArray(badgeIds)) {
-    throw new AppError("badgeIds must be an array", 400);
-  }
-  return [...new Set(badgeIds)];
-};
-
-/**
  * Award one or more badges to a user. Skips badges already earned.
  *
  * @param {Object} params
@@ -807,7 +726,7 @@ const normalizeBadgeIds = (badgeIds) => {
  * @throws {AppError} 404 - User not found
  */
 const awardBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
-  const requested = normalizeBadgeIds(badgeIds);
+  const requested = adminUtils.normalizeBadgeIds(badgeIds);
   const user = await getUserOrThrow(targetUserId);
 
   const owned = new Set(user.badges);
@@ -843,7 +762,7 @@ const awardBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
  * @throws {AppError} 404 - User not found
  */
 const removeBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
-  const requested = normalizeBadgeIds(badgeIds);
+  const requested = adminUtils.normalizeBadgeIds(badgeIds);
   const user = await getUserOrThrow(targetUserId);
 
   const owned = new Set(user.badges);
@@ -903,7 +822,7 @@ const overrideUserProgress = async ({
   reason,
   actor,
 }) => {
-  assertNotSelf(targetUserId, actor, "progress");
+  adminUtils.assertNotSelf(targetUserId, actor, "progress");
 
   const user = await getUserOrThrow(targetUserId, "level");
 
@@ -997,7 +916,7 @@ const getFlaggedContent = async ({
   page = 1,
   limit = 20,
 }) => {
-  const { pageNum, limitNum, skip } = parsePagination(
+  const { pageNum, limitNum, skip } = adminUtils.parsePagination(
     { page, limit },
     adminConstants.PAGE_LIMITS.FLAGS,
   );
@@ -1006,7 +925,7 @@ const getFlaggedContent = async ({
   if (status && status !== "ALL") filter.status = status;
   if (issueType) filter.issueType = issueType;
   if (typeof search === "string" && search) {
-    filter.$or = buildSearchOr(
+    filter.$or = adminUtils.buildSearchOr(
       ["title", "description", "suggestedFix"],
       search,
     );
@@ -1076,7 +995,7 @@ const getFlaggedContent = async ({
 
   return {
     flaggedContent: enrichedContent,
-    pagination: buildPagination(pageNum, limitNum, total),
+    pagination: adminUtils.buildPagination(pageNum, limitNum, total),
   };
 };
 
@@ -1325,7 +1244,7 @@ const getAllLessons = async ({
   difficulty,
   moduleId,
 }) => {
-  const { pageNum, limitNum, skip } = parsePagination(
+  const { pageNum, limitNum, skip } = adminUtils.parsePagination(
     { page, limit },
     adminConstants.PAGE_LIMITS.CONTENT,
   );
@@ -1345,7 +1264,10 @@ const getAllLessons = async ({
     Lesson.countDocuments(filter),
   ]);
 
-  return { lessons, pagination: buildPagination(pageNum, limitNum, total) };
+  return {
+    lessons,
+    pagination: adminUtils.buildPagination(pageNum, limitNum, total),
+  };
 };
 
 /**
@@ -1358,7 +1280,7 @@ const getAllLessons = async ({
  * @returns {Promise<{ modules: Object[], pagination: Object }>}
  */
 const getAllModules = async ({ limit = 1000, page = 1, status }) => {
-  const { pageNum, limitNum, skip } = parsePagination(
+  const { pageNum, limitNum, skip } = adminUtils.parsePagination(
     { page, limit },
     adminConstants.PAGE_LIMITS.CONTENT,
   );
@@ -1375,7 +1297,10 @@ const getAllModules = async ({ limit = 1000, page = 1, status }) => {
     Module.countDocuments(filter),
   ]);
 
-  return { modules, pagination: buildPagination(pageNum, limitNum, total) };
+  return {
+    modules,
+    pagination: adminUtils.buildPagination(pageNum, limitNum, total),
+  };
 };
 
 /**
@@ -1645,7 +1570,7 @@ const deleteModule = async ({ moduleId, actor }) => {
  * @throws {AppError} 404 - Lesson not found
  */
 const duplicateLesson = async ({ lessonId, actor }) => {
-  assertValidObjectId(lessonId, "lesson ID");
+  adminUtils.assertValidObjectId(lessonId, "lesson ID");
 
   const originalLesson = await findOrThrow(Lesson, lessonId, "Lesson");
 
@@ -1688,7 +1613,7 @@ const duplicateLesson = async ({ lessonId, actor }) => {
  * @throws {AppError} 404 - Module not found
  */
 const duplicateModule = async ({ moduleId, actor }) => {
-  assertValidObjectId(moduleId, "module ID");
+  adminUtils.assertValidObjectId(moduleId, "module ID");
 
   const result = await runInTransaction(async (session) => {
     const originalModule = await findOrThrow(Module, moduleId, "Module", {
@@ -1770,7 +1695,7 @@ const getActivityLogs = async ({
   actionType,
   targetType,
 }) => {
-  const { pageNum, limitNum, skip } = parsePagination(
+  const { pageNum, limitNum, skip } = adminUtils.parsePagination(
     { page, limit },
     adminConstants.PAGE_LIMITS.LOGS,
   );
@@ -1788,7 +1713,10 @@ const getActivityLogs = async ({
     AdminLog.countDocuments(filter),
   ]);
 
-  return { logs, pagination: buildPagination(pageNum, limitNum, total) };
+  return {
+    logs,
+    pagination: adminUtils.buildPagination(pageNum, limitNum, total),
+  };
 };
 
 /**
@@ -1811,7 +1739,7 @@ const getActivityLogs = async ({
  * @throws {AppError} 404 - User not found (from learningEngine)
  */
 const fixModuleProgress = async ({ targetUserId, reason, actor }) => {
-  assertValidObjectId(targetUserId, "user id");
+  adminUtils.assertValidObjectId(targetUserId, "user id");
 
   const modulesFixed = await learningEngine.fixUserModuleProgress(targetUserId);
 
