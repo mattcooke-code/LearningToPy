@@ -14,34 +14,232 @@ const XpTransaction = require("../models/XpTransaction");
 const { createAdminLog } = require("./auditService");
 const learningEngine = require("./learningEngine");
 
-// ---UTILITIES---
+// ---UTILITIES & CONSTANTS---
 const mongoose = require("mongoose");
+const adminConstants = require("../constants/adminConstants");
 const AppError = require("../utils/AppError");
 const levelUtils = require("../utils/levelUtils");
+
+// ─────────────── CONSTANTS ──────────────────
+/** Lesson / Module share identical update, publish and reorder flows. */
+const CONTENT_TYPES = Object.freeze({
+  lesson: {
+    Model: Lesson,
+    key: "lesson",
+    label: "Lesson",
+    logTarget: "LESSON",
+  },
+  module: {
+    Model: Module,
+    key: "module",
+    label: "Module",
+    logTarget: "MODULE",
+  },
+});
+
+/** Lesson / module completion overrides differ only by these settings. */
+const PROGRESS_TYPES = Object.freeze({
+  lesson: {
+    Model: LessonCompletion,
+    idKey: "lessonId",
+    counterKey: "completedLessonsCount",
+    stateKey: "lessonCompleted",
+    logTarget: "LESSON",
+  },
+  module: {
+    Model: ModuleCompletion,
+    idKey: "moduleId",
+    counterKey: "completedModulesCount",
+    stateKey: "moduleCompleted",
+    logTarget: "MODULE",
+  },
+});
+
+// +=============================================+
+// |              SHARED HELPERS                 |
+// +=============================================+
+
+/**
+ * Parse `page` / `limit` query values into safe numbers.
+ *
+ * Non-numeric or < 1 values fall back to defaults; `limit` is capped at
+ * `maxLimit`.
+ *
+ * @param {{ page?: any, limit?: any }} input
+ * @param {{ defaultLimit: number, maxLimit: number }} limits
+ * @returns {{ pageNum: number, limitNum: number, skip: number }}
+ */
+const parsePagination = ({ page, limit }, { defaultLimit, maxLimit }) => {
+  const parsedPage = parseInt(page, 10);
+  const parsedLimit = parseInt(limit, 10);
+
+  const pageNum = parsedPage >= 1 ? parsedPage : 1;
+  const limitNum =
+    parsedLimit >= 1 ? Math.min(parsedLimit, maxLimit) : defaultLimit;
+
+  return { pageNum, limitNum, skip: (pageNum - 1) * limitNum };
+};
+
+/** Build the standard `pagination` response block. */
+const buildPagination = (pageNum, limitNum, total) => ({
+  page: pageNum,
+  limit: limitNum,
+  total,
+  totalPages: Math.ceil(total / limitNum),
+});
+
+/** Escape a string for safe use inside a RegExp / `$regex`. */
+const escapeRegex = (value) =>
+  String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Build a case-insensitive `$or` clause matching `term` in any `fields`. */
+const buildSearchOr = (fields, term) => {
+  const pattern = escapeRegex(term);
+  return fields.map((field) => ({
+    [field]: { $regex: pattern, $options: "i" },
+  }));
+};
+
+/**
+ * Throw 400 if an admin is trying to modify their own account.
+ *
+ * @param {string|Object} targetUserId
+ * @param {Object} actor - { id, ip, userAgent }
+ * @param {string} what  - e.g. "XP", "status", "progress", "admin status"
+ * @throws {AppError} 400
+ */
+const assertNotSelf = (targetUserId, actor, what) => {
+  if (String(targetUserId) === String(actor.id)) {
+    throw new AppError(`Cannot modify your own ${what}`, 400);
+  }
+};
+
+/**
+ * Throw 400 unless `id` is an ObjectId or a 24-character hex string.
+ *
+ * Stricter than `ObjectId.isValid` / `mongoose.isValidObjectId`, which also
+ * accept any 12-character string (and numbers).
+ *
+ * @param {any} id
+ * @param {string} label - Used in the message: `Invalid ${label}`
+ * @throws {AppError} 400
+ */
+const assertValidObjectId = (id, label) => {
+  const valid =
+    id instanceof mongoose.Types.ObjectId || /^[0-9a-f]{24}$/i.test(String(id));
+  if (!valid) throw new AppError(`Invalid ${label}`, 400);
+};
+
+/**
+ * Find a document by ID or throw 404 `"<label> not found"`.
+ *
+ * @param {import("mongoose").Model} Model
+ * @param {string} id
+ * @param {string} label
+ * @param {Object}  [options]
+ * @param {string}  [options.select]  - Mongoose select projection
+ * @param {boolean} [options.lean]    - Return a plain object
+ * @param {Object}  [options.session] - Transaction session
+ * @returns {Promise<Object>}
+ * @throws {AppError} 404
+ */
+const findOrThrow = async (Model, id, label, options = {}) => {
+  const { select, lean, session } = options;
+
+  const query = Model.findById(id);
+  if (select) query.select(select);
+  if (lean) query.lean();
+  if (session) query.session(session);
+
+  const doc = await query;
+  if (!doc) throw new AppError(`${label} not found`, 404);
+  return doc;
+};
+
+/** Find a user by ID or throw 404. See `findOrThrow` for options. */
+const getUserOrThrow = (userId, select = null, options = {}) =>
+  findOrThrow(User, userId, "User", { ...options, select });
+
+/**
+ * Run `fn(session)` inside a transaction and always end the session.
+ * Resolves with whatever `fn` returns.
+ *
+ * @template T
+ * @param {(session: Object) => Promise<T>} fn
+ * @returns {Promise<T>}
+ */
+const runInTransaction = async (fn) => {
+  const session = await mongoose.startSession();
+  try {
+    return await session.withTransaction(() => fn(session));
+  } finally {
+    await session.endSession();
+  }
+};
+
+/**
+ * Object-style wrapper around `createAdminLog` (six positional args are easy
+ * to misorder). Only passes the options argument when a session is given.
+ */
+const logAdminAction = ({
+  actor,
+  action,
+  targetType,
+  targetId,
+  changes,
+  reason,
+  session,
+}) =>
+  session
+    ? createAdminLog(actor, action, targetType, targetId, changes, reason, {
+        session,
+      })
+    : createAdminLog(actor, action, targetType, targetId, changes, reason);
+
+/**
+ * Attach computed `level` info to a plain user object, hydrating the
+ * completed-module IDs that `levelUtils` needs. Accepts completions with
+ * either populated or raw `moduleId`.
+ */
+const getUserWithHydratedLevel = (userObject, moduleCompletions) =>
+  levelUtils.getUserWithLevel({
+    ...userObject,
+    completedModules: moduleCompletions.map(
+      (mc) => mc.moduleId?._id || mc.moduleId,
+    ),
+  });
+
+/**
+ * Total / published / draft counts for a model with an `isPublished` flag,
+ * in a single aggregation.
+ *
+ * @returns {Promise<{ total: number, published: number, draft: number }>}
+ */
+const getPublishCounts = async (Model) => {
+  const rows = await Model.aggregate([
+    { $group: { _id: "$isPublished", count: { $sum: 1 } } },
+  ]);
+
+  let total = 0;
+  let published = 0;
+  for (const { _id, count } of rows) {
+    total += count;
+    if (_id === true) published += count;
+  }
+  return { total, published, draft: total - published };
+};
+
+/** Drop fields an admin edit must never overwrite. */
+const stripImmutableFields = (data = {}) =>
+  Object.fromEntries(
+    Object.entries(data).filter(
+      ([key]) => !adminConstants.IMMUTABLE_FIELDS.includes(key),
+    ),
+  );
 
 // +=============================================+
 // |              USER MANAGEMENT                |
 // +=============================================+
-
-// ───────── PRIVATE HELPERS ─────────
-/**
- * Find a user by ID or throw 404.
- *
- * Kept local to this service to avoid coupling to `learningEngine`'s private
- * helper of the same purpose.
- *
- * @param   {string} userId
- * @param   {string} [select] - Optional Mongoose select projection
- * @returns {Promise<Object>} Mongoose user document
- * @throws  {AppError} 404 - User not found
- */
-const getUserOrThrow = async (userId, select = null) => {
-  const query = User.findById(userId);
-  if (select) query.select(select);
-  const user = await query;
-  if (!user) throw new AppError("User not found!", 404);
-  return user;
-};
 
 // ───────── READS ─────────
 
@@ -62,6 +260,8 @@ const getAdmins = async () => {
 /**
  * Get dashboard summary stats (user counts, lesson counts, pending flags).
  *
+ * `totalUsers` uses `estimatedDocumentCount()` (collection metadata, O(1)).
+ *
  * @returns {Promise<{
  *   totalUsers: number,
  *   activeUsers: number,
@@ -71,29 +271,27 @@ const getAdmins = async () => {
  * }>}
  */
 const getAdminStats = async () => {
-  const [
-    totalUsers,
-    activeUsers,
-    totalLessons,
-    publishedLessons,
-    pendingFlags,
-  ] = await Promise.all([
-    User.countDocuments(),
-    User.countDocuments({
-      lastEngagementAt: {
-        $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      },
-    }),
-    Lesson.countDocuments(),
-    Lesson.countDocuments({ isPublished: true }),
-    FlaggedContent.countDocuments({ status: "PENDING" }),
-  ]);
+  const [totalUsers, activeUsers, lessonCounts, pendingFlags] =
+    await Promise.all([
+      User.estimatedDocumentCount(),
+      User.countDocuments({
+        lastEngagementAt: {
+          $gte: new Date(
+            Date.now() -
+              adminConstants.ACTIVE_USER_WINDOW_DAYS *
+                adminConstants.MS_PER_DAY,
+          ),
+        },
+      }),
+      getPublishCounts(Lesson),
+      FlaggedContent.countDocuments({ status: "PENDING" }),
+    ]);
 
   return {
     totalUsers,
     activeUsers,
-    totalLessons,
-    publishedLessons,
+    totalLessons: lessonCounts.total,
+    publishedLessons: lessonCounts.published,
     pendingFlags,
   };
 };
@@ -110,6 +308,9 @@ const getAdminStats = async () => {
  * total count come from the same snapshot (avoids the `find()` +
  * `countDocuments()` disagreement window).
  *
+ * `sort` must be one of `SORTABLE_USER_FIELDS` (optionally `-` prefixed).
+ * `_id` is appended as a tiebreaker so pagination is stable.
+ *
  * @param {Object}  params
  * @param {string}  [params.query]
  * @param {number}  [params.page=1]
@@ -120,6 +321,7 @@ const getAdminStats = async () => {
  * @param {number}  [params.levelMin]
  * @param {number}  [params.levelMax]
  * @returns {Promise<{ users: Object[], pagination: Object }>}
+ * @throws {AppError} 400 - Unsupported sort field
  */
 const searchUsers = async ({
   query,
@@ -131,26 +333,16 @@ const searchUsers = async ({
   levelMin,
   levelMax,
 }) => {
-  // Guard: clamp page to >= 1; non-numeric values fall through the isNaN
-  // check below and are simply ignored rather than silently producing
-  // empty results (previous behaviour: parseInt(NaN) poisoned the filter).
-  const parsedPage = parseInt(page);
-  const pageNum = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
-
-  const parsedLimit = parseInt(limit);
-  const limitNum =
-    Number.isNaN(parsedLimit) || parsedLimit < 1 ? 20 : parsedLimit;
-
-  const skip = (pageNum - 1) * limitNum;
+  const { pageNum, limitNum, skip } = parsePagination(
+    { page, limit },
+    adminConstants.PAGE_LIMITS.USERS,
+  );
 
   // ── Build filter ────────────────────────────────
   const searchFilter = {};
 
-  if (query) {
-    searchFilter.$or = [
-      { username: { $regex: query, $options: "i" } },
-      { email: { $regex: query, $options: "i" } },
-    ];
+  if (typeof query === "string" && query) {
+    searchFilter.$or = buildSearchOr(["username", "email"], query);
   }
   if (isBlocked !== undefined) searchFilter.isBlocked = isBlocked === "true";
   if (isAdmin !== undefined) searchFilter.isAdmin = isAdmin === "true";
@@ -158,8 +350,8 @@ const searchUsers = async ({
   // Level filters apply to the whole result set. Guarded with isNaN so a
   // non-numeric `levelMin=abc` is ignored rather than producing a
   // never-matching `$gte: NaN` clause.
-  const parsedLevelMin = levelMin !== undefined ? parseInt(levelMin) : NaN;
-  const parsedLevelMax = levelMax !== undefined ? parseInt(levelMax) : NaN;
+  const parsedLevelMin = parseInt(levelMin, 10);
+  const parsedLevelMax = parseInt(levelMax, 10);
 
   if (!Number.isNaN(parsedLevelMin) || !Number.isNaN(parsedLevelMax)) {
     searchFilter.level = {};
@@ -167,13 +359,18 @@ const searchUsers = async ({
     if (!Number.isNaN(parsedLevelMax)) searchFilter.level.$lte = parsedLevelMax;
   }
 
-  // ── Build sort ──────────────────────────────────
-  const sortOption = {};
-  if (sort.startsWith("-")) {
-    sortOption[sort.substring(1)] = -1;
-  } else {
-    sortOption[sort] = 1;
+  // ── Build sort (whitelisted, with stable tiebreaker) ──────────
+  const sortValue = typeof sort === "string" && sort ? sort : "-createdAt";
+  const direction = sortValue.startsWith("-") ? -1 : 1;
+  const sortField = direction === -1 ? sortValue.slice(1) : sortValue;
+
+  if (!adminConstants.SORTABLE_USER_FIELDS.includes(sortField)) {
+    throw new AppError(
+      `Invalid sort field. Use one of: ${adminConstants.SORTABLE_USER_FIELDS.join(", ")}`,
+      400,
+    );
   }
+  const sortOption = { [sortField]: direction, _id: direction };
 
   // ── Single aggregation: paginated page + filtered total ──
   const [result] = await User.aggregate([
@@ -185,23 +382,7 @@ const searchUsers = async ({
         users: [
           { $skip: skip },
           { $limit: limitNum },
-          {
-            $project: {
-              _id: 1,
-              username: 1,
-              email: 1,
-              level: 1,
-              xp: 1,
-              streak: 1,
-              badges: 1,
-              lastEngagementAt: 1,
-              isBlocked: 1,
-              isAdmin: 1,
-              createdAt: 1,
-              completedModulesCount: 1,
-              ageBracket: 1,
-            },
-          },
+          { $project: adminConstants.USER_LIST_PROJECTION },
         ],
       },
     },
@@ -210,15 +391,7 @@ const searchUsers = async ({
   const users = result?.users ?? [];
   const total = result?.metadata?.[0]?.total ?? 0;
 
-  return {
-    users,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      totalPages: Math.ceil(total / limitNum),
-    },
-  };
+  return { users, pagination: buildPagination(pageNum, limitNum, total) };
 };
 
 /**
@@ -230,13 +403,11 @@ const searchUsers = async ({
  * @throws {AppError} 404 - User not found
  */
 const getUserDetails = async (userId) => {
-  const user = await User.findById(userId)
-    .select(
-      "-password -refreshTokenVersion -resetPasswordToken -resetPasswordExpires",
-    )
-    .lean();
-
-  if (!user) throw new AppError("User not found", 404);
+  const user = await getUserOrThrow(
+    userId,
+    "-password -refreshTokenVersion -resetPasswordToken -resetPasswordExpires",
+    { lean: true },
+  );
 
   const [lessonCompletions, moduleCompletions, totalLessons] =
     await Promise.all([
@@ -254,12 +425,7 @@ const getUserDetails = async (userId) => {
       ? Math.round((lessonCompletions.length / totalLessons) * 100)
       : 0;
 
-  const userWithLevel = await levelUtils.getUserWithLevel({
-    ...user,
-    completedModules: moduleCompletions.map(
-      (mc) => mc.moduleId?._id || mc.moduleId,
-    ),
-  });
+  const userWithLevel = await getUserWithHydratedLevel(user, moduleCompletions);
 
   const stats = {
     totalLearningTime: user.totalLearningTime || 0,
@@ -292,9 +458,7 @@ const getUserDetails = async (userId) => {
     isBlocked: user.isBlocked || false,
     lastEngagement: user.lastEngagementAt || user.createdAt,
     privacySettings: user.privacySettings || {
-      showOnLeaderboards: true,
-      showUsernameOnLeaderboards: false,
-      showAsAnonymous: false,
+      ...adminConstants.PRIVACY_SETTINGS.DEFAULT,
     },
   };
 };
@@ -309,7 +473,10 @@ const getUserDetails = async (userId) => {
  */
 const getUserActivity = async (userId, limit = 50) => {
   const user = await getUserOrThrow(userId, "_id");
-  const limitNum = parseInt(limit);
+  const { limitNum } = parsePagination(
+    { limit },
+    adminConstants.PAGE_LIMITS.ACTIVITY,
+  );
 
   const [userActivity, adminActions] = await Promise.all([
     LessonCompletion.find({ userId: user._id })
@@ -345,6 +512,7 @@ const getUserBadges = async (userId) => {
  *   completedLessons: Array<{ lessonId: any, completedAt: Date }>,
  *   completedModules: Array<{ moduleId: any, completedAt: Date }>
  * }>}
+ * @throws {AppError} 404 - User not found
  */
 const getUserProgress = async (userId) => {
   await getUserOrThrow(userId, "_id");
@@ -367,6 +535,7 @@ const getUserProgress = async (userId) => {
 };
 
 // ───────── WRITES ────────
+
 /**
  * Toggle a user's admin status.
  *
@@ -391,9 +560,7 @@ const toggleAdminStatus = async ({
   reason,
   actor,
 }) => {
-  if (targetUserId === actor.id.toString()) {
-    throw new AppError("Cannot modify own admin status.", 400);
-  }
+  assertNotSelf(targetUserId, actor, "admin status");
 
   const user = await getUserOrThrow(targetUserId, "+ageBracket");
 
@@ -412,35 +579,31 @@ const toggleAdminStatus = async ({
   if (makeAdmin) {
     user.leaderboardStatus = "INACTIVE_REMOVED";
     user.removedFromLeaderboardAt = new Date();
-    user.privacySettings = {
-      showOnLeaderboards: false,
-      showAsAnonymous: true,
-      showUsernameOnLeaderboards: false,
-    };
+    user.privacySettings = { ...adminConstants.PRIVACY_SETTINGS.ADMIN };
   } else {
     user.leaderboardStatus =
-      user.completedModulesCount >= 20 ? "COMPLETED_PENDING" : "ACTIVE";
+      user.completedModulesCount >=
+      adminConstants.LEADERBOARD_COMPLETION_THRESHOLD
+        ? "COMPLETED_PENDING"
+        : "ACTIVE";
     user.removedFromLeaderboardAt = null;
-    user.privacySettings = {
-      showOnLeaderboards: true,
-      showAsAnonymous: false,
-      showUsernameOnLeaderboards: false,
-    };
+    user.privacySettings = { ...adminConstants.PRIVACY_SETTINGS.DEFAULT };
   }
 
   await user.save();
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
-    "USER",
-    targetUserId,
-    {
+    action: makeAdmin ? "USER_MADE_ADMIN" : "USER_REMOVED_ADMIN",
+    targetType: "USER",
+    targetId: targetUserId,
+    changes: {
       old: { isAdmin: oldStatus, leaderboardStatus: oldLeaderboardStatus },
       new: { isAdmin: user.isAdmin, leaderboardStatus: user.leaderboardStatus },
     },
-    reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
-  );
+    reason:
+      reason || `Admin status ${makeAdmin ? "granted" : "revoked"} by admin.`,
+  });
 
   return { user };
 };
@@ -448,8 +611,11 @@ const toggleAdminStatus = async ({
 /**
  * Manually adjust a user's XP.
  *
- * Creates an `XpTransaction` audit record and returns a slim user shape
- * (not the full document) so responses stay stable.
+ * Runs in a transaction: the XP change, the `XP_ADJUSTMENT` audit log and
+ * the `XpTransaction` record commit together or not at all. XP is changed
+ * with an atomic `$inc` (via `user.$inc`) so concurrent adjustments don't
+ * overwrite each other. Returns a slim user shape (not the full document)
+ * so responses stay stable.
  *
  * Prevents self-modification.
  *
@@ -459,62 +625,76 @@ const toggleAdminStatus = async ({
  * @param {string} [params.reason]
  * @param {Object} params.actor - { id, ip, userAgent }
  * @returns {Promise<{ user: Object, change: number|string }>}
- * @throws {AppError} 400 - Cannot modify own XP
+ * @throws {AppError} 400 - Cannot modify own XP, or xpChange not an integer
  * @throws {AppError} 404 - User not found
  */
 const adjustUserXp = async ({ targetUserId, xpChange, reason, actor }) => {
-  if (targetUserId === actor.id.toString()) {
-    throw new AppError("Cannot modify your own XP", 400);
+  assertNotSelf(targetUserId, actor, "XP");
+
+  const delta = parseInt(xpChange, 10);
+  if (Number.isNaN(delta)) {
+    throw new AppError("xpChange must be a valid integer", 400);
   }
 
-  const user = await getUserOrThrow(targetUserId);
+  const updatedUser = await runInTransaction(async (session) => {
+    const user = await getUserOrThrow(targetUserId, null, { session });
 
-  const oldXp = user.xp;
-  const oldLevel = user.level;
+    const oldXp = user.xp;
+    const oldLevel = user.level;
 
-  user.xp += parseInt(xpChange);
-  await user.save();
+    user.$inc("xp", delta);
+    await user.save({ session });
 
-  // Hydrate completed-module IDs for level calculation
-  const moduleCompletions = await ModuleCompletion.find({
-    userId: targetUserId,
-  }).lean();
-  const userWithModules = {
-    ...user.toObject(),
-    completedModules: moduleCompletions.map((mc) => mc.moduleId),
-  };
-  const userWithLevel = await levelUtils.getUserWithLevel(userWithModules);
+    const moduleCompletions = await ModuleCompletion.find({
+      userId: targetUserId,
+    })
+      .session(session)
+      .lean();
+    const userWithLevel = await getUserWithHydratedLevel(
+      user.toObject(),
+      moduleCompletions,
+    );
 
-  const updatedUser = {
-    _id: user._id,
-    username: user.username,
-    level: userWithLevel.level,
-    xp: user.xp,
-    streak: user.streak,
-    badgeCount: user.badges?.length || 0,
-  };
+    const summary = {
+      _id: user._id,
+      username: user.username,
+      level: userWithLevel.level,
+      xp: user.xp,
+      streak: user.streak,
+      badgeCount: user.badges?.length || 0,
+    };
 
-  await createAdminLog(
-    actor,
-    "XP_ADJUSTMENT",
-    "USER",
-    targetUserId,
-    {
-      old: { xp: oldXp, level: oldLevel },
-      new: { xp: updatedUser.xp, level: updatedUser.level },
-    },
-    reason || `XP adjusted by admin: ${xpChange > 0 ? "+" : ""}${xpChange}`,
-  );
+    await logAdminAction({
+      actor,
+      action: "XP_ADJUSTMENT",
+      targetType: "USER",
+      targetId: targetUserId,
+      changes: {
+        old: { xp: oldXp, level: oldLevel },
+        new: { xp: summary.xp, level: summary.level },
+      },
+      reason: reason || `XP adjusted by admin: ${delta > 0 ? "+" : ""}${delta}`,
+      session,
+    });
 
-  await XpTransaction.create({
-    userId: targetUserId,
-    amount: parseInt(xpChange),
-    source: "BONUS",
-    meta: { reason: reason || "Admin adjustment", adminId: actor.id },
+    await XpTransaction.create(
+      [
+        {
+          userId: targetUserId,
+          amount: delta,
+          source: "BONUS",
+          meta: { reason: reason || "Admin adjustment", adminId: actor.id },
+        },
+      ],
+      { session },
+    );
+
+    return summary;
   });
 
   return { user: updatedUser, change: xpChange };
 };
+
 /**
  * Block, unblock, or delete a user account.
  *
@@ -537,9 +717,7 @@ const updateUserStatus = async ({
   reason,
   actor,
 }) => {
-  if (targetUserId === actor.id.toString()) {
-    throw new AppError("Cannot modify your own status", 400);
-  }
+  assertNotSelf(targetUserId, actor, "status");
 
   // Validate `duration` whenever it's provided — regardless of `action` — so
   // typos like `{ action: "unblock", duration: -1 }` surface as errors rather
@@ -556,13 +734,14 @@ const updateUserStatus = async ({
 
   const user = await getUserOrThrow(targetUserId);
   const oldStatus = user.isBlocked;
+  const isDelete = action === "delete";
 
   let actionType;
   switch (action) {
     case "block":
       user.isBlocked = true;
       user.suspensionEnd = duration
-        ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000)
+        ? new Date(Date.now() + duration * adminConstants.MS_PER_DAY)
         : null;
       user.suspensionReason = reason;
       actionType = "USER_BLOCKED";
@@ -584,23 +763,35 @@ const updateUserStatus = async ({
       );
   }
 
-  if (action !== "delete") {
-    await user.save();
-  }
+  if (!isDelete) await user.save();
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    actionType,
-    "USER",
-    targetUserId,
-    {
+    action: actionType,
+    targetType: "USER",
+    targetId: targetUserId,
+    changes: {
       old: { isBlocked: oldStatus },
-      new: action === "delete" ? null : { isBlocked: user.isBlocked },
+      new: isDelete ? null : { isBlocked: user.isBlocked },
     },
-    reason || `${action} action performed by admin`,
-  );
+    reason: reason || `${action} action performed by admin`,
+  });
 
-  return { user: action === "delete" ? null : user };
+  return { user: isDelete ? null : user };
+};
+
+/**
+ * Validate a `badgeIds` payload and drop duplicates.
+ *
+ * @param {any} badgeIds
+ * @returns {string[]}
+ * @throws {AppError} 400 - Not an array
+ */
+const normalizeBadgeIds = (badgeIds) => {
+  if (!Array.isArray(badgeIds)) {
+    throw new AppError("badgeIds must be an array", 400);
+  }
+  return [...new Set(badgeIds)];
 };
 
 /**
@@ -612,26 +803,28 @@ const updateUserStatus = async ({
  * @param {string} [params.reason]
  * @param {Object} params.actor - { id, ip, userAgent }
  * @returns {Promise<{ awarded: string[], total: number }>}
+ * @throws {AppError} 400 - badgeIds is not an array
  * @throws {AppError} 404 - User not found
  */
 const awardBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
+  const requested = normalizeBadgeIds(badgeIds);
   const user = await getUserOrThrow(targetUserId);
 
-  const newBadges = badgeIds.filter((id) => !user.badges.includes(id));
+  const owned = new Set(user.badges);
+  const newBadges = requested.filter((id) => !owned.has(id));
 
   if (newBadges.length > 0) {
-    user.badges = [...new Set([...user.badges, ...newBadges])];
-
-    await createAdminLog(
-      actor,
-      "AWARD_BADGES",
-      "USER",
-      user._id,
-      { new: { added: newBadges } },
-      reason,
-    );
-
+    user.badges = [...user.badges, ...newBadges];
     await user.save();
+
+    await logAdminAction({
+      actor,
+      action: "AWARD_BADGES",
+      targetType: "USER",
+      targetId: user._id,
+      changes: { new: { added: newBadges } },
+      reason,
+    });
   }
 
   return { awarded: newBadges, total: user.badges.length };
@@ -646,26 +839,29 @@ const awardBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
  * @param {string} [params.reason]
  * @param {Object} params.actor - { id, ip, userAgent }
  * @returns {Promise<{ removed: string[], remaining: number }>}
+ * @throws {AppError} 400 - badgeIds is not an array
  * @throws {AppError} 404 - User not found
  */
 const removeBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
+  const requested = normalizeBadgeIds(badgeIds);
   const user = await getUserOrThrow(targetUserId);
 
-  const removedBadges = badgeIds.filter((id) => user.badges.includes(id));
+  const owned = new Set(user.badges);
+  const removedBadges = requested.filter((id) => owned.has(id));
 
   if (removedBadges.length > 0) {
-    user.badges = user.badges.filter((id) => !badgeIds.includes(id));
-
-    await createAdminLog(
-      actor,
-      "REMOVE_BADGES",
-      "USER",
-      user._id,
-      { new: { removed: removedBadges } },
-      reason,
-    );
-
+    const toRemove = new Set(removedBadges);
+    user.badges = user.badges.filter((id) => !toRemove.has(id));
     await user.save();
+
+    await logAdminAction({
+      actor,
+      action: "REMOVE_BADGES",
+      targetType: "USER",
+      targetId: user._id,
+      changes: { new: { removed: removedBadges } },
+      reason,
+    });
   }
 
   return { removed: removedBadges, remaining: user.badges.length };
@@ -676,8 +872,10 @@ const removeBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
  *
  * Marks a lesson OR module complete/incomplete, adjusting the user's
  * running completion counts on `User`. Prevents self-modification.
+ * Module overrides also recompute and persist the user's level.
  *
- * Exactly one of `lessonId` or `moduleId` must be provided.
+ * Exactly one of `lessonId` or `moduleId` must be provided (`lessonId`
+ * wins if both are).
  *
  * @param {Object} params
  * @param {string} params.targetUserId
@@ -687,7 +885,12 @@ const removeBadges = async ({ targetUserId, badgeIds, reason, actor }) => {
  * @param {string} [params.reason]
  * @param {Object} params.actor - { id, ip, userAgent }
  * @returns {Promise<{
- *   user: { _id: string, completedLessonsCount: number, completedModulesCount: number }
+ *   user: {
+ *     _id: string,
+ *     level: number,
+ *     completedLessonsCount: number,
+ *     completedModulesCount: number
+ *   }
  * }>}
  * @throws {AppError} 400 - Cannot modify own progress, or missing id
  * @throws {AppError} 404 - User not found
@@ -700,98 +903,62 @@ const overrideUserProgress = async ({
   reason,
   actor,
 }) => {
-  if (targetUserId === actor.id.toString()) {
-    throw new AppError("Cannot modify your own progress", 400);
-  }
+  assertNotSelf(targetUserId, actor, "progress");
 
-  await getUserOrThrow(targetUserId, "_id");
+  const user = await getUserOrThrow(targetUserId, "level");
 
-  let oldValue, newValue, actionType;
-
-  if (lessonId) {
-    const existingCompletion = await LessonCompletion.findOne({
-      userId: targetUserId,
-      lessonId,
-    });
-
-    oldValue = { lessonCompleted: !!existingCompletion };
-
-    if (completed && !existingCompletion) {
-      await LessonCompletion.create({ userId: targetUserId, lessonId });
-      await User.findByIdAndUpdate(targetUserId, {
-        $inc: { completedLessonsCount: 1 },
-      });
-    } else if (!completed && existingCompletion) {
-      await LessonCompletion.deleteOne({ userId: targetUserId, lessonId });
-      await User.findByIdAndUpdate(targetUserId, {
-        $inc: { completedLessonsCount: -1 },
-      });
-    }
-
-    const updatedExists = await LessonCompletion.findOne({
-      userId: targetUserId,
-      lessonId,
-    });
-    newValue = { lessonCompleted: !!updatedExists };
-
-    actionType = completed
-      ? "LESSON_COMPLETED_OVERRIDE"
-      : "LESSON_INCOMPLETE_OVERRIDE";
-  } else if (moduleId) {
-    const existingCompletion = await ModuleCompletion.findOne({
-      userId: targetUserId,
-      moduleId,
-    });
-
-    oldValue = { moduleCompleted: !!existingCompletion };
-
-    if (completed && !existingCompletion) {
-      await ModuleCompletion.create({ userId: targetUserId, moduleId });
-      await User.findByIdAndUpdate(targetUserId, {
-        $inc: { completedModulesCount: 1 },
-      });
-    } else if (!completed && existingCompletion) {
-      await ModuleCompletion.deleteOne({ userId: targetUserId, moduleId });
-      await User.findByIdAndUpdate(targetUserId, {
-        $inc: { completedModulesCount: -1 },
-      });
-    }
-
-    // Recompute and persist level AFTER ModuleCompletion is updated
-    const newLevel = await levelUtils.recalculateUserLevel(targetUserId);
-
-    const updatedExists = await ModuleCompletion.findOne({
-      userId: targetUserId,
-      moduleId,
-    });
-    newValue = { moduleCompleted: !!updatedExists };
-
-    actionType = completed
-      ? "MODULE_COMPLETED_OVERRIDE"
-      : "MODULE_INCOMPLETE_OVERRIDE";
-  } else {
+  const typeKey = lessonId ? "lesson" : moduleId ? "module" : null;
+  if (!typeKey) {
     throw new AppError("Either lessonId or moduleId is required", 400);
   }
+
+  const { Model, idKey, counterKey, stateKey, logTarget } =
+    PROGRESS_TYPES[typeKey];
+  const targetId = lessonId || moduleId;
+  const filter = { userId: targetUserId, [idKey]: targetId };
+
+  // NOTE: check-then-write is not atomic; a unique index on
+  // (userId, lessonId/moduleId) is the real guard against double-counting.
+  const existing = await Model.exists(filter);
+
+  if (completed && !existing) {
+    await Model.create(filter);
+    await User.findByIdAndUpdate(targetUserId, { $inc: { [counterKey]: 1 } });
+  } else if (!completed && existing) {
+    await Model.deleteOne(filter);
+    await User.findByIdAndUpdate(targetUserId, { $inc: { [counterKey]: -1 } });
+  }
+
+  // Recompute and persist level AFTER ModuleCompletion is updated.
+  // Lesson overrides don't affect level, so the current value is returned.
+  const level =
+    typeKey === "module"
+      ? await levelUtils.recalculateUserLevel(targetUserId)
+      : user.level;
 
   const [lessonCount, moduleCount] = await Promise.all([
     LessonCompletion.countDocuments({ userId: targetUserId }),
     ModuleCompletion.countDocuments({ userId: targetUserId }),
   ]);
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    actionType,
-    lessonId ? "LESSON" : "MODULE",
-    lessonId || moduleId,
-    { old: oldValue, new: newValue },
-    reason ||
+    action: `${logTarget}_${completed ? "COMPLETED" : "INCOMPLETE"}_OVERRIDE`,
+    targetType: logTarget,
+    targetId,
+    changes: {
+      old: { [stateKey]: !!existing },
+      new: { [stateKey]: !!completed },
+    },
+    reason:
+      reason ||
       `Progress override by admin: ${completed ? "complete" : "incomplete"}`,
-  );
+  });
 
   return {
     user: {
       _id: targetUserId,
-      level: newLevel,
+      level,
       completedLessonsCount: lessonCount,
       completedModulesCount: moduleCount,
     },
@@ -801,6 +968,12 @@ const overrideUserProgress = async ({
 // +=============================================+
 // |              FLAG MANAGEMENT                |
 // +=============================================+
+
+/** IDs of flags' targets of the given type (skipping flags with no target). */
+const collectTargetIds = (flags, targetType) =>
+  flags
+    .filter((f) => f.targetType === targetType && f.targetId)
+    .map((f) => f.targetId);
 
 /**
  * List flagged content with filters, search, and pagination.
@@ -824,19 +997,19 @@ const getFlaggedContent = async ({
   page = 1,
   limit = 20,
 }) => {
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
+  const { pageNum, limitNum, skip } = parsePagination(
+    { page, limit },
+    adminConstants.PAGE_LIMITS.FLAGS,
+  );
 
   const filter = {};
   if (status && status !== "ALL") filter.status = status;
-  if (issueType && issueType !== "") filter.issueType = issueType;
-  if (search) {
-    filter.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } },
-      { suggestedFix: { $regex: search, $options: "i" } },
-    ];
+  if (issueType) filter.issueType = issueType;
+  if (typeof search === "string" && search) {
+    filter.$or = buildSearchOr(
+      ["title", "description", "suggestedFix"],
+      search,
+    );
   }
 
   const [flaggedContent, total] = await Promise.all([
@@ -851,13 +1024,8 @@ const getFlaggedContent = async ({
   ]);
 
   // ── Batch-fetch lessons and users for enrichment ──────────────
-  const lessonIds = flaggedContent
-    .filter((f) => f.targetType === "LESSON" && f.targetId)
-    .map((f) => f.targetId);
-
-  const userFlagIds = flaggedContent
-    .filter((f) => f.targetType === "USER_PROFILE" && f.targetId)
-    .map((f) => f.targetId);
+  const lessonIds = collectTargetIds(flaggedContent, "LESSON");
+  const userFlagIds = collectTargetIds(flaggedContent, "USER_PROFILE");
 
   const [lessons, users] = await Promise.all([
     lessonIds.length > 0
@@ -890,7 +1058,7 @@ const getFlaggedContent = async ({
       }
       return {
         ...flag,
-        semanticId: `Lesson ${flag.targetId.slice(-6)}`,
+        semanticId: `Lesson ${flag.targetId.toString().slice(-6)}`,
       };
     }
 
@@ -908,12 +1076,7 @@ const getFlaggedContent = async ({
 
   return {
     flaggedContent: enrichedContent,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      totalPages: Math.ceil(total / limitNum),
-    },
+    pagination: buildPagination(pageNum, limitNum, total),
   };
 };
 
@@ -943,12 +1106,10 @@ const getFlagStats = async () => {
     rejected: 0,
   };
 
-  stats.forEach((stat) => {
-    const key = stat._id.toLowerCase();
-    if (result.hasOwnProperty(key)) {
-      result[key] = stat.count;
-    }
-  });
+  for (const { _id, count } of stats) {
+    const key = _id?.toLowerCase();
+    if (key && Object.hasOwn(result, key)) result[key] = count;
+  }
 
   return result;
 };
@@ -958,7 +1119,7 @@ const getFlagStats = async () => {
  *
  * Updating a flag to FIXED awards 25 XP to the reporter as compensation
  * and writes a corresponding XP_ADJUSTMENT audit log, followed by a
- * FLAG_RESOLVED audit log.
+ * FLAG_RESOLVED audit log. Everything runs in one transaction.
  *
  * The returned `compensationMessage` is not part of the client payload —
  * it's used by the controller to reconstruct the top-level response
@@ -976,93 +1137,169 @@ const getFlagStats = async () => {
  * }>}
  * @throws {AppError} 400 - Invalid status
  * @throws {AppError} 404 - Flag not found
+ * @throws {AppError} 409 - Flag already resolved as FIXED
  */
 const resolveFlag = async ({ flagId, status, adminResponse, actor }) => {
-  const validStatuses = ["IN_REVIEW", "FIXED", "REJECTED"];
-  if (!validStatuses.includes(status)) {
-    throw new AppError(`Invalid status. Use: ${validStatuses.join(", ")}`, 400);
+  if (!adminConstants.VALID_FLAG_RESOLUTIONS.includes(status)) {
+    throw new AppError(
+      `Invalid status. Use: ${adminConstants.VALID_FLAG_RESOLUTIONS.join(", ")}`,
+      400,
+    );
   }
 
-  const session = await mongoose.startSession();
+  return runInTransaction(async (session) => {
+    const flag = await findOrThrow(FlaggedContent, flagId, "Flag", { session });
+    if (flag.status === "FIXED") {
+      throw new AppError("Flag already resolved as FIXED", 409);
+    }
 
-  try {
-    const result = await session.withTransaction(async () => {
-      const flag = await FlaggedContent.findOne({ _id: flagId }).session(
-        session,
-      );
-      if (!flag) {
-        throw new AppError("Flag not found", 404);
+    const oldStatus = flag.status;
+    flag.status = status;
+    flag.adminResponse = adminResponse;
+    flag.resolvedBy = actor.id;
+    flag.resolvedAt = new Date();
+
+    let compensationMessage = "";
+    let xpCompensation = 0;
+
+    if (status === "FIXED") {
+      xpCompensation = adminConstants.FLAG_FIX_XP_REWARD;
+      flag.xpCompensation = xpCompensation;
+
+      const reporter = await User.findById(flag.reporterId).session(session);
+      if (reporter) {
+        const oldXp = reporter.xp;
+        reporter.xp += xpCompensation;
+        await reporter.save({ session });
+
+        compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
+
+        // NOTE: unlike `adjustUserXp`, this award does not write an
+        // `XpTransaction` record — confirm whether that is intentional.
+        await logAdminAction({
+          actor,
+          action: "XP_ADJUSTMENT",
+          targetType: "USER",
+          targetId: reporter._id,
+          changes: { old: { xp: oldXp }, new: { xp: reporter.xp } },
+          reason: `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
+          session,
+        });
       }
-      if (flag.status === "FIXED") {
-        throw new AppError("Flag already resolved as FIXED", 409);
-      }
+    }
 
-      const oldStatus = flag.status;
-      flag.status = status;
-      flag.adminResponse = adminResponse;
-      flag.resolvedBy = actor.id;
-      flag.resolvedAt = new Date();
+    await flag.save({ session });
 
-      let compensationMessage = "";
-      let xpCompensation = 0;
-
-      if (status === "FIXED") {
-        xpCompensation = 25;
-        flag.xpCompensation = xpCompensation;
-
-        const reporter = await User.findById(flag.reporterId).session(session);
-        if (reporter) {
-          const oldXp = reporter.xp;
-          reporter.xp += xpCompensation;
-          await reporter.save({ session });
-
-          compensationMessage = ` The reporter has been awarded ${xpCompensation} XP for their help!`;
-
-          await createAdminLog(
-            actor,
-            "XP_ADJUSTMENT",
-            "USER",
-            reporter._id,
-            { old: { xp: oldXp }, new: { xp: reporter.xp } },
-            `Auto-awarded ${xpCompensation} XP for flag ${flagId}`,
-            { session },
-          );
-        }
-      }
-
-      await flag.save({ session });
-
-      await createAdminLog(
-        actor,
-        "FLAG_RESOLVED",
-        "FLAG",
-        flagId,
-        {
-          oldStatus,
-          newStatus: status,
-          xpCompensation,
-          targetType: flag.targetType,
-          targetId: flag.targetId,
-        },
-        `Flag resolved with status: ${status}. ${adminResponse || ""}`,
-        { session },
-      );
-
-      return {
-        flag,
-        message: `The reporter has been notified${compensationMessage}`,
-        compensationMessage,
-      };
+    await logAdminAction({
+      actor,
+      action: "FLAG_RESOLVED",
+      targetType: "FLAG",
+      targetId: flagId,
+      changes: {
+        oldStatus,
+        newStatus: status,
+        xpCompensation,
+        targetType: flag.targetType,
+        targetId: flag.targetId,
+      },
+      reason: `Flag resolved with status: ${status}. ${adminResponse || ""}`,
+      session,
     });
 
-    return result;
-  } finally {
-    await session.endSession();
-  }
+    return {
+      flag,
+      message: `The reporter has been notified${compensationMessage}`,
+      compensationMessage,
+    };
+  });
 };
+
 // +=============================================+
 // |              CONTENT MANAGEMENT             |
 // +=============================================+
+
+// ───────── PRIVATE HELPERS (lesson / module shared flows) ─────────
+
+/**
+ * Update a lesson/module's fields. Immutable fields (`_id`, `__v`,
+ * timestamps) are stripped; Mongoose validators run on the result.
+ *
+ * @returns {Promise<Object>} `{ [type.key]: updatedDoc }`
+ * @throws {AppError} 404
+ */
+const updateContent = async (type, id, updateData, actor) => {
+  const { Model, key, label, logTarget } = type;
+  const changes = stripImmutableFields(updateData);
+
+  const doc = await Model.findByIdAndUpdate(id, changes, {
+    new: true,
+    runValidators: true,
+  });
+  if (!doc) throw new AppError(`${label} not found`, 404);
+
+  await logAdminAction({
+    actor,
+    action: `${logTarget}_UPDATED`,
+    targetType: logTarget,
+    targetId: id,
+    changes: { new: changes },
+    reason: "Updated via admin panel",
+  });
+
+  return { [key]: doc };
+};
+
+/**
+ * Publish or unpublish a lesson/module.
+ *
+ * @returns {Promise<Object>} `{ [type.key]: doc }`
+ * @throws {AppError} 404
+ */
+const publishContent = async (type, id, publish, actor) => {
+  const { Model, key, label, logTarget } = type;
+  const doc = await findOrThrow(Model, id, label);
+
+  const oldStatus = doc.isPublished;
+  doc.isPublished = publish;
+  await doc.save();
+
+  await logAdminAction({
+    actor,
+    action: `${logTarget}_${publish ? "PUBLISHED" : "UNPUBLISHED"}`,
+    targetType: logTarget,
+    targetId: id,
+    changes: { old: { isPublished: oldStatus }, new: { isPublished: publish } },
+    reason: `${label} ${publish ? "published" : "unpublished"} via admin panel`,
+  });
+
+  return { [key]: doc };
+};
+
+/**
+ * Update a lesson/module's sort order.
+ *
+ * @returns {Promise<Object>} `{ [type.key]: doc }`
+ * @throws {AppError} 404
+ */
+const updateContentOrder = async (type, id, order, actor) => {
+  const { Model, key, label, logTarget } = type;
+  const doc = await findOrThrow(Model, id, label);
+
+  const oldOrder = doc.order;
+  doc.order = order;
+  await doc.save();
+
+  await logAdminAction({
+    actor,
+    action: `${logTarget}_ORDER_UPDATED`,
+    targetType: logTarget,
+    targetId: id,
+    changes: { old: { order: oldOrder }, new: { order } },
+    reason: `${label} order updated via admin panel`,
+  });
+
+  return { [key]: doc };
+};
 
 // ───────── READS ─────────
 
@@ -1088,17 +1325,16 @@ const getAllLessons = async ({
   difficulty,
   moduleId,
 }) => {
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
+  const { pageNum, limitNum, skip } = parsePagination(
+    { page, limit },
+    adminConstants.PAGE_LIMITS.CONTENT,
+  );
 
   const filter = {};
   if (status === "published") filter.isPublished = true;
   if (status === "draft") filter.isPublished = false;
   if (difficulty && difficulty !== "all") filter.difficulty = difficulty;
-  if (moduleId && moduleId !== "" && moduleId !== "all") {
-    filter.moduleId = moduleId;
-  }
+  if (moduleId && moduleId !== "all") filter.moduleId = moduleId;
 
   const [lessons, total] = await Promise.all([
     Lesson.find(filter)
@@ -1109,15 +1345,7 @@ const getAllLessons = async ({
     Lesson.countDocuments(filter),
   ]);
 
-  return {
-    lessons,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      totalPages: Math.ceil(total / limitNum),
-    },
-  };
+  return { lessons, pagination: buildPagination(pageNum, limitNum, total) };
 };
 
 /**
@@ -1130,9 +1358,10 @@ const getAllLessons = async ({
  * @returns {Promise<{ modules: Object[], pagination: Object }>}
  */
 const getAllModules = async ({ limit = 1000, page = 1, status }) => {
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
+  const { pageNum, limitNum, skip } = parsePagination(
+    { page, limit },
+    adminConstants.PAGE_LIMITS.CONTENT,
+  );
 
   const filter = {};
   if (status === "published") filter.isPublished = true;
@@ -1146,15 +1375,7 @@ const getAllModules = async ({ limit = 1000, page = 1, status }) => {
     Module.countDocuments(filter),
   ]);
 
-  return {
-    modules,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      totalPages: Math.ceil(total / limitNum),
-    },
-  };
+  return { modules, pagination: buildPagination(pageNum, limitNum, total) };
 };
 
 /**
@@ -1170,21 +1391,18 @@ const getAllModules = async ({ limit = 1000, page = 1, status }) => {
  * }>}
  */
 const getContentStats = async () => {
-  const [totalLessons, publishedLessons, totalModules, publishedModules] =
-    await Promise.all([
-      Lesson.countDocuments(),
-      Lesson.countDocuments({ isPublished: true }),
-      Module.countDocuments(),
-      Module.countDocuments({ isPublished: true }),
-    ]);
+  const [lessons, modules] = await Promise.all([
+    getPublishCounts(Lesson),
+    getPublishCounts(Module),
+  ]);
 
   return {
-    totalLessons,
-    publishedLessons,
-    draftLessons: totalLessons - publishedLessons,
-    totalModules,
-    publishedModules,
-    draftModules: totalModules - publishedModules,
+    totalLessons: lessons.total,
+    publishedLessons: lessons.published,
+    draftLessons: lessons.draft,
+    totalModules: modules.total,
+    publishedModules: modules.published,
+    draftModules: modules.draft,
   };
 };
 
@@ -1193,9 +1411,9 @@ const getContentStats = async () => {
 /**
  * Update a lesson's fields.
  *
- * Runs Mongoose validators on the resulting document. The full request
- * body is passed to the update — no field whitelisting is applied here
- * (matches the original admin controller's behavior).
+ * Runs Mongoose validators on the resulting document. Immutable fields
+ * (`_id`, `__v`, `createdAt`, `updatedAt`) are stripped from the payload;
+ * Mongoose's strict mode drops unknown fields. No further whitelisting.
  *
  * @param {Object} params
  * @param {string} params.lessonId
@@ -1204,31 +1422,11 @@ const getContentStats = async () => {
  * @returns {Promise<{ lesson: Object }>}
  * @throws {AppError} 404 - Lesson not found
  */
-const updateLesson = async ({ lessonId, updateData, actor }) => {
-  const lesson = await Lesson.findByIdAndUpdate(lessonId, updateData, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!lesson) throw new AppError("Lesson not found", 404);
-
-  await createAdminLog(
-    actor,
-    "LESSON_UPDATED",
-    "LESSON",
-    lessonId,
-    { new: updateData },
-    "Updated via admin panel",
-  );
-
-  return { lesson };
-};
+const updateLesson = ({ lessonId, updateData, actor }) =>
+  updateContent(CONTENT_TYPES.lesson, lessonId, updateData, actor);
 
 /**
- * Update a module's fields.
- *
- * Runs Mongoose validators on the resulting document. Same body-passthrough
- * behavior as `updateLesson`.
+ * Update a module's fields. Same behaviour as `updateLesson`.
  *
  * @param {Object} params
  * @param {string} params.moduleId
@@ -1237,25 +1435,8 @@ const updateLesson = async ({ lessonId, updateData, actor }) => {
  * @returns {Promise<{ module: Object }>}
  * @throws {AppError} 404 - Module not found
  */
-const updateModule = async ({ moduleId, updateData, actor }) => {
-  const module = await Module.findByIdAndUpdate(moduleId, updateData, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!module) throw new AppError("Module not found", 404);
-
-  await createAdminLog(
-    actor,
-    "MODULE_UPDATED",
-    "MODULE",
-    moduleId,
-    { new: updateData },
-    "Updated via admin panel",
-  );
-
-  return { module };
-};
+const updateModule = ({ moduleId, updateData, actor }) =>
+  updateContent(CONTENT_TYPES.module, moduleId, updateData, actor);
 
 /**
  * Publish or unpublish a lesson.
@@ -1267,25 +1448,8 @@ const updateModule = async ({ moduleId, updateData, actor }) => {
  * @returns {Promise<{ lesson: Object }>}
  * @throws {AppError} 404 - Lesson not found
  */
-const publishLesson = async ({ lessonId, publish, actor }) => {
-  const lesson = await Lesson.findById(lessonId);
-  if (!lesson) throw new AppError("Lesson not found", 404);
-
-  const oldStatus = lesson.isPublished;
-  lesson.isPublished = publish;
-  await lesson.save();
-
-  await createAdminLog(
-    actor,
-    publish ? "LESSON_PUBLISHED" : "LESSON_UNPUBLISHED",
-    "LESSON",
-    lessonId,
-    { old: { isPublished: oldStatus }, new: { isPublished: publish } },
-    `Lesson ${publish ? "published" : "unpublished"} via admin panel`,
-  );
-
-  return { lesson };
-};
+const publishLesson = ({ lessonId, publish, actor }) =>
+  publishContent(CONTENT_TYPES.lesson, lessonId, publish, actor);
 
 /**
  * Publish or unpublish a module.
@@ -1297,56 +1461,21 @@ const publishLesson = async ({ lessonId, publish, actor }) => {
  * @returns {Promise<{ module: Object }>}
  * @throws {AppError} 404 - Module not found
  */
-const publishModule = async ({ moduleId, publish, actor }) => {
-  const module = await Module.findById(moduleId);
-  if (!module) throw new AppError("Module not found", 404);
-
-  const oldStatus = module.isPublished;
-  module.isPublished = publish;
-  await module.save();
-
-  await createAdminLog(
-    actor,
-    publish ? "MODULE_PUBLISHED" : "MODULE_UNPUBLISHED",
-    "MODULE",
-    moduleId,
-    { old: { isPublished: oldStatus }, new: { isPublished: publish } },
-    `Module ${publish ? "published" : "unpublished"} via admin panel`,
-  );
-
-  return { module };
-};
+const publishModule = ({ moduleId, publish, actor }) =>
+  publishContent(CONTENT_TYPES.module, moduleId, publish, actor);
 
 /**
  * Update a lesson's sort order within its module.
  *
- *
  * @param {Object} params
  * @param {string} params.lessonId
  * @param {number} params.order
+ * @param {Object} params.actor - { id, ip, userAgent }
  * @returns {Promise<{ lesson: Object }>}
  * @throws {AppError} 404 - Lesson not found
  */
-const updateLessonOrder = async ({ lessonId, order, actor }) => {
-  const lesson = await Lesson.findByIdAndUpdate(lessonId);
-
-  if (!lesson) throw new AppError("Lesson not found", 404);
-
-  const oldOrder = lesson.order;
-  lesson.order = order;
-  await lesson.save();
-
-  await createAdminLog(
-    actor,
-    "LESSON_ORDER_UPDATED",
-    "LESSON",
-    lessonId,
-    { old: { order: oldOrder }, new: { order } },
-    "Lesson order updated via admin panel",
-  );
-
-  return { lesson };
-};
+const updateLessonOrder = ({ lessonId, order, actor }) =>
+  updateContentOrder(CONTENT_TYPES.lesson, lessonId, order, actor);
 
 /**
  * Update a module's sort order in the curriculum.
@@ -1354,32 +1483,20 @@ const updateLessonOrder = async ({ lessonId, order, actor }) => {
  * @param {Object} params
  * @param {string} params.moduleId
  * @param {number} params.order
+ * @param {Object} params.actor - { id, ip, userAgent }
  * @returns {Promise<{ module: Object }>}
  * @throws {AppError} 404 - Module not found
  */
-const updateModuleOrder = async ({ moduleId, order, actor }) => {
-  const module = await Module.findById(moduleId);
-  if (!module) throw new AppError("Module not found", 404);
-
-  const oldOrder = module.order;
-  module.order = order;
-  await module.save();
-
-  await createAdminLog(
-    actor,
-    "MODULE_ORDER_UPDATED",
-    "MODULE",
-    moduleId,
-    { old: { order: oldOrder }, new: { order } },
-    "Module order updated via admin panel",
-  );
-
-  return { module };
-};
+const updateModuleOrder = ({ moduleId, order, actor }) =>
+  updateContentOrder(CONTENT_TYPES.module, moduleId, order, actor);
 
 /**
- * Create a new lesson. Auto-assigns `order` when not provided by finding
- * the current highest order for the target module and adding 1.
+ * Create a new lesson. Auto-assigns `order` when not provided (or falsy) by
+ * finding the current highest order for the target module and adding 1.
+ * The input object is not mutated.
+ *
+ * NOTE: max-then-insert is not atomic; two concurrent creates in the same
+ * module can receive the same `order`.
  *
  * @param {Object} params
  * @param {Object} params.lessonData - Fields for the new lesson
@@ -1387,23 +1504,25 @@ const updateModuleOrder = async ({ moduleId, order, actor }) => {
  * @returns {Promise<{ lesson: Object }>}
  */
 const createLesson = async ({ lessonData, actor }) => {
-  if (!lessonData.order) {
+  const data = { ...lessonData };
+
+  if (!data.order) {
     const lastLesson = await Lesson.findOne({
-      moduleId: lessonData.moduleId,
+      moduleId: data.moduleId,
     }).sort({ order: -1 });
-    lessonData.order = (lastLesson?.order || 0) + 1;
+    data.order = (lastLesson?.order || 0) + 1;
   }
 
-  const lesson = await Lesson.create(lessonData);
+  const lesson = await Lesson.create(data);
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    "LESSON_CREATED",
-    "LESSON",
-    lesson._id,
-    { new: { title: lesson.title, moduleId: lesson.moduleId } },
-    "Lesson created via admin panel",
-  );
+    action: "LESSON_CREATED",
+    targetType: "LESSON",
+    targetId: lesson._id,
+    changes: { new: { title: lesson.title, moduleId: lesson.moduleId } },
+    reason: "Lesson created via admin panel",
+  });
 
   return { lesson };
 };
@@ -1411,11 +1530,11 @@ const createLesson = async ({ lessonData, actor }) => {
 /**
  * Create a new module.
  *
- * Normalizes `order` and `moduleNumber` by deleting them from the payload
+ * Normalizes `order` and `moduleNumber` by omitting them from the payload
  * when falsy / 0 / null / empty-string — this lets the schema's defaults
  * and pre-save hooks assign them. (Does NOT auto-assign `order` the way
  * `createLesson` does — asymmetric with the lesson path, matching the
- * original admin controller's behavior.)
+ * original admin controller's behavior.) The input object is not mutated.
  *
  * @param {Object} params
  * @param {Object} params.moduleData - Fields for the new module
@@ -1423,32 +1542,29 @@ const createLesson = async ({ lessonData, actor }) => {
  * @returns {Promise<{ module: Object }>}
  */
 const createModule = async ({ moduleData, actor }) => {
-  if (!moduleData.order) {
-    delete moduleData.order;
+  const data = { ...moduleData };
+  for (const key of ["order", "moduleNumber"]) {
+    if (!data[key]) delete data[key];
   }
 
-  if (!moduleData.moduleNumber) {
-    delete moduleData.moduleNumber;
-  }
+  const moduleDoc = await Module.create(data);
 
-  const module = await Module.create(moduleData);
-
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    "MODULE_CREATED",
-    "MODULE",
-    module._id,
-    {
+    action: "MODULE_CREATED",
+    targetType: "MODULE",
+    targetId: moduleDoc._id,
+    changes: {
       new: {
-        title: module.title,
-        moduleNumber: module.moduleNumber,
-        order: module.order,
+        title: moduleDoc.title,
+        moduleNumber: moduleDoc.moduleNumber,
+        order: moduleDoc.order,
       },
     },
-    "Module created via admin panel",
-  );
+    reason: "Module created via admin panel",
+  });
 
-  return { module };
+  return { module: moduleDoc };
 };
 
 /**
@@ -1461,19 +1577,17 @@ const createModule = async ({ moduleData, actor }) => {
  * @throws {AppError} 404 - Lesson not found
  */
 const deleteLesson = async ({ lessonId, actor }) => {
-  const lesson = await Lesson.findById(lessonId);
+  const lesson = await Lesson.findByIdAndDelete(lessonId);
   if (!lesson) throw new AppError("Lesson not found", 404);
 
-  await Lesson.findByIdAndDelete(lessonId);
-
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    "LESSON_DELETED",
-    "LESSON",
-    lessonId,
-    { old: { title: lesson.title } },
-    "Lesson deleted via admin panel",
-  );
+    action: "LESSON_DELETED",
+    targetType: "LESSON",
+    targetId: lessonId,
+    changes: { old: { title: lesson.title } },
+    reason: "Lesson deleted via admin panel",
+  });
 
   return { lessonId };
 };
@@ -1492,8 +1606,7 @@ const deleteLesson = async ({ lessonId, actor }) => {
  * @throws {AppError} 400 - Module is not empty
  */
 const deleteModule = async ({ moduleId, actor }) => {
-  const module = await Module.findById(moduleId);
-  if (!module) throw new AppError("Module not found", 404);
+  const moduleDoc = await findOrThrow(Module, moduleId, "Module");
 
   const lessonCount = await Lesson.countDocuments({ moduleId });
   if (lessonCount > 0) {
@@ -1505,14 +1618,14 @@ const deleteModule = async ({ moduleId, actor }) => {
 
   await Module.findByIdAndDelete(moduleId);
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    "MODULE_DELETED",
-    "MODULE",
-    moduleId,
-    { old: { title: module.title } },
-    "Module deleted via admin panel",
-  );
+    action: "MODULE_DELETED",
+    targetType: "MODULE",
+    targetId: moduleId,
+    changes: { old: { title: moduleDoc.title } },
+    reason: "Module deleted via admin panel",
+  });
 
   return { moduleId };
 };
@@ -1521,7 +1634,8 @@ const deleteModule = async ({ moduleId, actor }) => {
  * Duplicate a lesson as a new unpublished copy.
  *
  * The copy is titled `"<original title> (Copy)"` and starts unpublished
- * so it can be reviewed before being made visible.
+ * so it can be reviewed before being made visible. `order` is copied
+ * verbatim from the original.
  *
  * @param {Object} params
  * @param {string} params.lessonId
@@ -1531,12 +1645,9 @@ const deleteModule = async ({ moduleId, actor }) => {
  * @throws {AppError} 404 - Lesson not found
  */
 const duplicateLesson = async ({ lessonId, actor }) => {
-  if (!mongoose.Types.ObjectId.isValid(lessonId)) {
-    throw new AppError("Invalid lesson ID", 400);
-  }
+  assertValidObjectId(lessonId, "lesson ID");
 
-  const originalLesson = await Lesson.findById(lessonId);
-  if (!originalLesson) throw new AppError("Lesson not found", 404);
+  const originalLesson = await findOrThrow(Lesson, lessonId, "Lesson");
 
   const duplicatedLesson = await Lesson.create({
     ...originalLesson.toObject(),
@@ -1547,14 +1658,16 @@ const duplicateLesson = async ({ lessonId, actor }) => {
     updatedAt: undefined,
   });
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    "LESSON_DUPLICATED",
-    "LESSON",
-    duplicatedLesson._id,
-    { new: { title: duplicatedLesson.title, sourceLesson: lessonId } },
-    "Lesson duplicated via admin panel",
-  );
+    action: "LESSON_DUPLICATED",
+    targetType: "LESSON",
+    targetId: duplicatedLesson._id,
+    changes: {
+      new: { title: duplicatedLesson.title, sourceLesson: lessonId },
+    },
+    reason: "Lesson duplicated via admin panel",
+  });
 
   return { lesson: duplicatedLesson };
 };
@@ -1575,76 +1688,66 @@ const duplicateLesson = async ({ lessonId, actor }) => {
  * @throws {AppError} 404 - Module not found
  */
 const duplicateModule = async ({ moduleId, actor }) => {
-  if (!mongoose.Types.ObjectId.isValid(moduleId)) {
-    throw new AppError("Invalid module ID", 400);
-  }
+  assertValidObjectId(moduleId, "module ID");
 
-  const session = await mongoose.startSession();
+  const result = await runInTransaction(async (session) => {
+    const originalModule = await findOrThrow(Module, moduleId, "Module", {
+      session,
+    });
 
-  try {
-    const result = await session.withTransaction(async () => {
-      const originalModule = await Module.findById(moduleId).session(session);
-      if (!originalModule) {
-        throw new AppError("Module not found", 404);
-      }
+    const lessons = await Lesson.find({ moduleId }).session(session);
 
-      const lessons = await Lesson.find({ moduleId }).session(session);
-
-      const duplicatedModule = await Module.create(
-        [
-          {
-            ...originalModule.toObject(),
-            _id: undefined,
-            title: `${originalModule.title} (Copy)`,
-            moduleNumber: undefined,
-            order: undefined,
-            isPublished: false,
-            createdAt: undefined,
-            updatedAt: undefined,
-          },
-        ],
-        { session },
-      );
-      const moduleCopy = duplicatedModule[0];
-
-      const duplicatedLessons = await Lesson.insertMany(
-        lessons.map((lesson) => ({
-          ...lesson.toObject(),
+    const [moduleCopy] = await Module.create(
+      [
+        {
+          ...originalModule.toObject(),
           _id: undefined,
-          moduleId: moduleCopy._id,
-          title: `${lesson.title} (Copy)`,
+          title: `${originalModule.title} (Copy)`,
+          moduleNumber: undefined,
+          order: undefined,
           isPublished: false,
           createdAt: undefined,
           updatedAt: undefined,
-        })),
-        { session },
-      );
-
-      return { module: moduleCopy, lessons: duplicatedLessons };
-    });
-
-    // Audit log safely executes AFTER the transaction has successfully committed
-    await createAdminLog(
-      actor,
-      "MODULE_DUPLICATED",
-      "MODULE",
-      result.module._id,
-      {
-        new: {
-          title: result.module.title,
-          sourceModule: moduleId,
-          lessonCount: result.lessons.length,
-          moduleNumber: result.module.moduleNumber,
-          order: result.module.order,
         },
-      },
-      "Module duplicated via admin panel",
+      ],
+      { session },
     );
 
-    return result;
-  } finally {
-    await session.endSession();
-  }
+    const duplicatedLessons = await Lesson.insertMany(
+      lessons.map((lesson) => ({
+        ...lesson.toObject(),
+        _id: undefined,
+        moduleId: moduleCopy._id,
+        title: `${lesson.title} (Copy)`,
+        isPublished: false,
+        createdAt: undefined,
+        updatedAt: undefined,
+      })),
+      { session },
+    );
+
+    return { module: moduleCopy, lessons: duplicatedLessons };
+  });
+
+  // Audit log safely executes AFTER the transaction has successfully committed
+  await logAdminAction({
+    actor,
+    action: "MODULE_DUPLICATED",
+    targetType: "MODULE",
+    targetId: result.module._id,
+    changes: {
+      new: {
+        title: result.module.title,
+        sourceModule: moduleId,
+        lessonCount: result.lessons.length,
+        moduleNumber: result.module.moduleNumber,
+        order: result.module.order,
+      },
+    },
+    reason: "Module duplicated via admin panel",
+  });
+
+  return result;
 };
 
 // +=============================================+
@@ -1667,9 +1770,10 @@ const getActivityLogs = async ({
   actionType,
   targetType,
 }) => {
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
-  const skip = (pageNum - 1) * limitNum;
+  const { pageNum, limitNum, skip } = parsePagination(
+    { page, limit },
+    adminConstants.PAGE_LIMITS.LOGS,
+  );
 
   const filter = {};
   if (actionType) filter.action = actionType;
@@ -1684,15 +1788,7 @@ const getActivityLogs = async ({
     AdminLog.countDocuments(filter),
   ]);
 
-  return {
-    logs,
-    pagination: {
-      page: pageNum,
-      limit: limitNum,
-      total,
-      totalPages: Math.ceil(total / limitNum),
-    },
-  };
+  return { logs, pagination: buildPagination(pageNum, limitNum, total) };
 };
 
 /**
@@ -1715,24 +1811,20 @@ const getActivityLogs = async ({
  * @throws {AppError} 404 - User not found (from learningEngine)
  */
 const fixModuleProgress = async ({ targetUserId, reason, actor }) => {
-  if (
-    typeof targetUserId !== "string" ||
-    !mongoose.isValidObjectId(targetUserId)
-  ) {
-    throw new AppError("Invalid user id", 400);
-  }
+  assertValidObjectId(targetUserId, "user id");
 
   const modulesFixed = await learningEngine.fixUserModuleProgress(targetUserId);
 
-  await createAdminLog(
+  await logAdminAction({
     actor,
-    "MODULE_PROGRESS_FIXED",
-    "USER",
-    targetUserId,
-    { new: { modulesFixed, fixedCount: modulesFixed.length } },
-    reason ||
+    action: "MODULE_PROGRESS_FIXED",
+    targetType: "USER",
+    targetId: targetUserId,
+    changes: { new: { modulesFixed, fixedCount: modulesFixed.length } },
+    reason:
+      reason ||
       `Backfilled missing module completions (${modulesFixed.length} fixed)`,
-  );
+  });
 
   return {
     fixedCount: modulesFixed.length,
