@@ -2,35 +2,25 @@
 import { useState } from "react";
 import { useNotification } from "../context";
 import { BaseModal } from "../components/ui";
-import {
-  TrendingUp,
-  TrendingDown,
-  Info,
-  AlertTriangle,
-  Zap,
-} from "lucide-react";
+import { TrendingUp, TrendingDown, Info, AlertTriangle } from "lucide-react";
 
 /**
  * @fileoverview
- * Administrative modal for XP adjustment with real-time calculation and validation.
- * This component provides a secure interface for modifying user XP scores with comprehensive
- * validation, reason tracking, and audit logging. Features real-time level calculation,
- * quick adjustment presets, and detailed feedback systems.
+ * Administrative modal for XP adjustment with real-time preview and validation.
+ * Level is intentionally NOT projected here: server-side level derives from
+ * completed modules (levelUtils), not XP, so a client-side estimate would
+ * disagree with the persisted result.
  */
 
 /**
- * Administrative modal for XP adjustment with real-time calculation and validation.
- *
- * This component creates a secure administrative interface for modifying user XP scores
- * with comprehensive validation, reason tracking, and audit logging.
- *
+ * Administrative modal for XP adjustment with real-time preview and validation.
  * @component
- * @param {Object} props - Component props
+ * @param {Object} props
  * @param {boolean} props.isOpen - Whether the modal is open
  * @param {Function} props.onClose - Function to close the modal
- * @param {Object} props.user - User object containing current XP and level information
- * @param {Function} props.onSave - Callback function to handle XP adjustment (userId, amount, reason)
- * @returns {JSX.Element} XP adjustment interface with real-time calculation and validation
+ * @param {Object} props.user - User object containing current XP and level
+ * @param {Function} props.onSave - Callback (userId, amount, reason)
+ * @returns {JSX.Element}
  */
 const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
   const [xpChange, setXpChange] = useState("");
@@ -44,29 +34,36 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
   const changeAmount =
     xpChange === "" || xpChange === null ? 0 : parseInt(xpChange, 10);
   const safeChangeAmount = isNaN(changeAmount) ? 0 : changeAmount;
-
   const newXP = Math.max(0, currentXP + safeChangeAmount);
-  const newLevel = Math.floor(newXP / 100) + 1;
+
+  // ── Single source of truth for the submit gate ──────────────
+  const reasonValid = reason.trim().length >= 5;
+  const canSubmit = !isSubmitting && safeChangeAmount !== 0 && reasonValid;
+  const blockingMessage =
+    safeChangeAmount === 0
+      ? "Enter a non-zero XP amount to continue."
+      : !reasonValid
+        ? "Reason must be at least 5 characters."
+        : null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    // Guards kept as defence-in-depth (e.g. programmatic submission),
+    // using the same validity rules as the button gate.
     if (safeChangeAmount === 0) {
       showToast("Please enter a valid XP amount (non-zero)", "error");
       return;
     }
-
-    if (!reason.trim() || reason.length < 5) {
+    if (!reasonValid) {
       showToast(
         "Please provide a detailed reason for this adjustment (minimum 5 characters)",
         "error",
       );
       return;
     }
-
     setIsSubmitting(true);
     try {
-      await onSave(user._id, safeChangeAmount, reason);
+      await onSave(user._id, safeChangeAmount, reason.trim());
       setXpChange("");
       setReason("");
       onClose();
@@ -88,13 +85,22 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
       size="lg"
       footer={
         <div className="flex items-center justify-between w-full">
-          <p
-            className="text-[10px] text-gray-400 max-w-50 leading-tight font-medium"
-            role="note"
-          >
-            Note: XP adjustments are logged and visible in user activity
-            history.
-          </p>
+          {blockingMessage ? (
+            <p
+              className="text-[10px] text-amber-600 dark:text-amber-400 max-w-50 leading-tight font-bold"
+              role="status"
+            >
+              {blockingMessage}
+            </p>
+          ) : (
+            <p
+              className="text-[10px] text-gray-400 max-w-50 leading-tight font-medium"
+              role="note"
+            >
+              Note: XP adjustments are logged and visible in user activity
+              history.
+            </p>
+          )}
           <div className="flex space-x-3">
             <button
               type="button"
@@ -107,9 +113,7 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
             <button
               type="submit"
               form="xp-adjustment-form"
-              disabled={
-                isSubmitting || safeChangeAmount === 0 || reason.length < 5
-              }
+              disabled={!canSubmit}
               className="px-6 py-2.5 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 flex items-center focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label={
                 isSubmitting
@@ -216,7 +220,6 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
               </div>
             </div>
           </div>
-
           <div className="md:col-span-2">
             <label
               htmlFor="xp-reason"
@@ -237,13 +240,20 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
               minLength={5}
               aria-describedby="reason-hint"
             />
-            <p id="reason-hint" className="text-[10px] text-gray-400 mt-1">
+            <p
+              id="reason-hint"
+              className={`text-[10px] mt-1 ${
+                reason.length > 0 && !reasonValid
+                  ? "text-amber-600 dark:text-amber-400 font-bold"
+                  : "text-gray-400"
+              }`}
+            >
               Minimum 5 characters required
             </p>
           </div>
         </div>
 
-        {/* Changes Preview Card */}
+        {/* Changes Preview Card (XP only — level is module-based server-side) */}
         <div
           id="xp-preview"
           className={`p-4 rounded-xl border-2 border-dashed transition-colors ${
@@ -271,62 +281,23 @@ const XPAdjustmentModal = ({ isOpen, onClose, user, onSave }) => {
               </span>
             )}
           </div>
-
-          <div className="flex justify-between items-end">
-            <div>
-              <p className="text-[10px] text-gray-400 font-bold uppercase">
-                Projected XP
-              </p>
-              <div className="flex items-center space-x-2">
-                <span
-                  className="text-lg font-black text-gray-400 line-through decoration-2"
-                  aria-label={`Current XP: ${currentXP}`}
-                >
-                  {currentXP}
-                </span>
-                <span
-                  className="text-2xl font-black text-blue-700 dark:text-blue-400"
-                  aria-label={`New XP: ${newXP.toLocaleString()}`}
-                >
-                  {newXP.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <p className="text-[10px] text-gray-400 font-bold uppercase">
-                Projected Level
-              </p>
-              <div className="flex items-center justify-end space-x-2">
-                <span
-                  className={`text-2xl font-black ${
-                    newLevel > currentLevel
-                      ? "text-green-600 dark:text-green-400"
-                      : newLevel < currentLevel
-                        ? "text-red-600 dark:text-red-400"
-                        : "text-gray-900 dark:text-white"
-                  }`}
-                  aria-label={`Level ${newLevel}`}
-                >
-                  Lvl {newLevel}
-                </span>
-                {newLevel !== currentLevel && (
-                  <span
-                    className={`text-sm font-bold ${
-                      newLevel > currentLevel
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    }`}
-                    aria-label={
-                      newLevel > currentLevel
-                        ? "Level increased"
-                        : "Level decreased"
-                    }
-                  >
-                    {newLevel > currentLevel ? "↑" : "↓"}
-                  </span>
-                )}
-              </div>
+          <div>
+            <p className="text-[10px] text-gray-400 font-bold uppercase">
+              Projected XP
+            </p>
+            <div className="flex items-center space-x-2">
+              <span
+                className="text-lg font-black text-gray-400 line-through decoration-2"
+                aria-label={`Current XP: ${currentXP}`}
+              >
+                {currentXP}
+              </span>
+              <span
+                className="text-2xl font-black text-blue-700 dark:text-blue-400"
+                aria-label={`New XP: ${newXP.toLocaleString()}`}
+              >
+                {newXP.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
