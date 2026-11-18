@@ -376,7 +376,7 @@ const CodeEditor = ({
                   ✓ Output:
                 </p>
                 <pre
-                  className={`whitespace-pre-wrap font-mono text-xs ${
+                  className={`whitespace-pre-wrap font-mono text-xs max-h-48 overflow-auto ${
                     isCodeDark ? "text-green-200" : "text-green-700"
                   }`}
                 >
@@ -398,7 +398,7 @@ const CodeEditor = ({
                     Error:
                   </p>
                   <pre
-                    className={`whitespace-pre-wrap font-mono text-xs mt-1 ${
+                    className={`whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto ${
                       isCodeDark ? "text-red-200" : "text-red-700"
                     }`}
                   >
