@@ -183,7 +183,7 @@ const CodeEditor = ({
   onRunToLine = null,
 }) => {
   const { isCodeDark } = useTheme();
-  const { runCode, isReady } = usePython();
+  const { runCode, isReady, isLoading } = usePython();
 
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
@@ -315,9 +315,9 @@ const CodeEditor = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={handleQuickRun}
-            disabled={isRunning || !isReady || !value.trim()}
+            disabled={isRunning || !isReady || isLoading || !value.trim()}
             className={`px-4 py-2 rounded flex items-center space-x-2 transition text-sm ${
-              isRunning || !isReady || !value.trim()
+              isRunning || !isReady || isLoading || !value.trim()
                 ? "bg-gray-400 cursor-not-allowed text-gray-200"
                 : "bg-green-600 hover:bg-green-700 text-white"
             }`}
@@ -335,9 +335,11 @@ const CodeEditor = ({
             )}
           </button>
 
-          {!isReady && (
+          {(!isReady || isLoading) && (
             <span className="text-xs text-yellow-600">
-              Python engine loading...
+              {isRunning
+                ? "Running..."
+                : "Python engine loading/re-initializing..."}
             </span>
           )}
         </div>
