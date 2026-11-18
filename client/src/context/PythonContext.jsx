@@ -87,6 +87,8 @@ export const PythonProvider = ({ children }) => {
    */
   const stdoutBuffers = useRef(new Map());
 
+  const stderrBuffers = useRef(new Map());
+
   /**
    * Initialise (or re-initialise) the Pyodide Web Worker.
    *
@@ -116,15 +118,26 @@ export const PythonProvider = ({ children }) => {
         const currentBuffer = stdoutBuffers.current.get(id) || [];
         stdoutBuffers.current.set(id, [...currentBuffer, text]);
         console.log("🐍 Python output:", text);
+      } else if (type === "stderr" && id) {
+        const currentBuffer = stderrBuffers.current.get(id) || [];
+        stderrBuffers.current.set(id, [...currentBuffer, text]);
       } else if (type === "result") {
         // Final result for an execution
         const handler = pendingRequests.current.get(id);
         const buffer = stdoutBuffers.current.get(id) || [];
+        const errBuffer = stderrBuffers.current.get(id) || [];
 
         if (handler) {
-          handler({ success, output, error, stdout: buffer.join("\n") });
+          handler({
+            success,
+            output,
+            error,
+            stdout: buffer.join("\n"),
+            stderr: errBuffer.join("\n"),
+          });
           pendingRequests.current.delete(id);
           stdoutBuffers.current.delete(id);
+          stderrBuffers.current.delete(id);
         }
       }
     };
@@ -161,11 +174,11 @@ export const PythonProvider = ({ children }) => {
    * promise resolves immediately with an error message.
    *
    * @param {string} code - The Python source code to execute.
-   * @param {number} [timeout=10000] - Maximum execution time in ms.
+   * @param {number} [timeout=5000] - Maximum execution time in ms.
    * @returns {Promise<{ success: boolean, output?: string, error?: string, stdout?: string }>}
    */
   const runCode = useCallback(
-    (code, timeout = 10000) => {
+    (code, timeout = 5000) => {
       return new Promise((resolve) => {
         if (!isReady) {
           return resolve({
@@ -196,6 +209,7 @@ export const PythonProvider = ({ children }) => {
 
         const id = Math.random().toString(36).substring(7);
         stdoutBuffers.current.set(id, []);
+        stderrBuffers.current.set(id, []);
 
         const timeoutId = setTimeout(() => {
           console.warn("RT: Execution timeout. Terminating worker...");

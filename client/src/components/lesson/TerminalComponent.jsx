@@ -320,9 +320,14 @@ const TerminalComponent = forwardRef(
               outputText += (outputText ? "\n" : "") + result.output;
             }
 
+            const stderrItems = result.stderr
+              ? [{ type: "warning", content: result.stderr }]
+              : [];
+
             setOutput((prev) => [
               ...prev,
               ...warningItems,
+              ...stderrItems,
               { type: "input", content: code },
               { type: "output", content: outputText || "(no output)" },
             ]);

@@ -49,9 +49,9 @@ App.jsx
 - **Provider:** `<PythonProvider>`
 - **Hook:** `usePython()`
 - **Depends on:** `/pyodide.worker.js` (Web Worker, served from /public)
-- **Responsibility:** Manages a Pyodide Web Worker for client-side Python execution. Handles worker lifecycle (create, terminate, restart on timeout), message correlation via unique execution IDs, stdout buffering, and timeout enforcement.
-- **Design:** Worker is created on mount and terminated on unmount. If execution exceeds the timeout (default 10s), the worker is forcibly terminated and re-created — this resets Pyodide state. Pending requests and stdout buffers use Maps keyed by execution ID. Unlike other context hooks, `usePython()` does not throw if used outside a provider — it returns `undefined`, allowing pages that don't need Python to simply skip the guard.
-- **Exposes:** `isReady`, `isLoading`, `runCode(code, timeout?)`
+- **Responsibility:** Manages a Pyodide Web Worker for client-side Python execution. Handles worker lifecycle (create, terminate, restart on timeout), message correlation via unique execution IDs, `stdout`/`stderr` buffering, and timeout enforcement.
+- **Design:** Worker is created on mount and terminated on unmount. If execution exceeds the timeout (default 5s), the worker is forcibly terminated and re-created — this resets Pyodide state. Pending requests and `stdout`/`stderr` buffers use Maps keyed by execution ID. Unlike other context hooks, `usePython()` does not throw if used outside a provider — it returns `undefined`, allowing pages that don't need Python to simply skip the guard.
+- **Exposes:** `isReady`, `isLoading`, `runCode(code, timeout?)` (resolving with an object containing `success`, `output`, `error`, `stdout`, and `stderr`).
 
 ---
 
@@ -80,5 +80,5 @@ Context files delegate infrastructure logic to dedicated service modules:
 | Utility               | Used By                                  | Responsibility                                                                   |
 | --------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
 | `utils/tokenUtils.js` | `AuthContext`, `services/api.js`         | JWT storage read (`getStoredAccessToken`) and expiry validation (`isTokenValid`) |
-| `utils/deviceInfo.js` | `services/session.js`, `services/api.js` | Browser/platform/screen detection                                                | 
+| `utils/deviceInfo.js` | `services/session.js`, `services/api.js` | Browser/platform/screen detection                                                |
 | `utils/index.js`      | `AuthContext`                            | `getErrorMessage` for user-friendly error extraction                             |

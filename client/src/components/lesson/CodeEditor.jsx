@@ -21,8 +21,7 @@ import { Play, AlertCircle } from "lucide-react";
  * @fileoverview
  * Advanced code editor component with Pyodide integration and interactive execution.
  * This component provides a full-featured code editor with syntax highlighting, line numbers,
- * and quick run functionality. Integrates with Pyodide for client-side Python execution
- * and features run-to-line capabilities, syntax checking, and real-time feedback. Handles
+ * and quick run functionality. Integrates with Pyodide for client-side Python execution. Handles
  * WASM environment states and provides comprehensive error handling.
  */
 
@@ -30,7 +29,7 @@ import { Play, AlertCircle } from "lucide-react";
  * Advanced code editor component with Pyodide integration and interactive execution features.
  *
  * This component provides a professional code editing experience using CodeMirror with
- * Python language support, integrated syntax checking, and direct Pyodide execution.
+ * Python language support, and direct Pyodide execution.
  * Features include run-to-line functionality, quick run buttons, real-time syntax validation,
  * and comprehensive error handling. The editor handles the Pyodide WASM environment
  * loading states and provides visual feedback for execution results.
@@ -51,16 +50,7 @@ import { Play, AlertCircle } from "lucide-react";
  * - Uses usePython hook for Pyodide WASM environment access
  * - Handles isReady state for Python engine availability
  * - Code execution through runCode() method with timeout handling
- * - Syntax checking through checkSyntax() before execution
  * - Loading states during code execution with visual feedback
- *
- * @codeExecutionFlow
- * 1. Syntax validation using Pyodide's checkSyntax() method
- * 2. If syntax valid, execute code through runCode() method
- * 3. Process execution results (stdout, output, error handling)
- * 4. Display results in quick result panel
- * 5. Trigger onRun callback with execution data
- * 6. Handle network/execution errors gracefully
  *
  * @runToLineFeature
  * - Custom CodeMirror gutter extension with hover-activated run buttons
@@ -193,7 +183,7 @@ const CodeEditor = ({
   onRunToLine = null,
 }) => {
   const { isCodeDark } = useTheme();
-  const { runCode, isReady, checkSyntax } = usePython();
+  const { runCode, isReady } = usePython();
 
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
@@ -258,21 +248,18 @@ const CodeEditor = ({
     setQuickResult(null);
 
     try {
-      const syntaxCheck = await checkSyntax(value);
-      if (!syntaxCheck.valid) {
-        setQuickResult({ success: false, error: syntaxCheck.error });
-        setIsRunning(false);
-        return;
-      }
-
       const result = await runCode(value, 5000);
 
       if (result.success) {
         const output = result.stdout || result.output || "(no output)";
-        setQuickResult({ success: true, output });
+        setQuickResult({
+          success: true,
+          output,
+          stderr: result.stderr || null,
+        });
 
         if (onRun) {
-          onRun({ success: true, output });
+          onRun({ success: true, output, stderr: result.stderr });
         }
       } else {
         setQuickResult({ success: false, error: result.error });
@@ -358,55 +345,82 @@ const CodeEditor = ({
 
       {/* Quick Result Display */}
       {quickResult && (
-        <div
-          className={`p-3 rounded-lg text-sm ${
-            quickResult.success
-              ? isCodeDark
-                ? "bg-green-900 border border-green-600"
-                : "bg-green-50 border border-green-300"
-              : isCodeDark
-                ? "bg-red-900 border border-red-600"
-                : "bg-red-50 border border-red-300"
-          }`}
-        >
-          {quickResult.success ? (
-            <div>
-              <p
-                className={`font-semibold mb-1 ${
-                  isCodeDark ? "text-green-300" : "text-green-800"
-                }`}
-              >
-                ✓ Output:
-              </p>
-              <pre
-                className={`whitespace-pre-wrap font-mono text-xs ${
-                  isCodeDark ? "text-green-200" : "text-green-700"
-                }`}
-              >
-                {quickResult.output}
-              </pre>
-            </div>
-          ) : (
-            <div className="flex items-start space-x-2">
-              <AlertCircle
-                size={16}
-                className={isCodeDark ? "text-red-400" : "text-red-600"}
-              />
+        <div className="space-y-2">
+          {/* Main Result Box (Success or Fatal Error) */}
+          <div
+            className={`p-3 rounded-lg text-sm ${
+              quickResult.success
+                ? isCodeDark
+                  ? "bg-green-900 border border-green-600"
+                  : "bg-green-50 border border-green-300"
+                : isCodeDark
+                  ? "bg-red-900 border border-red-600"
+                  : "bg-red-50 border border-red-300"
+            }`}
+          >
+            {quickResult.success ? (
               <div>
                 <p
-                  className={`font-semibold ${
-                    isCodeDark ? "text-red-300" : "text-red-800"
+                  className={`font-semibold mb-1 ${
+                    isCodeDark ? "text-green-300" : "text-green-800"
                   }`}
                 >
-                  Error:
+                  ✓ Output:
                 </p>
                 <pre
-                  className={`whitespace-pre-wrap font-mono text-xs mt-1 ${
-                    isCodeDark ? "text-red-200" : "text-red-700"
+                  className={`whitespace-pre-wrap font-mono text-xs ${
+                    isCodeDark ? "text-green-200" : "text-green-700"
                   }`}
                 >
-                  {quickResult.error}
+                  {quickResult.output}
                 </pre>
+              </div>
+            ) : (
+              <div className="flex items-start space-x-2">
+                <AlertCircle
+                  size={16}
+                  className={isCodeDark ? "text-red-400" : "text-red-600"}
+                />
+                <div>
+                  <p
+                    className={`font-semibold ${
+                      isCodeDark ? "text-red-300" : "text-red-800"
+                    }`}
+                  >
+                    Error:
+                  </p>
+                  <pre
+                    className={`whitespace-pre-wrap font-mono text-xs mt-1 ${
+                      isCodeDark ? "text-red-200" : "text-red-700"
+                    }`}
+                  >
+                    {quickResult.error}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Stderr / Warnings Box (Appears on successful runs if warnings exist) */}
+          {quickResult.success && quickResult.stderr && (
+            <div
+              className={`p-3 rounded-lg text-sm ${
+                isCodeDark
+                  ? "bg-yellow-900/60 border border-yellow-600 text-yellow-200"
+                  : "bg-yellow-50 border border-yellow-300 text-yellow-800"
+              }`}
+            >
+              <div className="flex items-start space-x-2">
+                <AlertCircle
+                  size={16}
+                  className={isCodeDark ? "text-yellow-400" : "text-yellow-600"}
+                />
+                <div>
+                  <p className="font-semibold">⚠️ Warnings / Stderr:</p>
+                  <pre className="whitespace-pre-wrap font-mono text-xs mt-1">
+                    {quickResult.stderr}
+                  </pre>
+                </div>
               </div>
             </div>
           )}
