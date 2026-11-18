@@ -183,7 +183,7 @@ const CodeEditor = ({
   onRunToLine = null,
 }) => {
   const { isCodeDark } = useTheme();
-  const { runCode, isReady, isLoading } = usePython();
+  const { runCode, isReady, isLoading, pythonError } = usePython();
 
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
@@ -342,6 +342,12 @@ const CodeEditor = ({
                 : "Python engine loading/re-initializing..."}
             </span>
           )}
+        </div>
+      )}
+
+      {pythonError && (
+        <div className="p-3 rounded bg-red-900/40 border border-red-600 text-red-200 text-xs flex items-center space-x-2">
+          <span>⚠️ Failed to load Python environment: {pythonError}</span>
         </div>
       )}
 

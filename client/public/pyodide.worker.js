@@ -4,32 +4,37 @@ importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
 let pyodide;
 
 async function initPyodide() {
-  pyodide = await loadPyodide({
-    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
-  });
+  try {
+    pyodide = await loadPyodide({
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
+    });
 
-  // Pre-install all libraries used across the course modules.
-  // micropip is a Python package, not a JS global — it must be loaded via
-  // loadPackage and then bridged into JS scope with pyimport before it can
-  // be called as micropip.install(...) from here.
-  await pyodide.loadPackage("micropip");
-  const micropip = pyodide.pyimport("micropip");
+    // Pre-install all libraries used across the course modules.
+    // micropip is a Python package, not a JS global — it must be loaded via
+    // loadPackage and then bridged into JS scope with pyimport before it can
+    // be called as micropip.install(...) from here.
+    await pyodide.loadPackage("micropip");
+    const micropip = pyodide.pyimport("micropip");
 
-  for (const pkg of [
-    "pandas",
-    "numpy",
-    "tzdata",
-    "beautifulsoup4",
-    "sqlite3",
-  ]) {
-    try {
-      await micropip.install(pkg);
-    } catch (err) {
-      console.error(`Failed to preload ${pkg}:`, err);
+    for (const pkg of [
+      "pandas",
+      "numpy",
+      "tzdata",
+      "beautifulsoup4",
+      "sqlite3",
+    ]) {
+      try {
+        await micropip.install(pkg);
+      } catch (err) {
+        console.error(`Failed to preload ${pkg}:`, err);
+      }
     }
-  }
 
-  postMessage({ type: "ready" });
+    postMessage({ type: "ready" });
+  } catch (err) {
+    // Catch CDN failures, ad-blocker blocks, or network drops
+    postMessage({ type: "error", error: String(err.message || err) });
+  }
 }
 
 const pyodidePromise = initPyodide();

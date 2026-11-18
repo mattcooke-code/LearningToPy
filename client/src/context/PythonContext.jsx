@@ -14,7 +14,7 @@
  *
  * A pending-request Map correlates responses to callers, and a timeout
  * mechanism terminates and restarts the worker if execution exceeds
- * `timeout` ms (default 10 seconds).
+ * `timeout` ms (default 5 seconds).
  *
  * @module PythonContext
  * @requires react
@@ -60,11 +60,9 @@ const PythonContext = createContext();
  * @returns {JSX.Element}
  */
 export const PythonProvider = ({ children }) => {
-  /** @type {[boolean, Function]} Whether Pyodide is loaded and accepting code */
   const [isReady, setIsReady] = useState(false);
-
-  /** @type {[boolean, Function]} Whether the worker is still booting */
   const [isLoading, setIsLoading] = useState(true);
+  const [pythonError, setPythonError] = useState(null);
 
   /** @type {React.MutableRefObject<Worker|null>} Reference to the active Web Worker */
   const workerRef = useRef(null);
@@ -112,7 +110,17 @@ export const PythonProvider = ({ children }) => {
         // Pyodide has finished loading
         setIsReady(true);
         setIsLoading(false);
+        setPythonError(null);
         console.log("🐍 Pyodide Worker Ready");
+      } else if (type === "error") {
+        // Handle boot failure
+        setIsLoading(false); // Prevent infinite loading
+        setIsReady(false);
+        setPythonError(event.data.error);
+        console.error(
+          "🐍 Pyodide Worker Failed to Initialize:",
+          event.data.error,
+        );
       } else if (type === "stdout" && id) {
         // Accumulate stdout lines for this execution
         const currentBuffer = stdoutBuffers.current.get(id) || [];
@@ -214,6 +222,9 @@ export const PythonProvider = ({ children }) => {
         const timeoutId = setTimeout(() => {
           console.warn("RT: Execution timeout. Terminating worker...");
           workerRef.current.terminate();
+          // Defensive cleanup to prevent stale references
+          workerRef.current = null;
+
           initWorker();
           resolve({
             success: false,
@@ -235,11 +246,11 @@ export const PythonProvider = ({ children }) => {
 
   /**
    * The context value exposed to consumers. Wrapped in the provider's closure
-   * so `isReady`, `isLoading`, and `runCode` are always up-to-date.
+   * so `isReady`, `isLoading`, `pythonError`, and `runCode` are always up-to-date.
    *
-   * @type {{ isReady: boolean, isLoading: boolean, runCode: Function }}
+   * @type {{ isReady: boolean, isLoading: boolean, pythonError: string|null, runCode: Function }}
    */
-  const value = { isReady, isLoading, runCode };
+  const value = { isReady, isLoading, pythonError, runCode };
 
   return (
     <PythonContext.Provider value={value}>{children}</PythonContext.Provider>
