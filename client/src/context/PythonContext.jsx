@@ -255,11 +255,14 @@ export const PythonProvider = ({ children }) => {
  *
  * Returns `{ isReady, isLoading, runCode }`.
  *
- * Unlike other context hooks this one does **not** throw if used outside a
- * provider — it simply returns `undefined` from `useContext`. This is
- * intentional: not every page needs Python execution (e.g. login, dashboard,
- * settings), so consumers should guard against `undefined`.
- *
- * @returns {{ isReady: boolean, isLoading: boolean, runCode: Function }|undefined}
+ * @throws {Error} If called outside of a `<PythonProvider>`.
+ * @returns {{ isReady: boolean, isLoading: boolean, runCode: Function }}
  */
-export const usePython = () => useContext(PythonContext);
+export const usePython = () => {
+  const context = useContext(PythonContext);
+
+  if (!context) {
+    throw new Error("usePython must be used within a PythonProvider");
+  }
+  return context;
+};
