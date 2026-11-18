@@ -2,13 +2,10 @@
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
 
 let pyodide;
-let currentId = null;
 
 async function initPyodide() {
   pyodide = await loadPyodide({
     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
-    stdout: (text) => postMessage({ type: "stdout", text, id: currentId }),
-    stderr: (text) => postMessage({ type: "stderr", text, id: currentId }),
   });
 
   // Pre-install all libraries used across the course modules.
@@ -18,7 +15,13 @@ async function initPyodide() {
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
 
-  for (const pkg of ["pandas", "numpy", "tzdata", "beautifulsoup4", "sqlite3"]) {
+  for (const pkg of [
+    "pandas",
+    "numpy",
+    "tzdata",
+    "beautifulsoup4",
+    "sqlite3",
+  ]) {
     try {
       await micropip.install(pkg);
     } catch (err) {
@@ -31,31 +34,42 @@ async function initPyodide() {
 
 const pyodidePromise = initPyodide();
 
-// In pyodide.worker.js, update the onmessage handler:
+// Serialisation queue to prevent concurrent runs from colliding
+let executionQueue = Promise.resolve();
 
-onmessage = async (event) => {
-  await pyodidePromise;
-  const { code, id } = event.data;
-  currentId = id;
+onmessage = (event) => {
+  executionQueue = executionQueue.then(async () => {
+    await pyodidePromise;
+    const { code, id } = event.data;
 
-  try {
-    const codeString = String(code);
-
-    const result = await pyodide.runPythonAsync(codeString);
-    postMessage({
-      type: "result",
-      id,
-      success: true,
-      output: result !== undefined ? String(result) : "",
+    // Set up local stdout/stderr handlers scoped specifically to this execution's id
+    pyodide.setStdout({
+      batched: (text) => postMessage({ type: "stdout", text, id }),
     });
-  } catch (err) {
-    postMessage({
-      type: "result",
-      id,
-      success: false,
-      error: String(err.message),
+    pyodide.setStderr({
+      batched: (text) => postMessage({ type: "stderr", text, id }),
     });
-  } finally {
-    currentId = null;
-  }
+
+    try {
+      const codeString = String(code);
+      const result = await pyodide.runPythonAsync(codeString);
+
+      postMessage({
+        type: "result",
+        id,
+        success: true,
+        output: result !== undefined ? String(result) : "",
+      });
+    } catch (err) {
+      postMessage({
+        type: "result",
+        id,
+        success: false,
+        error: String(err.message),
+      });
+    } finally {
+      pyodide.setStdout({ batched: () => {} });
+      pyodide.setStderr({ batched: () => {} });
+    }
+  });
 };
