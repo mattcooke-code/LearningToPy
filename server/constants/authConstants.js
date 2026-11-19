@@ -1,0 +1,48 @@
+// constants/authConstants.js
+
+// --- Token lifespans & cookie max ages ---
+const ACCESS_TOKEN_LIFESPAN = "15m";
+const REFRESH_TOKEN_LIFESPAN_SESSION = "1h";
+const REFRESH_TOKEN_LIFESPAN_REMEMBER_ME = "30d";
+
+const COOKIE_MAX_AGE_SESSION = 60 * 60 * 1000;
+const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000;
+
+// --- Age Compliance ---
+const MIN_AGE = 13;
+const MAX_AGE = 120;
+const RESTRICTED_AGE_BRACKET = "13-15";
+
+// --- Flag enums ---
+const VALID_TARGET_TYPES = ["LESSON", "EXERCISE", "QUIZ"];
+const VALID_ISSUE_TYPES = [
+  "CONTENT_ERROR",
+  "CODE_ERROR",
+  "QUIZ_ERROR",
+  "BROKEN_FUNCTIONALITY",
+  "XP_ADJUSTMENT",
+  "OTHER",
+];
+
+// --- Cookie Consent enums ---
+const COOKIE_CONSENT_VALUES = ["ACCEPTED", "DECLINED"];
+
+// --- Password Reset ---
+const RESET_TOKEN_BYTES = 32;
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+module.exports = {
+  ACCESS_TOKEN_LIFESPAN,
+  REFRESH_TOKEN_LIFESPAN_SESSION,
+  REFRESH_TOKEN_LIFESPAN_REMEMBER_ME,
+  COOKIE_MAX_AGE_SESSION,
+  COOKIE_MAX_AGE_REMEMBER_ME,
+  MIN_AGE,
+  MAX_AGE,
+  RESTRICTED_AGE_BRACKET,
+  VALID_TARGET_TYPES,
+  VALID_ISSUE_TYPES,
+  COOKIE_CONSENT_VALUES,
+  RESET_TOKEN_BYTES,
+  RESET_TOKEN_TTL_MS,
+};
