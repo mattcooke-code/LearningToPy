@@ -225,6 +225,10 @@ export const PythonProvider = ({ children }) => {
           // Defensive cleanup to prevent stale references
           workerRef.current = null;
 
+          pendingRequests.current.delete(id);
+          stdoutBuffers.current.delete(id);
+          stderrBuffers.current.delete(id);
+
           initWorker();
           resolve({
             success: false,
@@ -267,7 +271,7 @@ export const PythonProvider = ({ children }) => {
  * Returns `{ isReady, isLoading, runCode }`.
  *
  * @throws {Error} If called outside of a `<PythonProvider>`.
- * @returns {{ isReady: boolean, isLoading: boolean, runCode: Function }}
+ * @returns {{ isReady: boolean, isLoading: boolean, pythonError: string|null, runCode: Function }}
  */
 export const usePython = () => {
   const context = useContext(PythonContext);

@@ -425,7 +425,7 @@ const CodeEditor = ({
                 />
                 <div>
                   <p className="font-semibold">⚠️ Warnings / Stderr:</p>
-                  <pre className="whitespace-pre-wrap font-mono text-xs mt-1">
+                  <pre className="whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto">
                     {quickResult.stderr}
                   </pre>
                 </div>
