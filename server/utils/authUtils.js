@@ -1,15 +1,8 @@
 // utils/authUtils.js
 const jwt = require("jsonwebtoken");
 const config = require("../config/envConfig");
+const authConstants = require("../constants/authConstants");
 const AppError = require("./AppError");
-
-// --- Configuration Constants ---
-const ACCESS_TOKEN_LIFESPAN = "15m";
-const REFRESH_TOKEN_LIFESPAN_SESSION = "1h";
-const REFRESH_TOKEN_LIFESPAN_REMEMBER_ME = "30d";
-
-const COOKIE_MAX_AGE_SESSION = 60 * 60 * 1000;
-const COOKIE_MAX_AGE_REMEMBER_ME = 30 * 24 * 60 * 60 * 1000;
 
 /**
  * Generates environment-specific cookie configurations.
@@ -37,12 +30,19 @@ const getCookieOptions = () => {
 const getRefreshTokenSettings = (rememberMe) => {
   return {
     tokenLifespan: rememberMe
-      ? REFRESH_TOKEN_LIFESPAN_REMEMBER_ME
-      : REFRESH_TOKEN_LIFESPAN_SESSION,
+      ? authConstants.REFRESH_TOKEN_LIFESPAN_REMEMBER_ME
+      : authConstants.REFRESH_TOKEN_LIFESPAN_SESSION,
     cookieMaxAge: rememberMe
-      ? COOKIE_MAX_AGE_REMEMBER_ME
-      : COOKIE_MAX_AGE_SESSION,
+      ? authConstants.COOKIE_MAX_AGE_REMEMBER_ME
+      : authConstants.COOKIE_MAX_AGE_SESSION,
   };
+};
+
+/**
+ * Set the refresh token cookie. Single source of truth for cookie writes.
+ */
+const setRefreshTokenCookie = (res, token, maxAge) => {
+  res.cookie("refreshToken", token, { ...getCookieOptions(), maxAge });
 };
 
 /**
@@ -84,6 +84,33 @@ const verifyToken = (token, secret) => {
 };
 
 /**
+ * Issue an access + refresh token pair and set the refresh cookie.
+ * Returns the access token for the JSON response body.
+ */
+const issueTokenPair = (res, user, rememberMe = false) => {
+  const accessToken = generateToken(
+    { id: user._id, username: user.username, isAdmin: user.isAdmin },
+    config.getAccessTokenSecret(),
+    authConstants.ACCESS_TOKEN_LIFESPAN,
+  );
+
+  const { tokenLifespan, cookieMaxAge } = getRefreshTokenSettings(!!rememberMe);
+
+  const refreshToken = generateToken(
+    {
+      id: user._id,
+      refreshTokenVersion: user.refreshTokenVersion,
+      rememberMe: !!rememberMe,
+    },
+    config.getRefreshTokenSecret(),
+    tokenLifespan,
+  );
+
+  setRefreshTokenCookie(res, refreshToken, cookieMaxAge);
+  return accessToken;
+};
+
+/**
  * Standardize user object returned upon authentication.
  * @param   {Object} user - Mongoose user document
  * @returns {Object} Sanitized user profile object
@@ -96,15 +123,17 @@ const toAuthUser = (user) => ({
   streak: user.streak,
   streakLastCheckedDate: user.streakLastCheckedDate,
   ageBracket: user.ageBracket,
+  privacySettings: user.privacySettings,
 });
 
 module.exports = {
-  ACCESS_TOKEN_LIFESPAN,
   getCookieOptions,
   getRefreshTokenSettings,
+  setRefreshTokenCookie,
+  clearRefreshTokenCookie,
   generateToken,
   verifyToken,
-  clearRefreshTokenCookie,
+  issueTokenPair,
   toAuthUser,
   getAccessTokenSecret: config.getAccessTokenSecret,
   getRefreshTokenSecret: config.getRefreshTokenSecret,
