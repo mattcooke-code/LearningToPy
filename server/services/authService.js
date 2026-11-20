@@ -31,6 +31,29 @@ const validationHelper = require("../utils/validationHelpers");
 const authConstants = require("../constants/authConstants");
 
 // +=============================================+
+// |              SHARED HELPERS                 |
+// +=============================================+
+/**
+ * Verify a plaintext password against a stored hash.
+ * Applies the application pepper before comparison.
+ * @param {string} plainPassword - User-supplied plaintext
+ * @param {string} hashedPassword - Stored bcrypt hash
+ * @returns {Promise<boolean>} true if the password matches
+ */
+const verifyPassword = async (plainPassword, hashedPassword) => {
+  return bcrypt.compare(pepper.applyPepper(plainPassword), hashedPassword);
+};
+
+/**
+ * Hash a plaintext password with the application pepper.
+ * @param {string} plainPassword
+ * @returns {Promise<string>} bcrypt hash
+ */
+const hashPassword = async (plainPassword) => {
+  return bcrypt.hash(pepper.applyPepper(plainPassword), 12);
+};
+
+// +=============================================+
 // |              AUTHENTICATION                 |
 // +=============================================+
 
@@ -83,7 +106,7 @@ const registerUser = async ({
   if (existingEmail) throw new AppError("Email already in use", 400);
   if (existingUsername) throw new AppError("Username already taken", 400);
 
-  const hashed = await bcrypt.hash(pepper.applyPepper(password), 12);
+  const hashed = await hashPassword(password);
   const newUser = await User.create({
     username,
     email,
@@ -125,10 +148,7 @@ const authenticateUser = async ({
   if (!user || user.isBlocked)
     throw new AppError("Invalid credentials or account is blocked.", 401);
 
-  const isMatch = await bcrypt.compare(
-    pepper.applyPepper(password),
-    user.password,
-  );
+  const isMatch = await verifyPassword(password, user.password);
   if (!isMatch)
     throw new AppError("Invalid credentials or account is blocked.", 401);
 
@@ -238,7 +258,7 @@ const resetPasswordWithToken = async ({ token, newPassword }) => {
     throw new AppError(passwordValidation.message, 400);
 
   const user = await findValidResetUser(token);
-  user.password = await bcrypt.hash(pepper.applyPepper(newPassword), 12);
+  user.password = await hashPassword(newPassword);
   user.resetPasswordToken = undefined;
   user.resetPasswordExpires = undefined;
   user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
@@ -264,13 +284,10 @@ const changeUserPassword = async (userId, { currentPassword, newPassword }) => {
   const user = await User.findById(userId).select("+password");
   if (!user) throw new AppError("User not found.", 404);
 
-  const isMatch = await bcrypt.compare(
-    pepper.applyPepper(currentPassword),
-    user.password,
-  );
+  const isMatch = await verifyPassword(currentPassword, user.password);
   if (!isMatch) throw new AppError("Current password is incorrect.", 401);
 
-  user.password = await bcrypt.hash(pepper.applyPepper(newPassword), 12);
+  user.password = await hashPassword(newPassword);
   user.refreshTokenVersion = (user.refreshTokenVersion || 0) + 1;
   await user.save();
   return user;
@@ -365,10 +382,7 @@ const deleteUserAccount = async (userId, password) => {
   const user = await User.findById(userId).select("+password");
   if (!user) throw new AppError("User not found.", 404);
 
-  const isMatch = await bcrypt.compare(
-    pepper.applyPepper(password),
-    user.password,
-  );
+  const isMatch = await verifyPassword(password, user.password);
   if (!isMatch)
     throw new AppError("Password is incorrect. Account not deleted.", 401);
 
