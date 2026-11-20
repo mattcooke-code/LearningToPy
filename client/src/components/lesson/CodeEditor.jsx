@@ -1,7 +1,7 @@
 // CodeEditor.jsx
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import CodeMirror from "@uiw/react-codemirror";
-import { EditorView } from "@codemirror/view";
+import { EditorView, ViewPlugin } from "@codemirror/view";
 import { StateField, StateEffect, Prec } from "@codemirror/state";
 import { python } from "@codemirror/lang-python";
 import { tags as t } from "@lezer/highlight";
@@ -90,21 +90,53 @@ import { Play, AlertCircle } from "lucide-react";
 // Run-to-here gutter marker
 // ---------------------------------------------------------------------------
 
+const setHoveredLine = StateEffect.define();
+
+const hoveredLineField = StateField.define({
+  create: () => null,
+  update(value, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setHoveredLine)) return effect.value;
+    }
+    return value;
+  },
+});
+
 /**
- * Creates a CodeMirror gutter extension that shows a ▶ button
- * on the hovered line. Clicking it calls onRunToLine(lineNumber).
+ * Line that shows the ▶ button: the hovered line, otherwise the cursor's line
+ * (so keyboard and touch users also get a run-to-here target).
  */
-const createRunToHereGutter = (onRunToLine) => {
+const targetLine = (state) =>
+  state.field(hoveredLineField, false) ??
+  state.doc.lineAt(state.selection.main.head).number;
+
+const hoverToLine = (view, lineNumber) => {
+  if (view.state.field(hoveredLineField, false) === lineNumber) return;
+  view.dispatch({ effects: setHoveredLine.of(lineNumber) });
+};
+
+/**
+ * Creates the gutter once. `onRunToLine` is read through a ref-backed wrapper
+ * so the extension identity never changes when the parent re-renders.
+ */
+const createRunToHereGutter = (runToLine) => {
   class RunMarker extends GutterMarker {
     constructor(lineNumber) {
       super();
       this.lineNumber = lineNumber;
     }
 
+    // Lets CodeMirror reuse the DOM node instead of rebuilding it every update.
+    eq(other) {
+      return other.lineNumber === this.lineNumber;
+    }
+
     toDOM() {
       const btn = document.createElement("button");
+      btn.type = "button";
       btn.textContent = "▶";
       btn.title = "Run to here";
+      btn.setAttribute("aria-label", `Run to line ${this.lineNumber}`);
       btn.style.cssText = `
         background: none;
         border: none;
@@ -120,7 +152,14 @@ const createRunToHereGutter = (onRunToLine) => {
       btn.addEventListener("mousedown", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        onRunToLine(this.lineNumber);
+        runToLine(this.lineNumber);
+      });
+      // Keyboard activation (mousedown alone is unreachable without a mouse).
+      btn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          runToLine(this.lineNumber);
+        }
       });
       return btn;
     }
@@ -129,43 +168,51 @@ const createRunToHereGutter = (onRunToLine) => {
   return gutter({
     lineMarker(view, line) {
       const lineNumber = view.state.doc.lineAt(line.from).number;
-      const hoveredLine = view.state.field(hoveredLineField, false);
-      if (hoveredLine === lineNumber) {
-        return new RunMarker(lineNumber);
-      }
-      return null;
+      return targetLine(view.state) === lineNumber
+        ? new RunMarker(lineNumber)
+        : null;
     },
+    // Markers depend on editor state, not just doc/viewport, so CodeMirror
+    // must be told when to recompute them.
+    lineMarkerChange: (update) =>
+      targetLine(update.startState) !== targetLine(update.state),
     initialSpacer: () => {
       const span = document.createElement("span");
       span.style.width = "16px";
       span.style.display = "inline-block";
       return span;
     },
+    // Hovering the gutter itself must keep the marker alive (the content
+    // handlers below don't fire over the gutter).
+    domEventHandlers: {
+      mousemove(view, line) {
+        hoverToLine(view, view.state.doc.lineAt(line.from).number);
+        return false;
+      },
+    },
   });
 };
 
-const setHoveredLine = StateEffect.define();
-
-const hoveredLineField = StateField.define({
-  create: () => null,
-  update(value, tr) {
-    for (const effect of tr.effects) {
-      if (effect.is(setHoveredLine)) return effect.value;
-    }
-    return value;
-  },
-});
-
-const hoverPlugin = EditorView.domEventHandlers({
+const hoverContentHandler = EditorView.domEventHandlers({
   mousemove(event, view) {
     const pos = view.posAtCoords({ x: event.clientX, y: event.clientY });
     if (pos == null) return;
-    const line = view.state.doc.lineAt(pos).number;
-    view.dispatch({ effects: setHoveredLine.of(line) });
+    hoverToLine(view, view.state.doc.lineAt(pos).number);
   },
-  mouseleave(_event, view) {
-    view.dispatch({ effects: setHoveredLine.of(null) });
-  },
+});
+
+/**
+ * Clears the hover only when the pointer leaves the WHOLE editor (gutter and
+ * content), not when it crosses from the text into the gutter to click ▶.
+ */
+const hoverLeavePlugin = ViewPlugin.define((view) => {
+  const onLeave = () => view.dispatch({ effects: setHoveredLine.of(null) });
+  view.dom.addEventListener("mouseleave", onLeave);
+  return {
+    destroy() {
+      view.dom.removeEventListener("mouseleave", onLeave);
+    },
+  };
 });
 
 // ---------------------------------------------------------------------------
@@ -173,7 +220,7 @@ const hoverPlugin = EditorView.domEventHandlers({
 // ---------------------------------------------------------------------------
 
 const CodeEditor = ({
-  value,
+  value = "",
   onChange,
   readOnly = false,
   height = "200px",
@@ -181,12 +228,26 @@ const CodeEditor = ({
   showRunButton = false,
   onRun = null,
   onRunToLine = null,
+  timeoutMs = 5000,
 }) => {
   const { isCodeDark } = useTheme();
-  const { runCode, isReady, isLoading, pythonError } = usePython();
+  const { runCode, isReady, isLoading, pythonError, restart } = usePython();
 
   const [isRunning, setIsRunning] = useState(false);
   const [quickResult, setQuickResult] = useState(null);
+
+  // Keep the latest onRunToLine without rebuilding editor extensions when the
+  // parent passes a new function identity on every render.
+  const onRunToLineRef = useRef(onRunToLine);
+  useEffect(() => {
+    onRunToLineRef.current = onRunToLine;
+  }, [onRunToLine]);
+  const hasRunToLine = Boolean(onRunToLine);
+
+  const runToHereGutter = useMemo(
+    () => createRunToHereGutter((n) => onRunToLineRef.current?.(n)),
+    [],
+  );
 
   // Custom highlight style for tokens that fail WCAG 2 AA contrast under
   // CodeMirror's default oneDark palette (e.g. #e06c75 on #282c34 = 4.38:1).
@@ -234,11 +295,16 @@ const CodeEditor = ({
         }),
       ),
 
-      ...(onRunToLine
-        ? [hoveredLineField, hoverPlugin, createRunToHereGutter(onRunToLine)]
+      ...(hasRunToLine
+        ? [
+            hoveredLineField,
+            hoverContentHandler,
+            hoverLeavePlugin,
+            runToHereGutter,
+          ]
         : []),
     ],
-    [onRunToLine, isCodeDark, a11yHighlightStyle],
+    [hasRunToLine, runToHereGutter, isCodeDark, a11yHighlightStyle],
   );
 
   const handleQuickRun = async () => {
@@ -248,7 +314,7 @@ const CodeEditor = ({
     setQuickResult(null);
 
     try {
-      const result = await runCode(value, 5000);
+      const result = await runCode(value, timeoutMs);
 
       if (result.success) {
         const output = result.stdout || result.output || "(no output)";
@@ -262,14 +328,27 @@ const CodeEditor = ({
           onRun({ success: true, output, stderr: result.stderr });
         }
       } else {
-        setQuickResult({ success: false, error: result.error });
+        // Keep anything printed before the failure (including before a timeout).
+        const partial = result.stdout || null;
+        setQuickResult({
+          success: false,
+          error: result.error,
+          output: partial,
+          stderr: result.stderr || null,
+        });
 
         if (onRun) {
-          onRun({ success: false, error: result.error });
+          onRun({
+            success: false,
+            error: result.error,
+            stdout: partial,
+            stderr: result.stderr,
+          });
         }
       }
     } catch (err) {
       setQuickResult({ success: false, error: err.message });
+      if (onRun) onRun({ success: false, error: err.message });
     } finally {
       setIsRunning(false);
     }
@@ -346,94 +425,126 @@ const CodeEditor = ({
       )}
 
       {pythonError && (
-        <div className="p-3 rounded bg-red-900/40 border border-red-600 text-red-200 text-xs flex items-center space-x-2">
-          <span>⚠️ Failed to load Python environment: {pythonError}</span>
+        <div
+          role="alert"
+          className="p-3 rounded bg-red-900/40 border border-red-600 text-red-200 text-xs flex items-center justify-between space-x-2"
+        >
+          <span>⚠️ Python environment error: {pythonError}</span>
+          <button
+            type="button"
+            onClick={restart}
+            className="px-2 py-1 rounded border border-red-400 hover:bg-red-800/60"
+          >
+            Retry
+          </button>
         </div>
       )}
 
       {/* Quick Result Display */}
-      {quickResult && (
-        <div className="space-y-2">
-          {/* Main Result Box (Success or Fatal Error) */}
-          <div
-            className={`p-3 rounded-lg text-sm ${
-              quickResult.success
-                ? isCodeDark
-                  ? "bg-green-900 border border-green-600"
-                  : "bg-green-50 border border-green-300"
-                : isCodeDark
-                  ? "bg-red-900 border border-red-600"
-                  : "bg-red-50 border border-red-300"
-            }`}
-          >
-            {quickResult.success ? (
-              <div>
-                <p
-                  className={`font-semibold mb-1 ${
-                    isCodeDark ? "text-green-300" : "text-green-800"
-                  }`}
-                >
-                  ✓ Output:
-                </p>
-                <pre
-                  className={`whitespace-pre-wrap font-mono text-xs max-h-48 overflow-auto ${
-                    isCodeDark ? "text-green-200" : "text-green-700"
-                  }`}
-                >
-                  {quickResult.output}
-                </pre>
-              </div>
-            ) : (
-              <div className="flex items-start space-x-2">
-                <AlertCircle
-                  size={16}
-                  className={isCodeDark ? "text-red-400" : "text-red-600"}
-                />
+      <div className="space-y-2" role="status" aria-live="polite">
+        {quickResult && (
+          <div className="space-y-2">
+            {/* Main Result Box (Success or Fatal Error) */}
+            <div
+              className={`p-3 rounded-lg text-sm ${
+                quickResult.success
+                  ? isCodeDark
+                    ? "bg-green-900 border border-green-600"
+                    : "bg-green-50 border border-green-300"
+                  : isCodeDark
+                    ? "bg-red-900 border border-red-600"
+                    : "bg-red-50 border border-red-300"
+              }`}
+            >
+              {quickResult.success ? (
                 <div>
                   <p
-                    className={`font-semibold ${
-                      isCodeDark ? "text-red-300" : "text-red-800"
+                    className={`font-semibold mb-1 ${
+                      isCodeDark ? "text-green-300" : "text-green-800"
                     }`}
                   >
-                    Error:
+                    ✓ Output:
                   </p>
                   <pre
-                    className={`whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto ${
-                      isCodeDark ? "text-red-200" : "text-red-700"
+                    className={`whitespace-pre-wrap font-mono text-xs max-h-48 overflow-auto ${
+                      isCodeDark ? "text-green-200" : "text-green-700"
                     }`}
                   >
-                    {quickResult.error}
+                    {quickResult.output}
                   </pre>
+                </div>
+              ) : (
+                <div className="flex items-start space-x-2">
+                  <AlertCircle
+                    size={16}
+                    className={isCodeDark ? "text-red-400" : "text-red-600"}
+                  />
+                  <div>
+                    <p
+                      className={`font-semibold ${
+                        isCodeDark ? "text-red-300" : "text-red-800"
+                      }`}
+                    >
+                      Error:
+                    </p>
+                    <pre
+                      className={`whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto ${
+                        isCodeDark ? "text-red-200" : "text-red-700"
+                      }`}
+                    >
+                      {quickResult.error}
+                    </pre>
+                    {quickResult.output && (
+                      <>
+                        <p
+                          className={`font-semibold mt-2 ${
+                            isCodeDark ? "text-red-300" : "text-red-800"
+                          }`}
+                        >
+                          Output before the error:
+                        </p>
+                        <pre
+                          className={`whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto ${
+                            isCodeDark ? "text-red-200" : "text-red-700"
+                          }`}
+                        >
+                          {quickResult.output}
+                        </pre>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Stderr / Warnings Box (Appears on successful runs if warnings exist) */}
+            {quickResult.stderr && (
+              <div
+                className={`p-3 rounded-lg text-sm ${
+                  isCodeDark
+                    ? "bg-yellow-900/60 border border-yellow-600 text-yellow-200"
+                    : "bg-yellow-50 border border-yellow-300 text-yellow-800"
+                }`}
+              >
+                <div className="flex items-start space-x-2">
+                  <AlertCircle
+                    size={16}
+                    className={
+                      isCodeDark ? "text-yellow-400" : "text-yellow-600"
+                    }
+                  />
+                  <div>
+                    <p className="font-semibold">⚠️ Warnings / Stderr:</p>
+                    <pre className="whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto">
+                      {quickResult.stderr}
+                    </pre>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-
-          {/* Stderr / Warnings Box (Appears on successful runs if warnings exist) */}
-          {quickResult.success && quickResult.stderr && (
-            <div
-              className={`p-3 rounded-lg text-sm ${
-                isCodeDark
-                  ? "bg-yellow-900/60 border border-yellow-600 text-yellow-200"
-                  : "bg-yellow-50 border border-yellow-300 text-yellow-800"
-              }`}
-            >
-              <div className="flex items-start space-x-2">
-                <AlertCircle
-                  size={16}
-                  className={isCodeDark ? "text-yellow-400" : "text-yellow-600"}
-                />
-                <div>
-                  <p className="font-semibold">⚠️ Warnings / Stderr:</p>
-                  <pre className="whitespace-pre-wrap font-mono text-xs mt-1 max-h-48 overflow-auto">
-                    {quickResult.stderr}
-                  </pre>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
