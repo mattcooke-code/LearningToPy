@@ -2,22 +2,22 @@
 /**
  * @fileoverview Python execution context using a Pyodide Web Worker.
  *
- * Wraps a Web Worker (`/pyodide.worker.js`) that loads Pyodide (CPython
- * compiled to WebAssembly) and executes user-submitted Python code in a
- * sandboxed thread. Communication with the worker is message-based:
+ * Worker protocol (see public/pyodide.worker.js):
+ * - worker -> main: `ready`, `error`, `stdout`, `stderr`, `result`
+ * - main -> worker: `{ code, id }`
  *
- * - The worker posts `{ type: "ready" }` when Pyodide has finished loading.
- * - The main thread posts `{ code, id }` to request execution.
- * - The worker posts `{ type: "stdout", text, id }` for each print/output line.
- * - The worker posts `{ type: "result", success, output, error, id }` when
- *   execution completes.
- *
- * A pending-request Map correlates responses to callers, and a timeout
- * mechanism terminates and restarts the worker if execution exceeds
- * `timeout` ms (default 5 seconds).
+ * Design notes:
+ * - Runs are serialised on the main thread. A run's timeout starts when it
+ *   actually starts executing, never while it waits for boot or for an
+ *   earlier run.
+ * - Calls made while Pyodide is booting simply wait for it (no timeout is
+ *   spent on boot; boot has its own, much longer, limit).
+ * - On timeout the worker is terminated and restarted (the only way to stop
+ *   an infinite loop in a worker). Python state is reset by the restart.
+ * - Boot failures and worker crashes are reported through `pythonError`,
+ *   and `restart()` lets the UI offer a retry.
  *
  * @module PythonContext
- * @requires react
  */
 
 import {
@@ -27,255 +27,312 @@ import {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 
-// ---------------------------------------------------------------------------
-// Context Definition
-// ---------------------------------------------------------------------------
+const WORKER_URL = "/pyodide.worker.js";
+const DEFAULT_TIMEOUT_MS = 5000;
+const BOOT_TIMEOUT_MS = 120_000; // pandas/numpy over a slow connection
+const MAX_OUTPUT_CHARS = 1_000_000; // guards against `while True: print()`
 
 /**
- * React Context holding the Python execution engine state.
- *
- * @type {React.Context<object|null>}
+ * @typedef {Object} RunResult
+ * @property {boolean} success - Whether execution completed without error or timeout.
+ * @property {*} [output] - Final expression value or result returned by the worker.
+ * @property {string} [error] - Error or timeout message when execution fails.
+ * @property {string} [stdout] - Captured standard output joined by newlines.
+ * @property {string} [stderr] - Captured standard error output joined by newlines.
  */
-const PythonContext = createContext();
-
-// ---------------------------------------------------------------------------
-// PythonProvider Component
-// ---------------------------------------------------------------------------
 
 /**
- * Provider that manages a Pyodide Web Worker for client-side Python execution.
+ * @typedef {Object} PythonContextValue
+ * @property {boolean} isReady - True once Pyodide has loaded and is ready for code.
+ * @property {boolean} isLoading - True while the worker is starting or loading Pyodide.
+ * @property {string|null} pythonError - Fatal boot, worker, or deserialization error message.
+ * @property {(code: string, timeout?: number) => Promise<RunResult>} runCode - Queue and run Python code.
+ * @property {() => void} restart - Terminate and re-initialise the Python worker.
+ */
+
+/** @type {React.Context<PythonContextValue|null>} */
+const PythonContext = createContext(null);
+
+/**
+ * Generate a unique identifier for correlating worker requests and responses.
  *
- * **State exposed:**
- * - `isReady` — true once Pyodide has loaded and the worker is accepting code.
- * - `isLoading` — true during the initial worker/pyodide bootstrap phase.
- * - `runCode(code, timeout?)` — submit a Python string for execution.
+ * @returns {string}
+ */
+function createRequestId() {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+  return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/**
+ * Create a promise with externally-callable `resolve` and `reject` methods.
  *
- * **Worker lifetime:** The worker is created on mount and terminated on
- * unmount. If execution times out the worker is forcibly terminated and
- * re-created, resetting Pyodide state (imports, variables, etc.).
+ * @returns {{ promise: Promise<*>, resolve: (value?: *) => void, reject: (reason?: *) => void }}
+ */
+function createDeferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  // Mark as handled so an unobserved rejection never logs a console error.
+  promise.catch(() => {});
+  return { promise, resolve, reject };
+}
+
+/**
+ * Provider component that manages the Pyodide Web Worker lifecycle, serialised
+ * execution queue, and context value for child components.
  *
- * @param {{ children: React.ReactNode }} props
- * @returns {JSX.Element}
+ * @param {{ children: * }} props
+ * @returns {*}
  */
 export const PythonProvider = ({ children }) => {
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [pythonError, setPythonError] = useState(null);
 
-  /** @type {React.MutableRefObject<Worker|null>} Reference to the active Web Worker */
+  /** Bumped on every (re)start/unmount so stale worker callbacks are ignored. */
+  const generationRef = useRef(0);
   const workerRef = useRef(null);
-
-  /**
-   * Map of in-flight execution requests, keyed by unique ID.
-   * Each value is a handler function that resolves or rejects the promise
-   * returned by `runCode`.
-   *
-   * @type {React.MutableRefObject<Map<string, Function>>}
-   */
+  /** Deferred for the current worker: resolves with the worker when ready. */
+  const bootRef = useRef(null);
+  const bootTimeoutRef = useRef(null);
+  /** In-flight requests: id -> { settle, timeoutId, stdout[], stderr[], size } */
   const pendingRequests = useRef(new Map());
+  /** Tail of the main-thread run queue. */
+  const queueRef = useRef(Promise.resolve());
 
   /**
-   * Map of stdout buffers, keyed by execution ID.
-   * Accumulates `stdout` messages from the worker until the final `result`
-   * message arrives, at which point the buffer is joined and returned.
+   * Settle every in-flight request (with any partial output) and clear the map.
    *
-   * @type {React.MutableRefObject<Map<string, string[]>>}
+   * @param {string} message - Failure reason attached to each pending result.
    */
-  const stdoutBuffers = useRef(new Map());
-
-  const stderrBuffers = useRef(new Map());
-
-  /**
-   * Initialise (or re-initialise) the Pyodide Web Worker.
-   *
-   * 1. Resets ready/loading flags.
-   * 2. Creates a new Worker from `/pyodide.worker.js`.
-   * 3. Registers the `onmessage` handler to manage the three message types:
-   *    `ready`, `stdout`, and `result`.
-   *
-   * This is called on mount and after a timeout-triggered worker restart.
-   */
-  const initWorker = useCallback(() => {
-    setIsReady(false);
-    setIsLoading(true);
-
-    const worker = new Worker("/pyodide.worker.js");
-
-    worker.onmessage = (event) => {
-      const { type, text, success, output, error, id } = event.data;
-
-      if (type === "ready") {
-        // Pyodide has finished loading
-        setIsReady(true);
-        setIsLoading(false);
-        setPythonError(null);
-        console.log("🐍 Pyodide Worker Ready");
-      } else if (type === "error") {
-        // Handle boot failure
-        setIsLoading(false); // Prevent infinite loading
-        setIsReady(false);
-        setPythonError(event.data.error);
-        console.error(
-          "🐍 Pyodide Worker Failed to Initialize:",
-          event.data.error,
-        );
-      } else if (type === "stdout" && id) {
-        // Accumulate stdout lines for this execution
-        const currentBuffer = stdoutBuffers.current.get(id) || [];
-        stdoutBuffers.current.set(id, [...currentBuffer, text]);
-        console.log("🐍 Python output:", text);
-      } else if (type === "stderr" && id) {
-        const currentBuffer = stderrBuffers.current.get(id) || [];
-        stderrBuffers.current.set(id, [...currentBuffer, text]);
-      } else if (type === "result") {
-        // Final result for an execution
-        const handler = pendingRequests.current.get(id);
-        const buffer = stdoutBuffers.current.get(id) || [];
-        const errBuffer = stderrBuffers.current.get(id) || [];
-
-        if (handler) {
-          handler({
-            success,
-            output,
-            error,
-            stdout: buffer.join("\n"),
-            stderr: errBuffer.join("\n"),
-          });
-          pendingRequests.current.delete(id);
-          stdoutBuffers.current.delete(id);
-          stderrBuffers.current.delete(id);
-        }
-      }
-    };
-
-    workerRef.current = worker;
+  const failAllPending = useCallback((message) => {
+    for (const entry of pendingRequests.current.values()) {
+      clearTimeout(entry.timeoutId);
+      entry.settle({
+        success: false,
+        error: message,
+        stdout: entry.stdout.join("\n"),
+        stderr: entry.stderr.join("\n"),
+      });
+    }
+    pendingRequests.current.clear();
   }, []);
 
   /**
-   * Start the worker on mount; terminate it on unmount.
+   * (Re)start the worker. Safe to call at any time; also exposed as `restart`.
    */
+  const initWorker = useCallback(() => {
+    const generation = ++generationRef.current;
+    const isStale = () => generation !== generationRef.current;
+
+    clearTimeout(bootTimeoutRef.current);
+    // Anything still waiting on the previous boot gets a clean failure.
+    bootRef.current?.reject(new Error("Python engine was restarted"));
+    workerRef.current?.terminate();
+    workerRef.current = null;
+
+    const boot = createDeferred();
+    bootRef.current = boot;
+
+    setIsReady(false);
+    setIsLoading(true);
+    setPythonError(null);
+
+    const worker = new Worker(WORKER_URL);
+    workerRef.current = worker;
+
+    const fail = (message) => {
+      if (isStale()) return;
+      clearTimeout(bootTimeoutRef.current);
+      worker.terminate(); // don't leave a zombie worker running
+      if (workerRef.current === worker) workerRef.current = null;
+      setIsReady(false);
+      setIsLoading(false);
+      setPythonError(message);
+      boot.reject(new Error(message)); // no-op if already resolved
+      failAllPending(message);
+    };
+
+    bootTimeoutRef.current = setTimeout(
+      () => fail("Python engine took too long to load"),
+      BOOT_TIMEOUT_MS,
+    );
+
+    worker.onmessage = (event) => {
+      if (isStale()) return;
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+      const { type, text, success, output, error, id } = data;
+
+      switch (type) {
+        case "ready":
+          clearTimeout(bootTimeoutRef.current);
+          setIsReady(true);
+          setIsLoading(false);
+          setPythonError(null);
+          boot.resolve(worker);
+          break;
+
+        case "error":
+          fail(String(error || "Pyodide worker failed to initialize"));
+          break;
+
+        case "stdout":
+        case "stderr": {
+          const entry = pendingRequests.current.get(id);
+          if (entry && entry.size < MAX_OUTPUT_CHARS) {
+            entry.size += String(text).length;
+            entry[type].push(text);
+          }
+          break;
+        }
+
+        case "result": {
+          const entry = pendingRequests.current.get(id);
+          if (!entry) break;
+          pendingRequests.current.delete(id);
+          entry.settle({
+            success,
+            output,
+            error,
+            stdout: entry.stdout.join("\n"),
+            stderr: entry.stderr.join("\n"),
+          });
+          break;
+        }
+
+        default:
+          break;
+      }
+    };
+
+    worker.onerror = (event) => {
+      event?.preventDefault?.();
+      fail(event?.message || "Failed to load or execute Python worker script");
+    };
+
+    worker.onmessageerror = () => {
+      fail("Failed to deserialize message from Python worker");
+    };
+  }, [failAllPending]);
+
   useEffect(() => {
     initWorker();
-    return () => workerRef.current?.terminate();
-  }, [initWorker]);
+    return () => {
+      generationRef.current += 1; // invalidate all callbacks
+      clearTimeout(bootTimeoutRef.current);
+      bootRef.current?.reject(new Error("Python provider unmounted"));
+      failAllPending("Python provider unmounted");
+      workerRef.current?.terminate();
+      workerRef.current = null;
+    };
+  }, [initWorker, failAllPending]);
 
   /**
-   * Execute a string of Python code in the Pyodide worker.
+   * Execute Python code on the worker queue.
    *
-   * Returns a Promise that resolves with an object:
-   * ```
-   * {
-   *   success: boolean,
-   *   output?: string,    // the last expression's result or stdout if no return
-   *   error?: string,     // Python traceback or error message
-   *   stdout?: string     // all print() output, joined with newlines
-   * }
-   * ```
+   * Resolves (never rejects) with `{ success, output?, error?, stdout?, stderr? }`.
+   * If Pyodide is still booting, the call waits for it. `timeout` applies to
+   * execution only (starting once the run begins). On timeout, in-flight
+   * requests settle with partial `stdout` and `stderr`, and the worker is restarted.
    *
-   * **Timeout behaviour:** If execution exceeds `timeout` ms the worker is
-   * terminated and re-created. The promise resolves with
-   * `{ success: false, error: "Execution timed out after Xms" }`.
-   *
-   * **Ready guard:** If `isReady` is false (Pyodide still loading) the
-   * promise resolves immediately with an error message.
-   *
-   * @param {string} code - The Python source code to execute.
-   * @param {number} [timeout=5000] - Maximum execution time in ms.
-   * @returns {Promise<{ success: boolean, output?: string, error?: string, stdout?: string }>}
+   * @param {string} code - Python source code to execute.
+   * @param {number} [timeout=DEFAULT_TIMEOUT_MS] - Execution timeout in milliseconds.
+   * @returns {Promise<RunResult>}
    */
   const runCode = useCallback(
-    (code, timeout = 5000) => {
-      return new Promise((resolve) => {
-        if (!isReady) {
-          return resolve({
-            success: false,
-            error: "Python engine is still loading...",
-          });
-        }
+    (code, timeout = DEFAULT_TIMEOUT_MS) => {
+      if (code === null || code === undefined) {
+        return Promise.resolve({ success: false, error: "No code provided" });
+      }
 
-        let safeCode;
-        if (typeof code === "string") {
-          safeCode = code;
-        } else if (code === null || code === undefined) {
-          return resolve({
-            success: false,
-            error: "No code provided",
-          });
-        } else {
-          // Convert JsProxy or other objects to string
-          try {
-            safeCode = String(code);
-          } catch (e) {
-            return resolve({
-              success: false,
-              error: "Invalid code format",
-            });
-          }
-        }
-
-        const id = Math.random().toString(36).substring(7);
-        stdoutBuffers.current.set(id, []);
-        stderrBuffers.current.set(id, []);
-
-        const timeoutId = setTimeout(() => {
-          console.warn("RT: Execution timeout. Terminating worker...");
-          workerRef.current.terminate();
-          // Defensive cleanup to prevent stale references
-          workerRef.current = null;
-
-          pendingRequests.current.delete(id);
-          stdoutBuffers.current.delete(id);
-          stderrBuffers.current.delete(id);
-
-          initWorker();
-          resolve({
-            success: false,
-            error: `Execution timed out after ${timeout}ms`,
-          });
-        }, timeout);
-
-        pendingRequests.current.set(id, (result) => {
-          clearTimeout(timeoutId);
-          resolve(result);
+      let safeCode;
+      try {
+        safeCode = typeof code === "string" ? code : String(code);
+      } catch {
+        return Promise.resolve({
+          success: false,
+          error: "Invalid code format",
         });
+      }
 
-        // Send the SAFE code string
-        workerRef.current.postMessage({ code: safeCode, id });
-      });
+      const ms =
+        Number.isFinite(timeout) && timeout > 0 ? timeout : DEFAULT_TIMEOUT_MS;
+
+      const run = async () => {
+        // Wait for whichever worker generation is current.
+        let worker;
+        try {
+          worker = await bootRef.current.promise;
+        } catch (err) {
+          return { success: false, error: err.message };
+        }
+        if (workerRef.current !== worker) {
+          return { success: false, error: "Python worker is unavailable" };
+        }
+
+        return new Promise((resolve) => {
+          const id = createRequestId();
+
+          const timeoutId = setTimeout(() => {
+            console.warn("Python execution timed out. Restarting worker...");
+            // Settles this request (with partial output), then replaces the worker.
+            failAllPending(`Execution timed out after ${ms}ms`);
+            initWorker();
+          }, ms);
+
+          pendingRequests.current.set(id, {
+            settle: (result) => {
+              clearTimeout(timeoutId);
+              resolve(result);
+            },
+            timeoutId,
+            stdout: [],
+            stderr: [],
+            size: 0,
+          });
+
+          worker.postMessage({ code: safeCode, id });
+        });
+      };
+
+      const result = queueRef.current.then(run);
+      queueRef.current = result.catch(() => {});
+      return result;
     },
-    [isReady, initWorker],
+    [initWorker, failAllPending],
   );
 
-  /**
-   * The context value exposed to consumers. Wrapped in the provider's closure
-   * so `isReady`, `isLoading`, `pythonError`, and `runCode` are always up-to-date.
-   *
-   * @type {{ isReady: boolean, isLoading: boolean, pythonError: string|null, runCode: Function }}
-   */
-  const value = { isReady, isLoading, pythonError, runCode };
+  const value = useMemo(
+    () => ({ isReady, isLoading, pythonError, runCode, restart: initWorker }),
+    [isReady, isLoading, pythonError, runCode, initWorker],
+  );
 
   return (
     <PythonContext.Provider value={value}>{children}</PythonContext.Provider>
   );
 };
 
-// ---------------------------------------------------------------------------
-// Consumer Hook
-// ---------------------------------------------------------------------------
-
 /**
- * Access the Python execution context.
- *
- * Returns `{ isReady, isLoading, runCode }`.
+ * Access the Python execution context (`isReady`, `isLoading`, `pythonError`,
+ * `runCode`, and `restart`).
  *
  * @throws {Error} If called outside of a `<PythonProvider>`.
- * @returns {{ isReady: boolean, isLoading: boolean, pythonError: string|null, runCode: Function }}
+ * @returns {PythonContextValue}
  */
 export const usePython = () => {
   const context = useContext(PythonContext);
-
   if (!context) {
     throw new Error("usePython must be used within a PythonProvider");
   }
