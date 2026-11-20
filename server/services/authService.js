@@ -2,7 +2,6 @@
 // ─────────────── IMPORTS ──────────────────
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const mongoose = require("mongoose");
 const config = require("../config/envConfig");
 
 // MODELS
@@ -24,6 +23,7 @@ const { trackDailyActivity } = require("./streakManager");
 
 // UTILITIES & CONSTANTS
 const AppError = require("../utils/AppError");
+const dbHelpers = require("../utils/dbHelpers");
 const emailTemplates = require("../utils/emailTemplates");
 const pepper = require("../utils/pepper");
 const userUtils = require("../utils/userUtils");
@@ -75,16 +75,16 @@ const registerUser = async ({
   if (!usernameValidation.isValid)
     throw new AppError(usernameValidation.message, 400);
   if (!validationHelper.validateEmail(email))
-    throw new AppError("Please provide a valid email address", 400);
+    throw new AppError("Please provide a valid email address.", 400);
 
   const passwordValidation = validationHelper.validatePassword(password);
   if (!passwordValidation.isValid)
     throw new AppError(passwordValidation.message, 400);
-  if (!dateOfBirth) throw new AppError("Date of birth is required", 400);
+  if (!dateOfBirth) throw new AppError("Date of birth is required.", 400);
 
   const birthDate = new Date(dateOfBirth);
   if (isNaN(birthDate.getTime()))
-    throw new AppError("Invalid date of birth", 400);
+    throw new AppError("Invalid date of birth.", 400);
 
   const age = userUtils.calculateAge(birthDate);
   if (age < authConstants.MIN_AGE)
@@ -103,8 +103,8 @@ const registerUser = async ({
     User.findOne({ username }),
   ]);
 
-  if (existingEmail) throw new AppError("Email already in use", 400);
-  if (existingUsername) throw new AppError("Username already taken", 400);
+  if (existingEmail) throw new AppError("Email already in use.", 400);
+  if (existingUsername) throw new AppError("Username already taken.", 400);
 
   const hashed = await hashPassword(password);
   const newUser = await User.create({
@@ -141,7 +141,7 @@ const authenticateUser = async ({
 }) => {
   const loginIdentifier = credential || email;
   if (!loginIdentifier || !password)
-    throw new AppError("Please provide credentials and password", 400);
+    throw new AppError("Please provide credentials and a password.", 400);
 
   const user = await User.findByCredential(loginIdentifier);
   if (user) userUtils.reconcileLeaderboardStatus(user);
@@ -205,7 +205,7 @@ const revokeUserSessions = async (userId) => {
  */
 const createPasswordReset = async (email) => {
   if (!validationHelper.validateEmail(email))
-    throw new AppError("Please provide a valid email address", 400);
+    throw new AppError("Please provide a valid email address.", 400);
 
   const genericMessage =
     "If an account with that email exists, a password reset link has been sent.";
@@ -415,21 +415,12 @@ const detachAdminLogs = (id, session) => {
   return session ? q.session(session) : q;
 };
 
-const deleteWithTransaction = async (id) => {
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
+const deleteWithTransaction = (id) =>
+  dbHelpers.runInTransaction(async (session) => {
     await User.findByIdAndDelete(id).session(session);
     await cascadeDelete(id, session);
     await detachAdminLogs(id, session);
-    await session.commitTransaction();
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
-  } finally {
-    session.endSession();
-  }
-};
+  });
 
 const deleteWithoutTransaction = async (id) => {
   await User.findByIdAndDelete(id);
@@ -546,13 +537,13 @@ const createContentFlag = async (reporterId, payload) => {
     payload;
 
   if (!authConstants.VALID_TARGET_TYPES.includes(targetType))
-    throw new AppError("Invalid target type", 400);
+    throw new AppError("Invalid target type.", 400);
   if (!authConstants.VALID_ISSUE_TYPES.includes(issueType))
-    throw new AppError("Invalid issue type", 400);
+    throw new AppError("Invalid issue type.", 400);
   if (!title || !description)
-    throw new AppError("Title and description are required", 400);
+    throw new AppError("Title and description are required.", 400);
   if (!(await targetExists(targetType, targetId)))
-    throw new AppError("Target not found", 404);
+    throw new AppError("Target not found.", 404);
 
   const existingFlag = await FlaggedContent.findOne({
     targetType,

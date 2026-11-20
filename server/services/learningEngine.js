@@ -989,7 +989,7 @@ const submitModuleQuizAttempt = async (
 
   if (completedLessonsInModule !== moduleLessons.length) {
     throw new AppError(
-      "Complete all lessons before taking the module quiz",
+      "Complete all lessons before taking the module quiz.",
       403,
     );
   }
