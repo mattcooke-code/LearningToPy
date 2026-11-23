@@ -365,34 +365,6 @@ const updateUserCookieConsent = async (
 // |              ACCOUNT SERVICE                |
 // +=============================================+
 
-/**
- * Deletes a user account and all associated data after password verification.
- * @async
- * @param {string} userId - The user's ID.
- * @param {string} password - The user's current password for confirmation.
- * @throws {AppError} 401 if password is incorrect.
- */
-const deleteUserAccount = async (userId, password) => {
-  if (!password)
-    throw new AppError(
-      "Please provide your password to confirm deletion.",
-      400,
-    );
-
-  const user = await User.findById(userId).select("+password");
-  if (!user) throw new AppError("User not found.", 404);
-
-  const isMatch = await verifyPassword(password, user.password);
-  if (!isMatch)
-    throw new AppError("Password is incorrect. Account not deleted.", 401);
-
-  if (config.isProduction()) {
-    await deleteWithTransaction(user._id);
-  } else {
-    await deleteWithoutTransaction(user._id);
-  }
-};
-
 const cascadeDelete = (id, session) => {
   const q = (fn) => (session ? fn.session(session) : fn);
   return Promise.all([
@@ -426,6 +398,34 @@ const deleteWithoutTransaction = async (id) => {
   await User.findByIdAndDelete(id);
   await cascadeDelete(id, null);
   await detachAdminLogs(id, null);
+};
+
+/**
+ * Deletes a user account and all associated data after password verification.
+ * @async
+ * @param {string} userId - The user's ID.
+ * @param {string} password - The user's current password for confirmation.
+ * @throws {AppError} 401 if password is incorrect.
+ */
+const deleteUserAccount = async (userId, password) => {
+  if (!password)
+    throw new AppError(
+      "Please provide your password to confirm deletion.",
+      400,
+    );
+
+  const user = await User.findById(userId).select("+password");
+  if (!user) throw new AppError("User not found.", 404);
+
+  const isMatch = await verifyPassword(password, user.password);
+  if (!isMatch)
+    throw new AppError("Password is incorrect. Account not deleted.", 401);
+
+  if (config.isProduction()) {
+    await deleteWithTransaction(user._id);
+  } else {
+    await deleteWithoutTransaction(user._id);
+  }
 };
 
 /**
