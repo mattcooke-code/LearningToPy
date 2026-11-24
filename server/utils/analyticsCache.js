@@ -34,4 +34,18 @@ const invalidatePrefix = (prefix) => {
   cache.del(keys);
 };
 
-module.exports = { withCache, invalidatePrefix };
+/**
+ * Truncate a Date to the given granularity, ISO-stringified.
+ * Use when building cache keys so requests within the same bucket share an entry.
+ * @param {Date} date
+ * @param {"hour"|"day"} granularity
+ * @returns {string}
+ */
+const truncateDate = (date, granularity) => {
+  const d = new Date(date);
+  d.setMinutes(0, 0, 0);
+  if (granularity === "day") d.setHours(0);
+  return d.toISOString();
+};
+
+module.exports = { withCache, invalidatePrefix, truncateDate };
