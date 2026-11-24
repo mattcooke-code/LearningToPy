@@ -11,7 +11,7 @@ const QuizAttempt = require("../models/QuizAttempt");
 const User = require("../models/User");
 const XpTransaction = require("../models/XpTransaction");
 // ---SERVICES---
-const analytics = require("./analytics");
+const progressFormatter = require("./progressFormatter");
 const gamification = require("./gamification");
 const moduleProgress = require("./moduleProgress");
 const streakManager = require("./streakManager");
@@ -350,7 +350,7 @@ const buildProgressResponse = async (user, { Lesson, Module }) => {
       fetchUserCompletionData(user._id, { fullDocs: true }),
     ]);
 
-  return analytics.formatProgressResponse(
+  return progressFormatter.formatProgressResponse(
     user.toObject(),
     totalCurriculumLessons,
     completedCurriculumCount,
@@ -1108,7 +1108,7 @@ const fixUserModuleProgress = async (userId) => {
     const lessons = lessonsByModule[moduleIdString] || [];
     if (lessons.length === 0) continue;
 
-    const allLessonsDone = analytics.isModuleFinished(
+    const allLessonsDone = progressFormatter.isModuleFinished(
       completedLessons,
       lessons,
     );

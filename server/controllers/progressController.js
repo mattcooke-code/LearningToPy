@@ -8,7 +8,7 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
-const analytics = require("../services/analytics");
+const progressFormatter = require("../services/progressFormatter");
 const learningEngine = require("../services/learningEngine");
 const gamification = require("../services/gamification");
 const leaderboardService = require("../services/leaderboardService");
@@ -44,7 +44,7 @@ const getCurrentProgress = catchAsync(async (req, res, next) => {
     // If theme updating happens here or via hook
   }
 
-  const progressData = analytics.formatProgressResponse(
+  const progressData = progressFormatter.formatProgressResponse(
     userWithArrays,
     totalCurriculumLessons,
     completedCurriculumCount,

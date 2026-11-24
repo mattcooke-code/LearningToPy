@@ -9,7 +9,7 @@ const catchAsync = require("../utils/catchAsync");
 const learningEngine = require("../services/learningEngine");
 const quizHelpers = require("../utils/quizHelpers");
 const moduleProgress = require("../services/moduleProgress");
-const analytics = require("../services/analytics");
+const progressFormatter = require("../services/progressFormatter");
 
 const { sendJsonResponse } = require("../utils/responseHelpers");
 
@@ -46,7 +46,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
       lessons,
       completedLessons,
     );
-    const moduleLessonProgress = analytics.calculateProgress(
+    const moduleLessonProgress = progressFormatter.calculateProgress(
       completedLessonsInModule,
       lessons.length,
     );
@@ -55,7 +55,7 @@ const getAllModules = catchAsync(async (req, res, next) => {
       { quizAttempts },
       module._id,
     );
-    const allLessonsComplete = analytics.isModuleFinished(
+    const allLessonsComplete = progressFormatter.isModuleFinished(
       completedLessons,
       lessons,
     );
@@ -111,7 +111,7 @@ const getModule = catchAsync(async (req, res, next) => {
     lessons,
     completedLessons,
   );
-  const allLessonsComplete = analytics.isModuleFinished(
+  const allLessonsComplete = progressFormatter.isModuleFinished(
     completedLessons,
     lessons,
   );

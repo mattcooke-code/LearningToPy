@@ -27,7 +27,7 @@ import {
   getLessonCompletionCountByTag,
   hasCompletedChallengeGroup,
   calculateDaysActive,
-} from "../../services/analytics";
+} from "../../services/progressFormatter";
 
 // --- TESTS ---
 
