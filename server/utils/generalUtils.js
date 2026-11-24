@@ -79,12 +79,12 @@ const normalizeDate = (value) => {
 };
 
 /**
- * Normalize a date to midnight UTC timestamp (milliseconds).
+ * Normalize a date to midnight local timestamp (milliseconds).
  * Used for day-level comparisons in streak tracking.
  * Mutates the date — sets hours, minutes, seconds, ms to 0.
  *
  * @param   {Date|string} date - Date to normalize
- * @returns {number} Midnight UTC timestamp in milliseconds
+ * @returns {number} Midnight local timestamp in milliseconds
  */
 const checkDate = (date) => {
   const d = new Date(date);
