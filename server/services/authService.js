@@ -7,6 +7,8 @@ const config = require("../config/envConfig");
 // MODELS
 const ActivityLog = require("../models/ActivityLog");
 const AdminLog = require("../models/AdminLog");
+const CourseCompletion = require("../models/CourseCompletion");
+const ExerciseProgress = require("../models/ExerciseProgress");
 const FlaggedContent = require("../models/FlaggedContent");
 const Lesson = require("../models/Lesson");
 const LessonCompletion = require("../models/LessonCompletion");
@@ -87,14 +89,12 @@ const bumpTokenVersion = (user) => {
 /**
  * Track daily streak activity for a user and persist the change.
  * @param {Object} user - Mongoose user document
- * @param {string} [userLocalDate] - Client-supplied YYYY-MM-DD; defaults to today (UTC)
+ * @param {string} [userLocalDate] - Client-supplied YYYY-MM-DD. streakManager
+ *   validates it and falls back to today (UTC) if missing or implausible.
  * @returns {Promise<Object>} Streak data
  */
 const recordActivity = async (user, userLocalDate) => {
-  const streak = await streakManager.trackDailyActivity(
-    user,
-    userLocalDate || generalUtils.getDateKey(new Date()),
-  );
+  const streak = await streakManager.trackDailyActivity(user, userLocalDate);
   await user.save();
   return streak;
 };
@@ -275,7 +275,9 @@ const createPasswordReset = async (email) => {
     .randomBytes(authConstants.RESET_TOKEN_BYTES)
     .toString("hex");
   user.resetPasswordToken = hashResetToken(resetToken);
-  user.resetPasswordExpires = Date.now() + authConstants.RESET_TOKEN_TTL_MS;
+  user.resetPasswordExpires = new Date(
+    Date.now() + authConstants.RESET_TOKEN_TTL_MS,
+  );
   await user.save();
 
   const resetUrl = `${config.getFrontendUrl()}/reset-password/${resetToken}`;
@@ -303,7 +305,7 @@ const findValidResetUser = async (token) => {
 
   const user = await User.findOne({
     resetPasswordToken: hashResetToken(token),
-    resetPasswordExpires: { $gt: Date.now() },
+    resetPasswordExpires: { $gt: new Date() },
   });
   if (!user)
     throw new AppError("Password reset token is invalid or has expired.", 400);
@@ -375,7 +377,7 @@ const updateUserPrivacySettings = async (userId, settings) => {
   }
 
   const existingUser = await User.findById(userId).select("+ageBracket");
-  if (!existingUser) throw new AppError("User not found.", 404);
+  if (!existingUser) throw new AppError("User not found", 404);
 
   const finalSettings =
     existingUser.ageBracket === authConstants.RESTRICTED_AGE_BRACKET
@@ -393,7 +395,7 @@ const updateUserPrivacySettings = async (userId, settings) => {
   ).select("username privacySettings");
 
   // The account can be deleted between the lookup above and this update.
-  if (!user) throw new AppError("User not found.", 404);
+  if (!user) throw new AppError("User not found", 404);
 
   return user.privacySettings;
 };
@@ -465,6 +467,11 @@ const USER_OWNED = [
     sort: { completedAt: -1 },
   },
   {
+    exportKey: "courseCompletion",
+    Model: CourseCompletion,
+    ownerField: "userId",
+  },
+  {
     exportKey: "quizAttempts",
     Model: QuizAttempt,
     ownerField: "userId",
@@ -480,6 +487,12 @@ const USER_OWNED = [
     exportKey: "lessonQuizProgress",
     Model: LessonQuizProgress,
     ownerField: "userId",
+  },
+  {
+    exportKey: "exerciseProgress",
+    Model: ExerciseProgress,
+    ownerField: "userId",
+    sort: { createdAt: -1 },
   },
   {
     exportKey: "activityLogs",
@@ -575,7 +588,7 @@ const deleteUserAccount = async (userId, password) => {
 const exportUserDataFor = async (userId) => {
   const user = await User.findById(userId)
     .select(
-      "-password -refreshTokenVersion -resetPasswordToken -resetPasswordExpires",
+      "+ageBracket -password -refreshTokenVersion -resetPasswordToken -resetPasswordExpires",
     )
     .lean();
   if (!user) throw new AppError("User not found.", 404);
