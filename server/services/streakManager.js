@@ -1,12 +1,49 @@
 // services/streakManager.js
 const User = require("../models/User");
-const { checkDate } = require("../utils/generalUtils");
+const generalUtils = require("../utils/generalUtils");
 
 const STREAK_CONFIG = {
   WARNING_DAY: 5,
   REQUIRED_COMPLETIONS: 1,
   VIEW_QUALIFIES_DAYS: 5,
   WEEK_START_DAY: 1, // (1 = Monday, 0 = Sunday)
+};
+
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+// Local calendar dates run from UTC-12 to UTC+14, so a genuine client date is
+// never more than one day away from the server's current UTC date.
+const MAX_CLIENT_DATE_SKEW_DAYS = 1;
+
+/**
+ * Turn a client-supplied local date into a trustworthy "YYYY-MM-DD" key.
+ *
+ * The client date is what makes streaks follow the user's own calendar, but it
+ * is also user-controlled. Anything malformed, impossible (e.g. 2026-02-31) or
+ * more than a day away from the server's UTC date is replaced with today's
+ * UTC date, so a crafted date cannot be used to inflate a streak.
+ *
+ * @param {*} value - Client-supplied date (expected "YYYY-MM-DD")
+ * @returns {string} A valid "YYYY-MM-DD" key
+ */
+const resolveLocalDateKey = (value) => {
+  const serverKey = generalUtils.getDateKey(new Date());
+  if (typeof value !== "string" || !DATE_KEY_PATTERN.test(value))
+    return serverKey;
+
+  const parsed = new Date(`${value}T00:00:00Z`);
+  // Date rolls impossible dates over (Feb 31 -> Mar 3), so round-trip the key.
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    generalUtils.getDateKey(parsed) !== value
+  )
+    return serverKey;
+
+  const offsetDays = Math.round(
+    (parsed.getTime() - generalUtils.startOfUtcDay(new Date())) /
+      generalUtils.DAY_MS,
+  );
+  return Math.abs(offsetDays) <= MAX_CLIENT_DATE_SKEW_DAYS ? value : serverKey;
 };
 
 /**
@@ -27,33 +64,38 @@ const getWeekStart = (userLocalDateStr) => {
  */
 const getDayOfWeek = (userLocalDateStr, weekStart) => {
   const dateTime = new Date(userLocalDateStr + "T00:00:00Z");
-  const weekStartTime = checkDate(weekStart);
-  const diffDays = Math.round(
-    (dateTime - weekStartTime) / (1000 * 60 * 60 * 24),
-  );
+  const weekStartTime = generalUtils.startOfUtcDay(weekStart);
+  const diffDays = Math.round((dateTime - weekStartTime) / generalUtils.DAY_MS);
   return diffDays + 1;
 };
 
 /**
  * Track general user daily activity (triggered on login or token refresh).
+ *
+ * @param {Object} user - User document (mutated in place; caller saves)
+ * @param {string} userLocalDateStr - Client's local date, "YYYY-MM-DD"
+ *   (validated by resolveLocalDateKey; falls back to today UTC)
  */
 const trackDailyActivity = async (user, userLocalDateStr) => {
-  const todayTime = new Date(userLocalDateStr + "T00:00:00Z");
+  const localDate = resolveLocalDateKey(userLocalDateStr);
+  const todayTime = new Date(localDate + "T00:00:00Z");
 
-  await initializeWeekIfNeeded(user, todayTime, userLocalDateStr);
+  await initializeWeekIfNeeded(user, todayTime, localDate);
 
   const streakLastChecked = user.streakLastCheckedDate
-    ? checkDate(user.streakLastCheckedDate)
+    ? generalUtils.startOfUtcDay(user.streakLastCheckedDate)
     : null;
 
   if (!streakLastChecked || streakLastChecked < todayTime) {
-    await handleNewDayOfActivity(user, todayTime, userLocalDateStr);
+    await handleNewDayOfActivity(user, todayTime, localDate);
+    // Store the user's LOCAL calendar day (as UTC midnight), not the server
+    // clock. Using "now" meant a user whose local day differs from the UTC
+    // day was compared against the wrong date on their next visit.
+    user.streakLastCheckedDate = todayTime;
   }
 
-  user.streakLastCheckedDate = new Date();
-
   // checkWarningStatus does not save — caller handles persistence
-  await checkWarningStatus(user, userLocalDateStr);
+  await checkWarningStatus(user, localDate);
 
   return {
     streak: user.streak,
@@ -66,13 +108,14 @@ const trackDailyActivity = async (user, userLocalDateStr) => {
  * Track when user COMPLETES a lesson or module quiz.
  */
 const trackCompletion = async (user, userLocalDateStr) => {
-  const todayTime = new Date(userLocalDateStr + "T00:00:00Z");
+  const localDate = resolveLocalDateKey(userLocalDateStr);
+  const todayTime = new Date(localDate + "T00:00:00Z");
 
-  await initializeWeekIfNeeded(user, todayTime, userLocalDateStr);
+  await initializeWeekIfNeeded(user, todayTime, localDate);
 
   // Guard against counting multiple completions on the same day
   const lastCompletion = user.lastCompletionDate
-    ? checkDate(user.lastCompletionDate)
+    ? generalUtils.startOfUtcDay(user.lastCompletionDate)
     : null;
 
   const alreadyCompletedToday = lastCompletion && lastCompletion >= todayTime;
@@ -81,7 +124,8 @@ const trackCompletion = async (user, userLocalDateStr) => {
     user.weeklyProgress.completionsThisWeek += 1;
   }
 
-  user.lastCompletionDate = new Date();
+  // Local calendar day as UTC midnight (see trackDailyActivity); never moves backwards.
+  if (!alreadyCompletedToday) user.lastCompletionDate = todayTime;
 
   // Recover from both "WARNING" and "AT_RISK" statuses on completion
   if (
@@ -96,10 +140,7 @@ const trackCompletion = async (user, userLocalDateStr) => {
   // Advance the streak at most once per day. updateStreak() compares against
   // streakLastCheckedDate, which completions don't move, so without this guard
   // every extra completion on days 6-7 would add another +1.
-  const dayOfWeek = getDayOfWeek(
-    userLocalDateStr,
-    user.weeklyProgress.weekStartDate,
-  );
+  const dayOfWeek = getDayOfWeek(localDate, user.weeklyProgress.weekStartDate);
   if (
     !alreadyCompletedToday &&
     (dayOfWeek > STREAK_CONFIG.VIEW_QUALIFIES_DAYS ||
@@ -122,16 +163,17 @@ const trackCompletion = async (user, userLocalDateStr) => {
  */
 const initializeWeekIfNeeded = async (user, todayTime, userLocalDateStr) => {
   const weekStart = getWeekStart(userLocalDateStr);
-  const weekStartTime = checkDate(weekStart);
+  const weekStartTime = generalUtils.startOfUtcDay(weekStart);
 
   if (
     !user.weeklyProgress.weekStartDate ||
-    checkDate(user.weeklyProgress.weekStartDate) < weekStartTime
+    generalUtils.startOfUtcDay(user.weeklyProgress.weekStartDate) <
+      weekStartTime
   ) {
     const weekEnd = new Date(weekStart);
     weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
     weekEnd.setUTCHours(23, 59, 59, 999);
-    const weekEndTime = checkDate(weekEnd);
+    const weekEndTime = generalUtils.startOfUtcDay(weekEnd);
 
     if (todayTime > weekEndTime) {
       await evaluateLastWeek(user);
@@ -187,9 +229,11 @@ const updateStreak = async (user, todayTime) => {
     return;
   }
 
-  const streakLastCheckedTime = checkDate(user.streakLastCheckedDate);
+  const streakLastCheckedTime = generalUtils.startOfUtcDay(
+    user.streakLastCheckedDate,
+  );
   const diffDays = Math.round(
-    (todayTime - streakLastCheckedTime) / (1000 * 60 * 60 * 24),
+    (todayTime - streakLastCheckedTime) / generalUtils.DAY_MS,
   );
 
   if (diffDays === 1) {
@@ -267,7 +311,10 @@ const getStreakInfo = async (userId, userLocalDateStr) => {
   if (!user) return null;
 
   const dayOfWeek = user.weeklyProgress.weekStartDate
-    ? getDayOfWeek(userLocalDateStr, user.weeklyProgress.weekStartDate)
+    ? getDayOfWeek(
+        resolveLocalDateKey(userLocalDateStr),
+        user.weeklyProgress.weekStartDate,
+      )
     : 1;
 
   return {

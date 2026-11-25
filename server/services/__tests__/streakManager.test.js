@@ -1,17 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// Mock checkDate to return controlled timestamps
-const mockCheckDate = vi.fn((date) => {
-  if (!date) return null;
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
-});
-
-vi.mock("../../utils/generalUtils", () => ({
-  checkDate: mockCheckDate,
-}));
-
 import {
   trackDailyActivity,
   trackCompletion,
