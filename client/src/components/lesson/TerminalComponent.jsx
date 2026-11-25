@@ -13,6 +13,7 @@ import {
   Play,
   Trash2,
   Copy,
+  Check,
   Download,
   AlertCircle,
   AlertTriangle,
@@ -21,98 +22,9 @@ import { usePython, useTheme } from "../../context";
 import { PythonSyntaxHighlighter, Spinner } from "../ui";
 import { useFileDownload } from "../../hooks/useFileDownload";
 
-/**
- * @fileoverview
- * Interactive Python terminal component using Pyodide for client-side code execution.
- * This component provides a full-featured terminal experience with command history,
- * syntax highlighting, and mock library support. Handles Pyodide WASM environment
- * loading states, code execution with preamble injection, and comprehensive error handling.
- * Features keyboard shortcuts, session management, and responsive design.
- */
-
-/**
- * Interactive Python terminal component powered by Pyodide for client-side execution.
- *
- * This component creates a fully functional Python terminal that runs entirely in the browser
- * using WebAssembly (Pyodide). It handles the complete lifecycle of the Python environment
- * including loading states, code execution with mock library injection, command history,
- * and comprehensive error handling. The terminal provides a REPL-like experience with
- * syntax highlighting, keyboard shortcuts, and session management capabilities.
- *
- * @component
- * @param {Object} props - Component props
- * @param {string} [props.initialCode="print('Hello, Python Terminal!')"] - Initial code to display
- * @param {string} [props.height="300px"] - Terminal height
- * @param {Function} [props.onCodeExecute=null] - Callback when code executes
- * @param {boolean} [props.readOnly=false] - Whether terminal is read-only
- * @param {Object} ref - Forwarded ref for imperative methods
- * @returns {JSX.Element} Interactive Python terminal interface
- *
- * @pyodideIntegration
- * - Uses usePython hook for Pyodide WASM environment access
- * - Handles loading/ready states of the Python engine
- * - Code execution through runCode() method with timeout handling
- * - Mock library injection for browser-incompatible modules (requests, etc.)
- * - Preamble building for seamless library integration
- *
- * @codeExecutionFlow
- * 1. Code validation (removes comments, checks for incomplete placeholders)
- * 2. Preamble injection for mocked libraries
- * 3. Execution through Pyodide's runCode() method
- * 4. Result processing (stdout, stderr, output handling)
- * 5. Terminal output formatting and display
- * 6. History management and cursor positioning
- *
- * @mockLibrarySystem
- * - MOCKED_LIBRARIES object defines browser-incompatible modules
- * - extractImportedModules() parses import statements from user code
- * - buildPreamble() creates mock code for detected incompatible imports
- * - Mock libraries provide simulated responses for network operations
- * - Warning system informs users about simulated functionality
- *
- * @stateManagement
- * - input: Current user input in terminal
- * - output: Array of terminal output items (input, output, error, warning)
- * - history: Command history for navigation with arrow keys
- * - historyIndex: Current position in command history
- * - isExecuting: Loading state during code execution
- *
- * @userInteraction
- * - Enter key executes code, Shift+Enter for new lines
- * - Arrow keys navigate command history
- * - Ctrl+L clears terminal, Ctrl+D downloads session
- * - Click-to-copy and download functionality
- * - Quick code snippets for common operations
- *
- * @errorHandling
- * - Pyodide loading failure states with retry options
- * - Code execution errors with detailed error messages
- * - Incomplete placeholder detection (??? patterns)
- * - Network error handling for file operations
- * - Graceful fallbacks for unsupported operations
- *
- * @responsiveDesign
- * - Mobile-friendly input area with adaptive sizing
- * - Touch-friendly buttons and controls
- * - Flexible layout for different screen sizes
- * - Accessible keyboard navigation and shortcuts
- */
-
-// ---------------------------------------------------------------------------
-// Library strategy configuration
-// ---------------------------------------------------------------------------
-
-/**
- * Libraries that must be mocked because they rely on OS networking
- * which is unavailable in the browser sandbox.
- *
- * Each entry is a Python code string that installs a fake module into
- * sys.modules. The mock is injected before the student's code runs.
- */
 const MOCKED_LIBRARIES = {
   requests: `
 import sys, json as _json
-
 class _MockResponse:
     def __init__(self):
         self.status_code = 200
@@ -127,18 +39,12 @@ class _MockResponse:
         return f"<MockResponse [200]>"
 
 class _MockRequests:
-    def get(self, url, **kwargs):
-        return _MockResponse()
-    def post(self, url, **kwargs):
-        return _MockResponse()
-    def put(self, url, **kwargs):
-        return _MockResponse()
-    def delete(self, url, **kwargs):
-        return _MockResponse()
-    def head(self, url, **kwargs):
-        return _MockResponse()
-    def patch(self, url, **kwargs):
-        return _MockResponse()
+    def get(self, url, **kwargs): return _MockResponse()
+    def post(self, url, **kwargs): return _MockResponse()
+    def put(self, url, **kwargs): return _MockResponse()
+    def delete(self, url, **kwargs): return _MockResponse()
+    def head(self, url, **kwargs): return _MockResponse()
+    def patch(self, url, **kwargs): return _MockResponse()
 
 sys.modules['requests'] = _MockRequests()
 `.trim(),
@@ -154,18 +60,6 @@ const SNIPPETS = [
   { name: "Loop", code: "for i in range(3):\n    print(f'Count: {i}')" },
 ];
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Parse import statements from student code and return a list of top-level
- * module names. Handles:
- *   import pandas
- *   import pandas as pd
- *   from bs4 import BeautifulSoup
- *   from requests import get
- */
 const extractImportedModules = (code) => {
   const modules = new Set();
   const importRegex = /^\s*(?:import\s+([\w]+)|from\s+([\w]+)\s+import)/gm;
@@ -176,17 +70,9 @@ const extractImportedModules = (code) => {
   return [...modules];
 };
 
-/**
- * Build the Python preamble.
- * All course libraries are preloaded in the worker — this only needs to
- * inject mocks for libraries that cannot run in the browser (e.g. requests).
- *
- * Returns { preamble: string, warnings: string[] }
- */
 const buildPreamble = (code) => {
   const imported = extractImportedModules(code);
   const warnings = [];
-
   const toMock = imported.filter((mod) => mod in MOCKED_LIBRARIES);
 
   if (toMock.length > 0) {
@@ -203,10 +89,6 @@ const buildPreamble = (code) => {
   return { preamble, warnings };
 };
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
 const TerminalComponent = forwardRef(
   (
     {
@@ -220,17 +102,16 @@ const TerminalComponent = forwardRef(
   ) => {
     const { isCodeDark } = useTheme();
     const { runCode, isReady, isLoading } = usePython();
-
     const [input, setInput] = useState(initialCode || "");
     const [output, setOutput] = useState([]);
     const [history, setHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [isExecuting, setIsExecuting] = useState(false);
+    const [copied, setCopied] = useState(false); // FIX: Copy feedback state
 
     const terminalRef = useRef(null);
     const inputRef = useRef(null);
     const lastInitialCode = useRef(initialCode);
-
     const { downloadTextFile } = useFileDownload();
 
     const focusInput = () => {
@@ -259,21 +140,16 @@ const TerminalComponent = forwardRef(
         .join("\n");
     }, [output]);
 
-    // ---------------------------------------------------------------------------
-    // Core execute logic
-    // ---------------------------------------------------------------------------
-
+    // FIX: Removed unused forceRun parameter
     const executeCode = useCallback(
-      async (code = input, { forceRun = false } = {}) => {
+      async (code = input) => {
         if (!code.trim() || isExecuting || !isReady) return;
 
-        // ----- Starter code guard -----
         const codeWithoutComments = code
           .split("\n")
           .map((line) => line.split("#")[0])
           .join("\n");
 
-        // ----- ??? guard: block on incomplete placeholders -----
         if (codeWithoutComments.includes("???")) {
           setOutput((prev) => [
             ...prev,
@@ -295,7 +171,6 @@ const TerminalComponent = forwardRef(
         setInput("");
 
         try {
-          // ----- Build preamble (mocks only — libraries preloaded in worker) -----
           const { preamble, warnings } = buildPreamble(code);
           const fullPreamble = [executionPreamble, preamble]
             .filter(Boolean)
@@ -342,7 +217,6 @@ const TerminalComponent = forwardRef(
               { type: "input", content: code },
               { type: "error", content: result.error },
             ]);
-
             if (onCodeExecute) {
               onCodeExecute({ code, error: result.error, success: false });
             }
@@ -372,8 +246,15 @@ const TerminalComponent = forwardRef(
       focusInput();
     };
 
-    const copyTerminalContent = () => {
-      navigator.clipboard.writeText(terminalContent);
+    // FIX: Added error handling and visual feedback for copy
+    const copyTerminalContent = async () => {
+      try {
+        await navigator.clipboard.writeText(terminalContent);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error("Clipboard error:", err);
+      }
     };
 
     const downloadTerminalSession = () => {
@@ -381,39 +262,48 @@ const TerminalComponent = forwardRef(
     };
 
     useImperativeHandle(ref, () => ({
-      executeCode: (code) => executeCode(code, { forceRun: true }),
+      executeCode: (code) => executeCode(code),
       clearTerminal,
     }));
 
+    // FIX: Smart ArrowUp/ArrowDown handling for multi-line textareas
     const handleKeyDown = useCallback(
       (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
           executeCode();
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          if (historyIndex > 0) {
-            const newIndex = historyIndex - 1;
-            setHistoryIndex(newIndex);
-            setInput(history[newIndex]);
-          }
-        } else if (e.key === "ArrowDown") {
-          e.preventDefault();
-          if (historyIndex < history.length - 1) {
-            const newIndex = historyIndex + 1;
-            setHistoryIndex(newIndex);
-            setInput(history[newIndex]);
-          } else {
-            setHistoryIndex(history.length);
-            setInput("");
+        } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+          const textarea = e.target;
+          const cursorPos = textarea.selectionStart;
+          const textBeforeCursor = textarea.value.substring(0, cursorPos);
+          const textAfterCursor = textarea.value.substring(cursorPos);
+
+          const isAtFirstLine = !textBeforeCursor.includes("\n");
+          const isAtLastLine = !textAfterCursor.includes("\n");
+
+          if (e.key === "ArrowUp" && isAtFirstLine) {
+            e.preventDefault();
+            if (historyIndex > 0) {
+              const newIndex = historyIndex - 1;
+              setHistoryIndex(newIndex);
+              setInput(history[newIndex]);
+            }
+          } else if (e.key === "ArrowDown" && isAtLastLine) {
+            e.preventDefault();
+            if (historyIndex < history.length - 1) {
+              const newIndex = historyIndex + 1;
+              setHistoryIndex(newIndex);
+              setInput(history[newIndex]);
+            } else {
+              setHistoryIndex(history.length);
+              setInput("");
+            }
           }
         } else if (e.key === "l" && e.ctrlKey) {
           e.preventDefault();
           clearTerminal();
-        } else if (e.key === "d" && e.ctrlKey) {
-          e.preventDefault();
-          downloadTerminalSession();
         }
+        // FIX: Removed Ctrl+D to prevent browser bookmark collision
       },
       [executeCode, history, historyIndex],
     );
@@ -423,11 +313,8 @@ const TerminalComponent = forwardRef(
       focusInput();
     };
 
-    useEffect(() => {
-      focusInput();
-    }, []);
+    // FIX: Removed auto-focus on mount to prevent accessibility/jump issues
 
-    // Sync input when parent changes initialCode (e.g. student moves to next step)
     useEffect(() => {
       if (initialCode !== lastInitialCode.current) {
         setInput(initialCode);
@@ -441,25 +328,13 @@ const TerminalComponent = forwardRef(
       }
     }, [output]);
 
-    useEffect(() => {
-      if (isReady && executionPreamble) {
-        runCode(executionPreamble, 5000);
-      }
-    }, [isReady, executionPreamble, runCode]);
-
-    // ---------------------------------------------------------------------------
-    // Loading / error states
-    // ---------------------------------------------------------------------------
+    // FIX: Removed redundant executionPreamble useEffect
 
     if (isLoading) {
       return (
         <div className="flex flex-col h-full">
           <div
-            className={`flex items-center justify-between p-3 border-b ${
-              isCodeDark
-                ? "border-gray-700 bg-gray-800"
-                : "border-gray-300 bg-gray-100"
-            }`}
+            className={`flex items-center justify-between p-3 border-b ${isCodeDark ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-gray-100"}`}
           >
             <div className="flex items-center space-x-2">
               <TerminalIcon
@@ -467,18 +342,14 @@ const TerminalComponent = forwardRef(
                 className={isCodeDark ? "text-green-400" : "text-green-600"}
               />
               <span
-                className={`font-mono text-sm ${
-                  isCodeDark ? "text-gray-300" : "text-gray-700"
-                }`}
+                className={`font-mono text-sm ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
               >
                 Python Interactive Terminal
               </span>
             </div>
           </div>
           <div
-            className={`grow flex items-center justify-center ${
-              isCodeDark ? "bg-black" : "bg-gray-900"
-            }`}
+            className={`grow flex items-center justify-center ${isCodeDark ? "bg-black" : "bg-gray-900"}`}
           >
             <div className="text-center">
               <Spinner size={32} />
@@ -493,27 +364,19 @@ const TerminalComponent = forwardRef(
       return (
         <div className="flex flex-col h-full">
           <div
-            className={`flex items-center justify-between p-3 border-b ${
-              isCodeDark
-                ? "border-gray-700 bg-gray-800"
-                : "border-gray-300 bg-gray-100"
-            }`}
+            className={`flex items-center justify-between p-3 border-b ${isCodeDark ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-gray-100"}`}
           >
             <div className="flex items-center space-x-2">
               <TerminalIcon size={20} className="text-red-400" />
               <span
-                className={`font-mono text-sm ${
-                  isCodeDark ? "text-gray-300" : "text-gray-700"
-                }`}
+                className={`font-mono text-sm ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
               >
                 Python Interactive Terminal
               </span>
             </div>
           </div>
           <div
-            className={`grow flex items-center justify-center ${
-              isCodeDark ? "bg-black" : "bg-gray-900"
-            }`}
+            className={`grow flex items-center justify-center ${isCodeDark ? "bg-black" : "bg-gray-900"}`}
           >
             <div className="text-center text-red-400">
               <AlertCircle size={48} className="mx-auto mb-4" />
@@ -527,19 +390,10 @@ const TerminalComponent = forwardRef(
       );
     }
 
-    // ---------------------------------------------------------------------------
-    // Main render
-    // ---------------------------------------------------------------------------
-
     return (
       <div className="flex flex-col h-full">
-        {/* Header */}
         <div
-          className={`flex items-center justify-between p-3 border-b ${
-            isCodeDark
-              ? "border-gray-700 bg-gray-800"
-              : "border-gray-300 bg-gray-100"
-          }`}
+          className={`flex items-center justify-between p-3 border-b ${isCodeDark ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-gray-100"}`}
         >
           <div className="flex items-center space-x-2">
             <TerminalIcon
@@ -547,9 +401,7 @@ const TerminalComponent = forwardRef(
               className={isCodeDark ? "text-green-400" : "text-green-600"}
             />
             <span
-              className={`font-mono text-sm ${
-                isCodeDark ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`font-mono text-sm ${isCodeDark ? "text-gray-300" : "text-gray-700"}`}
             >
               Python Interactive Terminal
             </span>
@@ -559,16 +411,11 @@ const TerminalComponent = forwardRef(
               </span>
             )}
           </div>
-
           <div className="flex space-x-2">
             {!readOnly && (
               <button
                 onClick={clearTerminal}
-                className={`p-1.5 rounded transition ${
-                  isCodeDark
-                    ? "hover:bg-gray-700 text-gray-300"
-                    : "hover:bg-gray-200 text-gray-700"
-                }`}
+                className={`p-1.5 rounded transition ${isCodeDark ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-200 text-gray-700"}`}
                 title="Clear terminal (Ctrl+L)"
               >
                 <Trash2 size={16} />
@@ -576,35 +423,28 @@ const TerminalComponent = forwardRef(
             )}
             <button
               onClick={copyTerminalContent}
-              className={`p-1.5 rounded transition ${
-                isCodeDark
-                  ? "hover:bg-gray-700 text-gray-300"
-                  : "hover:bg-gray-200 text-gray-700"
-              }`}
-              title="Copy terminal content"
+              className={`p-1.5 rounded transition ${isCodeDark ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-200 text-gray-700"}`}
+              title={copied ? "Copied!" : "Copy terminal content"}
             >
-              <Copy size={16} />
+              {copied ? (
+                <Check size={16} className="text-green-500" />
+              ) : (
+                <Copy size={16} />
+              )}
             </button>
             <button
               onClick={downloadTerminalSession}
-              className={`p-1.5 rounded transition ${
-                isCodeDark
-                  ? "hover:bg-gray-700 text-gray-300"
-                  : "hover:bg-gray-200 text-gray-700"
-              }`}
-              title="Download session (Ctrl+D)"
+              className={`p-1.5 rounded transition ${isCodeDark ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-200 text-gray-700"}`}
+              title="Download session"
             >
               <Download size={16} />
             </button>
           </div>
         </div>
 
-        {/* Output Area */}
         <div
           ref={terminalRef}
-          className={`grow overflow-y-auto overflow-x-hidden p-4 font-mono text-sm whitespace-pre-wrap wrap-break-word ${
-            isCodeDark ? "bg-black text-gray-300" : "bg-gray-900 text-gray-100"
-          }`}
+          className={`grow overflow-y-auto overflow-x-hidden p-4 font-mono text-sm whitespace-pre-wrap wrap-break-word ${isCodeDark ? "bg-black text-gray-300" : "bg-gray-900 text-gray-100"}`}
           style={{ height }}
         >
           {output.map((item, index) => (
@@ -626,9 +466,7 @@ const TerminalComponent = forwardRef(
                 </div>
               )}
               {item.type === "error" && (
-                <div className="text-red-400 ml-4 leading-relaxed">
-                  {`Error: ${item.content}`}
-                </div>
+                <div className="text-red-400 ml-4 leading-relaxed">{`Error: ${item.content}`}</div>
               )}
               {item.type === "warning" && (
                 <div className="flex items-start gap-2 text-yellow-400 ml-4 leading-relaxed">
@@ -638,7 +476,6 @@ const TerminalComponent = forwardRef(
               )}
             </div>
           ))}
-
           {output.length === 0 && (
             <div
               className={`italic ${isCodeDark ? "text-gray-300" : "text-gray-600"}`}
@@ -646,18 +483,12 @@ const TerminalComponent = forwardRef(
               Type Python code below and press Enter to execute. Use ↑/↓ arrows
               to navigate command history.
               <br />
-              <span className="text-xs">
-                Ctrl+L to clear, Ctrl+D to download.
-              </span>
+              <span className="text-xs">Ctrl+L to clear.</span>
             </div>
           )}
-
-          {/* Blinking cursor prompt */}
           <div className="flex items-start mt-2">
             <span
-              className={`mr-2 ${
-                isCodeDark ? "text-green-400" : "text-green-300"
-              }`}
+              className={`mr-2 ${isCodeDark ? "text-green-400" : "text-green-300"}`}
             >
               &gt;&gt;&gt;
             </span>
@@ -665,24 +496,15 @@ const TerminalComponent = forwardRef(
           </div>
         </div>
 
-        {/* Input Area */}
         <div
-          className={`p-3 border-t ${
-            isCodeDark
-              ? "border-gray-700 bg-gray-800"
-              : "border-gray-300 bg-gray-100"
-          }`}
+          className={`p-3 border-t ${isCodeDark ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-gray-100"}`}
         >
           <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
             <div
-              className={`grow flex items-start ${
-                isCodeDark ? "bg-gray-900" : "bg-white"
-              } border rounded`}
+              className={`grow flex items-start ${isCodeDark ? "bg-gray-900" : "bg-white"} border rounded`}
             >
               <span
-                className={`px-3 py-3 ${
-                  isCodeDark ? "text-green-400" : "text-green-600"
-                }`}
+                className={`px-3 py-3 ${isCodeDark ? "text-green-400" : "text-green-600"}`}
               >
                 &gt;&gt;&gt;
               </span>
@@ -692,10 +514,8 @@ const TerminalComponent = forwardRef(
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={readOnly || isExecuting}
-                className={`grow px-2 py-2 font-mono text-sm bg-transparent outline-none resize-none placeholder:${isCodeDark ? "text-gray-400" : "text-gray-500"} ${
-                  isCodeDark ? "text-gray-300" : "text-gray-800"
-                }`}
-                rows={Math.min(10, input.split("\n").length)}
+                className={`grow px-2 py-2 font-mono text-sm bg-transparent outline-none resize-none placeholder:${isCodeDark ? "text-gray-400" : "text-gray-500"} ${isCodeDark ? "text-gray-300" : "text-gray-800"}`}
+                rows={Math.min(10, Math.max(1, input.split("\n").length))}
                 placeholder={
                   readOnly
                     ? "Demo terminal — try: print('Hello')"
@@ -704,9 +524,8 @@ const TerminalComponent = forwardRef(
                 style={{ minHeight: "60px" }}
               />
             </div>
-
             <button
-              onClick={() => executeCode(input, { forceRun: true })}
+              onClick={() => executeCode(input)}
               disabled={!input.trim() || isExecuting || readOnly}
               className={`px-4 py-2 rounded flex items-center justify-center space-x-2 transition w-full sm:w-auto ${
                 isExecuting
@@ -729,15 +548,11 @@ const TerminalComponent = forwardRef(
               )}
             </button>
           </div>
-
-          {/* Quick Snippets and Stats */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 gap-2">
             {!readOnly && (
               <div>
                 <div
-                  className={`text-xs mb-1 ${
-                    isCodeDark ? "text-gray-300" : "text-gray-600"
-                  }`}
+                  className={`text-xs mb-1 ${isCodeDark ? "text-gray-300" : "text-gray-600"}`}
                 >
                   Quick examples:
                 </div>
@@ -746,11 +561,7 @@ const TerminalComponent = forwardRef(
                     <button
                       key={index}
                       onClick={() => loadSnippet(snippet.code)}
-                      className={`px-3 py-1 text-xs rounded transition ${
-                        isCodeDark
-                          ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                          : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                      }`}
+                      className={`px-3 py-1 text-xs rounded transition ${isCodeDark ? "bg-gray-700 hover:bg-gray-600 text-gray-300" : "bg-gray-200 hover:bg-gray-300 text-gray-700"}`}
                     >
                       {snippet.name}
                     </button>
@@ -758,11 +569,8 @@ const TerminalComponent = forwardRef(
                 </div>
               </div>
             )}
-
             <div
-              className={`text-xs ${
-                isCodeDark ? "text-gray-300" : "text-gray-600"
-              }`}
+              className={`text-xs ${isCodeDark ? "text-gray-300" : "text-gray-600"}`}
             >
               <div className="flex space-x-4">
                 <span>Commands: {history.length}</span>
