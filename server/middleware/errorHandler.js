@@ -29,6 +29,11 @@ const globalErrorHandler = (err, req, res, next) => {
     err = new AppError("Invalid ID format", 400);
   }
 
+  if (err.name === "ValidationError") {
+    const messages = Object.values(err.errors || {}.map((e) => e.message));
+    err = new AppError(messages.join(". ") || "Validation failed", 400);
+  }
+
   if (err.code === 11000) {
     err = new AppError("Duplicate field value entered", 400);
   }
