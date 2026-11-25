@@ -269,6 +269,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = useCallback(
     async (username, email, password, dateOfBirth, parentalConsent) => {
+      const userLocalDate = getUserLocalDate();
       return executeAuthAction(
         "registration",
         () =>
@@ -278,6 +279,7 @@ export const AuthProvider = ({ children }) => {
             dateOfBirth,
             password,
             parentalConsent,
+            userLocalDate,
           }),
         async (payload) => {
           const {

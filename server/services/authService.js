@@ -116,6 +116,7 @@ const registerUser = async ({
   password,
   parentalConsent,
   dateOfBirth,
+  userLocalDate
 }) => {
   const usernameValidation = validationHelper.validateUsername(username);
   if (!usernameValidation.isValid)
@@ -182,7 +183,9 @@ const registerUser = async ({
     throw err;
   }
 
-  return { user: newUser, ageNotice };
+  const streak = await recordActivity(newUser, userLocalDate)
+
+  return { user: newUser, ageNotice, streak };
 };
 
 /**

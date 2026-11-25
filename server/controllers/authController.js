@@ -21,16 +21,17 @@ const { sendJsonResponse } = require("../utils/responseHelpers");
  * @body    {string} password - Must meet strength requirements
  * @body    {string} dateOfBirth - ISO date string
  * @body    {boolean} [parentalConsent] - Required if under 16
- * @returns {201} { accessToken, user, ageNotice, privacyNotice }
+ * @returns {201} { accessToken, user, streak, ageNotice, privacyNotice }
  * @returns {400} Validation error, duplicate email/username, or age restriction
  */
 const register = catchAsync(async (req, res, next) => {
-  const { user, ageNotice } = await authService.registerUser(req.body);
+  const { user, ageNotice, streak } = await authService.registerUser(req.body);
   const accessToken = authUtils.issueTokenPair(res, user, false);
 
   sendJsonResponse(res, 201, "Signup successful.", {
     accessToken,
     user: { ...authUtils.toAuthUser(user) },
+    streak,
     ageNotice,
     privacyNotice: PRIVACY_NOTICE,
   });
