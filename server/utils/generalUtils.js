@@ -1,5 +1,7 @@
 // server/utils/generalUtils.js
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 /**
  * Convert a string to a URL-friendly slug
  * @param {string} value - The string to slugify
@@ -79,33 +81,32 @@ const normalizeDate = (value) => {
 };
 
 /**
- * Normalize a date to midnight local timestamp (milliseconds).
- * Used for day-level comparisons in streak tracking.
- * Mutates the date — sets hours, minutes, seconds, ms to 0.
+ * Midnight (00:00:00.000) UTC of the day containing `date`, as a millisecond
+ * timestamp. Used for day-level comparisons in streak tracking.
  *
- * @param   {Date|string} date - Date to normalize
- * @returns {number} Midnight local timestamp in milliseconds
+ * Pure arithmetic: the result does not depend on the server's timezone and
+ * the input is never mutated.
+ *
+ * @param   {Date|string|number} date - Date to normalize
+ * @returns {number} Midnight UTC timestamp in milliseconds (NaN if invalid)
  */
-const checkDate = (date) => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
-};
+const startOfUtcDay = (date) =>
+  Math.floor(new Date(date).getTime() / DAY_MS) * DAY_MS;
 
 /**
- * Check if two dates are on the same calendar day
+ * Check if two dates fall on the same UTC calendar day
  * @param {Date|string|number} dateA - First date
  * @param {Date|string|number} dateB - Second date
- * @returns {boolean} True if same day
+ * @returns {boolean} True if same UTC day
  */
 const isSameDay = (dateA, dateB) => {
   const a = normalizeDate(dateA);
   const b = normalizeDate(dateB);
   if (!a || !b) return false;
   return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate()
   );
 };
 
@@ -131,12 +132,13 @@ const normalizeTags = (tags) => {
 };
 
 module.exports = {
+  DAY_MS,
   slugify,
   generateUniqueSlug,
   toStringId,
   normalizeDate,
   normalizeTags,
-  checkDate,
+  startOfUtcDay,
   isSameDay,
   getDateKey,
 };

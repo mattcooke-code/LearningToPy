@@ -6,7 +6,6 @@ import {
   isSameDay,
   getDateKey,
   normalizeTags,
-  checkDate,
 } from "../../utils/generalUtils";
 
 describe("slugify", () => {
@@ -67,15 +66,6 @@ describe("normalizeDate", () => {
   it("returns the same Date if already a Date", () => {
     const date = new Date("2026-01-01");
     expect(normalizeDate(date)).toBe(date);
-  });
-});
-
-describe("checkDate", () => {
-  it("returns local midnight timestamp", () => {
-    const d = new Date("2026-06-15T12:30:45Z");
-    d.setHours(0, 0, 0, 0);
-    const expected = d.getTime();
-    expect(checkDate("2026-06-15T12:30:45Z")).toBe(expected);
   });
 });
 

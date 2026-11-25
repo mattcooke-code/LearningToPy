@@ -73,7 +73,7 @@ The `partitioned` flag is only applied in production because it requires `secure
 ## generalUtils.js
 
 - **Used by:** `learningEngine.js`, `gamification.js`, `streakManager.js`, `analytics.js`, `navigation.js`, `seederHelpers.js`
-- **Responsibility:** String/date/ID utilities — slugify, toStringId, normalizeDate, isSameDay, getDateKey, normalizeTags, checkDate
+- **Responsibility:** String/date/ID utilities — slugify, toStringId, normalizeDate, isSameDay, getDateKey, normalizeTags,
 - **Design:** All pure functions. No dependencies.
 
 ## levelUtils.js
