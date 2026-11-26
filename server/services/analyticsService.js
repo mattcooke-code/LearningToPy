@@ -9,7 +9,7 @@ const User = require("../models/User");
 const analyticsConstants = require("../constants/analyticsConstants");
 const AppError = require("../utils/AppError");
 const analyticsCache = require("../utils/analyticsCache");
-const generalUtils = require("../utils/generalUtils");
+const dateUtils = require("../utils/dateUtils");
 
 // +=============================================+
 // |              DATE RANGE                     |
@@ -26,8 +26,8 @@ const generalUtils = require("../utils/generalUtils");
  */
 const getDateRange = (range, customStart, customEnd) => {
   if (customStart && customEnd) {
-    const start = generalUtils.normalizeDate(customStart);
-    const end = generalUtils.normalizeDate(customEnd);
+    const start = dateUtils.normalizeDate(customStart);
+    const end = dateUtils.normalizeDate(customEnd);
     if (!start || !end) {
       throw new AppError("Invalid custom date range.", 400);
     }
@@ -114,7 +114,7 @@ const calculateRetention = async (startDate, endDate) => {
   for (const log of allActivity) {
     const uid = log.userId.toString();
     if (!activityByUser[uid]) activityByUser[uid] = new Set();
-    activityByUser[uid].add(generalUtils.getDateKey(log.timestamp));
+    activityByUser[uid].add(dateUtils.getDateKey(log.timestamp));
   }
 
   const WEEK_OFFSETS = analyticsConstants.WEEKS_TO_TRACK.map(
@@ -123,7 +123,7 @@ const calculateRetention = async (startDate, endDate) => {
   const cohorts = {};
 
   for (const user of users) {
-    const cohortKey = generalUtils.getDateKey(user.createdAt).slice(0, 7);
+    const cohortKey = dateUtils.getDateKey(user.createdAt).slice(0, 7);
 
     if (!cohorts[cohortKey]) {
       cohorts[cohortKey] = {
@@ -141,7 +141,7 @@ const calculateRetention = async (startDate, endDate) => {
 
     const userCreatedTime = user.createdAt.getTime();
     for (let i = 0; i < analyticsConstants.WEEKS_TO_TRACK.length; i++) {
-      const boundaryStr = generalUtils.getDateKey(
+      const boundaryStr = dateUtils.getDateKey(
         new Date(userCreatedTime + WEEK_OFFSETS[i]),
       );
 
