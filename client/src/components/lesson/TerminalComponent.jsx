@@ -22,6 +22,94 @@ import { usePython, useTheme } from "../../context";
 import { PythonSyntaxHighlighter, Spinner } from "../ui";
 import { useFileDownload } from "../../hooks/useFileDownload";
 
+/**
+ * @fileoverview
+ * Interactive Python terminal component using Pyodide for client-side code execution.
+ * This component provides a full-featured terminal experience with command history,
+ * syntax highlighting, and mock library support. Handles Pyodide WASM environment
+ * loading states, code execution with preamble injection, and comprehensive error handling.
+ * Features keyboard shortcuts, session management, and responsive design.
+ */
+
+/**
+ * Interactive Python terminal component powered by Pyodide for client-side execution.
+ *
+ * This component creates a fully functional Python terminal that runs entirely in the browser
+ * using WebAssembly (Pyodide). It handles the complete lifecycle of the Python environment
+ * including loading states, code execution with mock library injection, command history,
+ * and comprehensive error handling. The terminal provides a REPL-like experience with
+ * syntax highlighting, keyboard shortcuts, and session management capabilities.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} [props.initialCode="print('Hello, Python Terminal!')"] - Initial code to display
+ * @param {string} [props.height="300px"] - Terminal height
+ * @param {Function} [props.onCodeExecute=null] - Callback when code executes
+ * @param {boolean} [props.readOnly=false] - Whether terminal is read-only
+ * @param {Object} ref - Forwarded ref for imperative methods
+ * @returns {JSX.Element} Interactive Python terminal interface
+ *
+ * @pyodideIntegration
+ * - Uses usePython hook for Pyodide WASM environment access
+ * - Handles loading/ready states of the Python engine
+ * - Code execution through runCode() method with timeout handling
+ * - Mock library injection for browser-incompatible modules (requests, etc.)
+ * - Preamble building for seamless library integration
+ *
+ * @codeExecutionFlow
+ * 1. Code validation (removes comments, checks for incomplete placeholders)
+ * 2. Preamble injection for mocked libraries
+ * 3. Execution through Pyodide's runCode() method
+ * 4. Result processing (stdout, stderr, output handling)
+ * 5. Terminal output formatting and display
+ * 6. History management and cursor positioning
+ *
+ * @mockLibrarySystem
+ * - MOCKED_LIBRARIES object defines browser-incompatible modules
+ * - extractImportedModules() parses import statements from user code
+ * - buildPreamble() creates mock code for detected incompatible imports
+ * - Mock libraries provide simulated responses for network operations
+ * - Warning system informs users about simulated functionality
+ *
+ * @stateManagement
+ * - input: Current user input in terminal
+ * - output: Array of terminal output items (input, output, error, warning)
+ * - history: Command history for navigation with arrow keys
+ * - historyIndex: Current position in command history
+ * - isExecuting: Loading state during code execution
+ *
+ * @userInteraction
+ * - Enter key executes code, Shift+Enter for new lines
+ * - Arrow keys navigate command history
+ * - Ctrl+L clears terminal, Ctrl+D downloads session
+ * - Click-to-copy and download functionality
+ * - Quick code snippets for common operations
+ *
+ * @errorHandling
+ * - Pyodide loading failure states with retry options
+ * - Code execution errors with detailed error messages
+ * - Incomplete placeholder detection (??? patterns)
+ * - Network error handling for file operations
+ * - Graceful fallbacks for unsupported operations
+ *
+ * @responsiveDesign
+ * - Mobile-friendly input area with adaptive sizing
+ * - Touch-friendly buttons and controls
+ * - Flexible layout for different screen sizes
+ * - Accessible keyboard navigation and shortcuts
+ */
+
+// ---------------------------------------------------------------------------
+// Library strategy configuration
+// ---------------------------------------------------------------------------
+
+/**
+ * Libraries that must be mocked because they rely on OS networking
+ * which is unavailable in the browser sandbox.
+ *
+ * Each entry is a Python code string that installs a fake module into
+ * sys.modules. The mock is injected before the student's code runs.
+ */
 const MOCKED_LIBRARIES = {
   requests: `
 import sys, json as _json
@@ -60,6 +148,18 @@ const SNIPPETS = [
   { name: "Loop", code: "for i in range(3):\n    print(f'Count: {i}')" },
 ];
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse import statements from student code and return a list of top-level
+ * module names. Handles:
+ *   import pandas
+ *   import pandas as pd
+ *   from bs4 import BeautifulSoup
+ *   from requests import get
+ */
 const extractImportedModules = (code) => {
   const modules = new Set();
   const importRegex = /^\s*(?:import\s+([\w]+)|from\s+([\w]+)\s+import)/gm;
@@ -70,6 +170,13 @@ const extractImportedModules = (code) => {
   return [...modules];
 };
 
+/**
+ * Build the Python preamble.
+ * All course libraries are preloaded in the worker — this only needs to
+ * inject mocks for libraries that cannot run in the browser (e.g. requests).
+ *
+ * Returns { preamble: string, warnings: string[] }
+ */
 const buildPreamble = (code) => {
   const imported = extractImportedModules(code);
   const warnings = [];
@@ -89,6 +196,9 @@ const buildPreamble = (code) => {
   return { preamble, warnings };
 };
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 const TerminalComponent = forwardRef(
   (
     {
@@ -107,7 +217,7 @@ const TerminalComponent = forwardRef(
     const [history, setHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [isExecuting, setIsExecuting] = useState(false);
-    const [copied, setCopied] = useState(false); // FIX: Copy feedback state
+    const [copied, setCopied] = useState(false);
 
     const terminalRef = useRef(null);
     const inputRef = useRef(null);
@@ -140,16 +250,20 @@ const TerminalComponent = forwardRef(
         .join("\n");
     }, [output]);
 
-    // FIX: Removed unused forceRun parameter
+    // ---------------------------------------------------------------------------
+    // Core execute logic
+    // ---------------------------------------------------------------------------
     const executeCode = useCallback(
       async (code = input) => {
         if (!code.trim() || isExecuting || !isReady) return;
 
+        // ----- Starter code guard -----
         const codeWithoutComments = code
           .split("\n")
           .map((line) => line.split("#")[0])
           .join("\n");
 
+        // ----- ??? guard: block on incomplete placeholders -----
         if (codeWithoutComments.includes("???")) {
           setOutput((prev) => [
             ...prev,
@@ -171,6 +285,7 @@ const TerminalComponent = forwardRef(
         setInput("");
 
         try {
+          // ----- Build preamble (mocks only — libraries preloaded in worker) -----
           const { preamble, warnings } = buildPreamble(code);
           const fullPreamble = [executionPreamble, preamble]
             .filter(Boolean)
@@ -246,7 +361,6 @@ const TerminalComponent = forwardRef(
       focusInput();
     };
 
-    // FIX: Added error handling and visual feedback for copy
     const copyTerminalContent = async () => {
       try {
         await navigator.clipboard.writeText(terminalContent);
@@ -266,7 +380,6 @@ const TerminalComponent = forwardRef(
       clearTerminal,
     }));
 
-    // FIX: Smart ArrowUp/ArrowDown handling for multi-line textareas
     const handleKeyDown = useCallback(
       (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -303,7 +416,6 @@ const TerminalComponent = forwardRef(
           e.preventDefault();
           clearTerminal();
         }
-        // FIX: Removed Ctrl+D to prevent browser bookmark collision
       },
       [executeCode, history, historyIndex],
     );
@@ -313,8 +425,7 @@ const TerminalComponent = forwardRef(
       focusInput();
     };
 
-    // FIX: Removed auto-focus on mount to prevent accessibility/jump issues
-
+    // Sync input when parent changes initialCode (e.g. student moves to next step)
     useEffect(() => {
       if (initialCode !== lastInitialCode.current) {
         setInput(initialCode);
@@ -328,8 +439,9 @@ const TerminalComponent = forwardRef(
       }
     }, [output]);
 
-    // FIX: Removed redundant executionPreamble useEffect
-
+    // ---------------------------------------------------------------------------
+    // Loading / error states
+    // ---------------------------------------------------------------------------
     if (isLoading) {
       return (
         <div className="flex flex-col h-full">
@@ -390,6 +502,10 @@ const TerminalComponent = forwardRef(
       );
     }
 
+    // ---------------------------------------------------------------------------
+    // Main render
+    // ---------------------------------------------------------------------------
+
     return (
       <div className="flex flex-col h-full">
         <div
@@ -442,6 +558,7 @@ const TerminalComponent = forwardRef(
           </div>
         </div>
 
+        {/* Output Area */}
         <div
           ref={terminalRef}
           className={`grow overflow-y-auto overflow-x-hidden p-4 font-mono text-sm whitespace-pre-wrap wrap-break-word ${isCodeDark ? "bg-black text-gray-300" : "bg-gray-900 text-gray-100"}`}
@@ -486,6 +603,8 @@ const TerminalComponent = forwardRef(
               <span className="text-xs">Ctrl+L to clear.</span>
             </div>
           )}
+
+          {/* Blinking cursor prompt */}
           <div className="flex items-start mt-2">
             <span
               className={`mr-2 ${isCodeDark ? "text-green-400" : "text-green-300"}`}
@@ -496,6 +615,7 @@ const TerminalComponent = forwardRef(
           </div>
         </div>
 
+        {/* Input Area */}
         <div
           className={`p-3 border-t ${isCodeDark ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-gray-100"}`}
         >
@@ -548,6 +668,8 @@ const TerminalComponent = forwardRef(
               )}
             </button>
           </div>
+
+          {/* Quick Snippets and Stats */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 gap-2">
             {!readOnly && (
               <div>

@@ -19,6 +19,85 @@ import {
   getUserLocalDate,
 } from "../../utils";
 
+/**
+ * @fileoverview
+ * Interactive coding exercise component with Pyodide validation and comprehensive feedback.
+ * This component provides a complete exercise environment with code editor, terminal integration,
+ * real-time validation, and progress tracking. Features dual validation (client-side Pyodide
+ * and server-side), attempt tracking, hint system, and XP rewards. Handles review mode,
+ * file setup, and run-to-line functionality for enhanced learning experience.
+ */
+
+/**
+ * Interactive coding exercise component with Pyodide validation and comprehensive feedback system.
+ *
+ * This component creates a full-featured coding exercise environment that combines client-side
+ * validation using Pyodide with server-side submission for progress tracking. Features include
+ * a code editor with run-to-line functionality, integrated terminal for testing, comprehensive
+ * validation system, hint management, and XP reward integration. The component handles both
+ * practice mode and review mode, with detailed feedback and progress tracking capabilities.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.exercise - Exercise data with instructions, tests, and metadata
+ * @param {Function} props.onCodeSubmit - Callback for successful code submission
+ * @param {boolean} props.isReviewMode - Whether in review mode (practice without progress)
+ * @param {string} props.solution - Solution code for review mode
+ * @param {string} props.lessonId - Lesson ID for API submissions
+ * @returns {JSX.Element} Complete exercise environment with validation and feedback
+ *
+ * @correctnessEvaluation
+ * - Dual validation: Client-side Pyodide validation + Server-side submission
+ * - validateWithPyodide() runs tests locally for immediate feedback
+ * - Server submission validates correctness and awards XP/progress
+ * - Test results processed and displayed with detailed feedback
+ * - Attempt tracking for analytics and difficulty assessment
+ *
+ * @pyodideIntegration
+ * - Uses usePython hook for Pyodide WASM environment access
+ * - Local validation through validateWithPyodide() utility function
+ * - Code execution in terminal through runCode() method
+ * - File setup support for exercises requiring multiple files
+ * - Loading state handling for WASM environment readiness
+ *
+ * @validationFlow
+ * 1. User submits code through handleSubmit()
+ * 2. Local Pyodide validation with validateWithPyodide()
+ * 3. If validation passes, submit to server for final validation
+ * 4. Server processes submission and returns results with XP
+ * 5. Local state updated with results and feedback displayed
+ * 6. Progress callbacks triggered for lesson/module completion
+ *
+ * @terminalIntegration
+ * - TerminalComponent ref for imperative code execution
+ * - handleRunToLine() for partial code execution
+ * - File setup code injection for multi-file exercises
+ * - Terminal toggle for workspace management
+ * - Real-time execution feedback and error handling
+ *
+ * @stateManagement
+ * - userCode: Current code in editor
+ * - testResults: Validation results and feedback
+ * - isRunning: Loading state during validation/submission
+ * - attemptNumber: Tracking submission attempts
+ * - showHints/solution: UI state for hints and solution display
+ * - hasViewedHints: Tracking for XP calculation
+ *
+ * @feedbackSystem
+ * - Immediate feedback through local validation
+ * - Detailed server feedback with explanations
+ * - XP rewards with toast notifications
+ * - Progressive hint system with tracking
+ * - Visual feedback through color-coded result panels
+ *
+ * @userExperience
+ * - Run-to-line functionality for step-by-step debugging
+ * - Download code for external IDE practice
+ * - Review mode for unlimited practice without progress impact
+ * - Responsive design for mobile and desktop
+ * - Accessibility considerations for screen readers
+ */
+
 const ExerciseComponent = ({
   exercise,
   onCodeSubmit,
@@ -39,14 +118,13 @@ const ExerciseComponent = ({
   const [hasViewedHints, setHasViewedHints] = useState(false);
 
   const terminalRef = useRef(null);
-  const pendingRunCode = useRef(null); // Fix for terminal mount race condition
+  const pendingRunCode = useRef(null);
 
   const { isCodeDark } = useTheme();
   const { runCode, isReady } = usePython();
   const { downloadPythonFile } = useFileDownload();
   const { showToast } = useNotification();
 
-  // FIX: Sync state when exercise changes or review mode toggles
   useEffect(() => {
     setUserCode(isReviewMode && solution ? solution : exercise.starterCode);
     setAttemptNumber(1);
@@ -57,7 +135,6 @@ const ExerciseComponent = ({
     setTestResults(null);
   }, [exercise.id, exercise.starterCode, isReviewMode, solution]);
 
-  // FIX: Robust terminal execution without setTimeout
   useEffect(() => {
     if (showTerminal && pendingRunCode.current && terminalRef.current) {
       terminalRef.current.executeCode(pendingRunCode.current);
@@ -98,6 +175,7 @@ const ExerciseComponent = ({
     setTestResults(null);
 
     try {
+      // Pyodide Validation
       const validationResult = await validateWithPyodide(
         userCode,
         exercise,
@@ -105,6 +183,7 @@ const ExerciseComponent = ({
       );
 
       if (!validationResult.success) {
+        // Handle Pyodide validation errors (not network errors)
         setTestResults({
           success: false,
           error: "Validation Failed",
@@ -115,6 +194,7 @@ const ExerciseComponent = ({
         return;
       }
 
+      // If local validation passes, send to backend
       const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
       const result = await apiClient.post(
         `/content/lessons/${lessonId}/submit`,
@@ -134,6 +214,8 @@ const ExerciseComponent = ({
         },
       );
 
+      // If this submission also completes the lesson, LessonPage shows one
+      // "Lesson completed! +N XP" toast with the full total, so skip this one.
       if (
         result.isCorrect &&
         result.xpEarned > 0 &&
@@ -153,9 +235,11 @@ const ExerciseComponent = ({
         onCodeSubmit(userCode, result);
       }
 
+      // Reset attempt tracking on success
       setAttemptNumber(1);
       setStartTime(Date.now());
     } catch (err) {
+      // Handle network/HTTP errors
       console.error("Submission error:", err);
       setTestResults({
         success: false,
@@ -171,7 +255,6 @@ const ExerciseComponent = ({
     }
   };
 
-  // FIX: Handle \r and nullish checks safely
   const fileSetupPreamble = useMemo(() => {
     if (!exercise?.fileSetup) return "";
     const lines = [];
@@ -189,7 +272,6 @@ const ExerciseComponent = ({
     return lines.join("\n");
   }, [exercise?.fileSetup]);
 
-  // FIX: Fully reset all relevant states
   const resetExercise = () => {
     setUserCode(exercise.starterCode);
     setShowSolution(false);
@@ -218,7 +300,9 @@ const ExerciseComponent = ({
           : "bg-yellow-50 border-yellow-200"
       }`}
     >
+      {/* Header Container */}
       <div className="flex items-center justify-between mb-4">
+        {/* Left Side: Icon and Title */}
         <div className="flex items-center space-x-1">
           <Code2
             className={isCodeDark ? "text-python-light" : "text-python-blue"}
@@ -232,11 +316,13 @@ const ExerciseComponent = ({
             Try It Yourself {isReviewMode && "(Review)"}
           </h3>
         </div>
+        {/* Right Side: Toggle Button */}
         <div className="flex items-center">
           <CodeThemeToggle />
         </div>
       </div>
 
+      {/* Skills/Tags */}
       <div className="flex flex-wrap gap-2 mb-4">
         {exercise.tags?.map((tag) => (
           <span
@@ -252,10 +338,12 @@ const ExerciseComponent = ({
         ))}
       </div>
 
+      {/* Instructions */}
       <div className={`mb-4 ${isCodeDark ? "text-gray-200" : "text-gray-800"}`}>
         <MarkdownRenderer content={exercise.instructions} isDark={isCodeDark} />
       </div>
 
+      {/* Render Steps if they exist */}
       {exercise.steps && exercise.steps.length > 0 && (
         <div
           className={`mb-6 space-y-3 p-4 rounded-lg ${
@@ -290,6 +378,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Code Editor */}
       <div className="mb-4">
         <label
           className={`font-semibold ${
@@ -307,6 +396,7 @@ const ExerciseComponent = ({
         />
       </div>
 
+      {/* Test Results Section */}
       {testResults && (
         <div
           className={`mb-4 p-4 rounded-lg border-2 ${
@@ -359,6 +449,7 @@ const ExerciseComponent = ({
               >
                 {testResults.message}
               </p>
+              {/* XP Earned */}
               {testResults.xpEarned > 0 && (
                 <div className="mt-2">
                   <span
@@ -372,6 +463,7 @@ const ExerciseComponent = ({
                   </span>
                 </div>
               )}
+              {/* Code Output (for preview runs) */}
               {testResults.output && testResults.isPreview && (
                 <div className="mt-3">
                   <p
@@ -397,6 +489,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Expected Output Hint */}
       {exercise.expectedOutput && !testResults?.success && (
         <div
           className={`mb-4 p-3 rounded-lg border-l-4 ${
@@ -422,6 +515,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Terminal Section - Toggleable */}
       <div className="mt-6">
         <div className="flex items-center justify-between mb-2">
           <h4
@@ -455,6 +549,7 @@ const ExerciseComponent = ({
         )}
       </div>
 
+      {/* Solution (Review Mode) */}
       {isReviewMode && showSolution && solution && (
         <div
           className={`mt-4 p-4 rounded border-2 ${
@@ -474,6 +569,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Action Buttons */}
       <div className="flex flex-wrap gap-4 mt-4">
         <button
           onClick={handleSubmit}
@@ -519,6 +615,7 @@ const ExerciseComponent = ({
         >
           {showHints ? "Hide Hints" : "Show Hints"}
         </button>
+        {/* Download button for all exercises */}
         <button
           onClick={openInExternalIDE}
           className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2"
@@ -528,6 +625,7 @@ const ExerciseComponent = ({
         </button>
       </div>
 
+      {/* Hints */}
       {showHints && exercise.hints && (
         <div
           className={`mt-4 p-4 rounded-lg border ${
@@ -562,6 +660,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Review Mode Notice */}
       {isReviewMode && (
         <div
           className={`mt-4 p-3 rounded ${
@@ -581,6 +680,7 @@ const ExerciseComponent = ({
         </div>
       )}
 
+      {/* Python Loading Notice */}
       {!isReady && (
         <div
           className={`mt-4 p-3 rounded ${
