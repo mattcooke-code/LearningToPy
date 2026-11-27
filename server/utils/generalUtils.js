@@ -72,9 +72,26 @@ const normalizeTags = (tags) => {
     : [];
 };
 
+/**
+ * Escape HTML special characters for safe interpolation into HTML strings.
+ * Returns an empty string for falsy input.
+ *
+ * @param   {string} str
+ * @returns {string}
+ */
+const escapeHtml = (str) => {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
 module.exports = {
   slugify,
   generateUniqueSlug,
   toStringId,
   normalizeTags,
+  escapeHtml,
 };

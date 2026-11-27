@@ -1,4 +1,17 @@
 // emailTemplates.js
+const { escapeHtml } = require("./generalUtils");
+
+/**
+ * Category slug → human-readable label. Unknown slugs fall through to the
+ * raw slug so a future category doesn't silently vanish from the email.
+ */
+const SUPPORT_CATEGORY_LABELS = Object.freeze({
+  help: "Technical Help",
+  feedback: "Course Feedback",
+  bug: "Bug Report",
+  feature: "Feature Request",
+  other: "Other",
+});
 
 /**
  * Generates the HTML content for a password reset email.
@@ -33,4 +46,62 @@ const createPasswordResetEmail = (resetUrl) => {
   };
 };
 
-module.exports = { createPasswordResetEmail };
+/**
+ * Build the HTML email for a support-form submission.
+ *
+ * @param   {Object} params
+ * @param   {string} params.name
+ * @param   {string} params.email
+ * @param   {string} params.category       - Raw slug ("bug", "feature", ...)
+ * @param   {string} params.subject
+ * @param   {string} params.message
+ * @param   {string|number} [params.moduleNumber]
+ * @param   {string|number} [params.lessonNumber]
+ * @returns {{ subject: string, html: string }}
+ */
+const createSupportRequestEmail = ({
+  name,
+  email,
+  category,
+  subject,
+  message,
+  moduleNumber,
+  lessonNumber,
+}) => {
+  const categoryLabel = SUPPORT_CATEGORY_LABELS[category] || category;
+  const emailSubject = `[Support] ${categoryLabel}: ${subject}`;
+
+  let locationInfo = "";
+  if (category === "bug" && (moduleNumber || lessonNumber)) {
+    locationInfo = `Location: ${moduleNumber ? `Module ${moduleNumber}` : ""}${
+      moduleNumber && lessonNumber ? ", " : ""
+    }${lessonNumber ? `Lesson ${lessonNumber}` : ""}`;
+  }
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #3776ab;">New Support Request</h2>
+      <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+        <p><strong>Category:</strong> ${escapeHtml(categoryLabel)}</p>
+        ${locationInfo ? `<p><strong>Location:</strong> ${escapeHtml(locationInfo)}</p>` : ""}
+        <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+      </div>
+      <div style="margin: 20px 0;">
+        <h3 style="color: #333;">Message:</h3>
+        <div style="background-color: #fafafa; padding: 15px; border-radius: 8px; white-space: pre-wrap;">
+          ${escapeHtml(message).replace(/\n/g, "<br>")}
+        </div>
+      </div>
+      <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+      <p style="color: #666; font-size: 12px;">
+        This message was sent from the Learning To Py support form.
+        Reply directly to this email to respond to ${escapeHtml(name)}.
+      </p>
+    </div>
+  `;
+
+  return { subject: emailSubject, html };
+};
+
+module.exports = { createPasswordResetEmail, createSupportRequestEmail };
