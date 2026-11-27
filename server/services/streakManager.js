@@ -37,7 +37,8 @@ const resolveLocalDateKey = (value) => {
     return serverKey;
 
   const offsetDays = Math.round(
-    (parsed.getTime() - dateUtils.startOfUtcDay(new Date())) / dateUtils.DAY_MS,
+    (parsed.getTime() - dateUtils.startOfUtcDay(new Date())) /
+      dateUtils.MS_PER_DAY,
   );
   return Math.abs(offsetDays) <= MAX_CLIENT_DATE_SKEW_DAYS ? value : serverKey;
 };
@@ -61,7 +62,9 @@ const getWeekStart = (userLocalDateStr) => {
 const getDayOfWeek = (userLocalDateStr, weekStart) => {
   const dateTime = new Date(userLocalDateStr + "T00:00:00Z");
   const weekStartTime = dateUtils.startOfUtcDay(weekStart);
-  const diffDays = Math.round((dateTime - weekStartTime) / dateUtils.DAY_MS);
+  const diffDays = Math.round(
+    (dateTime - weekStartTime) / dateUtils.MS_PER_DAY,
+  );
   return diffDays + 1;
 };
 
@@ -228,7 +231,7 @@ const updateStreak = async (user, todayTime) => {
     user.streakLastCheckedDate,
   );
   const diffDays = Math.round(
-    (todayTime - streakLastCheckedTime) / dateUtils.DAY_MS,
+    (todayTime - streakLastCheckedTime) / dateUtils.MS_PER_DAY,
   );
 
   if (diffDays === 1) {

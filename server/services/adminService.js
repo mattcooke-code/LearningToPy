@@ -19,6 +19,7 @@ const mongoose = require("mongoose");
 const adminConstants = require("../constants/adminConstants");
 const adminUtils = require("../utils/adminUtils");
 const AppError = require("../utils/AppError");
+const dateUtils = require("../utils/dateUtils");
 const levelUtils = require("../utils/levelUtils");
 
 // ─────────────── CONSTANTS ──────────────────
@@ -208,8 +209,7 @@ const getAdminStats = async () => {
         lastEngagementAt: {
           $gte: new Date(
             Date.now() -
-              adminConstants.ACTIVE_USER_WINDOW_DAYS *
-                adminConstants.MS_PER_DAY,
+              adminConstants.ACTIVE_USER_WINDOW_DAYS * dateUtils.MS_PER_DAY,
           ),
         },
       }),
@@ -674,7 +674,7 @@ const updateUserStatus = async ({
     case "block":
       user.isBlocked = true;
       user.suspensionEnd = duration
-        ? new Date(Date.now() + duration * adminConstants.MS_PER_DAY)
+        ? new Date(Date.now() + duration * dateUtils.MS_PER_DAY)
         : null;
       user.suspensionReason = reason;
       actionType = "USER_BLOCKED";

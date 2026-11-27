@@ -1,5 +1,4 @@
 // adminConstants.js
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** A user counts as "active" if they engaged within this many days. */
 const ACTIVE_USER_WINDOW_DAYS = 7;
@@ -67,7 +66,6 @@ const SORTABLE_USER_FIELDS = [
 const IMMUTABLE_FIELDS = ["_id", "__v", "createdAt", "updatedAt"];
 
 module.exports = {
-  MS_PER_DAY,
   ACTIVE_USER_WINDOW_DAYS,
   FLAG_FIX_XP_REWARD,
   LEADERBOARD_COMPLETION_THRESHOLD,

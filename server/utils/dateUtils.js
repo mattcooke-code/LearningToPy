@@ -1,6 +1,6 @@
 // utils/dateUtils.js
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /**
  * Normalize a value to a valid Date object
@@ -29,7 +29,7 @@ const normalizeDate = (value) => {
  * @returns {number} Midnight UTC timestamp in milliseconds (NaN if invalid)
  */
 const startOfUtcDay = (date) =>
-  Math.floor(new Date(date).getTime() / DAY_MS) * DAY_MS;
+  Math.floor(new Date(date).getTime() / MS_PER_DAY) * MS_PER_DAY;
 
 /**
  * Check if two dates fall on the same UTC calendar day
@@ -60,7 +60,7 @@ const getDateKey = (date) => {
 };
 
 module.exports = {
-  DAY_MS,
+  MS_PER_DAY,
   normalizeDate,
   startOfUtcDay,
   isSameDay,

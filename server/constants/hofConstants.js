@@ -5,8 +5,6 @@
  * leaderboard/lifecycle rules, not authentication rules.
  */
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
 /**
  * Number of days a user must wait after course completion before they
  * are inducted into the Hall of Fame.
@@ -32,7 +30,6 @@ const LEADERBOARD_STATUS = Object.freeze({
 });
 
 module.exports = {
-  MS_PER_DAY,
   HOF_ELIGIBILITY_WINDOW_DAYS,
   INACTIVITY_THRESHOLD_DAYS,
   LEADERBOARD_STATUS,

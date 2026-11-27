@@ -2,8 +2,9 @@
 const CourseCompletion = require("../models/CourseCompletion");
 const User = require("../models/User");
 const config = require("../config/envConfig");
-const { runInTransaction } = require("../utils/dbHelpers");
 const hofConstants = require("../constants/hofConstants");
+const dateUtils = require("../utils/dateUtils");
+const { runInTransaction } = require("../utils/dbHelpers");
 
 /**
  * Move users from COMPLETED_PENDING → HOF once their 30-day eligibility
@@ -79,7 +80,7 @@ const hofTransition = async (now = new Date()) => {
 const cleanupInactiveUsers = async (now = new Date()) => {
   const cutoff = new Date(
     now.getTime() -
-      hofConstants.INACTIVITY_THRESHOLD_DAYS * hofConstants.MS_PER_DAY,
+      hofConstants.INACTIVITY_THRESHOLD_DAYS * dateUtils.MS_PER_DAY,
   );
 
   const result = await User.updateMany(
