@@ -26,8 +26,8 @@ const streakManager = require("./streakManager");
 // UTILITIES & CONSTANTS
 const AppError = require("../utils/AppError");
 const dbHelpers = require("../utils/dbHelpers");
+const dateUtils = require("../utils/dateUtils");
 const emailTemplates = require("../utils/emailTemplates");
-const generalUtils = require("../utils/generalUtils");
 const pepper = require("../utils/pepper");
 const userUtils = require("../utils/userUtils");
 const validationHelper = require("../utils/validationHelpers");
@@ -116,7 +116,7 @@ const registerUser = async ({
   password,
   parentalConsent,
   dateOfBirth,
-  userLocalDate
+  userLocalDate,
 }) => {
   const usernameValidation = validationHelper.validateUsername(username);
   if (!usernameValidation.isValid)
@@ -129,7 +129,7 @@ const registerUser = async ({
     throw new AppError(passwordValidation.message, 400);
   if (!dateOfBirth) throw new AppError("Date of birth is required.", 400);
 
-  const birthDate = generalUtils.normalizeDate(dateOfBirth);
+  const birthDate = dateUtils.normalizeDate(dateOfBirth);
   if (!birthDate) throw new AppError("Invalid date of birth.", 400);
 
   const age = userUtils.calculateAge(birthDate);
@@ -183,7 +183,7 @@ const registerUser = async ({
     throw err;
   }
 
-  const streak = await recordActivity(newUser, userLocalDate)
+  const streak = await recordActivity(newUser, userLocalDate);
 
   return { user: newUser, ageNotice, streak };
 };
@@ -421,7 +421,7 @@ const updateUserCookieConsent = async (
         cookieConsent,
         // Client-supplied: fall back to "now" if missing or unparseable.
         cookieConsentDate:
-          generalUtils.normalizeDate(cookieConsentDate) || new Date(),
+          dateUtils.normalizeDate(cookieConsentDate) || new Date(),
       },
     },
     { new: true, runValidators: true },
