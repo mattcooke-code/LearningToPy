@@ -66,4 +66,3 @@ export {
   setTokenMemory,
 } from "./tokenUtils";
 export { normalizeUserData } from "./userUtils";
-export { validateWithPyodide } from "./validationUtils";

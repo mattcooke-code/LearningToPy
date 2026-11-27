@@ -65,9 +65,7 @@ const pyodidePromise = initPyodide().then(
   },
 );
 
-async function handleRun({ code, id }) {
-  // Everything lives inside try/catch so one bad message can never reject the
-  // queue chain and silently kill every later run.
+async function handleRun({ code, id, freshGlobals = false }) {
   let globals = null;
   try {
     await pyodidePromise;
@@ -84,7 +82,7 @@ async function handleRun({ code, id }) {
     });
 
     const options = {};
-    if (FRESH_NAMESPACE_PER_RUN) {
+    if (freshGlobals || FRESH_NAMESPACE_PER_RUN) {
       globals = pyodide.globals.get("dict")();
       options.globals = globals;
     }

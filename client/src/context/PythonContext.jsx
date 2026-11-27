@@ -252,7 +252,7 @@ export const PythonProvider = ({ children }) => {
    * @returns {Promise<RunResult>}
    */
   const runCode = useCallback(
-    (code, timeout = DEFAULT_TIMEOUT_MS) => {
+    (code, timeout = DEFAULT_TIMEOUT_MS, options = {}) => {
       if (code === null || code === undefined) {
         return Promise.resolve({ success: false, error: "No code provided" });
       }
@@ -303,7 +303,7 @@ export const PythonProvider = ({ children }) => {
             size: 0,
           });
 
-          worker.postMessage({ code: safeCode, id });
+          worker.postMessage({ code: safeCode, id, ...options });
         });
       };
 

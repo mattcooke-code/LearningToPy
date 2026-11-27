@@ -2,122 +2,158 @@
 /**
  * @fileoverview Exercise-specific file creation code mapping.
  *
- * Maps exercises (by title or challenge group) to Python code snippets that
- * set up required files before the user's code is executed for validation.
- * Used by `validationUtils.js` to prepare the Pyodide filesystem.
+ * Single source of truth for exercise filesystem setup. Exposes:
+ *   - buildFileSetupCode()   — explicit fileSetup object -> Python source
+ *   - getFileCreationCode()  — Python source (explicit fileSetup, else legacy map)
+ *   - getExpectedFiles()     — filenames the setup is expected to create
  *
- * To add support for a new file-based exercise, add a new entry to the
- * `FILE_CREATION_MAP` array.
+ * getFileCreationCode() and getExpectedFiles() resolve through the SAME
+ * lookup, so the generated setup code and the post-setup existence checks
+ * can never disagree.
  *
  * @module data/fileExercises
  */
 
 /**
- * An array of file-creation mappings.
+ * Legacy procedural setups, matched by title substring or challengeGroup.
+ * `files` MUST list every filename `code` creates — it drives the
+ * FileNotFoundError checks in pythonCodeValidationService.buildTestScript().
  *
- * Each entry matches an exercise by `title` substring or `challengeGroup`
- * key, and provides the Python code to create required files.
+ * Prefer `exercise.fileSetup` for new content; this map exists for
+ * exercises that predate it.
  *
- * @type {{ title?: string, challengeGroup?: string, code: string }[]}
+ * @type {{ title?: string, challengeGroup?: string, files: string[], code: string }[]}
  */
 const FILE_CREATION_MAP = [
   // Lesson 7.1 - Opening and Reading Files
   {
     title: "Opening and Reading Files",
     challengeGroup: "file-reading-basics",
-    code: `
-with open('messages.txt', 'w') as f:
-    f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')
-`,
+    files: ["messages.txt"],
+    code: `with open('messages.txt', 'w') as f: f.write('This is the first line.\\nThis is the second line.\\nAnd the final message.')`,
   },
-
   // Lesson 7.2 - Line-by-Line Reading
   {
     title: "Line-by-Line Reading",
     challengeGroup: "file-line-processing",
-    code: `
-with open('shopping_list.txt', 'w') as f:
-    f.write('Milk\\nEggs\\nBread\\nCheese')
-`,
+    files: ["shopping_list.txt"],
+    code: `with open('shopping_list.txt', 'w') as f: f.write('Milk\\nEggs\\nBread\\nCheese')`,
   },
-
   // Lesson 7.3 - Using the With Statement
   {
     title: "Using the With Statement",
     challengeGroup: "context-manager",
-    code: `
-with open('settings.conf', 'w') as f:
-    f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')
-`,
+    files: ["settings.conf"],
+    code: `with open('settings.conf', 'w') as f: f.write('HOST=localhost\\nPORT=8080\\nDEBUG=True')`,
   },
-
   // Lesson 7.4 - Writing and Appending Data
   {
     title: "Writing and Appending Data",
     challengeGroup: "file-writing",
-    code: `
-with open('data.txt', 'w') as f:
-    f.write('')
-`,
+    files: ["data.txt"],
+    code: `with open('data.txt', 'w') as f: f.write('')`,
   },
-
   // Lesson 7.5 - Log File Processing Project
   {
     title: "Log File Processing",
     challengeGroup: "file-io-project",
-    code: `
-with open('server_log_raw.txt', 'w') as f:
-    f.write('404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n')
-`,
+    files: ["server_log_raw.txt"],
+    code: `with open('server_log_raw.txt', 'w') as f: f.write('404|/image/logo.png\\n200|/api/v1/profile/data\\n200|/products/listing\\n500|/admin/internal/error\\n200|/checkout/process\\n403|/secret/page\\n')`,
   },
   // Lesson 8.2. - Handling Specific Exceptions
   {
     title: "Handling Specific Exceptions",
     challengeGroup: "specific-exceptions",
-    code: `
-with open('data.txt', 'w') as f:
-    f.write('0')
-`,
+    files: ["data.txt"],
+    code: `with open('data.txt', 'w') as f: f.write('0')`,
   },
 ];
 
 /**
- * Get the Python file-creation code for an exercise, if any.
+ * Build Python source that writes an explicit `fileSetup` map to disk.
  *
- * Matches the exercise against the `FILE_CREATION_MAP` by title substring
- * or challenge group. Returns the first match, or an empty string if no
- * match is found.
+ * JSON.stringify() is used deliberately for both the filename and the
+ * body: every escape it emits (\\, \", \n, \t, \uXXXX) is also a valid
+ * Python string escape, so CRLF, quotes and backslashes are all handled
+ * correctly without hand-rolled regex chains.
  *
- * @param {object} exercise - The exercise definition object.
- * @param {string} [exercise.title=""] - The exercise title.
- * @param {string} [exercise.challengeGroup=""] - The challenge group key.
- * @returns {string} Python code that creates the required files, or an empty
- *   string if this exercise doesn't need file setup.
+ * Safe to call from any component — returns "" for nullish/empty input.
+ *
+ * @param {Object<string, string>} fileSetup - filename -> file contents
+ * @returns {string} Python source, or "" if there is nothing to create.
  */
-export const getFileCreationCode = (exercise) => {
-  const setup = exercise.fileSetup || {};
-
-  // Prefer explicit fileSetup — it's the source of truth.
-  if (Object.keys(setup).length > 0) {
-    return Object.entries(setup)
-      .map(([name, content]) => {
-        const body =
-          typeof content === "string"
-            ? JSON.stringify(content)
-            : JSON.stringify(String(content));
-        return `with open(${JSON.stringify(name)}, 'w', encoding='utf-8') as f:\n    f.write(${body})`;
-      })
-      .join("\n");
+export const buildFileSetupCode = (fileSetup) => {
+  if (!fileSetup || typeof fileSetup !== "object" || Array.isArray(fileSetup)) {
+    return "";
   }
 
-  // Fall back to the legacy map for exercises that need procedural setup.
-  const title = exercise.title || "";
-  const challengeGroup = exercise.challengeGroup || "";
-  const match = FILE_CREATION_MAP.find(
+  return Object.entries(fileSetup)
+    .map(([name, content]) => {
+      const text =
+        typeof content === "string" ? content : String(content ?? "");
+      return `with open(${JSON.stringify(name)}, 'w', encoding='utf-8') as f:\n    f.write(${JSON.stringify(text)})`;
+    })
+    .join("\n");
+};
+
+/**
+ * Resolve the legacy map entry for an exercise, if any.
+ * @private
+ */
+const findLegacySetup = (exercise) => {
+  const title = typeof exercise.title === "string" ? exercise.title : "";
+  const challengeGroup =
+    typeof exercise.challengeGroup === "string" ? exercise.challengeGroup : "";
+
+  return FILE_CREATION_MAP.find(
     (entry) =>
       (entry.title && title.includes(entry.title)) ||
       (entry.challengeGroup && challengeGroup === entry.challengeGroup),
   );
+};
 
-  return match?.code || "";
+/** True if the exercise carries a usable explicit fileSetup map. @private */
+const hasExplicitSetup = (exercise) => {
+  const setup = exercise.fileSetup;
+  return (
+    !!setup &&
+    typeof setup === "object" &&
+    !Array.isArray(setup) &&
+    Object.keys(setup).length > 0
+  );
+};
+
+/**
+ * Get the Python file-creation code for an exercise.
+ * Explicit `fileSetup` wins; otherwise fall back to the legacy map.
+ *
+ * @param {object} [exercise] - Exercise definition (nullish-safe).
+ * @returns {string} Python source, or "" if no setup is needed.
+ */
+export const getFileCreationCode = (exercise) => {
+  const safeExercise = exercise ?? {};
+
+  if (hasExplicitSetup(safeExercise)) {
+    return buildFileSetupCode(safeExercise.fileSetup);
+  }
+
+  return findLegacySetup(safeExercise)?.code || "";
+};
+
+/**
+ * Get the filenames an exercise's setup is expected to create.
+ * Resolves through the same lookup as getFileCreationCode(), so the
+ * existence checks always match the code that actually ran.
+ *
+ * @param {object} [exercise] - Exercise definition (nullish-safe).
+ * @returns {string[]} Filenames, or [] if no setup is needed.
+ */
+export const getExpectedFiles = (exercise) => {
+  const safeExercise = exercise ?? {};
+
+  if (hasExplicitSetup(safeExercise)) {
+    return Object.keys(safeExercise.fileSetup);
+  }
+
+  return [...(findLegacySetup(safeExercise)?.files || [])];
 };

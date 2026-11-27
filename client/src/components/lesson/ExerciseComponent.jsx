@@ -13,11 +13,9 @@ import { useTheme, usePython, useNotification } from "../../context";
 import { apiClient } from "../../services";
 import { MarkdownRenderer } from "../ui";
 import { useFileDownload } from "../../hooks";
-import {
-  validateWithPyodide,
-  getErrorMessage,
-  getUserLocalDate,
-} from "../../utils";
+import { validateWithPyodide } from "../../services/pythonCodeValidationService";
+import { getErrorMessage, getUserLocalDate } from "../../utils";
+import { getFileCreationCode } from "../../data/fileExercises";
 
 /**
  * @fileoverview
@@ -255,22 +253,10 @@ const ExerciseComponent = ({
     }
   };
 
-  const fileSetupPreamble = useMemo(() => {
-    if (!exercise?.fileSetup) return "";
-    const lines = [];
-    for (const [filename, content] of Object.entries(exercise.fileSetup)) {
-      const escapedContent = content
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/\r\n/g, "\\n")
-        .replace(/\r/g, "\\n")
-        .replace(/\n/g, "\\n");
-      lines.push(
-        `with open('${filename}', 'w') as f:\n    f.write('${escapedContent}')`,
-      );
-    }
-    return lines.join("\n");
-  }, [exercise?.fileSetup]);
+  const fileSetupPreamble = useMemo(
+    () => getFileCreationCode(exercise),
+    [exercise],
+  );
 
   const resetExercise = () => {
     setUserCode(exercise.starterCode);
