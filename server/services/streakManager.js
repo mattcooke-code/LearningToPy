@@ -79,7 +79,7 @@ const trackDailyActivity = async (user, userLocalDateStr) => {
   const localDate = resolveLocalDateKey(userLocalDateStr);
   const todayTime = new Date(localDate + "T00:00:00Z");
 
-  await initializeWeekIfNeeded(user, todayTime, localDate);
+  await initializeWeekIfNeeded(user, localDate);
 
   const streakLastChecked = user.streakLastCheckedDate
     ? dateUtils.startOfUtcDay(user.streakLastCheckedDate)
@@ -110,7 +110,7 @@ const trackCompletion = async (user, userLocalDateStr) => {
   const localDate = resolveLocalDateKey(userLocalDateStr);
   const todayTime = new Date(localDate + "T00:00:00Z");
 
-  await initializeWeekIfNeeded(user, todayTime, localDate);
+  await initializeWeekIfNeeded(user, localDate);
 
   // Guard against counting multiple completions on the same day
   const lastCompletion = user.lastCompletionDate
@@ -126,9 +126,12 @@ const trackCompletion = async (user, userLocalDateStr) => {
   // Local calendar day as UTC midnight (see trackDailyActivity); never moves backwards.
   if (!alreadyCompletedToday) user.lastCompletionDate = todayTime;
 
-  // Recover from both "WARNING" and "AT_RISK" statuses on completion
+  // Meeting the weekly requirement recovers any non-ACTIVE status, including
+  // "RESETTING" (set when a day-7 visit had no completion yet).
   if (
-    (user.streakStatus === "WARNING" || user.streakStatus === "AT_RISK") &&
+    (user.streakStatus === "WARNING" ||
+      user.streakStatus === "AT_RISK" ||
+      user.streakStatus === "RESETTING") &&
     user.weeklyProgress.completionsThisWeek >=
       STREAK_CONFIG.REQUIRED_COMPLETIONS
   ) {
@@ -157,25 +160,22 @@ const trackCompletion = async (user, userLocalDateStr) => {
 
 /**
  * Initialize a new week's tracking data if the current week has ended.
- * Rolls over weeklyProgress and evaluates the previous week's performance
- * (resets streak if requirements weren't met).
+ *
+ * Whenever a stored week exists and starts before the current week, that
+ * week is over: evaluate it (resets the streak if it had no completions)
+ * BEFORE weeklyProgress is replaced with fresh counters. A user with no stored
+ * week (first ever activity) has nothing to evaluate.
  */
-const initializeWeekIfNeeded = async (user, todayTime, userLocalDateStr) => {
+const initializeWeekIfNeeded = async (user, userLocalDateStr) => {
   const weekStart = getWeekStart(userLocalDateStr);
-  const weekStartTime = dateUtils.startOfUtcDay(weekStart);
+  const storedWeekStart = user.weeklyProgress.weekStartDate;
 
   if (
-    !user.weeklyProgress.weekStartDate ||
-    dateUtils.startOfUtcDay(user.weeklyProgress.weekStartDate) < weekStartTime
+    !storedWeekStart ||
+    dateUtils.startOfUtcDay(storedWeekStart) <
+      dateUtils.startOfUtcDay(weekStart)
   ) {
-    const weekEnd = new Date(weekStart);
-    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
-    weekEnd.setUTCHours(23, 59, 59, 999);
-    const weekEndTime = dateUtils.startOfUtcDay(weekEnd);
-
-    if (todayTime > weekEndTime) {
-      await evaluateLastWeek(user);
-    }
+    if (storedWeekStart) await evaluateLastWeek(user);
 
     user.weeklyProgress = {
       weekStartDate: weekStart,
@@ -216,7 +216,7 @@ const handleNewDayOfActivity = async (user, todayTime, userLocalDateStr) => {
 
 /**
  * Update the user's streak counter.
- * Increments if yesterday was active, resets to 1 if a gap occurred.
+ * Increments (and marks ACTIVE) if yesterday was active, resets to 1 if a gap occurred.
  * Consecutive days only — a single missed day breaks the streak.
  *
  */
@@ -236,6 +236,8 @@ const updateStreak = async (user, todayTime) => {
 
   if (diffDays === 1) {
     user.streak += 1;
+    // evaluateLastWeek may have set RESETTING on rollover; a consecutive day restarts cleanly
+    user.streakStatus = "ACTIVE";
   } else if (diffDays > 1) {
     user.streak = 1;
     user.streakStatus = "ACTIVE";
